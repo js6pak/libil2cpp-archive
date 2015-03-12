@@ -596,7 +596,7 @@ REG_ICALL("System.Runtime.InteropServices.Marshal::PtrToStringAnsi(System.IntPtr
 REG_ICALL("System.Runtime.InteropServices.Marshal::PtrToStringBSTR(System.IntPtr)", mscorlib::System::Runtime::InteropServices::Marshal::PtrToStringBSTR)
 REG_ICALL("System.Runtime.InteropServices.Marshal::PtrToStringUni(System.IntPtr)", mscorlib::System::Runtime::InteropServices::Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr)
 REG_ICALL("System.Runtime.InteropServices.Marshal::PtrToStringUni(System.IntPtr,System.Int32)", mscorlib::System::Runtime::InteropServices::Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr_mscorlib_System_Int32)
-REG_ICALL("System.Runtime.InteropServices.Marshal::PtrToStructure(System.IntPtr,System.Object)", mscorlib::System::Runtime::InteropServices::Marshal::PtrToStructure)
+REG_ICALL("System.Runtime.InteropServices.Marshal::PtrToStructure(System.IntPtr,System.Object)", mscorlib::System::Runtime::InteropServices::Marshal::PtrToStructureObject)
 REG_ICALL("System.Runtime.InteropServices.Marshal::PtrToStructure(System.IntPtr,System.Type)", mscorlib::System::Runtime::InteropServices::Marshal::PtrToStructure)
 REG_ICALL("System.Runtime.InteropServices.Marshal::QueryInterfaceInternal(System.IntPtr,System.Guid&,System.IntPtr&)", mscorlib::System::Runtime::InteropServices::Marshal::QueryInterfaceInternal)
 REG_ICALL("System.Runtime.InteropServices.Marshal::ReadByte(System.IntPtr,System.Int32)", mscorlib::System::Runtime::InteropServices::Marshal::ReadByte)

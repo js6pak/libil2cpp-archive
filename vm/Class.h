@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "blob.h"
 #include <vector>
+#include "metadata/Il2CppTypeVector.h"
 
 struct TypeInfo;
 struct FieldInfo;
@@ -13,6 +14,7 @@ struct Il2CppImage;
 struct Il2CppReflectionType;
 struct Il2CppType;
 struct Il2CppDebugTypeInfo;
+struct Il2CppGenericContext;
 struct Il2CppGenericParam;
 
 namespace il2cpp
@@ -79,6 +81,9 @@ public:
 
 	static TypeInfo* GetArrayClass (TypeInfo *element_class, uint32_t rank);
 	static TypeInfo* GetBoundedArrayClass (TypeInfo *element_class, uint32_t rank, bool bounded);
+	static TypeInfo* GetInflatedGenericInstanceClass (TypeInfo* klass, const metadata::Il2CppTypeVector& types);
+	static TypeInfo* InflateGenericClass (TypeInfo* klass, Il2CppGenericContext *context);
+	static const Il2CppType* InflateGenericType (const Il2CppType* type, Il2CppGenericContext *context);
 
 	static TypeInfo* GetArrayClassCached (TypeInfo *element_class, uint32_t rank)
 	{

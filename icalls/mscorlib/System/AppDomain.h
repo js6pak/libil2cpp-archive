@@ -13,7 +13,6 @@ struct Il2CppString;
 struct Il2CppArray;
 struct Il2CppAssembly;
 struct Il2CppAppDomain;
-struct Il2CppAppDomainSetup;
 struct Il2CppReflectionAssembly;
 
 namespace il2cpp
@@ -48,7 +47,7 @@ public:
 	static void SetData (Il2CppAppDomain* self, Il2CppString* name, Il2CppObject* data);
 	static Il2CppAppDomain* createDomain(Il2CppString*, mscorlib_System_AppDomainSetup*);
 	static Il2CppString * getFriendlyName(Il2CppAppDomain* ad);
-	static Il2CppAppDomainSetup* getSetup (Il2CppAppDomain* domain);
+	static Il2CppObject* getSetup (Il2CppAppDomain* domain);
 	static Il2CppArray* GetAssemblies(Il2CppAppDomain* ad, bool refonly);
 };
 
