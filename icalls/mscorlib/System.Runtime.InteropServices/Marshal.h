@@ -52,6 +52,7 @@ public:
 	static Il2CppString* PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr (Il2CppIntPtr ptr);
 	static Il2CppString* PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr_mscorlib_System_Int32 (Il2CppIntPtr ptr, int32_t len);
 	static Il2CppObject* PtrToStructure (Il2CppIntPtr ptr, Il2CppReflectionType * structureType);
+	static void PtrToStructureObject (Il2CppIntPtr ptr, Il2CppObject* structure);
 	static int32_t QueryInterfaceInternal (Il2CppIntPtr pUnk, mscorlib_System_Guid * iid, Il2CppIntPtr* ppv);
 	static Il2CppIntPtr ReAllocCoTaskMem (Il2CppIntPtr ptr, int32_t size);
 	static Il2CppIntPtr ReAllocHGlobal (Il2CppIntPtr ptr, Il2CppIntPtr size);

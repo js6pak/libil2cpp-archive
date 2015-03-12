@@ -46,7 +46,9 @@ public:
 	static Il2CppException* GetThreadStateException ();
 	static Il2CppException* GetSynchronizationLockException (const char* msg);
 	static Il2CppException* GetMissingMethodException(const char* msg);
+	static Il2CppException* GetMarshalDirectiveException(const char* msg);
 	static Il2CppException* GetTargetException(const char* msg);
+	static Il2CppException* GetExecutionEngineException (const char* msg);
 
 	static std::string FormatException(const Il2CppException* ex);
 	static std::string FormatStackTrace(const Il2CppException* ex);
