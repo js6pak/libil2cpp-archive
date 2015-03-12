@@ -121,15 +121,15 @@ inline void RegisterArrays(TypeInfo* (&types)[typeCount])
 }
 
 template <size_t methodCount>
-inline void RegisterGenericInstanceMethodData(Il2CppGenericMethodData (&methods)[methodCount])
+inline void RegisterGenericMethods (Il2CppGenericMethod* (&methods)[methodCount])
 {
-	il2cpp::vm::MetadataCache::RegisterGenericInstanceMethodData(methods, methodCount);
+	il2cpp::vm::MetadataCache::RegisterGenericMethods(methods, methodCount);
 }
 
-template <size_t methodCount>
-inline void RegisterGenericMethodDefinitionData(Il2CppMethodGenericContainerData (&methodData)[methodCount])
+template <size_t instCount>
+inline void RegisterGenericInsts (Il2CppGenericInst* (&instData)[instCount])
 {
-	il2cpp::vm::MetadataCache::RegisterGenericMethodDefinitionData(methodData, methodCount);
+	il2cpp::vm::MetadataCache::RegisterGenericInsts (instData, instCount);
 }
 
 #include "GeneratedCodeGen.h"
@@ -165,6 +165,11 @@ NORETURN static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
 #endif
 }
 
+static Il2CppCodeGenException* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)
+{
+	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetArgumentException(param, msg);
+}
+
 static Il2CppCodeGenException* il2cpp_codegen_get_overflow_exception()
 {
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetOverflowException("Arithmetic operation resulted in an overflow.");
@@ -178,6 +183,11 @@ static Il2CppCodeGenException* il2cpp_codegen_get_not_supported_exception(const 
 static Il2CppCodeGenException* il2cpp_codegen_get_array_type_mismatch_exception()
 {
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetArrayTypeMismatchException();
+}
+
+static Il2CppCodeGenException* il2cpp_codegen_get_marshal_directive_exception(const char* msg)
+{
+	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetMarshalDirectiveException(msg);
 }
 
 // OpCode.IsInst
@@ -405,11 +415,6 @@ inline Il2CppObject* il2cpp_codegen_object_new (TypeInfo *klass)
 inline methodPointerType il2cpp_codegen_resolve_icall (const char* name)
 {
 	return il2cpp::vm::InternalCalls::Resolve (name);
-}
-
-inline int il2cpp_codegen_pinvoke_parameter_size(Il2CppTypeEnum parameter_types[])
-{
-	return il2cpp::vm::PlatformInvoke::SumParameterSize(parameter_types);
 }
 
 template <typename FunctionPointerType>
@@ -653,9 +658,9 @@ static inline void Initobj (TypeInfo* type, void* data)
 #define IL2CPP_RUNTIME_CLASS_INIT(klass) do { if(!(klass)->cctor_initialized) RuntimeInit ((klass)); } while (0)
 
 // generic sharing
-#define IL2CPP_RGCTX_DATA(rgctxVar,index) ((TypeInfo*)rgctxVar[index])
-#define IL2CPP_RGCTX_TYPE(rgctxVar,index) ((Il2CppType*)rgctxVar[index])
-#define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) ((MethodInfo*)rgctxVar[index])
+#define IL2CPP_RGCTX_DATA(rgctxVar,index) (rgctxVar.data[index].klass)
+#define IL2CPP_RGCTX_TYPE(rgctxVar,index) (rgctxVar.data[index].type)
+#define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) (rgctxVar.data[index].method)
 
 inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 {

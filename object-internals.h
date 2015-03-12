@@ -155,6 +155,12 @@ struct Il2CppReflectionMethod {
 	Il2CppReflectionType *reftype;
 };
 
+// System.Reflection.MonoGenericMethod
+struct Il2CppReflectionGenericMethod
+{
+	Il2CppReflectionMethod base;
+};
+
 // System.Reflection.MonoMethodInfo
 struct Il2CppMethodInfo {
 	Il2CppReflectionType *parent;
@@ -381,33 +387,6 @@ struct Il2CppMarshalByRefObject {
 struct Il2CppAppDomain {
 	Il2CppMarshalByRefObject mbr;
 	Il2CppDomain *data;
-};
-
-// System.AppDomainSetup
-struct Il2CppAppDomainSetup {
-	Il2CppObject object;
-	Il2CppString *application_base;
-	Il2CppString *application_name;
-	Il2CppString *cache_path;
-	Il2CppString *configuration_file;
-	Il2CppString *dynamic_base;
-	Il2CppString *license_file;
-	Il2CppString *private_bin_path;
-	Il2CppString *private_bin_path_probe;
-	Il2CppString *shadow_copy_directories;
-	Il2CppString *shadow_copy_files;
-	bool publisher_policy;
-	bool path_changed;
-	int loader_optimization;
-	bool disallow_binding_redirects;
-	bool disallow_code_downloads;
-	Il2CppObject *activation_arguments; /* it is System.Object in 1.x, ActivationArguments in 2.0 */
-	Il2CppObject *domain_initializer;
-	Il2CppObject *application_trust; /* it is System.Object in 1.x, ApplicationTrust in 2.0 */
-	Il2CppArray *domain_initializer_args;
-	bool disallow_appbase_probe;
-	Il2CppArray *configuration_bytes;
-	Il2CppArray *serialized_non_primitives;
 };
 
 // System.Diagnostics.StackFrame

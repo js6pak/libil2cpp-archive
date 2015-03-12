@@ -80,10 +80,18 @@ struct Il2CppGenericContainer {
 
 #define il2cpp_generic_container_get_param(gc, i) ((Il2CppGenericParam *) *((gc)->type_params + (i)))
 
-struct Il2CppGenericClass {
+struct Il2CppGenericClass
+{
 	TypeInfo *container_class;	/* the generic type definition */
 	Il2CppGenericContext context;	/* a context that contains the type instantiation doesn't contain any method instantiation */
 	TypeInfo *cached_class;	/* if present, the TypeInfo corresponding to the instantiation.  */
+};
+
+struct Il2CppGenericMethod
+{
+	MethodInfo* methodDefinition;
+	Il2CppGenericContext context;
+	MethodInfo* cachedMethod;
 };
 
 struct Il2CppType {

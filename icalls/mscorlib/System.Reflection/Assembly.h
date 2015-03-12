@@ -26,7 +26,7 @@ public:
 	static Il2CppReflectionAssembly* GetExecutingAssembly ();
 	static Il2CppReflectionAssembly* GetEntryAssembly ();
 	static Il2CppReflectionAssembly* GetCallingAssembly();
-	static void FillName (mscorlib_System_Reflection_Assembly* ass, mscorlib_System_Reflection_AssemblyName* aname);
+	static void FillName(Il2CppReflectionAssembly* ass, mscorlib_System_Reflection_AssemblyName* aname);
 	static Il2CppObject* GetFilesInternal (Il2CppAssembly* self, Il2CppString* name, bool getResourceModules);
 	static Il2CppReflectionModule* GetManifestModuleInternal (Il2CppAssembly* self);
 	static bool GetManifestResourceInfoInternal (Il2CppAssembly* self, Il2CppString* name, void* /* System.Reflection.ManifestResourceInfo */ info);
