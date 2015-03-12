@@ -11,7 +11,6 @@ struct Il2CppImage;
 struct Il2CppType;
 struct Il2CppGenericContext;
 struct Il2CppGenericContainer;
-struct Il2CppGenericMethodData;
 struct Il2CppMethodGenericContainerData;
 class AssemblyVector;
 

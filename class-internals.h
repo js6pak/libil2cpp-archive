@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "il2cpp-config.h"
 #include <stdint.h>
@@ -10,7 +10,6 @@ struct TypeInfo;
 struct Il2CppImage;
 struct Il2CppAssembly;
 struct Il2CppAppDomain;
-struct Il2CppAppDomainSetup;
 struct Il2CppDelegate;
 
 enum Il2CppTypeNameFormat {
@@ -82,6 +81,8 @@ typedef struct {
 	TypeInfo *executioncontext_class;
 	TypeInfo *internals_visible_class;*/
 	TypeInfo *generic_ilist_class;
+	TypeInfo *generic_icollection_class;
+	TypeInfo *generic_ienumerable_class;
 	TypeInfo *generic_nullable_class;
 	/*TypeInfo *variant_class;
 	TypeInfo *com_object_class;
@@ -178,8 +179,8 @@ struct EventInfo
 struct ParameterInfo
 {
 	const char* name;
-	const int32_t position;
-	const uint32_t token;
+	int32_t position;
+	uint32_t token;
 	CustomAttributesCache* custom_attributes_cache;
 	const Il2CppType* parameter_type;
 };
@@ -228,6 +229,42 @@ struct Il2CppDebugMethodInfo
 };
 #endif
 
+union Il2CppRGCTXData
+{
+	void* rgctxDataDummy;
+	MethodInfo* method;
+	const Il2CppType* type;
+	TypeInfo* klass;
+};
+
+union Il2CppRGCTXDefinitionData
+{
+	void* rgctxDataDummy;
+	Il2CppGenericMethod* method;
+	const Il2CppType* type;
+};
+
+enum Il2CppRGCTXDataType
+{
+	IL2CPP_RGCTX_DATA_INVALID,
+	IL2CPP_RGCTX_DATA_TYPE,
+	IL2CPP_RGCTX_DATA_CLASS,
+	IL2CPP_RGCTX_DATA_METHOD
+};
+
+struct Il2CppRGCTXDefinition
+{
+	Il2CppRGCTXDataType type;
+	Il2CppRGCTXDefinitionData data;
+};
+
+union Il2CppRGCTX
+{
+	void* dummy; // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
+	Il2CppRGCTXData* data;
+	Il2CppRGCTXDefinition* definition;
+};
+
 struct MethodInfo
 {
 	const char* name;
@@ -243,9 +280,17 @@ struct MethodInfo
 	uint8_t parameters_count;
 	bool is_generic; /* true if method is a generic method definition */
 	bool is_inflated; /* true if declaring_type is a generic instance or if method is a generic instance*/
+	/* note, when is_generic == true and is_inflated == true the method represents an uninflated generic method on an inflated type. */
 	uint32_t token;
-	void* *rgctx_data;
+	Il2CppRGCTX rgctx_data;
 	methodPointerType native_delegate_wrapper;
+
+	union
+	{
+		void* genericDummy; /* We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union. */
+		Il2CppGenericMethod* genericMethod; /* is_inflated is true */
+		Il2CppGenericContainer* genericContainer; /* is_inflated is false and is_generic is true */
+	};
 
 #if IL2CPP_DEBUGGER_ENABLED
 	const Il2CppDebugMethodInfo *debug_info;
@@ -286,7 +331,7 @@ struct TypeInfo
 	Il2CppFieldDefaultValueEntry** field_def_values;
 	void* static_fields;
 
-	void* *rgctx_data;
+	Il2CppRGCTX rgctx_data;
 
 	methodPointerType pinvoke_delegate_wrapper;
 	methodPointerType marshal_to_native_func;
@@ -346,13 +391,6 @@ struct Il2CppAssemblyName
 	uint16_t revision;
 };
 
-struct Il2CppGenericMethodData
-{
-	MethodInfo* method;
-	MethodInfo* genericMethod;
-	Il2CppGenericContext* context;
-};
-
 struct Il2CppMethodGenericContainerData
 {
 	MethodInfo* method;
@@ -377,8 +415,8 @@ struct Il2CppAssembly
 
 struct Il2CppDomain
 {
-	Il2CppAppDomain *domain;
-	Il2CppAppDomainSetup *setup;
+	Il2CppAppDomain* domain;
+	Il2CppObject* setup;	// We don't define setup class in native code because it depends on mscorlib profile and we never seen to access its internals anyway
 	const char* friendly_name;
 	uint32_t domain_id;
 };

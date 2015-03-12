@@ -123,6 +123,7 @@
 #endif
 
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
+#define IL2CPP_ENABLE_RUNTIME_METADATA 0
 
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
 	#define ALIGN_OF(T) __alignof__(T)
