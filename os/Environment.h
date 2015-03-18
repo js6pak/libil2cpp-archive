@@ -23,6 +23,7 @@ public:
 	static std::string GetHomeDirectory ();
 	static std::vector<std::string> GetLogicalDrives ();
 	static void Exit(int result);
+	static std::string GetWindowsFolderPath(int32_t folder);
 };
 
 }

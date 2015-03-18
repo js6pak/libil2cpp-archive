@@ -201,6 +201,8 @@ extern "C"
 	IL2CPP_EXPORT Il2CppAssembly* il2cpp_image_get_assembly (Il2CppImage *image);
 	IL2CPP_EXPORT const char* il2cpp_image_get_name (Il2CppImage *image);
 	IL2CPP_EXPORT const char* il2cpp_image_get_filename (const Il2CppImage *image);
+	IL2CPP_EXPORT MethodInfo* il2cpp_image_get_entry_point (const Il2CppImage* image);
+
 
 #if IL2CPP_DEBUGGER_ENABLED
 	// debug
