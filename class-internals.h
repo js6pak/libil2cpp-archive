@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "il2cpp-config.h"
 #include <stdint.h>
@@ -404,6 +404,8 @@ struct Il2CppImage
 
 	TypeInfo** types;
 	size_t typeCount;
+
+	MethodInfo* entryPoint;
 };
 
 struct Il2CppAssembly
