@@ -170,6 +170,11 @@ static Il2CppCodeGenException* il2cpp_codegen_get_argument_exception(const char*
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetArgumentException(param, msg);
 }
 
+static Il2CppCodeGenException* il2cpp_codegen_get_argument_null_exception(const char* param)
+{
+	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetArgumentNullException(param);
+}
+
 static Il2CppCodeGenException* il2cpp_codegen_get_overflow_exception()
 {
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetOverflowException("Arithmetic operation resulted in an overflow.");
@@ -188,6 +193,11 @@ static Il2CppCodeGenException* il2cpp_codegen_get_array_type_mismatch_exception(
 static Il2CppCodeGenException* il2cpp_codegen_get_marshal_directive_exception(const char* msg)
 {
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetMarshalDirectiveException(msg);
+}
+
+static Il2CppCodeGenException* il2cpp_codegen_get_missing_method_exception(const char* msg)
+{
+	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetMissingMethodException(msg);
 }
 
 // OpCode.IsInst
