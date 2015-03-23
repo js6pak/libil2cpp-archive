@@ -5,6 +5,7 @@
 #include <cassert>
 #include <limits>
 #include <string>
+#include <math.h>
 
 #include "il2cpp-api.h"
 #include "object-internals.h"
@@ -21,6 +22,7 @@
 #include "vm/LastError.h"
 #include "vm/MarshalAlloc.h"
 #include "vm/MetadataCache.h"
+#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/PlatformInvoke.h"
 #include "vm/Profiler.h"
@@ -360,6 +362,12 @@ static inline Il2CppCodeGenArray* GenArrayNew3 (TypeInfo* arrayType, uint32_t le
 	return (Il2CppCodeGenArray*)il2cpp::vm::Array::New3 (arrayType, length1, length2, length3);
 }
 
+static inline Il2CppCodeGenArray* GenArrayNew4(TypeInfo* arrayType, uint32_t length1, uint32_t length2, uint32_t length3, uint32_t length4)
+{
+	il2cpp::vm::Class::Init(arrayType);
+	return (Il2CppCodeGenArray*)il2cpp::vm::Array::New4(arrayType, length1, length2, length3, length4);
+}
+
 static inline void* SZArrayLdElema (Il2CppCodeGenArray* arr, uint32_t index)
 {
 	TypeInfo* arrayKlass = arr->_typeInfo;
@@ -396,6 +404,24 @@ static inline uint8_t* GenArrayAddress3 (Il2CppCodeGenArray* a, uint32_t length1
 	do { \
 		*(type*)GenArrayAddress3 (a, length1, length2, length3) = value; \
 	} while (0)
+
+static inline uint8_t* GenArrayAddress4(Il2CppCodeGenArray* a, uint32_t length1, uint32_t length2, uint32_t length3, uint32_t length4)
+{
+	size_t size = a->_typeInfo->element_size;
+	return (((uint8_t*)a) + sizeof(Il2CppCodeGenArray) +
+		a->bounds[1].length * a->bounds[2].length * a->bounds[3].length * size * (length1) +
+		a->bounds[2].length * a->bounds[3].length * size * (length2) +
+		a->bounds[3].length * size * (length3) +
+		size * (length4));
+}
+
+#define GenArrayGet4(a, length1, length2, length3, length4, type) \
+		*(type*)GenArrayAddress4 (a, length1, length2, length3, length4)
+
+#define GenArraySet4(a, length1, length2, length3, length4, value, type) \
+	do { \
+		*(type*)GenArrayAddress4 (a, length1, length2, length3, length4) = value; \
+		} while (0)
 
 #define IL2CPP_ARRAY_BOUNDS_CHECK(a,index) \
 	do { \
@@ -650,12 +676,6 @@ inline void NullCheck (void* this_ptr)
     #endif
 }
 
-static inline void RuntimeInit (TypeInfo* klass)
-{
-	if(!klass->cctor_initialized)
-		il2cpp::vm::Runtime::ClassInit (klass);
-}
-
 static inline void Initobj (TypeInfo* type, void* data)
 {
 	if (type->valuetype)
@@ -664,8 +684,13 @@ static inline void Initobj (TypeInfo* type, void* data)
 		*static_cast<Il2CppObject**> (data) = NULL;
 }
 
+static inline bool MethodIsStatic(MethodInfo* method)
+{
+	return !il2cpp::vm::Method::IsInstance(method);
+}
+
 #define IL2CPP_CLASS_INIT(klass) do {if(!(klass)->initialized) il2cpp_class_init (klass);} while (0)
-#define IL2CPP_RUNTIME_CLASS_INIT(klass) do { if(!(klass)->cctor_initialized) RuntimeInit ((klass)); } while (0)
+#define IL2CPP_RUNTIME_CLASS_INIT(klass) do { if((klass)->has_cctor && !(klass)->cctor_finished) il2cpp::vm::Runtime::ClassInit ((klass)); } while (0)
 
 // generic sharing
 #define IL2CPP_RGCTX_DATA(rgctxVar,index) (rgctxVar.data[index].klass)

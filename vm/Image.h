@@ -23,7 +23,7 @@ class TypeNameParseInfo;
 
 class Image
 {
-// exported 
+// exported
 public:
 	static const Il2CppImage* GetCorlib ();
 

@@ -5,7 +5,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-api-types.h"
 
-extern "C" 
+extern "C"
 {
 	IL2CPP_EXPORT void il2cpp_init (const char* domain_name);
 	IL2CPP_EXPORT void il2cpp_shutdown ();
@@ -31,7 +31,7 @@ extern "C"
 	// assembly
 	IL2CPP_EXPORT const Il2CppImage* il2cpp_assembly_get_image (const Il2CppAssembly *assembly);
 
-	// class 
+	// class
 	IL2CPP_EXPORT const Il2CppType* il2cpp_class_enum_basetype (TypeInfo *klass);
 	IL2CPP_EXPORT bool il2cpp_class_is_generic (const TypeInfo *klass);
 	IL2CPP_EXPORT bool il2cpp_class_is_assignable_from (const TypeInfo *klass, const TypeInfo *oklass);
@@ -135,7 +135,7 @@ extern "C"
 	IL2CPP_EXPORT const char* il2cpp_property_get_name (PropertyInfo *prop);
 	IL2CPP_EXPORT TypeInfo* il2cpp_property_get_parent (PropertyInfo *prop);
 
-	// object 
+	// object
 	IL2CPP_EXPORT TypeInfo* il2cpp_object_get_class(Il2CppObject* obj);
 	IL2CPP_EXPORT uint32_t il2cpp_object_get_size(Il2CppObject* obj);
 	IL2CPP_EXPORT MethodInfo* il2cpp_object_get_virtual_method (Il2CppObject *obj, MethodInfo *method);
