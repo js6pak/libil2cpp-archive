@@ -7,7 +7,7 @@ namespace il2cpp
 namespace metadata
 {
 
-struct Il2CppGenericMethodCompare
+struct Il2CppGenericMethodLess
 {
 	bool operator() (const Il2CppGenericMethod* m1, const Il2CppGenericMethod* m2) const;
 };
