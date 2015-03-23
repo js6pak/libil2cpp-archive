@@ -198,5 +198,5 @@ inline void Atomic::MemoryBarrier ()
 #elif IL2CPP_TARGET_XBOXONE
 #include "os/XboxOne/AtomicImpl.h"
 #else
-#error no implementation
+#include "os/AtomicImpl.h"
 #endif

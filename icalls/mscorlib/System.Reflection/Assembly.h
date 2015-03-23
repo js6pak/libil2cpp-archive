@@ -51,7 +51,7 @@ public:
 	static Il2CppArray* GetTypes(Il2CppReflectionAssembly* __this, bool exportedOnly);
 
 };
-	
+
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

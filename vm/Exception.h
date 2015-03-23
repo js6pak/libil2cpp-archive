@@ -14,7 +14,7 @@ namespace vm
 
 class Exception
 {
-// exported 
+// exported
 public:
 	static void Raise (Il2CppException* ex);
 	static void RaiseOutOfMemoryException ();

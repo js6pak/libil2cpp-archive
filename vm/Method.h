@@ -35,6 +35,7 @@ public:
 	static const char* GetParamName(MethodInfo *method, uint32_t index);
 	static bool IsSameOverloadSignature(const MethodInfo* method1, const MethodInfo* method2);
 	static bool IsSameOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2);
+	static int CompareOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2);
 };
 
 } /* namespace vm */

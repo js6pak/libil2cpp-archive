@@ -54,7 +54,7 @@ public:
 	void QueueUserAPC (APCFunc func);
 
 	/// Interruptible, timed sleep.
-	static void Sleep (uint32_t ms);
+	static void Sleep (uint32_t ms, bool interruptible = false);
 
 	static ThreadId CurrentThreadId ();
 	static Thread* GetCurrentThread ();
