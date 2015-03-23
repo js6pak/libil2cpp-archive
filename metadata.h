@@ -36,7 +36,7 @@ struct Il2CppGenericContext {
 struct Il2CppGenericParam {
 	Il2CppGenericContainer *owner;	/* Type or method this parameter was defined in. */
 	uint16_t num;
-	/* 
+	/*
 	 * If owner is NULL, or owner is 'owned' by this gparam,
 	 * then this is the image whose mempool this struct was allocated from.
 	 * The second case happens for gparams created in

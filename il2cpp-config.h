@@ -192,6 +192,7 @@ typedef void (*methodPointerType)();
 #endif
 
 #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
+#define IL2CPP_HAS_UNORDERED_CONTAINER (!defined(__ARMCC_VERSION))	// could be made platform specific rather than toolchain specific
 
 /* clang specific __has_builtin check */
 #ifndef __has_builtin
@@ -218,7 +219,7 @@ typedef int32_t il2cpp_array_size_t;
 //#endif
 #define PRAGMA_MESSAGE(value)
 
-#if !defined(EMSCRIPTEN) 
+#if !defined(EMSCRIPTEN)
 
 #define NOT_IMPLEMENTED_ICALL(func) \
 	PRAGMA_MESSAGE(ICALLMESSAGE(#func)) \

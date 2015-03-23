@@ -51,7 +51,7 @@ struct Il2CppArray
 	/* bounds is NULL for szarrays */
 	Il2CppArrayBounds *bounds;
 	/* total number of elements of the array */
-	il2cpp_array_size_t max_length; 
+	il2cpp_array_size_t max_length;
 	/* we use double to ensure proper alignment on platforms that need it */
 	double vector [IL2CPP_ZERO_LEN_ARRAY];
 };
@@ -310,7 +310,7 @@ struct Il2CppThread {
 	void* manage_callback;
 	Il2CppException *pending_exception;
 	Il2CppObject *ec_to_set;
-	///* 
+	///*
 	// * These fields are used to avoid having to increment corlib versions
 	// * when a new field is added to the unmanaged MonoThread structure.
 	// */
@@ -367,8 +367,8 @@ struct Il2CppDelegate {
 	Il2CppObject *target;
 	MethodInfo *method;
 	void* delegate_trampoline;
-	/* 
-	 * If non-NULL, this points to a memory location which stores the address of 
+	/*
+	 * If non-NULL, this points to a memory location which stores the address of
 	 * the compiled code of the method, or NULL if it is not yet compiled.
 	 */
 	uint8_t **method_code;
@@ -574,7 +574,7 @@ struct Il2CppExceptionWrapper
 {
 	Il2CppException* ex;
 
-	Il2CppExceptionWrapper (Il2CppException* ex) : ex (ex) {} 
+	Il2CppExceptionWrapper (Il2CppException* ex) : ex (ex) {}
 };
 
 // This struct is used by the ExceptionSupport code generator to make sure that
@@ -626,4 +626,3 @@ struct Il2CppSocketAsyncResult
 	{	\
 		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetArgumentNullException (#arg));	\
 	};	} while (0)
-

@@ -25,6 +25,8 @@ public:
 
 	ThreadImpl ();
 	~ThreadImpl ();
+
+	static void Init ();
 	
 	uint64_t Id ();
 	ErrorCode Run (Thread::StartFunc func, void* arg);
@@ -36,7 +38,7 @@ public:
 	/// NOTE: Can only be called on current thread.
 	void CheckForUserAPCAndHandle ();
 
-	static void Sleep (uint32_t milliseconds);
+	static void Sleep (uint32_t milliseconds, bool interruptible);
 	static uint64_t CurrentThreadId ();
 	static ThreadImpl* GetCurrentThread ();
 	static ThreadImpl* CreateForCurrentThread ();

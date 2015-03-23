@@ -130,12 +130,12 @@ struct CustomAttributesCache
 	CustomAttributesCacheGenerator generator;
 };
 
-/* 
+/*
  * Stores the default value / RVA of fields.
- * This information is rarely needed, so it is stored separately from 
+ * This information is rarely needed, so it is stored separately from
  * FieldInfo.
  */
-struct Il2CppFieldDefaultValue 
+struct Il2CppFieldDefaultValue
 {
 	const char      *data;
 	const Il2CppType* dataType;
@@ -349,7 +349,6 @@ struct TypeInfo
 	bool valuetype;
 	bool is_interface;
 	bool initialized;
-	bool cctor_initialized;
 	bool enumtype;
 	bool is_generic;
 	bool has_references;
@@ -372,6 +371,10 @@ struct TypeInfo
 #if IL2CPP_DEBUGGER_ENABLED
 	const Il2CppDebugTypeInfo *debug_info;
 #endif
+
+    uint32_t cctor_started;
+    uint32_t cctor_finished;
+    ALIGN_TYPE (8) uint64_t cctor_thread;
 };
 
 
