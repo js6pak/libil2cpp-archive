@@ -37,12 +37,12 @@ public:
 	static void ObjectInitException (Il2CppObject* object, Il2CppObject **exc);
 	static void SetUnhandledExceptionPolicy (Il2CppRuntimeUnhandledExceptionPolicy value);
 
-	static bool IsUIntPtr (TypeInfo* klass);
-
 	static VirtualInvokeData GetVirtualInvokeData (MethodInfo* method, void* obj);
 	static VirtualInvokeData GetInterfaceInvokeData (MethodInfo* method, void* obj);
 	static VirtualInvokeData GetGenericVirtualInvokeData (MethodInfo* method, void* obj);
 	static VirtualInvokeData GetGenericInterfaceInvokeData (MethodInfo* method, void* obj);
+
+	static void RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method);
 
 public:
 	// internal
@@ -53,6 +53,8 @@ public:
 #if IL2CPP_SUPPORT_NATIVE_STACKTRACES
 	static void RegisterMethods(const std::vector<MethodInfo*>& managedMethods);
 	static MethodInfo* GetMethodFromNativeSymbol(const methodPointerType nativeMethod);
+
+	static void RegisterRuntimeMethod (MethodInfo* method);
 #endif
 	
 	static const char *GetBundledMachineConfig ();

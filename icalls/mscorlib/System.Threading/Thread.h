@@ -60,6 +60,7 @@ public:
 	static float VolatileReadFloat (volatile void* address);
 	static double VolatileReadDouble (volatile void* address);
 	static void* VolatileReadPtr (volatile void* address);
+	static Il2CppIntPtr VolatileReadIntPtr(volatile void* address);
 	static void VolatileWriteInt8 (volatile void* address, int8_t value);
 	static void VolatileWriteInt16 (volatile void* address, int16_t value);
 	static void VolatileWriteInt32 (volatile void* address, int32_t value);
@@ -67,6 +68,7 @@ public:
 	static void VolatileWriteFloat (volatile void* address, float value);
 	static void VolatileWriteDouble (volatile void* address, double value);
 	static void VolatileWritePtr (volatile void* address, void* value);
+	static void VolatileWriteIntPtr (volatile void* address, Il2CppIntPtr value);
 	static void Thread_free_internal (Il2CppThread* __this, Il2CppIntPtr handle);
 };
 

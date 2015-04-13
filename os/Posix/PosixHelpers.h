@@ -4,7 +4,9 @@
 
 #include <pthread.h>
 #include <time.h>
+#include <sys/poll.h>
 #include "os/Thread.h"
+#include "os/Socket.h"
 
 namespace il2cpp
 {
@@ -36,6 +38,19 @@ struct PosixAutoLock
 	~PosixAutoLock ()
 		{ pthread_mutex_unlock (mutex); }
 };
+	
+
+inline short PollFlagsToPollEvents (PollFlags flags)
+{
+	return (short) flags;
+}
+
+inline PollFlags PollEventsToPollFlags (short events)
+{
+	return (PollFlags) events;
+}
+
+int Poll (pollfd* handles, int numHandles, int timeout);
 
 }
 }

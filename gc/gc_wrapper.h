@@ -16,10 +16,10 @@
 		#define GC_THREADS 1
 	#endif
 
-	#include "gc/gc.h"
-	#include "gc/gc_typed.h"
-	#include "gc/gc_mark.h"
-	#include "gc/gc_gcj.h"
+	#include "gc.h"
+	#include "gc_typed.h"
+	#include "gc_mark.h"
+	#include "gc_gcj.h"
 
 	#define GC_NO_DESCRIPTOR ((void*)(0 | GC_DS_LENGTH))
 

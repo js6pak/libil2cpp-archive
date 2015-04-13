@@ -2,6 +2,7 @@
 
 #if _DEBUG
 #include <map>
+#include "os/Mutex.h"
 #endif
 
 namespace il2cpp
@@ -12,8 +13,8 @@ namespace vm
 class MarshalAlloc
 {
 public:
-	static void* Allocate(int size);
-	static void* ReAlloc(void* ptr, int size);
+	static void* Allocate(size_t size);
+	static void* ReAlloc(void* ptr, size_t size);
 	static void Free(void* ptr);
 
 	static void* AllocateHGlobal(size_t size);
@@ -25,6 +26,7 @@ public:
 	static void ClearAllTrackedAllocations();
 
 private:
+	static os::Mutex s_Mutex; // Use a slow mutex, as this is only necessary in a debug build.
 	static std::map<void*, int> s_Allocations;
 #endif
 

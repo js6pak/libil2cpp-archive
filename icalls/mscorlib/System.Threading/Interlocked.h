@@ -29,6 +29,7 @@ public:
 	static void* CompareExchange_T (void** location, void* value, void* comparand);
 	static int32_t Decrement (int32_t* location);
 	static int64_t Decrement64 (int64_t* location);
+	static Il2CppIntPtr ExchangeIntPtr (Il2CppIntPtr* location, Il2CppIntPtr value);
 	static int32_t Exchange (int32_t* location1, int32_t value);
 	static int64_t Exchange64 (int64_t* location1, int64_t value);
 	static double ExchangeDouble (double* location1, double value);

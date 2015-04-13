@@ -72,7 +72,7 @@ public:
 		if (cppArray == NULL)
 			return NULL;
 
-		Il2CppArray* array = Array::New(type, size);
+		Il2CppArray* array = Array::New(type, (il2cpp_array_size_t)size);
 
 		for (size_t i = 0; i < size; ++i)
 			il2cpp_array_setwithsize(array, sizeof(ElementType), i, cppArray[i]);
@@ -81,7 +81,7 @@ public:
 	}
 
 	template <typename T>
-	static T* MarshalAllocateStringBuffer(int32_t numberOfCharacters)
+	static T* MarshalAllocateStringBuffer(size_t numberOfCharacters)
 	{
 		return (T*)MarshalAlloc::Allocate(numberOfCharacters * sizeof(T));
 	}
