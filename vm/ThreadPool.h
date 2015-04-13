@@ -26,6 +26,7 @@ public:
 	};
 
 	static void Initialize ();
+	static void Shutdown ();
 
 	/// On a thread, call the given delegate with 'params' as arguments. Upon completion,
 	/// call 'asyncCallback'.

@@ -34,17 +34,17 @@ extern "C"
 	// class
 	IL2CPP_EXPORT const Il2CppType* il2cpp_class_enum_basetype (TypeInfo *klass);
 	IL2CPP_EXPORT bool il2cpp_class_is_generic (const TypeInfo *klass);
-	IL2CPP_EXPORT bool il2cpp_class_is_assignable_from (const TypeInfo *klass, const TypeInfo *oklass);
-	IL2CPP_EXPORT bool il2cpp_class_is_subclass_of (const TypeInfo *klass, const TypeInfo *klassc, bool check_interfaces);
+	IL2CPP_EXPORT bool il2cpp_class_is_assignable_from (TypeInfo *klass, TypeInfo *oklass);
+	IL2CPP_EXPORT bool il2cpp_class_is_subclass_of (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_from_il2cpp_type (const Il2CppType* type);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_from_name (const Il2CppImage* image, const char* namespaze, const char *name);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_from_system_type (Il2CppReflectionType *type);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_element_class (TypeInfo *klass);
-	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_fields (const TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_interfaces (const TypeInfo *klass, void* *iter);
+	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_fields (TypeInfo *klass, void* *iter);
+	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_interfaces (TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT PropertyInfo* il2cpp_class_get_properties (const TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT PropertyInfo* il2cpp_class_get_property_from_name (const TypeInfo *klass, const char *name);
-	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_field_from_name (const TypeInfo* klass, const char *name);
+	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_field_from_name (TypeInfo* klass, const char *name);
 	IL2CPP_EXPORT MethodInfo* il2cpp_class_get_methods (const TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT MethodInfo* il2cpp_class_get_method_from_name (TypeInfo *klass, const char* name, int argsCount);
 	IL2CPP_EXPORT const char* il2cpp_class_get_name (TypeInfo *klass);
@@ -67,7 +67,7 @@ extern "C"
 	IL2CPP_EXPORT const char *il2cpp_class_get_assemblyname (const TypeInfo *klass);
 	// testing only
 	IL2CPP_EXPORT size_t il2cpp_class_get_bitmap_size (const TypeInfo *klass);
-	IL2CPP_EXPORT void il2cpp_class_get_bitmap (const TypeInfo *klass, size_t* bitmap);
+	IL2CPP_EXPORT void il2cpp_class_get_bitmap (TypeInfo *klass, size_t* bitmap);
 
 	// domain
 	IL2CPP_EXPORT Il2CppDomain* il2cpp_domain_get ();
@@ -142,7 +142,7 @@ extern "C"
 	IL2CPP_EXPORT Il2CppObject* il2cpp_object_new (const TypeInfo *klass);
 	IL2CPP_EXPORT void* il2cpp_object_unbox (Il2CppObject* obj);
 
-	IL2CPP_EXPORT Il2CppObject* il2cpp_value_box (const TypeInfo *klass, void* data);
+	IL2CPP_EXPORT Il2CppObject* il2cpp_value_box (TypeInfo *klass, void* data);
 
 	// monitor
 	IL2CPP_EXPORT void il2cpp_monitor_enter (Il2CppObject* obj);

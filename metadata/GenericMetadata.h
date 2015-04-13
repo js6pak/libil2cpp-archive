@@ -6,6 +6,9 @@
 struct Il2CppGenericClass;
 struct Il2CppGenericContext;
 struct Il2CppGenericInst;
+struct Il2CppGenericMethod;
+union Il2CppRGCTXData;
+struct Il2CppRGCTXDefinition;
 struct Il2CppType;
 struct MethodInfo;
 struct ParameterInfo;
@@ -20,10 +23,12 @@ class GenericMetadata
 {
 public:
 	static ParameterInfo* InflateParameters (ParameterInfo* parameters, uint8_t parameterCount, Il2CppGenericContext* context, bool inflateMethodVars);
-	static Il2CppGenericInst* GetGenericInst (const Il2CppTypeVector& types);
 	static Il2CppGenericClass* GetGenericClass (TypeInfo* elementClass, Il2CppGenericInst* inst);
 
 	static MethodInfo* Inflate (MethodInfo* methodDefinition, TypeInfo* declaringClass, Il2CppGenericContext* context);
+	static Il2CppGenericMethod* Inflate (const Il2CppGenericMethod* genericMethod, Il2CppGenericContext* context);
+
+	static Il2CppRGCTXData* InflateRGCTX (const Il2CppRGCTXDefinition* definitionData, Il2CppGenericContext* context);
 
 	// temporary while we generate generics
 	static void RegisterGenericClass (Il2CppGenericClass *gclass);

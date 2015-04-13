@@ -33,11 +33,11 @@ public:
 	static TypeInfo* FromGenericParameter (Il2CppGenericParam *param);
 	static TypeInfo* GetElementClass (TypeInfo *klass);
 	static const Il2CppType* GetEnumBaseType (TypeInfo *klass);
-	static FieldInfo* GetFields (const TypeInfo *klass, void* *iter);
-	static FieldInfo* GetFieldFromName (const TypeInfo *klass, const char* name);
+	static FieldInfo* GetFields (TypeInfo *klass, void* *iter);
+	static FieldInfo* GetFieldFromName (TypeInfo *klass, const char* name);
 	static MethodInfo* GetFinalizer (TypeInfo *klass);
 	static int32_t GetInstanceSize (const TypeInfo *klass);
-	static TypeInfo* GetInterfaces (const TypeInfo *klass, void* *iter);
+	static TypeInfo* GetInterfaces (TypeInfo *klass, void* *iter);
 	static MethodInfo* GetMethods (const TypeInfo *klass, void* *iter);
 	static MethodInfo* GetMethodFromName (TypeInfo *klass, const char* name, int argsCount);
 	static MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
@@ -51,9 +51,9 @@ public:
 	static PropertyInfo* GetPropertyFromName (const TypeInfo *klass, const char* name);
 	static int32_t GetValueSize (TypeInfo *klass, uint32_t *align);
 	static bool HasParent (const TypeInfo *klass, const TypeInfo *parent);
-	static bool IsAssignableFrom (const TypeInfo *klass, const TypeInfo *oklass);
+	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);
 	static bool IsGeneric (const TypeInfo *klass);
-	static bool IsSubclassOf (const TypeInfo *klass, const TypeInfo *klassc, bool check_interfaces);
+	static bool IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces);
 	static bool IsValuetype (const TypeInfo *klass);
 	static bool HasDefaultConstructor (const TypeInfo* klass);
 	static int GetFlags (const TypeInfo *klass);
@@ -95,20 +95,16 @@ public:
 	static TypeInfo* GetPtrClass (const Il2CppType* type);
 	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
 	static bool HasReferences (TypeInfo *klass);
+	static void SetupFields (TypeInfo *klass);
 
 	static const std::vector<TypeInfo*>& GetStaticFieldData ();
 
 	static size_t GetBitmapSize (const TypeInfo* klass);
-	static void GetBitmap (const TypeInfo* klass, size_t* bitmap, size_t& maxSetBit);
+	static void GetBitmap (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit);
 
 	static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase);
 
 private:
-	static void InitArrayClass (TypeInfo *klass);
-	static void SetupFields (TypeInfo *klass);
-	static void LayoutFields (TypeInfo *klass);
-
-	static std::vector<TypeInfo*> m_staticFieldData;
 };
 
 } /* namespace vm */

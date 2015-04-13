@@ -8,8 +8,8 @@ namespace os
 class MarshalAlloc
 {
 public:
-	static void* Allocate(int size);
-	static void* ReAlloc(void* ptr, int size);
+	static void* Allocate(size_t size);
+	static void* ReAlloc(void* ptr, size_t size);
 	static void Free(void* ptr);
 };
 

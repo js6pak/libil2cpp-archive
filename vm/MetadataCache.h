@@ -24,11 +24,14 @@ class MetadataCache
 {
 public:
 
-	static void RegisterGenericTypes(TypeInfo** types, size_t typeCount);
+	static void RegisterGenericTypes (Il2CppGenericClass** types, size_t typeCount);
 	static void RegisterSZArrays(TypeInfo** types, size_t typeCount);
 	static void RegisterArrays(TypeInfo** types, size_t typeCount);
 	static void RegisterGenericMethods (Il2CppGenericMethod** methods, size_t methodCount);
 	static void RegisterGenericInsts (Il2CppGenericInst** insts, size_t instCount);
+	static void RegisterMethodTable (Il2CppGenericMethodFunctions* methods, size_t methodCount);
+	static void RegisterMethodPointers (methodPointerType* methods, size_t methodCount);
+	static void RegisterInvokerPointers (InvokerMethod* methods, size_t methodCount);
 
 	static void Initialize(const AssemblyVector& assemblies);
 

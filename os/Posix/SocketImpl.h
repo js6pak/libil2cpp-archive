@@ -22,7 +22,7 @@ class SocketImpl : public il2cpp::utils::NonCopyable
 {
 	
 public:
-	typedef int32_t SocketDescriptor;
+	typedef int SocketDescriptor;
 
 	SocketImpl (ThreadStatusCallback thread_status_callback);
 	~SocketImpl ();

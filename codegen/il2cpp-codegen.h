@@ -13,6 +13,7 @@
 
 #include "utils/RegisterRuntimeInitializeAndCleanup.h"
 
+#include "metadata/GenericMethod.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -32,6 +33,11 @@
 #include "vm/Thread.h"
 
 #define NO_UNUSED_WARNING(expr) (void)(expr)
+#ifdef _MSC_VER
+#define IL2CPP_DEBUG_BREAK() __debugbreak()
+#else
+#define IL2CPP_DEBUG_BREAK()
+#endif
 
 struct ProfilerMethodSentry
 {
@@ -105,7 +111,7 @@ inline void RegisterAssembly(Il2CppAssembly* assembly)
 }
 
 template <size_t typeCount>
-inline void RegisterGenericTypes(TypeInfo* (&types)[typeCount])
+inline void RegisterGenericTypes (Il2CppGenericClass* (&types)[typeCount])
 {
 	il2cpp::vm::MetadataCache::RegisterGenericTypes(types, typeCount);
 }
@@ -134,6 +140,24 @@ inline void RegisterGenericInsts (Il2CppGenericInst* (&instData)[instCount])
 	il2cpp::vm::MetadataCache::RegisterGenericInsts (instData, instCount);
 }
 
+template <size_t methodCount>
+inline void RegisterMethodTable (Il2CppGenericMethodFunctions (&methods)[methodCount])
+{
+	il2cpp::vm::MetadataCache::RegisterMethodTable (methods, methodCount);
+}
+
+template <size_t methodCount>
+inline void RegisterMethodPointers (methodPointerType (&methods)[methodCount])
+{
+	il2cpp::vm::MetadataCache::RegisterMethodPointers (methods, methodCount);
+}
+
+template <size_t methodCount>
+inline void RegisterInvokerPointers (InvokerMethod (&methods)[methodCount])
+{
+	il2cpp::vm::MetadataCache::RegisterInvokerPointers (methods, methodCount);
+}
+
 #include "GeneratedCodeGen.h"
 
 // type registration
@@ -148,15 +172,14 @@ static Il2CppCodeGenString* il2cpp_codegen_string_new_wrapper (const char* str)
 	return (Il2CppCodeGenString*)il2cpp::vm::String::NewWrapper (str);
 }
 
-static Il2CppCodeGenString* il2cpp_codegen_ldstr (const uint16_t* chars, size_t length)
+static Il2CppCodeGenString* il2cpp_codegen_ldstr (const uint16_t* chars, int32_t length)
 {
 	return (Il2CppCodeGenString*)il2cpp::vm::String::Load (chars, length);
 }
 
-static Il2CppCodeGenType* il2cpp_codegen_type_get_object (TypeInfo *type)
+static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type)
 {
-	// TODO: Can we just use the Il2CppType here like we are?
-	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type->byval_arg);
+	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
 }
 
 NORETURN static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
@@ -165,6 +188,11 @@ NORETURN static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
 #if __has_builtin(__builtin_unreachable)
 	__builtin_unreachable();
 #endif
+}
+
+static void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const MethodInfo* method)
+{
+	il2cpp::vm::Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(method);
 }
 
 static Il2CppCodeGenException* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)
@@ -304,6 +332,16 @@ inline TypeInfo* InitializedTypeInfo (TypeInfo* typeInfo)
 	return typeInfo;
 }
 
+inline MethodInfo* il2cpp_codegen_genericmethod_get_method (Il2CppGenericMethod* genericMethod)
+{
+	return il2cpp::metadata::GenericMethod::GetMethod (genericMethod);
+}
+
+static inline TypeInfo* il2cpp_codegen_class_from_type (const Il2CppType *type)
+{
+	return InitializedTypeInfo (il2cpp::vm::Class::FromIl2CppType (type));
+}
+
 inline methodPointerType il2cpp_codegen_resolve_icall (const char* name);
 
 static void* InterlockedCompareExchangeImplRef (void** location, void* value, void* comparand)
@@ -325,15 +363,15 @@ static void* InterlockedExchangeImplRef (void** location, void* value)
 }
 
 template<typename T>
-static inline T* InterlockedCompareExchangeImpl (T** location, T* value, T* comparand)
+static inline T InterlockedCompareExchangeImpl (T* location, T value, T comparand)
 {
-	return (T*)InterlockedCompareExchangeImplRef ((void**)location, value, comparand);
+	return (T)InterlockedCompareExchangeImplRef ((void**)location, value, comparand);
 }
 
 template<typename T>
-static inline T* InterlockedExchangeImpl (T** location, T* value)
+static inline T InterlockedExchangeImpl (T* location, T value)
 {
-	return (T*)InterlockedExchangeImplRef ((void**)location, value);
+	return (T)InterlockedExchangeImplRef ((void**)location, value);
 }
 
 static inline void ArrayGetGenericValueImpl (Il2CppCodeGenArray* __this, int32_t pos, void* value){
@@ -438,7 +476,7 @@ inline int32_t il2cpp_class_interface_offset (const TypeInfo *klass, TypeInfo *i
 	return il2cpp::vm::Class::GetInterfaceOffset (klass, itf);
 }
 
-inline bool il2cpp_codegen_class_is_assignable_from (const TypeInfo *klass, const TypeInfo *oklass)
+inline bool il2cpp_codegen_class_is_assignable_from (TypeInfo *klass, TypeInfo *oklass)
 {
 	return il2cpp::vm::Class::IsAssignableFrom (klass, oklass);
 }
@@ -478,7 +516,7 @@ inline T* il2cpp_codegen_marshal_allocate()
 template <typename T>
 inline T* il2cpp_codegen_marshal_allocate_array(size_t length)
 {
-	return static_cast<T*>(il2cpp::vm::MarshalAlloc::Allocate(sizeof(T) * length));
+	return static_cast<T*>(il2cpp::vm::MarshalAlloc::Allocate((il2cpp_array_size_t)(sizeof(T) * length)));
 }
 
 inline char* il2cpp_codegen_marshal_string(Il2CppCodeGenString* il2CppString)
@@ -569,7 +607,8 @@ inline char** il2cpp_codegen_marshal_string_array(Il2CppCodeGenArray* a)
 	if (a == NULL)
 		return NULL;
 
-	char** nativeArray = il2cpp_codegen_marshal_allocate_array<char*>(a->max_length);
+	// Mono adds a null terminator on the a string array, so we will do the same.
+	char** nativeArray = il2cpp_codegen_marshal_allocate_array<char*>(a->max_length + 1);
 	il2cpp::vm::PlatformInvoke::MarshalStringArray((Il2CppArray*)a, nativeArray);
 	return nativeArray;
 }
@@ -579,7 +618,8 @@ inline uint16_t** il2cpp_codegen_marshal_wstring_array(Il2CppCodeGenArray* a)
 	if (a == NULL)
 		return NULL;
 
-	uint16_t** nativeArray = il2cpp_codegen_marshal_allocate_array<uint16_t*>(a->max_length);
+	// Mono adds a null terminator on the a string array, so we will do the same.
+	uint16_t** nativeArray = il2cpp_codegen_marshal_allocate_array<uint16_t*>(a->max_length + 1);
 	il2cpp::vm::PlatformInvoke::MarshalWStringArray((Il2CppArray*)a, nativeArray);
 	return nativeArray;
 }
