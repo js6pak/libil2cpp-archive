@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
 
 struct MethodInfo;
 struct PropertyInfo;
@@ -19,7 +20,8 @@ class Method
 {
 public:
 	static const Il2CppType* GetReturnType (MethodInfo* method);
-	static const char* GetName (MethodInfo *method);
+	static const char* GetName (const MethodInfo *method);
+	static std::string GetFullName (const MethodInfo* method);
 	static bool IsGeneric (MethodInfo *method);
 	static bool IsInflated (MethodInfo *method);
 	static bool IsInstance (MethodInfo *method);

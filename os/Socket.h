@@ -165,7 +165,8 @@ enum PollFlags
 	kPollFlagsOut	= 4,
 	kPollFlagsErr	= 8,
 	kPollFlagsHup	= 0x10,
-	kPollFlagsNVal	= 0x20
+	kPollFlagsNVal	= 0x20,
+	kPollFlagsAny	= 0xffffffff
 };
 
 enum TransmitFileOptions
@@ -236,6 +237,7 @@ class Socket : public il2cpp::utils::NonCopyable
 public:
 	
 	Socket (ThreadStatusCallback thread_status_callback);
+	~Socket ();
 	
 	// Note: this Create is only used internally
 	WaitStatus Create (int64_t fd, int32_t family, int32_t type, int32_t protocol);
@@ -243,9 +245,6 @@ public:
 
 	bool IsClosed ();
 	void Close ();
-
-	void AddRef ();
-	void Release ();
 
 	int64_t GetDescriptor ();
 	
@@ -307,15 +306,94 @@ public:
 
 private:
 	SocketImpl* m_Socket;
-	volatile uint32_t m_RefCount;
-	
-	friend class SocketImpl;
-
-	// Destroy via refcounting.
-	~Socket ();
 };
 
-typedef Socket* SocketPtr;
+/// Sockets should generally be referenced through SocketHandles for thread-safety.
+/// Handles are stored in a table and can be safely used even when the socket has already
+/// been deleted.
+typedef uint32_t SocketHandle;
+
+enum
+{
+	kInvalidSocketHandle = 0
+};
+
+SocketHandle CreateSocketHandle (Socket* socket);
+Socket* AcquireSocketHandle (SocketHandle handle);
+void ReleaseSocketHandle (SocketHandle handle);
+
+inline SocketHandle PointerToSocketHandle (void* ptr)
+{
+	// Double cast to avoid warnings.
+	return static_cast<SocketHandle> (reinterpret_cast<size_t> (ptr));
+}
+
+/// Helper to automatically acquire and release a Socket within a scope.
+struct SocketHandleWrapper
+{
+	SocketHandleWrapper ()
+		: m_Handle (kInvalidSocketHandle)
+		, m_Socket (NULL) {}
+	SocketHandleWrapper (SocketHandle handle)
+		: m_Handle (handle)
+	{
+		m_Socket = AcquireSocketHandle (handle);
+	}
+	SocketHandleWrapper (const SocketHandleWrapper& other)
+	{
+		m_Handle = other.m_Handle;
+		if (m_Handle != kInvalidSocketHandle)
+			m_Socket = AcquireSocketHandle (m_Handle);
+		else
+			m_Socket = NULL;
+	}
+	~SocketHandleWrapper ()
+	{
+		Release ();
+	}
+
+	void Acquire (SocketHandle handle)
+	{
+		Release ();
+		m_Handle = handle;
+		m_Socket = AcquireSocketHandle (handle);
+	}
+
+	void Release ()
+	{
+		if (m_Socket)
+			ReleaseSocketHandle (m_Handle);
+		m_Socket = NULL;
+		m_Handle = kInvalidSocketHandle;
+	}
+
+	bool IsValid () const
+	{
+		return (m_Socket != NULL);
+	}
+	SocketHandle GetHandle () const
+	{
+		return m_Handle;
+	}
+	Socket* GetSocket () const
+	{
+		return m_Socket;
+	}
+	
+	Socket* operator-> () const
+	{
+		return GetSocket ();
+	}
+	SocketHandleWrapper& operator= (const SocketHandleWrapper& other)
+	{
+		Acquire (other.GetHandle ());
+		return *this;
+	}
+
+private:
+	SocketHandle m_Handle;
+	Socket* m_Socket;
+};
 
 }
 }

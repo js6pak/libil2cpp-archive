@@ -147,6 +147,8 @@ struct Il2CppFieldDefaultValueEntry
 	Il2CppFieldDefaultValue value;
 };
 
+const int THREAD_STATIC_FIELD_OFFSET = -1;
+
 struct FieldInfo
 {
 	const char* name;
@@ -186,6 +188,13 @@ struct ParameterInfo
 };
 
 typedef void* (*InvokerMethod)(MethodInfo*, void*, void**);
+
+struct Il2CppGenericMethodFunctions
+{
+	Il2CppGenericMethod* genericMethod;
+	uint32_t methodPointerIndex;
+	uint32_t invokerMethodPointerIndex;
+};
 
 #if IL2CPP_DEBUGGER_ENABLED
 struct Il2CppDebugDocument
@@ -299,8 +308,43 @@ struct MethodInfo
 
 struct Il2CppInterfaceOffsetPair
 {
+	const Il2CppType* interfaceType;
+	int32_t offset;
+};
+
+struct Il2CppRuntimeInterfaceOffsetPair
+{
 	TypeInfo* interfaceType;
 	int32_t offset;
+};
+
+union Il2CppMethodReference
+{
+	void* dummy;
+	MethodInfo* method;
+	Il2CppGenericMethod* genericMethod;
+};
+
+struct Il2CppTypeDefinitionMetadata
+{
+	const Il2CppType* declaringType;
+	const Il2CppType** nestedTypes;
+	const Il2CppType** implementedInterfaces;
+	const Il2CppInterfaceOffsetPair* interfaceOffsets;
+	const Il2CppType* parent;
+	const Il2CppMethodReference* vtableMethods;
+	const bool* vtableEntryIsGenericMethod;
+	const Il2CppRGCTXDefinition* rgctxDefinition;
+};
+
+struct Il2CppRuntimeMetadata
+{
+	TypeInfo* declaringType;
+	TypeInfo** nestedTypes;
+	TypeInfo** implementedInterfaces;
+	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets;
+	TypeInfo* parent;
+	TypeInfo* castClass;
 };
 
 struct TypeInfo
@@ -313,17 +357,14 @@ struct TypeInfo
 	PropertyInfo** properties;
 	FieldInfo** fields;
 	EventInfo** events;
-	TypeInfo* parent;
-	TypeInfo** nested_types;
-	TypeInfo* nested_in;
 	TypeInfo* element_class;
-	TypeInfo** implemented_interfaces;
 	MethodInfo** vtable;
 	CustomAttributesCache* custom_attributes_cache;
-	TypeInfo* cast_class;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
-	Il2CppInterfaceOffsetPair* interface_offsets;
+
+	const Il2CppTypeDefinitionMetadata* definitionMetadata;
+	Il2CppRuntimeMetadata* runtimeMetadata;
 
 	Il2CppGenericClass *generic_class;
 	Il2CppGenericContainer *generic_container;
@@ -339,6 +380,7 @@ struct TypeInfo
 	methodPointerType marshal_cleanup_func;
 
 	uint32_t instance_size;
+	uint32_t actualSize;
 	uint32_t element_size;
 	int32_t native_size;
 	uint32_t static_fields_size;
@@ -346,8 +388,8 @@ struct TypeInfo
 	int32_t thread_static_fields_offset;
 	uint32_t flags;
 	uint8_t rank;
+	uint8_t minimumAlignment;
 	bool valuetype;
-	bool is_interface;
 	bool initialized;
 	bool enumtype;
 	bool is_generic;
@@ -357,7 +399,6 @@ struct TypeInfo
 	bool has_finalize;
 	bool has_cctor;
 	bool is_blittable;
-	bool is_pinnable;
 
 	uint16_t method_count;
 	uint16_t property_count;

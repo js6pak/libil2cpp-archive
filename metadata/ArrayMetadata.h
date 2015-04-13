@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "os/Mutex.h"
 struct TypeInfo;
 
 namespace il2cpp
@@ -15,7 +16,9 @@ public:
 
 	// temporary while we generate arrays
 	static void RegisterArrayClass (TypeInfo* arrayClass);
-private:
+public:
+	// called as part of Class::Init with lock held
+	static void SetupArrayRuntimeMetadata (TypeInfo* klass, const il2cpp::os::AutoLock& lock);
 };
 
 } /* namespace vm */

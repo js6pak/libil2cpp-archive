@@ -15,7 +15,7 @@ namespace vm
 class Object
 {
 public:
-	static Il2CppObject* Box (const TypeInfo *klass, void* data);
+	static Il2CppObject* Box (TypeInfo *klass, void* data);
 	static TypeInfo* GetClass (Il2CppObject* obj);
 	static int32_t GetHash (Il2CppObject* obj);
 	static uint32_t GetSize (Il2CppObject* obj);
