@@ -108,6 +108,12 @@
 	#error please define your target architecture size
 #endif
 
+#if defined(_MSC_VER)
+#define IL2CPP_CXX_ABI_MSVC 1
+#else
+#define IL2CPP_CXX_ABI_MSVC 0
+#endif
+
 #if IL2CPP_TARGET_WINDOWS
 #define STDCALL __stdcall
 #define CDECL __cdecl
@@ -123,7 +129,6 @@
 #endif
 
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
-#define IL2CPP_ENABLE_RUNTIME_METADATA 0
 
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
 	#define ALIGN_OF(T) __alignof__(T)
@@ -298,3 +303,6 @@ typedef int32_t il2cpp_array_size_t;
 #else
 	#define THROW_SENTINEL(Offset) throw Il2CppFinallySentinel();
 #endif
+
+#define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
+#define IL2CPP_VALIDATE_FIELD_LAYOUT 0

@@ -596,7 +596,7 @@ struct Il2CppSocketAsyncResult
 {
 	Il2CppObject base;
 	Il2CppObject *socket;
-	void* handle;
+	Il2CppIntPtr handle;
 	Il2CppObject *state;
 	Il2CppDelegate *callback;
 	Il2CppWaitHandle *wait_handle;

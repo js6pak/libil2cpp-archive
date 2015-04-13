@@ -26,8 +26,6 @@ public:
 	ThreadImpl ();
 	~ThreadImpl ();
 
-	static void Init ();
-	
 	uint64_t Id ();
 	ErrorCode Run (Thread::StartFunc func, void* arg);
 	void QueueUserAPC (Thread::APCFunc func);
