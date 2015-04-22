@@ -43,7 +43,7 @@ public:
 	static int32_t MonoDebugger_GetMethodToken (void* /* System.Reflection.MethodBase */ method);
 	static Il2CppReflectionMethod* get_EntryPoint (Il2CppAssembly* self);
 	static bool get_ReflectionOnly (Il2CppAssembly* self);
-	static Il2CppString* get_code_base (mscorlib_System_Reflection_Assembly* __this, bool escaped);
+	static Il2CppString* get_code_base(Il2CppReflectionAssembly* assembly, bool escaped);
 	static Il2CppString* get_fullname (Il2CppReflectionAssembly *ass);
 	static bool get_global_assembly_cache (Il2CppAssembly* self);
 	static Il2CppString* get_location (Il2CppReflectionAssembly *assembly);

@@ -33,6 +33,11 @@ public:
 	static inline void* ExchangePointer (void* volatile* dest, void* exchange);
 	static inline int64_t Read64 (volatile int64_t* addr);
 	static inline void MemoryBarrier ();
+	
+	static inline uint32_t Add (volatile uint32_t* location1, uint32_t value)
+	{
+		return static_cast<uint32_t> (Add ((volatile int32_t*) location1, (int32_t) value));
+	}
 
 	template<typename T>
 	static inline T* CompareExchangePointer (T* volatile* dest, T* newValue, T* oldValue)
@@ -44,6 +49,11 @@ public:
 	static inline T* ExchangePointer (T* volatile* dest, T* newValue)
 	{
 		return static_cast<T*> (ExchangePointer ((void**) dest, newValue));
+	}
+	
+	static inline uint64_t Read64 (volatile uint64_t* addr)
+	{
+		return static_cast<uint64_t> (Read64 ((volatile int64_t*) addr));
 	}
 
 	template<typename T>
