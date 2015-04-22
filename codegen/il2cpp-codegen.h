@@ -3,6 +3,7 @@
 #include "il2cpp-config.h"
 
 #include <cassert>
+#include <cstdlib>
 #include <limits>
 #include <string>
 #include <math.h>
@@ -228,6 +229,11 @@ static Il2CppCodeGenException* il2cpp_codegen_get_marshal_directive_exception(co
 static Il2CppCodeGenException* il2cpp_codegen_get_missing_method_exception(const char* msg)
 {
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetMissingMethodException(msg);
+}
+
+static Il2CppCodeGenException* il2cpp_codegen_get_maximum_nested_generics_exception()
+{
+	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetMaxmimumNestedGenericsException();
 }
 
 // OpCode.IsInst
@@ -776,3 +782,19 @@ static inline float roundf(float x)
    return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f);
 }
 #endif
+
+// returns true if overflow occurs
+static inline bool il2cpp_codegen_check_mul_overflow_i64(int64_t a, int64_t b, int64_t imin, int64_t imax)
+{
+	// TODO: use a better algorithm without division
+	uint64_t ua = (uint64_t) llabs(a);
+	uint64_t ub = (uint64_t) llabs(b);
+
+	uint64_t c;
+	if ((a > 0 && b > 0) || (a <= 0 && b <= 0))
+		c = (uint64_t) llabs(imax);
+	else
+		c = (uint64_t) llabs(imin);
+	
+	return ua != 0 && ub > c / ua;
+}
