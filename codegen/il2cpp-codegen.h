@@ -771,7 +771,7 @@ inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, MethodInfo
 #define DEFAULT_CALL
 #endif
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
 static inline double round(double x)
 {
    return x >= 0.0 ? floor(x + 0.5) : ceil(x - 0.5);
@@ -780,6 +780,16 @@ static inline double round(double x)
 static inline float roundf(float x)
 {
    return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f);
+}
+#elif defined(__ARMCC_VERSION)
+static inline double round(double x)
+{
+   return __builtin_round(x);
+}
+
+static inline float roundf(float x)
+{
+   return __builtin_roundf(x);
 }
 #endif
 
