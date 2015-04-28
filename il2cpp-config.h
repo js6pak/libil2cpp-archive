@@ -31,6 +31,8 @@
 	#define IL2CPP_TARGET_JAVASCRIPT 1
 #elif defined(__linux__)
 	#define IL2CPP_TARGET_LINUX 1
+#elif defined(NN_PLATFORM_CTR)
+	#define IL2CPP_TARGET_N3DS 1
 #else
 	#error please define your target platform
 #endif
@@ -72,6 +74,13 @@
 # define IL2CPP_EXPORT __declspec(dllexport)
 #else
 # define IL2CPP_EXPORT __attribute__ ((visibility ("default")))
+#endif
+
+#if defined(__ARMCC_VERSION)
+	#include <assert.h>
+	#include <wchar.h>
+	#include <ctype.h>
+	#define INTPTR_MAX 2147483647
 #endif
 
 #if IL2CPP_TARGET_DARWIN
@@ -122,7 +131,7 @@
 #define CDECL
 #endif
 
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_DARWIN
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_XBOXONE || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
 #else
 #define NORETURN
@@ -161,8 +170,9 @@
 #define IL2CPP_THREADS_PTHREAD (!IL2CPP_THREADS_STD && (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX))
 #define IL2CPP_THREADS_WIN32 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_WINDOWS)
 #define IL2CPP_THREADS_XBOXONE (!IL2CPP_THREADS_STD && IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_THREADS_N3DS (!IL2CPP_THREADS_STD && IL2CPP_TARGET_N3DS)
 
-#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE))
+#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS))
 #error "No thread implementation defined"
 #endif
 
