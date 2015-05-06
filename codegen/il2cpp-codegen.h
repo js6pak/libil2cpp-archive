@@ -808,3 +808,31 @@ static inline bool il2cpp_codegen_check_mul_overflow_i64(int64_t a, int64_t b, i
 	
 	return ua != 0 && ub > c / ua;
 }
+
+// Exception support macros
+#define IL2CPP_LEAVE(Offset, Target) \
+	__leave_target = Offset; \
+	goto Target;
+
+#define IL2CPP_END_FINALLY(Id) \
+	goto __CLEANUP_ ## Id;
+
+#define IL2CPP_CLEANUP(Id) \
+	__CLEANUP_ ## Id:
+
+#define IL2CPP_RETHROW_IF_UNHANDLED(ExcType) \
+	if(__last_unhandled_exception) { \
+		ExcType _tmp_exception_local = __last_unhandled_exception; \
+		__last_unhandled_exception = 0; \
+		il2cpp_codegen_raise_exception(_tmp_exception_local); \
+		}
+
+#define IL2CPP_JUMP_TBL(Offset, Target) \
+	if(__leave_target == Offset) { \
+		__leave_target = 0; \
+		goto Target; \
+		}
+
+#define IL2CPP_END_CLEANUP(Offset, Target) \
+	if(__leave_target == Offset) \
+		goto Target;
