@@ -59,6 +59,7 @@ public:
 	static ThreadId CurrentThreadId ();
 	static Thread* GetCurrentThread ();
 	static Thread* GetOrCreateCurrentThread ();
+	static void DetachCurrentThread ();
 
 	static const uint64_t kInvalidThreadId = 0;
 

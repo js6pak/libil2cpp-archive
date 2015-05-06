@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <functional>
 #include "NonCopyable.h"
 
 namespace il2cpp

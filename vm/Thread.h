@@ -59,6 +59,9 @@ public:
 
 public:
 	// internal
+	static void Initialize ();
+	static void UnInitialize ();
+
 	static void AdjustStaticData ();
 	static int32_t AllocThreadStaticData (int32_t size);
 	static void FreeThreadStaticData (Il2CppThread *thread);
@@ -91,7 +94,6 @@ public:
 
 private:
 	static Il2CppThread* s_MainThread;
-	static std::vector<Il2CppThread*> m_AttachedThreads;
 };
 
 class ThreadAttacher : il2cpp::utils::NonCopyable

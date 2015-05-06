@@ -5,7 +5,7 @@
 
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
 #include <malloc.h>
 #else
 #include <stdlib.h>
@@ -22,10 +22,13 @@
 inline void* operator new (size_t size, int alignment)
 {
 	void* result = NULL;
-	#if IL2CPP_TARGET_WINDOWS
+	#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
 	result = _aligned_malloc (size, alignment);
+	#elif IL2CPP_TARGET_ANDROID
+	result = memalign (alignment, size);
 	#else
-	posix_memalign (&result, size, alignment);
+	if (posix_memalign (&result, size, alignment))
+		result = NULL;
 	#endif
 	if (!result)
 		throw std::bad_alloc ();
