@@ -577,19 +577,6 @@ struct Il2CppExceptionWrapper
 	Il2CppExceptionWrapper (Il2CppException* ex) : ex (ex) {}
 };
 
-// This struct is used by the ExceptionSupport code generator to make sure that
-// finally blocks are properly executed when leaving a try or catch block.
-struct Il2CppFinallySentinel
-{
-	// Not sure we can throw a zero-byte struct on every plaftorm.
-	uint8_t padding;
-
-	Il2CppFinallySentinel () : padding (0)
-	{
-
-	}
-};
-
 /// Corresponds to Mono's internal System.Net.Sockets.Socket.SocketAsyncResult
 /// class. Has no relation to Il2CppAsyncResult.
 struct Il2CppSocketAsyncResult

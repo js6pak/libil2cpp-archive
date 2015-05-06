@@ -104,6 +104,7 @@ public:
 
 	static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase);
 
+	static TypeInfo* GetDeclaringType(TypeInfo* klass);
 private:
 };
 

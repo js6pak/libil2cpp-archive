@@ -2,7 +2,11 @@
 
 UNITY_PLATFORM_BEGIN_NAMESPACE;
 
-#if defined (__x86_64__) || defined (_M_X64)
+#if IL2CPP_TARGET_HAS_EXTENDED_ATOMICS
+
+#	include "os/ExtendedAtomicTypes.h"
+
+#elif defined (__x86_64__) || defined (_M_X64)
 
 #	include <emmintrin.h>
 
