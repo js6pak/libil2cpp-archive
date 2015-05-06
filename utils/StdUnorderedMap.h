@@ -12,6 +12,11 @@ using std::tr1::unordered_map;
 #  include <unordered_map>
 using std::unordered_map;
 # endif
+#elif defined(__ARMCC_VERSION) // no c++11
+#include <map>
+using namespace std;
+#define unordered_map map
+#define NO_UNORDERED_MAP 1
 #elif defined(__GNUC__)
 #  include <tr1/unordered_map>
 using std::tr1::unordered_map;
