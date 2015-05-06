@@ -29,7 +29,7 @@ namespace Diagnostics
 class Debugger
 {
 public:
-	static bool IsAttached_internal ();
+	static bool IsAttached_internal();
 };
 
 } /* namespace Diagnostics */
