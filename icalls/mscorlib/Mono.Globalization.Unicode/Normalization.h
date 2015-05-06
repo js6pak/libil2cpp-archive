@@ -31,7 +31,7 @@ namespace Unicode
 class Normalization
 {
 public:
-	static void load_normalization_resource (Il2CppIntPtr* props, Il2CppIntPtr* mappedChars, Il2CppIntPtr* charMapIndex, Il2CppIntPtr* helperIndex, Il2CppIntPtr* mapIdxToComposite, Il2CppIntPtr* combiningClass);
+	static void load_normalization_resource (Il2CppIntPtr* argProps, Il2CppIntPtr* argMappedChars, Il2CppIntPtr* argCharMapIndex, Il2CppIntPtr* argHelperIndex, Il2CppIntPtr* argMapIdxToComposite, Il2CppIntPtr* argCombiningClass);
 };
 
 } /* namespace Unicode */
