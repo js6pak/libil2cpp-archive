@@ -23,7 +23,7 @@ namespace il2cpp
 {
 	namespace os
 	{
-		class Mutex;
+		class FastMutex;
 		class Thread;
 	}
 }
@@ -296,7 +296,7 @@ struct Il2CppThread {
 	void* suspend_event;
 	void* suspended_event;
 	void* resume_event;
-	il2cpp::os::Mutex* synch_cs;
+	il2cpp::os::FastMutex* synch_cs;
 	uint8_t* serialized_culture_info;
 	uint32_t serialized_culture_info_len;
 	uint8_t* serialized_ui_culture_info;
@@ -606,6 +606,21 @@ struct Il2CppSocketAsyncResult
 	int32_t error;
 	int32_t operation;
 	Il2CppAsyncResult *ares;
+};
+
+enum Il2CppResourceLocation
+{
+	RESOURCE_LOCATION_EMBEDDED = 1,
+	RESOURCE_LOCATION_ANOTHER_ASSEMBLY = 2,
+	RESOURCE_LOCATION_IN_MANIFEST = 4
+};
+
+struct Il2CppManifestResourceInfo
+{
+	Il2CppObject object;
+	Il2CppReflectionAssembly* assembly;
+	Il2CppString* filename;
+	uint32_t location;
 };
 
 #define IL2CPP_CHECK_ARG_NULL(arg)	do {	\

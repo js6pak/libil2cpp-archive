@@ -10,6 +10,7 @@ extern "C"
 	IL2CPP_EXPORT void il2cpp_init (const char* domain_name);
 	IL2CPP_EXPORT void il2cpp_shutdown ();
 	IL2CPP_EXPORT void il2cpp_set_config_dir (const char *config_path);
+	IL2CPP_EXPORT void il2cpp_set_data_dir(const char *data_path);
 	IL2CPP_EXPORT void il2cpp_set_commandline_arguments(int argc, const char* argv[], const char* basedir);
 	IL2CPP_EXPORT const Il2CppImage* il2cpp_get_corlib ();
 	IL2CPP_EXPORT void il2cpp_add_internal_call(const char* name, methodPointerType method);
@@ -92,6 +93,10 @@ extern "C"
 	IL2CPP_EXPORT void il2cpp_field_set_value (Il2CppObject *obj, FieldInfo *field, void *value);
 	IL2CPP_EXPORT void il2cpp_field_static_get_value (FieldInfo *field, void *value);
 	IL2CPP_EXPORT void il2cpp_field_static_set_value (FieldInfo *field, void *value);
+
+	// gc
+	IL2CPP_EXPORT int64_t il2cpp_gc_get_used_size ();
+	IL2CPP_EXPORT int64_t il2cpp_gc_get_heap_size ();
 
 	// gchandle
 	IL2CPP_EXPORT uint32_t il2cpp_gchandle_new (Il2CppObject *obj, bool pinned);
