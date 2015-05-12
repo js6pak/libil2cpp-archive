@@ -4,6 +4,7 @@
 
 struct Il2CppString;
 struct Il2CppAssemblyName;
+struct Il2CppReflectionAssembly;
 struct mscorlib_System_Reflection_Assembly;
 struct mscorlib_System_Reflection_Module;
 struct mscorlib_System_Security_Policy_Evidence;
@@ -29,9 +30,9 @@ public:
 	static void FillName(Il2CppReflectionAssembly* ass, mscorlib_System_Reflection_AssemblyName* aname);
 	static Il2CppObject* GetFilesInternal (Il2CppAssembly* self, Il2CppString* name, bool getResourceModules);
 	static Il2CppReflectionModule* GetManifestModuleInternal (Il2CppAssembly* self);
-	static bool GetManifestResourceInfoInternal (Il2CppAssembly* self, Il2CppString* name, void* /* System.Reflection.ManifestResourceInfo */ info);
-	static Il2CppIntPtr GetManifestResourceInternal (mscorlib_System_Reflection_Assembly* ,Il2CppString* ,int* ,mscorlib_System_Reflection_Module**);
-	static Il2CppArray* GetManifestResourceNames (Il2CppAssembly* self);
+	static bool GetManifestResourceInfoInternal(Il2CppReflectionAssembly* assembly, Il2CppString* name, Il2CppManifestResourceInfo* info);
+	static Il2CppIntPtr GetManifestResourceInternal(Il2CppReflectionAssembly* assembly, Il2CppString* name, int* size, Il2CppReflectionModule** module);
+	static Il2CppArray* GetManifestResourceNames(Il2CppReflectionAssembly* assembly);
 	static Il2CppArray* GetModulesInternal (mscorlib_System_Reflection_Assembly* __this);
 	static Il2CppArray* GetNamespaces (Il2CppAssembly* self);
 	static Il2CppArray* GetReferencedAssemblies (Il2CppAssembly* self);
