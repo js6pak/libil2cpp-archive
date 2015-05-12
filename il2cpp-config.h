@@ -223,6 +223,8 @@ typedef void (*methodPointerType)();
 /* need to figure out where this goes */
 typedef int32_t il2cpp_array_size_t;
 
+typedef uint32_t Il2CppMethodSlot;
+
 /* Debug macros */
 #define STRINGIZE( L )			#L
 #define MAKE_STRING( M, L )		M(L)

@@ -24,9 +24,33 @@ public:
 	void Unlock ();
 
 private:
-	////TODO: we should have an "allows interruption" parameter on the ctor and use critical sections
-	////	for mutexes that don't need interruption support
 	HANDLE m_MutexHandle;
+};
+
+class FastMutexImpl
+{
+public:	
+	FastMutexImpl ()
+	{
+		InitializeCriticalSection (&m_CritialSection);
+	}
+	~FastMutexImpl ()
+	{
+		DeleteCriticalSection (&m_CritialSection);
+	}
+
+	void Lock ()
+	{
+		EnterCriticalSection (&m_CritialSection);
+	}
+
+	void Unlock ()
+	{
+		LeaveCriticalSection (&m_CritialSection);
+	}
+
+private:
+	CRITICAL_SECTION m_CritialSection;
 };
 
 }
