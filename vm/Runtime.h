@@ -27,8 +27,10 @@ public:
 	static void Init (const char* filename, const char *runtime_version);
 	static void Shutdown ();
 	static void SetConfigDir (const char *path);
-	static const char *GetConfigDir ();
-	static const char *GetFrameworkVersion ();
+	static void SetDataDir(const char *path);
+	static const char *GetConfigDir();
+	static const char *GetDataDir();
+	static const char *GetFrameworkVersion();
 	static Il2CppObject* DelegateInvoke (Il2CppDelegate *obj, void **params, Il2CppObject **exc);
 	static Il2CppObject* Invoke (MethodInfo *method, void *obj, void **params, Il2CppObject **exc);
 	static Il2CppObject* InvokeConvertArgs (MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppObject **exc);
@@ -37,8 +39,8 @@ public:
 	static void ObjectInitException (Il2CppObject* object, Il2CppObject **exc);
 	static void SetUnhandledExceptionPolicy (Il2CppRuntimeUnhandledExceptionPolicy value);
 
-	static VirtualInvokeData GetVirtualInvokeData (MethodInfo* method, void* obj);
-	static VirtualInvokeData GetInterfaceInvokeData (MethodInfo* method, void* obj);
+	static VirtualInvokeData GetVirtualInvokeData (Il2CppMethodSlot slot, void* obj);
+	static VirtualInvokeData GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeInfo* declaringInterface, void* obj);
 	static VirtualInvokeData GetGenericVirtualInvokeData (MethodInfo* method, void* obj);
 	static VirtualInvokeData GetGenericInterfaceInvokeData (MethodInfo* method, void* obj);
 
@@ -66,8 +68,8 @@ private:
 
 	static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy;
 	static const char *s_BundledMachineConfig;
-	static char *s_ConfigDir;
-	static char *s_RuntimeVersion;
+	static std::string s_ConfigDir;
+	static std::string s_DataDir;
 	static const char *s_FrameworkVersion;
 };
 

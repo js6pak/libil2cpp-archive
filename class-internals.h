@@ -121,14 +121,15 @@ struct MethodInfo;
 struct FieldInfo;
 struct Il2CppObject;
 
+typedef uint32_t CustomAttributeIndex;
+
 struct CustomAttributesCache
 {
-	typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
-
 	int count;
 	Il2CppObject** attributes;
-	CustomAttributesCacheGenerator generator;
 };
+
+typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
 
 /*
  * Stores the default value / RVA of fields.
@@ -155,7 +156,7 @@ struct FieldInfo
 	const Il2CppType* type;
 	TypeInfo *parent;
 	int32_t offset;	// If offset is -1, then it's thread static
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct PropertyInfo {
@@ -164,7 +165,7 @@ struct PropertyInfo {
 	MethodInfo *get;
 	MethodInfo *set;
 	uint32_t attrs;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct EventInfo
@@ -175,7 +176,7 @@ struct EventInfo
 	MethodInfo* add;
 	MethodInfo* remove;
 	MethodInfo* raise;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct ParameterInfo
@@ -183,7 +184,7 @@ struct ParameterInfo
 	const char* name;
 	int32_t position;
 	uint32_t token;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 	const Il2CppType* parameter_type;
 };
 
@@ -282,7 +283,7 @@ struct MethodInfo
 	const Il2CppType *return_type;
 	InvokerMethod invoker_method;
 	ParameterInfo* parameters;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 	uint16_t flags;
 	uint16_t iflags;
 	uint16_t slot;
@@ -359,7 +360,7 @@ struct TypeInfo
 	EventInfo** events;
 	TypeInfo* element_class;
 	MethodInfo** vtable;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
 
@@ -450,13 +451,20 @@ struct Il2CppImage
 	size_t typeCount;
 
 	MethodInfo* entryPoint;
+
+	// number of custom attributes referenced by the image
+	CustomAttributeIndex customAttributeCount;
+	// per image cache of custom attributes - populated at runtime from customAttributeGenerators
+	CustomAttributesCache** customAttributeCaches;
+	// per image table of custom attribute generator functions
+	const CustomAttributesCacheGenerator* customAttributeGenerators;
 };
 
 struct Il2CppAssembly
 {
 	Il2CppAssemblyName aname;
 	Il2CppImage *image;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct Il2CppDomain
@@ -466,5 +474,3 @@ struct Il2CppDomain
 	const char* friendly_name;
 	uint32_t domain_id;
 };
-
-extern CustomAttributesCache EmptyCustomAttributesCache;

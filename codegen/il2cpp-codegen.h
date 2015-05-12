@@ -739,7 +739,7 @@ static inline bool MethodIsStatic(MethodInfo* method)
 #define IL2CPP_RUNTIME_CLASS_INIT(klass) do { if((klass)->has_cctor && !(klass)->cctor_finished) il2cpp::vm::Runtime::ClassInit ((klass)); } while (0)
 
 // generic sharing
-#define IL2CPP_RGCTX_DATA(rgctxVar,index) (rgctxVar.data[index].klass)
+#define IL2CPP_RGCTX_DATA(rgctxVar,index) (InitializedTypeInfo(rgctxVar.data[index].klass))
 #define IL2CPP_RGCTX_TYPE(rgctxVar,index) (rgctxVar.data[index].type)
 #define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) (rgctxVar.data[index].method)
 
@@ -749,15 +749,15 @@ inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 		il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
 }
 
-inline MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, MethodInfo* method)
+inline MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot)
 {
-	VirtualInvokeData data = il2cpp::vm::Runtime::GetVirtualInvokeData (method, pThis);
+	VirtualInvokeData data = il2cpp::vm::Runtime::GetVirtualInvokeData (slot, pThis);
 	return data.methodInfo;
 }
 
-inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, MethodInfo* method)
+inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot, TypeInfo* declaringInterface)
 {
-	VirtualInvokeData data = il2cpp::vm::Runtime::GetInterfaceInvokeData(method, pThis);
+	VirtualInvokeData data = il2cpp::vm::Runtime::GetInterfaceInvokeData (slot, declaringInterface, pThis);
 	return data.methodInfo;
 }
 

@@ -11,6 +11,7 @@ namespace os
 {
 
 class MutexImpl;
+class FastMutexImpl;
 
 class Mutex : public il2cpp::utils::NonCopyable
 {
@@ -46,6 +47,38 @@ public:
 
 private:
 	Mutex* m_Mutex;
+};
+
+
+/// Lightweight mutex that has no support for interruption or timed waits. Meant for
+/// internal use only.
+class FastMutex
+{
+public:
+	FastMutex ();
+	~FastMutex ();
+
+	void Lock ();
+	void Unlock ();
+
+private:
+	FastMutexImpl* m_Impl;
+};
+
+struct FastAutoLock : public il2cpp::utils::NonCopyable
+{
+	FastAutoLock (FastMutex* mutex)
+		: m_Mutex (mutex)
+	{
+		m_Mutex->Lock ();		
+	}
+	~FastAutoLock ()
+	{
+		m_Mutex->Unlock ();
+	}
+
+private:
+	FastMutex* m_Mutex;
 };
 
 }
