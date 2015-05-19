@@ -26,6 +26,8 @@ public:
 	static void Allocation (Il2CppObject *obj, TypeInfo *klass);
 	static void MethodEnter (MethodInfo *method);
 	static void MethodExit (MethodInfo *method);
+	static void GCEvent (Il2CppGCEvent eventType);
+	static void GCHeapResize (int64_t newSize);
 #endif
 
 	static Il2CppProfileFlags s_profilerEvents;

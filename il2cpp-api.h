@@ -11,7 +11,8 @@ extern "C"
 	IL2CPP_EXPORT void il2cpp_shutdown ();
 	IL2CPP_EXPORT void il2cpp_set_config_dir (const char *config_path);
 	IL2CPP_EXPORT void il2cpp_set_data_dir(const char *data_path);
-	IL2CPP_EXPORT void il2cpp_set_commandline_arguments(int argc, const char* argv[], const char* basedir);
+	IL2CPP_EXPORT void il2cpp_set_commandline_arguments (int argc, const char* argv[], const char* basedir);
+	IL2CPP_EXPORT void il2cpp_set_memory_callbacks (Il2CppMemoryCallbacks* callbacks);
 	IL2CPP_EXPORT const Il2CppImage* il2cpp_get_corlib ();
 	IL2CPP_EXPORT void il2cpp_add_internal_call(const char* name, methodPointerType method);
 	IL2CPP_EXPORT methodPointerType il2cpp_resolve_icall(const char* name);
@@ -187,14 +188,19 @@ extern "C"
 	IL2CPP_EXPORT Il2CppThread *il2cpp_thread_current ();
 	IL2CPP_EXPORT Il2CppThread *il2cpp_thread_attach (Il2CppDomain *domain);
 	IL2CPP_EXPORT void il2cpp_thread_detach (Il2CppThread *thread);
-	IL2CPP_EXPORT void il2cpp_thread_push_frame (Il2CppThread *thread, Il2CppStackFrameInfo info);
-	IL2CPP_EXPORT void il2cpp_thread_pop_frame (Il2CppThread *thread);
-	IL2CPP_EXPORT void il2cpp_thread_walk_frame_stack (Il2CppThread *thread, Il2CppFrameWalkFunc func, void *user_data);
-	IL2CPP_EXPORT Il2CppStackFrameInfo *il2cpp_thread_get_top_frame (Il2CppThread *thread);
-	IL2CPP_EXPORT Il2CppStackFrameInfo *il2cpp_thread_get_frame_at (Il2CppThread *thread, int32_t offset);
+
 	IL2CPP_EXPORT Il2CppThread **il2cpp_thread_get_all_attached_threads (size_t *size);
 	IL2CPP_EXPORT bool il2cpp_is_vm_thread (Il2CppThread *thread);
-	IL2CPP_EXPORT int32_t il2cpp_thread_get_stack_depth (Il2CppThread *thread);
+
+	// stacktrace
+	IL2CPP_EXPORT void il2cpp_current_thread_walk_frame_stack(Il2CppFrameWalkFunc func, void* user_data);
+	IL2CPP_EXPORT void il2cpp_thread_walk_frame_stack(Il2CppThread* thread, Il2CppFrameWalkFunc func, void* user_data);
+	IL2CPP_EXPORT bool il2cpp_current_thread_get_top_frame(Il2CppStackFrameInfo& frame);
+	IL2CPP_EXPORT bool il2cpp_thread_get_top_frame(Il2CppThread* thread, Il2CppStackFrameInfo& frame);
+	IL2CPP_EXPORT bool il2cpp_current_thread_get_frame_at(int32_t offset, Il2CppStackFrameInfo& frame);
+	IL2CPP_EXPORT bool il2cpp_thread_get_frame_at(Il2CppThread* thread, int32_t offset, Il2CppStackFrameInfo& frame);
+	IL2CPP_EXPORT int32_t il2cpp_current_thread_get_stack_depth();
+	IL2CPP_EXPORT int32_t il2cpp_thread_get_stack_depth(Il2CppThread* thread);
 
 	// type
 	IL2CPP_EXPORT Il2CppObject* il2cpp_type_get_object (const Il2CppType *type);
@@ -219,7 +225,7 @@ extern "C"
 	IL2CPP_EXPORT const Il2CppDebugDocument* il2cpp_debug_method_get_document (const Il2CppDebugMethodInfo* info);
 	IL2CPP_EXPORT const int32_t* il2cpp_debug_method_get_offset_table (const Il2CppDebugMethodInfo* info);
 	IL2CPP_EXPORT size_t il2cpp_debug_method_get_code_size (const Il2CppDebugMethodInfo* info);
-	IL2CPP_EXPORT void il2cpp_debug_thread_update_frame_il_offset (Il2CppThread *thread, int32_t il_offset);
+	IL2CPP_EXPORT void il2cpp_debug_update_frame_il_offset(int32_t il_offset);
 	IL2CPP_EXPORT const Il2CppDebugLocalsInfo **il2cpp_debug_method_get_locals_info (const Il2CppDebugMethodInfo* info);
 	IL2CPP_EXPORT const TypeInfo *il2cpp_debug_local_get_type (const Il2CppDebugLocalsInfo *info);
 	IL2CPP_EXPORT const char *il2cpp_debug_local_get_name (const Il2CppDebugLocalsInfo *info);

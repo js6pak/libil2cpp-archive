@@ -27,7 +27,8 @@ public:
 	~Thread();
 
 	typedef void (*StartFunc) (void* arg);
-	typedef void (*APCFunc) ();
+	// Use STDCALL calling convention on Windows, as it will be called back directly from the OS. This is defined as nothing on other platforms.
+	typedef void (STDCALL *APCFunc) (void* context);
 	typedef uint64_t ThreadId;
 
 	/// Initialize thread subsystem. Must be called on main thread.
@@ -51,7 +52,7 @@ public:
 	/// Execute the given function on the thread the next time the thread executes
 	/// an interruptible blocking operation.
 	/// NOTE: The APC is allowed to raise exceptions!
-	void QueueUserAPC (APCFunc func);
+	void QueueUserAPC (APCFunc func, void* context);
 
 	/// Interruptible, timed sleep.
 	static void Sleep (uint32_t ms, bool interruptible = false);
