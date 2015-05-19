@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "il2cpp-config.h"
 #include <stdint.h>
@@ -414,9 +414,9 @@ struct TypeInfo
 	const Il2CppDebugTypeInfo *debug_info;
 #endif
 
-    uint32_t cctor_started;
-    uint32_t cctor_finished;
-    ALIGN_TYPE (8) uint64_t cctor_thread;
+	uint32_t cctor_started;
+	uint32_t cctor_finished;
+	ALIGN_TYPE (8) uint64_t cctor_thread;
 };
 
 
@@ -474,3 +474,33 @@ struct Il2CppDomain
 	const char* friendly_name;
 	uint32_t domain_id;
 };
+
+struct Il2CppCodeRegistration
+{
+	uint32_t methodPointersCount;
+	const methodPointerType* methodPointers;
+	uint32_t invokerPointersCount;
+	const InvokerMethod* invokerPointers;
+};
+
+struct Il2CppMetadataRegistration
+{
+	uint32_t assembliesCount;
+	Il2CppAssembly** assemblies;
+	uint32_t genericClassesCount;
+	Il2CppGenericClass** genericClasses;
+	uint32_t genericMethodsCount;
+	Il2CppGenericMethod** genericMethods;
+	uint32_t genericInstsCount;
+	Il2CppGenericInst** genericInsts;
+	uint32_t genericMethodTableCount;
+	Il2CppGenericMethodFunctions* genericMethodTable;
+	uint32_t typesCount;
+	const Il2CppType** types;
+	uint32_t methodReferencesCount;
+	Il2CppMethodReference* methodReferences;
+};
+
+typedef uint32_t TypeIndex;
+typedef uint32_t MethodIndex;
+typedef uint32_t FieldIndex;
