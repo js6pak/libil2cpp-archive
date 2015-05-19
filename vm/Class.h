@@ -29,6 +29,7 @@ class Class
 public:
 	static TypeInfo* FromIl2CppType (const Il2CppType* type);
 	static TypeInfo* FromName (const Il2CppImage* image, const char* namespaze, const char *name);
+	static TypeInfo* FromNameInitialized (const Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromSystemType (Il2CppReflectionType *type);
 	static TypeInfo* FromGenericParameter (Il2CppGenericParam *param);
 	static TypeInfo* GetElementClass (TypeInfo *klass);
