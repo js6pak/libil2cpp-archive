@@ -24,16 +24,9 @@ class MetadataCache
 {
 public:
 
-	static void RegisterGenericTypes (Il2CppGenericClass** types, size_t typeCount);
-	static void RegisterSZArrays(TypeInfo** types, size_t typeCount);
-	static void RegisterArrays(TypeInfo** types, size_t typeCount);
-	static void RegisterGenericMethods (Il2CppGenericMethod** methods, size_t methodCount);
-	static void RegisterGenericInsts (Il2CppGenericInst** insts, size_t instCount);
-	static void RegisterMethodTable (Il2CppGenericMethodFunctions* methods, size_t methodCount);
-	static void RegisterMethodPointers (methodPointerType* methods, size_t methodCount);
-	static void RegisterInvokerPointers (InvokerMethod* methods, size_t methodCount);
+	static void Register (const Il2CppCodeRegistration * const codeRegistration, const Il2CppMetadataRegistration * const metadataRegistration);
 
-	static void Initialize(const AssemblyVector& assemblies);
+	static void Initialize();
 
 	static TypeInfo* GetGenericInstanceType (TypeInfo* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
 	static MethodInfo* GetGenericInstanceMethod (MethodInfo* genericMethodDefinition, Il2CppGenericContext* context);
@@ -53,6 +46,10 @@ public:
 
 	static InvokerMethod GetInvokerMethodPointer (const MethodInfo* methodDefinition, Il2CppGenericContext* context);
 	static methodPointerType GetMethodPointer (const MethodInfo* methodDefinition, Il2CppGenericContext* context);
+
+	static TypeInfo* GetTypeInfoFromIndex (TypeIndex index);
+	static const Il2CppType* GetIl2CppTypeFromIndex (TypeIndex index);
+	static MethodInfo* GetMethodInfoFromIndex (MethodIndex index);
 };
 
 } // namespace vm

@@ -55,7 +55,7 @@ il2cpp_array_element_size (TypeInfo *ac);
         memcpy(__p, value, elementSize); \
 	    } while (0)
 #define il2cpp_array_addr(array,type,index) ((type*)(void*) il2cpp_array_addr_with_size (array, sizeof (type), index))
-#define il2cpp_array_get(array,type,index) ( *(type*)il2cpp_array_addr ((array), type, (index)) ) 
+#define il2cpp_array_get(array,type,index) ( *(type*)il2cpp_array_addr ((array), type, (index)) )
 #define il2cpp_array_set(array,type,index,value)    \
     do {    \
         type *__p = (type *) il2cpp_array_addr ((array), type, (index));    \
