@@ -318,7 +318,7 @@ struct Il2CppThread {
 	void* unused3;
 	void* unused4;
 	void* unused5;
-	void* stackFrames;
+	void* unused6;
 };
 
 // System.Exception

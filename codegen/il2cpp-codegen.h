@@ -7,6 +7,7 @@
 #include <limits>
 #include <string>
 #include <math.h>
+#include <vector>
 
 #include "il2cpp-api.h"
 #include "object-internals.h"
@@ -30,6 +31,7 @@
 #include "vm/Profiler.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
+#include "vm/Stacktrace.h"
 #include "vm/String.h"
 #include "vm/Thread.h"
 
@@ -69,7 +71,7 @@ struct StackTraceSentry
 		frame_info.il_offset = 0;
 		frame_info.type = FRAME_TYPE_MANAGED;
 #endif
-		il2cpp::vm::Thread::PushFrame (frame_info);
+		il2cpp::vm::StackTrace::PushFrame (frame_info);
 	}
 
 #if IL2CPP_DEBUGGER_ENABLED
@@ -86,13 +88,13 @@ struct StackTraceSentry
 		frame_info.params_count = params_count;
 		frame_info.locals = locals;
 		frame_info.locals_count = locals_count;
-		il2cpp::vm::Thread::PushFrame (frame_info);
+		il2cpp::vm::StackTrace::PushFrame (frame_info);
 	}
 #endif
 
 	~StackTraceSentry()
 	{
-		il2cpp::vm::Thread::PopFrame ();
+		il2cpp::vm::StackTrace::PopFrame ();
 	}
 
 private:
@@ -106,57 +108,9 @@ extern void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
 // Hopefully, we stop including everything in the generated code and know exactly what dependencies we have.
 // Note that all parameter and return types should match the generated types not the runtime types.
 
-inline void RegisterAssembly(Il2CppAssembly* assembly)
+inline void il2cpp_codegen_register (const Il2CppCodeRegistration* const codeRegistration, const Il2CppMetadataRegistration* const metadataRegistration)
 {
-	il2cpp::vm::Assembly::Register (assembly);
-}
-
-template <size_t typeCount>
-inline void RegisterGenericTypes (Il2CppGenericClass* (&types)[typeCount])
-{
-	il2cpp::vm::MetadataCache::RegisterGenericTypes(types, typeCount);
-}
-
-template <size_t typeCount>
-inline void RegisterSZArrays(TypeInfo* (&types)[typeCount])
-{
-	il2cpp::vm::MetadataCache::RegisterSZArrays(types, typeCount);
-}
-
-template <size_t typeCount>
-inline void RegisterArrays(TypeInfo* (&types)[typeCount])
-{
-	il2cpp::vm::MetadataCache::RegisterArrays(types, typeCount);
-}
-
-template <size_t methodCount>
-inline void RegisterGenericMethods (Il2CppGenericMethod* (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterGenericMethods(methods, methodCount);
-}
-
-template <size_t instCount>
-inline void RegisterGenericInsts (Il2CppGenericInst* (&instData)[instCount])
-{
-	il2cpp::vm::MetadataCache::RegisterGenericInsts (instData, instCount);
-}
-
-template <size_t methodCount>
-inline void RegisterMethodTable (Il2CppGenericMethodFunctions (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterMethodTable (methods, methodCount);
-}
-
-template <size_t methodCount>
-inline void RegisterMethodPointers (methodPointerType (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterMethodPointers (methods, methodCount);
-}
-
-template <size_t methodCount>
-inline void RegisterInvokerPointers (InvokerMethod (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterInvokerPointers (methods, methodCount);
+	il2cpp::vm::MetadataCache::Register (codeRegistration, metadataRegistration);
 }
 
 #include "GeneratedCodeGen.h"
@@ -272,8 +226,8 @@ static inline void* UnBox(Il2CppCodeGenObject* obj)
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
 		#if __has_builtin(__builtin_unreachable)
-            __builtin_unreachable();
-        #endif
+			__builtin_unreachable();
+		#endif
 	}
 
 	return il2cpp::vm::Object::Unbox((Il2CppObject*)obj);
@@ -284,8 +238,8 @@ static inline void* UnBox(Il2CppCodeGenObject* obj, TypeInfo* klass)
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
 		#if __has_builtin(__builtin_unreachable)
-            __builtin_unreachable();
-        #endif
+			__builtin_unreachable();
+		#endif
 	}
 
 	Il2CppObject* obj2 = (Il2CppObject*)obj;
@@ -435,9 +389,9 @@ static inline uint8_t* GenArrayAddress2 (Il2CppCodeGenArray* a, uint32_t length1
 static inline uint8_t* GenArrayAddress3 (Il2CppCodeGenArray* a, uint32_t length1, uint32_t length2, uint32_t length3)
 {
 	size_t size = a->_typeInfo->element_size;
-	return (((uint8_t*)a) + sizeof(Il2CppCodeGenArray) + 
-		a->bounds[1].length * a->bounds[2].length * size * (length1) + 
-		a->bounds[2].length * size * (length2) + 
+	return (((uint8_t*)a) + sizeof(Il2CppCodeGenArray) +
+		a->bounds[1].length * a->bounds[2].length * size * (length1) +
+		a->bounds[2].length * size * (length2) +
 		size * (length3));
 }
 
@@ -500,7 +454,7 @@ inline methodPointerType il2cpp_codegen_resolve_icall (const char* name)
 template <typename FunctionPointerType>
 inline FunctionPointerType il2cpp_codegen_resolve_pinvoke(const char* nativeDynamicLibrary, const char* entryPoint, Il2CppCallConvention callingConvention, Il2CppCharSet charSet, int parameterSize, bool isNoMangle)
 {
-	const PInvokeArguments pinvokeArgs = 
+	const PInvokeArguments pinvokeArgs =
 	{
 		nativeDynamicLibrary,
 		entryPoint,
@@ -718,8 +672,8 @@ inline void NullCheck (void* this_ptr)
 
 	il2cpp::vm::Exception::RaiseNullReferenceException ();
 	#if __has_builtin(__builtin_unreachable)
-    	__builtin_unreachable();
-    #endif
+		__builtin_unreachable();
+	#endif
 }
 
 static inline void Initobj (TypeInfo* type, void* data)
@@ -733,6 +687,11 @@ static inline void Initobj (TypeInfo* type, void* data)
 static inline bool MethodIsStatic(MethodInfo* method)
 {
 	return !il2cpp::vm::Method::IsInstance(method);
+}
+
+static inline bool MethodHasParameters(MethodInfo* method)
+{
+	return il2cpp::vm::Method::GetParamCount(method) != 0;
 }
 
 #define IL2CPP_CLASS_INIT(klass) do {if(!(klass)->initialized) il2cpp_class_init (klass);} while (0)
@@ -807,6 +766,32 @@ static inline bool il2cpp_codegen_check_mul_overflow_i64(int64_t a, int64_t b, i
 		c = (uint64_t) llabs(imin);
 	
 	return ua != 0 && ub > c / ua;
+}
+
+static inline void il2cpp_codegen_memory_barrier()
+{
+	il2cpp::vm::Thread::MemoryBarrier();
+}
+
+static inline TypeInfo* il2cpp_codegen_type_info_from_index (TypeIndex index)
+{
+	return il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (index);
+}
+
+static inline const Il2CppType* il2cpp_codegen_type_from_index (TypeIndex index)
+{
+	return il2cpp::vm::MetadataCache::GetIl2CppTypeFromIndex (index);
+}
+
+static inline MethodInfo* il2cpp_codegen_method_info_from_index (MethodIndex index)
+{
+	return il2cpp::vm::MetadataCache::GetMethodInfoFromIndex (index);
+}
+
+static inline FieldInfo* il2cpp_codegen_field_info_from_index (TypeIndex typeIndex, FieldIndex fieldIndex)
+{
+	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (typeIndex);
+	return typeInfo->fields[fieldIndex];
 }
 
 // Exception support macros
