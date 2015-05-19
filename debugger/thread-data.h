@@ -76,7 +76,7 @@ public:
 
 private:
 
-	static void UpdateStackFrame(Il2CppThread* thread, const Il2CppStackFrameInfo *info, void *user_data);
+	static void UpdateStackFrame(const Il2CppStackFrameInfo *info, void *user_data);
 
 	Il2CppThread *_thread;
 	const std::auto_ptr<os::Mutex>_write_sync;

@@ -52,7 +52,7 @@ public:
 	static void UnhandledException (Il2CppObject* exc);
 	static void ClassInit (TypeInfo *klass);
 
-#if IL2CPP_SUPPORT_NATIVE_STACKTRACES
+#if IL2CPP_ENABLE_NATIVE_STACKTRACES
 	static void RegisterMethods(const std::vector<MethodInfo*>& managedMethods);
 	static MethodInfo* GetMethodFromNativeSymbol(const methodPointerType nativeMethod);
 
