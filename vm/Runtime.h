@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <string>
 #include "il2cpp-api-types.h"
 
 struct Il2CppArray;
