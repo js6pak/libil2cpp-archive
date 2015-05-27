@@ -10,7 +10,7 @@ namespace vm
 
 class Profiler
 {
-// exported 
+// exported
 public:
 	static void Install (Il2CppProfiler *prof, Il2CppProfileFunc shutdownCallback);
 	static void SetEvents (Il2CppProfileFlags events);
