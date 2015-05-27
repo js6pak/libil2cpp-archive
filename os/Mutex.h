@@ -70,7 +70,7 @@ struct FastAutoLock : public il2cpp::utils::NonCopyable
 	FastAutoLock (FastMutex* mutex)
 		: m_Mutex (mutex)
 	{
-		m_Mutex->Lock ();		
+		m_Mutex->Lock ();
 	}
 	~FastAutoLock ()
 	{
