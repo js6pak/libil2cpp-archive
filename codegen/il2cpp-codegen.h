@@ -720,7 +720,7 @@ inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, Il2CppMeth
 	return data.methodInfo;
 }
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_COMPILER_MSVC
 #define STDCALL __stdcall
 #define CDECL __cdecl
 #define DEFAULT_CALL STDCALL
@@ -730,7 +730,7 @@ inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, Il2CppMeth
 #define DEFAULT_CALL
 #endif
 
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_COMPILER_MSVC
 static inline double round(double x)
 {
    return x >= 0.0 ? floor(x + 0.5) : ceil(x - 0.5);

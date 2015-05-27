@@ -29,7 +29,7 @@ private:
 
 class FastMutexImpl
 {
-public:	
+public:
 	FastMutexImpl ()
 	{
 		InitializeCriticalSection (&m_CritialSection);
