@@ -87,16 +87,16 @@ struct TypeGetPropertiesCommand : public CustomCommand<TypeGetPropertiesCommand>
 {
 	struct Reply : public CustomReply
 	{
-		std::vector<const PropertyInfo*> properties;
+		std::vector<PropertyInfo*> properties;
 
 		void WriteContentTo(Buffer &out) const
 		{
 			out.WriteInt(properties.size());
 
-			std::vector<const PropertyInfo*>::const_iterator it = properties.begin();
+			std::vector<PropertyInfo*>::const_iterator it = properties.begin();
 			while(it != properties.end())
 			{
-				const PropertyInfo *prop = *it;
+				PropertyInfo *prop = *it;
 				out.WritePropertyId(prop);
 				out.WriteString(prop->name);
 				out.WriteMethodId(prop->get);
@@ -349,7 +349,7 @@ struct TypeGetMethodsCommand : public CustomCommand<TypeGetMethodsCommand>
 {
 	struct Reply : public CustomReply
 	{
-		Property<std::vector<const MethodInfo*> > methods;
+		Property<std::vector<MethodInfo*> > methods;
 
 		void WriteContentTo(Buffer &out) const
 		{
