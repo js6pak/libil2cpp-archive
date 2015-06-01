@@ -19,7 +19,7 @@ public:
 	static TypeInfo* GetClass (Il2CppObject* obj);
 	static int32_t GetHash (Il2CppObject* obj);
 	static uint32_t GetSize (Il2CppObject* obj);
-	static const MethodInfo* GetVirtualMethod (Il2CppObject *obj, const MethodInfo *method);
+	static MethodInfo* GetVirtualMethod (Il2CppObject *obj, MethodInfo *method);
 	static Il2CppObject * IsInst (Il2CppObject *obj, TypeInfo *klass);
 	static Il2CppObject* New (TypeInfo *klass);
 	static void* Unbox (Il2CppObject* obj);
