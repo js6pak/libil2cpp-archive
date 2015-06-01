@@ -35,16 +35,16 @@ class Reflection
 public:
 	static Il2CppReflectionAssembly* GetAssemblyObject (Il2CppAssembly *assembly);
 	static Il2CppReflectionField* GetFieldObject (TypeInfo *klass, FieldInfo *field);
-	static Il2CppReflectionProperty* GetPropertyObject (TypeInfo *klass, PropertyInfo *property);
-	static Il2CppReflectionEvent* GetEventObject(TypeInfo *klass, EventInfo *event);
-	static Il2CppReflectionMethod* GetMethodObject (MethodInfo *method, TypeInfo *refclass);
+	static Il2CppReflectionProperty* GetPropertyObject (TypeInfo *klass, const PropertyInfo *property);
+	static Il2CppReflectionEvent* GetEventObject(TypeInfo *klass, const EventInfo *event);
+	static Il2CppReflectionMethod* GetMethodObject (const MethodInfo *method, TypeInfo *refclass);
 	static Il2CppReflectionModule* GetModuleObject (Il2CppImage *image);
 	static Il2CppReflectionType* GetTypeObject (const Il2CppType *type);
-	static Il2CppArray* GetParamObjects (MethodInfo *method, TypeInfo *refclass);
+	static Il2CppArray* GetParamObjects (const MethodInfo *method, TypeInfo *refclass);
 	static CustomAttributesCache* GetCustomAttrsInfo (Il2CppObject *obj);
 	static CustomAttributesCache* GetCustomAttrsInfo (FieldInfo *field);
 	static CustomAttributesCache* GetCustomAttrsInfo (TypeInfo *klass);
-	static CustomAttributesCache* GetCustomAttrsInfo (MethodInfo *method);
+	static CustomAttributesCache* GetCustomAttrsInfo (const MethodInfo *method);
 
 // internal
 public:
@@ -54,10 +54,10 @@ public:
 
 private:
 	static CustomAttributesCache* GetCustomAttributesCacheFor (TypeInfo *klass);
-	static CustomAttributesCache* GetCustomAttributesCacheFor (MethodInfo *method);
-	static CustomAttributesCache* GetCustomAttributesCacheFor (PropertyInfo *property);
+	static CustomAttributesCache* GetCustomAttributesCacheFor (const MethodInfo *method);
+	static CustomAttributesCache* GetCustomAttributesCacheFor (const PropertyInfo *property);
 	static CustomAttributesCache* GetCustomAttributesCacheFor (FieldInfo *field);
-	static CustomAttributesCache* GetCustomAttributesCacheFor (EventInfo *event);
+	static CustomAttributesCache* GetCustomAttributesCacheFor (const EventInfo *event);
 	static CustomAttributesCache* GetCustomAttributesCacheFor (Il2CppReflectionParameter *param);
 	static CustomAttributesCache* GetCustomAttributesCacheFor (Il2CppAssembly *assembly);
 };
