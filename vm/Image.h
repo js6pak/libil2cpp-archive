@@ -12,7 +12,6 @@ struct Il2CppImage;
 struct Il2CppType;
 struct Il2CppGenericContext;
 struct Il2CppGenericContainer;
-struct Il2CppMethodGenericContainerData;
 class AssemblyVector;
 
 namespace il2cpp
@@ -44,7 +43,7 @@ public:
 	static const char * GetName (Il2CppImage* image);
 	static const char * GetFileName (const Il2CppImage* image);
 	static Il2CppAssembly* GetAssembly(Il2CppImage* image);
-	static MethodInfo* GetEntryPoint(const Il2CppImage* image);
+	static const MethodInfo* GetEntryPoint (const Il2CppImage* image);
 	static Il2CppImage* GetExecutingImage();
 	static Il2CppImage* GetCallingImage();
 	static size_t GetNumTypes(const Il2CppImage* image);

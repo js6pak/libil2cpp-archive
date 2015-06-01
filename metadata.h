@@ -68,7 +68,7 @@ struct Il2CppGenericContainer {
 	union {
 		void* dummy; // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
 		TypeInfo *klass;
-		MethodInfo *method;
+		const MethodInfo *method;
 	} owner;
 	uint32_t type_argc    : 31;
 	/* If true, we're a generic method, otherwise a generic type definition. */
@@ -89,9 +89,9 @@ struct Il2CppGenericClass
 
 struct Il2CppGenericMethod
 {
-	MethodInfo* methodDefinition;
+	const MethodInfo* methodDefinition;
 	Il2CppGenericContext context;
-	MethodInfo* cachedMethod;
+	const MethodInfo* cachedMethod;
 };
 
 struct Il2CppType {

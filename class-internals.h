@@ -162,8 +162,8 @@ struct FieldInfo
 struct PropertyInfo {
 	TypeInfo *parent;
 	const char *name;
-	MethodInfo *get;
-	MethodInfo *set;
+	const MethodInfo *get;
+	const MethodInfo *set;
 	uint32_t attrs;
 	CustomAttributeIndex customAttributeIndex;
 };
@@ -173,9 +173,9 @@ struct EventInfo
 	const char* name;
 	const Il2CppType* eventType;
 	TypeInfo* parent;
-	MethodInfo* add;
-	MethodInfo* remove;
-	MethodInfo* raise;
+	const MethodInfo* add;
+	const MethodInfo* remove;
+	const MethodInfo* raise;
 	CustomAttributeIndex customAttributeIndex;
 };
 
@@ -188,7 +188,7 @@ struct ParameterInfo
 	const Il2CppType* parameter_type;
 };
 
-typedef void* (*InvokerMethod)(MethodInfo*, void*, void**);
+typedef void* (*InvokerMethod)(const MethodInfo*, void*, void**);
 
 struct Il2CppGenericMethodFunctions
 {
@@ -242,7 +242,7 @@ struct Il2CppDebugMethodInfo
 union Il2CppRGCTXData
 {
 	void* rgctxDataDummy;
-	MethodInfo* method;
+	const MethodInfo* method;
 	const Il2CppType* type;
 	TypeInfo* klass;
 };
@@ -282,7 +282,7 @@ struct MethodInfo
 	TypeInfo *declaring_type;
 	const Il2CppType *return_type;
 	InvokerMethod invoker_method;
-	ParameterInfo* parameters;
+	const ParameterInfo* parameters;
 	CustomAttributeIndex customAttributeIndex;
 	uint16_t flags;
 	uint16_t iflags;
@@ -322,7 +322,7 @@ struct Il2CppRuntimeInterfaceOffsetPair
 union Il2CppMethodReference
 {
 	void* dummy;
-	MethodInfo* method;
+	const MethodInfo* method;
 	Il2CppGenericMethod* genericMethod;
 };
 
@@ -354,12 +354,12 @@ struct TypeInfo
 	void* gc_desc;
 	const char* name;
 	const char* namespaze;
-	MethodInfo** methods;
-	PropertyInfo** properties;
+	const MethodInfo** methods;
+	const PropertyInfo** properties;
 	FieldInfo** fields;
-	EventInfo** events;
+	const EventInfo** events;
 	TypeInfo* element_class;
-	MethodInfo** vtable;
+	const MethodInfo** vtable;
 	CustomAttributeIndex customAttributeIndex;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
@@ -436,12 +436,6 @@ struct Il2CppAssemblyName
 	uint16_t revision;
 };
 
-struct Il2CppMethodGenericContainerData
-{
-	MethodInfo* method;
-	Il2CppGenericContainer *generic_container;
-};
-
 struct Il2CppImage
 {
 	const char* name;
@@ -450,7 +444,7 @@ struct Il2CppImage
 	TypeInfo** types;
 	size_t typeCount;
 
-	MethodInfo* entryPoint;
+	const MethodInfo* entryPoint;
 
 	// number of custom attributes referenced by the image
 	CustomAttributeIndex customAttributeCount;
