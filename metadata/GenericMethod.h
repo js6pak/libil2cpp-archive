@@ -18,7 +18,7 @@ public:
 
 public:
 	//internal
-	static MethodInfo* GetMethod (Il2CppGenericMethod* gmethod);
+	static const MethodInfo* GetMethod (Il2CppGenericMethod* gmethod);
 	static Il2CppGenericContext* GetContext (Il2CppGenericMethod* gmethod);
 	static std::string GetFullName (Il2CppGenericMethod* gmethod);
 };
