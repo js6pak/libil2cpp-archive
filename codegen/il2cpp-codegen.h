@@ -44,7 +44,7 @@
 
 struct ProfilerMethodSentry
 {
-	ProfilerMethodSentry(MethodInfo* method) : m_method(method)
+	ProfilerMethodSentry(const MethodInfo* method) : m_method(method)
 	{
 		il2cpp::vm::Profiler::MethodEnter (m_method);
 	}
@@ -55,12 +55,12 @@ struct ProfilerMethodSentry
 	}
 
 private:
-	MethodInfo* m_method;
+	const MethodInfo* m_method;
 };
 
 struct StackTraceSentry
 {
-	StackTraceSentry(MethodInfo* method) : m_method(method)
+	StackTraceSentry(const MethodInfo* method) : m_method(method)
 	{
 		Il2CppStackFrameInfo frame_info;
 
@@ -75,7 +75,7 @@ struct StackTraceSentry
 	}
 
 #if IL2CPP_DEBUGGER_ENABLED
-	StackTraceSentry(MethodInfo* method, void* this_ptr, void **params, int32_t params_count, void **locals, int32_t locals_count) : m_method(method)
+	StackTraceSentry(const MethodInfo* method, void* this_ptr, void **params, int32_t params_count, void **locals, int32_t locals_count) : m_method(method)
 	{
 		Il2CppStackFrameInfo frame_info;
 
@@ -98,7 +98,7 @@ struct StackTraceSentry
 	}
 
 private:
-	MethodInfo* m_method;
+	const MethodInfo* m_method;
 };
 
 // declare extern rather than include "gc/gc-internal.h" until WebGL includes Boehm headers
@@ -280,7 +280,7 @@ static Il2CppCodeGenRuntimeArgumentHandle LoadArgList()
 	return handle;
 }
 
-static Il2CppCodeGenRuntimeMethodHandle LoadMethodToken(void* ptr)
+static Il2CppCodeGenRuntimeMethodHandle LoadMethodToken(const MethodInfo* ptr)
 {
 	Il2CppCodeGenRuntimeMethodHandle handle = { { (void*)ptr } } ;
 	return handle;
@@ -292,7 +292,7 @@ inline TypeInfo* InitializedTypeInfo (TypeInfo* typeInfo)
 	return typeInfo;
 }
 
-inline MethodInfo* il2cpp_codegen_genericmethod_get_method (Il2CppGenericMethod* genericMethod)
+inline const MethodInfo* il2cpp_codegen_genericmethod_get_method (Il2CppGenericMethod* genericMethod)
 {
 	return il2cpp::metadata::GenericMethod::GetMethod (genericMethod);
 }
@@ -684,12 +684,12 @@ static inline void Initobj (TypeInfo* type, void* data)
 		*static_cast<Il2CppObject**> (data) = NULL;
 }
 
-static inline bool MethodIsStatic(MethodInfo* method)
+static inline bool MethodIsStatic(const MethodInfo* method)
 {
 	return !il2cpp::vm::Method::IsInstance(method);
 }
 
-static inline bool MethodHasParameters(MethodInfo* method)
+static inline bool MethodHasParameters(const MethodInfo* method)
 {
 	return il2cpp::vm::Method::GetParamCount(method) != 0;
 }
@@ -708,13 +708,13 @@ inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 		il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
 }
 
-inline MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot)
+inline const MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot)
 {
 	VirtualInvokeData data = il2cpp::vm::Runtime::GetVirtualInvokeData (slot, pThis);
 	return data.methodInfo;
 }
 
-inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot, TypeInfo* declaringInterface)
+inline const MethodInfo* GetInterfaceMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot, TypeInfo* declaringInterface)
 {
 	VirtualInvokeData data = il2cpp::vm::Runtime::GetInterfaceInvokeData (slot, declaringInterface, pThis);
 	return data.methodInfo;
@@ -783,7 +783,7 @@ static inline const Il2CppType* il2cpp_codegen_type_from_index (TypeIndex index)
 	return il2cpp::vm::MetadataCache::GetIl2CppTypeFromIndex (index);
 }
 
-static inline MethodInfo* il2cpp_codegen_method_info_from_index (MethodIndex index)
+static inline const MethodInfo* il2cpp_codegen_method_info_from_index (MethodIndex index)
 {
 	return il2cpp::vm::MetadataCache::GetMethodInfoFromIndex (index);
 }
