@@ -8,20 +8,13 @@ namespace il2cpp
 namespace os
 {
 
-typedef bool(*WalkStackCallback)(methodPointerType frame, void* context);
+// Use std::vector instead of std::stack so we're able to iterate it
+typedef std::vector<methodPointerType> NativeMethodStack;
 
 class StackTrace
 {
 public:
-	enum WalkOrder
-	{
-		kFirstCalledToLastCalled,
-		kLastCalledToFirstCalled
-	};
-
-	// Walks the stack calling callback for each frame in the stack
-	// Stops when callback returns false
-	static void WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder);
+	static NativeMethodStack GetStackTrace ();
 };
 
 }

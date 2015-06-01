@@ -151,7 +151,7 @@ public:
 		return kEventKindBreakpoint;
 	}
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 	Property<uint64_t> il_offset;
 
 protected:
@@ -174,7 +174,7 @@ public:
 		return kEventKindStep;
 	}
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 	Property<uint64_t> il_offset;
 
 protected:
