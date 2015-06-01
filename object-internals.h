@@ -106,7 +106,7 @@ struct Il2CppReflectionMonoEvent
 {
 	Il2CppReflectionEvent event;
 	Il2CppReflectionType* reflectedType;
-	EventInfo* eventInfo;
+	const EventInfo* eventInfo;
 };
 
 // System.Reflection.MonoEventInfo
@@ -144,13 +144,13 @@ struct Il2CppReflectionField {
 struct Il2CppReflectionProperty {
 	Il2CppObject object;
 	TypeInfo *klass;
-	PropertyInfo *property;
+	const PropertyInfo *property;
 };
 
 // System.Reflection.MonoMethod
 struct Il2CppReflectionMethod {
 	Il2CppObject object;
-	MethodInfo *method;
+	const MethodInfo *method;
 	Il2CppString *name;
 	Il2CppReflectionType *reftype;
 };
@@ -363,9 +363,9 @@ struct Il2CppDelegate {
 	/* The compiled code of the target method */
 	methodPointerType method_ptr;
 	/* The invoke code */
-	void* (*invoke_impl)(MethodInfo*, void*, void**);
+	void* (*invoke_impl)(const MethodInfo*, void*, void**);
 	Il2CppObject *target;
-	MethodInfo *method;
+	const MethodInfo *method;
 	void* delegate_trampoline;
 	/*
 	 * If non-NULL, this points to a memory location which stores the address of

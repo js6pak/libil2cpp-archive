@@ -15,11 +15,11 @@ class Property
 {
 public:
 	// exported
-	static uint32_t GetFlags (PropertyInfo* prop);
-	static MethodInfo* GetGetMethod (PropertyInfo* prop);
-	static MethodInfo* GetSetMethod (PropertyInfo* prop);
-	static const char* GetName (PropertyInfo* prop);
-	static TypeInfo* GetParent (PropertyInfo* prop);
+	static uint32_t GetFlags (const PropertyInfo* prop);
+	static const MethodInfo* GetGetMethod (const PropertyInfo* prop);
+	static const MethodInfo* GetSetMethod (const PropertyInfo* prop);
+	static const char* GetName (const PropertyInfo* prop);
+	static TypeInfo* GetParent (const PropertyInfo* prop);
 };
 
 } /* namespace vm */

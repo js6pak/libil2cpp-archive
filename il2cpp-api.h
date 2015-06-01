@@ -44,11 +44,11 @@ extern "C"
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_element_class (TypeInfo *klass);
 	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_fields (TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_interfaces (TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT PropertyInfo* il2cpp_class_get_properties (const TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT PropertyInfo* il2cpp_class_get_property_from_name (const TypeInfo *klass, const char *name);
+	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_properties (const TypeInfo *klass, void* *iter);
+	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_property_from_name (const TypeInfo *klass, const char *name);
 	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_field_from_name (TypeInfo* klass, const char *name);
-	IL2CPP_EXPORT MethodInfo* il2cpp_class_get_methods (const TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT MethodInfo* il2cpp_class_get_method_from_name (TypeInfo *klass, const char* name, int argsCount);
+	IL2CPP_EXPORT const MethodInfo* il2cpp_class_get_methods (const TypeInfo *klass, void* *iter);
+	IL2CPP_EXPORT const MethodInfo* il2cpp_class_get_method_from_name (TypeInfo *klass, const char* name, int argsCount);
 	IL2CPP_EXPORT const char* il2cpp_class_get_name (TypeInfo *klass);
 	IL2CPP_EXPORT const char* il2cpp_class_get_namespace (TypeInfo *klass);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_parent (TypeInfo *klass);
@@ -96,6 +96,7 @@ extern "C"
 	IL2CPP_EXPORT void il2cpp_field_static_set_value (FieldInfo *field, void *value);
 
 	// gc
+	IL2CPP_EXPORT void il2cpp_gc_collect(int maxGenerations);
 	IL2CPP_EXPORT int64_t il2cpp_gc_get_used_size ();
 	IL2CPP_EXPORT int64_t il2cpp_gc_get_heap_size ();
 
@@ -112,20 +113,20 @@ extern "C"
 	IL2CPP_EXPORT void il2cpp_unity_liveness_calculation_from_statics (void* state);
 
 	// method
-	IL2CPP_EXPORT const Il2CppType* il2cpp_method_get_return_type (MethodInfo* method);
-	IL2CPP_EXPORT TypeInfo* il2cpp_method_get_declaring_type (MethodInfo* method);
-	IL2CPP_EXPORT const char* il2cpp_method_get_name (MethodInfo *method);
-	IL2CPP_EXPORT Il2CppReflectionMethod* il2cpp_method_get_object (MethodInfo *method, TypeInfo *refclass);
-	IL2CPP_EXPORT bool il2cpp_method_is_generic (MethodInfo *method);
-	IL2CPP_EXPORT bool il2cpp_method_is_inflated (MethodInfo *method);
-	IL2CPP_EXPORT bool il2cpp_method_is_instance (MethodInfo *method);
-	IL2CPP_EXPORT uint32_t il2cpp_method_get_param_count (MethodInfo *method);
-	IL2CPP_EXPORT const Il2CppType* il2cpp_method_get_param (MethodInfo *method, uint32_t index);
-	IL2CPP_EXPORT TypeInfo* il2cpp_method_get_class (MethodInfo *method);
-	IL2CPP_EXPORT bool il2cpp_method_has_attribute (MethodInfo *method, TypeInfo *attr_class);
+	IL2CPP_EXPORT const Il2CppType* il2cpp_method_get_return_type (const MethodInfo* method);
+	IL2CPP_EXPORT TypeInfo* il2cpp_method_get_declaring_type (const MethodInfo* method);
+	IL2CPP_EXPORT const char* il2cpp_method_get_name (const MethodInfo *method);
+	IL2CPP_EXPORT Il2CppReflectionMethod* il2cpp_method_get_object (const MethodInfo *method, TypeInfo *refclass);
+	IL2CPP_EXPORT bool il2cpp_method_is_generic (const MethodInfo *method);
+	IL2CPP_EXPORT bool il2cpp_method_is_inflated (const MethodInfo *method);
+	IL2CPP_EXPORT bool il2cpp_method_is_instance (const MethodInfo *method);
+	IL2CPP_EXPORT uint32_t il2cpp_method_get_param_count (const MethodInfo *method);
+	IL2CPP_EXPORT const Il2CppType* il2cpp_method_get_param (const MethodInfo *method, uint32_t index);
+	IL2CPP_EXPORT TypeInfo* il2cpp_method_get_class (const MethodInfo *method);
+	IL2CPP_EXPORT bool il2cpp_method_has_attribute (const MethodInfo *method, TypeInfo *attr_class);
 	IL2CPP_EXPORT uint32_t il2cpp_method_get_flags (const MethodInfo *method, uint32_t *iflags);
 	IL2CPP_EXPORT uint32_t il2cpp_method_get_token (const MethodInfo *method);
-	IL2CPP_EXPORT const char *il2cpp_method_get_param_name (MethodInfo *method, uint32_t index);
+	IL2CPP_EXPORT const char *il2cpp_method_get_param_name (const MethodInfo *method, uint32_t index);
 
 	// profiler
 	IL2CPP_EXPORT void il2cpp_profiler_install (Il2CppProfiler *prof, Il2CppProfileFunc shutdown_callback);
@@ -136,15 +137,15 @@ extern "C"
 
 	// property
 	IL2CPP_EXPORT uint32_t il2cpp_property_get_flags (PropertyInfo *prop);
-	IL2CPP_EXPORT MethodInfo* il2cpp_property_get_get_method (PropertyInfo *prop);
-	IL2CPP_EXPORT MethodInfo* il2cpp_property_get_set_method (PropertyInfo *prop);
+	IL2CPP_EXPORT const MethodInfo* il2cpp_property_get_get_method (PropertyInfo *prop);
+	IL2CPP_EXPORT const MethodInfo* il2cpp_property_get_set_method (PropertyInfo *prop);
 	IL2CPP_EXPORT const char* il2cpp_property_get_name (PropertyInfo *prop);
 	IL2CPP_EXPORT TypeInfo* il2cpp_property_get_parent (PropertyInfo *prop);
 
 	// object
 	IL2CPP_EXPORT TypeInfo* il2cpp_object_get_class(Il2CppObject* obj);
 	IL2CPP_EXPORT uint32_t il2cpp_object_get_size(Il2CppObject* obj);
-	IL2CPP_EXPORT MethodInfo* il2cpp_object_get_virtual_method (Il2CppObject *obj, MethodInfo *method);
+	IL2CPP_EXPORT const MethodInfo* il2cpp_object_get_virtual_method (Il2CppObject *obj, const MethodInfo *method);
 	IL2CPP_EXPORT Il2CppObject* il2cpp_object_new (const TypeInfo *klass);
 	IL2CPP_EXPORT void* il2cpp_object_unbox (Il2CppObject* obj);
 
@@ -160,8 +161,8 @@ extern "C"
 	IL2CPP_EXPORT bool il2cpp_monitor_try_wait (Il2CppObject* obj, uint32_t timeout);
 
 	// runtime
-	IL2CPP_EXPORT Il2CppObject* il2cpp_runtime_invoke (MethodInfo *method, void *obj, void **params, Il2CppObject **exc);
-	IL2CPP_EXPORT Il2CppObject* il2cpp_runtime_invoke_convert_args (MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppObject **exc);
+	IL2CPP_EXPORT Il2CppObject* il2cpp_runtime_invoke (const MethodInfo *method, void *obj, void **params, Il2CppObject **exc);
+	IL2CPP_EXPORT Il2CppObject* il2cpp_runtime_invoke_convert_args (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppObject **exc);
 	IL2CPP_EXPORT void il2cpp_runtime_class_init (TypeInfo* klass);
 	IL2CPP_EXPORT void il2cpp_runtime_object_init (Il2CppObject* obj);
 
@@ -200,7 +201,7 @@ extern "C"
 	IL2CPP_EXPORT bool il2cpp_current_thread_get_frame_at(int32_t offset, Il2CppStackFrameInfo& frame);
 	IL2CPP_EXPORT bool il2cpp_thread_get_frame_at(Il2CppThread* thread, int32_t offset, Il2CppStackFrameInfo& frame);
 	IL2CPP_EXPORT int32_t il2cpp_current_thread_get_stack_depth();
-	IL2CPP_EXPORT int32_t il2cpp_thread_get_stack_depth(Il2CppThread* thread);
+	IL2CPP_EXPORT int32_t il2cpp_thread_get_stack_depth (Il2CppThread *thread);
 
 	// type
 	IL2CPP_EXPORT Il2CppObject* il2cpp_type_get_object (const Il2CppType *type);
@@ -212,7 +213,7 @@ extern "C"
 	IL2CPP_EXPORT Il2CppAssembly* il2cpp_image_get_assembly (Il2CppImage *image);
 	IL2CPP_EXPORT const char* il2cpp_image_get_name (Il2CppImage *image);
 	IL2CPP_EXPORT const char* il2cpp_image_get_filename (const Il2CppImage *image);
-	IL2CPP_EXPORT MethodInfo* il2cpp_image_get_entry_point (const Il2CppImage* image);
+	IL2CPP_EXPORT const MethodInfo* il2cpp_image_get_entry_point (const Il2CppImage* image);
 
 
 #if IL2CPP_DEBUGGER_ENABLED

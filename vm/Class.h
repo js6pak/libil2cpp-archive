@@ -36,20 +36,20 @@ public:
 	static const Il2CppType* GetEnumBaseType (TypeInfo *klass);
 	static FieldInfo* GetFields (TypeInfo *klass, void* *iter);
 	static FieldInfo* GetFieldFromName (TypeInfo *klass, const char* name);
-	static MethodInfo* GetFinalizer (TypeInfo *klass);
+	static const MethodInfo* GetFinalizer (TypeInfo *klass);
 	static int32_t GetInstanceSize (const TypeInfo *klass);
 	static TypeInfo* GetInterfaces (TypeInfo *klass, void* *iter);
-	static MethodInfo* GetMethods (const TypeInfo *klass, void* *iter);
-	static MethodInfo* GetMethodFromName (TypeInfo *klass, const char* name, int argsCount);
-	static MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
+	static const MethodInfo* GetMethods (const TypeInfo *klass, void* *iter);
+	static const MethodInfo* GetMethodFromName (TypeInfo *klass, const char* name, int argsCount);
+	static const MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
 	static const char* GetName (TypeInfo *klass);
 	static const char* GetNamespace (TypeInfo *klass);
 	static size_t GetNumMethods(const TypeInfo* klass);
 	static size_t GetNumProperties(const TypeInfo* klass);
 	static size_t GetNumFields(const TypeInfo* klass);
 	static TypeInfo* GetParent(TypeInfo *klass);
-	static PropertyInfo* GetProperties (const TypeInfo *klass, void* *iter);
-	static PropertyInfo* GetPropertyFromName (const TypeInfo *klass, const char* name);
+	static const PropertyInfo* GetProperties (const TypeInfo *klass, void* *iter);
+	static const PropertyInfo* GetPropertyFromName (const TypeInfo *klass, const char* name);
 	static int32_t GetValueSize (TypeInfo *klass, uint32_t *align);
 	static bool HasParent (const TypeInfo *klass, const TypeInfo *parent);
 	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);
@@ -91,7 +91,7 @@ public:
 		return GetArrayClass (element_class, rank);
 	}
 
-	static MethodInfo* GetCCtor (TypeInfo *klass);
+	static const MethodInfo* GetCCtor (TypeInfo *klass);
 	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
 	static TypeInfo* GetPtrClass (const Il2CppType* type);
 	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
