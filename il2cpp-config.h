@@ -1,6 +1,5 @@
 #pragma once
 
-#include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,11 +7,7 @@
 #include <stdint.h>
 
 /* first setup platform defines*/
-#if defined(SN_TARGET_ORBIS)
-	#define IL2CPP_TARGET_ORBIS 1
-	#define _UNICODE 1
-	#define UNICODE 1
-#elif defined(_XBOX)
+#if defined(_XBOX)
 	#define IL2CPP_TARGET_XBOX360 1
 	#define _UNICODE 1
 	#define UNICODE 1
@@ -76,16 +71,7 @@
 #define IL2CPP_TARGET_XBOXONE 0
 #endif
 
-#ifndef IL2CPP_TARGET_N3DS
-#define IL2CPP_TARGET_N3DS 0
-#endif
-
-#ifndef IL2CPP_TARGET_ORBIS
-#define IL2CPP_TARGET_ORBIS 0
-#endif
-
-#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_ORBIS)
-#define IL2CPP_COMPILER_MSVC (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID)
 
 #ifndef IL2CPP_EXCEPTION_DISABLED
 #define IL2CPP_EXCEPTION_DISABLED 0
@@ -93,8 +79,6 @@
 
 #ifdef _MSC_VER
 # include <malloc.h>
-# define IL2CPP_EXPORT __declspec(dllexport)
-#elif IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_ORBIS
 # define IL2CPP_EXPORT __declspec(dllexport)
 #else
 # define IL2CPP_EXPORT __attribute__ ((visibility ("default")))
@@ -147,7 +131,7 @@
 #define IL2CPP_CXX_ABI_MSVC 0
 #endif
 
-#if IL2CPP_COMPILER_MSVC
+#if IL2CPP_TARGET_WINDOWS
 #define STDCALL __stdcall
 #define CDECL __cdecl
 #else
@@ -155,7 +139,7 @@
 #define CDECL
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_XBOXONE || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
 #else
 #define NORETURN
@@ -176,8 +160,6 @@
 	#define FORCE_INLINE inline
 #endif
 
-#define IL2CPP_PAGE_SIZE 4096
-
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \
 	assert ((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
@@ -197,25 +179,13 @@
 #define IL2CPP_THREADS_WIN32 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_WINDOWS)
 #define IL2CPP_THREADS_XBOXONE (!IL2CPP_THREADS_STD && IL2CPP_TARGET_XBOXONE)
 #define IL2CPP_THREADS_N3DS (!IL2CPP_THREADS_STD && IL2CPP_TARGET_N3DS)
-#define IL2CPP_THREADS_ORBIS (!IL2CPP_THREADS_STD && IL2CPP_TARGET_ORBIS)
 
-#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS && !IL2CPP_THREADS_ORBIS))
+#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS))
 #error "No thread implementation defined"
 #endif
 
-#define IL2CPP_ENABLE_STACKTRACES 1
-/* Platforms which use OS specific implementation to extract stracktrace */
-#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS)
-/* Platforms which use stacktrace sentries */
-#define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS)
-
-#if (IL2CPP_ENABLE_STACKTRACES && !IL2CPP_ENABLE_NATIVE_STACKTRACES && !IL2CPP_ENABLE_STACKTRACE_SENTRIES)
-#error "If stacktraces are supported, then either native stack traces must be supported, or usage of stacktrace sentries must be enabled!"
-#endif
-
-#if (IL2CPP_ENABLE_NATIVE_STACKTRACES + IL2CPP_ENABLE_STACKTRACE_SENTRIES) > 1
-#error "Only one type of stacktraces are allowed"
-#endif
+/* Stacktraces supported by calling into native code instead of using stacktrace sentries*/
+#define IL2CPP_SUPPORT_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_POSIX) && !IL2CPP_TARGET_JAVASCRIPT && !IL2CPP_TARGET_ANDROID
 
 /* Profiler */
 #define IL2CPP_ENABLE_PROFILER 1
@@ -252,8 +222,6 @@ typedef void (*methodPointerType)();
 
 /* need to figure out where this goes */
 typedef int32_t il2cpp_array_size_t;
-
-typedef uint32_t Il2CppMethodSlot;
 
 /* Debug macros */
 #define STRINGIZE( L )			#L
@@ -320,7 +288,7 @@ typedef uint32_t Il2CppMethodSlot;
 #define NOT_SUPPORTED_WEBGL(func, reason)
 #endif
 
-#if IL2CPP_COMPILER_MSVC
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
 	#define IL2CPP_DIR_SEPARATOR '\\'	/* backslash */
 #else
 	#define IL2CPP_DIR_SEPARATOR '/'	/* forward slash */
@@ -338,40 +306,19 @@ typedef uint32_t Il2CppMethodSlot;
 	#define IL2CPP_DISABLE_FULL_MESSAGES	1
 #endif
 
-#if IL2CPP_COMPILER_MSVC
+#if IL2CPP_TARGET_WINDOWS
 	#define IL2CPP_USE_GENERIC_SOCKET_IMPL	0
 #else
 	#define IL2CPP_USE_GENERIC_SOCKET_IMPL	(!IL2CPP_TARGET_POSIX || IL2CPP_TARGET_JAVASCRIPT)
 #endif
 
-#define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
-
-#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
+#define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
-#if IL2CPP_COMPILER_MSVC	// Use stub "return false" implementation where it's not implemented
-#define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 1
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE	// Use stub "return false" implementation where it's not implemented
+#define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 1 
 #else
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 0
-#endif
-
-#define Assert(x) do { (void)(x); assert(x); } while (false)
-
-const int32_t kIl2CppInt32Min = INT32_MIN;
-const int32_t kIl2CppInt32Max = INT32_MAX;
-const uint32_t kIl2CppUInt32Max = UINT32_MAX;
-const int64_t kIl2CppInt64Min = INT64_MIN;
-const int64_t kIl2CppInt64Max = INT64_MAX;
-const uint64_t kIl2CppUInt64Max = UINT64_MAX;
-
-#if IL2CPP_SIZEOF_VOID_P == 8
-	const intptr_t kIl2CppIntPtrMin = kIl2CppInt64Min;
-	const intptr_t kIl2CppIntPtrMax = kIl2CppInt64Max;
-	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt64Max;
-#else
-	const intptr_t kIl2CppIntPtrMin = kIl2CppInt32Min;
-	const intptr_t kIl2CppIntPtrMax = kIl2CppInt32Max;
-	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif

@@ -26,7 +26,7 @@ struct MethodGetDeclaringTypeCommand : public CustomCommand<MethodGetDeclaringTy
 
 	CUSTOM_COMMAND(Method, GetDeclaringType);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -56,7 +56,7 @@ struct MethodGetDebugInfoCommand : public CustomCommand<MethodGetDebugInfoComman
 
 	CUSTOM_COMMAND(Method, GetDebugInfo);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -79,7 +79,7 @@ struct MethodGetNameCommand : public CustomCommand<MethodGetNameCommand>
 
 	CUSTOM_COMMAND(Method, GetName);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -116,7 +116,7 @@ struct MethodGetParamInfoCommand : public CustomCommand<MethodGetParamInfoComman
 
 	CUSTOM_COMMAND(Method, GetParamInfo);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -139,7 +139,7 @@ struct MethodGetBodyCommand : public CustomCommand<MethodGetBodyCommand>
 
 	CUSTOM_COMMAND(Method, GetBody);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -174,7 +174,7 @@ struct MethodGetLocalsInfoCommand : public CustomCommand<MethodGetLocalsInfoComm
 
 	CUSTOM_COMMAND(Method, GetLocalsInfo);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -201,7 +201,7 @@ struct MethodGetInfoCommand : public CustomCommand<MethodGetInfoCommand>
 
 	CUSTOM_COMMAND(Method, GetInfo);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -222,7 +222,7 @@ struct MethodResolveTokenCommand : public CustomCommand<MethodResolveTokenComman
 
 	CUSTOM_COMMAND(Method, ResolveToken);
 
-	Property<const MethodInfo*> method;
+	Property<MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{

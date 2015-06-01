@@ -31,7 +31,7 @@ struct MethodInvokeData
 		return_value(NULL)
 	{}
 
-	const MethodInfo* method_to_invoke;
+	MethodInfo* method_to_invoke;
 	Il2CppObject* return_value;
 };
 
@@ -66,8 +66,8 @@ public:
 	bool IsFramesCacheValid();
 	const Il2CppStackFrameInfo *FrameById(int32_t id);
 
-	void SetMethodToInvoke(const MethodInfo* method);
-	const MethodInfo* GetMethodToInvoke () const;
+	void SetMethodToInvoke(MethodInfo* method);
+	MethodInfo* GetMethodToInvoke() const;
 	void ClearMethodToInvoke();
 	void SetReturnValueOfMethodToInvoke(Il2CppObject* return_value);
 	Il2CppObject* GetReturnValueOfMethodToInvoke() const;
@@ -76,7 +76,7 @@ public:
 
 private:
 
-	static void UpdateStackFrame(const Il2CppStackFrameInfo *info, void *user_data);
+	static void UpdateStackFrame(Il2CppThread* thread, const Il2CppStackFrameInfo *info, void *user_data);
 
 	Il2CppThread *_thread;
 	const std::auto_ptr<os::Mutex>_write_sync;

@@ -23,7 +23,7 @@ public:
 	ErrorCode Run (Thread::StartFunc func, void* arg);
 	void SetName (const std::string& name);
 	void SetPriority (ThreadPriority priority);
-	void QueueUserAPC (Thread::APCFunc func, void* context);
+	void QueueUserAPC (Thread::APCFunc func);
 
 	static void Sleep (uint32_t ms, bool interruptible);
 	static uint64_t CurrentThreadId ();

@@ -28,7 +28,7 @@ public:
 
 	uint64_t Id ();
 	ErrorCode Run (Thread::StartFunc func, void* arg);
-	void QueueUserAPC (Thread::APCFunc func, void* context);
+	void QueueUserAPC (Thread::APCFunc func);
 	void SetName (const std::string& name);
 	void SetPriority (ThreadPriority priority);
 
@@ -70,19 +70,8 @@ private:
 	void* m_StartArg;
 
 	/// List of APC requests for this thread.
-	struct APCRequest
-	{
-		Thread::APCFunc callback;
-		void* context;
-
-		APCRequest(Thread::APCFunc callback, void* context) :
-			callback(callback), context(context)
-		{
-		}
-	};
-
 	pthread_mutex_t m_PendingAPCsMutex;
-	std::vector<APCRequest> m_PendingAPCs;
+	std::vector<Thread::APCFunc> m_PendingAPCs;
 
 	/// Set the synchronization object the thread is about to wait on.
 	/// NOTE: This can only be called on the current thread.

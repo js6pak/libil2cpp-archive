@@ -4,9 +4,7 @@ EXPORTS
 il2cpp_init
 il2cpp_shutdown
 il2cpp_set_config_dir
-il2cpp_set_data_dir
 il2cpp_set_commandline_arguments
-il2cpp_set_memory_callbacks
 il2cpp_get_corlib
 il2cpp_add_internal_call
 il2cpp_resolve_icall
@@ -77,10 +75,6 @@ il2cpp_field_set_value
 il2cpp_field_static_get_value
 il2cpp_field_static_set_value
 
-il2cpp_gc_collect
-il2cpp_gc_get_used_size
-il2cpp_gc_get_heap_size
-
 il2cpp_gchandle_new
 il2cpp_gchandle_new_weakref
 il2cpp_gchandle_get_target
@@ -142,5 +136,3 @@ il2cpp_type_get_object
 il2cpp_type_get_type
 il2cpp_type_get_class_or_element_class
 il2cpp_type_get_name
-
-____visualizerHelpersPreventLinkerStripping @65535 NONAME DATA
