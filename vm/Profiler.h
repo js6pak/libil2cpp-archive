@@ -10,7 +10,7 @@ namespace vm
 
 class Profiler
 {
-// exported
+// exported 
 public:
 	static void Install (Il2CppProfiler *prof, Il2CppProfileFunc shutdownCallback);
 	static void SetEvents (Il2CppProfileFlags events);
@@ -24,10 +24,8 @@ public:
 
 #if IL2CPP_ENABLE_PROFILER
 	static void Allocation (Il2CppObject *obj, TypeInfo *klass);
-	static void MethodEnter (const MethodInfo *method);
-	static void MethodExit (const MethodInfo *method);
-	static void GCEvent (Il2CppGCEvent eventType);
-	static void GCHeapResize (int64_t newSize);
+	static void MethodEnter (MethodInfo *method);
+	static void MethodExit (MethodInfo *method);
 #endif
 
 	static Il2CppProfileFlags s_profilerEvents;

@@ -21,10 +21,6 @@ public:
 	static TypeInfo* GetClass (Il2CppGenericClass *gclass);
 	static Il2CppGenericContext* GetContext (Il2CppGenericClass *gclass);
 	static bool IsValueType (Il2CppGenericClass *gclass);
-
-	static void SetupEvents (TypeInfo* genericInstanceType);
-	static void SetupFields (TypeInfo* genericInstanceType);
-	static void SetupProperties (TypeInfo* genericInstanceType);
 };
 
 } /* namespace vm */
