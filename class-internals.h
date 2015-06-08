@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "il2cpp-config.h"
 #include <stdint.h>
@@ -121,14 +121,15 @@ struct MethodInfo;
 struct FieldInfo;
 struct Il2CppObject;
 
+typedef uint32_t CustomAttributeIndex;
+
 struct CustomAttributesCache
 {
-	typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
-
 	int count;
 	Il2CppObject** attributes;
-	CustomAttributesCacheGenerator generator;
 };
+
+typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
 
 /*
  * Stores the default value / RVA of fields.
@@ -155,16 +156,16 @@ struct FieldInfo
 	const Il2CppType* type;
 	TypeInfo *parent;
 	int32_t offset;	// If offset is -1, then it's thread static
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct PropertyInfo {
 	TypeInfo *parent;
 	const char *name;
-	MethodInfo *get;
-	MethodInfo *set;
+	const MethodInfo *get;
+	const MethodInfo *set;
 	uint32_t attrs;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct EventInfo
@@ -172,10 +173,10 @@ struct EventInfo
 	const char* name;
 	const Il2CppType* eventType;
 	TypeInfo* parent;
-	MethodInfo* add;
-	MethodInfo* remove;
-	MethodInfo* raise;
-	CustomAttributesCache* custom_attributes_cache;
+	const MethodInfo* add;
+	const MethodInfo* remove;
+	const MethodInfo* raise;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct ParameterInfo
@@ -183,11 +184,11 @@ struct ParameterInfo
 	const char* name;
 	int32_t position;
 	uint32_t token;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 	const Il2CppType* parameter_type;
 };
 
-typedef void* (*InvokerMethod)(MethodInfo*, void*, void**);
+typedef void* (*InvokerMethod)(const MethodInfo*, void*, void**);
 
 struct Il2CppGenericMethodFunctions
 {
@@ -241,7 +242,7 @@ struct Il2CppDebugMethodInfo
 union Il2CppRGCTXData
 {
 	void* rgctxDataDummy;
-	MethodInfo* method;
+	const MethodInfo* method;
 	const Il2CppType* type;
 	TypeInfo* klass;
 };
@@ -281,8 +282,8 @@ struct MethodInfo
 	TypeInfo *declaring_type;
 	const Il2CppType *return_type;
 	InvokerMethod invoker_method;
-	ParameterInfo* parameters;
-	CustomAttributesCache* custom_attributes_cache;
+	const ParameterInfo* parameters;
+	CustomAttributeIndex customAttributeIndex;
 	uint16_t flags;
 	uint16_t iflags;
 	uint16_t slot;
@@ -321,7 +322,7 @@ struct Il2CppRuntimeInterfaceOffsetPair
 union Il2CppMethodReference
 {
 	void* dummy;
-	MethodInfo* method;
+	const MethodInfo* method;
 	Il2CppGenericMethod* genericMethod;
 };
 
@@ -353,13 +354,13 @@ struct TypeInfo
 	void* gc_desc;
 	const char* name;
 	const char* namespaze;
-	MethodInfo** methods;
-	PropertyInfo** properties;
+	const MethodInfo** methods;
+	const PropertyInfo** properties;
 	FieldInfo** fields;
-	EventInfo** events;
+	const EventInfo** events;
 	TypeInfo* element_class;
-	MethodInfo** vtable;
-	CustomAttributesCache* custom_attributes_cache;
+	const MethodInfo** vtable;
+	CustomAttributeIndex customAttributeIndex;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
 
@@ -413,9 +414,9 @@ struct TypeInfo
 	const Il2CppDebugTypeInfo *debug_info;
 #endif
 
-    uint32_t cctor_started;
-    uint32_t cctor_finished;
-    ALIGN_TYPE (8) uint64_t cctor_thread;
+	uint32_t cctor_started;
+	uint32_t cctor_finished;
+	ALIGN_TYPE (8) uint64_t cctor_thread;
 };
 
 
@@ -435,12 +436,6 @@ struct Il2CppAssemblyName
 	uint16_t revision;
 };
 
-struct Il2CppMethodGenericContainerData
-{
-	MethodInfo* method;
-	Il2CppGenericContainer *generic_container;
-};
-
 struct Il2CppImage
 {
 	const char* name;
@@ -449,14 +444,21 @@ struct Il2CppImage
 	TypeInfo** types;
 	size_t typeCount;
 
-	MethodInfo* entryPoint;
+	const MethodInfo* entryPoint;
+
+	// number of custom attributes referenced by the image
+	CustomAttributeIndex customAttributeCount;
+	// per image cache of custom attributes - populated at runtime from customAttributeGenerators
+	CustomAttributesCache** customAttributeCaches;
+	// per image table of custom attribute generator functions
+	const CustomAttributesCacheGenerator* customAttributeGenerators;
 };
 
 struct Il2CppAssembly
 {
 	Il2CppAssemblyName aname;
 	Il2CppImage *image;
-	CustomAttributesCache* custom_attributes_cache;
+	CustomAttributeIndex customAttributeIndex;
 };
 
 struct Il2CppDomain
@@ -467,4 +469,32 @@ struct Il2CppDomain
 	uint32_t domain_id;
 };
 
-extern CustomAttributesCache EmptyCustomAttributesCache;
+struct Il2CppCodeRegistration
+{
+	uint32_t methodPointersCount;
+	const methodPointerType* methodPointers;
+	uint32_t invokerPointersCount;
+	const InvokerMethod* invokerPointers;
+};
+
+struct Il2CppMetadataRegistration
+{
+	uint32_t assembliesCount;
+	Il2CppAssembly** assemblies;
+	uint32_t genericClassesCount;
+	Il2CppGenericClass** genericClasses;
+	uint32_t genericMethodsCount;
+	Il2CppGenericMethod** genericMethods;
+	uint32_t genericInstsCount;
+	Il2CppGenericInst** genericInsts;
+	uint32_t genericMethodTableCount;
+	Il2CppGenericMethodFunctions* genericMethodTable;
+	uint32_t typesCount;
+	const Il2CppType** types;
+	uint32_t methodReferencesCount;
+	Il2CppMethodReference* methodReferences;
+};
+
+typedef uint32_t TypeIndex;
+typedef uint32_t MethodIndex;
+typedef uint32_t FieldIndex;
