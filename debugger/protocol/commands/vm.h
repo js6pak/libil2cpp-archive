@@ -131,7 +131,7 @@ struct VmInvokeMethodCommand : public CustomCommand<VmInvokeMethodCommand>
 
 	Property<Il2CppThread*> vm_thread;
 	Property<int32_t> flags;
-	Property<MethodInfo*> method;
+	Property<const MethodInfo*> method;
 
 	void ReadProperties(Buffer &in)
 	{

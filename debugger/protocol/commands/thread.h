@@ -88,7 +88,7 @@ struct ThreadGetFrameInfoCommand : public CustomCommand<ThreadGetFrameInfoComman
 		struct FrameInfo
 		{
 			int32_t frame_id;
-			MethodInfo *method;
+			const MethodInfo *method;
 			int32_t il_offset;
 			uint8_t flags;
 		};

@@ -15,7 +15,7 @@ struct Il2CppReflectionType;
 struct Il2CppType;
 struct Il2CppDebugTypeInfo;
 struct Il2CppGenericContext;
-struct Il2CppGenericParam;
+struct Il2CppGenericParameter;
 
 namespace il2cpp
 {
@@ -29,26 +29,27 @@ class Class
 public:
 	static TypeInfo* FromIl2CppType (const Il2CppType* type);
 	static TypeInfo* FromName (const Il2CppImage* image, const char* namespaze, const char *name);
+	static TypeInfo* FromNameInitialized (const Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromSystemType (Il2CppReflectionType *type);
-	static TypeInfo* FromGenericParameter (Il2CppGenericParam *param);
+	static TypeInfo* FromGenericParameter (const Il2CppGenericParameter *param);
 	static TypeInfo* GetElementClass (TypeInfo *klass);
 	static const Il2CppType* GetEnumBaseType (TypeInfo *klass);
 	static FieldInfo* GetFields (TypeInfo *klass, void* *iter);
 	static FieldInfo* GetFieldFromName (TypeInfo *klass, const char* name);
-	static MethodInfo* GetFinalizer (TypeInfo *klass);
+	static const MethodInfo* GetFinalizer (TypeInfo *klass);
 	static int32_t GetInstanceSize (const TypeInfo *klass);
 	static TypeInfo* GetInterfaces (TypeInfo *klass, void* *iter);
-	static MethodInfo* GetMethods (const TypeInfo *klass, void* *iter);
-	static MethodInfo* GetMethodFromName (TypeInfo *klass, const char* name, int argsCount);
-	static MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
+	static const MethodInfo* GetMethods (const TypeInfo *klass, void* *iter);
+	static const MethodInfo* GetMethodFromName (TypeInfo *klass, const char* name, int argsCount);
+	static const MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
 	static const char* GetName (TypeInfo *klass);
 	static const char* GetNamespace (TypeInfo *klass);
 	static size_t GetNumMethods(const TypeInfo* klass);
 	static size_t GetNumProperties(const TypeInfo* klass);
 	static size_t GetNumFields(const TypeInfo* klass);
 	static TypeInfo* GetParent(TypeInfo *klass);
-	static PropertyInfo* GetProperties (const TypeInfo *klass, void* *iter);
-	static PropertyInfo* GetPropertyFromName (const TypeInfo *klass, const char* name);
+	static const PropertyInfo* GetProperties (const TypeInfo *klass, void* *iter);
+	static const PropertyInfo* GetPropertyFromName (const TypeInfo *klass, const char* name);
 	static int32_t GetValueSize (TypeInfo *klass, uint32_t *align);
 	static bool HasParent (const TypeInfo *klass, const TypeInfo *parent);
 	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);
@@ -90,7 +91,7 @@ public:
 		return GetArrayClass (element_class, rank);
 	}
 
-	static MethodInfo* GetCCtor (TypeInfo *klass);
+	static const MethodInfo* GetCCtor (TypeInfo *klass);
 	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
 	static TypeInfo* GetPtrClass (const Il2CppType* type);
 	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
