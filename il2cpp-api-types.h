@@ -82,7 +82,7 @@ enum Il2CppRuntimeUnhandledExceptionPolicy {
 
 struct Il2CppStackFrameInfo
 {
-	MethodInfo *method;
+	const MethodInfo *method;
 
 #if IL2CPP_DEBUGGER_ENABLED
 	int32_t id;
@@ -96,11 +96,18 @@ struct Il2CppStackFrameInfo
 #endif
 };
 
+typedef struct {
+	void* (*malloc_func)(size_t size);
+	void (*free_func)(void *ptr);
+	void* (*calloc_func)(size_t nmemb, size_t size);
+	void* (*realloc_func)(void *ptr, size_t size);
+} Il2CppMemoryCallbacks;
+
 typedef void (*register_object_callback)(void** arr, int size, void* userdata);
 
-typedef void (*Il2CppFrameWalkFunc) (Il2CppThread* thread, const Il2CppStackFrameInfo *info, void *user_data);
+typedef void (*Il2CppFrameWalkFunc) (const Il2CppStackFrameInfo *info, void *user_data);
 typedef void (*Il2CppProfileFunc) (Il2CppProfiler* prof);
-typedef void (*Il2CppProfileMethodFunc) (Il2CppProfiler* prof, MethodInfo *method);
+typedef void (*Il2CppProfileMethodFunc) (Il2CppProfiler* prof, const MethodInfo *method);
 typedef void (*Il2CppProfileAllocFunc) (Il2CppProfiler* prof, Il2CppObject *obj, TypeInfo *klass);
 typedef void (*Il2CppProfileGCFunc) (Il2CppProfiler* prof, Il2CppGCEvent event, int generation);
 typedef void (*Il2CppProfileGCResizeFunc) (Il2CppProfiler* prof, int64_t new_size);

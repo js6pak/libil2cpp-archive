@@ -32,6 +32,37 @@ private:
 	uint32_t m_RecursionCount;
 };
 
+class FastMutexImpl
+{
+public:
+
+	FastMutexImpl ()
+	{
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init (&attr);
+		pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE);
+		pthread_mutex_init (&m_Mutex, &attr);
+		pthread_mutexattr_destroy (&attr);
+	}
+	~FastMutexImpl ()
+	{
+		pthread_mutex_destroy (&m_Mutex);
+	}
+
+	void Lock ()
+	{
+		pthread_mutex_lock (&m_Mutex);
+	}
+
+	void Unlock ()
+	{
+		pthread_mutex_unlock (&m_Mutex);
+	}
+
+private:
+	pthread_mutex_t m_Mutex;
+};
+
 }
 }
 

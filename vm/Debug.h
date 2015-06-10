@@ -22,7 +22,7 @@ public:
 	static const Il2CppDebugDocument* GetDocument (const Il2CppDebugMethodInfo* info);
 	static const int32_t* GetOffsetTable (const Il2CppDebugMethodInfo* info);
 	static size_t GetCodeSize (const Il2CppDebugMethodInfo* info);
-	static void UpdateFrameIlOffset (Il2CppThread *thread, int32_t il_offset);
+	static void UpdateFrameIlOffset(int32_t il_offset);
 	static const Il2CppDebugLocalsInfo **GetLocalsInfo (const Il2CppDebugMethodInfo* info);
 	static const TypeInfo *GetType (const Il2CppDebugLocalsInfo *info);
 	static const char *GetName (const Il2CppDebugLocalsInfo *info);

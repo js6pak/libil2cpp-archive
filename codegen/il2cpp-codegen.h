@@ -7,6 +7,7 @@
 #include <limits>
 #include <string>
 #include <math.h>
+#include <vector>
 
 #include "il2cpp-api.h"
 #include "object-internals.h"
@@ -30,6 +31,7 @@
 #include "vm/Profiler.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
+#include "vm/Stacktrace.h"
 #include "vm/String.h"
 #include "vm/Thread.h"
 
@@ -42,7 +44,7 @@
 
 struct ProfilerMethodSentry
 {
-	ProfilerMethodSentry(MethodInfo* method) : m_method(method)
+	ProfilerMethodSentry(const MethodInfo* method) : m_method(method)
 	{
 		il2cpp::vm::Profiler::MethodEnter (m_method);
 	}
@@ -53,12 +55,12 @@ struct ProfilerMethodSentry
 	}
 
 private:
-	MethodInfo* m_method;
+	const MethodInfo* m_method;
 };
 
 struct StackTraceSentry
 {
-	StackTraceSentry(MethodInfo* method) : m_method(method)
+	StackTraceSentry(const MethodInfo* method) : m_method(method)
 	{
 		Il2CppStackFrameInfo frame_info;
 
@@ -69,11 +71,11 @@ struct StackTraceSentry
 		frame_info.il_offset = 0;
 		frame_info.type = FRAME_TYPE_MANAGED;
 #endif
-		il2cpp::vm::Thread::PushFrame (frame_info);
+		il2cpp::vm::StackTrace::PushFrame (frame_info);
 	}
 
 #if IL2CPP_DEBUGGER_ENABLED
-	StackTraceSentry(MethodInfo* method, void* this_ptr, void **params, int32_t params_count, void **locals, int32_t locals_count) : m_method(method)
+	StackTraceSentry(const MethodInfo* method, void* this_ptr, void **params, int32_t params_count, void **locals, int32_t locals_count) : m_method(method)
 	{
 		Il2CppStackFrameInfo frame_info;
 
@@ -86,17 +88,17 @@ struct StackTraceSentry
 		frame_info.params_count = params_count;
 		frame_info.locals = locals;
 		frame_info.locals_count = locals_count;
-		il2cpp::vm::Thread::PushFrame (frame_info);
+		il2cpp::vm::StackTrace::PushFrame (frame_info);
 	}
 #endif
 
 	~StackTraceSentry()
 	{
-		il2cpp::vm::Thread::PopFrame ();
+		il2cpp::vm::StackTrace::PopFrame ();
 	}
 
 private:
-	MethodInfo* m_method;
+	const MethodInfo* m_method;
 };
 
 // declare extern rather than include "gc/gc-internal.h" until WebGL includes Boehm headers
@@ -106,57 +108,9 @@ extern void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
 // Hopefully, we stop including everything in the generated code and know exactly what dependencies we have.
 // Note that all parameter and return types should match the generated types not the runtime types.
 
-inline void RegisterAssembly(Il2CppAssembly* assembly)
+inline void il2cpp_codegen_register (const Il2CppCodeRegistration* const codeRegistration, const Il2CppMetadataRegistration* const metadataRegistration)
 {
-	il2cpp::vm::Assembly::Register (assembly);
-}
-
-template <size_t typeCount>
-inline void RegisterGenericTypes (Il2CppGenericClass* (&types)[typeCount])
-{
-	il2cpp::vm::MetadataCache::RegisterGenericTypes(types, typeCount);
-}
-
-template <size_t typeCount>
-inline void RegisterSZArrays(TypeInfo* (&types)[typeCount])
-{
-	il2cpp::vm::MetadataCache::RegisterSZArrays(types, typeCount);
-}
-
-template <size_t typeCount>
-inline void RegisterArrays(TypeInfo* (&types)[typeCount])
-{
-	il2cpp::vm::MetadataCache::RegisterArrays(types, typeCount);
-}
-
-template <size_t methodCount>
-inline void RegisterGenericMethods (Il2CppGenericMethod* (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterGenericMethods(methods, methodCount);
-}
-
-template <size_t instCount>
-inline void RegisterGenericInsts (Il2CppGenericInst* (&instData)[instCount])
-{
-	il2cpp::vm::MetadataCache::RegisterGenericInsts (instData, instCount);
-}
-
-template <size_t methodCount>
-inline void RegisterMethodTable (Il2CppGenericMethodFunctions (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterMethodTable (methods, methodCount);
-}
-
-template <size_t methodCount>
-inline void RegisterMethodPointers (methodPointerType (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterMethodPointers (methods, methodCount);
-}
-
-template <size_t methodCount>
-inline void RegisterInvokerPointers (InvokerMethod (&methods)[methodCount])
-{
-	il2cpp::vm::MetadataCache::RegisterInvokerPointers (methods, methodCount);
+	il2cpp::vm::MetadataCache::Register (codeRegistration, metadataRegistration);
 }
 
 #include "GeneratedCodeGen.h"
@@ -326,7 +280,7 @@ static Il2CppCodeGenRuntimeArgumentHandle LoadArgList()
 	return handle;
 }
 
-static Il2CppCodeGenRuntimeMethodHandle LoadMethodToken(void* ptr)
+static Il2CppCodeGenRuntimeMethodHandle LoadMethodToken(const MethodInfo* ptr)
 {
 	Il2CppCodeGenRuntimeMethodHandle handle = { { (void*)ptr } } ;
 	return handle;
@@ -338,7 +292,7 @@ inline TypeInfo* InitializedTypeInfo (TypeInfo* typeInfo)
 	return typeInfo;
 }
 
-inline MethodInfo* il2cpp_codegen_genericmethod_get_method (Il2CppGenericMethod* genericMethod)
+inline const MethodInfo* il2cpp_codegen_genericmethod_get_method (Il2CppGenericMethod* genericMethod)
 {
 	return il2cpp::metadata::GenericMethod::GetMethod (genericMethod);
 }
@@ -730,18 +684,24 @@ static inline void Initobj (TypeInfo* type, void* data)
 		*static_cast<Il2CppObject**> (data) = NULL;
 }
 
-static inline bool MethodIsStatic(MethodInfo* method)
+static inline bool MethodIsStatic(const MethodInfo* method)
 {
 	return !il2cpp::vm::Method::IsInstance(method);
+}
+
+static inline bool MethodHasParameters(const MethodInfo* method)
+{
+	return il2cpp::vm::Method::GetParamCount(method) != 0;
 }
 
 #define IL2CPP_CLASS_INIT(klass) do {if(!(klass)->initialized) il2cpp_class_init (klass);} while (0)
 #define IL2CPP_RUNTIME_CLASS_INIT(klass) do { if((klass)->has_cctor && !(klass)->cctor_finished) il2cpp::vm::Runtime::ClassInit ((klass)); } while (0)
 
 // generic sharing
-#define IL2CPP_RGCTX_DATA(rgctxVar,index) (rgctxVar.data[index].klass)
+#define IL2CPP_RGCTX_DATA(rgctxVar,index) (InitializedTypeInfo(rgctxVar.data[index].klass))
 #define IL2CPP_RGCTX_TYPE(rgctxVar,index) (rgctxVar.data[index].type)
 #define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) (rgctxVar.data[index].method)
+#define IL2CPP_RGCTX_FIELD_INFO(typeInfo,index) ((typeInfo)->runtimeMetadata->fields+index)
 
 inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 {
@@ -749,19 +709,19 @@ inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 		il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
 }
 
-inline MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, MethodInfo* method)
+inline const MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot)
 {
-	VirtualInvokeData data = il2cpp::vm::Runtime::GetVirtualInvokeData (method, pThis);
+	VirtualInvokeData data = il2cpp::vm::Runtime::GetVirtualInvokeData (slot, pThis);
 	return data.methodInfo;
 }
 
-inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, MethodInfo* method)
+inline const MethodInfo* GetInterfaceMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot, TypeInfo* declaringInterface)
 {
-	VirtualInvokeData data = il2cpp::vm::Runtime::GetInterfaceInvokeData(method, pThis);
+	VirtualInvokeData data = il2cpp::vm::Runtime::GetInterfaceInvokeData (slot, declaringInterface, pThis);
 	return data.methodInfo;
 }
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_COMPILER_MSVC
 #define STDCALL __stdcall
 #define CDECL __cdecl
 #define DEFAULT_CALL STDCALL
@@ -771,7 +731,7 @@ inline MethodInfo* GetInterfaceMethodInfo(Il2CppCodeGenObject* pThis, MethodInfo
 #define DEFAULT_CALL
 #endif
 
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_COMPILER_MSVC
 static inline double round(double x)
 {
    return x >= 0.0 ? floor(x + 0.5) : ceil(x - 0.5);
@@ -807,6 +767,32 @@ static inline bool il2cpp_codegen_check_mul_overflow_i64(int64_t a, int64_t b, i
 		c = (uint64_t) llabs(imin);
 	
 	return ua != 0 && ub > c / ua;
+}
+
+static inline void il2cpp_codegen_memory_barrier()
+{
+	il2cpp::vm::Thread::MemoryBarrier();
+}
+
+static inline TypeInfo* il2cpp_codegen_type_info_from_index (TypeIndex index)
+{
+	return il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (index);
+}
+
+static inline const Il2CppType* il2cpp_codegen_type_from_index (TypeIndex index)
+{
+	return il2cpp::vm::MetadataCache::GetIl2CppTypeFromIndex (index);
+}
+
+static inline const MethodInfo* il2cpp_codegen_method_info_from_index (MethodIndex index)
+{
+	return il2cpp::vm::MetadataCache::GetMethodInfoFromIndex (index);
+}
+
+static inline FieldInfo* il2cpp_codegen_field_info_from_index (TypeIndex typeIndex, FieldIndex fieldIndex)
+{
+	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (typeIndex);
+	return typeInfo->runtimeMetadata->fields + fieldIndex;
 }
 
 // Exception support macros
