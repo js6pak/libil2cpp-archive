@@ -3,6 +3,7 @@
 #include "il2cpp-config.h"
 #include <stdint.h>
 #include "metadata.h"
+#include "il2cpp-metadata.h"
 
 #define IL2CPP_CLASS_IS_ARRAY(c) ((c)->rank)
 
@@ -121,7 +122,6 @@ struct MethodInfo;
 struct FieldInfo;
 struct Il2CppObject;
 
-typedef uint32_t CustomAttributeIndex;
 
 struct CustomAttributesCache
 {
@@ -130,23 +130,6 @@ struct CustomAttributesCache
 };
 
 typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
-
-/*
- * Stores the default value / RVA of fields.
- * This information is rarely needed, so it is stored separately from
- * FieldInfo.
- */
-struct Il2CppFieldDefaultValue
-{
-	const char      *data;
-	const Il2CppType* dataType;
-};
-
-struct Il2CppFieldDefaultValueEntry
-{
-	FieldInfo* field;
-	Il2CppFieldDefaultValue value;
-};
 
 const int THREAD_STATIC_FIELD_OFFSET = -1;
 
@@ -192,7 +175,7 @@ typedef void* (*InvokerMethod)(const MethodInfo*, void*, void**);
 
 struct Il2CppGenericMethodFunctions
 {
-	Il2CppGenericMethod* genericMethod;
+	const Il2CppGenericMethod* genericMethod;
 	uint32_t methodPointerIndex;
 	uint32_t invokerMethodPointerIndex;
 };
@@ -249,8 +232,8 @@ union Il2CppRGCTXData
 
 union Il2CppRGCTXDefinitionData
 {
-	void* rgctxDataDummy;
-	Il2CppGenericMethod* method;
+	const void* rgctxDataDummy;
+	const Il2CppGenericMethod* method;
 	const Il2CppType* type;
 };
 
@@ -297,9 +280,9 @@ struct MethodInfo
 
 	union
 	{
-		void* genericDummy; /* We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union. */
-		Il2CppGenericMethod* genericMethod; /* is_inflated is true */
-		Il2CppGenericContainer* genericContainer; /* is_inflated is false and is_generic is true */
+		const void* genericDummy; /* We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union. */
+		const Il2CppGenericMethod* genericMethod; /* is_inflated is true */
+		const Il2CppGenericContainer* genericContainer; /* is_inflated is false and is_generic is true */
 	};
 
 #if IL2CPP_DEBUGGER_ENABLED
@@ -321,9 +304,9 @@ struct Il2CppRuntimeInterfaceOffsetPair
 
 union Il2CppMethodReference
 {
-	void* dummy;
+	const void* dummy;
 	const MethodInfo* method;
-	Il2CppGenericMethod* genericMethod;
+	const Il2CppGenericMethod* genericMethod;
 };
 
 struct Il2CppTypeDefinitionMetadata
@@ -336,6 +319,7 @@ struct Il2CppTypeDefinitionMetadata
 	const Il2CppMethodReference* vtableMethods;
 	const bool* vtableEntryIsGenericMethod;
 	const Il2CppRGCTXDefinition* rgctxDefinition;
+	FieldIndex fieldStart;
 };
 
 struct Il2CppRuntimeMetadata
@@ -346,6 +330,7 @@ struct Il2CppRuntimeMetadata
 	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets;
 	TypeInfo* parent;
 	TypeInfo* castClass;
+	FieldInfo* fields;
 };
 
 struct TypeInfo
@@ -356,7 +341,6 @@ struct TypeInfo
 	const char* namespaze;
 	const MethodInfo** methods;
 	const PropertyInfo** properties;
-	FieldInfo** fields;
 	const EventInfo** events;
 	TypeInfo* element_class;
 	const MethodInfo** vtable;
@@ -368,9 +352,8 @@ struct TypeInfo
 	Il2CppRuntimeMetadata* runtimeMetadata;
 
 	Il2CppGenericClass *generic_class;
-	Il2CppGenericContainer *generic_container;
+	const Il2CppGenericContainer *generic_container;
 
-	Il2CppFieldDefaultValueEntry** field_def_values;
 	void* static_fields;
 
 	Il2CppRGCTX rgctx_data;
@@ -446,6 +429,18 @@ struct Il2CppImage
 
 	const MethodInfo* entryPoint;
 
+	const char** strings;
+	StringIndex stringsCount;
+
+	const Il2CppFieldDefinition* fields;
+	FieldIndex fieldsCount;
+
+	const Il2CppFieldDefaultValue* fieldDefaultValues;
+	DefaultValueIndex fieldDefaultValuesCount;
+
+	const uint8_t* fieldDefaultValueData;
+	DefaultValueDataIndex fieldDefaultValueDataCount;
+
 	// number of custom attributes referenced by the image
 	CustomAttributeIndex customAttributeCount;
 	// per image cache of custom attributes - populated at runtime from customAttributeGenerators
@@ -484,17 +479,13 @@ struct Il2CppMetadataRegistration
 	uint32_t genericClassesCount;
 	Il2CppGenericClass** genericClasses;
 	uint32_t genericMethodsCount;
-	Il2CppGenericMethod** genericMethods;
+	const Il2CppGenericMethod** genericMethods;
 	uint32_t genericInstsCount;
-	Il2CppGenericInst** genericInsts;
+	const Il2CppGenericInst** genericInsts;
 	uint32_t genericMethodTableCount;
 	Il2CppGenericMethodFunctions* genericMethodTable;
 	uint32_t typesCount;
-	const Il2CppType** types;
+	const Il2CppType* const * types;
 	uint32_t methodReferencesCount;
-	Il2CppMethodReference* methodReferences;
+	const Il2CppMethodReference* methodReferences;
 };
-
-typedef uint32_t TypeIndex;
-typedef uint32_t MethodIndex;
-typedef uint32_t FieldIndex;

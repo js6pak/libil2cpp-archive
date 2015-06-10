@@ -215,6 +215,9 @@ extern "C"
 	IL2CPP_EXPORT const char* il2cpp_image_get_filename (const Il2CppImage *image);
 	IL2CPP_EXPORT const MethodInfo* il2cpp_image_get_entry_point (const Il2CppImage* image);
 
+	// Memory information
+	IL2CPP_EXPORT Il2CppManagedMemorySnapshot* il2cpp_capture_memory_snapshot();
+	IL2CPP_EXPORT void il2cpp_free_captured_memory_snapshot(Il2CppManagedMemorySnapshot* snapshot);
 
 #if IL2CPP_DEBUGGER_ENABLED
 	// debug
