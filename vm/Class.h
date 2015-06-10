@@ -15,7 +15,7 @@ struct Il2CppReflectionType;
 struct Il2CppType;
 struct Il2CppDebugTypeInfo;
 struct Il2CppGenericContext;
-struct Il2CppGenericParam;
+struct Il2CppGenericParameter;
 
 namespace il2cpp
 {
@@ -31,7 +31,7 @@ public:
 	static TypeInfo* FromName (const Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromNameInitialized (const Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromSystemType (Il2CppReflectionType *type);
-	static TypeInfo* FromGenericParameter (Il2CppGenericParam *param);
+	static TypeInfo* FromGenericParameter (const Il2CppGenericParameter *param);
 	static TypeInfo* GetElementClass (TypeInfo *klass);
 	static const Il2CppType* GetEnumBaseType (TypeInfo *klass);
 	static FieldInfo* GetFields (TypeInfo *klass, void* *iter);
