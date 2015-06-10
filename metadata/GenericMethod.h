@@ -18,9 +18,9 @@ public:
 
 public:
 	//internal
-	static const MethodInfo* GetMethod (Il2CppGenericMethod* gmethod);
-	static Il2CppGenericContext* GetContext (Il2CppGenericMethod* gmethod);
-	static std::string GetFullName (Il2CppGenericMethod* gmethod);
+	static const MethodInfo* GetMethod (const Il2CppGenericMethod* gmethod);
+	static const Il2CppGenericContext* GetContext (const Il2CppGenericMethod* gmethod);
+	static std::string GetFullName (const Il2CppGenericMethod* gmethod);
 };
 
 } /* namespace vm */
