@@ -26,7 +26,7 @@ public:
 	static void ClearAllTrackedAllocations();
 
 private:
-	static os::Mutex s_Mutex; // Use a slow mutex, as this is only necessary in a debug build.
+	static os::FastMutex s_Mutex; // Locking only necessary in a debug build.
 	static std::map<void*, int> s_Allocations;
 #endif
 
