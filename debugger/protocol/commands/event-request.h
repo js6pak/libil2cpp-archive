@@ -27,7 +27,7 @@ struct EventRequestSetCommand : public CustomCommand<EventRequestSetCommand>
 
 	~EventRequestSetCommand();
 
-	Property<MethodInfo*> method;
+	Property<const MethodInfo*> method;
 	Property<uint64_t> location;
 	Property<Il2CppThread*> thread;
 	Property<int32_t> size;
