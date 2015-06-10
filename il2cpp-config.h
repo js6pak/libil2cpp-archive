@@ -353,8 +353,4 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 0
 #endif
 
-#if !IL2CPP_DEBUG
-#define Assert(x) do { (void)(x); } while (false)
-#else
-#define Assert(x) assert(x)
-#endif
+#define Assert(x) do { (void)(x); assert(x); } while (false)

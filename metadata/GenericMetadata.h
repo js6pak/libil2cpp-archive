@@ -22,18 +22,21 @@ namespace metadata
 class GenericMetadata
 {
 public:
-	static ParameterInfo* InflateParameters (const ParameterInfo* parameters, uint8_t parameterCount, Il2CppGenericContext* context, bool inflateMethodVars);
-	static Il2CppGenericClass* GetGenericClass (TypeInfo* elementClass, Il2CppGenericInst* inst);
+	static ParameterInfo* InflateParameters (const ParameterInfo* parameters, uint8_t parameterCount, const Il2CppGenericContext* context, bool inflateMethodVars);
+	static Il2CppGenericClass* GetGenericClass (TypeInfo* elementClass, const Il2CppGenericInst* inst);
 
-	static const MethodInfo* Inflate (const MethodInfo* methodDefinition, TypeInfo* declaringClass, Il2CppGenericContext* context);
-	static Il2CppGenericMethod* Inflate (const Il2CppGenericMethod* genericMethod, Il2CppGenericContext* context);
+	static const MethodInfo* Inflate (const MethodInfo* methodDefinition, TypeInfo* declaringClass, const Il2CppGenericContext* context);
+	static const Il2CppGenericMethod* Inflate (const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context);
 
-	static Il2CppRGCTXData* InflateRGCTX (const Il2CppRGCTXDefinition* definitionData, Il2CppGenericContext* context);
+	static Il2CppRGCTXData* InflateRGCTX (const Il2CppRGCTXDefinition* definitionData, const Il2CppGenericContext* context);
 
 	// temporary while we generate generics
 	static void RegisterGenericClass (Il2CppGenericClass *gclass);
 
 	static const Il2CppType* InflateIfNeeded (const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars);
+
+	typedef void(*GenericClassWalkCallback)(TypeInfo* type, void* context);
+	static void WalkAllGenericClasses(GenericClassWalkCallback callback, void* context);
 };
 
 } /* namespace vm */
