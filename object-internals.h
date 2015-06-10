@@ -23,7 +23,7 @@ namespace il2cpp
 {
 	namespace os
 	{
-		class Mutex;
+		class FastMutex;
 		class Thread;
 	}
 }
@@ -106,7 +106,7 @@ struct Il2CppReflectionMonoEvent
 {
 	Il2CppReflectionEvent event;
 	Il2CppReflectionType* reflectedType;
-	EventInfo* eventInfo;
+	const EventInfo* eventInfo;
 };
 
 // System.Reflection.MonoEventInfo
@@ -144,13 +144,13 @@ struct Il2CppReflectionField {
 struct Il2CppReflectionProperty {
 	Il2CppObject object;
 	TypeInfo *klass;
-	PropertyInfo *property;
+	const PropertyInfo *property;
 };
 
 // System.Reflection.MonoMethod
 struct Il2CppReflectionMethod {
 	Il2CppObject object;
-	MethodInfo *method;
+	const MethodInfo *method;
 	Il2CppString *name;
 	Il2CppReflectionType *reftype;
 };
@@ -296,7 +296,7 @@ struct Il2CppThread {
 	void* suspend_event;
 	void* suspended_event;
 	void* resume_event;
-	il2cpp::os::Mutex* synch_cs;
+	il2cpp::os::FastMutex* synch_cs;
 	uint8_t* serialized_culture_info;
 	uint32_t serialized_culture_info_len;
 	uint8_t* serialized_ui_culture_info;
@@ -318,7 +318,7 @@ struct Il2CppThread {
 	void* unused3;
 	void* unused4;
 	void* unused5;
-	void* stackFrames;
+	void* unused6;
 };
 
 // System.Exception
@@ -363,9 +363,9 @@ struct Il2CppDelegate {
 	/* The compiled code of the target method */
 	methodPointerType method_ptr;
 	/* The invoke code */
-	void* (*invoke_impl)(MethodInfo*, void*, void**);
+	void* (*invoke_impl)(const MethodInfo*, void*, void**);
 	Il2CppObject *target;
-	MethodInfo *method;
+	const MethodInfo *method;
 	void* delegate_trampoline;
 	/*
 	 * If non-NULL, this points to a memory location which stores the address of
@@ -606,6 +606,21 @@ struct Il2CppSocketAsyncResult
 	int32_t error;
 	int32_t operation;
 	Il2CppAsyncResult *ares;
+};
+
+enum Il2CppResourceLocation
+{
+	RESOURCE_LOCATION_EMBEDDED = 1,
+	RESOURCE_LOCATION_ANOTHER_ASSEMBLY = 2,
+	RESOURCE_LOCATION_IN_MANIFEST = 4
+};
+
+struct Il2CppManifestResourceInfo
+{
+	Il2CppObject object;
+	Il2CppReflectionAssembly* assembly;
+	Il2CppString* filename;
+	uint32_t location;
 };
 
 #define IL2CPP_CHECK_ARG_NULL(arg)	do {	\

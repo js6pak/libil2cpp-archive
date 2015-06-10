@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "gc_wrapper.h"
 
@@ -43,7 +43,6 @@ void il2cpp_gc_wait_for_pending_finalizers ();
 
 bool il2cpp_gc_is_gc_thread (Il2CppThread *thread);
 
-int64_t il2cpp_gc_get_used_size ();
 int32_t il2cpp_gc_max_generation ();
 int32_t il2cpp_gc_collection_count (int32_t generation);
 

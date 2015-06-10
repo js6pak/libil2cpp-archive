@@ -23,6 +23,7 @@ public:
 	static char* StringDuplicate (const char *strSource);
 	static Il2CppChar* StringDuplicate (const Il2CppChar* strSource, size_t length);
 	static bool EndsWith(const std::string& string, const std::string& suffix);
+	static uint16_t Utf16ToLower(uint16_t c);
 
 	template <size_t N>
 	static inline size_t LiteralLength(const char(&str)[N])
