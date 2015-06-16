@@ -39,7 +39,7 @@ namespace MathUtils
 		// a * b =
 		// (a_high * 2^32 + a_low) * (b_high * 2^32 + b_low) =
 		// a_high * b_high * 2^64 + (a_high * b_low + a_low * b_high) * 2^32 + a_low * b_low
-		uint64_t dividends[2] = 
+		uint64_t dividends[2] =
 		{
 			multiplicand_low * multiplier_low,   // low part, bits [0, 63]
 			multiplicand_high * multiplier_high  // high part, bits [64, 127]
@@ -47,7 +47,7 @@ namespace MathUtils
 
 		uint64_t resultMid1 = multiplicand_high * multiplier_low + multiplicand_low * multiplier_high;	// mid part, bits [32, 95]
 
-		dividends[1] += resultMid1 >> 32; // add the higher bits of mid part ([64, 95]) to high part 
+		dividends[1] += resultMid1 >> 32; // add the higher bits of mid part ([64, 95]) to high part
 		resultMid1 = (resultMid1 & 0xFFFFFFFF) << 32; // Now this contains the lower bits of mid part ([32, 63])
 
 		// Check for lower part overflow below adding the lower bits of mid part to it
