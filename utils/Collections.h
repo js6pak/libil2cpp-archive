@@ -109,9 +109,9 @@ public:
 		m_Values(NULL),
 		m_ValueCount(0),
 		m_OwnStorage(false),
-        m_ValueToKeyConverter(TValueToKeyConverter()),
-        m_KeyLessComparer(TKeyLess()),
-        m_KeyEqualsComparer(TKeyEquals())
+		m_ValueToKeyConverter(TValueToKeyConverter()),
+		m_KeyLessComparer(TKeyLess()),
+		m_KeyEqualsComparer(TKeyEquals())
 	{
 	}
 
