@@ -142,7 +142,8 @@ struct FieldInfo
 	CustomAttributeIndex customAttributeIndex;
 };
 
-struct PropertyInfo {
+struct PropertyInfo
+{
 	TypeInfo *parent;
 	const char *name;
 	const MethodInfo *get;
@@ -320,6 +321,8 @@ struct Il2CppTypeDefinitionMetadata
 	const bool* vtableEntryIsGenericMethod;
 	const Il2CppRGCTXDefinition* rgctxDefinition;
 	FieldIndex fieldStart;
+	EventIndex eventStart;
+	PropertyIndex propertyStart;
 };
 
 struct Il2CppRuntimeMetadata
@@ -331,6 +334,8 @@ struct Il2CppRuntimeMetadata
 	TypeInfo* parent;
 	TypeInfo* castClass;
 	FieldInfo* fields;
+	const EventInfo* events;
+	const PropertyInfo* properties;
 };
 
 struct TypeInfo
@@ -340,8 +345,6 @@ struct TypeInfo
 	const char* name;
 	const char* namespaze;
 	const MethodInfo** methods;
-	const PropertyInfo** properties;
-	const EventInfo** events;
 	TypeInfo* element_class;
 	const MethodInfo** vtable;
 	CustomAttributeIndex customAttributeIndex;
@@ -440,6 +443,15 @@ struct Il2CppImage
 
 	const uint8_t* fieldDefaultValueData;
 	DefaultValueDataIndex fieldDefaultValueDataCount;
+
+	const MethodInfo** methods;
+	MethodIndex methodsCount;
+
+	const Il2CppPropertyDefinition* properties;
+	PropertyIndex propertiesCount;
+
+	const Il2CppEventDefinition* events;
+	EventIndex eventsCount;
 
 	// number of custom attributes referenced by the image
 	CustomAttributeIndex customAttributeCount;

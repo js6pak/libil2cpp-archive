@@ -13,15 +13,20 @@
 //    be larger to store cached information
 
 typedef int32_t TypeIndex;
-typedef int32_t MethodIndex;
 typedef int32_t FieldIndex;
 typedef int32_t DefaultValueIndex;
 typedef int32_t DefaultValueDataIndex;
 typedef int32_t CustomAttributeIndex;
+typedef int32_t MethodIndex;
+typedef int32_t PropertyIndex;
+typedef int32_t EventIndex;
 
 const TypeIndex kTypeIndexInvalid = -1;
 const DefaultValueDataIndex kDefaultValueIndexNull = -1;
+const EventIndex kEventIndexInvalid = -1;
 const FieldIndex kFieldIndexInvalid = -1;
+const MethodIndex kMethodIndexInvalid = -1;
+const MethodIndex kPropertyIndexInvalid = -1;
 
 typedef int32_t StringIndex;
 
@@ -40,3 +45,21 @@ struct Il2CppFieldDefaultValue
 	DefaultValueDataIndex dataIndex;
 };
 
+struct Il2CppEventDefinition
+{
+	StringIndex nameIndex;
+	TypeIndex typeIndex;
+	MethodIndex add;
+	MethodIndex remove;
+	MethodIndex raise;
+	CustomAttributeIndex customAttributeIndex;
+};
+
+struct Il2CppPropertyDefinition
+{
+	StringIndex nameIndex;
+	MethodIndex get;
+	MethodIndex set;
+	uint32_t attrs;
+	CustomAttributeIndex customAttributeIndex;
+};
