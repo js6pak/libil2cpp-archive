@@ -176,6 +176,8 @@
 	#define FORCE_INLINE inline
 #endif
 
+#define IL2CPP_PAGE_SIZE 4096
+
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \
 	assert ((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
@@ -344,6 +346,8 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
 
+#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
+
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
@@ -353,8 +357,4 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 0
 #endif
 
-#if !IL2CPP_DEBUG
-#define Assert(x) do { (void)(x); } while (false)
-#else
-#define Assert(x) assert(x)
-#endif
+#define Assert(x) do { (void)(x); assert(x); } while (false)

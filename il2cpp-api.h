@@ -44,8 +44,8 @@ extern "C"
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_element_class (TypeInfo *klass);
 	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_fields (TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_interfaces (TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_properties (const TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_property_from_name (const TypeInfo *klass, const char *name);
+	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_properties (TypeInfo *klass, void* *iter);
+	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_property_from_name (TypeInfo *klass, const char *name);
 	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_field_from_name (TypeInfo* klass, const char *name);
 	IL2CPP_EXPORT const MethodInfo* il2cpp_class_get_methods (const TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT const MethodInfo* il2cpp_class_get_method_from_name (TypeInfo *klass, const char* name, int argsCount);
@@ -215,6 +215,9 @@ extern "C"
 	IL2CPP_EXPORT const char* il2cpp_image_get_filename (const Il2CppImage *image);
 	IL2CPP_EXPORT const MethodInfo* il2cpp_image_get_entry_point (const Il2CppImage* image);
 
+	// Memory information
+	IL2CPP_EXPORT Il2CppManagedMemorySnapshot* il2cpp_capture_memory_snapshot();
+	IL2CPP_EXPORT void il2cpp_free_captured_memory_snapshot(Il2CppManagedMemorySnapshot* snapshot);
 
 #if IL2CPP_DEBUGGER_ENABLED
 	// debug
