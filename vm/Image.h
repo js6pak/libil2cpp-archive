@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <vector>
 #include <string>
 
 struct TypeInfo;
@@ -12,6 +11,7 @@ struct Il2CppImage;
 struct Il2CppType;
 struct Il2CppGenericContext;
 struct Il2CppGenericContainer;
+struct Il2CppReflectionAssembly;
 class AssemblyVector;
 
 namespace il2cpp
@@ -61,12 +61,11 @@ public:
 		void* data;
 	};
 
+	static void CacheMemoryMappedResourceFile(Il2CppReflectionAssembly* assembly, void* memoryMappedFile);
+	static void* GetCachedMemoryMappedResourceFile(Il2CppReflectionAssembly* assembly);
 	static void CacheResourceData(EmbeddedResourceRecord record, void* data);
 	static void* GetCachedResourceData(Il2CppImage* image, const std::string& name);
 	static void ClearCachedResourceData();
-
-private:
-	static std::vector<EmbeddedResourceData> s_CachedResourceData;
 };
 
 } /* namespace vm */
