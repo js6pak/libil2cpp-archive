@@ -34,6 +34,9 @@ public:
 	static void RegisterGenericClass (Il2CppGenericClass *gclass);
 
 	static const Il2CppType* InflateIfNeeded (const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars);
+
+	typedef void(*GenericClassWalkCallback)(TypeInfo* type, void* context);
+	static void WalkAllGenericClasses(GenericClassWalkCallback callback, void* context);
 };
 
 } /* namespace vm */

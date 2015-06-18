@@ -127,11 +127,6 @@ static Il2CppCodeGenString* il2cpp_codegen_string_new_wrapper (const char* str)
 	return (Il2CppCodeGenString*)il2cpp::vm::String::NewWrapper (str);
 }
 
-static Il2CppCodeGenString* il2cpp_codegen_ldstr (const uint16_t* chars, int32_t length)
-{
-	return (Il2CppCodeGenString*)il2cpp::vm::String::Load (chars, length);
-}
-
 static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type)
 {
 	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
@@ -793,6 +788,16 @@ static inline FieldInfo* il2cpp_codegen_field_info_from_index (TypeIndex typeInd
 {
 	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (typeIndex);
 	return typeInfo->runtimeMetadata->fields + fieldIndex;
+}
+
+static inline Il2CppCodeGenString* il2cpp_codegen_string_literal_from_index (StringLiteralIndex index)
+{
+	return (Il2CppCodeGenString*)il2cpp::vm::MetadataCache::GetStringLiteralFromIndex (index);
+}
+
+static inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInfo* methodInfo)
+{
+	return (Il2CppCodeGenMethodBase*)il2cpp::vm::Reflection::GetMethodObject(methodInfo, methodInfo->declaring_type);
 }
 
 // Exception support macros

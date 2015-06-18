@@ -52,3 +52,11 @@ void* il2cpp_gc_make_descr_for_object (size_t *bitmap, int numbits);
 /* Used by liveness code */
 void il2cpp_gc_stop_world ();
 void il2cpp_gc_start_world ();
+
+
+typedef void(*HeapSectionCallback)(void* user_data, void* start, void* end);
+void il2cpp_gc_foreach_heap_section(void* user_data, HeapSectionCallback callback);
+size_t il2cpp_gc_get_section_count();
+
+typedef void* (*GCCallWithAllocLockCallback)(void* user_data);
+void* il2cpp_gc_call_with_alloc_lock_held(GCCallWithAllocLockCallback callback, void* user_data);
