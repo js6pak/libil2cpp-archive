@@ -346,7 +346,7 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
 
-#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
@@ -358,3 +358,20 @@ typedef uint32_t Il2CppMethodSlot;
 #endif
 
 #define Assert(x) do { (void)(x); assert(x); } while (false)
+
+const int32_t kIl2CppInt32Min = INT32_MIN;
+const int32_t kIl2CppInt32Max = INT32_MAX;
+const uint32_t kIl2CppUInt32Max = UINT32_MAX;
+const int64_t kIl2CppInt64Min = INT64_MIN;
+const int64_t kIl2CppInt64Max = INT64_MAX;
+const uint64_t kIl2CppUInt64Max = UINT64_MAX;
+
+#if IL2CPP_SIZEOF_VOID_P == 8
+	const intptr_t kIl2CppIntPtrMin = kIl2CppInt64Min;
+	const intptr_t kIl2CppIntPtrMax = kIl2CppInt64Max;
+	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt64Max;
+#else
+	const intptr_t kIl2CppIntPtrMin = kIl2CppInt32Min;
+	const intptr_t kIl2CppIntPtrMax = kIl2CppInt32Max;
+	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
+#endif
