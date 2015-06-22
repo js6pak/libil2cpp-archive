@@ -20,6 +20,8 @@ typedef int32_t CustomAttributeIndex;
 typedef int32_t MethodIndex;
 typedef int32_t PropertyIndex;
 typedef int32_t EventIndex;
+typedef int32_t StringIndex;
+typedef int32_t StringLiteralIndex;
 
 const TypeIndex kTypeIndexInvalid = -1;
 const DefaultValueDataIndex kDefaultValueIndexNull = -1;
@@ -27,8 +29,8 @@ const EventIndex kEventIndexInvalid = -1;
 const FieldIndex kFieldIndexInvalid = -1;
 const MethodIndex kMethodIndexInvalid = -1;
 const MethodIndex kPropertyIndexInvalid = -1;
+const StringLiteralIndex kStringLiteralIndexInvalid = -1;
 
-typedef int32_t StringIndex;
 
 struct Il2CppFieldDefinition
 {
@@ -63,3 +65,21 @@ struct Il2CppPropertyDefinition
 	uint32_t attrs;
 	CustomAttributeIndex customAttributeIndex;
 };
+
+struct Il2CppStringLiteral
+{
+	uint32_t length;
+	StringLiteralIndex dataIndex;
+};
+
+#pragma pack(push, p1,4)
+struct Il2CppGlobalMetadataHeader
+{
+	int32_t sanity;
+	int32_t version;
+	int32_t stringLiteralOffset;
+	int32_t stringLiteralCount;
+	int32_t stringLiteralDataOffset;
+	int32_t stringLiteralDataCount;
+};
+#pragma pack(pop, p1)
