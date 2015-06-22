@@ -22,8 +22,6 @@ public:
 	static Il2CppString* NewSize (int32_t len);
 	static Il2CppString* NewUtf16 (const uint16_t *text, int32_t len);
 public:
-	// internal
-	static Il2CppString* Load (const uint16_t* chars, uint32_t length);
 	static Il2CppString* Intern(Il2CppString* str);
 	static Il2CppString* IsInterned(Il2CppString* str);
 };

@@ -13,6 +13,7 @@ struct Il2CppGenericContext;
 struct Il2CppGenericInst;
 struct Il2CppGenericMethod;
 struct Il2CppType;
+struct Il2CppString;
 
 namespace il2cpp
 {
@@ -25,7 +26,8 @@ public:
 
 	static void Register (const Il2CppCodeRegistration * const codeRegistration, const Il2CppMetadataRegistration * const metadataRegistration);
 
-	static void Initialize();
+	static void Initialize ();
+	static void InitializeGCSafe ();
 
 	static TypeInfo* GetGenericInstanceType (TypeInfo* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
 	static const MethodInfo* GetGenericInstanceMethod (const MethodInfo* genericMethodDefinition, const Il2CppGenericContext* context);
@@ -49,6 +51,7 @@ public:
 	static TypeInfo* GetTypeInfoFromIndex (TypeIndex index);
 	static const Il2CppType* GetIl2CppTypeFromIndex (TypeIndex index);
 	static const MethodInfo* GetMethodInfoFromIndex (MethodIndex index);
+	static Il2CppString* GetStringLiteralFromIndex (StringLiteralIndex index);
 
 	typedef void(*WalkTypesCallback)(TypeInfo* type, void* context);
 	static void WalkPointerTypes(WalkTypesCallback callback, void* context);
