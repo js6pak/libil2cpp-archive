@@ -71,3 +71,15 @@ struct Il2CppStringLiteral
 	uint32_t length;
 	StringLiteralIndex dataIndex;
 };
+
+#pragma pack(push, p1,4)
+struct Il2CppGlobalMetadataHeader
+{
+	int32_t sanity;
+	int32_t version;
+	int32_t stringLiteralOffset;
+	int32_t stringLiteralCount;
+	int32_t stringLiteralDataOffset;
+	int32_t stringLiteralDataCount;
+};
+#pragma pack(pop, p1)

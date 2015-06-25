@@ -500,8 +500,4 @@ struct Il2CppMetadataRegistration
 	const Il2CppType* const * types;
 	uint32_t methodReferencesCount;
 	const Il2CppMethodReference* methodReferences;
-	uint32_t stringLiteralCount;
-	const Il2CppStringLiteral* stringLiterals;
-	uint32_t stringLiteralDataCount;
-	const uint8_t* stringLiteralData;
 };
