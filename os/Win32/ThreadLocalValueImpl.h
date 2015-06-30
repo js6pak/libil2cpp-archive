@@ -5,7 +5,7 @@
 #include "os/ErrorCodes.h"
 #include "utils/NonCopyable.h"
 
-#include "WindowsHelpers.h"
+#include "WindowsHeaders.h"
 
 namespace il2cpp
 {

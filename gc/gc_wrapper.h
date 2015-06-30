@@ -10,12 +10,10 @@
 	#if IL2CPP_HAS_GC_DESCRIPTORS
 	#define GC_GCJ_SUPPORT 1
 	#endif
-	#if IL2CPP_SUPPORT_THREADS
+	#if defined(EMSCRIPTEN)
+		#define SMALL_CONFIG 1
+	#else
 		#define GC_THREADS 1
-	#endif
-
-	#if IL2CPP_TARGET_WINRT
-	#define GC_NOT_DLL
 	#endif
 
 	#include "gc.h"

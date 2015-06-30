@@ -5,7 +5,6 @@
 
 struct MethodInfo;
 struct PropertyInfo;
-struct ParameterInfo;
 
 struct Il2CppString;
 struct Il2CppType;
@@ -39,7 +38,6 @@ public:
 	static bool IsSameOverloadSignature(const MethodInfo* method1, const MethodInfo* method2);
 	static bool IsSameOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2);
 	static int CompareOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2);
-	static const char* GetParameterDefaultValue(const MethodInfo *method, const ParameterInfo* parameter, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
 };
 
 } /* namespace vm */
