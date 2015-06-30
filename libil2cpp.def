@@ -32,7 +32,6 @@ il2cpp_class_is_subclass_of
 il2cpp_class_from_il2cpp_type
 il2cpp_class_from_name
 il2cpp_class_from_system_type
-il2cpp_class_get_declaring_type
 il2cpp_class_get_element_class
 il2cpp_class_get_fields
 il2cpp_class_get_field_from_name
@@ -65,7 +64,6 @@ il2cpp_domain_assembly_open
 
 il2cpp_raise_exception
 il2cpp_exception_from_name_msg
-il2cpp_get_exception_argument_null
 
 il2cpp_field_get_flags
 il2cpp_field_get_name

@@ -33,12 +33,12 @@ class Reflection
 {
 // exported
 public:
-	static Il2CppReflectionAssembly* GetAssemblyObject (const Il2CppAssembly *assembly);
+	static Il2CppReflectionAssembly* GetAssemblyObject (Il2CppAssembly *assembly);
 	static Il2CppReflectionField* GetFieldObject (TypeInfo *klass, FieldInfo *field);
 	static Il2CppReflectionProperty* GetPropertyObject (TypeInfo *klass, const PropertyInfo *property);
 	static Il2CppReflectionEvent* GetEventObject(TypeInfo *klass, const EventInfo *event);
 	static Il2CppReflectionMethod* GetMethodObject (const MethodInfo *method, TypeInfo *refclass);
-	static Il2CppReflectionModule* GetModuleObject (const Il2CppImage *image);
+	static Il2CppReflectionModule* GetModuleObject (Il2CppImage *image);
 	static Il2CppReflectionType* GetTypeObject (const Il2CppType *type);
 	static Il2CppArray* GetParamObjects (const MethodInfo *method, TypeInfo *refclass);
 	static CustomAttributesCache* GetCustomAttrsInfo (Il2CppObject *obj);
@@ -59,7 +59,7 @@ private:
 	static CustomAttributesCache* GetCustomAttributesCacheFor (FieldInfo *field);
 	static CustomAttributesCache* GetCustomAttributesCacheFor (const EventInfo *event);
 	static CustomAttributesCache* GetCustomAttributesCacheFor (Il2CppReflectionParameter *param);
-	static CustomAttributesCache* GetCustomAttributesCacheFor (const Il2CppAssembly *assembly);
+	static CustomAttributesCache* GetCustomAttributesCacheFor (Il2CppAssembly *assembly);
 };
 
 } /* namespace vm */

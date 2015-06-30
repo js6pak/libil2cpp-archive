@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#define IL2CPP_PUBLIC_KEY_TOKEN_LENGTH	17
+
 // Corresponds to element type signatures
 // See ECMA-335, II.23.1.16
 

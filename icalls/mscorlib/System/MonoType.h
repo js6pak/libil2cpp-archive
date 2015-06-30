@@ -30,7 +30,7 @@ public:
 	static Il2CppArray* GetFields_internal(Il2CppReflectionType* _this, int, Il2CppReflectionType* reflectedType);
 	static int GetArrayRank(Il2CppReflectionType* type);
 	static Il2CppArray* GetConstructors_internal (Il2CppReflectionType* type, int32_t bflags, Il2CppReflectionType* reftype);
-	static void* /* System.Reflection.ConstructorInfo */ GetCorrespondingInflatedConstructor (void* /* System.MonoType */ self, void* /* System.Reflection.ConstructorInfo */ genericInfo);
+	static void* /* System.Reflection.ConstructorInfo */ GetCorrespondingInflatedConstructor (void* /* System.MonoType */ self, void* /* System.Reflection.ConstructorInfo */ generic);
 	static mscorlib_System_Reflection_MethodInfo* GetCorrespondingInflatedMethod (Il2CppReflectionMonoType* , Il2CppReflectionMonoType* );
 	static Il2CppReflectionType* GetElementType (Il2CppReflectionType* type);
 	static Il2CppArray* GetEvents_internal(Il2CppReflectionType* __this, int32_t bindingFlags, Il2CppReflectionType* type);
