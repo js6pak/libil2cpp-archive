@@ -6,6 +6,7 @@
 #include "metadata/Il2CppTypeVector.h"
 
 struct TypeInfo;
+struct EventInfo;
 struct FieldInfo;
 struct PropertyInfo;
 struct MethodInfo;
@@ -15,7 +16,7 @@ struct Il2CppReflectionType;
 struct Il2CppType;
 struct Il2CppDebugTypeInfo;
 struct Il2CppGenericContext;
-struct Il2CppGenericParam;
+struct Il2CppGenericParameter;
 
 namespace il2cpp
 {
@@ -31,9 +32,10 @@ public:
 	static TypeInfo* FromName (const Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromNameInitialized (const Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromSystemType (Il2CppReflectionType *type);
-	static TypeInfo* FromGenericParameter (Il2CppGenericParam *param);
+	static TypeInfo* FromGenericParameter (const Il2CppGenericParameter *param);
 	static TypeInfo* GetElementClass (TypeInfo *klass);
 	static const Il2CppType* GetEnumBaseType (TypeInfo *klass);
+	static const EventInfo* GetEvents (TypeInfo *klass, void* *iter);
 	static FieldInfo* GetFields (TypeInfo *klass, void* *iter);
 	static FieldInfo* GetFieldFromName (TypeInfo *klass, const char* name);
 	static const MethodInfo* GetFinalizer (TypeInfo *klass);
@@ -48,8 +50,8 @@ public:
 	static size_t GetNumProperties(const TypeInfo* klass);
 	static size_t GetNumFields(const TypeInfo* klass);
 	static TypeInfo* GetParent(TypeInfo *klass);
-	static const PropertyInfo* GetProperties (const TypeInfo *klass, void* *iter);
-	static const PropertyInfo* GetPropertyFromName (const TypeInfo *klass, const char* name);
+	static const PropertyInfo* GetProperties (TypeInfo *klass, void* *iter);
+	static const PropertyInfo* GetPropertyFromName (TypeInfo *klass, const char* name);
 	static int32_t GetValueSize (TypeInfo *klass, uint32_t *align);
 	static bool HasParent (const TypeInfo *klass, const TypeInfo *parent);
 	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);

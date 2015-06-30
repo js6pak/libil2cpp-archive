@@ -127,11 +127,6 @@ static Il2CppCodeGenString* il2cpp_codegen_string_new_wrapper (const char* str)
 	return (Il2CppCodeGenString*)il2cpp::vm::String::NewWrapper (str);
 }
 
-static Il2CppCodeGenString* il2cpp_codegen_ldstr (const uint16_t* chars, int32_t length)
-{
-	return (Il2CppCodeGenString*)il2cpp::vm::String::Load (chars, length);
-}
-
 static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type)
 {
 	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
@@ -701,6 +696,7 @@ static inline bool MethodHasParameters(const MethodInfo* method)
 #define IL2CPP_RGCTX_DATA(rgctxVar,index) (InitializedTypeInfo(rgctxVar.data[index].klass))
 #define IL2CPP_RGCTX_TYPE(rgctxVar,index) (rgctxVar.data[index].type)
 #define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) (rgctxVar.data[index].method)
+#define IL2CPP_RGCTX_FIELD_INFO(typeInfo,index) ((typeInfo)->runtimeMetadata->fields+index)
 
 inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 {
@@ -791,7 +787,17 @@ static inline const MethodInfo* il2cpp_codegen_method_info_from_index (MethodInd
 static inline FieldInfo* il2cpp_codegen_field_info_from_index (TypeIndex typeIndex, FieldIndex fieldIndex)
 {
 	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (typeIndex);
-	return typeInfo->fields[fieldIndex];
+	return typeInfo->runtimeMetadata->fields + fieldIndex;
+}
+
+static inline Il2CppCodeGenString* il2cpp_codegen_string_literal_from_index (StringLiteralIndex index)
+{
+	return (Il2CppCodeGenString*)il2cpp::vm::MetadataCache::GetStringLiteralFromIndex (index);
+}
+
+static inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInfo* methodInfo)
+{
+	return (Il2CppCodeGenMethodBase*)il2cpp::vm::Reflection::GetMethodObject(methodInfo, methodInfo->declaring_type);
 }
 
 // Exception support macros
