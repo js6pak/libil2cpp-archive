@@ -2,7 +2,8 @@
 
 #if !IL2CPP_HAS_UNORDERED_CONTAINER // no c++11
 #include <set>
-#define unordered_set std::set
+using namespace std;
+#define unordered_set set
 #elif defined(__clang__)
 # if __has_include(<tr1/unordered_set>)
 #  include <tr1/unordered_set>

@@ -112,7 +112,7 @@ public:
 	static bool MoveFile (const std::string& src, const std::string& dest, int* error);
 	static bool DeleteFile (const std::string& path, int *error);
 	static bool ReplaceFile (const std::string& sourceFileName, const std::string& destinationFileName, const std::string& destinationBackupFileName, bool ignoreMetadataErrors, int* error);
-	static FileHandle* Open (const std::string& path, int openMode, int accessMode, int shareMode, int options, int *error);
+	static FileHandle* Open (const std::string& path, int mode, int accessMode, int shareMode, int options, int *error);
 	static bool Close (FileHandle* handle, int *error);
 	static bool SetFileTime (FileHandle* handle, int64_t creation_time, int64_t last_access_time, int64_t last_write_time, int* error);
 	static int64_t GetLength (FileHandle* handle, int *error);

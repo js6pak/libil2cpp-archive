@@ -19,10 +19,9 @@ public:
 	static void Raise (Il2CppException* ex);
 	static void RaiseOutOfMemoryException ();
 	static void RaiseNullReferenceException ();
-	static void RaiseCOMException(int hresult);
 
 	////TODO: rename to NewFromClassNameAndMessage
-	static Il2CppException* FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg);
+	static Il2CppException* FromNameMsg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg);
 
 public:
 	////TODO: rename all of these to NewXXX
@@ -49,8 +48,7 @@ public:
 	static Il2CppException* GetMissingMethodException(const char* msg);
 	static Il2CppException* GetMarshalDirectiveException(const char* msg);
 	static Il2CppException* GetTargetException(const char* msg);
-	static Il2CppException* GetExecutionEngineException(const char* msg);
-	static Il2CppException* GetUnauthorizedAccessException(const char* msg);
+	static Il2CppException* GetExecutionEngineException (const char* msg);
 
 	static Il2CppException* GetMaxmimumNestedGenericsException();
 

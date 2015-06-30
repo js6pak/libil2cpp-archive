@@ -13,32 +13,23 @@
 //    be larger to store cached information
 
 typedef int32_t TypeIndex;
-typedef int32_t TypeDefinitionIndex;
 typedef int32_t FieldIndex;
 typedef int32_t DefaultValueIndex;
 typedef int32_t DefaultValueDataIndex;
 typedef int32_t CustomAttributeIndex;
 typedef int32_t ParameterIndex;
 typedef int32_t MethodIndex;
-typedef int32_t GenericMethodIndex;
 typedef int32_t PropertyIndex;
 typedef int32_t EventIndex;
 typedef int32_t GenericContainerIndex;
 typedef int32_t GenericParameterIndex;
 typedef int16_t GenericParameterConstraintIndex;
-typedef int32_t NestedTypeIndex;
-typedef int32_t InterfacesIndex;
-typedef int32_t VTableIndex;
-typedef int32_t InterfaceOffsetIndex;
 typedef int32_t RGCTXIndex;
 typedef int32_t StringIndex;
 typedef int32_t StringLiteralIndex;
 typedef int32_t GenericInstIndex;
-typedef int32_t ImageIndex;
-typedef int32_t AssemblyIndex;
 
 const TypeIndex kTypeIndexInvalid = -1;
-const TypeDefinitionIndex kTypeDefinitionIndexInvalid = -1;
 const DefaultValueDataIndex kDefaultValueIndexNull = -1;
 const EventIndex kEventIndexInvalid = -1;
 const FieldIndex kFieldIndexInvalid = -1;
@@ -46,7 +37,6 @@ const MethodIndex kMethodIndexInvalid = -1;
 const PropertyIndex kPropertyIndexInvalid = -1;
 const GenericContainerIndex kGenericContainerIndexInvalid = -1;
 const GenericParameterIndex kGenericParameterIndexInvalid = -1;
-const RGCTXIndex kRGCTXIndexInvalid = -1;
 const StringLiteralIndex kStringLiteralIndexInvalid = -1;
 
 // Encoded index (1 bit)
@@ -64,91 +54,12 @@ static inline uint32_t GetDecodedMethodIndex (EncodedMethodIndex index)
 	return index & 0x7FFFFFFFU;
 }
 
-struct Il2CppImage;
-struct Il2CppType;
-struct Il2CppTypeDefinitionMetadata;
-
-union Il2CppRGCTXDefinitionData
-{
-	int32_t rgctxDataDummy;
-	MethodIndex methodIndex;
-	TypeIndex typeIndex;
-};
-
-enum Il2CppRGCTXDataType
-{
-	IL2CPP_RGCTX_DATA_INVALID,
-	IL2CPP_RGCTX_DATA_TYPE,
-	IL2CPP_RGCTX_DATA_CLASS,
-	IL2CPP_RGCTX_DATA_METHOD
-};
-
-struct Il2CppRGCTXDefinition
-{
-	Il2CppRGCTXDataType type;
-	Il2CppRGCTXDefinitionData data;
-};
-
-struct Il2CppInterfaceOffsetPair
-{
-	TypeIndex interfaceTypeIndex;
-	int32_t offset;
-};
-
-struct Il2CppTypeDefinition
-{
-	StringIndex nameIndex;
-	StringIndex namespaceIndex;
-	CustomAttributeIndex customAttributeIndex;
-	TypeIndex byvalTypeIndex;
-	TypeIndex byrefTypeIndex;
-	
-	TypeIndex declaringTypeIndex;
-	TypeIndex parentIndex;
-	TypeIndex elementTypeIndex; // we can probably remove this one. Only used for enums
-	
-	RGCTXIndex rgctxStartIndex;
-	int32_t rgctxCount;
-
-	GenericContainerIndex genericContainerIndex;
-
-	MethodIndex delegateWrapperFromManagedToNativeIndex;
-	int32_t marshalingFunctionsIndex;
-
-	uint32_t flags;
-	
-	FieldIndex fieldStart;
-	MethodIndex methodStart;
-	EventIndex eventStart;
-	PropertyIndex propertyStart;
-	NestedTypeIndex nestedTypesStart;
-	InterfacesIndex interfacesStart;
-	VTableIndex vtableStart;
-	InterfacesIndex interfaceOffsetsStart;
-
-	uint16_t method_count;
-	uint16_t property_count;
-	uint16_t field_count;
-	uint16_t event_count;
-	uint16_t nested_type_count;
-	uint16_t vtable_count;
-	uint16_t interfaces_count;
-	uint16_t interface_offsets_count;
-
-	// bitfield to portably encode boolean values as single bits
-	// 01 - valuetype;
-	// 02 - enumtype;
-	// 03 - has_finalize;
-	// 04 - has_cctor;
-	// 05 - is_blittable;
-	// 06-09 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
-	uint32_t bitfield;
-};
 
 struct Il2CppFieldDefinition
 {
 	StringIndex nameIndex;
 	TypeIndex typeIndex;
+	int32_t offset;	// If offset is -1, then it's thread static
 	CustomAttributeIndex customAttributeIndex;
 };
 
@@ -159,26 +70,12 @@ struct Il2CppFieldDefaultValue
 	DefaultValueDataIndex dataIndex;
 };
 
-struct Il2CppFieldMarshaledSize
-{
-	FieldIndex fieldIndex;
-	TypeIndex typeIndex;
-	int32_t size;
-};
-
 struct Il2CppParameterDefinition
 {
 	StringIndex nameIndex;
 	uint32_t token;
 	CustomAttributeIndex customAttributeIndex;
 	TypeIndex typeIndex;
-};
-
-struct Il2CppParameterDefaultValue
-{
-	ParameterIndex parameterIndex;
-	TypeIndex typeIndex;
-	DefaultValueDataIndex dataIndex;
 };
 
 struct Il2CppMethodDefinition
@@ -191,8 +88,7 @@ struct Il2CppMethodDefinition
 	MethodIndex methodIndex;
 	MethodIndex invokerIndex;
 	MethodIndex delegateWrapperIndex;
-	RGCTXIndex rgctxStartIndex;
-	int32_t rgctxCount;
+	RGCTXIndex rgctxDefinitionIndex;
 	uint32_t token;
 	uint16_t flags;
 	uint16_t iflags;
@@ -219,9 +115,15 @@ struct Il2CppPropertyDefinition
 	CustomAttributeIndex customAttributeIndex;
 };
 
+struct Il2CppMethodDefinitionReference
+{
+	TypeIndex typeIndex;
+	uint16_t methodOffset; // offset into methods array on the type. A local index, not a global one.
+};
+
 struct Il2CppMethodSpec
 {
-	MethodIndex methodDefinitionIndex;
+	MethodIndex methodRefIndex;
 	GenericInstIndex classIndexIndex;
 	GenericInstIndex methodIndexIndex;
 };
@@ -240,44 +142,8 @@ struct Il2CppGenericMethodIndices
 
 struct Il2CppGenericMethodFunctionsDefinitions
 {
-	GenericMethodIndex genericMethodIndex;
+	MethodIndex genericMethod;
 	Il2CppGenericMethodIndices indices;
-};
-
-const int kPublicKeyByteLength = 8;
-
-struct Il2CppAssemblyName
-{
-	StringIndex nameIndex;
-	StringIndex cultureIndex;
-	StringIndex hashValueIndex;
-	StringIndex publicKeyIndex;
-	uint32_t hash_alg;
-	int32_t hash_len;
-	uint32_t flags;
-	int32_t major;
-	int32_t minor;
-	int32_t build;
-	int32_t revision;
-	uint8_t publicKeyToken[kPublicKeyByteLength];
-};
-
-struct Il2CppImageDefinition
-{
-	StringIndex nameIndex;
-	AssemblyIndex assemblyIndex;
-
-	TypeDefinitionIndex typeStart;
-	uint32_t typeCount;
-
-	MethodIndex entryPointIndex;
-};
-
-struct Il2CppAssembly
-{
-	ImageIndex imageIndex;
-	CustomAttributeIndex customAttributeIndex;
-	Il2CppAssemblyName aname;
 };
 
 #pragma pack(push, p1,4)
@@ -285,51 +151,9 @@ struct Il2CppGlobalMetadataHeader
 {
 	int32_t sanity;
 	int32_t version;
-	int32_t stringLiteralOffset; // string data for managed code
+	int32_t stringLiteralOffset;
 	int32_t stringLiteralCount;
 	int32_t stringLiteralDataOffset;
 	int32_t stringLiteralDataCount;
-	int32_t stringOffset; // string data for metadata
-	int32_t stringCount;
-	int32_t eventsOffset; // Il2CppEventDefinition
-	int32_t eventsCount;
-	int32_t propertiesOffset; // Il2CppPropertyDefinition
-	int32_t propertiesCount;
-	int32_t methodsOffset; // Il2CppMethodDefinition
-	int32_t methodsCount;
-	int32_t parameterDefaultValuesOffset; // Il2CppParameterDefaultValue
-	int32_t parameterDefaultValuesCount;
-	int32_t fieldDefaultValuesOffset; // Il2CppFieldDefaultValue
-	int32_t fieldDefaultValuesCount;
-	int32_t fieldAndParameterDefaultValueDataOffset; // uint8_t
-	int32_t fieldAndParameterDefaultValueDataCount;
-	int32_t fieldMarshaledSizesOffset; // Il2CppFieldMarshaledSize
-	int32_t fieldMarshaledSizesCount;
-	int32_t parametersOffset; // Il2CppParameterDefinition
-	int32_t parametersCount;
-	int32_t fieldsOffset; // Il2CppFieldDefinition
-	int32_t fieldsCount;
-	int32_t genericParametersOffset; // Il2CppGenericParameter
-	int32_t genericParametersCount;
-	int32_t genericParameterConstraintsOffset; // TypeIndex
-	int32_t genericParameterConstraintsCount;
-	int32_t genericContainersOffset; // Il2CppGenericContainer
-	int32_t genericContainersCount;
-	int32_t nestedTypesOffset; // TypeDefinitionIndex
-	int32_t nestedTypesCount;
-	int32_t interfacesOffset; // TypeIndex
-	int32_t interfacesCount;
-	int32_t vtableMethodsOffset; // EncodedMethodIndex
-	int32_t vtableMethodsCount;
-	int32_t interfaceOffsetsOffset; // Il2CppInterfaceOffsetPair
-	int32_t interfaceOffsetsCount;
-	int32_t typeDefinitionsOffset; // Il2CppTypeDefinition
-	int32_t typeDefinitionsCount;
-	int32_t rgctxEntriesOffset; // Il2CppRGCTXDefinition
-	int32_t rgctxEntriesCount;
-	int32_t imagesOffset; // Il2CppImageDefinition
-	int32_t imagesCount;
-	int32_t assembliesOffset; // Il2CppAssemblyDefinition
-	int32_t assembliesCount;
 };
 #pragma pack(pop, p1)
