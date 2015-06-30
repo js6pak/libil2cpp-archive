@@ -33,6 +33,7 @@ public:
 	// internal
 	static const char* GetData (FieldInfo *field);
 	static void GetDefaultFieldValue (FieldInfo *field, void *value);
+	static int GetConstantValueFromBlob (Il2CppTypeEnum type, const char *blob, void *value);
 
 	static bool IsInstance (FieldInfo* field);
 	static bool IsNormalStatic (FieldInfo* field);

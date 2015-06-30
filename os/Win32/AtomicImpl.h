@@ -1,6 +1,6 @@
 #pragma once
 
-#if IL2CPP_PLATFORM_WIN32
+#if IL2CPP_TARGET_WINDOWS
 
 #include "os/Win32/WindowsHeaders.h"
 
@@ -78,14 +78,10 @@ int64_t Atomic::Read64 (volatile int64_t* addr)
 #undef MemoryBarrier
 inline void Atomic::MemoryBarrier ()
 {
-#if defined(_AMD64_)
+#ifdef _AMD64_
 	::__faststorefence ();
-#elif defined(_M_IX86)
-	::MemoryBarrier ();
-#elif defined(_M_ARM)
-	__dmb(_ARM_BARRIER_SY);
 #else
-#error Not implemented;
+	::MemoryBarrier ();
 #endif
 }
 

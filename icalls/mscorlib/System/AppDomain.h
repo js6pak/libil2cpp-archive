@@ -14,7 +14,6 @@ struct Il2CppArray;
 struct Il2CppAssembly;
 struct Il2CppAppDomain;
 struct Il2CppReflectionAssembly;
-struct Il2CppAppContext;
 
 namespace il2cpp
 {
@@ -33,8 +32,8 @@ public:
 	static Il2CppAppDomain* getRootDomain ();
 	static int32_t ExecuteAssembly (Il2CppAppDomain* self, Il2CppAssembly* a, Il2CppArray* args);
 	static Il2CppObject* GetData (Il2CppAppDomain* self, Il2CppString* name);
-	static Il2CppAppContext* InternalGetContext (void);
-	static Il2CppAppContext* InternalGetDefaultContext (void);
+	static mscorlib_System_Runtime_Remoting_Contexts_Context * InternalGetContext (void);
+	static mscorlib_System_Runtime_Remoting_Contexts_Context * InternalGetDefaultContext (void);
 	static Il2CppString* InternalGetProcessGuid (Il2CppString* newguid);
 	static bool InternalIsFinalizingForUnload (int32_t domain_id);
 	static void InternalPushDomainRef (mscorlib_System_AppDomain * domain);
