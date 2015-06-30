@@ -192,10 +192,9 @@ struct Il2CppReflectionParameter{
 };
 
 // System.Reflection.Module
-struct Il2CppReflectionModule
-{
+struct Il2CppReflectionModule {
 	Il2CppObject obj;
-	const Il2CppImage* image;
+	Il2CppImage* image;
 	Il2CppReflectionAssembly* assembly;
 	Il2CppString* fqname;
 	Il2CppString* name;
@@ -225,7 +224,7 @@ struct Il2CppReflectionAssemblyName
 // System.Reflection.Assembly
 struct Il2CppReflectionAssembly {
 	Il2CppObject object;
-	const Il2CppAssembly *assembly;
+	Il2CppAssembly *assembly;
 	Il2CppObject *resolve_event_holder;
 	/* CAS related */
 	Il2CppObject *evidence;	/* Evidence */
@@ -629,11 +628,3 @@ struct Il2CppManifestResourceInfo
 	{	\
 		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetArgumentNullException (#arg));	\
 	};	} while (0)
-
-struct Il2CppAppContext 
-{
-	Il2CppObject obj;
-	int32_t domain_id;
-	int32_t context_id;
-	void* static_data;
-};

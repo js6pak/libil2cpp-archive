@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-metadata.h"
 #include "metadata/Il2CppTypeVector.h"
 
 struct Il2CppGenericClass;
@@ -25,12 +24,11 @@ class GenericMetadata
 public:
 	static ParameterInfo* InflateParameters (const ParameterInfo* parameters, uint8_t parameterCount, const Il2CppGenericContext* context, bool inflateMethodVars);
 	static Il2CppGenericClass* GetGenericClass (TypeInfo* elementClass, const Il2CppGenericInst* inst);
-	static Il2CppGenericClass* GetGenericClass (TypeDefinitionIndex elementClassIndex, const Il2CppGenericInst* inst);
 
 	static const MethodInfo* Inflate (const MethodInfo* methodDefinition, TypeInfo* declaringClass, const Il2CppGenericContext* context);
 	static const Il2CppGenericMethod* Inflate (const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context);
 
-	static Il2CppRGCTXData* InflateRGCTX (RGCTXIndex rgctxEntryIndex, int16_t rgctxEntryCount, const Il2CppGenericContext* context);
+	static Il2CppRGCTXData* InflateRGCTX (const Il2CppRGCTXDefinition* definitionData, const Il2CppGenericContext* context);
 
 	// temporary while we generate generics
 	static void RegisterGenericClass (Il2CppGenericClass *gclass);

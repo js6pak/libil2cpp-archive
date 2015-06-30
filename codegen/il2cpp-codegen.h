@@ -12,7 +12,6 @@
 #include "il2cpp-api.h"
 #include "object-internals.h"
 #include "class-internals.h"
-#include "tabledefs.h"
 #include "icallincludes.h"
 
 #include "utils/RegisterRuntimeInitializeAndCleanup.h"
@@ -36,7 +35,6 @@
 #include "vm/Stacktrace.h"
 #include "vm/String.h"
 #include "vm/Thread.h"
-#include "vm/Type.h"
 
 #define NO_UNUSED_WARNING(expr) (void)(expr)
 #ifdef _MSC_VER
@@ -195,31 +193,6 @@ static Il2CppCodeGenObject* IsInst(Il2CppCodeGenObject *obj, TypeInfo* targetTyp
 	return (Il2CppCodeGenObject*)il2cpp::vm::Object::IsInst((Il2CppObject*)obj, targetType);
 }
 
-static Il2CppCodeGenObject* IsInstSealed(Il2CppCodeGenObject *obj, TypeInfo* targetType)
-{
-#if IL2CPP_DEBUG
-	assert ((targetType->flags & TYPE_ATTRIBUTE_SEALED) != 0);
-	assert ((targetType->flags & TYPE_ATTRIBUTE_INTERFACE) == 0);
-#endif
-	if (!obj)
-		return NULL;
-
-	// optimized version to compare sealed classes
-	return (((Il2CppObject*)obj)->klass == targetType ? obj: NULL);
-}
-
-static Il2CppCodeGenObject* IsInstClass(Il2CppCodeGenObject *obj, TypeInfo* targetType)
-{
-#if IL2CPP_DEBUG
-	assert ((targetType->flags & TYPE_ATTRIBUTE_INTERFACE) == 0);
-#endif
-	if (!obj)
-		return NULL;
-
-	// optimized version to compare classes
-	return il2cpp::vm::Class::HasParent (((Il2CppObject*)obj)->klass, targetType) ? obj: NULL;
-}
-
 // OpCode.Castclass
 
 static Il2CppCodeGenObject* Castclass(Il2CppCodeGenObject *obj, TypeInfo* targetType)
@@ -230,32 +203,6 @@ static Il2CppCodeGenObject* Castclass(Il2CppCodeGenObject *obj, TypeInfo* target
 	Il2CppObject* result = il2cpp::vm::Object::IsInst((Il2CppObject*)obj, targetType);
 	if (result)
 		return (Il2CppCodeGenObject*)result;
-	
-	il2cpp::vm::Exception::Raise ((Il2CppException*)il2cpp::vm::Exception::GetInvalidCastException (il2cpp::vm::Exception::FormatInvalidCastException(((Il2CppObject*)obj)->klass->element_class, targetType).c_str()));
-	return NULL;
-}
-
-static Il2CppCodeGenObject* CastclassSealed(Il2CppCodeGenObject *obj, TypeInfo* targetType)
-{
-	if (!obj)
-		return NULL;
-
-	Il2CppCodeGenObject* result = IsInstSealed(obj, targetType);
-	if (result)
-		return result;
-	
-	il2cpp::vm::Exception::Raise ((Il2CppException*)il2cpp::vm::Exception::GetInvalidCastException (il2cpp::vm::Exception::FormatInvalidCastException(((Il2CppObject*)obj)->klass->element_class, targetType).c_str()));
-	return NULL;
-}
-
-static Il2CppCodeGenObject* CastclassClass(Il2CppCodeGenObject *obj, TypeInfo* targetType)
-{
-	if (!obj)
-		return NULL;
-
-	Il2CppCodeGenObject* result = IsInstClass(obj, targetType);
-	if (result)
-		return result;
 	
 	il2cpp::vm::Exception::Raise ((Il2CppException*)il2cpp::vm::Exception::GetInvalidCastException (il2cpp::vm::Exception::FormatInvalidCastException(((Il2CppObject*)obj)->klass->element_class, targetType).c_str()));
 	return NULL;
@@ -402,17 +349,11 @@ static inline Il2CppCodeGenArray* GenArrayNew4(TypeInfo* arrayType, uint32_t len
 	return (Il2CppCodeGenArray*)il2cpp::vm::Array::New4(arrayType, length1, length2, length3, length4);
 }
 
-#if IL2CPP_DEBUG
-static inline void* SZArrayLdElema (Il2CppCodeGenArray* arr, uint32_t index, size_t size)
+static inline void* SZArrayLdElema (Il2CppCodeGenArray* arr, uint32_t index)
 {
 	TypeInfo* arrayKlass = arr->_typeInfo;
-	assert (size == arr->_typeInfo->element_size);
-	return (void*)(((uint8_t*)(arr)) + sizeof (Il2CppCodeGenArray) + (arrayKlass->element_size * (index)));
+	return (void*)((((uint8_t*)(arr)) + sizeof (Il2CppCodeGenArray)) + (arrayKlass->element_size * (index)));
 }
-#else
-#define SZArrayLdElema(a,index,size)\
-		(void*)(((uint8_t*)(a)) + sizeof (Il2CppCodeGenArray) + ((size) * (index)))
-#endif
 
 static inline uint8_t* GenArrayAddress2 (Il2CppCodeGenArray* a, uint32_t length1, uint32_t length2)
 {
@@ -740,10 +681,10 @@ static inline bool MethodHasParameters(const MethodInfo* method)
 #define IL2CPP_RUNTIME_CLASS_INIT(klass) do { if((klass)->has_cctor && !(klass)->cctor_finished) il2cpp::vm::Runtime::ClassInit ((klass)); } while (0)
 
 // generic sharing
-#define IL2CPP_RGCTX_DATA(rgctxVar,index) (InitializedTypeInfo(rgctxVar[index].klass))
-#define IL2CPP_RGCTX_TYPE(rgctxVar,index) (rgctxVar[index].type)
-#define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) (rgctxVar[index].method)
-#define IL2CPP_RGCTX_FIELD_INFO(typeInfo,index) ((typeInfo)->fields+index)
+#define IL2CPP_RGCTX_DATA(rgctxVar,index) (InitializedTypeInfo(rgctxVar.data[index].klass))
+#define IL2CPP_RGCTX_TYPE(rgctxVar,index) (rgctxVar.data[index].type)
+#define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) (rgctxVar.data[index].method)
+#define IL2CPP_RGCTX_FIELD_INFO(typeInfo,index) ((typeInfo)->runtimeMetadata->fields+index)
 
 inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 {
@@ -773,49 +714,25 @@ inline const MethodInfo* GetInterfaceMethodInfo (Il2CppCodeGenObject* pThis, Il2
 #define DEFAULT_CALL
 #endif
 
-#if defined(__ARMCC_VERSION)
-static inline double bankers_round(double x)
+#if IL2CPP_COMPILER_MSVC
+static inline double round(double x)
+{
+   return x >= 0.0 ? floor(x + 0.5) : ceil(x - 0.5);
+}
+
+static inline float roundf(float x)
+{
+   return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f);
+}
+#elif defined(__ARMCC_VERSION)
+static inline double round(double x)
 {
    return __builtin_round(x);
 }
 
-static inline float bankers_roundf(float x)
+static inline float roundf(float x)
 {
    return __builtin_roundf(x);
-}
-#else
-static inline double bankers_round(double x)
-{
-	double integerPart;
-	if (x >= 0.0)
-	{
-		if (modf(x, &integerPart) == 0.5)
-			return (int64_t)integerPart % 2 == 0 ? integerPart : integerPart + 1.0;
-		return floor(x + 0.5);
-	}
-	else
-	{
-		if (modf(x, &integerPart) == -0.5)
-			return (int64_t)integerPart % 2 == 0 ? integerPart : integerPart - 1.0;
-		return	ceil(x - 0.5);
-	}
-}
-
-static inline float bankers_roundf(float x)
-{
-	double integerPart;
-	if (x >= 0.0f)
-	{
-		if (modf(x, &integerPart) == 0.5)
-			return (int64_t)integerPart % 2 == 0 ? (float)integerPart : (float)integerPart + 1.0f;
-		return floorf(x + 0.5f);
-	}
-	else
-	{
-		if (modf(x, &integerPart) == -0.5)
-			return (int64_t)integerPart % 2 == 0 ? (float)integerPart : (float)integerPart - 1.0f;
-		return	ceilf(x - 0.5f);
-	}
 }
 #endif
 
@@ -842,7 +759,7 @@ static inline void il2cpp_codegen_memory_barrier()
 
 static inline TypeInfo* il2cpp_codegen_type_info_from_index (TypeIndex index)
 {
-	return il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex (index);
+	return il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (index);
 }
 
 static inline const Il2CppType* il2cpp_codegen_type_from_index (TypeIndex index)
@@ -857,8 +774,8 @@ static inline const MethodInfo* il2cpp_codegen_method_info_from_index (MethodInd
 
 static inline FieldInfo* il2cpp_codegen_field_info_from_index (TypeIndex typeIndex, FieldIndex fieldIndex)
 {
-	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex (typeIndex);
-	return typeInfo->fields + fieldIndex;
+	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (typeIndex);
+	return typeInfo->runtimeMetadata->fields + fieldIndex;
 }
 
 static inline Il2CppCodeGenString* il2cpp_codegen_string_literal_from_index (StringLiteralIndex index)
@@ -869,42 +786,6 @@ static inline Il2CppCodeGenString* il2cpp_codegen_string_literal_from_index (Str
 static inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInfo* methodInfo)
 {
 	return (Il2CppCodeGenMethodBase*)il2cpp::vm::Reflection::GetMethodObject(methodInfo, methodInfo->declaring_type);
-}
-
-static inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunction, Il2CppCodeGenString* typeName, const char* assemblyName)
-{
-	typedef Il2CppCodeGenType* (*getTypeFuncType)(Il2CppCodeGenObject*, Il2CppCodeGenString*, const MethodInfo*);
-	Il2CppString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((Il2CppString*)typeName, assemblyName);
-
-	// Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-	Il2CppCodeGenType* type = ((getTypeFuncType)getTypeFunction)(NULL, (Il2CppCodeGenString*)assemblyQualifiedTypeName, NULL);
-	if (type == NULL)
-		return ((getTypeFuncType)getTypeFunction)(NULL, typeName, NULL);
-	return type;
-}
-
-static inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunction, Il2CppCodeGenString* typeName, bool throwOnError, const char* assemblyName)
-{
-	typedef Il2CppCodeGenType* (*getTypeFuncType)(Il2CppCodeGenObject*, Il2CppCodeGenString*, bool, const MethodInfo*);
-	Il2CppString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((Il2CppString*)typeName, assemblyName);
-
-	// Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-	Il2CppCodeGenType* type = ((getTypeFuncType)getTypeFunction)(NULL, (Il2CppCodeGenString*)assemblyQualifiedTypeName, throwOnError, NULL);
-	if (type == NULL)
-		return ((getTypeFuncType)getTypeFunction)(NULL, typeName, throwOnError, NULL);
-	return type;
-}
-
-static inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunction, Il2CppCodeGenString* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
-{
-	typedef Il2CppCodeGenType* (*getTypeFuncType)(Il2CppCodeGenObject*, Il2CppCodeGenString*, bool, bool, const MethodInfo*);
-	Il2CppString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((Il2CppString*)typeName, assemblyName);
-	// Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-
-	Il2CppCodeGenType* type = ((getTypeFuncType)getTypeFunction)(NULL, (Il2CppCodeGenString*)assemblyQualifiedTypeName, throwOnError, ignoreCase, NULL);
-	if (type == NULL)
-		return ((getTypeFuncType)getTypeFunction)(NULL, typeName, throwOnError, ignoreCase, NULL);
-	return type;
 }
 
 // Exception support macros

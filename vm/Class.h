@@ -4,7 +4,6 @@
 #include "blob.h"
 #include <vector>
 #include "metadata/Il2CppTypeVector.h"
-#include "class-internals.h"
 
 struct TypeInfo;
 struct EventInfo;
@@ -31,7 +30,8 @@ class Class
 {
 public:
 	static TypeInfo* FromIl2CppType (const Il2CppType* type);
-	static TypeInfo* FromName (Il2CppImage* image, const char* namespaze, const char *name);
+	static TypeInfo* FromName (const Il2CppImage* image, const char* namespaze, const char *name);
+	static TypeInfo* FromNameInitialized (const Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromSystemType (Il2CppReflectionType *type);
 	static TypeInfo* FromGenericParameter (const Il2CppGenericParameter *param);
 	static TypeInfo* GetElementClass (TypeInfo *klass);
@@ -47,7 +47,6 @@ public:
 	static const MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
 	static const char* GetName (TypeInfo *klass);
 	static const char* GetNamespace (TypeInfo *klass);
-	static TypeInfo* GetNestedTypes (TypeInfo *klass, void* *iter);
 	static size_t GetNumMethods(const TypeInfo* klass);
 	static size_t GetNumProperties(const TypeInfo* klass);
 	static size_t GetNumFields(const TypeInfo* klass);
@@ -58,7 +57,6 @@ public:
 	static bool HasParent (const TypeInfo *klass, const TypeInfo *parent);
 	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);
 	static bool IsGeneric (const TypeInfo *klass);
-	static bool IsInflated (const TypeInfo *klass);
 	static bool IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces);
 	static bool IsValuetype (const TypeInfo *klass);
 	static bool HasDefaultConstructor (TypeInfo* klass);
@@ -72,7 +70,7 @@ public:
 	static const Il2CppType* GetType (TypeInfo *klass, const TypeNameParseInfo &info);
 	static bool HasAttribute (TypeInfo *klass, TypeInfo *attr_class);
 	static bool IsEnum (const TypeInfo *klass);
-	static const Il2CppImage* GetImage (TypeInfo* klass);
+	static Il2CppImage* GetImage (TypeInfo* klass);
 	static const Il2CppDebugTypeInfo *GetDebugInfo (const TypeInfo *klass);
 	static const char *GetAssemblyName (const TypeInfo *klass);
 
@@ -99,19 +97,12 @@ public:
 	static const Il2CppGenericContainer* GetGenericContainer (TypeInfo *klass);
 	static const MethodInfo* GetCCtor (TypeInfo *klass);
 	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
-	static int GetFieldMarshaledSize(const FieldInfo *field);
 	static TypeInfo* GetPtrClass (const Il2CppType* type);
 	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
 	static bool HasReferences (TypeInfo *klass);
-	static void SetupEvents (TypeInfo *klass);
 	static void SetupFields (TypeInfo *klass);
 	static void SetupMethods (TypeInfo *klass);
-	static void SetupNestedTypes (TypeInfo *klass);
-	static void SetupProperties (TypeInfo *klass);
-	static void SetupTypeHierarchy (TypeInfo *klass);
-	static void SetupInterfaces (TypeInfo *klass);
-
-	static inline bool HasParent (TypeInfo* klass, TypeInfo* parent) { return klass->typeHierarchyDepth >= parent->typeHierarchyDepth && klass->typeHierarchy [parent->typeHierarchyDepth - 1] == parent; }
+	static void SetupVTable (TypeInfo *klass);
 
 	static const std::vector<TypeInfo*>& GetStaticFieldData ();
 

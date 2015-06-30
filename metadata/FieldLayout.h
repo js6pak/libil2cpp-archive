@@ -9,12 +9,6 @@ namespace il2cpp
 namespace metadata
 {
 
-struct SizeAndAlignment
-{
-	size_t size;
-	uint8_t alignment;
-};
-
 class FieldLayout
 {
 public:
@@ -27,7 +21,6 @@ public:
 	};
 
 	static void LayoutFields (size_t parentSize, size_t actualParentSize, size_t parentAlignment, const Il2CppTypeVector& fieldTypes, FieldLayoutData& data);
-	static SizeAndAlignment GetTypeSizeAndAlignment(const Il2CppType* type);
 };
 
 } /* namespace metadata */
