@@ -41,18 +41,26 @@ struct Il2CppGenericParameter
 
 struct Il2CppGenericContainer
 {
-	/* index of the generic type definition or the generic method definition corresponding to this container */
-	int32_t ownerIndex; // either index into TypeInfo metadata array or Il2CppMethodDefinition array
-	int32_t type_argc;
+	/* If we're a generic method definition in a generic type definition,
+	   the generic container of the containing class. */
+	GenericContainerIndex parentIndex;
+	/* the generic type definition or the generic method definition corresponding to this container */
+	union {
+		void* dummy; // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
+		TypeInfo *klass;
+		const MethodInfo *method;
+	} owner;
+	uint32_t type_argc    : 31;
 	/* If true, we're a generic method, otherwise a generic type definition. */
-	int32_t is_method;
+	/* Invariant: parent != NULL => is_method */
+	uint32_t is_method : 1;
 	/* Our type parameters. */
 	GenericParameterIndex genericParameterStart;
 };
 
 struct Il2CppGenericClass
 {
-	TypeDefinitionIndex typeDefinitionIndex;	/* the generic type definition */
+	TypeInfo *container_class;	/* the generic type definition */
 	Il2CppGenericContext context;	/* a context that contains the type instantiation doesn't contain any method instantiation */
 	TypeInfo *cached_class;	/* if present, the TypeInfo corresponding to the instantiation.  */
 };
@@ -67,7 +75,7 @@ struct Il2CppType {
 	union {
 		// We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
 		void* dummy;
-		TypeDefinitionIndex klassIndex; /* for VALUETYPE and CLASS */
+		TypeInfo *klass; /* for VALUETYPE and CLASS */
 		const Il2CppType *type;   /* for PTR and SZARRAY */
 		Il2CppArrayType *array; /* for ARRAY */
 		//MonoMethodSignature *method;

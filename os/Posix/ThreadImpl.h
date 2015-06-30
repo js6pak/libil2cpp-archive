@@ -13,15 +13,6 @@
 #include "os/WaitStatus.h"
 #include "utils/NonCopyable.h"
 
-#if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
-struct cpu_set_t;
-int pthread_attr_setaffinity_np(pthread_attr_t *attr, size_t cpusetsize, const cpu_set_t *cpuset);
-#endif
-
-#if defined(IL2CPP_ENABLE_PLATFORM_THREAD_RENAME)
-int pthread_setname_np(pthread_t handle, const char *name);
-#endif
-
 namespace il2cpp
 {
 namespace os
