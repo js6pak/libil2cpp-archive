@@ -5,6 +5,10 @@
 #include "WindowsHeaders.h"
 #include "os/WaitStatus.h"
 
+#if IL2CPP_TARGET_WINRT
+#include "os/WinRT/WinRTImpl.h"
+#endif
+
 namespace il2cpp
 {
 namespace os
