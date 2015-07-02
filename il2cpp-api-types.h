@@ -67,6 +67,25 @@ enum Il2CppGCEvent {
 	IL2CPP_GC_EVENT_POST_START_WORLD
 };
 
+enum Il2CppStat {
+	IL2CPP_STAT_NEW_OBJECT_COUNT,
+	IL2CPP_STAT_INITIALIZED_CLASS_COUNT,
+	//IL2CPP_STAT_GENERIC_VTABLE_COUNT,
+	//IL2CPP_STAT_USED_CLASS_COUNT,
+	IL2CPP_STAT_METHOD_COUNT,
+	//IL2CPP_STAT_CLASS_VTABLE_SIZE,
+	IL2CPP_STAT_CLASS_STATIC_DATA_SIZE,
+	IL2CPP_STAT_GENERIC_INSTANCE_COUNT,
+	IL2CPP_STAT_GENERIC_CLASS_COUNT,
+	IL2CPP_STAT_INFLATED_METHOD_COUNT,
+	IL2CPP_STAT_INFLATED_TYPE_COUNT,
+	//IL2CPP_STAT_DELEGATE_CREATIONS,
+	//IL2CPP_STAT_MINOR_GC_COUNT,
+	//IL2CPP_STAT_MAJOR_GC_COUNT,
+	//IL2CPP_STAT_MINOR_GC_TIME_USECS,
+	//IL2CPP_STAT_MAJOR_GC_TIME_USECS
+};
+
 enum StackFrameType
 {
 	FRAME_TYPE_MANAGED = 0,
@@ -148,7 +167,7 @@ struct Il2CppMetadataSnapshot
 	Il2CppMetadataType* types;
 };
 
-struct Il2CppManagedHeapSection
+struct Il2CppManagedMemorySection
 {
 	uint64_t sectionStartAddress;
 	uint32_t sectionSize;
@@ -158,14 +177,13 @@ struct Il2CppManagedHeapSection
 struct Il2CppManagedHeap
 {
 	uint32_t sectionCount;
-	Il2CppManagedHeapSection* sections;
+	Il2CppManagedMemorySection* sections;
 };
 
 struct Il2CppStacks
 {
 	uint32_t stackCount;
-	uint32_t* stackSizes;
-	uint8_t** stackMemory;
+	Il2CppManagedMemorySection* stacks;
 };
 
 struct NativeObject
@@ -178,28 +196,10 @@ struct NativeObject
 	uint32_t* referencedNativeObjectIndices;
 };
 
-struct NativeObjects
-{
-	uint32_t nativeObjectCount;
-	NativeObject* nativeObjects;
-};
-
 struct Il2CppGCHandles
 {
 	uint32_t trackedObjectCount;
 	uint64_t* pointersToObjects;
-};
-
-struct NativeType
-{
-	uint32_t classId;
-	const char* className;
-};
-
-struct NativeTypes
-{
-	uint32_t nativeTypeCount;
-	NativeType* nativeTypes;
 };
 
 struct Il2CppRuntimeInformation
