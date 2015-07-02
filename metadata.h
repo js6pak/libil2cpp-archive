@@ -2,12 +2,11 @@
 
 #include <stdint.h>
 #include "blob.h"
+#include "il2cpp-metadata.h"
 
 struct TypeInfo;
 struct MethodInfo;
 struct Il2CppType;
-
-struct Il2CppGenericContainer;
 
 struct Il2CppArrayType {
 	const Il2CppType* etype;
@@ -32,19 +31,19 @@ struct Il2CppGenericContext {
 
 struct Il2CppGenericParameter
 {
-	const Il2CppGenericContainer *owner;  /* Type or method this parameter was defined in. */
-	const Il2CppType** constraints; /* NULL means end of list */
-	const char *name;
+	GenericContainerIndex ownerIndex;  /* Type or method this parameter was defined in. */
+	StringIndex nameIndex;
+	GenericParameterConstraintIndex constraintsStart;
+	int16_t constraintsCount;
 	uint16_t num;
 	uint16_t flags;
 };
 
 struct Il2CppGenericContainer
 {
-	Il2CppGenericContext context;
 	/* If we're a generic method definition in a generic type definition,
 	   the generic container of the containing class. */
-	const Il2CppGenericContainer *parent;
+	GenericContainerIndex parentIndex;
 	/* the generic type definition or the generic method definition corresponding to this container */
 	union {
 		void* dummy; // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
@@ -56,10 +55,8 @@ struct Il2CppGenericContainer
 	/* Invariant: parent != NULL => is_method */
 	uint32_t is_method : 1;
 	/* Our type parameters. */
-	const Il2CppGenericParameter **type_params;
+	GenericParameterIndex genericParameterStart;
 };
-
-#define il2cpp_generic_container_get_param(gc, i) (*((gc)->type_params + (i)))
 
 struct Il2CppGenericClass
 {
@@ -82,7 +79,7 @@ struct Il2CppType {
 		const Il2CppType *type;   /* for PTR and SZARRAY */
 		Il2CppArrayType *array; /* for ARRAY */
 		//MonoMethodSignature *method;
-		const Il2CppGenericParameter *generic_param; /* for VAR and MVAR */
+		GenericParameterIndex genericParameterIndex; /* for VAR and MVAR */
 		Il2CppGenericClass *generic_class; /* for GENERICINST */
 	} data;
 	unsigned int attrs    : 16; /* param attributes or field flags */

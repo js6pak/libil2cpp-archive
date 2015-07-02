@@ -47,7 +47,7 @@ public:
 	static Il2CppImage* GetExecutingImage();
 	static Il2CppImage* GetCallingImage();
 	static size_t GetNumTypes(const Il2CppImage* image);
-	static const TypeInfo* const* GetTypes(const Il2CppImage* image);
+	static const TypeInfo* GetType(const Il2CppImage* image, size_t index);
 	static TypeInfo* FromTypeNameParseInfo (Il2CppImage* image, const TypeNameParseInfo &info);
 	static TypeInfo* ClassFromName (const Il2CppImage* image, const char* namespaze, const char *name);
 

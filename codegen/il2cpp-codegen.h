@@ -12,6 +12,7 @@
 #include "il2cpp-api.h"
 #include "object-internals.h"
 #include "class-internals.h"
+#include "icallincludes.h"
 
 #include "utils/RegisterRuntimeInitializeAndCleanup.h"
 
@@ -287,11 +288,6 @@ inline TypeInfo* InitializedTypeInfo (TypeInfo* typeInfo)
 	return typeInfo;
 }
 
-inline const MethodInfo* il2cpp_codegen_genericmethod_get_method (Il2CppGenericMethod* genericMethod)
-{
-	return il2cpp::metadata::GenericMethod::GetMethod (genericMethod);
-}
-
 static inline TypeInfo* il2cpp_codegen_class_from_type (const Il2CppType *type)
 {
 	return InitializedTypeInfo (il2cpp::vm::Class::FromIl2CppType (type));
@@ -301,20 +297,12 @@ inline methodPointerType il2cpp_codegen_resolve_icall (const char* name);
 
 static void* InterlockedCompareExchangeImplRef (void** location, void* value, void* comparand)
 {
-	typedef void* (*InterlockedCompareExchangeImpl_ftn) (void** location, void* value, void* comparand);
-	static InterlockedCompareExchangeImpl_ftn _il2cpp_icall_func;
-	if (!_il2cpp_icall_func)
-		_il2cpp_icall_func = (InterlockedCompareExchangeImpl_ftn)il2cpp_codegen_resolve_icall ("System.Threading.Interlocked::CompareExchange(T&,T,T)");
-	return _il2cpp_icall_func(location, value, comparand);
+	return il2cpp::icalls::mscorlib::System::Threading::Interlocked::CompareExchange_T(location, value, comparand);
 }
 
 static void* InterlockedExchangeImplRef (void** location, void* value)
 {
-	typedef void* (*InterlockedExchangeImpl_ftn) (void** location, void* value);
-	static InterlockedExchangeImpl_ftn _il2cpp_icall_func;
-	if ( !_il2cpp_icall_func )
-		_il2cpp_icall_func = (InterlockedExchangeImpl_ftn)il2cpp_codegen_resolve_icall ("System.Threading.Interlocked::Exchange(T&,T,T)");
-	return _il2cpp_icall_func (location, value);
+	return il2cpp::icalls::mscorlib::System::Threading::Interlocked::ExchangePointer(location, value);
 }
 
 template<typename T>
