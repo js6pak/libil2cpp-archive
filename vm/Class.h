@@ -15,6 +15,7 @@ struct Il2CppImage;
 struct Il2CppReflectionType;
 struct Il2CppType;
 struct Il2CppDebugTypeInfo;
+struct Il2CppGenericContainer;
 struct Il2CppGenericContext;
 struct Il2CppGenericParameter;
 
@@ -41,7 +42,7 @@ public:
 	static const MethodInfo* GetFinalizer (TypeInfo *klass);
 	static int32_t GetInstanceSize (const TypeInfo *klass);
 	static TypeInfo* GetInterfaces (TypeInfo *klass, void* *iter);
-	static const MethodInfo* GetMethods (const TypeInfo *klass, void* *iter);
+	static const MethodInfo* GetMethods (TypeInfo *klass, void* *iter);
 	static const MethodInfo* GetMethodFromName (TypeInfo *klass, const char* name, int argsCount);
 	static const MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
 	static const char* GetName (TypeInfo *klass);
@@ -58,7 +59,7 @@ public:
 	static bool IsGeneric (const TypeInfo *klass);
 	static bool IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces);
 	static bool IsValuetype (const TypeInfo *klass);
-	static bool HasDefaultConstructor (const TypeInfo* klass);
+	static bool HasDefaultConstructor (TypeInfo* klass);
 	static int GetFlags (const TypeInfo *klass);
 	static bool IsAbstract (const TypeInfo *klass);
 	static bool IsInterface (const TypeInfo *klass);
@@ -93,12 +94,15 @@ public:
 		return GetArrayClass (element_class, rank);
 	}
 
+	static const Il2CppGenericContainer* GetGenericContainer (TypeInfo *klass);
 	static const MethodInfo* GetCCtor (TypeInfo *klass);
 	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
 	static TypeInfo* GetPtrClass (const Il2CppType* type);
 	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
 	static bool HasReferences (TypeInfo *klass);
 	static void SetupFields (TypeInfo *klass);
+	static void SetupMethods (TypeInfo *klass);
+	static void SetupVTable (TypeInfo *klass);
 
 	static const std::vector<TypeInfo*>& GetStaticFieldData ();
 

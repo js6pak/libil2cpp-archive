@@ -50,8 +50,37 @@ public:
 
 	static TypeInfo* GetTypeInfoFromIndex (TypeIndex index);
 	static const Il2CppType* GetIl2CppTypeFromIndex (TypeIndex index);
-	static const MethodInfo* GetMethodInfoFromIndex (MethodIndex index);
+	static const MethodInfo* GetMethodInfoFromIndex (EncodedMethodIndex index);
+	static const MethodInfo* GetMethodInfoFromMethodRef (const Il2CppMethodDefinitionReference& methodRef);
+	static const Il2CppGenericMethod* GetGenericMethodFromIndex (MethodIndex index);
 	static Il2CppString* GetStringLiteralFromIndex (StringLiteralIndex index);
+	static const char* GetStringFromIndex (StringIndex index);
+
+	static methodPointerType GetMethodPointerFromIndex (Il2CppImage* image, MethodIndex index);
+	static InvokerMethod GetMethodInvokerFromIndex (Il2CppImage* image, MethodIndex index);
+	static methodPointerType GetDelegateWrapperPointerFromIndex (Il2CppImage* image, MethodIndex index);
+
+
+	static TypeInfo* GetTypeDefinitionFromIndex (TypeIndex index);
+	static const Il2CppGenericContainer* GetGenericContainerFromIndex (GenericContainerIndex index);
+	static const Il2CppGenericParameter* GetGenericParameterFromIndex (GenericParameterIndex index);
+	static const Il2CppType* GetGenericParameterConstraintFromIndex (GenericParameterConstraintIndex index);
+	static const Il2CppRGCTXDefinition* GetRGCTXDefinitionFromIndex (Il2CppImage* image, RGCTXIndex index);
+	static const Il2CppEventDefinition* GetEventDefinitionFromIndex (EventIndex index);
+	static const Il2CppFieldDefinition* GetFieldDefinitionFromIndex (FieldIndex index);
+	static const Il2CppFieldDefaultValue* GetFieldDefaultValueFromIndex (FieldIndex index);
+	static const uint8_t* GetFieldDefaultValueDataFromIndex (FieldIndex index);
+	static const Il2CppFieldDefaultValue* GetFieldDefaultValueForField (const FieldInfo* field);
+	static const Il2CppMethodDefinition* GetMethodDefinitionFromIndex (MethodIndex index);
+	static const Il2CppPropertyDefinition* GetPropertyDefinitionFromIndex (PropertyIndex index);
+	static const Il2CppParameterDefinition* GetParameterDefinitionFromIndex (ParameterIndex index);
+
+	// returns the compiler computer field offset for type definition fields
+	static int32_t GetFieldOffsetFromIndex (FieldIndex index);
+
+	static const GenericParameterIndex GetIndexForGenericParameter (const Il2CppGenericParameter* genericParameter);
+
+	static CustomAttributesCache* GenerateCustomAttributesCache (CustomAttributeIndex index);
 
 	typedef void(*WalkTypesCallback)(TypeInfo* type, void* context);
 	static void WalkPointerTypes(WalkTypesCallback callback, void* context);

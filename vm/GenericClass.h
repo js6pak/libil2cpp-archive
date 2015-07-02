@@ -24,6 +24,7 @@ public:
 
 	static void SetupEvents (TypeInfo* genericInstanceType);
 	static void SetupFields (TypeInfo* genericInstanceType);
+	static void SetupMethods (TypeInfo* genericInstanceType);
 	static void SetupProperties (TypeInfo* genericInstanceType);
 };
 

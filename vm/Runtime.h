@@ -54,7 +54,14 @@ public:
 	static void ClassInit (TypeInfo *klass);
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
-	static void RegisterMethods(const std::vector<const MethodInfo*>& managedMethods);
+	struct MethodDefinitionKey
+	{
+		methodPointerType method;
+		TypeInfo* type;
+		uint32_t index;
+	};
+
+	static void RegisterMethods (const std::vector<MethodDefinitionKey>& managedMethods);
 	static const MethodInfo* GetMethodFromNativeSymbol (methodPointerType nativeMethod);
 
 	static void RegisterRuntimeMethod (const MethodInfo* method);

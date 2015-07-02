@@ -174,13 +174,6 @@ struct ParameterInfo
 
 typedef void* (*InvokerMethod)(const MethodInfo*, void*, void**);
 
-struct Il2CppGenericMethodFunctions
-{
-	const Il2CppGenericMethod* genericMethod;
-	uint32_t methodPointerIndex;
-	uint32_t invokerMethodPointerIndex;
-};
-
 #if IL2CPP_DEBUGGER_ENABLED
 struct Il2CppDebugDocument
 {
@@ -233,9 +226,9 @@ union Il2CppRGCTXData
 
 union Il2CppRGCTXDefinitionData
 {
-	const void* rgctxDataDummy;
-	const Il2CppGenericMethod* method;
-	const Il2CppType* type;
+	int32_t rgctxDataDummy;
+	MethodIndex methodIndex;
+	TypeIndex typeIndex;
 };
 
 enum Il2CppRGCTXDataType
@@ -254,9 +247,9 @@ struct Il2CppRGCTXDefinition
 
 union Il2CppRGCTX
 {
-	void* dummy; // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
-	Il2CppRGCTXData* data;
-	Il2CppRGCTXDefinition* definition;
+	const void* dummy; // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
+	const Il2CppRGCTXData* data;
+	const Il2CppRGCTXDefinition* definition;
 };
 
 struct MethodInfo
@@ -281,7 +274,6 @@ struct MethodInfo
 
 	union
 	{
-		const void* genericDummy; /* We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union. */
 		const Il2CppGenericMethod* genericMethod; /* is_inflated is true */
 		const Il2CppGenericContainer* genericContainer; /* is_inflated is false and is_generic is true */
 	};
@@ -303,13 +295,6 @@ struct Il2CppRuntimeInterfaceOffsetPair
 	int32_t offset;
 };
 
-union Il2CppMethodReference
-{
-	const void* dummy;
-	const MethodInfo* method;
-	const Il2CppGenericMethod* genericMethod;
-};
-
 struct Il2CppTypeDefinitionMetadata
 {
 	const Il2CppType* declaringType;
@@ -317,10 +302,10 @@ struct Il2CppTypeDefinitionMetadata
 	const Il2CppType** implementedInterfaces;
 	const Il2CppInterfaceOffsetPair* interfaceOffsets;
 	const Il2CppType* parent;
-	const Il2CppMethodReference* vtableMethods;
-	const bool* vtableEntryIsGenericMethod;
+	const EncodedMethodIndex* vtableMethods;
 	const Il2CppRGCTXDefinition* rgctxDefinition;
 	FieldIndex fieldStart;
+	MethodIndex methodStart;
 	EventIndex eventStart;
 	PropertyIndex propertyStart;
 };
@@ -355,7 +340,7 @@ struct TypeInfo
 	Il2CppRuntimeMetadata* runtimeMetadata;
 
 	Il2CppGenericClass *generic_class;
-	const Il2CppGenericContainer *generic_container;
+	GenericContainerIndex genericContainerIndex;
 
 	void* static_fields;
 
@@ -427,38 +412,11 @@ struct Il2CppImage
 	const char* name;
 	Il2CppAssembly* assembly;
 
-	TypeInfo** types;
-	size_t typeCount;
+	TypeIndex typeStart;
+	uint16_t typeCount;
 
-	const MethodInfo* entryPoint;
-
-	const char** strings;
-	StringIndex stringsCount;
-
-	const Il2CppFieldDefinition* fields;
-	FieldIndex fieldsCount;
-
-	const Il2CppFieldDefaultValue* fieldDefaultValues;
-	DefaultValueIndex fieldDefaultValuesCount;
-
-	const uint8_t* fieldDefaultValueData;
-	DefaultValueDataIndex fieldDefaultValueDataCount;
-
-	const MethodInfo** methods;
-	MethodIndex methodsCount;
-
-	const Il2CppPropertyDefinition* properties;
-	PropertyIndex propertiesCount;
-
-	const Il2CppEventDefinition* events;
-	EventIndex eventsCount;
-
-	// number of custom attributes referenced by the image
-	CustomAttributeIndex customAttributeCount;
-	// per image cache of custom attributes - populated at runtime from customAttributeGenerators
-	CustomAttributesCache** customAttributeCaches;
-	// per image table of custom attribute generator functions
-	const CustomAttributesCacheGenerator* customAttributeGenerators;
+	TypeInfo* entryPointClass;
+	uint16_t entryPointOffset;
 };
 
 struct Il2CppAssembly
@@ -480,24 +438,69 @@ struct Il2CppCodeRegistration
 {
 	uint32_t methodPointersCount;
 	const methodPointerType* methodPointers;
+	uint32_t delegateWrapperCount;
+	const methodPointerType** delegateWrappers;
+	uint32_t genericMethodPointersCount;
+	const methodPointerType* genericMethodPointers;
 	uint32_t invokerPointersCount;
 	const InvokerMethod* invokerPointers;
+	CustomAttributeIndex customAttributeCount;
+	const CustomAttributesCacheGenerator* customAttributeGenerators;
 };
 
 struct Il2CppMetadataRegistration
 {
-	uint32_t assembliesCount;
+	int32_t assembliesCount;
 	Il2CppAssembly** assemblies;
-	uint32_t genericClassesCount;
+	int32_t imageCount;
+	Il2CppImage** images;
+	int32_t genericClassesCount;
 	Il2CppGenericClass** genericClasses;
-	uint32_t genericMethodsCount;
-	const Il2CppGenericMethod** genericMethods;
-	uint32_t genericInstsCount;
+	int32_t genericInstsCount;
 	const Il2CppGenericInst** genericInsts;
-	uint32_t genericMethodTableCount;
-	Il2CppGenericMethodFunctions* genericMethodTable;
-	uint32_t typesCount;
+	int32_t genericMethodTableCount;
+	Il2CppGenericMethodFunctionsDefinitions* genericMethodTable;
+	int32_t typesCount;
 	const Il2CppType* const * types;
-	uint32_t methodReferencesCount;
-	const Il2CppMethodReference* methodReferences;
+	int32_t methodSpecsCount;
+	const Il2CppMethodSpec* methodSpecs;
+	int32_t methodReferencesCount;
+	const EncodedMethodIndex* methodReferences;
+	int32_t methodDefinitionReferencesCount;
+	const Il2CppMethodDefinitionReference* methodDefinitionReferences;
+
+	int32_t typeInfosCount;
+	TypeInfo** typesInfos;
+
+	FieldIndex fieldOffsetsCount;
+	const int32_t* fieldOffsets;
+
+	GenericContainerIndex genericContainersCount;
+	Il2CppGenericContainer* genericContainers;
+
+	RGCTXIndex rgctxDefinitionsCount;
+	const Il2CppRGCTXDefinition** rgctxDefinitions;
 };
+
+struct Il2CppRuntimeStats
+{
+	uint64_t new_object_count;
+	uint64_t initialized_class_count;
+	// uint64_t generic_vtable_count;
+	// uint64_t used_class_count;
+	uint64_t method_count;
+	// uint64_t class_vtable_size;
+	uint64_t class_static_data_size;
+	uint64_t generic_instance_count;
+	uint64_t generic_class_count;
+	uint64_t inflated_method_count;
+	uint64_t inflated_type_count;
+	// uint64_t delegate_creations;
+	// uint64_t minor_gc_count;
+	// uint64_t major_gc_count;
+	// uint64_t minor_gc_time_usecs;
+	// uint64_t major_gc_time_usecs;
+	bool enabled;
+};
+
+extern Il2CppRuntimeStats il2cpp_runtime_stats;
