@@ -59,7 +59,6 @@ struct Il2CppFieldDefinition
 {
 	StringIndex nameIndex;
 	TypeIndex typeIndex;
-	int32_t offset;	// If offset is -1, then it's thread static
 	CustomAttributeIndex customAttributeIndex;
 };
 
@@ -151,9 +150,29 @@ struct Il2CppGlobalMetadataHeader
 {
 	int32_t sanity;
 	int32_t version;
-	int32_t stringLiteralOffset;
+	int32_t stringLiteralOffset; // string data for managed code
 	int32_t stringLiteralCount;
 	int32_t stringLiteralDataOffset;
 	int32_t stringLiteralDataCount;
+	int32_t stringOffset; // string data for metadata
+	int32_t stringCount;
+	int32_t eventsOffset; // Il2CppEventDefinition
+	int32_t eventsCount;
+	int32_t propertiesOffset; // Il2CppPropertyDefinition
+	int32_t propertiesCount;
+	int32_t methodsOffset; // Il2CppMethodDefinition
+	int32_t methodsCount;
+	int32_t fieldDefaultValuesOffset; // Il2CppFieldDefaultValue
+	int32_t fieldDefaultValuesCount;
+	int32_t fieldDefaultValueDataOffset; // uint8_t
+	int32_t fieldDefaultValueDataCount;
+	int32_t parametersOffset; // Il2CppParameterDefinition
+	int32_t parametersCount;
+	int32_t fieldsOffset; // Il2CppFieldDefinition
+	int32_t fieldsCount;
+	int32_t genericParametersOffset; // Il2CppGenericParameter
+	int32_t genericParametersCount;
+	int32_t genericParameterConstraintsOffset; // TypeIndex
+	int32_t genericParameterConstraintsCount;
 };
 #pragma pack(pop, p1)

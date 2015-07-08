@@ -434,22 +434,18 @@ struct Il2CppDomain
 	uint32_t domain_id;
 };
 
-struct Il2CppAssemblyCodeRegistration
+struct Il2CppCodeRegistration
 {
 	uint32_t methodPointersCount;
 	const methodPointerType* methodPointers;
 	uint32_t delegateWrapperCount;
 	const methodPointerType** delegateWrappers;
-};
-
-struct Il2CppCodeRegistration
-{
-	uint32_t methodPointersCount;
-	const methodPointerType* methodPointers;
+	uint32_t genericMethodPointersCount;
+	const methodPointerType* genericMethodPointers;
 	uint32_t invokerPointersCount;
 	const InvokerMethod* invokerPointers;
-	uint32_t assemblyCodeCount;
-	const Il2CppAssemblyCodeRegistration** assemblyCode;
+	CustomAttributeIndex customAttributeCount;
+	const CustomAttributesCacheGenerator* customAttributeGenerators;
 };
 
 struct Il2CppMetadataRegistration
@@ -476,44 +472,14 @@ struct Il2CppMetadataRegistration
 	int32_t typeInfosCount;
 	TypeInfo** typesInfos;
 
-	StringIndex stringsCount;
-	const char** strings;
-
-	FieldIndex fieldsCount;
-	const Il2CppFieldDefinition* fields;
-
-	DefaultValueIndex fieldDefaultValuesCount;
-	const Il2CppFieldDefaultValue* fieldDefaultValues;
-
-	DefaultValueDataIndex fieldDefaultValueDataCount;
-	const uint8_t* fieldDefaultValueData;
-
-	DefaultValueDataIndex parameterTableCount;
-	const Il2CppParameterDefinition* parameterTable;
-
-	DefaultValueDataIndex methodTableCount;
-	const Il2CppMethodDefinition* methodTable;
-
-	PropertyIndex propertiesCount;
-	const Il2CppPropertyDefinition* properties;
-
-	EventIndex eventsCount;
-	const Il2CppEventDefinition* events;
+	FieldIndex fieldOffsetsCount;
+	const int32_t* fieldOffsets;
 
 	GenericContainerIndex genericContainersCount;
 	Il2CppGenericContainer* genericContainers;
 
 	RGCTXIndex rgctxDefinitionsCount;
 	const Il2CppRGCTXDefinition** rgctxDefinitions;
-
-	CustomAttributeIndex customAttributeCount;
-	const CustomAttributesCacheGenerator* customAttributeGenerators;
-
-	GenericParameterIndex genericParameterCount;
-	const Il2CppGenericParameter* genericParameters;
-
-	GenericParameterConstraintIndex genericParameterConstraintsCount;
-	const TypeIndex* genericParameterConstraints;
 };
 
 struct Il2CppRuntimeStats
