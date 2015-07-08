@@ -75,6 +75,9 @@ public:
 	static const Il2CppPropertyDefinition* GetPropertyDefinitionFromIndex (PropertyIndex index);
 	static const Il2CppParameterDefinition* GetParameterDefinitionFromIndex (ParameterIndex index);
 
+	// returns the compiler computer field offset for type definition fields
+	static int32_t GetFieldOffsetFromIndex (FieldIndex index);
+
 	static const GenericParameterIndex GetIndexForGenericParameter (const Il2CppGenericParameter* genericParameter);
 
 	static CustomAttributesCache* GenerateCustomAttributesCache (CustomAttributeIndex index);
