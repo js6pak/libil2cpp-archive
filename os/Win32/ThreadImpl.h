@@ -31,6 +31,7 @@ public:
 
 private:
 	HANDLE m_ThreadHandle;
+	DWORD m_ThreadId;
 };
 
 }
