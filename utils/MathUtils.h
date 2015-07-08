@@ -17,7 +17,7 @@ namespace MathUtils
 	// we might easily overflow during initial multiplication
 	inline int64_t A_Times_B_DividedBy_C(int64_t multiplicand, int64_t multiplier, int64_t divisor)
 	{
-		assert((divisor & (1 << 62)) == 0 && "Can't divide by numbers with absolute value larger than 2^62 - 1.");
+		assert((llabs(divisor) & (1LL << 62)) == 0 && "Can't divide by numbers with absolute value larger than 2^62 - 1.");
 		bool resultIsNegative = static_cast<uint64_t>(multiplicand ^ multiplier ^ divisor) >> 63;	// Result is negative if odd number of operands are negative
 
 		multiplicand = llabs(multiplicand);
@@ -96,7 +96,7 @@ namespace MathUtils
 			}
 			
 			// Shift work value to the left and append the next bit of our dividend
-			assert((workValue & 1 << 63) == 0 && "overflow!");
+			assert((workValue & (1LL << 63)) == 0 && "overflow!");
 
 			if (bitIndex > -1)
 			{

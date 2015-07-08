@@ -52,6 +52,7 @@ extern "C"
 	IL2CPP_EXPORT const char* il2cpp_class_get_name (TypeInfo *klass);
 	IL2CPP_EXPORT const char* il2cpp_class_get_namespace (TypeInfo *klass);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_parent (TypeInfo *klass);
+	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_declaring_type (TypeInfo *klass);
 	IL2CPP_EXPORT int32_t il2cpp_class_instance_size (TypeInfo *klass);
 	IL2CPP_EXPORT size_t il2cpp_class_num_fields(const TypeInfo* enumKlass);
 	IL2CPP_EXPORT bool il2cpp_class_is_valuetype(const TypeInfo *klass);
