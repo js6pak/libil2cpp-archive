@@ -22,6 +22,11 @@
 	#define UNICODE 1
 #elif defined(_MSC_VER)
 	#define IL2CPP_TARGET_WINDOWS 1
+	#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+		#define IL2CPP_TARGET_WINRT 1
+	#else
+		#define IL2CPP_TARGET_WINRT 0
+	#endif
 	#define _UNICODE 1
 	#define UNICODE 1
 	#define NOMINMAX 1
