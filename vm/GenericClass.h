@@ -22,7 +22,10 @@ public:
 	static Il2CppGenericContext* GetContext (Il2CppGenericClass *gclass);
 	static bool IsValueType (Il2CppGenericClass *gclass);
 
+	static void SetupEvents (TypeInfo* genericInstanceType);
 	static void SetupFields (TypeInfo* genericInstanceType);
+	static void SetupMethods (TypeInfo* genericInstanceType);
+	static void SetupProperties (TypeInfo* genericInstanceType);
 };
 
 } /* namespace vm */

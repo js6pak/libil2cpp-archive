@@ -67,6 +67,25 @@ enum Il2CppGCEvent {
 	IL2CPP_GC_EVENT_POST_START_WORLD
 };
 
+enum Il2CppStat {
+	IL2CPP_STAT_NEW_OBJECT_COUNT,
+	IL2CPP_STAT_INITIALIZED_CLASS_COUNT,
+	//IL2CPP_STAT_GENERIC_VTABLE_COUNT,
+	//IL2CPP_STAT_USED_CLASS_COUNT,
+	IL2CPP_STAT_METHOD_COUNT,
+	//IL2CPP_STAT_CLASS_VTABLE_SIZE,
+	IL2CPP_STAT_CLASS_STATIC_DATA_SIZE,
+	IL2CPP_STAT_GENERIC_INSTANCE_COUNT,
+	IL2CPP_STAT_GENERIC_CLASS_COUNT,
+	IL2CPP_STAT_INFLATED_METHOD_COUNT,
+	IL2CPP_STAT_INFLATED_TYPE_COUNT,
+	//IL2CPP_STAT_DELEGATE_CREATIONS,
+	//IL2CPP_STAT_MINOR_GC_COUNT,
+	//IL2CPP_STAT_MAJOR_GC_COUNT,
+	//IL2CPP_STAT_MINOR_GC_TIME_USECS,
+	//IL2CPP_STAT_MAJOR_GC_TIME_USECS
+};
+
 enum StackFrameType
 {
 	FRAME_TYPE_MANAGED = 0,
@@ -111,3 +130,94 @@ typedef void (*Il2CppProfileMethodFunc) (Il2CppProfiler* prof, const MethodInfo 
 typedef void (*Il2CppProfileAllocFunc) (Il2CppProfiler* prof, Il2CppObject *obj, TypeInfo *klass);
 typedef void (*Il2CppProfileGCFunc) (Il2CppProfiler* prof, Il2CppGCEvent event, int generation);
 typedef void (*Il2CppProfileGCResizeFunc) (Il2CppProfiler* prof, int64_t new_size);
+
+struct Il2CppMetadataField
+{
+	uint32_t offset;
+	uint32_t typeIndex;
+	const char* name;
+	bool isStatic;
+};
+
+enum Il2CppMetadataTypeFlags
+{
+	kNone = 0,
+	kValueType = 1 << 0,
+	kArray = 1 << 1,
+	kArrayRankMask = 0xFFFF0000
+};
+
+struct Il2CppMetadataType
+{
+	Il2CppMetadataTypeFlags flags;	// If it's an array, rank is encoded in the upper 2 bytes
+	Il2CppMetadataField* fields;
+	uint32_t fieldCount;
+	uint32_t staticsSize;
+	uint8_t* statics;
+	uint32_t baseOrElementTypeIndex;
+	char* name;
+	const char* assemblyName;
+	uint64_t typeInfoAddress;
+	uint32_t size;
+};
+
+struct Il2CppMetadataSnapshot
+{
+	uint32_t typeCount;
+	Il2CppMetadataType* types;
+};
+
+struct Il2CppManagedMemorySection
+{
+	uint64_t sectionStartAddress;
+	uint32_t sectionSize;
+	uint8_t* sectionBytes;
+};
+
+struct Il2CppManagedHeap
+{
+	uint32_t sectionCount;
+	Il2CppManagedMemorySection* sections;
+};
+
+struct Il2CppStacks
+{
+	uint32_t stackCount;
+	Il2CppManagedMemorySection* stacks;
+};
+
+struct NativeObject
+{
+	uint32_t gcHandleIndex;
+	uint32_t size;
+	uint32_t instanceId;
+	uint32_t classId;
+	uint32_t referencedNativeObjectIndicesCount;
+	uint32_t* referencedNativeObjectIndices;
+};
+
+struct Il2CppGCHandles
+{
+	uint32_t trackedObjectCount;
+	uint64_t* pointersToObjects;
+};
+
+struct Il2CppRuntimeInformation
+{
+	uint32_t pointerSize;
+	uint32_t objectHeaderSize;
+	uint32_t arrayHeaderSize;
+	uint32_t arrayBoundsOffsetInHeader;
+	uint32_t arraySizeOffsetInHeader;
+	uint32_t allocationGranularity;
+};
+
+struct Il2CppManagedMemorySnapshot
+{
+	Il2CppManagedHeap heap;
+	Il2CppStacks stacks;
+	Il2CppMetadataSnapshot metadata;
+	Il2CppGCHandles gcHandles;
+	Il2CppRuntimeInformation runtimeInformation;
+	void* additionalUserInformation;
+};

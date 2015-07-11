@@ -44,10 +44,10 @@ extern "C"
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_element_class (TypeInfo *klass);
 	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_fields (TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_interfaces (TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_properties (const TypeInfo *klass, void* *iter);
-	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_property_from_name (const TypeInfo *klass, const char *name);
+	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_properties (TypeInfo *klass, void* *iter);
+	IL2CPP_EXPORT const PropertyInfo* il2cpp_class_get_property_from_name (TypeInfo *klass, const char *name);
 	IL2CPP_EXPORT FieldInfo* il2cpp_class_get_field_from_name (TypeInfo* klass, const char *name);
-	IL2CPP_EXPORT const MethodInfo* il2cpp_class_get_methods (const TypeInfo *klass, void* *iter);
+	IL2CPP_EXPORT const MethodInfo* il2cpp_class_get_methods (TypeInfo *klass, void* *iter);
 	IL2CPP_EXPORT const MethodInfo* il2cpp_class_get_method_from_name (TypeInfo *klass, const char* name, int argsCount);
 	IL2CPP_EXPORT const char* il2cpp_class_get_name (TypeInfo *klass);
 	IL2CPP_EXPORT const char* il2cpp_class_get_namespace (TypeInfo *klass);
@@ -67,9 +67,14 @@ extern "C"
 	IL2CPP_EXPORT bool il2cpp_class_is_enum (const TypeInfo *klass);
 	IL2CPP_EXPORT Il2CppImage* il2cpp_class_get_image (TypeInfo* klass);
 	IL2CPP_EXPORT const char *il2cpp_class_get_assemblyname (const TypeInfo *klass);
+
 	// testing only
 	IL2CPP_EXPORT size_t il2cpp_class_get_bitmap_size (const TypeInfo *klass);
 	IL2CPP_EXPORT void il2cpp_class_get_bitmap (TypeInfo *klass, size_t* bitmap);
+
+	// stats
+	IL2CPP_EXPORT bool il2cpp_stats_dump_to_file (const char *path);
+	IL2CPP_EXPORT uint64_t il2cpp_stats_get_value (Il2CppStat stat);
 
 	// domain
 	IL2CPP_EXPORT Il2CppDomain* il2cpp_domain_get ();
@@ -215,6 +220,9 @@ extern "C"
 	IL2CPP_EXPORT const char* il2cpp_image_get_filename (const Il2CppImage *image);
 	IL2CPP_EXPORT const MethodInfo* il2cpp_image_get_entry_point (const Il2CppImage* image);
 
+	// Memory information
+	IL2CPP_EXPORT Il2CppManagedMemorySnapshot* il2cpp_capture_memory_snapshot();
+	IL2CPP_EXPORT void il2cpp_free_captured_memory_snapshot(Il2CppManagedMemorySnapshot* snapshot);
 
 #if IL2CPP_DEBUGGER_ENABLED
 	// debug

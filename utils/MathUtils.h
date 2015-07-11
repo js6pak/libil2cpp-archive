@@ -17,7 +17,7 @@ namespace MathUtils
 	// we might easily overflow during initial multiplication
 	inline int64_t A_Times_B_DividedBy_C(int64_t multiplicand, int64_t multiplier, int64_t divisor)
 	{
-		assert((divisor & (1 << 62)) == 0 && "Can't divide by numbers with absolute value larger than 2^62 - 1.");
+		assert((llabs(divisor) & (1LL << 62)) == 0 && "Can't divide by numbers with absolute value larger than 2^62 - 1.");
 		bool resultIsNegative = static_cast<uint64_t>(multiplicand ^ multiplier ^ divisor) >> 63;	// Result is negative if odd number of operands are negative
 
 		multiplicand = llabs(multiplicand);
@@ -39,7 +39,7 @@ namespace MathUtils
 		// a * b =
 		// (a_high * 2^32 + a_low) * (b_high * 2^32 + b_low) =
 		// a_high * b_high * 2^64 + (a_high * b_low + a_low * b_high) * 2^32 + a_low * b_low
-		uint64_t dividends[2] = 
+		uint64_t dividends[2] =
 		{
 			multiplicand_low * multiplier_low,   // low part, bits [0, 63]
 			multiplicand_high * multiplier_high  // high part, bits [64, 127]
@@ -47,7 +47,7 @@ namespace MathUtils
 
 		uint64_t resultMid1 = multiplicand_high * multiplier_low + multiplicand_low * multiplier_high;	// mid part, bits [32, 95]
 
-		dividends[1] += resultMid1 >> 32; // add the higher bits of mid part ([64, 95]) to high part 
+		dividends[1] += resultMid1 >> 32; // add the higher bits of mid part ([64, 95]) to high part
 		resultMid1 = (resultMid1 & 0xFFFFFFFF) << 32; // Now this contains the lower bits of mid part ([32, 63])
 
 		// Check for lower part overflow below adding the lower bits of mid part to it
@@ -96,7 +96,7 @@ namespace MathUtils
 			}
 			
 			// Shift work value to the left and append the next bit of our dividend
-			assert((workValue & 1 << 63) == 0 && "overflow!");
+			assert((workValue & (1LL << 63)) == 0 && "overflow!");
 
 			if (bitIndex > -1)
 			{

@@ -17,6 +17,7 @@
 struct FieldInfo;
 struct Il2CppType;
 struct TypeInfo;
+struct Il2CppGenericParameter;
 
 namespace il2cpp
 {
@@ -214,7 +215,16 @@ public:
 	static bool IsReference (const Il2CppType* type);
 	static bool IsStruct (const Il2CppType* type);
 	static bool GenericInstIsValuetype (const Il2CppType* type);
+
+	static bool IsEnum (const Il2CppType *type);
+	static bool IsValueType (const Il2CppType *type);
+
+	static bool IsSystemDBNull (const Il2CppType *type);
+	static bool IsSystemDateTime (const Il2CppType *type);
+	static bool IsSystemDecimal (const Il2CppType *type);
+
 	static TypeInfo* GetClass (const Il2CppType *type);
+	static const Il2CppGenericParameter* GetGenericParameter (const Il2CppType *type);
 
 	static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, methodPointerType addr, const MethodInfo* method);
 };
