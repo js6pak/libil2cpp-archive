@@ -14,6 +14,16 @@ namespace il2cpp
 				return HRESULT_CODE(hr);
 			return ERROR_SUCCESS;
 		}
+
+		NORETURN void ThrowExceptionFromHR(HRESULT hr);
+
+		inline void ThrowExceptionIfFailed(HRESULT hr)
+		{
+			if (SUCCEEDED(hr))
+				return;
+
+			ThrowExceptionFromHR(hr);
+		}
 	}
 }
 
@@ -80,10 +90,7 @@ inline UINT WINAPI GetACP()
 
 BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize);
 
-inline DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSize)
-{
-	return 0;
-}
+DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSize);
 
 HANDLE WINAPI GetStdHandle(DWORD nStdHandle);
 
@@ -91,33 +98,30 @@ BOOL WINAPI GetThreadContextWinRT(HANDLE hThread, LPCONTEXT lpContext);
 
 BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer);
 
-inline BOOL WINAPI GetVersionExW(LPOSVERSIONINFOW lpVersionInformation)
-{
-	Assert(lpVersionInformation->dwOSVersionInfoSize == sizeof(OSVERSIONINFOW));
-
-	lpVersionInformation->dwMajorVersion = 10;
-	lpVersionInformation->dwMinorVersion = 0;
-	lpVersionInformation->dwBuildNumber = 0;
-	lpVersionInformation->dwPlatformId = 0;
-	ZeroMemory(lpVersionInformation->szCSDVersion, sizeof(lpVersionInformation->szCSDVersion));
-
-	return TRUE;
-}
+BOOL WINAPI GetVersionExW(LPOSVERSIONINFOW lpVersionInformation);
 
 inline HMODULE WINAPI LoadLibraryW(LPCWSTR lpLibFileName)
 {
 	return LoadPackagedLibrary(lpLibFileName, 0);
 }
 
-inline BOOL WINAPI SetEnvironmentVariableW(LPCWSTR lpName, LPCWSTR lpValue)
-{
-	return FALSE;
-}
+BOOL WINAPI SetEnvironmentVariableW(LPCWSTR lpName, LPCWSTR lpValue);
 
 typedef BOOL(WINAPI* GetThreadContextFunc)(HANDLE hThread, LPCONTEXT lpContext);
 extern GetThreadContextFunc GetThreadContext;
 
 typedef DWORD(WINAPI *QueueUserAPCFunc)(PAPCFUNC pfnAPC, HANDLE hThread, ULONG_PTR dwData);
 extern QueueUserAPCFunc QueueUserAPC;
+
+#define CreateFileMappingW(hFile, lpFileMappingAttributes, flProtect, dwMaximumSizeHigh, dwMaximumSizeLow, lpName) \
+	CreateFileMappingFromApp(hFile, lpFileMappingAttributes, flProtect, (static_cast<ULONG64>(dwMaximumSizeHigh) << 32) | dwMaximumSizeLow, lpName);
+
+#define MapViewOfFile(hFileMappingObject, dwDesiredAccess, dwFileOffsetHigh, dwFileOffsetLow, dwNumberOfBytesToMap) \
+	MapViewOfFileFromApp(hFileMappingObject, dwDesiredAccess, (static_cast<ULONG64>(dwFileOffsetHigh) << 32) | dwFileOffsetLow, dwNumberOfBytesToMap);
+
+#define TlsAlloc() FlsAlloc(NULL)
+#define TlsGetValue FlsGetValue
+#define TlsSetValue FlsSetValue
+#define TlsFree FlsFree
 
 } // extern "C"
