@@ -10,9 +10,7 @@
 	#if IL2CPP_HAS_GC_DESCRIPTORS
 	#define GC_GCJ_SUPPORT 1
 	#endif
-	#if defined(EMSCRIPTEN)
-		#define SMALL_CONFIG 1
-	#else
+	#if IL2CPP_SUPPORT_THREADS
 		#define GC_THREADS 1
 	#endif
 

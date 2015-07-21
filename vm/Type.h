@@ -18,6 +18,7 @@ struct FieldInfo;
 struct Il2CppType;
 struct TypeInfo;
 struct Il2CppGenericParameter;
+struct Il2CppString;
 
 namespace il2cpp
 {
@@ -227,6 +228,8 @@ public:
 	static const Il2CppGenericParameter* GetGenericParameter (const Il2CppType *type);
 
 	static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, methodPointerType addr, const MethodInfo* method);
+
+	static Il2CppString* AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName);
 };
 
 } /* namespace vm */
