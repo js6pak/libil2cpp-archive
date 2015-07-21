@@ -13,6 +13,7 @@
 //    be larger to store cached information
 
 typedef int32_t TypeIndex;
+typedef int32_t TypeDefinitionIndex;
 typedef int32_t FieldIndex;
 typedef int32_t DefaultValueIndex;
 typedef int32_t DefaultValueDataIndex;
@@ -24,6 +25,10 @@ typedef int32_t EventIndex;
 typedef int32_t GenericContainerIndex;
 typedef int32_t GenericParameterIndex;
 typedef int16_t GenericParameterConstraintIndex;
+typedef int32_t NestedTypeIndex;
+typedef int32_t InterfacesIndex;
+typedef int32_t VTableIndex;
+typedef int32_t InterfaceOffsetIndex;
 typedef int32_t RGCTXIndex;
 typedef int32_t StringIndex;
 typedef int32_t StringLiteralIndex;
@@ -37,6 +42,7 @@ const MethodIndex kMethodIndexInvalid = -1;
 const PropertyIndex kPropertyIndexInvalid = -1;
 const GenericContainerIndex kGenericContainerIndexInvalid = -1;
 const GenericParameterIndex kGenericParameterIndexInvalid = -1;
+const RGCTXIndex kRGCTXIndexInvalid = -1;
 const StringLiteralIndex kStringLiteralIndexInvalid = -1;
 
 // Encoded index (1 bit)
@@ -54,6 +60,85 @@ static inline uint32_t GetDecodedMethodIndex (EncodedMethodIndex index)
 	return index & 0x7FFFFFFFU;
 }
 
+struct Il2CppImage;
+struct Il2CppType;
+struct Il2CppTypeDefinitionMetadata;
+
+union Il2CppRGCTXDefinitionData
+{
+	int32_t rgctxDataDummy;
+	MethodIndex methodIndex;
+	TypeIndex typeIndex;
+};
+
+enum Il2CppRGCTXDataType
+{
+	IL2CPP_RGCTX_DATA_INVALID,
+	IL2CPP_RGCTX_DATA_TYPE,
+	IL2CPP_RGCTX_DATA_CLASS,
+	IL2CPP_RGCTX_DATA_METHOD
+};
+
+struct Il2CppRGCTXDefinition
+{
+	Il2CppRGCTXDataType type;
+	Il2CppRGCTXDefinitionData data;
+};
+
+struct Il2CppInterfaceOffsetPair
+{
+	TypeIndex interfaceTypeIndex;
+	int32_t offset;
+};
+
+struct Il2CppTypeDefinition
+{
+	StringIndex nameIndex;
+	StringIndex namespaceIndex;
+	CustomAttributeIndex customAttributeIndex;
+	TypeIndex byvalTypeIndex;
+	TypeIndex byrefTypeIndex;
+	
+	TypeIndex declaringTypeIndex;
+	TypeIndex parentIndex;
+	TypeIndex elementTypeIndex; // we can probably remove this one. Only used for enums
+	
+	RGCTXIndex rgctxStartIndex;
+	int32_t rgctxCount;
+
+	GenericContainerIndex genericContainerIndex;
+
+	MethodIndex delegateWrapperFromManagedToNativeIndex;
+	int32_t marshalingFunctionsIndex;
+
+	uint32_t flags;
+	
+	FieldIndex fieldStart;
+	MethodIndex methodStart;
+	EventIndex eventStart;
+	PropertyIndex propertyStart;
+	NestedTypeIndex nestedTypesStart;
+	InterfacesIndex interfacesStart;
+	VTableIndex vtableStart;
+	InterfacesIndex interfaceOffsetsStart;
+
+	uint16_t method_count;
+	uint16_t property_count;
+	uint16_t field_count;
+	uint16_t event_count;
+	uint16_t nested_type_count;
+	uint16_t vtable_count;
+	uint16_t interfaces_count;
+	uint16_t interface_offsets_count;
+
+	// bitfield to portably encode boolean values as single bits
+	// 01 - valuetype;
+	// 02 - enumtype;
+	// 03 - has_finalize;
+	// 04 - has_cctor;
+	// 05 - is_blittable;
+	uint32_t bitfield;
+};
 
 struct Il2CppFieldDefinition
 {
@@ -87,7 +172,8 @@ struct Il2CppMethodDefinition
 	MethodIndex methodIndex;
 	MethodIndex invokerIndex;
 	MethodIndex delegateWrapperIndex;
-	RGCTXIndex rgctxDefinitionIndex;
+	RGCTXIndex rgctxStartIndex;
+	int32_t rgctxCount;
 	uint32_t token;
 	uint16_t flags;
 	uint16_t iflags;
@@ -174,5 +260,19 @@ struct Il2CppGlobalMetadataHeader
 	int32_t genericParametersCount;
 	int32_t genericParameterConstraintsOffset; // TypeIndex
 	int32_t genericParameterConstraintsCount;
+	int32_t genericContainersOffset; // Il2CppGenericContainer
+	int32_t genericContainersCount;
+	int32_t nestedTypesOffset; // TypeDefinitionIndex
+	int32_t nestedTypesCount;
+	int32_t interfacesOffset; // TypeIndex
+	int32_t interfacesCount;
+	int32_t vtableMethodsOffset; // EncodedMethodIndex
+	int32_t vtableMethodsCount;
+	int32_t interfaceOffsetsOffset; // Il2CppInterfaceOffsetPair
+	int32_t interfaceOffsetsCount;
+	int32_t typeDefinitionsOffset; // Il2CppTypeDefinition
+	int32_t typeDefinitionsCount;
+	int32_t rgctxEntriesOffset; // Il2CppRGCTXDefinition
+	int32_t rgctxEntriesCount;
 };
 #pragma pack(pop, p1)

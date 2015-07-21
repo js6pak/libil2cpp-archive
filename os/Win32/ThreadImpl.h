@@ -18,6 +18,7 @@ class ThreadImpl : public il2cpp::utils::NonCopyable
 {
 public:
 	ThreadImpl();
+	~ThreadImpl();
 
 	uint64_t Id ();
 	ErrorCode Run (Thread::StartFunc func, void* arg);

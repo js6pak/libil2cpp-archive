@@ -1,12 +1,15 @@
 #pragma once
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_PLATFORM_WIN32
 
 #include "WindowsHeaders.h"
 #include "os/WaitStatus.h"
 
 #if IL2CPP_TARGET_WINRT
 #include "os/WinRT/WinRTImpl.h"
+#endif
+#if IL2CPP_TARGET_XBOXONE
+#include "os/XboxOne/Win32ApiEmulator.h"
 #endif
 
 namespace il2cpp

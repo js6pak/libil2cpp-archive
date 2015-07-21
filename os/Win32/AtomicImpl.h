@@ -1,6 +1,6 @@
 #pragma once
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_PLATFORM_WIN32
 
 #include "os/Win32/WindowsHeaders.h"
 
