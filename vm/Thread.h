@@ -71,7 +71,7 @@ public:
 
 	/// Initialize and register thread.
 	/// NOTE: Must be called on thread!
-	static void Initialize (Il2CppThread *thread);
+	static void Initialize (Il2CppThread *thread, Il2CppDomain* domain);
 	static void Uninitialize (Il2CppThread *thread);
 
 	static void SetMain (Il2CppThread* thread);

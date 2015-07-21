@@ -48,7 +48,7 @@ public:
 	static Il2CppImage* GetCallingImage();
 	static size_t GetNumTypes(const Il2CppImage* image);
 	static const TypeInfo* GetType(const Il2CppImage* image, size_t index);
-	static TypeInfo* FromTypeNameParseInfo (Il2CppImage* image, const TypeNameParseInfo &info);
+	static TypeInfo* FromTypeNameParseInfo (Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase);
 	static TypeInfo* ClassFromName (const Il2CppImage* image, const char* namespaze, const char *name);
 
 	struct EmbeddedResourceData
