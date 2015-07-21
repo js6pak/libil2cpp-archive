@@ -4,6 +4,7 @@
 #include "blob.h"
 #include <vector>
 #include "metadata/Il2CppTypeVector.h"
+#include "class-internals.h"
 
 struct TypeInfo;
 struct EventInfo;
@@ -47,6 +48,7 @@ public:
 	static const MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
 	static const char* GetName (TypeInfo *klass);
 	static const char* GetNamespace (TypeInfo *klass);
+	static TypeInfo* GetNestedTypes (TypeInfo *klass, void* *iter);
 	static size_t GetNumMethods(const TypeInfo* klass);
 	static size_t GetNumProperties(const TypeInfo* klass);
 	static size_t GetNumFields(const TypeInfo* klass);
@@ -102,7 +104,10 @@ public:
 	static bool HasReferences (TypeInfo *klass);
 	static void SetupFields (TypeInfo *klass);
 	static void SetupMethods (TypeInfo *klass);
+	static void SetupNestedTypes (TypeInfo *klass);
 	static void SetupVTable (TypeInfo *klass);
+
+	static inline bool HasParent (TypeInfo* klass, TypeInfo* parent) { return klass->typeHierarchyDepth >= parent->typeHierarchyDepth && klass->typeHierarchy [parent->typeHierarchyDepth - 1] == parent; }
 
 	static const std::vector<TypeInfo*>& GetStaticFieldData ();
 

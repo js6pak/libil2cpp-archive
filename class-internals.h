@@ -12,6 +12,7 @@ struct Il2CppImage;
 struct Il2CppAssembly;
 struct Il2CppAppDomain;
 struct Il2CppDelegate;
+struct Il2CppAppContext;
 
 enum Il2CppTypeNameFormat {
 	IL2CPP_TYPE_NAME_FORMAT_IL,
@@ -224,69 +225,40 @@ union Il2CppRGCTXData
 	TypeInfo* klass;
 };
 
-union Il2CppRGCTXDefinitionData
-{
-	int32_t rgctxDataDummy;
-	MethodIndex methodIndex;
-	TypeIndex typeIndex;
-};
-
-enum Il2CppRGCTXDataType
-{
-	IL2CPP_RGCTX_DATA_INVALID,
-	IL2CPP_RGCTX_DATA_TYPE,
-	IL2CPP_RGCTX_DATA_CLASS,
-	IL2CPP_RGCTX_DATA_METHOD
-};
-
-struct Il2CppRGCTXDefinition
-{
-	Il2CppRGCTXDataType type;
-	Il2CppRGCTXDefinitionData data;
-};
-
-union Il2CppRGCTX
-{
-	const void* dummy; // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
-	const Il2CppRGCTXData* data;
-	const Il2CppRGCTXDefinition* definition;
-};
-
 struct MethodInfo
 {
-	const char* name;
 	methodPointerType method;
+	InvokerMethod invoker_method;
+	const char* name;
 	TypeInfo *declaring_type;
 	const Il2CppType *return_type;
-	InvokerMethod invoker_method;
 	const ParameterInfo* parameters;
-	CustomAttributeIndex customAttributeIndex;
-	uint16_t flags;
-	uint16_t iflags;
-	uint16_t slot;
-	uint8_t parameters_count;
-	bool is_generic; /* true if method is a generic method definition */
-	bool is_inflated; /* true if declaring_type is a generic instance or if method is a generic instance*/
-	/* note, when is_generic == true and is_inflated == true the method represents an uninflated generic method on an inflated type. */
-	uint32_t token;
-	Il2CppRGCTX rgctx_data;
-	methodPointerType native_delegate_wrapper;
 
+	union
+	{
+		const Il2CppRGCTXData* rgctx_data; /* is_inflated is true and is_generic is false, i.e. a generic instance method */
+		const Il2CppMethodDefinition* methodDefinition;
+	};
+	
+	/* note, when is_generic == true and is_inflated == true the method represents an uninflated generic method on an inflated type. */
 	union
 	{
 		const Il2CppGenericMethod* genericMethod; /* is_inflated is true */
 		const Il2CppGenericContainer* genericContainer; /* is_inflated is false and is_generic is true */
 	};
 
+	CustomAttributeIndex customAttributeIndex;
+	uint32_t token;
+	uint16_t flags;
+	uint16_t iflags;
+	uint16_t slot;
+	uint8_t parameters_count;
+	uint8_t is_generic : 1; /* true if method is a generic method definition */
+	uint8_t is_inflated : 1; /* true if declaring_type is a generic instance or if method is a generic instance*/
+
 #if IL2CPP_DEBUGGER_ENABLED
 	const Il2CppDebugMethodInfo *debug_info;
 #endif
-};
-
-struct Il2CppInterfaceOffsetPair
-{
-	const Il2CppType* interfaceType;
-	int32_t offset;
 };
 
 struct Il2CppRuntimeInterfaceOffsetPair
@@ -295,62 +267,49 @@ struct Il2CppRuntimeInterfaceOffsetPair
 	int32_t offset;
 };
 
-struct Il2CppTypeDefinitionMetadata
-{
-	const Il2CppType* declaringType;
-	const Il2CppType** nestedTypes;
-	const Il2CppType** implementedInterfaces;
-	const Il2CppInterfaceOffsetPair* interfaceOffsets;
-	const Il2CppType* parent;
-	const EncodedMethodIndex* vtableMethods;
-	const Il2CppRGCTXDefinition* rgctxDefinition;
-	FieldIndex fieldStart;
-	MethodIndex methodStart;
-	EventIndex eventStart;
-	PropertyIndex propertyStart;
-};
-
-struct Il2CppRuntimeMetadata
-{
-	TypeInfo* declaringType;
-	TypeInfo** nestedTypes;
-	TypeInfo** implementedInterfaces;
-	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets;
-	TypeInfo* parent;
-	TypeInfo* castClass;
-	FieldInfo* fields;
-	const EventInfo* events;
-	const PropertyInfo* properties;
-};
-
 struct TypeInfo
 {
+	// The following fields are always valid for a TypeInfo structure
 	Il2CppImage* image;
 	void* gc_desc;
 	const char* name;
 	const char* namespaze;
-	const MethodInfo** methods;
-	TypeInfo* element_class;
 	const MethodInfo** vtable;
-	CustomAttributeIndex customAttributeIndex;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
-
-	const Il2CppTypeDefinitionMetadata* definitionMetadata;
-	Il2CppRuntimeMetadata* runtimeMetadata;
-
+	TypeInfo* element_class;
+	TypeInfo* castClass;
+	TypeInfo* declaringType;
+	TypeInfo* parent;
 	Il2CppGenericClass *generic_class;
-	GenericContainerIndex genericContainerIndex;
-
+	const Il2CppTypeDefinition* typeDefinition; // non-NULL for TypeInfo's constructed from type defintions
+	// End always valid fields
+	
+	// The following fields need initialized before access. This can be done per field or as an aggregate via a call to Class::Init
+	FieldInfo* fields; // Initialized in SetupFields
+	const EventInfo* events; // Initialized in SetupEvents
+	const PropertyInfo* properties; // Initialized in SetupProperties
+	const MethodInfo** methods; // Initialized in SetupMethods
+	TypeInfo** nestedTypes; // Initialized in SetupNestedTypes
+	TypeInfo** implementedInterfaces;
+	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets;
 	void* static_fields;
+	const Il2CppRGCTXData* rgctx_data;
+	// used for fast parent checks
+	TypeInfo** typeHierarchy; // Initialized in SetupTypeHierachy
+	// End initialization required fields
 
-	Il2CppRGCTX rgctx_data;
+#if IL2CPP_DEBUGGER_ENABLED
+	const Il2CppDebugTypeInfo *debug_info;
+#endif
 
-	methodPointerType pinvoke_delegate_wrapper;
-	methodPointerType marshal_to_native_func;
-	methodPointerType marshal_from_native_func;
-	methodPointerType marshal_cleanup_func;
+	uint32_t cctor_started;
+	uint32_t cctor_finished;
+	ALIGN_TYPE (8) uint64_t cctor_thread;
 
+	// Remaining fields are always valid
+	GenericContainerIndex genericContainerIndex;
+	CustomAttributeIndex customAttributeIndex;
 	uint32_t instance_size;
 	uint32_t actualSize;
 	uint32_t element_size;
@@ -359,18 +318,6 @@ struct TypeInfo
 	uint32_t thread_static_fields_size;
 	int32_t thread_static_fields_offset;
 	uint32_t flags;
-	uint8_t rank;
-	uint8_t minimumAlignment;
-	bool valuetype;
-	bool initialized;
-	bool enumtype;
-	bool is_generic;
-	bool has_references;
-	bool init_pending;
-	bool size_inited;
-	bool has_finalize;
-	bool has_cctor;
-	bool is_blittable;
 
 	uint16_t method_count;
 	uint16_t property_count;
@@ -381,15 +328,30 @@ struct TypeInfo
 	uint16_t interfaces_count;
 	uint16_t interface_offsets_count;
 
-#if IL2CPP_DEBUGGER_ENABLED
-	const Il2CppDebugTypeInfo *debug_info;
-#endif
+	uint8_t typeHierarchyDepth; // Initialized in SetupTypeHierachy
+	uint8_t rank;
+	uint8_t minimumAlignment;
 
-	uint32_t cctor_started;
-	uint32_t cctor_finished;
-	ALIGN_TYPE (8) uint64_t cctor_thread;
+	uint8_t valuetype : 1;
+	uint8_t initialized : 1;
+	uint8_t enumtype : 1;
+	uint8_t is_generic : 1;
+	uint8_t has_references : 1;
+	uint8_t init_pending : 1;
+	uint8_t size_inited : 1;
+	uint8_t has_finalize : 1;
+	uint8_t has_cctor : 1;
+	uint8_t is_blittable : 1;
 };
 
+// compiler calcualted values
+struct Il2CppTypeDefinitionSizes
+{
+	uint32_t instance_size;
+	int32_t native_size;
+	uint32_t static_fields_size;
+	uint32_t thread_static_fields_size;
+};
 
 struct Il2CppAssemblyName
 {
@@ -415,7 +377,7 @@ struct Il2CppImage
 	TypeIndex typeStart;
 	uint16_t typeCount;
 
-	TypeInfo* entryPointClass;
+	TypeIndex entryPointClassIndex;
 	uint16_t entryPointOffset;
 };
 
@@ -430,16 +392,28 @@ struct Il2CppDomain
 {
 	Il2CppAppDomain* domain;
 	Il2CppObject* setup;	// We don't define setup class in native code because it depends on mscorlib profile and we never seen to access its internals anyway
+	Il2CppAppContext* default_context;
 	const char* friendly_name;
 	uint32_t domain_id;
+};
+
+struct Il2CppMarshalingFunctions
+{
+	methodPointerType marshal_to_native_func;
+	methodPointerType marshal_from_native_func;
+	methodPointerType marshal_cleanup_func;
 };
 
 struct Il2CppCodeRegistration
 {
 	uint32_t methodPointersCount;
 	const methodPointerType* methodPointers;
-	uint32_t delegateWrapperCount;
-	const methodPointerType** delegateWrappers;
+	uint32_t delegateWrappersFromNativeToManagedCount;
+	const methodPointerType** delegateWrappersFromNativeToManaged; // note the double indirection to handle different calling conventions
+	uint32_t delegateWrappersFromManagedToNativeCount;
+	const methodPointerType* delegateWrappersFromManagedToNative;
+	uint32_t marshalingFunctionsCount;
+	const Il2CppMarshalingFunctions* marshalingFunctions;
 	uint32_t genericMethodPointersCount;
 	const methodPointerType* genericMethodPointers;
 	uint32_t invokerPointersCount;
@@ -469,17 +443,11 @@ struct Il2CppMetadataRegistration
 	int32_t methodDefinitionReferencesCount;
 	const Il2CppMethodDefinitionReference* methodDefinitionReferences;
 
-	int32_t typeInfosCount;
-	TypeInfo** typesInfos;
-
 	FieldIndex fieldOffsetsCount;
 	const int32_t* fieldOffsets;
 
-	GenericContainerIndex genericContainersCount;
-	Il2CppGenericContainer* genericContainers;
-
-	RGCTXIndex rgctxDefinitionsCount;
-	const Il2CppRGCTXDefinition** rgctxDefinitions;
+	TypeDefinitionIndex typeDefinitionsSizesCount;
+	const Il2CppTypeDefinitionSizes* typeDefinitionsSizes;
 };
 
 struct Il2CppRuntimeStats
