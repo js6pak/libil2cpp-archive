@@ -87,6 +87,7 @@ extern "C"
 	IL2CPP_EXPORT Il2CppException* il2cpp_exception_from_name_msg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg);
 	IL2CPP_EXPORT void il2cpp_format_exception(const Il2CppException* ex, char* message, int message_size);
 	IL2CPP_EXPORT void il2cpp_format_stack_trace(const Il2CppException* ex, char* output, int output_size);
+	IL2CPP_EXPORT void il2cpp_unhandled_exception(Il2CppException*);
 
 	// field
 	IL2CPP_EXPORT int il2cpp_field_get_flags (FieldInfo *field);

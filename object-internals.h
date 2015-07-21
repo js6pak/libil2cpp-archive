@@ -628,3 +628,11 @@ struct Il2CppManifestResourceInfo
 	{	\
 		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetArgumentNullException (#arg));	\
 	};	} while (0)
+
+struct Il2CppAppContext 
+{
+	Il2CppObject obj;
+	int32_t domain_id;
+	int32_t context_id;
+	void* static_data;
+};
