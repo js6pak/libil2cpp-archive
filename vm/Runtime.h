@@ -57,7 +57,7 @@ public:
 	struct MethodDefinitionKey
 	{
 		methodPointerType method;
-		TypeInfo* type;
+		int32_t typeIndex;
 		uint32_t index;
 	};
 

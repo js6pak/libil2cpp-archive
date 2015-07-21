@@ -32,6 +32,7 @@ il2cpp_class_is_subclass_of
 il2cpp_class_from_il2cpp_type
 il2cpp_class_from_name
 il2cpp_class_from_system_type
+il2cpp_class_get_declaring_type
 il2cpp_class_get_element_class
 il2cpp_class_get_fields
 il2cpp_class_get_field_from_name
