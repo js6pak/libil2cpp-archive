@@ -52,6 +52,7 @@ extern "C"
 	IL2CPP_EXPORT const char* il2cpp_class_get_name (TypeInfo *klass);
 	IL2CPP_EXPORT const char* il2cpp_class_get_namespace (TypeInfo *klass);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_parent (TypeInfo *klass);
+	IL2CPP_EXPORT TypeInfo* il2cpp_class_get_declaring_type (TypeInfo *klass);
 	IL2CPP_EXPORT int32_t il2cpp_class_instance_size (TypeInfo *klass);
 	IL2CPP_EXPORT size_t il2cpp_class_num_fields(const TypeInfo* enumKlass);
 	IL2CPP_EXPORT bool il2cpp_class_is_valuetype(const TypeInfo *klass);
@@ -86,6 +87,7 @@ extern "C"
 	IL2CPP_EXPORT Il2CppException* il2cpp_exception_from_name_msg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg);
 	IL2CPP_EXPORT void il2cpp_format_exception(const Il2CppException* ex, char* message, int message_size);
 	IL2CPP_EXPORT void il2cpp_format_stack_trace(const Il2CppException* ex, char* output, int output_size);
+	IL2CPP_EXPORT void il2cpp_unhandled_exception(Il2CppException*);
 
 	// field
 	IL2CPP_EXPORT int il2cpp_field_get_flags (FieldInfo *field);
