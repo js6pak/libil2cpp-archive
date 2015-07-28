@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "il2cpp-api-types.h"
+#include "il2cpp-metadata.h"
 
 struct Il2CppArray;
 struct Il2CppDelegate;
@@ -57,14 +58,11 @@ public:
 	struct MethodDefinitionKey
 	{
 		methodPointerType method;
-		int32_t typeIndex;
-		uint32_t index;
+		MethodIndex methodIndex;
 	};
 
 	static void RegisterMethods (const std::vector<MethodDefinitionKey>& managedMethods);
 	static const MethodInfo* GetMethodFromNativeSymbol (methodPointerType nativeMethod);
-
-	static void RegisterRuntimeMethod (const MethodInfo* method);
 #endif
 	
 	static const char *GetBundledMachineConfig ();

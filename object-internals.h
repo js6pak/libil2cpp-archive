@@ -192,9 +192,10 @@ struct Il2CppReflectionParameter{
 };
 
 // System.Reflection.Module
-struct Il2CppReflectionModule {
+struct Il2CppReflectionModule
+{
 	Il2CppObject obj;
-	Il2CppImage* image;
+	const Il2CppImage* image;
 	Il2CppReflectionAssembly* assembly;
 	Il2CppString* fqname;
 	Il2CppString* name;
@@ -224,7 +225,7 @@ struct Il2CppReflectionAssemblyName
 // System.Reflection.Assembly
 struct Il2CppReflectionAssembly {
 	Il2CppObject object;
-	Il2CppAssembly *assembly;
+	const Il2CppAssembly *assembly;
 	Il2CppObject *resolve_event_holder;
 	/* CAS related */
 	Il2CppObject *evidence;	/* Evidence */
