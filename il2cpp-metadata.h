@@ -20,6 +20,7 @@ typedef int32_t DefaultValueDataIndex;
 typedef int32_t CustomAttributeIndex;
 typedef int32_t ParameterIndex;
 typedef int32_t MethodIndex;
+typedef int32_t GenericMethodIndex;
 typedef int32_t PropertyIndex;
 typedef int32_t EventIndex;
 typedef int32_t GenericContainerIndex;
@@ -33,6 +34,8 @@ typedef int32_t RGCTXIndex;
 typedef int32_t StringIndex;
 typedef int32_t StringLiteralIndex;
 typedef int32_t GenericInstIndex;
+typedef int32_t ImageIndex;
+typedef int32_t AssemblyIndex;
 
 const TypeIndex kTypeIndexInvalid = -1;
 const DefaultValueDataIndex kDefaultValueIndexNull = -1;
@@ -200,15 +203,9 @@ struct Il2CppPropertyDefinition
 	CustomAttributeIndex customAttributeIndex;
 };
 
-struct Il2CppMethodDefinitionReference
-{
-	TypeIndex typeIndex;
-	uint16_t methodOffset; // offset into methods array on the type. A local index, not a global one.
-};
-
 struct Il2CppMethodSpec
 {
-	MethodIndex methodRefIndex;
+	MethodIndex methodDefinitionIndex;
 	GenericInstIndex classIndexIndex;
 	GenericInstIndex methodIndexIndex;
 };
@@ -227,8 +224,44 @@ struct Il2CppGenericMethodIndices
 
 struct Il2CppGenericMethodFunctionsDefinitions
 {
-	MethodIndex genericMethod;
+	GenericMethodIndex genericMethodIndex;
 	Il2CppGenericMethodIndices indices;
+};
+
+const int kPublicKeyByteLength = 8;
+
+struct Il2CppAssemblyName
+{
+	StringIndex nameIndex;
+	StringIndex cultureIndex;
+	StringIndex hashValueIndex;
+	StringIndex publicKeyIndex;
+	uint32_t hash_alg;
+	int32_t hash_len;
+	uint32_t flags;
+	int32_t major;
+	int32_t minor;
+	int32_t build;
+	int32_t revision;
+	uint8_t publicKeyToken[kPublicKeyByteLength];
+};
+
+struct Il2CppImage
+{
+	StringIndex nameIndex;
+	AssemblyIndex assemblyIndex;
+
+	TypeIndex typeStart;
+	uint32_t typeCount;
+
+	MethodIndex entryPointIndex;
+};
+
+struct Il2CppAssembly
+{
+	ImageIndex imageIndex;
+	CustomAttributeIndex customAttributeIndex;
+	Il2CppAssemblyName aname;
 };
 
 #pragma pack(push, p1,4)
@@ -274,5 +307,9 @@ struct Il2CppGlobalMetadataHeader
 	int32_t typeDefinitionsCount;
 	int32_t rgctxEntriesOffset; // Il2CppRGCTXDefinition
 	int32_t rgctxEntriesCount;
+	int32_t imagesOffset; // Il2CppImageDefinition
+	int32_t imagesCount;
+	int32_t assembliesOffset; // Il2CppAssemblyDefinition
+	int32_t assembliesCount;
 };
 #pragma pack(pop, p1)

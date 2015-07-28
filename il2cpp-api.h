@@ -66,7 +66,7 @@ extern "C"
 	IL2CPP_EXPORT bool il2cpp_class_has_attribute (TypeInfo *klass, TypeInfo *attr_class);
 	IL2CPP_EXPORT bool il2cpp_class_has_references (TypeInfo *klass);
 	IL2CPP_EXPORT bool il2cpp_class_is_enum (const TypeInfo *klass);
-	IL2CPP_EXPORT Il2CppImage* il2cpp_class_get_image (TypeInfo* klass);
+	IL2CPP_EXPORT const Il2CppImage* il2cpp_class_get_image (TypeInfo* klass);
 	IL2CPP_EXPORT const char *il2cpp_class_get_assemblyname (const TypeInfo *klass);
 
 	// testing only
@@ -79,8 +79,8 @@ extern "C"
 
 	// domain
 	IL2CPP_EXPORT Il2CppDomain* il2cpp_domain_get ();
-	IL2CPP_EXPORT Il2CppAssembly* il2cpp_domain_assembly_open (Il2CppDomain* domain, const char* name);
-	IL2CPP_EXPORT Il2CppAssembly** il2cpp_domain_get_assemblies (const Il2CppDomain* domain, size_t* size);
+	IL2CPP_EXPORT const Il2CppAssembly* il2cpp_domain_assembly_open (Il2CppDomain* domain, const char* name);
+	IL2CPP_EXPORT const Il2CppAssembly** il2cpp_domain_get_assemblies (const Il2CppDomain* domain, size_t* size);
 
 	// exception
 	IL2CPP_EXPORT void il2cpp_raise_exception(Il2CppException*);
@@ -217,8 +217,8 @@ extern "C"
 	IL2CPP_EXPORT char* il2cpp_type_get_name (const Il2CppType *type);
 
 	// image
-	IL2CPP_EXPORT Il2CppAssembly* il2cpp_image_get_assembly (Il2CppImage *image);
-	IL2CPP_EXPORT const char* il2cpp_image_get_name (Il2CppImage *image);
+	IL2CPP_EXPORT const Il2CppAssembly* il2cpp_image_get_assembly (const Il2CppImage *image);
+	IL2CPP_EXPORT const char* il2cpp_image_get_name (const Il2CppImage *image);
 	IL2CPP_EXPORT const char* il2cpp_image_get_filename (const Il2CppImage *image);
 	IL2CPP_EXPORT const MethodInfo* il2cpp_image_get_entry_point (const Il2CppImage* image);
 
