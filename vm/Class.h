@@ -72,7 +72,7 @@ public:
 	static const Il2CppType* GetType (TypeInfo *klass, const TypeNameParseInfo &info);
 	static bool HasAttribute (TypeInfo *klass, TypeInfo *attr_class);
 	static bool IsEnum (const TypeInfo *klass);
-	static Il2CppImage* GetImage (TypeInfo* klass);
+	static const Il2CppImage* GetImage (TypeInfo* klass);
 	static const Il2CppDebugTypeInfo *GetDebugInfo (const TypeInfo *klass);
 	static const char *GetAssemblyName (const TypeInfo *klass);
 
