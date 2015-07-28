@@ -270,7 +270,7 @@ struct Il2CppRuntimeInterfaceOffsetPair
 struct TypeInfo
 {
 	// The following fields are always valid for a TypeInfo structure
-	Il2CppImage* image;
+	const Il2CppImage* image;
 	void* gc_desc;
 	const char* name;
 	const char* namespaze;
@@ -353,41 +353,6 @@ struct Il2CppTypeDefinitionSizes
 	uint32_t thread_static_fields_size;
 };
 
-struct Il2CppAssemblyName
-{
-	const char *name;
-	const char *culture;
-	const char *hash_value;
-	const char* public_key;
-	uint8_t public_key_token [IL2CPP_PUBLIC_KEY_TOKEN_LENGTH];
-	uint32_t hash_alg;
-	uint32_t hash_len;
-	uint32_t flags;
-	uint16_t major;
-	uint16_t minor;
-	uint16_t build;
-	uint16_t revision;
-};
-
-struct Il2CppImage
-{
-	const char* name;
-	Il2CppAssembly* assembly;
-
-	TypeIndex typeStart;
-	uint16_t typeCount;
-
-	TypeIndex entryPointClassIndex;
-	uint16_t entryPointOffset;
-};
-
-struct Il2CppAssembly
-{
-	Il2CppAssemblyName aname;
-	Il2CppImage *image;
-	CustomAttributeIndex customAttributeIndex;
-};
-
 struct Il2CppDomain
 {
 	Il2CppAppDomain* domain;
@@ -424,10 +389,6 @@ struct Il2CppCodeRegistration
 
 struct Il2CppMetadataRegistration
 {
-	int32_t assembliesCount;
-	Il2CppAssembly** assemblies;
-	int32_t imageCount;
-	Il2CppImage** images;
 	int32_t genericClassesCount;
 	Il2CppGenericClass** genericClasses;
 	int32_t genericInstsCount;
@@ -440,8 +401,6 @@ struct Il2CppMetadataRegistration
 	const Il2CppMethodSpec* methodSpecs;
 	int32_t methodReferencesCount;
 	const EncodedMethodIndex* methodReferences;
-	int32_t methodDefinitionReferencesCount;
-	const Il2CppMethodDefinitionReference* methodDefinitionReferences;
 
 	FieldIndex fieldOffsetsCount;
 	const int32_t* fieldOffsets;

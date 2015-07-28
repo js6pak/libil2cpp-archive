@@ -51,20 +51,21 @@ public:
 	static TypeInfo* GetTypeInfoFromIndex (TypeIndex index);
 	static const Il2CppType* GetIl2CppTypeFromIndex (TypeIndex index);
 	static const MethodInfo* GetMethodInfoFromIndex (EncodedMethodIndex index);
-	static const MethodInfo* GetMethodInfoFromMethodRef (const Il2CppMethodDefinitionReference& methodRef);
-	static const Il2CppGenericMethod* GetGenericMethodFromIndex (MethodIndex index);
+	static const Il2CppGenericMethod* GetGenericMethodFromIndex (GenericMethodIndex index);
 	static Il2CppString* GetStringLiteralFromIndex (StringLiteralIndex index);
 	static const char* GetStringFromIndex (StringIndex index);
 
-	static methodPointerType GetMethodPointerFromIndex (Il2CppImage* image, MethodIndex index);
-	static InvokerMethod GetMethodInvokerFromIndex (Il2CppImage* image, MethodIndex index);
+	static methodPointerType GetMethodPointerFromIndex (MethodIndex index);
+	static InvokerMethod GetMethodInvokerFromIndex (MethodIndex index);
 	static methodPointerType GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index);
 	static methodPointerType GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index);
 	
 	static methodPointerType GetMarshalToNativeFuncFromIndex (MethodIndex index);
 	static methodPointerType GetMarshalFromNativeFuncFromIndex (MethodIndex index);
 	static methodPointerType GetMarshalCleanupFuncFromIndex (MethodIndex index);
-
+	
+	static const Il2CppAssembly* GetAssemblyFromIndex (AssemblyIndex index);
+	static const Il2CppImage* GetImageFromIndex (ImageIndex index);
 	static TypeInfo* GetTypeDefinitionFromIndex (TypeIndex index);
 	static const Il2CppGenericContainer* GetGenericContainerFromIndex (GenericContainerIndex index);
 	static const Il2CppGenericParameter* GetGenericParameterFromIndex (GenericParameterIndex index);
