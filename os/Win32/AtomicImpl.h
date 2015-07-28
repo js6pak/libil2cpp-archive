@@ -78,10 +78,14 @@ int64_t Atomic::Read64 (volatile int64_t* addr)
 #undef MemoryBarrier
 inline void Atomic::MemoryBarrier ()
 {
-#ifdef _AMD64_
+#if defined(_AMD64_)
 	::__faststorefence ();
-#else
+#elif defined(_M_IX86)
 	::MemoryBarrier ();
+#elif defined(_M_ARM)
+	__dmb(_ARM_BARRIER_SY);
+#else
+#error Not implemented;
 #endif
 }
 

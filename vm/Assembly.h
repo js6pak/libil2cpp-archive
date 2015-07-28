@@ -13,7 +13,7 @@ namespace il2cpp
 namespace vm
 {
 
-typedef std::vector<Il2CppAssembly*> AssemblyVector;
+typedef std::vector<const Il2CppAssembly*> AssemblyVector;
 
 class Assembly
 {
@@ -22,9 +22,9 @@ public:
 	static const Il2CppImage* GetImage (const Il2CppAssembly* assembly);
 public:
 	static AssemblyVector* GetAllAssemblies();
-	static Il2CppAssembly* GetLoadedAssembly(const char* name);
-	static Il2CppAssembly* Load (const char* name);
-	static void Register (Il2CppAssembly* assembly);
+	static const Il2CppAssembly* GetLoadedAssembly(const char* name);
+	static const Il2CppAssembly* Load (const char* name);
+	static void Register (const Il2CppAssembly* assembly);
 	static void Initialize ();
 	static std::string AssemblyNameToString(const Il2CppAssemblyName& aname);
 
