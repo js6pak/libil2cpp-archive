@@ -38,6 +38,7 @@ extern "C"
 	IL2CPP_EXPORT bool il2cpp_class_is_generic (const TypeInfo *klass);
 	IL2CPP_EXPORT bool il2cpp_class_is_assignable_from (TypeInfo *klass, TypeInfo *oklass);
 	IL2CPP_EXPORT bool il2cpp_class_is_subclass_of (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces);
+	IL2CPP_EXPORT bool il2cpp_class_has_parent (TypeInfo* klass, TypeInfo* klassc);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_from_il2cpp_type (const Il2CppType* type);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_from_name (const Il2CppImage* image, const char* namespaze, const char *name);
 	IL2CPP_EXPORT TypeInfo* il2cpp_class_from_system_type (Il2CppReflectionType *type);
