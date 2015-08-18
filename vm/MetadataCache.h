@@ -51,33 +51,44 @@ public:
 	static TypeInfo* GetTypeInfoFromIndex (TypeIndex index);
 	static const Il2CppType* GetIl2CppTypeFromIndex (TypeIndex index);
 	static const MethodInfo* GetMethodInfoFromIndex (EncodedMethodIndex index);
-	static const MethodInfo* GetMethodInfoFromMethodRef (const Il2CppMethodDefinitionReference& methodRef);
-	static const Il2CppGenericMethod* GetGenericMethodFromIndex (MethodIndex index);
+	static const Il2CppGenericMethod* GetGenericMethodFromIndex (GenericMethodIndex index);
 	static Il2CppString* GetStringLiteralFromIndex (StringLiteralIndex index);
 	static const char* GetStringFromIndex (StringIndex index);
 
-	static methodPointerType GetMethodPointerFromIndex (Il2CppImage* image, MethodIndex index);
-	static InvokerMethod GetMethodInvokerFromIndex (Il2CppImage* image, MethodIndex index);
-	static methodPointerType GetDelegateWrapperPointerFromIndex (Il2CppImage* image, MethodIndex index);
-
-
+	static methodPointerType GetMethodPointerFromIndex (MethodIndex index);
+	static InvokerMethod GetMethodInvokerFromIndex (MethodIndex index);
+	static methodPointerType GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index);
+	static methodPointerType GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index);
+	
+	static methodPointerType GetMarshalToNativeFuncFromIndex (MethodIndex index);
+	static methodPointerType GetMarshalFromNativeFuncFromIndex (MethodIndex index);
+	static methodPointerType GetMarshalCleanupFuncFromIndex (MethodIndex index);
+	
+	static const Il2CppAssembly* GetAssemblyFromIndex (AssemblyIndex index);
+	static const Il2CppImage* GetImageFromIndex (ImageIndex index);
 	static TypeInfo* GetTypeDefinitionFromIndex (TypeIndex index);
 	static const Il2CppGenericContainer* GetGenericContainerFromIndex (GenericContainerIndex index);
 	static const Il2CppGenericParameter* GetGenericParameterFromIndex (GenericParameterIndex index);
 	static const Il2CppType* GetGenericParameterConstraintFromIndex (GenericParameterConstraintIndex index);
-	static const Il2CppRGCTXDefinition* GetRGCTXDefinitionFromIndex (Il2CppImage* image, RGCTXIndex index);
+	static TypeInfo* GetNestedTypeFromIndex (NestedTypeIndex index);
+	static const Il2CppType* GetInterfaceFromIndex (InterfacesIndex index);
+	static EncodedMethodIndex GetVTableMethodFromIndex (VTableIndex index);
+	static Il2CppInterfaceOffsetPair GetInterfaceOffsetIndex (InterfaceOffsetIndex index);
+	static const Il2CppRGCTXDefinition* GetRGCTXDefinitionFromIndex (RGCTXIndex index);
 	static const Il2CppEventDefinition* GetEventDefinitionFromIndex (EventIndex index);
 	static const Il2CppFieldDefinition* GetFieldDefinitionFromIndex (FieldIndex index);
 	static const Il2CppFieldDefaultValue* GetFieldDefaultValueFromIndex (FieldIndex index);
 	static const uint8_t* GetFieldDefaultValueDataFromIndex (FieldIndex index);
 	static const Il2CppFieldDefaultValue* GetFieldDefaultValueForField (const FieldInfo* field);
 	static const Il2CppMethodDefinition* GetMethodDefinitionFromIndex (MethodIndex index);
+	static const MethodInfo* GetMethodInfoFromMethodDefinitionIndex (MethodIndex index);
 	static const Il2CppPropertyDefinition* GetPropertyDefinitionFromIndex (PropertyIndex index);
 	static const Il2CppParameterDefinition* GetParameterDefinitionFromIndex (ParameterIndex index);
 
 	// returns the compiler computer field offset for type definition fields
 	static int32_t GetFieldOffsetFromIndex (FieldIndex index);
-
+	
+	static const TypeIndex GetIndexForTypeDefinition (const TypeInfo* typeDefinition);
 	static const GenericParameterIndex GetIndexForGenericParameter (const Il2CppGenericParameter* genericParameter);
 
 	static CustomAttributesCache* GenerateCustomAttributesCache (CustomAttributeIndex index);
