@@ -106,6 +106,13 @@
 #define IL2CPP_EXCEPTION_DISABLED 0
 #endif
 
+// If the platform loads il2cpp as a dynamic library but does not have dlsym (or equivalent) then
+// define IL2CPP_API_DYNAMIC_NO_DLSYM = 1 to add support for api function registration and symbol
+// lookup APIs, see il2cpp-api.cpp
+#ifndef IL2CPP_API_DYNAMIC_NO_DLSYM
+#define IL2CPP_API_DYNAMIC_NO_DLSYM 0
+#endif
+
 #ifdef _MSC_VER
 # include <malloc.h>
 # define IL2CPP_EXPORT __declspec(dllexport)
