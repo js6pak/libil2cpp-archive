@@ -80,6 +80,7 @@ public:
 	static const Il2CppFieldDefaultValue* GetFieldDefaultValueFromIndex (FieldIndex index);
 	static const uint8_t* GetFieldDefaultValueDataFromIndex (FieldIndex index);
 	static const Il2CppFieldDefaultValue* GetFieldDefaultValueForField (const FieldInfo* field);
+	static int GetFieldMarshaledSizeForField(const FieldInfo* field);
 	static const Il2CppMethodDefinition* GetMethodDefinitionFromIndex (MethodIndex index);
 	static const MethodInfo* GetMethodInfoFromMethodDefinitionIndex (MethodIndex index);
 	static const Il2CppPropertyDefinition* GetPropertyDefinitionFromIndex (PropertyIndex index);
