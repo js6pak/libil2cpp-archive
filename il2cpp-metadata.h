@@ -140,6 +140,7 @@ struct Il2CppTypeDefinition
 	// 03 - has_finalize;
 	// 04 - has_cctor;
 	// 05 - is_blittable;
+	// 06-09 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
 	uint32_t bitfield;
 };
 
@@ -155,6 +156,13 @@ struct Il2CppFieldDefaultValue
 	FieldIndex fieldIndex;
 	TypeIndex typeIndex;
 	DefaultValueDataIndex dataIndex;
+};
+
+struct Il2CppFieldMarshaledSize
+{
+	FieldIndex fieldIndex;
+	TypeIndex typeIndex;
+	int32_t size;
 };
 
 struct Il2CppParameterDefinition
@@ -285,6 +293,8 @@ struct Il2CppGlobalMetadataHeader
 	int32_t fieldDefaultValuesCount;
 	int32_t fieldDefaultValueDataOffset; // uint8_t
 	int32_t fieldDefaultValueDataCount;
+	int32_t fieldMarshaledSizesOffset; // Il2CppFieldMarshaledSize
+	int32_t fieldMarshaledSizesCount;
 	int32_t parametersOffset; // Il2CppParameterDefinition
 	int32_t parametersCount;
 	int32_t fieldsOffset; // Il2CppFieldDefinition
