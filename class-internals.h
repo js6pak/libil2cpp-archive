@@ -93,9 +93,9 @@ typedef struct {
 	TypeInfo *idispatch_class;
 	TypeInfo *safehandle_class;
 	TypeInfo *handleref_class;
-	TypeInfo *attribute_class;
+	TypeInfo *attribute_class;*/
 	TypeInfo *customattribute_data_class;
-	TypeInfo *critical_finalizer_object;*/
+	//TypeInfo *critical_finalizer_object;
 	TypeInfo *version;
 	TypeInfo *culture_info;
 	TypeInfo *async_call_class;
@@ -122,7 +122,6 @@ struct TypeInfo;
 struct MethodInfo;
 struct FieldInfo;
 struct Il2CppObject;
-
 
 struct CustomAttributesCache
 {
@@ -331,6 +330,7 @@ struct TypeInfo
 	uint8_t typeHierarchyDepth; // Initialized in SetupTypeHierachy
 	uint8_t rank;
 	uint8_t minimumAlignment;
+	uint8_t packingSize;
 
 	uint8_t valuetype : 1;
 	uint8_t initialized : 1;
