@@ -59,6 +59,7 @@ public:
 	static bool HasParent (const TypeInfo *klass, const TypeInfo *parent);
 	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);
 	static bool IsGeneric (const TypeInfo *klass);
+	static bool IsInflated (const TypeInfo *klass);
 	static bool IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces);
 	static bool IsValuetype (const TypeInfo *klass);
 	static bool HasDefaultConstructor (TypeInfo* klass);
@@ -99,6 +100,7 @@ public:
 	static const Il2CppGenericContainer* GetGenericContainer (TypeInfo *klass);
 	static const MethodInfo* GetCCtor (TypeInfo *klass);
 	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
+	static int GetFieldMarshaledSize(const FieldInfo *field);
 	static TypeInfo* GetPtrClass (const Il2CppType* type);
 	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
 	static bool HasReferences (TypeInfo *klass);
