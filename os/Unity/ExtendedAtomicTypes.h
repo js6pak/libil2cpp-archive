@@ -50,21 +50,6 @@ UNITY_PLATFORM_BEGIN_NAMESPACE;
 		};
 	};
 	#define ATOMIC_HAS_DCAS
-#elif defined(_M_ARM)
-
-	typedef __int32	atomic_word;
-
-	union atomic_word2
-	{
-		__int64 v;
-		struct
-		{
-			atomic_word lo;
-			atomic_word hi;
-		};
-	};
-
-	#define ATOMIC_HAS_DCAS
 
 #elif defined (__arm64__) && (defined(__clang__) || defined(__GNUC__))
 

@@ -154,7 +154,7 @@ public:
 	void NotifyBreakPointHit(const MethodInfo *method, uint64_t offset, BreakpointData &bp_data);
 	void NotifyStepHit(const MethodInfo *method, uint64_t offset, SingleStepData &ss_data);
 	void NotifyAppDomainCreate(Il2CppDomain *domain);
-	void NotifyAssemblyLoad(const Il2CppAssembly *assembly);
+	void NotifyAssemblyLoad(Il2CppAssembly *assembly);
 	void NotifyTypeLoad(TypeInfo *type);
 	void NotifyThreadStart(Il2CppThread *thread);
 	void NotifyThreadDeath(Il2CppThread *thread);
