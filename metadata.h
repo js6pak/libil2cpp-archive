@@ -52,7 +52,7 @@ struct Il2CppGenericContainer
 
 struct Il2CppGenericClass
 {
-	TypeIndex typeDefinitionIndex;	/* the generic type definition */
+	TypeDefinitionIndex typeDefinitionIndex;	/* the generic type definition */
 	Il2CppGenericContext context;	/* a context that contains the type instantiation doesn't contain any method instantiation */
 	TypeInfo *cached_class;	/* if present, the TypeInfo corresponding to the instantiation.  */
 };
@@ -67,7 +67,7 @@ struct Il2CppType {
 	union {
 		// We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
 		void* dummy;
-		TypeIndex klassIndex; /* for VALUETYPE and CLASS */
+		TypeDefinitionIndex klassIndex; /* for VALUETYPE and CLASS */
 		const Il2CppType *type;   /* for PTR and SZARRAY */
 		Il2CppArrayType *array; /* for ARRAY */
 		//MonoMethodSignature *method;
