@@ -13,6 +13,7 @@ struct Il2CppAssembly;
 struct Il2CppAppDomain;
 struct Il2CppDelegate;
 struct Il2CppAppContext;
+struct Il2CppNameToTypeDefinitionIndexHashTable;
 
 enum Il2CppTypeNameFormat {
 	IL2CPP_TYPE_NAME_FORMAT_IL,
@@ -24,7 +25,7 @@ enum Il2CppTypeNameFormat {
 extern bool g_il2cpp_is_fully_initialized;
 
 typedef struct {
-	const Il2CppImage *corlib;
+	Il2CppImage *corlib;
 	TypeInfo *object_class;
 	TypeInfo *byte_class;
 	TypeInfo *void_class;
@@ -360,6 +361,19 @@ struct Il2CppDomain
 	Il2CppAppContext* default_context;
 	const char* friendly_name;
 	uint32_t domain_id;
+};
+
+struct Il2CppImage
+{
+	const char* name;
+	AssemblyIndex assemblyIndex;
+
+	TypeDefinitionIndex typeStart;
+	uint32_t typeCount;
+
+	MethodIndex entryPointIndex;
+
+	Il2CppNameToTypeDefinitionIndexHashTable* nameToClassHashTable;
 };
 
 struct Il2CppMarshalingFunctions
