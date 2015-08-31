@@ -19,7 +19,7 @@ class Assembly
 {
 // exported 
 public:
-	static const Il2CppImage* GetImage (const Il2CppAssembly* assembly);
+	static Il2CppImage* GetImage (const Il2CppAssembly* assembly);
 public:
 	static AssemblyVector* GetAllAssemblies();
 	static const Il2CppAssembly* GetLoadedAssembly(const char* name);
