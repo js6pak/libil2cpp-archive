@@ -52,6 +52,7 @@ public:
 	
 	WaitStatus Connect (const char *path);
 	WaitStatus Connect (uint32_t address, uint16_t port);
+	WaitStatus Connect(uint8_t address[16], uint32_t scope, uint16_t port);
 	
 	WaitStatus Disconnect (bool reuse);
 	WaitStatus Shutdown (int32_t how);

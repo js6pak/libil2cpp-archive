@@ -122,6 +122,17 @@
 #define TYPE_ATTRIBUTE_RT_SPECIAL_NAME       0x00000800
 #define TYPE_ATTRIBUTE_HAS_SECURITY          0x00040000
 
+/*
+* Flags for Params (22.1.12)
+*/
+#define PARAM_ATTRIBUTE_IN                 0x0001
+#define PARAM_ATTRIBUTE_OUT                0x0002
+#define PARAM_ATTRIBUTE_OPTIONAL           0x0010
+#define PARAM_ATTRIBUTE_RESERVED_MASK      0xf000
+#define PARAM_ATTRIBUTE_HAS_DEFAULT        0x1000
+#define PARAM_ATTRIBUTE_HAS_FIELD_MARSHAL  0x2000
+#define PARAM_ATTRIBUTE_UNUSED             0xcfe0
+
 /**
  * 21.5 AssemblyRefs
  */
