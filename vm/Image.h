@@ -37,7 +37,7 @@ class Image
 {
 // exported
 public:
-	static const Il2CppImage* GetCorlib ();
+	static Il2CppImage* GetCorlib ();
 
 public:
 	static const char * GetName (const Il2CppImage* image);
@@ -49,7 +49,7 @@ public:
 	static size_t GetNumTypes(const Il2CppImage* image);
 	static const TypeInfo* GetType(const Il2CppImage* image, size_t index);
 	static TypeInfo* FromTypeNameParseInfo (const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase);
-	static TypeInfo* ClassFromName (const Il2CppImage* image, const char* namespaze, const char *name);
+	static TypeInfo* ClassFromName (Il2CppImage* image, const char* namespaze, const char *name);
 
 	struct EmbeddedResourceData
 	{
