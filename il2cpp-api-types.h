@@ -5,6 +5,7 @@
 
 struct TypeInfo;
 struct Il2CppType;
+struct EventInfo;
 struct MethodInfo;
 struct FieldInfo;
 struct PropertyInfo;
@@ -123,6 +124,7 @@ typedef struct {
 } Il2CppMemoryCallbacks;
 
 typedef void (*register_object_callback)(void** arr, int size, void* userdata);
+typedef void (*WorldChangedCallback)();
 
 typedef void (*Il2CppFrameWalkFunc) (const Il2CppStackFrameInfo *info, void *user_data);
 typedef void (*Il2CppProfileFunc) (Il2CppProfiler* prof);
