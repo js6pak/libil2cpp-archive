@@ -32,7 +32,6 @@ class Class
 public:
 	static TypeInfo* FromIl2CppType (const Il2CppType* type);
 	static TypeInfo* FromName (Il2CppImage* image, const char* namespaze, const char *name);
-	static TypeInfo* FromNameInitialized (Il2CppImage* image, const char* namespaze, const char *name);
 	static TypeInfo* FromSystemType (Il2CppReflectionType *type);
 	static TypeInfo* FromGenericParameter (const Il2CppGenericParameter *param);
 	static TypeInfo* GetElementClass (TypeInfo *klass);
@@ -104,10 +103,13 @@ public:
 	static TypeInfo* GetPtrClass (const Il2CppType* type);
 	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
 	static bool HasReferences (TypeInfo *klass);
+	static void SetupEvents (TypeInfo *klass);
 	static void SetupFields (TypeInfo *klass);
 	static void SetupMethods (TypeInfo *klass);
 	static void SetupNestedTypes (TypeInfo *klass);
-	static void SetupVTable (TypeInfo *klass);
+	static void SetupProperties (TypeInfo *klass);
+	static void SetupTypeHierarchy (TypeInfo *klass);
+	static void SetupInterfaces (TypeInfo *klass);
 
 	static inline bool HasParent (TypeInfo* klass, TypeInfo* parent) { return klass->typeHierarchyDepth >= parent->typeHierarchyDepth && klass->typeHierarchy [parent->typeHierarchyDepth - 1] == parent; }
 

@@ -408,4 +408,5 @@ const uint64_t kIl2CppUInt64Max = UINT64_MAX;
 	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
 
+const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
