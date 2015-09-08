@@ -274,7 +274,6 @@ struct TypeInfo
 	void* gc_desc;
 	const char* name;
 	const char* namespaze;
-	const MethodInfo** vtable;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
 	TypeInfo* element_class;
@@ -291,10 +290,11 @@ struct TypeInfo
 	const PropertyInfo* properties; // Initialized in SetupProperties
 	const MethodInfo** methods; // Initialized in SetupMethods
 	TypeInfo** nestedTypes; // Initialized in SetupNestedTypes
-	TypeInfo** implementedInterfaces;
-	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets;
-	void* static_fields;
-	const Il2CppRGCTXData* rgctx_data;
+	TypeInfo** implementedInterfaces; // Initialized in SetupInterfaces
+	const MethodInfo** vtable; // Initialized in Init
+	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets; // Initialized in Init
+	void* static_fields; // Initialized in Init
+	const Il2CppRGCTXData* rgctx_data; // Initialized in Init
 	// used for fast parent checks
 	TypeInfo** typeHierarchy; // Initialized in SetupTypeHierachy
 	// End initialization required fields
@@ -307,7 +307,7 @@ struct TypeInfo
 	uint32_t cctor_finished;
 	ALIGN_TYPE (8) uint64_t cctor_thread;
 
-	// Remaining fields are always valid
+	// Remaining fields are always valid except where noted
 	GenericContainerIndex genericContainerIndex;
 	CustomAttributeIndex customAttributeIndex;
 	uint32_t instance_size;
@@ -319,14 +319,14 @@ struct TypeInfo
 	int32_t thread_static_fields_offset;
 	uint32_t flags;
 
-	uint16_t method_count;
+	uint16_t method_count; // lazily calculated for arrays, i.e. when rank > 0
 	uint16_t property_count;
 	uint16_t field_count;
 	uint16_t event_count;
 	uint16_t nested_type_count;
-	uint16_t vtable_count;
+	uint16_t vtable_count; // lazily calculated for arrays, i.e. when rank > 0
 	uint16_t interfaces_count;
-	uint16_t interface_offsets_count;
+	uint16_t interface_offsets_count; // lazily calculated for arrays, i.e. when rank > 0
 
 	uint8_t typeHierarchyDepth; // Initialized in SetupTypeHierachy
 	uint8_t rank;

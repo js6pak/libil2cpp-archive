@@ -36,6 +36,7 @@ DO_API( TypeInfo*, il2cpp_class_from_il2cpp_type, (const Il2CppType* type) );
 DO_API( TypeInfo*, il2cpp_class_from_name, (Il2CppImage* image, const char* namespaze, const char *name) );
 DO_API( TypeInfo*, il2cpp_class_from_system_type, (Il2CppReflectionType *type) );
 DO_API( TypeInfo*, il2cpp_class_get_element_class, (TypeInfo *klass) );
+DO_API( const EventInfo*, il2cpp_class_get_events, (TypeInfo *klass, void* *iter));
 DO_API( FieldInfo*, il2cpp_class_get_fields, (TypeInfo *klass, void* *iter) );
 DO_API( TypeInfo*, il2cpp_class_get_interfaces, (TypeInfo *klass, void* *iter) );
 DO_API( const PropertyInfo*, il2cpp_class_get_properties, (TypeInfo *klass, void* *iter) );
@@ -79,6 +80,7 @@ DO_API( const Il2CppAssembly**, il2cpp_domain_get_assemblies, (const Il2CppDomai
 // exception
 DO_API( void, il2cpp_raise_exception, (Il2CppException*) );
 DO_API( Il2CppException*, il2cpp_exception_from_name_msg, (Il2CppImage* image, const char *name_space, const char *name, const char *msg) );
+DO_API( Il2CppException*, il2cpp_get_exception_argument_null, (const char *arg) );
 DO_API( void, il2cpp_format_exception, (const Il2CppException* ex, char* message, int message_size) );
 DO_API( void, il2cpp_format_stack_trace, (const Il2CppException* ex, char* output, int output_size) );
 DO_API( void, il2cpp_unhandled_exception, (Il2CppException*) );
@@ -108,7 +110,7 @@ DO_API( Il2CppObject*, il2cpp_gchandle_get_target , (uint32_t gchandle) );
 DO_API( void, il2cpp_gchandle_free, (uint32_t gchandle) );
 
 // liveness
-DO_API( void*, il2cpp_unity_liveness_calculation_begin, (TypeInfo* filter, int max_object_count, register_object_callback callback, void* userdata) );
+DO_API( void*, il2cpp_unity_liveness_calculation_begin, (TypeInfo* filter, int max_object_count, register_object_callback callback, void* userdata, WorldChangedCallback onWorldStarted, WorldChangedCallback onWorldStopped) );
 DO_API( void, il2cpp_unity_liveness_calculation_end, (void* state) );
 DO_API( void, il2cpp_unity_liveness_calculation_from_root, (Il2CppObject* root, void* state) );
 DO_API( void, il2cpp_unity_liveness_calculation_from_statics, (void* state) );
