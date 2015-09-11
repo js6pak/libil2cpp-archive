@@ -13,6 +13,7 @@ struct Il2CppAssembly;
 struct Il2CppAppDomain;
 struct Il2CppDelegate;
 struct Il2CppAppContext;
+struct Il2CppNameToTypeDefinitionIndexHashTable;
 
 enum Il2CppTypeNameFormat {
 	IL2CPP_TYPE_NAME_FORMAT_IL,
@@ -24,7 +25,7 @@ enum Il2CppTypeNameFormat {
 extern bool g_il2cpp_is_fully_initialized;
 
 typedef struct {
-	const Il2CppImage *corlib;
+	Il2CppImage *corlib;
 	TypeInfo *object_class;
 	TypeInfo *byte_class;
 	TypeInfo *void_class;
@@ -93,9 +94,9 @@ typedef struct {
 	TypeInfo *idispatch_class;
 	TypeInfo *safehandle_class;
 	TypeInfo *handleref_class;
-	TypeInfo *attribute_class;
+	TypeInfo *attribute_class;*/
 	TypeInfo *customattribute_data_class;
-	TypeInfo *critical_finalizer_object;*/
+	//TypeInfo *critical_finalizer_object;
 	TypeInfo *version;
 	TypeInfo *culture_info;
 	TypeInfo *async_call_class;
@@ -122,7 +123,6 @@ struct TypeInfo;
 struct MethodInfo;
 struct FieldInfo;
 struct Il2CppObject;
-
 
 struct CustomAttributesCache
 {
@@ -270,11 +270,10 @@ struct Il2CppRuntimeInterfaceOffsetPair
 struct TypeInfo
 {
 	// The following fields are always valid for a TypeInfo structure
-	Il2CppImage* image;
+	const Il2CppImage* image;
 	void* gc_desc;
 	const char* name;
 	const char* namespaze;
-	const MethodInfo** vtable;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
 	TypeInfo* element_class;
@@ -291,10 +290,11 @@ struct TypeInfo
 	const PropertyInfo* properties; // Initialized in SetupProperties
 	const MethodInfo** methods; // Initialized in SetupMethods
 	TypeInfo** nestedTypes; // Initialized in SetupNestedTypes
-	TypeInfo** implementedInterfaces;
-	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets;
-	void* static_fields;
-	const Il2CppRGCTXData* rgctx_data;
+	TypeInfo** implementedInterfaces; // Initialized in SetupInterfaces
+	const MethodInfo** vtable; // Initialized in Init
+	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets; // Initialized in Init
+	void* static_fields; // Initialized in Init
+	const Il2CppRGCTXData* rgctx_data; // Initialized in Init
 	// used for fast parent checks
 	TypeInfo** typeHierarchy; // Initialized in SetupTypeHierachy
 	// End initialization required fields
@@ -307,7 +307,7 @@ struct TypeInfo
 	uint32_t cctor_finished;
 	ALIGN_TYPE (8) uint64_t cctor_thread;
 
-	// Remaining fields are always valid
+	// Remaining fields are always valid except where noted
 	GenericContainerIndex genericContainerIndex;
 	CustomAttributeIndex customAttributeIndex;
 	uint32_t instance_size;
@@ -319,18 +319,19 @@ struct TypeInfo
 	int32_t thread_static_fields_offset;
 	uint32_t flags;
 
-	uint16_t method_count;
+	uint16_t method_count; // lazily calculated for arrays, i.e. when rank > 0
 	uint16_t property_count;
 	uint16_t field_count;
 	uint16_t event_count;
 	uint16_t nested_type_count;
-	uint16_t vtable_count;
+	uint16_t vtable_count; // lazily calculated for arrays, i.e. when rank > 0
 	uint16_t interfaces_count;
-	uint16_t interface_offsets_count;
+	uint16_t interface_offsets_count; // lazily calculated for arrays, i.e. when rank > 0
 
 	uint8_t typeHierarchyDepth; // Initialized in SetupTypeHierachy
 	uint8_t rank;
 	uint8_t minimumAlignment;
+	uint8_t packingSize;
 
 	uint8_t valuetype : 1;
 	uint8_t initialized : 1;
@@ -353,41 +354,6 @@ struct Il2CppTypeDefinitionSizes
 	uint32_t thread_static_fields_size;
 };
 
-struct Il2CppAssemblyName
-{
-	const char *name;
-	const char *culture;
-	const char *hash_value;
-	const char* public_key;
-	uint8_t public_key_token [IL2CPP_PUBLIC_KEY_TOKEN_LENGTH];
-	uint32_t hash_alg;
-	uint32_t hash_len;
-	uint32_t flags;
-	uint16_t major;
-	uint16_t minor;
-	uint16_t build;
-	uint16_t revision;
-};
-
-struct Il2CppImage
-{
-	const char* name;
-	Il2CppAssembly* assembly;
-
-	TypeIndex typeStart;
-	uint16_t typeCount;
-
-	TypeIndex entryPointClassIndex;
-	uint16_t entryPointOffset;
-};
-
-struct Il2CppAssembly
-{
-	Il2CppAssemblyName aname;
-	Il2CppImage *image;
-	CustomAttributeIndex customAttributeIndex;
-};
-
 struct Il2CppDomain
 {
 	Il2CppAppDomain* domain;
@@ -395,6 +361,19 @@ struct Il2CppDomain
 	Il2CppAppContext* default_context;
 	const char* friendly_name;
 	uint32_t domain_id;
+};
+
+struct Il2CppImage
+{
+	const char* name;
+	AssemblyIndex assemblyIndex;
+
+	TypeDefinitionIndex typeStart;
+	uint32_t typeCount;
+
+	MethodIndex entryPointIndex;
+
+	Il2CppNameToTypeDefinitionIndexHashTable* nameToClassHashTable;
 };
 
 struct Il2CppMarshalingFunctions
@@ -424,10 +403,6 @@ struct Il2CppCodeRegistration
 
 struct Il2CppMetadataRegistration
 {
-	int32_t assembliesCount;
-	Il2CppAssembly** assemblies;
-	int32_t imageCount;
-	Il2CppImage** images;
 	int32_t genericClassesCount;
 	Il2CppGenericClass** genericClasses;
 	int32_t genericInstsCount;
@@ -440,8 +415,6 @@ struct Il2CppMetadataRegistration
 	const Il2CppMethodSpec* methodSpecs;
 	int32_t methodReferencesCount;
 	const EncodedMethodIndex* methodReferences;
-	int32_t methodDefinitionReferencesCount;
-	const Il2CppMethodDefinitionReference* methodDefinitionReferences;
 
 	FieldIndex fieldOffsetsCount;
 	const int32_t* fieldOffsets;

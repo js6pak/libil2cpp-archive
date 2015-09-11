@@ -5,6 +5,7 @@
 
 struct TypeInfo;
 struct Il2CppType;
+struct EventInfo;
 struct MethodInfo;
 struct FieldInfo;
 struct PropertyInfo;
