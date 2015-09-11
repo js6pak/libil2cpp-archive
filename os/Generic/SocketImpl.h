@@ -48,9 +48,11 @@ public:
 	WaitStatus Bind (const char *path);
 	WaitStatus Bind (const char *address, uint16_t port);
 	WaitStatus Bind (uint32_t address, uint16_t port);
+	WaitStatus Bind (uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port);
 	
 	WaitStatus Connect (const char *path);
 	WaitStatus Connect (uint32_t address, uint16_t port);
+	WaitStatus Connect(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port);
 	
 	WaitStatus Disconnect (bool reuse);
 	WaitStatus Shutdown (int32_t how);
@@ -67,10 +69,12 @@ public:
 	
 	WaitStatus SendTo (uint32_t address, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len);
 	WaitStatus SendTo (const char *path, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len);
-	
+	WaitStatus SendTo (uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len);
+
 	WaitStatus RecvFrom (uint32_t address, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep);
 	WaitStatus RecvFrom (const char *path, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep);
-	
+	WaitStatus RecvFrom (uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep);
+
 	WaitStatus Accept (os::Socket **socket);
 	
 	WaitStatus Available (int32_t *amount);
