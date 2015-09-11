@@ -21,7 +21,7 @@ void il2cpp_debugger_notify_vm_start();
 void il2cpp_debugger_notify_vm_death();
 void il2cpp_debugger_notify_user_break();
 void il2cpp_debugger_notify_appdomain_create(Il2CppDomain *domain);
-void il2cpp_debugger_notify_assembly_load(Il2CppAssembly *assembly);
+void il2cpp_debugger_notify_assembly_load(const Il2CppAssembly *assembly);
 void il2cpp_debugger_sequence_point_hit(int64_t uid, int32_t offset);
 void il2cpp_debugger_notify_thread_attach(Il2CppThread *thread);
 void il2cpp_debugger_notify_thread_detach(Il2CppThread *thread);

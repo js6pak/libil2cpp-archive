@@ -773,25 +773,49 @@ inline const MethodInfo* GetInterfaceMethodInfo (Il2CppCodeGenObject* pThis, Il2
 #define DEFAULT_CALL
 #endif
 
-#if IL2CPP_COMPILER_MSVC
-static inline double round(double x)
-{
-   return x >= 0.0 ? floor(x + 0.5) : ceil(x - 0.5);
-}
-
-static inline float roundf(float x)
-{
-   return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f);
-}
-#elif defined(__ARMCC_VERSION)
-static inline double round(double x)
+#if defined(__ARMCC_VERSION)
+static inline double bankers_round(double x)
 {
    return __builtin_round(x);
 }
 
-static inline float roundf(float x)
+static inline float bankers_roundf(float x)
 {
    return __builtin_roundf(x);
+}
+#else
+static inline double bankers_round(double x)
+{
+	double integerPart;
+	if (x >= 0.0)
+	{
+		if (modf(x, &integerPart) == 0.5)
+			return (int64_t)integerPart % 2 == 0 ? integerPart : integerPart + 1.0;
+		return floor(x + 0.5);
+	}
+	else
+	{
+		if (modf(x, &integerPart) == -0.5)
+			return (int64_t)integerPart % 2 == 0 ? integerPart : integerPart - 1.0;
+		return	ceil(x - 0.5);
+	}
+}
+
+static inline float bankers_roundf(float x)
+{
+	double integerPart;
+	if (x >= 0.0f)
+	{
+		if (modf(x, &integerPart) == 0.5)
+			return (int64_t)integerPart % 2 == 0 ? (float)integerPart : (float)integerPart + 1.0f;
+		return floorf(x + 0.5f);
+	}
+	else
+	{
+		if (modf(x, &integerPart) == -0.5)
+			return (int64_t)integerPart % 2 == 0 ? (float)integerPart : (float)integerPart - 1.0f;
+		return	ceilf(x - 0.5f);
+	}
 }
 #endif
 
@@ -818,7 +842,7 @@ static inline void il2cpp_codegen_memory_barrier()
 
 static inline TypeInfo* il2cpp_codegen_type_info_from_index (TypeIndex index)
 {
-	return il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (index);
+	return il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex (index);
 }
 
 static inline const Il2CppType* il2cpp_codegen_type_from_index (TypeIndex index)
@@ -833,7 +857,7 @@ static inline const MethodInfo* il2cpp_codegen_method_info_from_index (MethodInd
 
 static inline FieldInfo* il2cpp_codegen_field_info_from_index (TypeIndex typeIndex, FieldIndex fieldIndex)
 {
-	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromIndex (typeIndex);
+	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex (typeIndex);
 	return typeInfo->fields + fieldIndex;
 }
 
