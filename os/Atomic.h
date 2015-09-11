@@ -205,6 +205,8 @@ inline void Atomic::MemoryBarrier ()
 #include "os/Win32/AtomicImpl.h"
 #elif IL2CPP_TARGET_PS4	
 #include "os/AtomicImpl.h"	// has to come earlier than posix 
+#elif IL2CPP_TARGET_PSP2
+#include "os/PSP2/AtomicImpl.h"
 #elif IL2CPP_TARGET_POSIX
 #include "os/Posix/AtomicImpl.h"
 #elif IL2CPP_TARGET_XBOXONE
