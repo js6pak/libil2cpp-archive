@@ -107,12 +107,6 @@ inline HMODULE WINAPI LoadLibraryW(LPCWSTR lpLibFileName)
 
 BOOL WINAPI SetEnvironmentVariableW(LPCWSTR lpName, LPCWSTR lpValue);
 
-typedef BOOL(WINAPI* GetThreadContextFunc)(HANDLE hThread, LPCONTEXT lpContext);
-extern GetThreadContextFunc GetThreadContext;
-
-typedef DWORD(WINAPI *QueueUserAPCFunc)(PAPCFUNC pfnAPC, HANDLE hThread, ULONG_PTR dwData);
-extern QueueUserAPCFunc QueueUserAPC;
-
 #define CreateFileMappingW(hFile, lpFileMappingAttributes, flProtect, dwMaximumSizeHigh, dwMaximumSizeLow, lpName) \
 	CreateFileMappingFromApp(hFile, lpFileMappingAttributes, flProtect, (static_cast<ULONG64>(dwMaximumSizeHigh) << 32) | dwMaximumSizeLow, lpName);
 
