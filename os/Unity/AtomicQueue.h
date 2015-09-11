@@ -125,6 +125,8 @@ public:
 AtomicQueue* CreateAtomicQueue ();
 void DestroyAtomicQueue (AtomicQueue* s);
 
+#elif IL2CPP_SUPPORT_THREADS
+#error Platform is missing atomic queue implementation
 #endif
 
 //
