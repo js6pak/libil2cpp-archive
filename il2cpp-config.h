@@ -8,7 +8,12 @@
 #include <stdint.h>
 
 /* first setup platform defines*/
-#if defined(SN_TARGET_ORBIS)
+#if defined(SN_TARGET_PSP2)
+	#define IL2CPP_TARGET_PSP2 1
+	#define _UNICODE 1
+	#define UNICODE 1
+	#include "il2cpp-config-psp2.h"
+#elif defined(SN_TARGET_ORBIS)
 	#define IL2CPP_TARGET_PS4 1
 	#define _UNICODE 1
 	#define UNICODE 1
@@ -89,12 +94,23 @@
 #define IL2CPP_TARGET_PS4 0
 #endif
 
-#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4)
+#ifndef IL2CPP_TARGET_PSP2
+#define IL2CPP_TARGET_PSP2 0
+#endif
+
+#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2)
 #define IL2CPP_COMPILER_MSVC (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 #define IL2CPP_PLATFORM_WIN32 (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 
 #ifndef IL2CPP_EXCEPTION_DISABLED
 #define IL2CPP_EXCEPTION_DISABLED 0
+#endif
+
+// If the platform loads il2cpp as a dynamic library but does not have dlsym (or equivalent) then
+// define IL2CPP_API_DYNAMIC_NO_DLSYM = 1 to add support for api function registration and symbol
+// lookup APIs, see il2cpp-api.cpp
+#ifndef IL2CPP_API_DYNAMIC_NO_DLSYM
+#define IL2CPP_API_DYNAMIC_NO_DLSYM 0
 #endif
 
 #ifdef _MSC_VER
@@ -124,12 +140,12 @@
 #if defined(_MSC_VER)
 	#if defined(_M_X64)
 		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(_M_IX86) || defined(_XBOX)
+	#elif defined(_M_IX86) || defined(_M_ARM) || defined(_XBOX)
 		#define IL2CPP_SIZEOF_VOID_P 4
 	#else
 		#error invalid windows architecture
 	#endif
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__SNC__)
 	#if defined(__x86_64__)
 		#define IL2CPP_SIZEOF_VOID_P 8
 	#elif defined(__i386__)
@@ -188,6 +204,9 @@
 #define ASSERT_ALIGNMENT(ptr, alignment) \
 	assert ((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
 
+// 64-bit types are aligned to 8 bytes on 64-bit platforms and always on Windows
+#define IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT ((IL2CPP_SIZEOF_VOID_P == 8) || (IL2CPP_TARGET_WINDOWS))
+
 /* Debugging */
 #ifndef IL2CPP_DEBUG
 #define IL2CPP_DEBUG 0
@@ -203,8 +222,9 @@
 #define IL2CPP_THREADS_WIN32 (!IL2CPP_THREADS_STD && (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE))
 #define IL2CPP_THREADS_N3DS (!IL2CPP_THREADS_STD && IL2CPP_TARGET_N3DS)
 #define IL2CPP_THREADS_PS4 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PS4)
+#define IL2CPP_THREADS_PSP2 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PSP2)
 
-#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS && !IL2CPP_THREADS_PS4))
+#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS && !IL2CPP_THREADS_PS4 && !IL2CPP_THREADS_PSP2))
 #error "No thread implementation defined"
 #endif
 
@@ -245,9 +265,11 @@ typedef void (*methodPointerType)();
 	#define IL2CPP_ZERO_LEN_ARRAY 0
 #endif
 
+#if !defined (IL2CPP_TARGET_PSP2) // __SNC__ has limited support for this
 /* clang specific __has_feature check */
 #ifndef __has_feature
   #define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
 #endif
 
 #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
@@ -354,7 +376,9 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
 
+#ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
+#endif
 
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
@@ -383,3 +407,6 @@ const uint64_t kIl2CppUInt64Max = UINT64_MAX;
 	const intptr_t kIl2CppIntPtrMax = kIl2CppInt32Max;
 	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
+
+const int ipv6AddressSize = 16;
+#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
