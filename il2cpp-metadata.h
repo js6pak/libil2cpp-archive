@@ -38,6 +38,7 @@ typedef int32_t ImageIndex;
 typedef int32_t AssemblyIndex;
 
 const TypeIndex kTypeIndexInvalid = -1;
+const TypeDefinitionIndex kTypeDefinitionIndexInvalid = -1;
 const DefaultValueDataIndex kDefaultValueIndexNull = -1;
 const EventIndex kEventIndexInvalid = -1;
 const FieldIndex kFieldIndexInvalid = -1;
@@ -140,6 +141,7 @@ struct Il2CppTypeDefinition
 	// 03 - has_finalize;
 	// 04 - has_cctor;
 	// 05 - is_blittable;
+	// 06-09 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
 	uint32_t bitfield;
 };
 
@@ -157,12 +159,26 @@ struct Il2CppFieldDefaultValue
 	DefaultValueDataIndex dataIndex;
 };
 
+struct Il2CppFieldMarshaledSize
+{
+	FieldIndex fieldIndex;
+	TypeIndex typeIndex;
+	int32_t size;
+};
+
 struct Il2CppParameterDefinition
 {
 	StringIndex nameIndex;
 	uint32_t token;
 	CustomAttributeIndex customAttributeIndex;
 	TypeIndex typeIndex;
+};
+
+struct Il2CppParameterDefaultValue
+{
+	ParameterIndex parameterIndex;
+	TypeIndex typeIndex;
+	DefaultValueDataIndex dataIndex;
 };
 
 struct Il2CppMethodDefinition
@@ -246,12 +262,12 @@ struct Il2CppAssemblyName
 	uint8_t publicKeyToken[kPublicKeyByteLength];
 };
 
-struct Il2CppImage
+struct Il2CppImageDefinition
 {
 	StringIndex nameIndex;
 	AssemblyIndex assemblyIndex;
 
-	TypeIndex typeStart;
+	TypeDefinitionIndex typeStart;
 	uint32_t typeCount;
 
 	MethodIndex entryPointIndex;
@@ -281,10 +297,14 @@ struct Il2CppGlobalMetadataHeader
 	int32_t propertiesCount;
 	int32_t methodsOffset; // Il2CppMethodDefinition
 	int32_t methodsCount;
+	int32_t parameterDefaultValuesOffset; // Il2CppParameterDefaultValue
+	int32_t parameterDefaultValuesCount;
 	int32_t fieldDefaultValuesOffset; // Il2CppFieldDefaultValue
 	int32_t fieldDefaultValuesCount;
-	int32_t fieldDefaultValueDataOffset; // uint8_t
-	int32_t fieldDefaultValueDataCount;
+	int32_t fieldAndParameterDefaultValueDataOffset; // uint8_t
+	int32_t fieldAndParameterDefaultValueDataCount;
+	int32_t fieldMarshaledSizesOffset; // Il2CppFieldMarshaledSize
+	int32_t fieldMarshaledSizesCount;
 	int32_t parametersOffset; // Il2CppParameterDefinition
 	int32_t parametersCount;
 	int32_t fieldsOffset; // Il2CppFieldDefinition
