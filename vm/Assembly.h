@@ -17,7 +17,7 @@ typedef std::vector<const Il2CppAssembly*> AssemblyVector;
 
 class Assembly
 {
-// exported 
+// exported
 public:
 	static Il2CppImage* GetImage (const Il2CppAssembly* assembly);
 public:

@@ -184,6 +184,7 @@ struct Il2CppParameterDefaultValue
 struct Il2CppMethodDefinition
 {
 	StringIndex nameIndex;
+	TypeDefinitionIndex declaringType;
 	TypeIndex returnType;
 	ParameterIndex parameterStart;
 	CustomAttributeIndex customAttributeIndex;
