@@ -389,6 +389,11 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 0
 #endif
 
+
+#ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PSP2 )
+#endif
+
 #define Assert(x) do { (void)(x); assert(x); } while (false)
 
 const int32_t kIl2CppInt32Min = INT32_MIN;
