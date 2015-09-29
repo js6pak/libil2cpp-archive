@@ -1,10 +1,10 @@
 #pragma once
 
-#if IL2CPP_TARGET_POSIX
+#include <string>
 
 namespace il2cpp
 {
-namespace os
+namespace utils
 {
 
 bool Match (const std::string name, size_t nameIndex, const std::string& pattern, const size_t patternIndex);
@@ -13,5 +13,3 @@ std::string CollapseAdjacentStars(const std::string& pattern);
 
 }
 }
-
-#endif // IL2CPP_TARGET_POSIX
