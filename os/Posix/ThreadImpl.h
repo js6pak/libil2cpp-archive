@@ -15,15 +15,11 @@
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
 struct cpu_set_t;
-int pthread_attr_setaffinity_np (pthread_attr_t *attr, size_t cpusetsize, const cpu_set_t *cpuset);
+int pthread_attr_setaffinity_np(pthread_attr_t *attr, size_t cpusetsize, const cpu_set_t *cpuset);
 #endif
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_RENAME)
-int pthread_setname_np (pthread_t handle, const char *name);
-#endif
-
-#if !defined(IL2CPP_DEFAULT_STACK_SIZE)
-#define IL2CPP_DEFAULT_STACK_SIZE ( 1 * 1024 * 1024)			// default .NET stacksize is 1mb
+int pthread_setname_np(pthread_t handle, const char *name);
 #endif
 
 namespace il2cpp
@@ -44,7 +40,6 @@ public:
 	void QueueUserAPC (Thread::APCFunc func, void* context);
 	void SetName (const std::string& name);
 	void SetPriority (ThreadPriority priority);
-	void SetStackSize (size_t newsize);
 
 	/// Handle any pending APCs.
 	/// NOTE: Can only be called on current thread.
@@ -59,7 +54,17 @@ private:
 
 	friend class posix::PosixWaitObject; // SetWaitObject(), CheckForAPCAndHandle()
 
+	enum ThreadState
+	{
+		kThreadCreated,
+		kThreadRunning,
+		kThreadWaiting,
+		kThreadExited
+	};
+
 	pthread_t m_Handle;
+
+	ThreadState m_State;
 
 	/// The synchronization primitive that this thread is currently blocked on.
 	///
@@ -87,8 +92,6 @@ private:
 
 	pthread_mutex_t m_PendingAPCsMutex;
 	std::vector<APCRequest> m_PendingAPCs;
-
-	size_t m_StackSize;		// size of stack (can not be adjusted after thread creation)
 
 	/// Set the synchronization object the thread is about to wait on.
 	/// NOTE: This can only be called on the current thread.
