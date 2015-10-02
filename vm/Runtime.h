@@ -30,8 +30,8 @@ public:
 	static void Shutdown ();
 	static void SetConfigDir (const char *path);
 	static void SetDataDir(const char *path);
-	static std::string GetConfigDir();
-	static std::string GetDataDir();
+	static const char *GetConfigDir();
+	static const char *GetDataDir();
 	static const char *GetFrameworkVersion();
 	static Il2CppObject* DelegateInvoke (Il2CppDelegate *obj, void **params, Il2CppObject **exc);
 	static Il2CppObject* Invoke (const MethodInfo *method, void *obj, void **params, Il2CppObject **exc);
