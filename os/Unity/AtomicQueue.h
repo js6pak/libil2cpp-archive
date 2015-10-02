@@ -155,8 +155,7 @@ public:
 	
 	AtomicNode *Clear(AtomicNode *old, atomic_word tag);
 	
-	bool Add(AtomicNode *first, AtomicNode *last, atomic_word tag);
-	AtomicNode* Touch(atomic_word tag);
+	void Touch(atomic_word tag);
 	void Reset(AtomicNode *node, atomic_word tag);
 	
 	static void Relax();

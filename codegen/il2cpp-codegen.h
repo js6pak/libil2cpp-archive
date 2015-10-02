@@ -20,7 +20,6 @@
 #include "metadata/GenericMethod.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
-#include "vm/Atomic.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -34,7 +33,7 @@
 #include "vm/Profiler.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
-#include "vm/StackTrace.h"
+#include "vm/Stacktrace.h"
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/Type.h"
@@ -136,13 +135,9 @@ static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type
 	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
 }
 
-static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
+NORETURN static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
 {
 	il2cpp::vm::Exception::Raise ((Il2CppException*)ex);
-}
-
-NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
-{
 #if __has_builtin(__builtin_unreachable)
 	__builtin_unreachable();
 #endif
@@ -222,7 +217,7 @@ static Il2CppCodeGenObject* IsInstClass(Il2CppCodeGenObject *obj, TypeInfo* targ
 		return NULL;
 
 	// optimized version to compare classes
-	return il2cpp::vm::Class::HasParentUnsafe (((Il2CppObject*)obj)->klass, targetType) ? obj: NULL;
+	return il2cpp::vm::Class::HasParent (((Il2CppObject*)obj)->klass, targetType) ? obj: NULL;
 }
 
 // OpCode.Castclass
@@ -473,7 +468,7 @@ static inline uint8_t* GenArrayAddress4(Il2CppCodeGenArray* a, uint32_t length1,
 // Negative indices will map to a unsigned number greater than or equal to 2^31 which is larger than allowed for a valid array.
 #define IL2CPP_ARRAY_BOUNDS_CHECK(a,index) \
 	do { \
-		if (((uint32_t)(index)) >= ((uint32_t)(a)->max_length)) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
+		if (((uint32_t)(index)) >= (a)->max_length) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
 	} while (0)
 
 inline bool il2cpp_class_init (TypeInfo *klass)
@@ -726,17 +721,6 @@ inline void NullCheck (void* this_ptr)
 	#endif
 }
 
-inline void DivideByZeroCheck(int64_t denominator)
-{
-	if (denominator != 0)
-		return;
-
-	il2cpp::vm::Exception::RaiseDivideByZeroException();
-#if __has_builtin(__builtin_unreachable)
-	__builtin_unreachable();
-#endif
-}
-
 static inline void Initobj (TypeInfo* type, void* data)
 {
 	if (type->valuetype)
@@ -926,19 +910,6 @@ static inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTy
 	return type;
 }
 
-// Atomic
-
-static inline void* il2cpp_codegen_atomic_compare_exchange_pointer(void* volatile* dest, void* exchange, void* comparand)
-{
-	return il2cpp::vm::Atomic::CompareExchangePointer(dest, exchange, comparand);
-}
-
-template <typename T>
-static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* newValue, T* oldValue)
-{
-	return il2cpp::vm::Atomic::CompareExchangePointer(dest, newValue, oldValue);
-}
-
 // Exception support macros
 #define IL2CPP_LEAVE(Offset, Target) \
 	__leave_target = Offset; \
@@ -966,11 +937,3 @@ static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* des
 #define IL2CPP_END_CLEANUP(Offset, Target) \
 	if(__leave_target == Offset) \
 		goto Target;
-
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message)\
-	do {\
-		il2cpp_codegen_raise_exception((Il2CppCodeGenException*)message);\
-		il2cpp_codegen_no_return();\
-	} while (0)
-
-
