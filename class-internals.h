@@ -404,11 +404,11 @@ struct Il2CppCodeRegistration
 struct Il2CppMetadataRegistration
 {
 	int32_t genericClassesCount;
-	Il2CppGenericClass* const * genericClasses;
+	Il2CppGenericClass** genericClasses;
 	int32_t genericInstsCount;
-	const Il2CppGenericInst* const * genericInsts;
+	const Il2CppGenericInst** genericInsts;
 	int32_t genericMethodTableCount;
-	const Il2CppGenericMethodFunctionsDefinitions* genericMethodTable;
+	Il2CppGenericMethodFunctionsDefinitions* genericMethodTable;
 	int32_t typesCount;
 	const Il2CppType* const * types;
 	int32_t methodSpecsCount;
