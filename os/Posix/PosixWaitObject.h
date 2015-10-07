@@ -52,7 +52,7 @@ public:
 	static void LockWaitObjectDeletion ();
 	static void UnlockWaitObjectDeletion ();
 
-protected:	
+protected:
 
 	enum Type
 	{
