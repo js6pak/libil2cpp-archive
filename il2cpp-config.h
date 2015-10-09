@@ -245,6 +245,8 @@
 #error "Only one type of stacktraces are allowed"
 #endif
 
+#define IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS IL2CPP_TARGET_IOS
+
 /* Profiler */
 #define IL2CPP_ENABLE_PROFILER 1
 
