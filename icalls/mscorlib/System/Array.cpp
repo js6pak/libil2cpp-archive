@@ -541,7 +541,7 @@ void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 		}
 	}
 
-	WidenedValueUnion widenedValue = ExtractWidenedValue (valueType, value);
+	WidenedValueUnion widenedValue = ExtractWidenedValue (valueType, Object::Unbox(value));
 
 	switch (elementType)
 	{
