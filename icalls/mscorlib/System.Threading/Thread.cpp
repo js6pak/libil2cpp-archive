@@ -217,6 +217,7 @@ Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * st
 
 	__this->handle = thread;
 	__this->state &= ~kThreadStateUnstarted;
+	__this->tid = thread->Id();
 
 	startData->m_Semaphore->Post (1, NULL);
 
