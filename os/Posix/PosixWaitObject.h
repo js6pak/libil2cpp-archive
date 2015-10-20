@@ -7,6 +7,12 @@
 #include "utils/NonCopyable.h"
 #include "os/WaitStatus.h"
 
+
+#if (IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL)
+int		pthread_cond_timedwait_relative_np(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *spec);
+#endif
+
+
 namespace il2cpp
 {
 namespace os
@@ -46,7 +52,7 @@ public:
 	static void LockWaitObjectDeletion ();
 	static void UnlockWaitObjectDeletion ();
 
-protected:	
+protected:
 
 	enum Type
 	{

@@ -65,6 +65,7 @@ il2cpp_domain_assembly_open
 
 il2cpp_raise_exception
 il2cpp_exception_from_name_msg
+il2cpp_get_exception_argument_null
 
 il2cpp_field_get_flags
 il2cpp_field_get_name

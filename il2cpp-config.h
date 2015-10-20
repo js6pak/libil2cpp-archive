@@ -245,6 +245,8 @@
 #error "Only one type of stacktraces are allowed"
 #endif
 
+#define IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS IL2CPP_TARGET_IOS
+
 /* Profiler */
 #define IL2CPP_ENABLE_PROFILER 1
 
@@ -387,6 +389,11 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 1
 #else
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 0
+#endif
+
+
+#ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PSP2 )
 #endif
 
 #define Assert(x) do { (void)(x); assert(x); } while (false)

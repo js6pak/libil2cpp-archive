@@ -463,9 +463,12 @@ static inline uint8_t* GenArrayAddress4(Il2CppCodeGenArray* a, uint32_t length1,
 		*(type*)GenArrayAddress4 (a, length1, length2, length3, length4) = value; \
 		} while (0)
 
+// Performance optimization as detailed here: http://blogs.msdn.com/b/clrcodegeneration/archive/2009/08/13/array-bounds-check-elimination-in-the-clr.aspx
+// Since array size is a signed int32_t, a single unsigned check can be performed to determine if index is less than array size.
+// Negative indices will map to a unsigned number greater than or equal to 2^31 which is larger than allowed for a valid array.
 #define IL2CPP_ARRAY_BOUNDS_CHECK(a,index) \
 	do { \
-		if (index < 0 || index >= (a)->max_length) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
+		if (((uint32_t)(index)) >= (a)->max_length) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
 	} while (0)
 
 inline bool il2cpp_class_init (TypeInfo *klass)
@@ -473,7 +476,7 @@ inline bool il2cpp_class_init (TypeInfo *klass)
 	return il2cpp::vm::Class::Init (klass);
 }
 
-inline int32_t il2cpp_class_interface_offset (const TypeInfo *klass, TypeInfo *itf)
+inline int32_t il2cpp_class_interface_offset (TypeInfo *klass, TypeInfo *itf)
 {
 	return il2cpp::vm::Class::GetInterfaceOffset (klass, itf);
 }

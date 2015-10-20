@@ -78,12 +78,8 @@ public:
 
 public:
 	//internal
-	static int32_t GetInterfaceOffset (const TypeInfo *klass, TypeInfo *itf);
+	static int32_t GetInterfaceOffset (TypeInfo *klass, TypeInfo *itf);
 	static bool Init (TypeInfo *klass);
-
-	static int Register (TypeInfo* typeInfo);
-	static int RegisterSZArray (TypeInfo* typeInfo);
-	static int RegisterArray (TypeInfo* typeInfo);
 
 	static TypeInfo* GetArrayClass (TypeInfo *element_class, uint32_t rank);
 	static TypeInfo* GetBoundedArrayClass (TypeInfo *element_class, uint32_t rank, bool bounded);
