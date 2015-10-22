@@ -39,7 +39,7 @@
 #elif defined(__APPLE__)
 	#define IL2CPP_TARGET_DARWIN 1
 	#include "TargetConditionals.h"
-	#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+	#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR || TARGET_TVOS_SIMULATOR
 		#define IL2CPP_TARGET_IOS 1
 	#endif
 #elif defined(__ANDROID__)
