@@ -106,6 +106,10 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 					// It's OK to skip it, because it means the field is guaranteed to be null on any object
 					if (field.typeIndex == -1)
 						continue;
+					
+					//literals have no actual storage, and are not relevant in this context.
+					if ((fieldInfo->type->attrs & FIELD_ATTRIBUTE_LITERAL) != 0)
+						continue;
 
 					field.isStatic = (fieldInfo->type->attrs & FIELD_ATTRIBUTE_STATIC) != 0;
 					field.offset = fieldInfo->offset;
