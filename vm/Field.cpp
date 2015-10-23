@@ -61,13 +61,12 @@ void Field::GetValue (Il2CppObject *obj, FieldInfo *field, void *value)
 Il2CppObject* Field::GetValueObject (FieldInfo *field, Il2CppObject *obj)
 {
 	TypeInfo* fieldType = Class::FromIl2CppType(field->type);
-	
 
 	if (field->type->attrs & FIELD_ATTRIBUTE_LITERAL)
 	{
 		if (fieldType->valuetype)
 		{
-			void* value = alloca(fieldType->native_size);
+			void* value = alloca(fieldType->instance_size - sizeof(Il2CppObject));
 			Field::GetDefaultFieldValue(field, value);
 			return Object::Box(fieldType, value);
 		}
