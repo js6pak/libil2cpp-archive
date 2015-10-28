@@ -30,7 +30,9 @@ AtomicStack::AtomicStack ()
 {
 #if defined (ATOMIC_HAS_DCAS)
 
-	atomic_init_safe_explicit (&_top, 0, memory_order_relaxed);
+	atomic_word2 w;
+	w.lo = w.hi = 0;
+	atomic_store_explicit (&_top, w, memory_order_relaxed);
 	
 #else
 
@@ -62,12 +64,15 @@ void AtomicStack::Push (AtomicNode* node)
 #if defined (ATOMIC_HAS_DCAS)
 
 	atomic_word2 top = atomic_load_explicit (&_top, memory_order_relaxed);
-	
+	atomic_word2 newtop;
+
+	newtop.lo = (atomic_word) node;
 	do
 	{
 		atomic_store_explicit (&node->_next, top.lo, memory_order_relaxed);
+		newtop.hi = top.hi + 1;
 	}
-	while (!atomic_compare_exchange_safe_explicit (&_top, &top, (atomic_word) node, memory_order_release, memory_order_relaxed));
+	while (!atomic_compare_exchange_strong_explicit (&_top, &top, newtop, memory_order_release, memory_order_relaxed));
 
 #elif defined (__arm64__)
 
@@ -93,7 +98,7 @@ void AtomicStack::Push (AtomicNode* node)
 	
 	__asm__ __volatile__
 	(
-		"dmb	ishst\n\t"
+		"dmb	ish\n\t"
 	"0:\n\t"
 		"ldrex	%0, [%4]\n\t"
 		"str    %0, [%5]\n\t"
@@ -164,12 +169,15 @@ void AtomicStack::PushAll (AtomicNode* first, AtomicNode* last)
 #if defined (ATOMIC_HAS_DCAS)
 
 	atomic_word2 top = atomic_load_explicit (&_top, memory_order_relaxed);
+	atomic_word2 newtop;
 	
+	newtop.lo = (atomic_word) first;
 	do
 	{
 		atomic_store_explicit (&last->_next, top.lo, memory_order_relaxed);
+		newtop.hi = top.hi + 1;
 	}
-	while (!atomic_compare_exchange_safe_explicit (&_top, &top, (atomic_word) first, memory_order_release, memory_order_relaxed));
+	while (!atomic_compare_exchange_strong_explicit (&_top, &top, newtop, memory_order_release, memory_order_relaxed));
 
 #elif defined (__arm64__)
 
@@ -196,7 +204,7 @@ void AtomicStack::PushAll (AtomicNode* first, AtomicNode* last)
 	
 	__asm__ __volatile__
 	(
-		"dmb	ishst\n\t"
+		"dmb	ish\n\t"
 	"0:\n\t"
 		"ldrex	%0, [%4]\n\t"
 		"str    %0, [%6]\n\t"
@@ -267,14 +275,17 @@ AtomicNode* AtomicStack::Pop ()
 #if defined (ATOMIC_HAS_DCAS)
 
 	atomic_word2 top = atomic_load_explicit (&_top, memory_order_relaxed);
-	AtomicNode* node = NULL;
+	atomic_word2 newtop;
+	AtomicNode* node;
 	
 	do
 	{
 		node = (AtomicNode*) top.lo;
 		if(!node) break;
+		newtop.lo = (atomic_word) atomic_load_explicit (&node->_next, memory_order_relaxed);
+		newtop.hi = top.hi + 1;
 	}
-	while (!atomic_compare_exchange_safe_explicit (&_top, &top, atomic_load_explicit (&node->_next, memory_order_relaxed), memory_order_acquire, memory_order_relaxed));
+	while (!atomic_compare_exchange_strong_explicit (&_top, &top, newtop, memory_order_acquire, memory_order_relaxed));
 
 	return node;
 
@@ -390,7 +401,20 @@ AtomicNode* AtomicStack::PopAll ()
 {
 #if defined (ATOMIC_HAS_DCAS)
 
-	return (AtomicNode*) atomic_exchange_safe_explicit (&_top, 0, memory_order_acquire);
+	atomic_word2 top = atomic_load_explicit (&_top, memory_order_relaxed);
+	atomic_word2 newtop;
+	AtomicNode* node;
+	
+	do
+	{
+		node = (AtomicNode*) top.lo;
+		if(!node) break;
+		newtop.lo = 0;
+		newtop.hi = top.hi + 1;
+	}
+	while (!atomic_compare_exchange_strong_explicit (&_top, &top, newtop, memory_order_acquire, memory_order_relaxed));
+
+	return node;
 
 #elif defined (__arm64__)
 
@@ -517,8 +541,12 @@ AtomicQueue::AtomicQueue ()
 #else
 	AtomicNode* dummy = UNITY_PLATFORM_NEW (AtomicNode, kMemThread);
 #endif
+
+	atomic_word2 w;
+	w.lo = (atomic_word) dummy;
+	w.hi = 0;
 	atomic_store_explicit (&dummy->_next, 0, memory_order_relaxed);
-	atomic_init_safe_explicit (&_tail, (atomic_word) dummy, memory_order_relaxed);
+	atomic_store_explicit (&_tail, w, memory_order_relaxed);
 	atomic_store_explicit (&_head, (atomic_word) dummy, memory_order_release);
 
 #else
@@ -594,7 +622,7 @@ void AtomicQueue::Enqueue (AtomicNode* node)
 	
 	__asm__ __volatile__
 	(
-		"dmb	ishst\n\t"
+		"dmb	ish\n\t"
 	"0:\n\t"
 		"ldrex	%0, [%3]\n\t"
 		"strex	%2, %4, [%3]\n\t"
@@ -693,7 +721,7 @@ void AtomicQueue::EnqueueAll (AtomicNode* first, AtomicNode* last)
 	
 	__asm__ __volatile__
 	(
-		"dmb	ishst\n\t"
+		"dmb	ish\n\t"
 	"0:\n\t"
 		"ldrex	%0, [%3]\n\t"
 		"strex	%2, %5, [%3]\n\t"
@@ -763,17 +791,20 @@ AtomicNode* AtomicQueue::Dequeue ()
 	void* data1;
 	void* data2;
 
-	atomic_word2 cmp = atomic_load_explicit (&_tail, memory_order_acquire);
+	atomic_word2 tail = atomic_load_explicit (&_tail, memory_order_acquire);
+	atomic_word2 newtail;
 	do
 	{
-		res = (AtomicNode*) cmp.lo;
+		res = (AtomicNode*) tail.lo;
 		next = (AtomicNode*) atomic_load_explicit (&res->_next, memory_order_relaxed);
 		if (next == 0) return NULL;
 		data0 = next->data[0];
 		data1 = next->data[1];
 		data2 = next->data[2];
+		newtail.lo = (atomic_word) next;
+		newtail.hi = tail.hi + 1;
 	}
-	while (!atomic_compare_exchange_safe_explicit (&_tail, &cmp, (atomic_word) next, memory_order_seq_cst, memory_order_relaxed));
+	while (!atomic_compare_exchange_strong_explicit (&_tail, &tail, newtail, memory_order_seq_cst, memory_order_relaxed));
 
 	res->data[0] = data0;
 	res->data[1] = data1;
@@ -983,7 +1014,9 @@ void AtomicList::Init ()
 {
 #if defined (ATOMIC_HAS_DCAS)
 
-	atomic_init_safe_explicit (&_top, 0, memory_order_relaxed);
+	atomic_word2 w;
+	w.lo = w.hi = 0;
+	atomic_store_explicit (&_top, w, memory_order_relaxed);
 
 #else
 
@@ -1047,19 +1080,213 @@ AtomicNode* AtomicList::Load (atomic_word &tag)
 #endif
 }
 
-void AtomicList::Touch (atomic_word tag)
+bool AtomicList::Add (AtomicNode *first, AtomicNode *last, atomic_word tag)
 {
-#if defined (ATOMIC_HAS_DCAS)
+#if UNITY_PS3
+
+	uint64_t *ptr = (uint64_t*) &_top;
+
+	atomic_word2 oldval, newval;
+	bool res = true;
+
+	newval.lo = (atomic_word) first;
+	newval.hi = tag;
+	
+	uint64_t swap = *((uint64_t*) ((char*)&newval));
+
+	__lwsync();
+	do
+	{
+		uint64_t prev = __ldarx (ptr);
+		oldval = *((const atomic_word2*) &prev);
+		
+		if (oldval.hi != tag)
+		{
+			res = false;
+			break;
+		}
+		last->Link ((AtomicNode *) oldval.lo);
+	}
+	while (!__stdcx (ptr, swap));
+
+	return res;
+	
+#elif defined (ATOMIC_HAS_DCAS)
+
+	atomic_word2 oldval, newval;
+	bool res = false;
+
+	newval.lo = (atomic_word) first;
+	newval.hi = tag;
+	
+	oldval = atomic_load_explicit((volatile const atomic_word2*) &_top, memory_order_relaxed);
+	while (oldval.hi == tag)
+	{
+		last->Link ((AtomicNode *) oldval.lo);
+		res = atomic_compare_exchange_strong_explicit ((volatile atomic_word2*) &_top, &oldval, newval, memory_order_acq_rel, memory_order_relaxed);
+		if (res)
+		{
+			break;
+		}
+	}
+	return res;
+
+#elif defined (__arm64__)
+
+	AtomicNode* res;
+	AtomicNode* tmp;
+	long failure = 1;
+	
+	__asm__ __volatile__
+	(
+	"0:\n\t"
+		"ldxr	%0, [%4]\n\t"
+		"csel	%4, %4, %0, #15\n\t" // nop
+		"ldr	%1, [%4, #8]\n\t"
+		"cmp	%1, %7\n\t"
+		"b.ne	1f\n\t"
+		"str    %0, [%6]\n\t"
+		"stlxr	%w3, %5, [%4]\n\n"
+		"cbnz	%w3, 0b\n\t"
+	"1:\n\t"
+	
+		: "=&r" (res), "=&r" (tmp), "+m" (_top), "=&r" (failure)
+		: "r" (&_top), "r" (first), "r" (last), "r" (tag)
+		: "cc", "memory"
+	);
+	return failure == 0;
+
+#elif defined (__arm__)
+
+	AtomicNode* res;
+	AtomicNode* tmp;
+	int failure = 1;
+	
+	__asm__ __volatile__
+	(
+		"dmb	ishst\n\t"
+	"0:\n\t"
+		"ldrex	%0, [%4]\n\t"
+		"add	%4, %4, %0\n\t"	// nop
+		"sub	%4, %4, %0\n\t" // nop
+		"ldr	%1, [%4, #4]\n\t"
+		"cmp	%1, %7\n\t"
+		"bne	1f\n\t"
+		"str	%0, [%6]\n\t"
+		"strex	%3, %5, [%4]\n\t"
+		"teq	%3, #0\n\t"
+		"bne	0b\n\t"
+	"1:\n\t"
+	
+		: "=&r" (res), "=&r" (tmp), "+m" (_top), "=&r" (failure)
+		: "r" (&_top), "r" (first), "r" (last), "r" (tag)
+		: "cc", "memory"
+	);
+	return failure == 0;
+	
+#elif defined (__ppc__)
+
+	AtomicNode* res;
+	AtomicNode* tmp;
+	int failure = 1;
+	
+	__asm__ __volatile__
+	(
+	"0:\n\t"
+		"lwsync\n\t"
+		"lwarx	%0, 0, %4\n\t"
+		"add	%4, %4, %0\n\t"	// nop
+		"sub	%4, %4, %0\n\t" // nop
+		"lwz	%1, 4(%4)\n\t"
+		"cmpw	%1, %7\n\t"
+		"bne-	1f\n\t"
+		"std	%0, 0(%6)\n\t"
+		"stwcx.	%5, 0, %4\n\t"
+		"bne-	0b\n\t"
+		"eor	%3, %3, %3\n\t"
+	"1:\n\t"
+	
+		: "=&r" (res), "=&r" (tmp), "+m" (_top), "=&r" (failure)
+		: "r" (&_top), "r" (first), "r" (last), "r" (tag)
+		: "cr0", "memory"
+	);
+	return failure == 0;
+	
+#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+
+	AtomicNode* res;
+	AtomicNode* tmp;
+	int failure = 1;
+	
+	__asm__ __volatile__
+	(
+		"lwsync\n\t"
+	"0:\n\t"
+		"ldarx	%0, 0, %4\n\t"
+		"add	%4, %4, %0\n\t"	// nop
+		"sub	%4, %4, %0\n\t" // nop
+		"ld		%1, 8(%4)\n\t"
+		"cmpd	%1, %7\n\t"
+		"bne-	1f\n\t"
+		"std	%0, 0(%6)\n\t"
+		"stdcx.	%5, 0, %4\n\t"
+		"bne-	0b\n\t"
+		"eord	%3, %3, %3\n\t"
+	"1:\n\t"
+	
+		: "=&r" (res), "=&r" (tmp), "+m" (_top), "=&r" (failure)
+		: "r" (&_top), "r" (first), "r" (last), "r" (tag)
+		: "cr0", "memory"
+	);
+	return failure == 0;
+
+#else
+
+#	error
+
+#endif
+}
+
+AtomicNode* AtomicList::Touch (atomic_word tag)
+{
+#if UNITY_PS3
+
+	uint64_t *ptr = (uint64_t*) &_top;
+
+	atomic_word2 oldval, newval;
+
+	newval.lo = 0;
+	newval.hi = tag;
+	
+	uint64_t swap = *((uint64_t*) ((char*)&newval));
+
+	__lwsync();
+	do
+	{
+		uint64_t prev = __ldarx (ptr);
+		oldval = *((const atomic_word2*) &prev);
+	}
+	while (!__stdcx (ptr, swap));
+
+	__isync();
+	
+	return (AtomicNode *) oldval.lo;
+	
+#elif defined (ATOMIC_HAS_DCAS)
 
 	atomic_word2 w;
 	w.lo = 0;
 	w.hi = tag;
-	atomic_store_explicit (&_top, w, memory_order_release);
+	w = atomic_exchange_explicit ((volatile atomic_word2*) &_top, w, memory_order_acq_rel);
 
+	return (AtomicNode*) w.lo;
+	
 #else
 
-	atomic_store_explicit(&_top, 0, memory_order_relaxed);
 	atomic_store_explicit(&_ver, tag, memory_order_release);
+	atomic_word w = atomic_exchange_explicit(&_top, 0, memory_order_acquire);
+	
+	return (AtomicNode *) w;
 	
 #endif
 }
@@ -1085,13 +1312,16 @@ AtomicNode* AtomicList::Clear (AtomicNode* old, atomic_word tag)
 {
 #if defined (ATOMIC_HAS_DCAS)
 
-	atomic_word2 w;
-	w.lo = (atomic_word) old;
-	w.hi = tag;
-
-	if (atomic_compare_exchange_safe_explicit ((volatile atomic_word2*) &_top, &w, 0, memory_order_acquire, memory_order_relaxed))
+	atomic_word2 top;
+	atomic_word2 newtop;
+	top.lo = (atomic_word) old;
+	top.hi = tag;
+	newtop.lo = 0;
+	newtop.hi = tag + 1;
+	
+	if (atomic_compare_exchange_strong_explicit ((volatile atomic_word2*) &_top, &top, newtop, memory_order_acquire, memory_order_relaxed))
 	{
-		return (AtomicNode*) w.lo;
+		return (AtomicNode*) top.lo;
 	}
 	else
 	{
@@ -1286,10 +1516,19 @@ AtomicNode* AtomicList::Load (atomic_word &tag)
 	return (AtomicNode*) _top;
 }
 
-void AtomicList::Touch (atomic_word tag)
+bool AtomicList::Add(AtomicNode *first, AtomicNode *last, atomic_word tag)
 {
+	last->Link((AtomicNode*) _top);
+	_top = (atomic_word) first;
+	return true;
+}
+
+AtomicNode* AtomicList::Touch (atomic_word tag)
+{
+	AtomicNode* res = (AtomicNode*) _top;
 	_top = 0;
 	_ver = tag;
+	return res;
 }
 
 void AtomicList::Reset (AtomicNode* node, atomic_word tag)
