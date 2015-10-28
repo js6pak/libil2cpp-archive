@@ -33,7 +33,7 @@
 #include "vm/Profiler.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
-#include "vm/Stacktrace.h"
+#include "vm/StackTrace.h"
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/Type.h"
