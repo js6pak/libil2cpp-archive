@@ -43,6 +43,8 @@ public:
 
 	void SetPriority (ThreadPriority priority);
 
+	void SetStackSize (size_t stackSize);
+
 	/// Interruptible, infinite wait join.
 	WaitStatus Join ();
 

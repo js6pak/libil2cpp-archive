@@ -208,6 +208,7 @@ Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * st
 	startData->m_Semaphore = new il2cpp::os::Semaphore (0);
 
 	il2cpp::os::Thread* thread = new il2cpp::os::Thread();
+	thread->SetStackSize (__this->stack_size);
 	il2cpp::os::ErrorCode status = thread->Run(&ThreadStart, startData);
 	if (status != il2cpp::os::kErrorCodeSuccess)
 	{
