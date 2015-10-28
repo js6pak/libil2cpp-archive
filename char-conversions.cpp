@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include "char-conversions.h"
 
-uint8_t CategoryData_v4 [] = 
+uint8_t CategoryData_v4 [] =
 {
 	/* Page 0, 0 indirect uses */
 	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,
@@ -5472,4 +5472,3 @@ uint16_t ToUpperDataHigh [] = {
         65517,65518,65519,65520,65521,65522,65523,65524,65525,65526,65527,65528,
         65529,65530,65531,65532,65533,65534,65535
 };
-
