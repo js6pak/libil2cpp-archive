@@ -51,6 +51,11 @@ void Exception::RaiseNullReferenceException ()
 	Raise (GetNullReferenceException ());
 }
 
+void Exception::RaiseDivideByZeroException ()
+{
+	Raise (GetDivideByZeroException ());
+}
+
 void Exception::RaiseCOMException(int hresult)
 {
 	Il2CppException* exception = Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", NULL);
@@ -217,6 +222,11 @@ Il2CppException * Exception::GetUnauthorizedAccessException(const char* msg)
 Il2CppException * Exception::GetMaxmimumNestedGenericsException()
 {
 	return GetNotSupportedException("IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted.");
+}
+
+Il2CppException* Exception::GetDivideByZeroException()
+{
+	return FromNameMsg(vm::Image::GetCorlib(), "System", "DivideByZeroException", NULL);
 }
 
 std::string Exception::FormatException(const Il2CppException* ex)
