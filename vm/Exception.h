@@ -19,6 +19,7 @@ public:
 	static void Raise (Il2CppException* ex);
 	static void RaiseOutOfMemoryException ();
 	static void RaiseNullReferenceException ();
+	static void RaiseDivideByZeroException ();
 	static void RaiseCOMException(int hresult);
 
 	////TODO: rename to NewFromClassNameAndMessage
@@ -51,6 +52,7 @@ public:
 	static Il2CppException* GetTargetException(const char* msg);
 	static Il2CppException* GetExecutionEngineException(const char* msg);
 	static Il2CppException* GetUnauthorizedAccessException(const char* msg);
+	static Il2CppException* GetDivideByZeroException();
 
 	static Il2CppException* GetMaxmimumNestedGenericsException();
 
