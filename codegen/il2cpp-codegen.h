@@ -721,6 +721,17 @@ inline void NullCheck (void* this_ptr)
 	#endif
 }
 
+inline void DivideByZeroCheck(int64_t denominator)
+{
+	if (denominator != 0)
+		return;
+
+	il2cpp::vm::Exception::RaiseDivideByZeroException();
+#if __has_builtin(__builtin_unreachable)
+	__builtin_unreachable();
+#endif
+}
+
 static inline void Initobj (TypeInfo* type, void* data)
 {
 	if (type->valuetype)
