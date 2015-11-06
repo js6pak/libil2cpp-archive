@@ -53,6 +53,11 @@ void Thread::SetPriority (ThreadPriority priority)
 	m_Thread->SetPriority (priority);
 }
 
+void Thread::SetStackSize (size_t stackSize)
+{
+	m_Thread->SetStackSize (stackSize);
+}
+
 struct StartData
 {
 	Thread* thread;
