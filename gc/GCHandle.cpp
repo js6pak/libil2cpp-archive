@@ -97,7 +97,9 @@ alloc_handle (HandleData *handles, Il2CppObject *obj, bool track)
 			void* *entries;
 			entries = (void**)il2cpp_gc_alloc_fixed (sizeof (void*) * new_size, NULL);
 			memcpy (entries, handles->entries, sizeof (void*) * handles->size);
+			void** previous_entries = handles->entries;
 			handles->entries = entries;
+			il2cpp_gc_free_fixed(previous_entries);
 		} else {
 			void* *entries;
 			uint16_t *domain_ids;
