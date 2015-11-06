@@ -38,6 +38,7 @@ ThreadImpl::ThreadImpl ()
 	, m_StartFunc (NULL)
 	, m_StartArg (NULL)
 	, m_CurrentWaitObject (NULL)
+	, m_StackSize( IL2CPP_DEFAULT_STACK_SIZE )
 {
 	pthread_mutex_init (&m_PendingAPCsMutex, NULL);
 }
@@ -63,9 +64,15 @@ ErrorCode ThreadImpl::Run (Thread::StartFunc func, void* arg)
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
 	// set create default core affinity
-	pthread_attr_setaffinity_np(&attr, 0, NULL);
+	pthread_attr_setaffinity_np (&attr, 0, NULL);
 #endif
 	
+
+#if defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE)
+	pthread_attr_setstacksize (&attr, m_StackSize);
+#endif
+
+
 	// Create thread.
 	pthread_t threadId;
 	s = pthread_create (&threadId, &attr, &ThreadStartWrapper, this);
@@ -124,6 +131,24 @@ void ThreadImpl::SetName (const std::string& name)
 #endif
 
 }
+
+
+
+void ThreadImpl::SetStackSize(size_t newsize)
+{
+	// only makes sense if it's called BEFORE the thread has been created
+	assert(m_Handle == NULL);
+
+	// if newsize is zero we use the per-platform default value for size of stack
+	if (newsize == 0)
+	{
+		newsize = IL2CPP_DEFAULT_STACK_SIZE;
+	}
+
+	m_StackSize = newsize;
+}
+
+
 
 void ThreadImpl::SetPriority (ThreadPriority priority)
 {
