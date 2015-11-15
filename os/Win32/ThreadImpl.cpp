@@ -29,7 +29,7 @@ static DWORD WINAPI ThreadStartWrapper(LPVOID arg)
 }
 
 ThreadImpl::ThreadImpl ()
-:	m_ThreadHandle (0), m_ThreadId(0)
+ : m_ThreadHandle (0), m_ThreadId(0), m_StackSize(IL2CPP_DEFAULT_STACK_SIZE)
 {
 }
 
@@ -103,7 +103,7 @@ ErrorCode ThreadImpl::Run (Thread::StartFunc func, void* arg)
 	startData->m_StartArg = arg;
 
 	// Create thread.
-	HANDLE threadHandle = ::CreateThread (NULL, 0, &ThreadStartWrapper, startData, 0, &m_ThreadId);
+	HANDLE threadHandle = ::CreateThread (NULL, m_StackSize, &ThreadStartWrapper, startData, 0, &m_ThreadId);
 
 	if (!threadHandle)
 		return kErrorCodeGenFailure;
