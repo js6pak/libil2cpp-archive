@@ -468,7 +468,7 @@ static inline uint8_t* GenArrayAddress4(Il2CppCodeGenArray* a, uint32_t length1,
 // Negative indices will map to a unsigned number greater than or equal to 2^31 which is larger than allowed for a valid array.
 #define IL2CPP_ARRAY_BOUNDS_CHECK(a,index) \
 	do { \
-		if (((uint32_t)(index)) >= (a)->max_length) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
+		if (((uint32_t)(index)) >= ((uint32_t)(a)->max_length)) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
 	} while (0)
 
 inline bool il2cpp_class_init (TypeInfo *klass)
