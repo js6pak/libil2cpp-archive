@@ -66,6 +66,7 @@
     <ProjectGuid>{848E3796-AAAC-4726-9B51-94FBFEB667B3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>libil2cpp</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='WinRT-UWP-Debug' OR '$(Configuration)'=='WinRT-UWP-Release'">
