@@ -59,17 +59,7 @@ private:
 
 	friend class posix::PosixWaitObject; // SetWaitObject(), CheckForAPCAndHandle()
 
-	enum ThreadState
-	{
-		kThreadCreated,
-		kThreadRunning,
-		kThreadWaiting,
-		kThreadExited
-	};
-
 	pthread_t m_Handle;
-
-	ThreadState m_State;
 
 	/// The synchronization primitive that this thread is currently blocked on.
 	///
