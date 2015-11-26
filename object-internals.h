@@ -45,6 +45,11 @@ struct Il2CppArrayBounds
 	il2cpp_array_lower_bound_t lower_bound;
 };
 
+#if IL2CPP_TARGET_WINDOWS
+#pragma warning( push )
+#pragma warning( disable : 4200 )
+#endif
+
 struct Il2CppArray
 {
 	Il2CppObject obj;
@@ -56,19 +61,23 @@ struct Il2CppArray
 	double vector [IL2CPP_ZERO_LEN_ARRAY];
 };
 
-// This is a part of a string literal - it is needed for debugging visualization
-// Note: store just Il2CppObject here, so this struct does not change memory layout!
-struct Il2CppDataSegmentString
-{
-	Il2CppObject object;
-};
-
 // System.String
 struct Il2CppString
 {
 	Il2CppObject object;
 	int32_t length;								///< Length of string *excluding* the trailing null (which is included in 'chars').
 	uint16_t chars [IL2CPP_ZERO_LEN_ARRAY];
+};
+
+#if IL2CPP_TARGET_WINDOWS
+#pragma warning( pop ) 
+#endif
+
+// This is a part of a string literal - it is needed for debugging visualization
+// Note: store just Il2CppObject here, so this struct does not change memory layout!
+struct Il2CppDataSegmentString
+{
+	Il2CppObject object;
 };
 
 #define IL2CPP_OBJECT_SETREF(obj,fieldname,value) do {	\
