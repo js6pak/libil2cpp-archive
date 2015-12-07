@@ -176,6 +176,12 @@ struct SocketPollingThread
 		return asyncResult;
 	}
 
+	bool ResultReady()
+	{
+		os::FastAutoLock lock (&mutex);
+		return !queue.empty();
+	}
+
 	void RunLoop ();
 	void Terminate ();
 
@@ -374,7 +380,7 @@ void SocketPollingThread::RunLoop ()
 #endif
 
 			// See if there's anything new in the queue.
-			while (!queue.empty ())
+			while (ResultReady())
 			{
 				// Grab next request.
 				Il2CppAsyncResult* asyncResult = DequeueRequest ();
@@ -564,10 +570,13 @@ static bool IsCurrentThreadAWorkerThread ()
 
 void ThreadPoolCompartment::QueueWorkItem (Il2CppAsyncResult* asyncResult)
 {
+	bool forceNewThread = false;
 	// Put the item in the queue.
 	{
 		os::FastAutoLock lock (&mutex);
 		queue.push (asyncResult);
+		if (queue.size() > numIdleThreads)
+			forceNewThread = true;
 	}
 
 	// If all our worker threads are tied up and we have room to grow, spawn a
@@ -575,7 +584,7 @@ void ThreadPoolCompartment::QueueWorkItem (Il2CppAsyncResult* asyncResult)
 	// is currently being processed and we don't have idle threads, force a new
 	// thread to be spawned even if we are at max capacity. This prevents deadlocks
 	// if the code queuing the item then goes and waits on the item it just queued.
-	if (!numIdleThreads &&
+	if (forceNewThread &&
 	    (threads.size () < maxThreads || IsCurrentThreadAWorkerThread ()))
 	{
 		SpawnNewWorkerThread ();
@@ -645,7 +654,7 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 		{
 			// There's no work for us to do so decide what to do.
 
-			// If we've exceeded the maximum amount of threads for the pool,
+			// If we've exceeded the normal number of threads for the pool (minThreads),
 			// wait around for a bit and then, if there is no work to do,
 			// terminate.
 			if (threads.size () > minThreads)
