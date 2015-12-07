@@ -160,7 +160,7 @@ void Field::StaticGetValue (FieldInfo *field, void *value)
 	}
 
 	// ensure parent is initialized so that static fields memory has been allocated
-	Class::SetupFields(field->parent);
+	Class::Init (field->parent);
 
 	if (field->offset == THREAD_STATIC_FIELD_OFFSET)
 	{

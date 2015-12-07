@@ -658,12 +658,6 @@
     <ClCompile Include="utils\DirectoryUtils.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="vm\Atomic.cpp">
-      <Filter>vm</Filter>
-    </ClCompile>
-    <ClCompile Include="vm\LibraryLoader.cpp">
-      <Filter>vm</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1248,12 +1242,6 @@
     </ClInclude>
     <ClInclude Include="utils\DirectoryUtils.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="vm\Atomic.h">
-      <Filter>vm</Filter>
-    </ClInclude>
-    <ClInclude Include="vm\LibraryLoader.h">
-      <Filter>vm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

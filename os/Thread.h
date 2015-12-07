@@ -30,7 +30,6 @@ public:
 	// Use STDCALL calling convention on Windows, as it will be called back directly from the OS. This is defined as nothing on other platforms.
 	typedef void (STDCALL *APCFunc) (void* context);
 	typedef uint64_t ThreadId;
-	typedef void (*CleanupFunc) (void* arg);
 
 	/// Initialize thread subsystem. Must be called on main thread.
 	static void Init ();
@@ -45,12 +44,6 @@ public:
 	void SetPriority (ThreadPriority priority);
 
 	void SetStackSize (size_t stackSize);
-
-	void SetCleanupFunction (CleanupFunc cleanupFunc, void* arg)
-	{
-		m_CleanupFunc = cleanupFunc;
-		m_CleanupFuncArg = arg;
-	}
 
 	/// Interruptible, infinite wait join.
 	WaitStatus Join ();
@@ -74,17 +67,6 @@ public:
 	static const uint64_t kInvalidThreadId = 0;
 
 private:
-
-	enum ThreadState
-	{
-		kThreadCreated,
-		kThreadRunning,
-		kThreadWaiting,
-		kThreadExited
-	};
-
-	ThreadState m_State;
-
 	friend class ThreadImpl; // m_Thread
 
 	ThreadImpl* m_Thread;
@@ -92,9 +74,6 @@ private:
 	/// Event that the thread signals when it finishes execution. Used for joins.
 	/// Supports interruption.
 	Event m_ThreadExitedEvent;
-
-	CleanupFunc m_CleanupFunc;
-	void* m_CleanupFuncArg;
 
 	Thread (ThreadImpl* thread)
 		: m_Thread (thread) {}

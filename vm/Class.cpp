@@ -564,12 +564,17 @@ int32_t Class::GetValueSize (TypeInfo *klass, uint32_t *align)
 	return size;
 }
 
-bool Class::HasParent (TypeInfo *klass, TypeInfo *parent)
+bool Class::HasParent (const TypeInfo *klass, const TypeInfo *parent)
 {
-	Class::SetupTypeHierarchy (klass);
-	Class::SetupTypeHierarchy (parent);
+	while (klass)
+	{
+		if (klass == parent)
+			return true;
 
-	return HasParentUnsafe (klass, parent);
+		klass = klass->parent;
+	}
+
+	return false;
 }
 
 bool Class::IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass)
@@ -613,7 +618,7 @@ bool Class::IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass)
 			return Class::IsAssignableFrom(nullableArg, oklass);
 		}
 
-		return HasParentUnsafe (oklass, klass);
+		return HasParent (oklass, klass);
 	}
 
 	while (oklass)
@@ -651,7 +656,6 @@ bool Class::IsInflated(const TypeInfo *klass)
 bool Class::IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces)
 {
 	Class::SetupTypeHierarchy (klass);
-	Class::SetupTypeHierarchy (klassc);
 	Class::SetupInterfaces (klass);
 
 	if (check_interfaces && IsInterface (klassc) && !IsInterface (klass))
@@ -683,7 +687,7 @@ bool Class::IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfac
 	}
 	else
 	{
-		if (!IsInterface (klass) && HasParentUnsafe (klass, klassc))
+		if (!IsInterface (klass) && Class::HasParent (klass, klassc))
 			return true;
 	}
 
@@ -1832,21 +1836,8 @@ void GetBitmapNoInit (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit, size_t
 
 void SetupGCDescriptor (TypeInfo* klass)
 {
-	const size_t kMaxAllocaSize = 1024;
 	size_t bitmapSize = Class::GetBitmapSize (klass);
-	size_t* bitmap = NULL;
-	std::vector<size_t> buffer (0);
-
-	if (bitmapSize > kMaxAllocaSize)
-	{
-		buffer.resize (bitmapSize / sizeof(size_t));
-		bitmap = (size_t*)&buffer[0];
-	}
-	else
-	{
-		bitmap = (size_t*)alloca (bitmapSize);
-	}
-
+	size_t* bitmap = (size_t*)alloca (bitmapSize);
 	memset (bitmap, 0, bitmapSize);
 	size_t maxSetBit = 0;
 	GetBitmapNoInit (klass, bitmap, maxSetBit, 0);

@@ -34,6 +34,7 @@ static Event s_ThreadSleepObject;
 
 ThreadImpl::ThreadImpl ()
 	: m_Handle (0)
+	, m_State (kThreadCreated)
 	, m_StartFunc (NULL)
 	, m_StartArg (NULL)
 	, m_CurrentWaitObject (NULL)
@@ -49,6 +50,8 @@ ThreadImpl::~ThreadImpl ()
 
 ErrorCode ThreadImpl::Run (Thread::StartFunc func, void* arg)
 {
+	assert (m_State == kThreadCreated || m_State == kThreadExited);
+
 	// Store state for run wrapper.
 	m_StartFunc = func;
 	m_StartArg = arg;
@@ -103,7 +106,9 @@ void* ThreadImpl::ThreadStartWrapper (void* arg)
 	(void)returnValue;
 
 	// Run user code.
+	thread->m_State = kThreadRunning;
 	thread->m_StartFunc (thread->m_StartArg);
+	thread->m_State = kThreadExited;
 
 	return 0;
 }
