@@ -873,6 +873,7 @@
     <ClInclude Include="utils\utf8-cpp\source\utf8\unchecked.h" />
     <ClInclude Include="vm\Array.h" />
     <ClInclude Include="vm\Assembly.h" />
+    <ClInclude Include="vm\Atomic.h" />
     <ClInclude Include="vm\Class.h" />
     <ClInclude Include="vm\Debug.h" />
     <ClInclude Include="vm\Domain.h" />
@@ -884,6 +885,7 @@
     <ClInclude Include="vm\Image.h" />
     <ClInclude Include="vm\InternalCalls.h" />
     <ClInclude Include="vm\LastError.h" />
+    <ClInclude Include="vm\LibraryLoader.h" />
     <ClInclude Include="vm\Liveness.h" />
     <ClInclude Include="vm\MarshalAlloc.h" />
     <ClInclude Include="vm\MemoryInformation.h" />
@@ -1174,6 +1176,7 @@
     <ClCompile Include="utils\PathUtils.cpp" />
     <ClCompile Include="vm\Array.cpp" />
     <ClCompile Include="vm\Assembly.cpp" />
+    <ClCompile Include="vm\Atomic.cpp" />
     <ClCompile Include="vm\Class.cpp" />
     <ClCompile Include="vm\Debug.cpp" />
     <ClCompile Include="vm\Domain.cpp" />
@@ -1185,6 +1188,7 @@
     <ClCompile Include="vm\Image.cpp" />
     <ClCompile Include="vm\InternalCalls.cpp" />
     <ClCompile Include="vm\LastError.cpp" />
+    <ClCompile Include="vm\LibraryLoader.cpp" />
     <ClCompile Include="vm\Liveness.cpp" />
     <ClCompile Include="vm\MarshalAlloc.cpp" />
     <ClCompile Include="vm\MemoryInformation.cpp" />
