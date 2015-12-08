@@ -183,6 +183,12 @@
 #define NORETURN
 #endif
 
+#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#define IL2CPP_NO_INLINE __declspec(noinline)
+#else
+#define IL2CPP_NO_INLINE __attribute__ ((noinline))
+#endif
+
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
 
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
