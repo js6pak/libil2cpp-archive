@@ -1836,8 +1836,21 @@ void GetBitmapNoInit (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit, size_t
 
 void SetupGCDescriptor (TypeInfo* klass)
 {
+	const size_t kMaxAllocaSize = 1024;
 	size_t bitmapSize = Class::GetBitmapSize (klass);
-	size_t* bitmap = (size_t*)alloca (bitmapSize);
+	size_t* bitmap = NULL;
+	std::vector<size_t> buffer (0);
+
+	if (bitmapSize > kMaxAllocaSize)
+	{
+		buffer.resize (bitmapSize / sizeof(size_t));
+		bitmap = (size_t*)&buffer[0];
+	}
+	else
+	{
+		bitmap = (size_t*)alloca (bitmapSize);
+	}
+
 	memset (bitmap, 0, bitmapSize);
 	size_t maxSetBit = 0;
 	GetBitmapNoInit (klass, bitmap, maxSetBit, 0);
