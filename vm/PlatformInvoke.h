@@ -1,6 +1,7 @@
 #pragma once
 
 #include "il2cpp-config.h"
+#include "il2cpp-api-types.h"
 #include "metadata.h"
 #include "blob.h"
 #include "PlatformInvoke.h"
@@ -24,6 +25,7 @@ class PlatformInvoke
 {
 public:
 	static int SumParameterSize(Il2CppTypeEnum parameterTypes[]);
+	static void SetFindPluginCallback(Il2CppSetFindPlugInCallback method);
 	static methodPointerType Resolve(const PInvokeArguments& pinvokeArgs);
 
 	static void MarshalFree(void* ptr);
