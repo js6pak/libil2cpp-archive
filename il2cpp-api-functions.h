@@ -222,6 +222,8 @@ DO_API( const MethodInfo*, il2cpp_image_get_entry_point, (const Il2CppImage* ima
 DO_API( Il2CppManagedMemorySnapshot*, il2cpp_capture_memory_snapshot, () );
 DO_API( void, il2cpp_free_captured_memory_snapshot, (Il2CppManagedMemorySnapshot* snapshot) );
 
+DO_API(void, il2cpp_set_find_plugin_callback, (Il2CppSetFindPlugInCallback method));
+
 #if IL2CPP_DEBUGGER_ENABLED
 // debug
 DO_API( const Il2CppDebugTypeInfo*, il2cpp_debug_get_class_info, (const TypeInfo *klass) );
