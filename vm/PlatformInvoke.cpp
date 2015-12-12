@@ -4,6 +4,7 @@
 #include "class-internals.h"
 #include "PlatformInvoke.h"
 #include "Exception.h"
+#include "LibraryLoader.h"
 #include "MetadataCache.h"
 #include "Object.h"
 #include "Type.h"
@@ -20,9 +21,14 @@ namespace il2cpp
 namespace vm
 {
 
+void PlatformInvoke::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
+{
+	LibraryLoader::SetFindPluginCallback(method);
+}
+
 methodPointerType PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
 {
-	void* dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(pinvokeArgs.moduleName);
+	void* dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
 	if (dynamicLibrary == NULL)
 	{
 		std::stringstream message;
