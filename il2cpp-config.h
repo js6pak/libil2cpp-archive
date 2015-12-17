@@ -183,6 +183,12 @@
 #define NORETURN
 #endif
 
+#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#define IL2CPP_NO_INLINE __declspec(noinline)
+#else
+#define IL2CPP_NO_INLINE __attribute__ ((noinline))
+#endif
+
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
 
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
@@ -226,6 +232,10 @@
 
 #if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS && !IL2CPP_THREADS_PS4 && !IL2CPP_THREADS_PSP2))
 #error "No thread implementation defined"
+#endif
+
+#if !defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE) && IL2CPP_TARGET_IOS
+#define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
 #endif
 
 #define IL2CPP_ENABLE_STACKTRACES 1

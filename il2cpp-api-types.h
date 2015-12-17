@@ -133,6 +133,8 @@ typedef void (*Il2CppProfileAllocFunc) (Il2CppProfiler* prof, Il2CppObject *obj,
 typedef void (*Il2CppProfileGCFunc) (Il2CppProfiler* prof, Il2CppGCEvent event, int generation);
 typedef void (*Il2CppProfileGCResizeFunc) (Il2CppProfiler* prof, int64_t new_size);
 
+typedef const char* (*Il2CppSetFindPlugInCallback)(const char*);
+
 struct Il2CppMetadataField
 {
 	uint32_t offset;
