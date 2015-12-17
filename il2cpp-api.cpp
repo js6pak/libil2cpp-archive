@@ -16,6 +16,7 @@
 #include "vm/Method.h"
 #include "vm/Monitor.h"
 #include "vm/Object.h"
+#include "vm/PlatformInvoke.h"
 #include "vm/Profiler.h"
 #include "vm/Property.h"
 #include "vm/Reflection.h"
@@ -1080,6 +1081,11 @@ Il2CppManagedMemorySnapshot* il2cpp_capture_memory_snapshot()
 void il2cpp_free_captured_memory_snapshot(Il2CppManagedMemorySnapshot* snapshot)
 {
 	MemoryInformation::FreeCapturedManagedMemorySnapshot(snapshot);
+}
+
+void il2cpp_set_find_plugin_callback(Il2CppSetFindPlugInCallback method)
+{
+	il2cpp::vm::PlatformInvoke::SetFindPluginCallback(method);
 }
 
 #if IL2CPP_DEBUGGER_ENABLED
