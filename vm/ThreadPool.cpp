@@ -483,15 +483,24 @@ void SocketPollingThread::RunLoop ()
 	}
 }
 
+
+static void FreeThreadHandle (void* data)
+{
+	uint32_t handle = (uint32_t)(uintptr_t)data;
+	gc::GCHandle::Free (handle);
+}
+
 static void SocketPollingThreadEntryPoint (void* data)
 {
 	SocketPollingThread* pollingThread = reinterpret_cast<SocketPollingThread*> (data);
 
 	// Properly attach us to the VM and mark us as a background thread.
 	Il2CppThread* managedThread = vm::Thread::Attach (il2cpp_domain_get());
+	uint32_t handle = gc::GCHandle::New ((Il2CppObject*) managedThread, true);
 	vm::Thread::SetState (managedThread, kThreadStateBackground);
 	managedThread->handle->SetName ("Socket I/O Polling Thread");
 	managedThread->handle->SetPriority (os::kThreadPriorityLow);
+	managedThread->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
 
 	// The socket polling thread is not technically a worker pool thread but for all
 	// intents and purposes it is part of the async I/O thread pool. It is important to
@@ -785,6 +794,7 @@ static void WorkerThreadEntryPoint (void* data)
 	// Properly attach us to the VM and mark us as a background
 	// worker thread.
 	Il2CppThread* managedThread = vm::Thread::Attach (il2cpp_domain_get());
+	uint32_t handle = gc::GCHandle::New ((Il2CppObject*) managedThread, true);
 	vm::Thread::SetState (managedThread, kThreadStateBackground);
 	managedThread->threadpool_thread = true;
 	int threadCount = compartment->AttachThread (managedThread);
@@ -794,6 +804,7 @@ static void WorkerThreadEntryPoint (void* data)
 	sprintf (name, "%s Thread #%i", compartment->compartmentName, threadCount - 1);
 	managedThread->handle->SetName (name);
 	managedThread->handle->SetPriority (os::kThreadPriorityLow);
+	managedThread->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
 
 	// Do work.
 	try
