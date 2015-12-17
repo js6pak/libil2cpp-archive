@@ -20,6 +20,7 @@
 #include "metadata/GenericMethod.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
+#include "vm/Atomic.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -468,7 +469,7 @@ static inline uint8_t* GenArrayAddress4(Il2CppCodeGenArray* a, uint32_t length1,
 // Negative indices will map to a unsigned number greater than or equal to 2^31 which is larger than allowed for a valid array.
 #define IL2CPP_ARRAY_BOUNDS_CHECK(a,index) \
 	do { \
-		if (((uint32_t)(index)) >= (a)->max_length) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
+		if (((uint32_t)(index)) >= ((uint32_t)(a)->max_length)) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
 	} while (0)
 
 inline bool il2cpp_class_init (TypeInfo *klass)
@@ -919,6 +920,19 @@ static inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTy
 	if (type == NULL)
 		return ((getTypeFuncType)getTypeFunction)(NULL, typeName, throwOnError, ignoreCase, NULL);
 	return type;
+}
+
+// Atomic
+
+static inline void* il2cpp_codegen_atomic_compare_exchange_pointer(void* volatile* dest, void* exchange, void* comparand)
+{
+	return il2cpp::vm::Atomic::CompareExchangePointer(dest, exchange, comparand);
+}
+
+template <typename T>
+static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* newValue, T* oldValue)
+{
+	return il2cpp::vm::Atomic::CompareExchangePointer(dest, newValue, oldValue);
 }
 
 // Exception support macros
