@@ -75,21 +75,7 @@ TypeInfo* Method::GetClass (const MethodInfo *method)
 
 bool Method::HasAttribute (const MethodInfo *method, TypeInfo *attr_class)
 {
-	CustomAttributesCache* attrs = Reflection::GetCustomAttrsInfo (method);
-
-	if (!attrs)
-		return false;
-
-	for(int i = 0; i < attrs->count; ++i)
-	{
-		Il2CppObject* attribute = attrs->attributes[i];
-		TypeInfo *klass = Object::GetClass (attribute);
-
-		if(klass == attr_class)
-			return true;
-	}
-
-	return false;
+	return Reflection::HasAttribute(method, attr_class);
 }
 
 const Il2CppDebugMethodInfo *Method::GetDebugInfo (const MethodInfo *method)

@@ -55,6 +55,12 @@ public:
 	static ThreadImpl* GetCurrentThread ();
 	static ThreadImpl* CreateForCurrentThread ();
 
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+	static void SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction);
+	static void RegisterCurrentThreadForCleanup (void* arg);
+	static void UnregisterCurrentThreadForCleanup ();
+#endif
+
 private:
 
 	friend class posix::PosixWaitObject; // SetWaitObject(), CheckForAPCAndHandle()

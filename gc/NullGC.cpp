@@ -6,6 +6,7 @@ struct Il2CppObject;
 #include <stdlib.h>
 #include "il2cpp-api.h"
 #include "vm/GC.h"
+#include "gc-internal.h"
 #include "utils/Memory.h"
 
 void

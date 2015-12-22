@@ -565,6 +565,21 @@ CustomAttributesCache* Reflection::GetCustomAttributesCacheFor(Il2CppReflectionP
 	return MetadataCache::GenerateCustomAttributesCache (info->customAttributeIndex);
 }
 
+CustomAttributeTypeCache* Reflection::GetCustomAttributeTypeCacheFor(Il2CppReflectionParameter *parameter)
+{
+	Il2CppReflectionMethod* method = (Il2CppReflectionMethod*)parameter->MemberImpl;
+
+	if (method->method->parameters == NULL)
+		return NULL;
+
+	NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributeTypeCacheFor, "-1 represents the return value. Need to emit custom attribute information for that.")
+		if (parameter->PositionImpl == -1)
+			return NULL;
+
+	const ::ParameterInfo* info = &method->method->parameters[parameter->PositionImpl];
+	return MetadataCache::GenerateCustomAttributeTypeCache(info->customAttributeIndex);
+}
+
 CustomAttributesCache* Reflection::GetCustomAttributesCacheFor(const Il2CppAssembly *assembly)
 {
 	return MetadataCache::GenerateCustomAttributesCache (assembly->customAttributeIndex);
@@ -598,6 +613,34 @@ CustomAttributesCache* Reflection::GetCustomAttrsInfo (Il2CppObject *obj)
 
 }
 
+CustomAttributeTypeCache* Reflection::GetCustomAttrsTypeInfo (Il2CppObject *obj)
+{
+	if (IsMethod (obj) || IsCMethod (obj) || IsGenericMethod (obj) || IsGenericCMethod (obj))
+		return MetadataCache::GenerateCustomAttributeTypeCache ((((Il2CppReflectionMethod*)obj)->method)->customAttributeIndex);
+
+	if (IsProperty (obj))
+		return MetadataCache::GenerateCustomAttributeTypeCache ((((Il2CppReflectionProperty*)obj)->property)->customAttributeIndex);
+
+	if (IsField (obj))
+		return MetadataCache::GenerateCustomAttributeTypeCache ((((Il2CppReflectionField*)obj)->field)->customAttributeIndex);
+
+	if (IsEvent (obj))
+		return MetadataCache::GenerateCustomAttributeTypeCache ((((Il2CppReflectionMonoEvent*)obj)->eventInfo)->customAttributeIndex);
+
+	if (IsParameter (obj))
+		return GetCustomAttributeTypeCacheFor ((Il2CppReflectionParameter*)obj);
+
+	if (IsAssembly (obj))
+		return MetadataCache::GenerateCustomAttributeTypeCache ((((Il2CppReflectionAssembly*)obj)->assembly)->customAttributeIndex);
+
+	TypeInfo *klass = IsType (obj)
+		? Class::FromSystemType ((Il2CppReflectionType*)obj)
+		: obj->klass;
+
+	return MetadataCache::GenerateCustomAttributeTypeCache (klass->customAttributeIndex);
+
+}
+
 void Reflection::Initialize ()
 {
 	s_AssemblyMap = new AssemblyMap ();
@@ -610,19 +653,59 @@ void Reflection::Initialize ()
 	s_TypeMap = new TypeMap ();
 }
 
-bool Reflection::CustomAttrsHasAttr (CustomAttributesCache *ainfo, TypeInfo *attr_klass)
+bool Reflection::CustomAttrsHasAttr (CustomAttributeTypeCache *ainfo, TypeInfo *attr_klass)
 {
+	assert (ainfo);
+	assert (attr_klass);
+
 	int i;
 	TypeInfo *klass;
 
 	for(i = 0; i < ainfo->count; ++i)
 	{
-		klass = ainfo->attributes[i]->klass;
+		klass = ainfo->attributeTypes[i];
 
 		if (Class::HasParent (klass, attr_klass) || (Class::IsInterface (attr_klass) && Class::IsAssignableFrom (attr_klass, klass)))
 			return true;
 	}
 	return false;
+}
+
+bool Reflection::HasAttribute(Il2CppObject *obj, TypeInfo *attribute)
+{
+	CustomAttributeTypeCache* attrs = GetCustomAttrsTypeInfo(obj);
+	if (!attrs)
+		return false;
+
+	return CustomAttrsHasAttr(attrs, attribute);
+}
+
+bool Reflection::HasAttribute(FieldInfo *field, TypeInfo *attribute)
+{
+	CustomAttributeTypeCache* attrs = MetadataCache::GenerateCustomAttributeTypeCache(field->customAttributeIndex);
+	if (!attrs)
+		return false;
+
+	
+	return CustomAttrsHasAttr(attrs, attribute);
+}
+
+bool Reflection::HasAttribute(const MethodInfo *method, TypeInfo *attribute)
+{
+	CustomAttributeTypeCache* attrs = MetadataCache::GenerateCustomAttributeTypeCache(method->customAttributeIndex);
+	if (!attrs)
+		return false;
+
+	return CustomAttrsHasAttr(attrs, attribute);
+}
+
+bool Reflection::HasAttribute(TypeInfo *klass, TypeInfo *attribute)
+{
+	CustomAttributeTypeCache* attrs = MetadataCache::GenerateCustomAttributeTypeCache(klass->customAttributeIndex);
+	if (!attrs)
+		return false;
+
+	return CustomAttrsHasAttr(attrs, attribute);
 }
 
 
@@ -632,21 +715,6 @@ TypeInfo* Reflection::TypeGetHandle (Il2CppReflectionType* ref)
 		return NULL;
 
 	return Class::FromSystemType (ref);
-}
-
-CustomAttributesCache* Reflection::GetCustomAttrsInfo (FieldInfo *field)
-{
-	return GetCustomAttributesCacheFor (field);
-}
-
-CustomAttributesCache* Reflection::GetCustomAttrsInfo (const MethodInfo *method)
-{
-	return GetCustomAttributesCacheFor (method);
-}
-
-CustomAttributesCache* Reflection::GetCustomAttrsInfo (TypeInfo *klass)
-{
-	return GetCustomAttributesCacheFor (klass);
 }
 
 } /* namespace vm */

@@ -564,17 +564,12 @@ int32_t Class::GetValueSize (TypeInfo *klass, uint32_t *align)
 	return size;
 }
 
-bool Class::HasParent (const TypeInfo *klass, const TypeInfo *parent)
+bool Class::HasParent (TypeInfo *klass, TypeInfo *parent)
 {
-	while (klass)
-	{
-		if (klass == parent)
-			return true;
+	Class::SetupTypeHierarchy (klass);
+	Class::SetupTypeHierarchy (parent);
 
-		klass = klass->parent;
-	}
-
-	return false;
+	return HasParentUnsafe (klass, parent);
 }
 
 bool Class::IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass)
@@ -618,7 +613,7 @@ bool Class::IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass)
 			return Class::IsAssignableFrom(nullableArg, oklass);
 		}
 
-		return HasParent (oklass, klass);
+		return HasParentUnsafe (oklass, klass);
 	}
 
 	while (oklass)
@@ -656,6 +651,7 @@ bool Class::IsInflated(const TypeInfo *klass)
 bool Class::IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces)
 {
 	Class::SetupTypeHierarchy (klass);
+	Class::SetupTypeHierarchy (klassc);
 	Class::SetupInterfaces (klass);
 
 	if (check_interfaces && IsInterface (klassc) && !IsInterface (klass))
@@ -687,7 +683,7 @@ bool Class::IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfac
 	}
 	else
 	{
-		if (!IsInterface (klass) && Class::HasParent (klass, klassc))
+		if (!IsInterface (klass) && HasParentUnsafe (klass, klassc))
 			return true;
 	}
 
@@ -1135,7 +1131,7 @@ static void SetupVTable (TypeInfo *klass, const FastAutoLock& lock)
 			{
 				EncodedMethodIndex vtableMethodIndex = MetadataCache::GetVTableMethodFromIndex (genericTypeDefinition->typeDefinition->vtableStart + i);
 				const MethodInfo* method = MetadataCache::GetMethodInfoFromIndex (vtableMethodIndex);
-				if (IsGenericMethodIndex (vtableMethodIndex))
+				if (GetEncodedIndexType (vtableMethodIndex) == kIl2CppMetadataUsageMethodRef)
 				{
 					const Il2CppGenericMethod* genericMethod = GenericMetadata::Inflate (method->genericMethod, context);
 					klass->vtable[i] = GenericMethod::GetMethod (genericMethod);
@@ -1597,21 +1593,7 @@ const Il2CppType* Class::GetType (TypeInfo *klass, const TypeNameParseInfo &info
 
 bool Class::HasAttribute (TypeInfo *klass, TypeInfo *attr_class)
 {
-	CustomAttributesCache* attrs = Reflection::GetCustomAttrsInfo (klass);
-
-	if (!attrs)
-		return false;
-
-	for(int i = 0; i < attrs->count; ++i)
-	{
-		Il2CppObject* attribute = attrs->attributes[i];
-		TypeInfo *aklass = Object::GetClass (attribute);
-
-		if(aklass == attr_class)
-			return true;
-	}
-
-	return false;
+	return Reflection::HasAttribute (klass, attr_class);
 }
 
 bool Class::IsEnum (const TypeInfo *klass)

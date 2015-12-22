@@ -171,5 +171,24 @@ void Thread::DetachCurrentThread ()
 	s_CurrentThread.SetValue (NULL);
 }
 
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+
+void Thread::SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction)
+{
+	ThreadImpl::SetNativeThreadCleanup(cleanupFunction);
+}
+
+void Thread::RegisterCurrentThreadForCleanup (void* arg)
+{
+	ThreadImpl::RegisterCurrentThreadForCleanup (arg);
+}
+
+void Thread::UnregisterCurrentThreadForCleanup ()
+{
+	ThreadImpl::UnregisterCurrentThreadForCleanup ();
+}
+
+#endif
+
 }
 }
