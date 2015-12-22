@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppString;
 
 namespace il2cpp
@@ -14,7 +13,7 @@ namespace System
 namespace Configuration
 {
 
-class LIBIL2CPP_CODEGEN_API InternalConfigurationHost
+class InternalConfigurationHost
 {
 public:
 	static Il2CppString* get_bundled_machine_config ();

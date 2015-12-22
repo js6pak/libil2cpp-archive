@@ -20,14 +20,6 @@ enum ThreadPriority
 	kThreadPriorityHigh
 };
 
-enum ApartmentState
-{
-	kApartmentStateInSTA = 0,
-	kApartmentStateInMTA = 1,
-	kApartmentStateUnknown = 2,
-	kApartmentStateCoInitialized = 4,
-};
-
 class Thread : public il2cpp::utils::NonCopyable
 {
 public:
@@ -40,9 +32,8 @@ public:
 	typedef uint64_t ThreadId;
 	typedef void (*CleanupFunc) (void* arg);
 
-	/// Initialize/Shutdown thread subsystem. Must be called on main thread.
+	/// Initialize thread subsystem. Must be called on main thread.
 	static void Init ();
-	static void Shutdown ();
 
 	ErrorCode Run (StartFunc func, void* arg);
 	ThreadId Id ();
@@ -72,13 +63,6 @@ public:
 	/// NOTE: The APC is allowed to raise exceptions!
 	void QueueUserAPC (APCFunc func, void* context);
 
-	// Explicit versions modify state without actually changing COM state.
-	// Used to set thread state before it's started.
-	ApartmentState GetApartment();
-	ApartmentState GetExplicitApartment();
-	ApartmentState SetApartment(ApartmentState state);
-	void SetExplicitApartment(ApartmentState state);
-
 	/// Interruptible, timed sleep.
 	static void Sleep (uint32_t ms, bool interruptible = false);
 
@@ -86,13 +70,6 @@ public:
 	static Thread* GetCurrentThread ();
 	static Thread* GetOrCreateCurrentThread ();
 	static void DetachCurrentThread ();
-
-#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
-	typedef void (*ThreadCleanupFunc) (void* arg);
-	static void SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction);
-	static void RegisterCurrentThreadForCleanup (void* arg);
-	static void UnregisterCurrentThreadForCleanup ();
-#endif
 
 	static const uint64_t kInvalidThreadId = 0;
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppObject;
 struct Il2CppReflectionType;
 
@@ -19,7 +18,7 @@ namespace Remoting
 namespace Activation
 {
 
-class LIBIL2CPP_CODEGEN_API ActivationServices
+class ActivationServices
 {
 public:
 	static void EnableProxyActivation (Il2CppReflectionType*, bool);

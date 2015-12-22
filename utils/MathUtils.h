@@ -66,8 +66,7 @@ namespace MathUtils
 
 		// Let's find the starting point for our division
 		// We'll keep adding bits from our divident to the workValue until it's higher than the divisor
-		// We did divisor = llabs(divisor) earlier, so cast to unsigned is safe
-		while (workValue < static_cast<uint64_t>(divisor))
+		while (workValue < divisor)
 		{
 			workValue <<= 1;
 
@@ -84,15 +83,15 @@ namespace MathUtils
 		}
 
 		// Main division loop
-		for (; bitIndex > -2 || workValue >= static_cast<uint64_t>(divisor); bitIndex--)
+		for (; bitIndex > -2 || workValue >= divisor; bitIndex--)
 		{
 			result <<= 1;	// Shift result left
 
 			// Since it's binary, the division result can be only 0 and 1
 			// It's 1 if workValue is higher or equal to divisor
-			if (workValue >= static_cast<uint64_t>(divisor))
+			if (workValue >= divisor)
 			{
-				workValue -= static_cast<uint64_t>(divisor);
+				workValue -= divisor;
 				result++;
 			}
 			

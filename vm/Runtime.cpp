@@ -1,10 +1,10 @@
 #include "il2cpp-config.h"
+#include "metadata/GenericMethod.h"
 #include "os/Environment.h"
 #include "os/File.h"
 #include "os/Image.h"
 #include "os/Initialize.h"
 #include "os/LibraryLoader.h"
-#include "os/Locale.h"
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "os/Path.h"
@@ -36,7 +36,7 @@
 #include "class-internals.h"
 #include "object-internals.h"
 #include "tabledefs.h"
-#include "gc/GarbageCollector.h"
+#include "gc/gc-internal.h"
 #include "vm/InternalCalls.h"
 #include "utils/Collections.h"
 #include "utils/Memory.h"
@@ -61,12 +61,12 @@ namespace vm
 
 il2cpp::os::FastMutex g_MetadataLock;
 
-static std::string s_ConfigDir;
-static std::string s_DataDir;
+std::string Runtime::s_ConfigDir;
+std::string Runtime::s_DataDir;
 static std::string s_DataDirFallback;
-static const char *s_FrameworkVersion = 0;
-static const char *s_BundledMachineConfig = 0;
-static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
+const char *Runtime::s_FrameworkVersion = 0;
+const char *Runtime::s_BundledMachineConfig = 0;
+Il2CppRuntimeUnhandledExceptionPolicy Runtime::s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
 
 #define DEFAULTS_INIT(field,ns,n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n); \
 	assert(il2cpp_defaults.field); } while (0)
@@ -102,7 +102,6 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	SanityChecks ();
 
 	os::Initialize();
-	os::Locale::Initialize();
 	MetadataAllocInitialize ();
 
 	s_FrameworkVersion = framework_version_for (runtime_version);
@@ -113,7 +112,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 
 	MetadataCache::Initialize ();
 	Assembly::Initialize ();
-	gc::GarbageCollector::Initialize ();
+	il2cpp_gc_base_init();
 
 	// Thread needs GC initialized
 	Thread::Initialize ();
@@ -146,7 +145,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT_TYPE(uint64_class, "System", "UInt64", uint64_t);
 	DEFAULTS_INIT_TYPE(single_class, "System", "Single", float);
 	DEFAULTS_INIT_TYPE(double_class, "System", "Double", double);
-	DEFAULTS_INIT_TYPE(char_class, "System", "Char", Il2CppChar);
+	DEFAULTS_INIT_TYPE(char_class, "System", "Char", uint16_t);
 	DEFAULTS_INIT(string_class, "System", "String");
 	DEFAULTS_INIT(enum_class, "System", "Enum");
 	DEFAULTS_INIT(array_class, "System", "Array");
@@ -195,15 +194,10 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT_TYPE(system_exception_class, "System", "SystemException", Il2CppSystemException);
 	DEFAULTS_INIT_TYPE(argument_exception_class, "System", "ArgumentException", Il2CppArgumentException);
 	DEFAULTS_INIT_TYPE(marshalbyrefobject_class, "System", "MarshalByRefObject", Il2CppMarshalByRefObject);
-	DEFAULTS_INIT_TYPE(il2cpp_com_object_class, "System", "__Il2CppComObject", Il2CppComObject);
 	DEFAULTS_INIT_TYPE(wait_handle_class, "System.Threading", "WaitHandle", Il2CppWaitHandle);
 	DEFAULTS_INIT_TYPE(safe_handle_class, "System.Runtime.InteropServices", "SafeHandle", Il2CppSafeHandle);
 	DEFAULTS_INIT_TYPE(sort_key_class, "System.Globalization", "SortKey", Il2CppSortKey);
-	DEFAULTS_INIT(dbnull_class, "System", "DBNull");
-	DEFAULTS_INIT_TYPE(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
-	DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
 	DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
-	DEFAULTS_INIT(value_type_class, "System", "ValueType");
 
 	Class::Init (il2cpp_defaults.string_class);
 
@@ -228,7 +222,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 
 	LastError::InitializeLastErrorThreadStatic();
 
-	gc::GarbageCollector::InitializeFinalizer ();
+	il2cpp_gc_init();
 
 	MetadataCache::InitializeGCSafe ();
 	ThreadPool::Initialize ();
@@ -240,7 +234,6 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	// Force binary serialization in Mono to use reflection instead of code generation.
 	#undef SetEnvironmentVariable // Get rid of windows.h #define.
 	os::Environment::SetEnvironmentVariable ("MONO_REFLECTION_SERIALIZER", "yes");
-	os::Environment::SetEnvironmentVariable ("MONO_XMLSERIALIZER_THS", "no");
 
 	Domain::ContextInit(domain);
 	Domain::ContextSet(domain->default_context);
@@ -257,17 +250,14 @@ void Runtime::Shutdown ()
 	os::Socket::Cleanup ();
 
 	os::LibraryLoader::CleanupLoadedLibraries();
-	il2cpp::gc::GarbageCollector::Uninitialize ();
+	il2cpp_gc_cleanup ();
 
 	// after the gc cleanup so the finalizer thread can unregister itself
 	Thread::UnInitialize ();
 
-	os::Thread::Shutdown ();
-
 	vm::Image::ClearCachedResourceData();
 	MetadataAllocCleanup ();
 
-	os::Locale::UnInitialize();
 	os::Uninitialize();
 }
 
@@ -313,7 +303,7 @@ std::string Runtime::GetDataDir()
 	return s_DataDirFallback;
 }
 
-Il2CppObject* Runtime::DelegateInvoke (Il2CppDelegate *delegate, void **params, Il2CppException **exc)
+Il2CppObject* Runtime::DelegateInvoke (Il2CppDelegate *delegate, void **params, Il2CppObject **exc)
 {
 	const MethodInfo* invoke = Class::GetMethodFromName (delegate->object.klass, "Invoke", -1);
 	assert (invoke);
@@ -321,9 +311,20 @@ Il2CppObject* Runtime::DelegateInvoke (Il2CppDelegate *delegate, void **params, 
 	return Invoke (invoke, delegate, params, exc);
 }
 
+void RaiseExecutionEngineException(const char* methodFullName)
+{
+	Exception::Raise(Exception::GetExecutionEngineException(StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
+}
+
+void RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod)
+{
+	if (method->method == NULL)
+		RaiseExecutionEngineException(GenericMethod::GetFullName(genericMethod).c_str());
+}
+
 void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
 {
-	if (method->methodPointer == NULL)
+	if (method->method == NULL)
 	{
 		if (Method::GetClass(method))
 			RaiseExecutionEngineException(Method::GetFullName(method).c_str());
@@ -332,7 +333,7 @@ void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* 
 	}
 }
 
-Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
+Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **params, Il2CppObject **exc)
 {
 	if (exc)
 		*exc = NULL;
@@ -346,18 +347,18 @@ Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **param
 	catch (Il2CppExceptionWrapper& ex)
 	{
 		if (exc)
-			*exc = ex.ex;
+			*exc = (Il2CppObject *)ex.ex;
 		return NULL;
 	}
 }
 
-Il2CppObject* Runtime::InvokeArray (const MethodInfo *method, void *obj, Il2CppArray *params, Il2CppException **exc)
+Il2CppObject* Runtime::InvokeArray (const MethodInfo *method, void *obj, Il2CppArray *params, Il2CppObject **exc)
 {
 	if (params == NULL)
 		return InvokeConvertArgs(method, obj, NULL, 0, exc);
 
 	// TO DO: when changing GC to one that moves managed objects around, mark params array local variable as pinned!
-	return InvokeConvertArgs(method, obj, reinterpret_cast<Il2CppObject**>(Array::GetFirstElementAddress(params)), Array::GetLength(params), exc);
+	return InvokeConvertArgs(method, obj, reinterpret_cast<Il2CppObject**>(&params->vector), Array::GetLength(params), exc);
 }
 
 void Runtime::ObjectInit (Il2CppObject *object)
@@ -365,10 +366,10 @@ void Runtime::ObjectInit (Il2CppObject *object)
 	ObjectInitException(object, NULL);
 }
 
-void Runtime::ObjectInitException (Il2CppObject *object, Il2CppException **exc)
+void Runtime::ObjectInitException (Il2CppObject *object, Il2CppObject **exc)
 {
 	const MethodInfo *method = NULL;
-	Il2CppClass *klass = object->klass;
+	TypeInfo *klass = object->klass;
 
 	method = Class::GetMethodFromName (klass, ".ctor", 0);
 	assert (method != NULL && "ObjectInit; no default constructor for object is found");
@@ -388,7 +389,7 @@ Il2CppRuntimeUnhandledExceptionPolicy Runtime::GetUnhandledExceptionPolicy ()
 	return s_UnhandledExceptionPolicy;
 }
 
-void Runtime::UnhandledException (Il2CppException* exc)
+void Runtime::UnhandledException (Il2CppObject* exc)
 {
 	Il2CppDomain *currentDomain = Domain::GetCurrent ();
 	Il2CppDomain *rootDomain = Domain::GetRoot ();
@@ -399,9 +400,7 @@ void Runtime::UnhandledException (Il2CppException* exc)
 	field = Class::GetFieldFromName (il2cpp_defaults.appdomain_class, "UnhandledException");
 	assert (field);
 
-	Il2CppObject* excObject = (Il2CppObject*)exc;
-
-	if (excObject->klass != il2cpp_defaults.threadabortexception_class) {
+	if (exc->klass != il2cpp_defaults.threadabortexception_class) {
 		//bool abort_process = (Thread::Current () == Thread::Main ()) ||
 		//	(Runtime::GetUnhandledExceptionPolicy () == IL2CPP_UNHANDLED_POLICY_CURRENT);
 
@@ -435,9 +434,34 @@ void Runtime::UnhandledException (Il2CppException* exc)
 	}
 }
 
-static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* thisArg, void** convertedParameters, Il2CppException** exception)
+static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* thisArg, void** convertedParameters, Il2CppObject** exception)
 {
-	Il2CppClass* thisType = method->declaring_type;
+	TypeInfo* thisType = method->declaring_type;
+
+	if ((method->flags & METHOD_ATTRIBUTE_STATIC) == 0 && Class::IsNullable(thisType))
+	{
+		// If method takes Nullable<T> as this, 'thisArg' parameter will be a pointer to T
+		// So we need to allocate a temporary variable to store Nullable<T> struct
+
+		// ensure instance_size has been initialized
+		Class::SetupFields (thisType);
+
+		uint32_t nullableSize = thisType->instance_size - sizeof(Il2CppObject);
+		void* nullableStorage = alloca(nullableSize);
+		uint32_t valueSize = Class::GetNullableArgument(thisType)->instance_size - sizeof(Il2CppObject);
+
+		if (thisArg == NULL)
+		{
+			*(static_cast<uint8_t*>(nullableStorage) + valueSize) = false;
+		}
+		else
+		{
+			memcpy(nullableStorage, thisArg, valueSize);
+			*(static_cast<uint8_t*>(nullableStorage) + valueSize) = true;
+		}
+
+		thisArg = nullableStorage;
+	}
 
 	// If it's not a constructor, just invoke directly
 	if (strcmp(method->name, ".ctor") != 0 || method->declaring_type == il2cpp_defaults.string_class)
@@ -448,7 +472,8 @@ static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* t
 
 	if (thisArg == NULL)
 	{
-		thisArg = instance = Object::New(thisType);
+		instance = Object::New(thisType);	// Note: no need to check for nullable, as if it is nullable, we have already
+		thisArg = (thisType->valuetype) ? Object::Unbox(instance) : instance;	// allocated it at the top of this method
 		Runtime::Invoke(method, thisArg, convertedParameters, exception);
 	}
 	else
@@ -464,7 +489,7 @@ static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* t
 	return instance;
 }
 
-Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg, Il2CppObject** parameters, int paramCount, Il2CppException** exception)
+Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg, Il2CppObject** parameters, int paramCount, Il2CppObject** exception)
 {
 	void** convertedParameters = NULL;
 	bool hasByRefNullables = false;
@@ -477,7 +502,7 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 		for (int i = 0; i < paramCount; i++)
 		{
 			bool passedByReference = method->parameters[i].parameter_type->byref;
-			Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
+			TypeInfo* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
 			Class::Init(parameterType);
 
 			if (parameterType->valuetype)
@@ -533,7 +558,7 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 			if (!method->parameters[i].parameter_type->byref)
 				continue;
 
-			Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
+			TypeInfo* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
 
 			if (Class::IsNullable(parameterType))
 				parameters[i] = Object::Box(parameterType, convertedParameters[i]);
@@ -542,7 +567,7 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 
 	if (method->return_type->type == IL2CPP_TYPE_PTR)
 	{
-		static Il2CppClass* pointerClass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Pointer");
+		static TypeInfo* pointerClass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Pointer");
 		Il2CppReflectionPointer* pointer = reinterpret_cast<Il2CppReflectionPointer*>(Object::New(pointerClass));
 		pointer->data = result;
 		pointer->type = Reflection::GetTypeObject(method->return_type);
@@ -552,9 +577,110 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 	return result;
 }
 
-void Runtime::CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppException* exc)
+VirtualInvokeData Runtime::GetVirtualInvokeData (Il2CppMethodSlot slot, void* obj)
 {
-	Il2CppException *e = NULL;
+	Assert(slot != 65535 && "GetVirtualInvokeData got called on a non-virtual method");
+
+	const TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	const MethodInfo* targetMethodInfo = typeInfo->vtable[slot];
+#if IL2CPP_DEBUG
+	assert(targetMethodInfo);
+#endif
+
+	if (!targetMethodInfo->method)
+		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
+	
+	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	if (targetMethodType->valuetype && !targetMethodType->enumtype)
+		obj = (void*)((char*)obj + sizeof(Il2CppObject));
+
+	VirtualInvokeData data = { obj, targetMethodInfo };
+	return data;
+}
+
+VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeInfo* declaringInterface, void* obj)
+{
+	Assert(slot != 65535 && "GetInterfaceInvokeData got called on a non-virtual method");
+
+	TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	int32_t itf_offset = Class::GetInterfaceOffset (typeInfo, declaringInterface);
+	assert (itf_offset != -1);
+	slot += itf_offset;
+	const MethodInfo* targetMethodInfo = typeInfo->vtable[slot];
+#if IL2CPP_DEBUG
+	assert(targetMethodInfo);
+#endif
+	
+	if (!targetMethodInfo->method)
+		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
+	
+	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	if (targetMethodType->valuetype && !targetMethodType->enumtype)
+		obj = (void*)((char*)obj + sizeof(Il2CppObject));
+
+	VirtualInvokeData data = { obj, targetMethodInfo };
+	return data;
+}
+
+static const MethodInfo* GetGenericVirtualMethod (const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
+{
+	NOT_IMPLEMENTED_NO_ASSERT (GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
+
+	const Il2CppGenericInst* classInst = NULL;
+	if (methodDefinition->is_inflated)
+	{
+		classInst = methodDefinition->genericMethod->context.class_inst;
+		methodDefinition = methodDefinition->genericMethod->methodDefinition;
+	}
+
+	const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod (const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
+	const MethodInfo* method = GenericMethod::GetMethod (gmethod);
+
+	RaiseExecutionEngineExceptionIfMethodIsNotFound(method, gmethod);
+
+	return method;
+}
+
+VirtualInvokeData Runtime::GetGenericVirtualInvokeData (const MethodInfo* method, void* obj)
+{
+	const TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	uint16_t slot = method->slot;
+	const MethodInfo* methodDefinition = typeInfo->vtable[slot];
+	const MethodInfo* targetMethodInfo = GetGenericVirtualMethod (methodDefinition, method);
+#if IL2CPP_DEBUG
+	assert(targetMethodInfo);
+#endif
+	VirtualInvokeData data = { obj, targetMethodInfo };
+	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	if (targetMethodType->valuetype && !targetMethodType->enumtype)
+		data.target = Object::Unbox ((Il2CppObject *)obj);
+
+	return data;
+}
+
+VirtualInvokeData Runtime::GetGenericInterfaceInvokeData (const MethodInfo* method, void* obj)
+{
+	TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	uint16_t slot = method->slot;
+	int32_t itf_offset = Class::GetInterfaceOffset (typeInfo, method->declaring_type);
+	assert (itf_offset != -1);
+	slot += itf_offset;
+	const MethodInfo* methodDefinition = typeInfo->vtable[slot];
+	const MethodInfo* targetMethodInfo = GetGenericVirtualMethod (methodDefinition, method);
+#if IL2CPP_DEBUG
+	assert(targetMethodInfo);
+#endif
+	VirtualInvokeData data = { obj, targetMethodInfo };
+	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	if (targetMethodType->valuetype && !targetMethodType->enumtype)
+		data.target = Object::Unbox ((Il2CppObject *)obj);
+
+	return data;
+}
+
+void Runtime::CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppObject* exc)
+{
+	Il2CppObject *e = NULL;
 	void* pa [2];
 
 	pa [0] = domain->domain;
@@ -571,7 +697,7 @@ static il2cpp::os::FastMutex s_TypeInitializationLock;
 // 2. Just before reading any static field
 // 3. Just before calling any static method
 // 4. Just before calling class instance constructor from a derived class instance constructor
-void Runtime::ClassInit (Il2CppClass *klass)
+void Runtime::ClassInit (TypeInfo *klass)
 {
 	// Nothing to do if class has no static constructor.
 	if (!klass->has_cctor)
@@ -619,7 +745,7 @@ void Runtime::ClassInit (Il2CppClass *klass)
 		const MethodInfo* cctor = Class::GetCCtor (klass);
 		if (cctor != NULL)
 		{
-			vm::Runtime::Invoke(cctor, NULL, NULL, &exception);
+			vm::Runtime::Invoke(cctor, NULL, NULL, ((Il2CppObject**)&exception));
 		}
 
 		// Let other threads know we finished.
@@ -649,7 +775,7 @@ struct ConstCharCompare
 
 struct MethodInfoToMethodPointerConverter
 {
-	Il2CppMethodPointer operator()(const Runtime::MethodDefinitionKey& methodInfo) const
+	methodPointerType operator()(const Runtime::MethodDefinitionKey& methodInfo) const
 	{
 		// On ARMv7 with Thumb instructions the lowest bit is always set.
 		// With Thumb2 the second-to-lowest bit is also set. Mask both of
@@ -657,11 +783,11 @@ struct MethodInfoToMethodPointerConverter
 		// from the linker map file. On other architectures this operation should
 		// not matter, as we assume these two bits are always zero because the pointer
 		// will be aligned.
-		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~3);
+		return (methodPointerType)((size_t)methodInfo.method & ~3);
 	}
 };
 
-typedef il2cpp::utils::collections::ArrayValueMap<Il2CppMethodPointer, Runtime::MethodDefinitionKey, MethodInfoToMethodPointerConverter> NativeMethodMap;
+typedef il2cpp::utils::collections::ArrayValueMap<methodPointerType, Runtime::MethodDefinitionKey, MethodInfoToMethodPointerConverter> NativeMethodMap;
 static NativeMethodMap s_NativeMethods;
 
 void Runtime::RegisterMethods (const std::vector<MethodDefinitionKey>& managedMethods)
@@ -736,12 +862,7 @@ static bool CompareEndOfSymbols (const SymbolInfo &a, const SymbolInfo &b)
 
 static bool s_TriedToInitializeSymbolInfo = false;
 
-static uint64_t AbsoluteDifference(uint64_t a, uint64_t b)
-{
-	return a > b ? a - b : b - a;
-}
-
-const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer nativeMethod)
+const MethodInfo* Runtime::GetMethodFromNativeSymbol (methodPointerType nativeMethod)
 {
 	if (!s_TriedToInitializeSymbolInfo)
 	{
@@ -768,13 +889,7 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		if (containingSymbol == end)
 			return NULL;
 
-		// We only include managed methods in the symbol data. A lookup for a native method might find the
-		// next managed method in the data. This will be incorrect, so check the size, to make sure the
-		// interior symbol is really within the method found in the containing symbol.
-		if (AbsoluteDifference(containingSymbol->address, interiorSymbol.address) > containingSymbol->length)
-			return NULL;
-
-		nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
+		nativeMethod = (methodPointerType)((char*)s_ImageBase + containingSymbol->address);
 
 		// do exact lookup based on the symbol start address, as that is our key
 		NativeMethodMap::iterator iter = s_NativeMethods.find_first (nativeMethod);
@@ -802,9 +917,9 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 
 #endif
 
-Il2CppObject* Runtime::CreateUnhandledExceptionEventArgs (Il2CppException *exc)
+Il2CppObject* Runtime::CreateUnhandledExceptionEventArgs (Il2CppObject *exc)
 {
-	Il2CppClass *klass;
+	TypeInfo *klass;
 	void* args [2];
 	const MethodInfo *method = NULL;
 	bool is_terminating = true;

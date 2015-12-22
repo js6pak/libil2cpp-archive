@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 
 struct Il2CppObject;
 
@@ -14,7 +13,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API GC
+class GC
 {
 public:
 	static int get_MaxGeneration();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct mscorlib_Mono_Interop_ComInteropProxy;
@@ -17,7 +16,7 @@ namespace Mono
 namespace Interop
 {
 
-class LIBIL2CPP_CODEGEN_API ComInteropProxy
+class ComInteropProxy
 {
 public:
 	static void AddProxy (Il2CppIntPtr pItf, mscorlib_Mono_Interop_ComInteropProxy * proxy);

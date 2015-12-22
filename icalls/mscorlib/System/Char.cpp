@@ -12,14 +12,13 @@ namespace mscorlib
 namespace System
 {
 
-void Char::GetDataTablePointers (
-	const unsigned char** category_data,
-	const unsigned char** numeric_data,
-	const double** numeric_data_values,
-	const Il2CppChar** to_lower_data_low,
-	const Il2CppChar** to_lower_data_high,
-	const Il2CppChar** to_upper_data_low,
-	const Il2CppChar** to_upper_data_high)
+void Char::GetDataTablePointers (unsigned char * *category_data,
+	unsigned char * *numeric_data,
+	double * *numeric_data_values,
+	unsigned short * *to_lower_data_low,
+	unsigned short * *to_lower_data_high,
+	unsigned short * *to_upper_data_low,
+	unsigned short * *to_upper_data_high)
 {
 	*category_data = CategoryData_v4;
 	*numeric_data = NumericData;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 struct Il2CppArray;
 struct Il2CppReflectionType;
 struct Il2CppObject;
@@ -15,7 +14,7 @@ namespace mscorlib
 namespace System
 {
 	
-class LIBIL2CPP_CODEGEN_API Array
+class Array
 {
 public:
 	static void ClearInternal (Il2CppArray* arr, int32_t idx, int32_t length);

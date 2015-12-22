@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 
 struct Il2CppArray;
 struct Il2CppString;
@@ -19,7 +18,7 @@ namespace Net
 namespace Sockets
 {
 
-class LIBIL2CPP_CODEGEN_API SocketException
+class SocketException
 {
 public:
 	static int32_t WSAGetLastError ();

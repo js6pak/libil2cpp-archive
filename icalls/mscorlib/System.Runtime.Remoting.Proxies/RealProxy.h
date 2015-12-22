@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppObject;
 struct Il2CppReflectionType;
 struct Il2CppString;
@@ -20,7 +19,7 @@ namespace Remoting
 namespace Proxies
 {
 
-class LIBIL2CPP_CODEGEN_API RealProxy
+class RealProxy
 {
 public:
 	static Il2CppObject* InternalGetTransparentProxy(Il2CppObject*, Il2CppString*);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppReflectionType;
@@ -16,7 +15,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API __ComObject
+class __ComObject
 {
 public:
 	static mscorlib_System___ComObject * CreateRCW (Il2CppReflectionType * t);

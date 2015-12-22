@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "CompareOptions.h"
 
 struct Il2CppString;
@@ -20,7 +19,7 @@ namespace System
 namespace Globalization
 {
 
-class LIBIL2CPP_CODEGEN_API CompareInfo
+class CompareInfo
 {
 public:
 	static void assign_sortkey(void* /* System.Globalization.CompareInfo */ self, Il2CppSortKey* key, Il2CppString* source, CompareOptions options);

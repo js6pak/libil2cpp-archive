@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppReflectionType;
 
 namespace il2cpp
@@ -16,7 +15,7 @@ namespace Reflection
 namespace Emit
 {
 
-class LIBIL2CPP_CODEGEN_API DerivedType
+class DerivedType
 {
 public:
 	static void create_unmanaged_type (Il2CppReflectionType* type);

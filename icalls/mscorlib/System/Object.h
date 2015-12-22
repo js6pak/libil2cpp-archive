@@ -1,8 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
-
 struct Il2CppObject;
 struct Il2CppReflectionType;
 
@@ -15,7 +13,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API Object
+class Object
 {
 public:
 	static Il2CppReflectionType* GetType (Il2CppObject* obj);

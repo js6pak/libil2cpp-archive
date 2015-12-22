@@ -13,7 +13,6 @@
 #include "../protocol/commands/internal-error.h"
 
 #include "../../vm/Assembly.h"
-#include "../../vm/AssemblyName.h"
 
 namespace il2cpp
 {
@@ -60,7 +59,7 @@ const Reply *Agent::Process(const AssemblyGetTypeCommand *command)
 		name = command->name();
 	}
 
-	Il2CppClass *type = il2cpp_class_from_name(
+	TypeInfo *type = il2cpp_class_from_name(
 		il2cpp_assembly_get_image(command->assembly()),
 		ns.c_str(), name.c_str());
 	
@@ -105,7 +104,7 @@ const Reply *Agent::Process(const AssemblyGetNameCommand *command)
 
 	const Il2CppAssembly *assembly = command->assembly();
 
-	reply->name(il2cpp::vm::AssemblyName::AssemblyNameToString(assembly->aname));
+	reply->name(il2cpp::vm::Assembly::AssemblyNameToString(assembly->aname));
 
 	return reply;
 }

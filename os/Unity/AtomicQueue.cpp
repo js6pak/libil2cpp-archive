@@ -90,21 +90,6 @@ void AtomicStack::Push (AtomicNode* node)
 		: "r" (&_top), "r" (node)
 		: "cc", "memory"
 	);
-	
-#elif UNITY_N3DS
-	AtomicNode* top;
-	int success;
-	
-	__asm__ __volatile__
-	{
-		//dmb	ishst //not supported on N3DS
-		one:
-		ldrex top, [&_top]
-		str top, [node]
-		strex success, node, [&_top]
-		teq success, #0
-		bne one
-	};
 
 #elif defined (__arm__)
 
@@ -126,7 +111,7 @@ void AtomicStack::Push (AtomicNode* node)
 		: "cc", "memory"
 	);
 	
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* top;
 	AtomicNode* tmp;
@@ -149,7 +134,7 @@ void AtomicStack::Push (AtomicNode* node)
 		: "cr0", "memory"
 	);
 
-#elif defined (__ppc__)
+#elif defined (__ppc__) || UNITY_PS3
 
 	AtomicNode* top;
 	AtomicNode* tmp;
@@ -212,21 +197,6 @@ void AtomicStack::PushAll (AtomicNode* first, AtomicNode* last)
 		: "cc", "memory"
 	);
 
-#elif UNITY_N3DS
-	AtomicNode* top;
-	int success;
-	
-	__asm__ __volatile__
-	(
-		//"dmb	ishst\n\t" //not supported on N3DS
-	"0:\n\t"
-		"ldrex	top, [&_top]\n\t"
-		"str    top, [last]\n\t"
-		"strex	success, first, [&_top]\n\t"
-		"teq    success, #0\n\t"
-		"bne	0b\n\t"
-	);
-
 #elif defined (__arm__)
 
 	AtomicNode* top;
@@ -247,7 +217,7 @@ void AtomicStack::PushAll (AtomicNode* first, AtomicNode* last)
 		: "cc", "memory"
 	);
 	
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* top;
 	AtomicNode* tmp;
@@ -270,7 +240,7 @@ void AtomicStack::PushAll (AtomicNode* first, AtomicNode* last)
 		: "cr0", "memory"
 	);
 
-#elif defined (__ppc__)
+#elif defined (__ppc__) || UNITY_PS3
 
 	AtomicNode* top;
 	AtomicNode* tmp;
@@ -341,28 +311,6 @@ AtomicNode* AtomicStack::Pop ()
 	);
 	return top;
 	
-#elif UNITY_N3DS
-
-	AtomicNode* top = NULL;
-	AtomicNode* tmp;
-	int success = 0;
-	
-	__asm__ __volatile__
-	{
-		one:
-		ldrex top, [&_top]
-		cmp top, #0
-		beq two
-		ldr tmp, [top]
-		strex success, tmp, [&_top]
-		teq success, #0
-		bne one
-		//isb
-		two:
-	};
-	
-	return top;
-	
 #elif defined (__arm__)
 
 	AtomicNode* top = NULL;
@@ -388,7 +336,7 @@ AtomicNode* AtomicStack::Pop ()
 	);
 	return top;
 	
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* top = NULL;
 	AtomicNode* tmp;
@@ -415,7 +363,7 @@ AtomicNode* AtomicStack::Pop ()
 	);
 	return top;
 	
-#elif defined (__ppc__)
+#elif defined (__ppc__) || UNITY_PS3
 
 	AtomicNode* top = NULL;
 	AtomicNode* tmp;
@@ -489,26 +437,6 @@ AtomicNode* AtomicStack::PopAll ()
 	);
 	return top;
 	
-#elif UNITY_N3DS
-
-	AtomicNode* top;
-	AtomicNode* tmp;
-	int success;
-	
-	__asm__ __volatile__
-	(
-	"0:\n\t"
-		"ldrex	top, [&_top]\n\t"
-		"cmp	top, #0\n\t"
-		"beq	1f\n\t"
-		"strex	success, #0, [&_top]\n\t"
-		"teq	success, #0\n\t"
-		"bne	0b\n\t"
-		//"isb\n\t" //not supported on N3DS
-	"1:\n\t"
-	);
-	return top;
-
 #elif defined (__arm__)
 
 	AtomicNode* top;
@@ -533,7 +461,7 @@ AtomicNode* AtomicStack::PopAll ()
 	);
 	return top;
 
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* top;
 	AtomicNode* tmp;
@@ -555,7 +483,7 @@ AtomicNode* AtomicStack::PopAll ()
 	);
 	return top;
 	
-#elif defined (__ppc__)
+#elif defined (__ppc__) || UNITY_PS3
 
 	AtomicNode* top;
 	AtomicNode* tmp;
@@ -587,8 +515,10 @@ AtomicNode* AtomicStack::PopAll ()
 AtomicStack* CreateAtomicStack ()
 {
 	// should be properly aligned
-#if defined (ATOMIC_HAS_DCAS)
+#if defined (ATOMIC_HAS_DCAS) && !UNITY_XENON
 	return UNITY_PLATFORM_NEW_ALIGNED (AtomicStack, kMemThread, sizeof(atomic_word2));
+#elif UNITY_PS3 || UNITY_XENON
+	return UNITY_PLATFORM_NEW_ALIGNED (AtomicStack, kMemThread, 64);	//	Reservation size safe
 #else
 	return UNITY_PLATFORM_NEW_ALIGNED (AtomicStack, kMemThread, sizeof(atomic_word));
 #endif
@@ -606,7 +536,11 @@ void DestroyAtomicStack (AtomicStack* s)
 AtomicQueue::AtomicQueue ()
 {
 #if defined (ATOMIC_HAS_DCAS)
+#if UNITY_XENON
+	AtomicNode* dummy = UNITY_PLATFORM_NEW_ALIGNED (AtomicNode, kMemThread, 64);
+#else
 	AtomicNode* dummy = UNITY_PLATFORM_NEW (AtomicNode, kMemThread);
+#endif
 
 	atomic_word2 w;
 	w.lo = (atomic_word) dummy;
@@ -617,7 +551,11 @@ AtomicQueue::AtomicQueue ()
 
 #else
 
+#if UNITY_PS3
+	AtomicNode* dummy = UNITY_PLATFORM_NEW_ALIGNED(AtomicNode, kMemThread, 64);	//	Reservation size safe
+#else
 	AtomicNode* dummy = UNITY_PLATFORM_NEW (AtomicNode, kMemThread);
+#endif
 
 	atomic_store_explicit(&dummy->_next, 0, memory_order_relaxed);
 	atomic_store_explicit(&_tail, (atomic_word) dummy, memory_order_relaxed);
@@ -677,22 +615,6 @@ void AtomicQueue::Enqueue (AtomicNode* node)
 		: "cc", "memory"
 	);
 	
-#elif UNITY_N3DS
-
-	AtomicNode* head;
-	int success;
-	
-	__asm__ __volatile__
-	(
-		//"dmb	ishst\n\t" //not supported on N3DS
-	"0:\n\t"
-		"ldrex	head, [&_head]\n\t"
-		"strex	success, node, [&_head]\n\t"
-		"teq    success, #0\n\t"
-		"bne	0b\n\t"
-		"str    node, [head]\n\t"
-	);
-	
 #elif defined (__arm__)
 
 	AtomicNode* head;
@@ -713,7 +635,7 @@ void AtomicQueue::Enqueue (AtomicNode* node)
 		: "cc", "memory"
 	);
 	
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* head;
 	
@@ -730,6 +652,13 @@ void AtomicQueue::Enqueue (AtomicNode* node)
 		: "b" (&_head), "r" (node)
 		: "cr0", "memory"
 	);
+	
+#elif UNITY_PS3
+
+	AtomicNode* prev;
+	atomic_store_explicit (&node->_next, 0, memory_order_relaxed);
+	prev = (AtomicNode*) atomic_exchange_explicit (&_head, (atomic_word) node, memory_order_release);
+	atomic_store_explicit (&prev->_next, (atomic_word) node, memory_order_release);
 
 #elif defined (__ppc__)
 
@@ -785,22 +714,6 @@ void AtomicQueue::EnqueueAll (AtomicNode* first, AtomicNode* last)
 		: "cc", "memory"
 	);
 	
-#elif UNITY_N3DS
-
-	AtomicNode* head;
-	int success;
-	
-	__asm__ __volatile__
-	(
-		//"dmb	ishst\n\t" //not supported on N3DS
-	"0:\n\t"
-		"ldrex	head, [&_head]\n\t"
-		"strex	success, last, [&_head]\n\t"
-		"teq    success, #0\n\t"
-		"bne	0b\n\t"
-		"str    first, [head]\n\t"
-	);
-	
 #elif defined (__arm__)
 
 	AtomicNode* head;
@@ -821,7 +734,7 @@ void AtomicQueue::EnqueueAll (AtomicNode* first, AtomicNode* last)
 		: "cc", "memory"
 	);
 	
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* head;
 	
@@ -838,7 +751,12 @@ void AtomicQueue::EnqueueAll (AtomicNode* first, AtomicNode* last)
 		: "b" (&_head), "r" (first), "r" (last)
 		: "cr0", "memory"
 	);
+#elif UNITY_PS3
 
+	AtomicNode* prev;
+	prev = (AtomicNode*) atomic_exchange_explicit (&_head, (atomic_word) last, memory_order_release);
+	atomic_store_explicit (&prev->_next, (atomic_word) first, memory_order_release);
+	
 #elif defined (__ppc__)
 
 	AtomicNode* head;
@@ -934,47 +852,7 @@ AtomicNode* AtomicQueue::Dequeue ()
 		tail = 0;
 	}
 	return tail;
-	
-#elif UNITY_N3DS
 
-	AtomicNode* tail;
-	AtomicNode* tmp;
-	void* data0;
-	void* data1;
-	void* data2 = 0;
-	int success = 1;
-	
-	__asm__ __volatile__ (
-	"0:\n\t"
-		"ldrex	tail, [data2]\n\t"
-		"ldr	tmp, [tail]\n\t"
-		"cmp	tmp, #0\n\t"
-		"beq	1f\n\t"
-		"ldr	tail, [tmp, #4]\n\t"
-		"ldr	data0, [tmp, #8]\n\t"
-		"ldr	data1, [tmp, #12]\n\t"
-		// create an artificial dependency to ensure previous loads are not reordered
-		"orr	data2, data2, success, lsr #32\n\t" // nop
-		"orr	data2, data2, tail, lsr #32\n\t" // nop
-		"orr	data2, data2, data0, lsr #32\n\t" // nop
-		"strex	success, tmp, [data2]\n\t"
-		"teq	success, #0\n\t"
-		"bne	0b\n\t"
-		// "isb\n\t" //not available on N3DS
-	"1:\n\t"
-	);
-	if(tmp)
-	{
-		tail->data[0] = data0;
-		tail->data[1] = data1;
-		tail->data[2] = data2;
-	}
-	else
-	{
-		tail = 0;
-	}
-	return tail;
-	
 #elif defined (__arm__)
 
 	AtomicNode* tail;
@@ -1019,7 +897,7 @@ AtomicNode* AtomicQueue::Dequeue ()
 	}
 	return tail;
 	
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* tail;
 	AtomicNode* tmp;
@@ -1063,7 +941,7 @@ AtomicNode* AtomicQueue::Dequeue ()
 	}
 	return tail;
 	
-#elif defined (__ppc__)
+#elif defined (__ppc__) || UNITY_PS3
 
 	AtomicNode* tail;
 	AtomicNode* tmp;
@@ -1118,9 +996,6 @@ AtomicQueue* CreateAtomicQueue ()
 	// should be properly aligned
 #if defined (ATOMIC_HAS_DCAS)
 	return UNITY_PLATFORM_NEW_ALIGNED (AtomicQueue, kMemThread, sizeof(atomic_word2));
-#elif UNITY_N3DS
-	//seems like UNITY_PLATFORM_NEW shouldn't take an alignment...?
-	return UNITY_PLATFORM_NEW (AtomicQueue, kMemThread);
 #else
 	return UNITY_PLATFORM_NEW (AtomicQueue, kMemThread, sizeof(atomic_word));
 #endif
@@ -1207,7 +1082,36 @@ AtomicNode* AtomicList::Load (atomic_word &tag)
 
 bool AtomicList::Add (AtomicNode *first, AtomicNode *last, atomic_word tag)
 {
-#if defined (ATOMIC_HAS_DCAS)
+#if UNITY_PS3
+
+	uint64_t *ptr = (uint64_t*) &_top;
+
+	atomic_word2 oldval, newval;
+	bool res = true;
+
+	newval.lo = (atomic_word) first;
+	newval.hi = tag;
+	
+	uint64_t swap = *((uint64_t*) ((char*)&newval));
+
+	__lwsync();
+	do
+	{
+		uint64_t prev = __ldarx (ptr);
+		oldval = *((const atomic_word2*) &prev);
+		
+		if (oldval.hi != tag)
+		{
+			res = false;
+			break;
+		}
+		last->Link ((AtomicNode *) oldval.lo);
+	}
+	while (!__stdcx (ptr, swap));
+
+	return res;
+	
+#elif defined (ATOMIC_HAS_DCAS)
 
 	atomic_word2 oldval, newval;
 	bool res = false;
@@ -1251,33 +1155,6 @@ bool AtomicList::Add (AtomicNode *first, AtomicNode *last, atomic_word tag)
 		: "cc", "memory"
 	);
 	return failure == 0;
-
-#elif UNITY_N3DS
-
-	/*
-	AtomicNode* res;
-	AtomicNode* tmp;
-	int failure = 1;
-
-	__asm__ __volatile__
-	(
-		"dmb	ishst\n\t"
-		"0:\n\t"
-		"ldrex	%0, [%4]\n\t"
-		"add	%4, %4, %0\n\t"	// nop
-		"sub	%4, %4, %0\n\t" // nop
-		"ldr	%1, [%4, #4]\n\t"
-		"cmp	%1, %7\n\t"
-		"bne	1f\n\t"
-		"str	%0, [%6]\n\t"
-		"strex	%3, %5, [%4]\n\t"
-		"teq	%3, #0\n\t"
-		"bne	0b\n\t"
-		"1:\n\t"
-	);
-	return res;
-	*/
-	return false;
 
 #elif defined (__arm__)
 
@@ -1372,7 +1249,30 @@ bool AtomicList::Add (AtomicNode *first, AtomicNode *last, atomic_word tag)
 
 AtomicNode* AtomicList::Touch (atomic_word tag)
 {
-#if defined (ATOMIC_HAS_DCAS)
+#if UNITY_PS3
+
+	uint64_t *ptr = (uint64_t*) &_top;
+
+	atomic_word2 oldval, newval;
+
+	newval.lo = 0;
+	newval.hi = tag;
+	
+	uint64_t swap = *((uint64_t*) ((char*)&newval));
+
+	__lwsync();
+	do
+	{
+		uint64_t prev = __ldarx (ptr);
+		oldval = *((const atomic_word2*) &prev);
+	}
+	while (!__stdcx (ptr, swap));
+
+	__isync();
+	
+	return (AtomicNode *) oldval.lo;
+	
+#elif defined (ATOMIC_HAS_DCAS)
 
 	atomic_word2 w;
 	w.lo = 0;
@@ -1385,6 +1285,7 @@ AtomicNode* AtomicList::Touch (atomic_word tag)
 
 	atomic_store_explicit(&_ver, tag, memory_order_release);
 	atomic_word w = atomic_exchange_explicit(&_top, 0, memory_order_acquire);
+	
 	return (AtomicNode *) w;
 	
 #endif
@@ -1454,36 +1355,6 @@ AtomicNode* AtomicList::Clear (AtomicNode* old, atomic_word tag)
 	);
 	return res;
 	
-#elif UNITY_N3DS
-
-	AtomicNode* res;
-	AtomicNode* tmp;
-	int success;
-	int theTop = (int)(&_top);
-	
-	__asm__ __volatile__
-	(
-	"0:\n\t"
-		"ldrex	res, [theTop]\n\t"
-		"cmp	res, #0\n\t"
-		"beq	2f\n\t"
-		"ldr    tmp, [res]\n\t"
-		"strex	success, tmp, [theTop]\n\t"
-		"teq	success, #0\n\t"
-		"bne	0b\n\t"
-		"add	theTop, theTop, 4\n\t"
-	"1:\n\t"
-		"ldrex	success, [theTop]\n\t"
-		"add	success, success, 1\n\t"
-		"strex	success, success, [theTop]\n\t"
-		"teq	success, #0\n\t"
-		"bne	1b\n\t"
-		"sub	theTop, theTop, 4\n\t"
-		//"isb\n\t" //not available on N3DS
-	"2:\n\t"
-	);
-	return res;
-	
 #elif defined (__arm__)
 
 	AtomicNode* res;
@@ -1517,7 +1388,7 @@ AtomicNode* AtomicList::Clear (AtomicNode* old, atomic_word tag)
 	);
 	return res;
 	
-#elif defined (__ppc64__) || defined (_ARCH_PPC64)
+#elif defined (__ppc64__) || defined (_ARCH_PPC64) && !UNITY_PS3
 
 	AtomicNode* res;
 	AtomicNode* tmp;
@@ -1549,6 +1420,34 @@ AtomicNode* AtomicList::Clear (AtomicNode* old, atomic_word tag)
 	);
 	return res;
 	
+#elif UNITY_PS3
+	//	OLD
+	atomic_word2	*ptr = ( atomic_word2*) &_top;
+	atomic_word2	compare, newval;
+
+	//	COMPARE
+	compare.lo = (atomic_word)old;
+	compare.hi = _ver;
+
+	//	NEW
+	newval.lo = 0;
+	newval.hi = ( tag + 1 );
+
+	uint64_t	comp = *((uint64_t*) ((char*)&compare));
+	uint64_t	swap = *((uint64_t*) ((char*)&newval));
+
+	//	Do top and ver at same time (atomically)
+	uint64_t prev;
+	do
+	{
+		prev = __ldarx( ptr );
+		if( prev != comp )
+		{
+			return 0;
+		}
+	} while( 0 == __stdcx( ptr, swap ) );
+	return old;
+
 #elif defined (__ppc__)
 
 	AtomicNode* res;
@@ -1656,14 +1555,12 @@ AtomicNode* AtomicList::Clear (AtomicNode* old, atomic_word tag)
 
 void AtomicList::Relax ()
 {
-#if defined (_MSC_VER)
+#if defined (_MSC_VER) || UNITY_XENON
 	YieldProcessor ();
 #elif defined (__x86_64__) || defined (_M_X64)
 	__asm__ __volatile__ ("pause" ::: "memory");
 #elif defined (__x86__) || defined (__i386__) || defined (_M_IX86)
 	__asm__ __volatile__ ("rep; nop" ::: "memory");
-#elif UNITY_N3DS
-	__asm__ __volatile__ ("yield");
 #elif (defined (__arm64__) || (defined (__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)))) && (defined (__clang__) || defined (__GNUC__))
 	// could be interesting to use wfe/sev instead of a semaphore
 	__asm__ __volatile__ ("yield");

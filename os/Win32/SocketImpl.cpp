@@ -341,19 +341,6 @@ static int32_t convert_socket_protocol (ProtocolType protocol)
 	return -1;
 }
 
-static int SocketExceptionFilter(unsigned int code)
-{
-	// Sometimes, we call the socket functions and close the socket right after,
-	// and in some rare cases, it throws EXCEPTION_INVALID_HANDLE SEH exception
-	// rather than returning an error code. Although this is undocumented on MSDN,
-	// it causes a crash just because it thinks we gave it an invalid handle.
-	// We guard against it by wrapping every socket call with __try/__except
-	if (code == EXCEPTION_INVALID_HANDLE)
-		return EXCEPTION_CONTINUE_EXECUTION;
-
-	return EXCEPTION_CONTINUE_SEARCH;
-}
-
 WaitStatus SocketImpl::Create (AddressFamily family, SocketType type, ProtocolType protocol)
 {
 	_fd = -1;
@@ -451,11 +438,10 @@ WaitStatus SocketImpl::Create (SocketDescriptor fd, int32_t family, int32_t type
 WaitStatus SocketImpl::Close ()
 {
 	_saved_error = kErrorCodeSuccess;
-	
-	SOCKET fd = (SOCKET)_fd;
-	if (_is_valid && fd != -1)
+
+	if (_is_valid && _fd != -1)
 	{
-		if (closesocket(fd) == -1)
+		if (closesocket ((SOCKET) _fd) == -1)
 			StoreLastError ();
 	}
 
@@ -475,25 +461,9 @@ WaitStatus SocketImpl::SetBlocking (bool blocking)
 	* block == TRUE/FALSE means we will block/not block.
 	* But the ioctlsocket call takes TRUE/FALSE for non-block/block
 	*/
-	u_long ioctl_socket_blocking = (u_long)!blocking;
+	blocking = !blocking;
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int32_t ret = -1;
-
-	__try
-	{
-		ret = ioctlsocket(fd, FIONBIO, &ioctl_socket_blocking);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
+	const int32_t ret = ioctlsocket ((SOCKET) _fd, FIONBIO, (u_long*)&blocking);
 	if(ret == SOCKET_ERROR)
 	{
 		StoreLastError();
@@ -578,24 +548,7 @@ WaitStatus SocketImpl::Bind (const char *address, uint16_t port)
 
 	sockaddr_from_address (inet_addr (address), htons (port), &sa, &sa_size);
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int bindResult = -1;
-
-	__try
-	{
-		bindResult = bind(fd, &sa, sa_size);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	if (bindResult == -1)
+	if (bind ((SOCKET) _fd, &sa, sa_size) == -1)
 	{
 		StoreLastError ();
 		return kWaitStatusFailure;
@@ -611,24 +564,7 @@ WaitStatus SocketImpl::Bind (uint32_t address, uint16_t port)
 
 	sockaddr_from_address (htonl (address), htons (port), &sa, &sa_size);
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int bindResult = -1;
-
-	__try
-	{
-		bindResult = bind(fd, &sa, sa_size);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	if (bindResult == -1)
+	if (bind ((SOCKET) _fd, &sa, sa_size) == -1)
 	{
 		StoreLastError ();
 		return kWaitStatusFailure;
@@ -645,56 +581,46 @@ WaitStatus SocketImpl::Bind (uint8_t address[ipv6AddressSize], uint32_t scope, u
 
 WaitStatus SocketImpl::ConnectInternal (struct sockaddr *sa, int32_t sa_size)
 {
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
+	if (connect ((SOCKET) _fd, sa, (socklen_t)sa_size) != -1)
+		return kWaitStatusSuccess;
+
+	if (errno != EINTR)
 	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
+		// errnum = errno_to_WSA (errnum, __func__);
+		// if (errnum == WSAEINPROGRESS)
+		//	errnum = WSAEWOULDBLOCK; /* see bug #73053 */
+
+		StoreLastError ();
+
 		return kWaitStatusFailure;
 	}
 
-	__try
-	{
-		if (connect(fd, sa, (socklen_t)sa_size) != -1)
-			return kWaitStatusSuccess;
+	struct pollfd fds = {0};
 
+	fds.fd = (SOCKET) _fd;
+	fds.events = POLLOUT;
+
+	while (WSAPoll (&fds, 1, -1) == -1)
+	{
 		if (errno != EINTR)
 		{
-			StoreLastError();
-			return kWaitStatusFailure;
-		}
-
-		struct pollfd fds = { 0 };
-
-		fds.fd = fd;
-		fds.events = POLLOUT;
-
-		while (WSAPoll(&fds, 1, -1) == -1)
-		{
-			if (errno != EINTR)
-			{
-				StoreLastError();
-				return kWaitStatusFailure;
-			}
-		}
-
-		int32_t so_error = 0;
-		socklen_t len = sizeof(so_error);
-
-		if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (char*)&so_error, &len) == -1)
-		{
-			StoreLastError();
-			return kWaitStatusFailure;
-		}
-
-		if (so_error != 0)
-		{
-			StoreLastError(so_error);
+			StoreLastError ();
 			return kWaitStatusFailure;
 		}
 	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
+
+	int32_t so_error = 0;
+	socklen_t len = sizeof (so_error);
+
+	if (getsockopt ((SOCKET) _fd, SOL_SOCKET, SO_ERROR, (char*)&so_error, &len) == -1)
 	{
-		SetLastError(kWSAeshutdown);
+		StoreLastError ();
+		return kWaitStatusFailure;
+	}
+
+	if (so_error != 0)
+	{
+		StoreLastError (so_error);
 		return kWaitStatusFailure;
 	}
 
@@ -729,26 +655,7 @@ WaitStatus SocketImpl::GetLocalEndPointInfo (EndPointInfo &info)
 	uint8_t buffer[END_POINT_MAX_PATH_LEN + 3] = {0};
 	socklen_t address_len = sizeof (buffer);
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int getsocknameResult = -1;
-
-	__try
-	{
-		getsocknameResult = getsockname(fd, (struct sockaddr *)buffer, &address_len);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-		SetLastError(kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	if (getsocknameResult == -1)
+	if (getsockname ((SOCKET) _fd, (struct sockaddr *)buffer, &address_len) == -1)
 	{
 		StoreLastError ();
 		return kWaitStatusFailure;
@@ -769,24 +676,7 @@ WaitStatus SocketImpl::GetRemoteEndPointInfo (EndPointInfo &info)
 	uint8_t buffer[END_POINT_MAX_PATH_LEN + 3] = {0};
 	socklen_t address_len = sizeof (buffer);
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int getpeernameResult = -1;
-
-	__try
-	{
-		getpeernameResult = getpeername(fd, (struct sockaddr *)buffer, &address_len);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	if (getpeernameResult == -1)
+	if (getpeername ((SOCKET) _fd, (struct sockaddr *)buffer, &address_len) == -1)
 	{
 		StoreLastError ();
 		return kWaitStatusFailure;
@@ -803,24 +693,7 @@ WaitStatus SocketImpl::GetRemoteEndPointInfo (EndPointInfo &info)
 
 WaitStatus SocketImpl::Listen (int32_t backlog)
 {
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int listenResult = -1;
-
-	__try
-	{
-		listenResult = listen(fd, backlog);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	if (listenResult == -1)
+	if (listen ((SOCKET) _fd, backlog) == -1)
 	{
 		StoreLastError ();
 		return kWaitStatusFailure;
@@ -831,24 +704,7 @@ WaitStatus SocketImpl::Listen (int32_t backlog)
 
 WaitStatus SocketImpl::Shutdown (int32_t how)
 {
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int shutdownResult = -1;
-
-	__try
-	{
-		shutdownResult = shutdown(fd, how);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	if (shutdownResult == -1)
+	if (shutdown ((SOCKET) _fd, how) == -1)
 	{
 		StoreLastError ();
 		return kWaitStatusFailure;
@@ -860,40 +716,15 @@ WaitStatus SocketImpl::Shutdown (int32_t how)
 	return kWaitStatusSuccess;
 }
 
-static SOCKET AcceptProtected(SOCKET fd)
-{
-	SOCKET new_fd;
-
-	do
-	{
-		__try
-		{
-			new_fd = accept(fd, NULL, 0);
-		}
-		__except (SocketExceptionFilter(GetExceptionCode()))
-		{
-			new_fd = -1;
-			break;
-		}
-	} while (new_fd == -1 && errno == EINTR);
-
-	return new_fd;
-}
-
 WaitStatus SocketImpl::Accept (os::Socket **socket)
 {
-	SocketDescriptor new_fd = 0;
+	int32_t new_fd = 0;
 
 	*socket = NULL;
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	new_fd = AcceptProtected(fd);
+	do {
+		new_fd = accept ((SOCKET) _fd, NULL, 0);
+	} while (new_fd == -1 && errno == EINTR);
 
 	if (new_fd == -1)
 	{
@@ -922,32 +753,18 @@ WaitStatus SocketImpl::Disconnect (bool reuse)
 	LPFN_DISCONNECTEX disconnectEx;
 	DWORD copied;
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
+	const int32_t ret = WSAIoctl((SOCKET) _fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidDisconnectEx, sizeof(GuidDisconnectEx), &disconnectEx, sizeof(disconnectEx), &copied, 0, 0);
+	if (ret == SOCKET_ERROR)
 	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
+		StoreLastError();
+		
 		return kWaitStatusFailure;
 	}
 
-	__try
+	if (!disconnectEx((SOCKET) _fd, NULL, 0, NULL))
 	{
-		int32_t ret = WSAIoctl(fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidDisconnectEx, sizeof(GuidDisconnectEx), &disconnectEx, sizeof(disconnectEx), &copied, 0, 0);
+		StoreLastError();
 
-		if (ret == SOCKET_ERROR)
-		{
-			StoreLastError();			
-			return kWaitStatusFailure;
-		}
-
-		if (!disconnectEx(fd, NULL, 0, NULL))
-		{
-			StoreLastError();
-			return kWaitStatusFailure;
-		}
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
 		return kWaitStatusFailure;
 	}
 
@@ -972,28 +789,10 @@ WaitStatus SocketImpl::Receive (const uint8_t *data, int32_t count, os::SocketFl
 WaitStatus SocketImpl::ReceiveFromInternal(const uint8_t *data, size_t count, int32_t flags, int32_t *len, struct sockaddr *from, int32_t *fromlen)
 {
 	int32_t ret = 0;
-	assert(count < static_cast<size_t>(std::numeric_limits<int>::max()));
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	do
-	{
-		__try
-		{
-			ret = recvfrom(fd, (char*)data, static_cast<int>(count), flags, from, (socklen_t*)fromlen);
-		}
-		__except (SocketExceptionFilter(GetExceptionCode()))
-		{
-			ret = -1;
-			break;
-		}
-	}
-	while (ret == -1 && errno == EINTR);
+	do {
+		ret = recvfrom ((SOCKET) _fd, (char*)data, count, flags, from, (socklen_t*)fromlen);
+	} while (ret == -1 && errno == EINTR);
 
 	if (ret == 0 && count > 0)
 	{
@@ -1044,26 +843,10 @@ WaitStatus SocketImpl::Send (const uint8_t *data, int32_t count, os::SocketFlags
 		return kWaitStatusFailure;
 	}
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
 	int32_t ret = 0;
 
-	do
-	{
-		__try
-		{
-			ret = send(fd, (char*)data, count, flags);
-		}
-		__except (SocketExceptionFilter(GetExceptionCode()))
-		{
-			ret = -1;
-			break;
-		}
+	do {
+		ret = send ((SOCKET) _fd, (char*)data, count, flags);
 	} while (ret == -1 && errno == EINTR);
 
 	if (ret == -1)
@@ -1073,6 +856,7 @@ WaitStatus SocketImpl::Send (const uint8_t *data, int32_t count, os::SocketFlags
 	}
 
 	*len = ret;
+
 	return kWaitStatusSuccess;
 }
 
@@ -1086,25 +870,9 @@ WaitStatus SocketImpl::SendArray (WSABuf *wsabufs, int32_t count, int32_t *sent,
 		return kWaitStatusFailure;
 	}
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
 	DWORD bytes_sent;
 
-	int32_t ret = -1;
-
-	__try
-	{
-		ret = WSASend(fd, (WSABUF*)wsabufs, count, &bytes_sent, c_flags, NULL, NULL);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
+	const int32_t ret = WSASend ((SOCKET) _fd, (WSABUF*)wsabufs, count, &bytes_sent, c_flags, NULL, NULL);
 	if (ret == SOCKET_ERROR)
 	{
 		*sent = 0;
@@ -1130,24 +898,8 @@ WaitStatus SocketImpl::ReceiveArray (WSABuf *wsabufs, int32_t count, int32_t *le
 		return kWaitStatusFailure;
 	}
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int32_t ret = -1;
-
-	__try
-	{
-		// NOTE(gab): this cast is possible as long as WSABuf is binary compatible with WSABUF
-		ret = WSARecv(fd, (WSABUF*)wsabufs, count, &recv, &c_flags, NULL, NULL);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
+	// NOTE(gab): this cast is possible as long as WSABuf is binary compatible with WSABUF
+	const int32_t ret = WSARecv((SOCKET) _fd, (WSABUF*)wsabufs, count, &recv, &c_flags, NULL, NULL);
 	if(ret == SOCKET_ERROR)
 	{
 		*len = 0;
@@ -1179,28 +931,11 @@ WaitStatus SocketImpl::SendTo (uint32_t address, uint16_t port, const uint8_t *d
 		return kWaitStatusFailure;
 	}
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
 	int32_t ret = 0;
 
-	do
-	{
-		__try
-		{
-			ret = sendto(fd, (char*)data, count, c_flags, &sa, sa_size);
-		}
-		__except (SocketExceptionFilter(GetExceptionCode()))
-		{
-			ret = -1;
-			break;
-		}
-	}
-	while (ret == -1 && errno == EINTR);
+	do {
+		ret = sendto ((SOCKET) _fd, (char*)data, count, c_flags, &sa, sa_size);
+	} while (ret == -1 && errno == EINTR);
 
 	if (ret == -1)
 	{
@@ -1283,24 +1018,7 @@ WaitStatus SocketImpl::Available (int32_t *amount)
 	
 	u_long a = 0;
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int ioctlsocketResult = -1;
-
-	__try
-	{
-		ioctlsocketResult = ioctlsocket(fd, FIONREAD, &a);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	if (ioctlsocketResult == -1)
+	if(ioctlsocket ((SOCKET) _fd, FIONREAD, &a) == -1)
 	{
 		StoreLastError ();
 		return kWaitStatusFailure;
@@ -1315,24 +1033,8 @@ WaitStatus SocketImpl::Ioctl (int32_t command, const uint8_t *in_data, int32_t i
 {
 	assert (command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
 	DWORD len = 0;
-	int32_t ret = -1;
-	
-	__try
-	{
-		ret = WSAIoctl(fd, command, (void*)in_data, in_len, out_data, out_len, &len, NULL, NULL);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
+	const int32_t ret = WSAIoctl((SOCKET) _fd, command, (void*)in_data, in_len, out_data, out_len, &len, NULL, NULL);
 	if (ret == SOCKET_ERROR)
 	{
 		StoreLastError ();
@@ -1579,25 +1281,9 @@ WaitStatus SocketImpl::GetSocketOption (SocketOptionLevel level, SocketOptionNam
 		return kWaitStatusFailure;
 	}
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
 	uint8_t *tmp_val = buffer;
 
-	int32_t ret = -1;
-
-	__try
-	{
-		ret = getsockopt(fd, system_level, system_name, (char*)tmp_val, (socklen_t*)length);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
+	const int32_t ret = getsockopt ((SOCKET) _fd, system_level, system_name, (char*)tmp_val, (socklen_t*)length);
 	if (ret == -1)
 	{
 		StoreLastError ();
@@ -1650,13 +1336,6 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 		}
 	}
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
 	int32_t ret = -1;
 
 	switch (name)
@@ -1666,17 +1345,10 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 				struct linger linger;
 				socklen_t lingersize = sizeof (linger);
 
-				__try
-				{
-					ret = getsockopt(fd, system_level, system_name, (char*)&linger, &lingersize);
+				ret = getsockopt ((SOCKET) _fd, system_level, system_name, (char*)&linger, &lingersize);
 
-					*first = linger.l_onoff;
-					*second = linger.l_linger;
-				}
-				__except (SocketExceptionFilter(GetExceptionCode()))
-				{
-					ret = -1;
-				}
+				*first = linger.l_onoff;
+				*second = linger.l_linger;
 			}
 			break;
 
@@ -1685,16 +1357,9 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 				struct linger linger;
 				socklen_t lingersize = sizeof (linger);
 
-				__try
-				{
-					ret = getsockopt(fd, system_level, system_name, (char*)&linger, &lingersize);
+				ret = getsockopt ((SOCKET) _fd, system_level, system_name, (char*)&linger, &lingersize);
 
-					*first = !linger.l_onoff;
-				}
-				__except (SocketExceptionFilter(GetExceptionCode()))
-				{
-					ret = -1;
-				}
+				*first = !linger.l_onoff;
 			}
 			break;
 
@@ -1702,30 +1367,14 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 		case kSocketOptionNameReceiveTimeout:
 			{
 				socklen_t time_ms_size = sizeof (*first);
-
-				__try
-				{
-					ret = getsockopt(fd, system_level, system_name, (char *)first, &time_ms_size);
-				}
-				__except (SocketExceptionFilter(GetExceptionCode()))
-				{
-					ret = -1;
-				}
+				ret = getsockopt ((SOCKET) _fd, system_level, system_name, (char *)first, &time_ms_size);
 			}
 			break;
 
 		default:
 			{
 				socklen_t valsize = sizeof (*first);
-
-				__try
-				{
-					ret = getsockopt(fd, system_level, system_name, (char*)first, &valsize);
-				}
-				__except (SocketExceptionFilter(GetExceptionCode()))
-				{
-					ret = -1;
-				}
+				ret = getsockopt ((SOCKET) _fd, system_level, system_name, (char*)first, &valsize);
 			}
 			break;
 	}
@@ -1745,86 +1394,106 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 	return kWaitStatusSuccess;
 }
 
-WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout, int32_t *result, int32_t *error)
+static short poll_flags_to_poll_events (PollFlags flags)
 {
-	const size_t nfds = requests.size ();
-	fd_set rfds, wfds, efds;
+	int32_t out_flags = 0;
 
-	FD_ZERO(&rfds);
-	FD_ZERO(&wfds);
-	FD_ZERO(&efds);
+	if(flags & kPollFlagsIn) out_flags |= POLLIN;
+	if(flags & kPollFlagsPri) out_flags |= POLLPRI;
+	if(flags & kPollFlagsOut) out_flags |= POLLOUT;
+	if(flags & kPollFlagsErr) out_flags |= POLLRDBAND;
+	if(flags & kPollFlagsHup) out_flags |= POLLHUP;
+	if(flags & kPollFlagsNVal) out_flags |= POLLNVAL;
 
-	for (size_t i = 0; i < nfds; i++)
-	{		
-		SOCKET fd = static_cast<SOCKET>(requests[i].fd);
-		requests[i].revents = kPollFlagsNone;
-		if (fd == -1)
-			continue;
+	return out_flags;
+}
 
-		if ((requests[i].events & kPollFlagsIn) != 0)
-			FD_SET(fd, &rfds);
+static PollFlags poll_events_to_poll_flags (short events)
+{
+	int32_t out_flags = 0;
 
-		if ((requests[i].events & kPollFlagsOut) != 0)
-			FD_SET(fd, &wfds);
+	if(events & POLLIN) out_flags |= kPollFlagsIn;
+	if(events & POLLPRI) out_flags |= kPollFlagsPri;
+	if(events & POLLOUT) out_flags |= kPollFlagsOut;
+	if(events & POLLERR) out_flags |= kPollFlagsErr;
+	if(events & POLLHUP) out_flags |= kPollFlagsHup;
+	if(events & POLLNVAL) out_flags |= kPollFlagsNVal;
 
-		FD_SET(fd, &efds);
+	return (PollFlags)out_flags;
+}
+
+WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error)
+{
+	const int32_t n_fd = requests.size ();
+	pollfd *p_fd = (pollfd*)calloc (n_fd, sizeof (pollfd));
+
+	for (int32_t i = 0; i < n_fd; ++i)
+	{
+		if (requests[i].socket->IsClosed ())
+		{
+			p_fd[i].fd = -1;
+			p_fd[i].events = kPollFlagsNone;
+			p_fd[i].revents = kPollFlagsNone;
+		}
+		else
+		{
+			p_fd[i].fd = (SOCKET) requests[i].socket->GetDescriptor ();
+			p_fd[i].events = poll_flags_to_poll_events (requests[i].events);
+			p_fd[i].revents = kPollFlagsNone;
+		}
 	}
 
-	timeval timevalTimeout;
-	timeval* timeoutPtr = NULL;
-	if (timeout != -1)
-	{
-		timevalTimeout.tv_sec = timeout / 1000;
-		timevalTimeout.tv_usec = (timeout % 1000) * 1000;
-		timeoutPtr = &timevalTimeout;
-	}
+	int32_t ret = 0;
+	time_t start = time (NULL);
 
-	int32_t affected = -1;
+	////FIXME: WSAPoll calls with infinite waits are always interruptible; this is not in line with Socket.Poll() specs.
+	timeout = (timeout >= 0) ? (timeout / 1000) : -1;
 
-	__try
+	do
 	{
-		affected = select(0, &rfds, &wfds, &efds, timeoutPtr);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
+		ret = WSAPoll (p_fd, n_fd, timeout);
 
-	if (affected == -1)
+		if (timeout > 0 && ret < 0)
+		{
+			const int32_t err = errno;
+			const int32_t sec = (int32_t)(time(NULL) - start);
+
+			timeout -= sec * 1000;
+
+			if (timeout < 0)
+				timeout = 0;
+
+			errno = err;
+		}
+	} while (ret == -1 && errno == EINTR); // EINTR shouldn't really happen with WSAPoll.
+
+	*result = ret;
+
+	if (ret == -1)
 	{
-		*error = WSAGetLastError();
+		free (p_fd);
+
+		*error = WSAGetLastError ();
+
+		////TODO: if the error is 10038, loop through the requests, poll them, and set ERR on any request that is has a bad descriptor
+
 		return kWaitStatusFailure;
 	}
 
-	int32_t count = 0;
-	for (size_t i = 0; i < nfds && affected > 0; i++)
+	if (ret == 0)
 	{
-		SOCKET fd = static_cast<SOCKET>(requests[i].fd);
-		if (fd == -1)
-			continue;
+		free (p_fd);
 
-		if ((requests[i].events & kPollFlagsIn) != 0 && FD_ISSET(fd, &rfds))
-		{
-			requests[i].revents |= kPollFlagsIn;
-			affected--;
-		}
-
-		if ((requests[i].events & kPollFlagsOut) != 0 && FD_ISSET(fd, &wfds))
-		{
-			requests[i].revents |= kPollFlagsOut;
-			affected--;
-		}
-
-		if (FD_ISSET(fd, &efds))
-		{
-			requests[i].revents |= kPollFlagsErr;
-			affected--;
-		}
-
-		if (requests[i].revents != kPollFlagsNone)
-			count++;
+		return kWaitStatusSuccess;
 	}
 
-	*result = count;
+	for (int32_t i = 0; i < n_fd; ++i)
+	{
+		requests[i].revents = poll_events_to_poll_flags (p_fd[i].revents);
+	}
+
+	free (p_fd);
+
 	return kWaitStatusSuccess;
 }
 
@@ -1982,23 +1651,7 @@ WaitStatus SocketImpl::SetSocketOptionMembership (SocketOptionLevel level, Socke
 WaitStatus SocketImpl::SetSocketOptionInternal (int32_t level, int32_t name, const void *value, int32_t len)
 {
 	const void *real_val = value;
-
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int32_t ret = -1;
-
-	__try
-	{
-		ret = setsockopt(fd, level, name, (const char*)real_val, (socklen_t)len);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
+	const int32_t ret = setsockopt ((SOCKET) _fd, level, name, (const char*)real_val, (socklen_t)len);
 
 	if (ret == -1)
 	{
@@ -2008,32 +1661,6 @@ WaitStatus SocketImpl::SetSocketOptionInternal (int32_t level, int32_t name, con
 	}
 
 	return kWaitStatusSuccess;
-}
-
-int32_t WSAIoctlProtected(SOCKET s, DWORD dwIoControlCode, LPVOID lpvInBuffer, DWORD cbInBuffer, LPVOID lpvOutBuffer, DWORD cbOutBuffer, LPDWORD lpcbBytesReturned, LPWSAOVERLAPPED lpOverlapped, LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
-{
-	__try
-	{
-		return WSAIoctl(s, dwIoControlCode, lpvInBuffer, cbInBuffer, lpvOutBuffer, cbOutBuffer, lpcbBytesReturned, lpOverlapped, lpCompletionRoutine);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	return -1;
-}
-
-BOOL transmitFileProtected(LPFN_TRANSMITFILE transmitFile, SOCKET hSocket, HANDLE hFile, DWORD nNumberOfBytesToWrite, DWORD nNumberOfBytesPerSend, LPOVERLAPPED lpOverlapped, LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers, DWORD dwReserved)
-{
-	__try
-	{
-		return transmitFile(hSocket, hFile, nNumberOfBytesToWrite, nNumberOfBytesPerSend, lpOverlapped, lpTransmitBuffers, dwReserved);
-	}
-	__except (SocketExceptionFilter(GetExceptionCode()))
-	{
-	}
-
-	return FALSE;
 }
 
 WaitStatus SocketImpl::SendFile (const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options)
@@ -2055,15 +1682,7 @@ WaitStatus SocketImpl::SendFile (const char *filename, TransmitFileBuffers *buff
 	LPFN_TRANSMITFILE transmitFile;
 	DWORD copied;
 
-	SOCKET fd = (SOCKET)_fd;
-	if (fd == -1)
-	{
-		Error::SetLastError(il2cpp::os::kWSAeshutdown);
-		return kWaitStatusFailure;
-	}
-
-	int32_t ret = WSAIoctlProtected(fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &transmitFileGuid, sizeof(transmitFileGuid), &transmitFile, sizeof(transmitFile), &copied, 0, 0);
-
+	const int32_t ret = WSAIoctl((SOCKET) _fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &transmitFileGuid, sizeof(transmitFileGuid), &transmitFile, sizeof(transmitFile), &copied, 0, 0);
 	if(ret == SOCKET_ERROR)
 	{
 		StoreLastError();
@@ -2071,7 +1690,7 @@ WaitStatus SocketImpl::SendFile (const char *filename, TransmitFileBuffers *buff
 		return kWaitStatusFailure;
 	}
 
-	if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)&buffers, options))
+	if (!transmitFile ((SOCKET) _fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)&buffers, options))
 	{
 		StoreLastError();
 

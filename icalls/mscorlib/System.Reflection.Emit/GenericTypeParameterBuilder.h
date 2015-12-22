@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppReflectionGenericParam;
 
 namespace il2cpp
@@ -16,7 +15,7 @@ namespace Reflection
 namespace Emit
 {
 
-class LIBIL2CPP_CODEGEN_API GenericTypeParameterBuilder
+class GenericTypeParameterBuilder
 {
 public:
 	static void initialize (Il2CppReflectionGenericParam* genericParameter);

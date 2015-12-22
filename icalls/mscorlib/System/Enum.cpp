@@ -26,7 +26,7 @@ Il2CppObject * Enum::get_value(Il2CppObject *__this)
 
 	assert (__this->klass->enumtype);
 	
-	Il2CppClass* enumClass = Class::FromIl2CppType (Class::GetEnumBaseType (__this->klass));
+	TypeInfo* enumClass = Class::FromIl2CppType (Class::GetEnumBaseType (__this->klass));
 	Il2CppObject* res = Object::New (enumClass);
 	void* dst = (char *)res + sizeof (Il2CppObject);
 	void* src = (char *)__this + sizeof (Il2CppObject);
@@ -68,7 +68,6 @@ int Enum::compare_value_to(Il2CppObject * __this, Il2CppObject * other)
 		case IL2CPP_TYPE_I1:
 			COMPARE_ENUM_VALUES (int8_t);
 		case IL2CPP_TYPE_CHAR:
-			COMPARE_ENUM_VALUES_RANGE (Il2CppChar);
 		case IL2CPP_TYPE_U2:
 			COMPARE_ENUM_VALUES_RANGE (uint16_t);
 		case IL2CPP_TYPE_I2:
@@ -93,16 +92,14 @@ int Enum::compare_value_to(Il2CppObject * __this, Il2CppObject * other)
 int32_t Enum::get_hashcode(Il2CppObject * __this)
 {
 	void* data = (char *)__this + sizeof (Il2CppObject);
-	Il2CppClass *basetype = __this->klass->element_class;
+	TypeInfo *basetype = __this->klass->element_class;
 	assert (basetype);
 
 	if (basetype == il2cpp_defaults.sbyte_class)
 		return *((int8_t*)data);
 	if (basetype == il2cpp_defaults.byte_class)
 		return *((uint8_t*)data);
-	if (basetype == il2cpp_defaults.char_class)
-		return *((Il2CppChar*)data);
-	if (basetype == il2cpp_defaults.uint16_class)
+	if (basetype == il2cpp_defaults.char_class || basetype == il2cpp_defaults.uint16_class)
 		return *((uint16_t*)data);
 	if (basetype == il2cpp_defaults.int16_class)
 		return *((uint16_t*)data);
@@ -121,7 +118,7 @@ int32_t Enum::get_hashcode(Il2CppObject * __this)
 }
 
 static uint64_t
-read_enum_value (char *mem, Il2CppClass* type)
+read_enum_value (char *mem, TypeInfo* type)
 {
 	if (type == il2cpp_defaults.byte_class)
 		return *(int8_t*)mem;
@@ -146,7 +143,7 @@ read_enum_value (char *mem, Il2CppClass* type)
 }
 
 static void
-write_enum_value (char *mem, Il2CppClass* type, uint64_t value)
+write_enum_value (char *mem, TypeInfo* type, uint64_t value)
 {
 	if (type == il2cpp_defaults.byte_class || type == il2cpp_defaults.sbyte_class)
 	{
@@ -179,9 +176,9 @@ write_enum_value (char *mem, Il2CppClass* type, uint64_t value)
 Il2CppObject * Enum::ToObject (Il2CppReflectionType * enumType,Il2CppObject * value)
 {
 	//MonoDomain *domain; 
-	Il2CppClass *enumc, *objc;
+	TypeInfo *enumc, *objc;
 	Il2CppObject *res;
-	Il2CppClass *etype;
+	TypeInfo *etype;
 	uint64_t val;
 
 	IL2CPP_CHECK_ARG_NULL (enumType);

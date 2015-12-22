@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppArray;
 struct Il2CppReflectionMethod;
 
@@ -17,7 +16,7 @@ namespace Reflection
 namespace Emit
 {
 
-class LIBIL2CPP_CODEGEN_API MethodBuilder
+class MethodBuilder
 {
 public:
 	static Il2CppReflectionMethod* MakeGenericMethod(Il2CppReflectionMethod*, Il2CppArray*);

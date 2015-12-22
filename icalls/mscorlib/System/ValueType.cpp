@@ -27,7 +27,7 @@ namespace System
 
 bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2CppArray** fields)
 {
-	Il2CppClass *klass;
+	TypeInfo *klass;
 	Il2CppObject **values = NULL;
 	Il2CppObject *o;
 	FieldInfo* field;
@@ -105,7 +105,7 @@ bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2C
 			if (s1len != s2len)
 				return false;
 
-			if (memcmp (String::GetChars (s1), String::GetChars (s2), s1len * sizeof (Il2CppChar)) != 0)
+			if (memcmp (String::GetChars (s1), String::GetChars (s2), s1len * sizeof (uint16_t)) != 0)
 				return false;
 			break;
 		default:
@@ -142,7 +142,7 @@ int ValueType::InternalGetHashCode (Il2CppObject* obj,Il2CppArray** fields)
 	FieldInfo* field = NULL;
 	void* iter = NULL;
 
-	Il2CppClass* klass = Object::GetClass (obj);
+	TypeInfo* klass = Object::GetClass (obj);
 
 	if (Class::GetNumFields (klass) == 0)
 		return Object::GetHash (obj);

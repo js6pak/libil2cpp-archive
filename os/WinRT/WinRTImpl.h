@@ -14,6 +14,16 @@ namespace il2cpp
 				return HRESULT_CODE(hr);
 			return ERROR_SUCCESS;
 		}
+
+		NORETURN void ThrowExceptionFromHR(HRESULT hr);
+
+		inline void ThrowExceptionIfFailed(HRESULT hr)
+		{
+			if (SUCCEEDED(hr))
+				return;
+
+			ThrowExceptionFromHR(hr);
+		}
 	}
 }
 
@@ -21,9 +31,7 @@ extern "C"
 {
 
 #define CreateEvent CreateEventW
-#define FreeEnvironmentStrings FreeEnvironmentStringsW
 #define GetComputerName GetComputerNameW
-#define GetEnvironmentStrings GetEnvironmentStringsW
 #define GetEnvironmentVariable GetEnvironmentVariableW
 #define GetUserName GetUserNameW
 #define GetVersionEx GetVersionExW
@@ -75,8 +83,6 @@ inline HANDLE WINAPI CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 	return CreateFile2(lpFileName, dwDesiredAccess, dwShareMode, dwCreationDisposition, &extendedParameters);
 }
 
-BOOL WINAPI FreeEnvironmentStringsW(LPWCH strings);
-
 inline UINT WINAPI GetACP()
 {
 	return CP_ACP;
@@ -84,11 +90,11 @@ inline UINT WINAPI GetACP()
 
 BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize);
 
-LPWCH WINAPI GetEnvironmentStringsW();
-
 DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSize);
 
 HANDLE WINAPI GetStdHandle(DWORD nStdHandle);
+
+BOOL WINAPI GetThreadContextWinRT(HANDLE hThread, LPCONTEXT lpContext);
 
 BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer);
 

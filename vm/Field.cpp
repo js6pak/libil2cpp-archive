@@ -31,7 +31,7 @@ const char* Field::GetName (FieldInfo *field)
 	return field->name;
 }
 
-Il2CppClass* Field::GetParent (FieldInfo *field)
+TypeInfo* Field::GetParent (FieldInfo *field)
 {
 	return field->parent;
 }
@@ -58,14 +58,9 @@ void Field::GetValue (Il2CppObject *obj, FieldInfo *field, void *value)
 	set_value (field->type, value, src, true);
 }
 
-uint32_t Field::GetToken (const FieldInfo *field)
-{
-	return field->token;
-}
-
 Il2CppObject* Field::GetValueObject (FieldInfo *field, Il2CppObject *obj)
 {
-	Il2CppClass* fieldType = Class::FromIl2CppType(field->type);
+	TypeInfo* fieldType = Class::FromIl2CppType(field->type);
 
 	if (field->type->attrs & FIELD_ATTRIBUTE_LITERAL)
 	{
@@ -109,9 +104,23 @@ const Il2CppType* Field::GetType (FieldInfo *field)
 	return field->type;
 }
 
-bool Field::HasAttribute (FieldInfo *field, Il2CppClass *attr_class)
+bool Field::HasAttribute (FieldInfo *field, TypeInfo *attr_class)
 {
-	return Reflection::HasAttribute(field, attr_class);
+	CustomAttributesCache* attrs = Reflection::GetCustomAttrsInfo (field);
+
+	if (!attrs)
+		return false;
+
+	for(int i = 0; i < attrs->count; ++i)
+	{
+		Il2CppObject* attribute = attrs->attributes[i];
+		TypeInfo *klass = Object::GetClass (attribute);
+
+		if(klass == attr_class)
+			return true;
+	}
+
+	return false;
 }
 
 bool Field::IsDeleted (FieldInfo *field)
@@ -151,7 +160,7 @@ void Field::StaticGetValue (FieldInfo *field, void *value)
 	}
 
 	// ensure parent is initialized so that static fields memory has been allocated
-	Class::SetupFields(field->parent);
+	Class::Init (field->parent);
 
 	if (field->offset == THREAD_STATIC_FIELD_OFFSET)
 	{
@@ -212,15 +221,9 @@ handle_enum:
 	}
 	case IL2CPP_TYPE_I2:
 	case IL2CPP_TYPE_U2:
-	{
+	case IL2CPP_TYPE_CHAR: {
 		uint16_t *p = (uint16_t*)dest;
 		*p = value ? *(uint16_t*)value : 0;
-		return;
-	}
-	case IL2CPP_TYPE_CHAR:
-	{
-		Il2CppChar* p = (Il2CppChar*)dest;
-		*p = value ? *(Il2CppChar*)value : 0;
 		return;
 	}
 #if SIZEOF_VOID_P == 4
@@ -273,7 +276,7 @@ handle_enum:
 			t = Class::GetEnumBaseType (Type::GetClass (type))->type;
 			goto handle_enum;
 		} else {
-			Il2CppClass *klass = Class::FromIl2CppType (type);
+			TypeInfo *klass = Class::FromIl2CppType (type);
 			int size = Class::GetValueSize (klass, NULL);
 			if (value == NULL) {
 				memset (dest, 0, size);

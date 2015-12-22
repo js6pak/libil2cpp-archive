@@ -22,7 +22,7 @@ namespace System
 namespace IO
 {
 
-Il2CppChar MonoIO::get_AltDirectorySeparatorChar (void)
+uint16_t MonoIO::get_AltDirectorySeparatorChar (void)
 {
 #if IL2CPP_COMPILER_MSVC
 	return '/';	/* forward slash */
@@ -77,7 +77,7 @@ bool MonoIO::DeleteFile (Il2CppString *path, int *error)
 	return il2cpp::os::File::DeleteFile (il2cpp::utils::StringUtils::Utf16ToUtf8 (path->chars), error);
 }
 
-Il2CppChar MonoIO::get_DirectorySeparatorChar (void)
+uint16_t MonoIO::get_DirectorySeparatorChar (void)
 {
 	return IL2CPP_DIR_SEPARATOR;
 }
@@ -130,7 +130,7 @@ Il2CppIntPtr MonoIO::Open (Il2CppString *filename, int mode, int access_mode, in
 	return ret;
 }
 
-Il2CppChar MonoIO::get_PathSeparator (void)
+uint16_t MonoIO::get_PathSeparator (void)
 {
 #if IL2CPP_COMPILER_MSVC
 	return ';';	/* semicolon */
@@ -187,7 +187,7 @@ int MonoIO::Write (Il2CppIntPtr handle, Il2CppArray * src, int src_offset, int c
 	return il2cpp::os::File::Write (h, buffer, count, error);
 }
 
-Il2CppChar MonoIO::get_VolumeSeparatorChar (void)
+uint16_t MonoIO::get_VolumeSeparatorChar (void)
 {
 #if IL2CPP_COMPILER_MSVC
 	return ':';	/* colon */
@@ -208,7 +208,7 @@ Il2CppArray* MonoIO::GetFileSystemEntries (Il2CppString* path, Il2CppString* pat
 
 	const std::set<std::string> entries(il2cpp::os::Directory::GetFileSystemEntries (pathString, pathPatternString, attrs, mask, error));
 
-	Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
+	TypeInfo *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
 	Il2CppArray* array = (Il2CppArray*)il2cpp::vm::Array::NewSpecific (klass, (il2cpp_array_size_t)entries.size());
 
 	size_t index = 0;

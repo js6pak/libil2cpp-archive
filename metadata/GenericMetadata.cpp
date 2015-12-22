@@ -155,7 +155,7 @@ typedef unordered_set<Il2CppGenericClass*,
 	> Il2CppGenericClassSet;
 static Il2CppGenericClassSet s_GenericClassSet;
 
-Il2CppGenericClass* GenericMetadata::GetGenericClass (Il2CppClass* containerClass, const Il2CppGenericInst* inst)
+Il2CppGenericClass* GenericMetadata::GetGenericClass (TypeInfo* containerClass, const Il2CppGenericInst* inst)
 {
 	return GetGenericClass (MetadataCache::GetIndexForTypeDefinition (containerClass), inst);
 }
@@ -183,42 +183,10 @@ Il2CppGenericClass* GenericMetadata::GetGenericClass (TypeDefinitionIndex elemen
 	return newClass;
 }
 
-const MethodInfo* GenericMetadata::Inflate (const MethodInfo* methodDefinition, Il2CppClass* declaringClass, const Il2CppGenericContext* context)
+const MethodInfo* GenericMetadata::Inflate (const MethodInfo* methodDefinition, TypeInfo* declaringClass, const Il2CppGenericContext* context)
 {
 	const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod (methodDefinition, context->class_inst, context->method_inst);
 	return GenericMethod::GetMethod (gmethod);
-}
-
-static void RecursiveGenericDepthFor(const Il2CppGenericInst* inst, int& depth)
-{
-	if (inst == NULL)
-		return;
-
-	int maximumDepth = depth;
-	for (size_t i = 0; i < inst->type_argc; i++)
-	{
-		if (inst->type_argv[i]->type == IL2CPP_TYPE_GENERICINST)
-		{
-			maximumDepth++;
-
-			int classInstDepth = 0;
-			RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.class_inst, classInstDepth);
-
-			int methodInstDepth = 0;
-			RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.method_inst, methodInstDepth);
-
-			maximumDepth += std::max(classInstDepth, methodInstDepth);
-		}
-	}
-
-	depth = maximumDepth;
-}
-
-static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst)
-{
-	int depth = 0;
-	RecursiveGenericDepthFor(inst, depth);
-	return depth;
 }
 
 const Il2CppGenericMethod* GenericMetadata::Inflate (const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context)
@@ -240,13 +208,6 @@ const Il2CppGenericMethod* GenericMetadata::Inflate (const Il2CppGenericMethod* 
 			methodTypes.push_back (GenericMetadata::InflateIfNeeded (methodInst->type_argv[i], context, true));
 		methodInst = MetadataCache::GetGenericInst (methodTypes);
 	}
-
-	// We have cases where we could infinitely recurse, inflating generics at runtime. This will lead to a stack overflow.
-	// As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
-	// level, a crash will happen. We'll assume that this code won't actually be executed though.
-	const int maximumRuntimeGenericDepth = 7;
-	if (RecursiveGenericDepthFor(classInst) > maximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > maximumRuntimeGenericDepth)
-		return NULL;
 
 	return MetadataCache::GetGenericMethod (genericMethod->methodDefinition, classInst, methodInst);
 }

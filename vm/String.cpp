@@ -24,14 +24,14 @@ int32_t String::GetLength (Il2CppString* str)
 	return str->length;
 }
 
-Il2CppChar* String::GetChars (Il2CppString* str)
+uint16_t* String::GetChars (Il2CppString* str)
 {
 	return str->chars;
 }
 
 int32_t String::GetHash (Il2CppString* str)
 {
-	const Il2CppChar* p = GetChars (str);
+	const uint16_t *p = GetChars (str);
 	int i, len = GetLength (str);
 	uint32_t h = 0;
 
@@ -60,7 +60,7 @@ Il2CppString* String::NewLen (const char* str, uint32_t length)
 	return NewUtf16 (utf16Chars.c_str(), (uint32_t)utf16Chars.length ());
 }
 
-Il2CppString* String::NewUtf16 (const Il2CppChar* text, int32_t len)
+Il2CppString* String::NewUtf16 (const uint16_t *text, int32_t len)
 {
 	Il2CppString *s;
 	
@@ -75,11 +75,10 @@ Il2CppString* String::NewUtf16 (const Il2CppChar* text, int32_t len)
 Il2CppString* String::NewSize (int32_t len)
 {
 	Il2CppString *s;
-	assert(len >= 0);
 	size_t size = (sizeof (Il2CppString) + ((len + 1) * 2));
 
 	/* overflow ? can't fit it, can't allocate it! */
-	if (static_cast<uint32_t>(len) > size)
+	if (len > size)
 		Exception::RaiseOutOfMemoryException ();
 
 	s = reinterpret_cast<Il2CppString*> (Object::AllocatePtrFree (size, il2cpp_defaults.string_class));
@@ -100,7 +99,7 @@ Il2CppString* String::NewSize (int32_t len)
 struct InternedString
 {
 	int32_t length;
-	const Il2CppChar* chars;
+	const uint16_t* chars;
 };
 
 class InternedStringHash
@@ -108,7 +107,7 @@ class InternedStringHash
 public:
 	size_t operator( )( const InternedString& ea ) const
 	{
-		return utils::StringUtils::Hash (ea.chars, ea.length);
+		return ea.length;
 	}
 };
 
@@ -117,7 +116,7 @@ class InternedStringCompare
 public:
 	bool operator()(const InternedString& ea, const InternedString& eb) const
 	{
-		return (ea.length == eb.length) && (0 == memcmp (ea.chars, eb.chars, sizeof(Il2CppChar)*ea.length));
+		return (ea.length == eb.length) && (0 == memcmp (ea.chars, eb.chars, sizeof(uint16_t)*ea.length));
 	}
 };
 
@@ -128,7 +127,7 @@ public:
 	{
 		if (ea.length < eb.length)
 			return true;
-		return memcmp (ea.chars, eb.chars, sizeof(Il2CppChar)*eb.length) < 0;
+		return memcmp (ea.chars, eb.chars, sizeof(uint16_t)*eb.length) < 0;
 	}
 };
 
