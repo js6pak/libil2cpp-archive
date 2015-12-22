@@ -15,7 +15,7 @@
 
 #include <time.h>
 
-#if IL2CPP_TARGET_LINUX
+#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN
 #include <sys/time.h>
 #endif
 

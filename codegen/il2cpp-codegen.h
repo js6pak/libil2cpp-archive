@@ -218,7 +218,7 @@ static Il2CppCodeGenObject* IsInstClass(Il2CppCodeGenObject *obj, TypeInfo* targ
 		return NULL;
 
 	// optimized version to compare classes
-	return il2cpp::vm::Class::HasParent (((Il2CppObject*)obj)->klass, targetType) ? obj: NULL;
+	return il2cpp::vm::Class::HasParentUnsafe (((Il2CppObject*)obj)->klass, targetType) ? obj: NULL;
 }
 
 // OpCode.Castclass
@@ -302,6 +302,15 @@ static inline void* UnBox(Il2CppCodeGenObject* obj, TypeInfo* klass)
 static inline void UnBoxNullable(Il2CppCodeGenObject* obj, TypeInfo* klass, void* storage)
 {
 	return il2cpp::vm::Object::UnboxNullable(reinterpret_cast<Il2CppObject*>(obj), klass, storage);
+}
+
+static inline void* il2cpp_codegen_get_delegate_this(Il2CppCodeGenMulticastDelegate* codegenDelegate)
+{
+	Il2CppDelegate* delegate = (Il2CppDelegate*)codegenDelegate;
+	if (delegate->target != NULL && delegate->target->klass->valuetype)
+		return il2cpp::vm::Object::Unbox(delegate->target);
+
+	return delegate->target;
 }
 
 #include "GeneratedVirtualInvokers.h"
@@ -513,6 +522,11 @@ inline FunctionPointerType il2cpp_codegen_resolve_pinvoke(const char* nativeDyna
 	return reinterpret_cast<FunctionPointerType>(il2cpp::vm::PlatformInvoke::Resolve(pinvokeArgs));
 }
 
+inline void* il2cpp_codegen_calloc(size_t count, size_t size)
+{
+	return calloc(count, size);
+}
+
 template <typename T>
 inline T* il2cpp_codegen_marshal_allocate()
 {
@@ -593,6 +607,12 @@ inline Il2CppArray* il2cpp_codegen_marshal_array_result(TypeInfo* type, ElementT
 	return il2cpp::vm::PlatformInvoke::MarshalArrayResult(type, cppArray, size);
 }
 
+template <typename ElementType>
+inline void il2cpp_codegen_marshal_array_out(ElementType* cppArray, Il2CppCodeGenArray* managedArray)
+{
+	il2cpp::vm::PlatformInvoke::MarshalArrayOut(cppArray, (Il2CppArray*)managedArray);
+}
+
 inline char* il2cpp_codegen_marshal_char_array(Il2CppCodeGenArray* a)
 {
 	if (a == NULL)
@@ -606,6 +626,21 @@ inline char* il2cpp_codegen_marshal_char_array(Il2CppCodeGenArray* a)
 inline Il2CppCodeGenArray* il2cpp_codegen_marshal_char_array_result(char* a, size_t size)
 {
 	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalCharArrayResult(a, size);
+}
+
+inline void il2cpp_codegen_marshal_char_array_out(char* a, Il2CppCodeGenArray* managedArray)
+{
+	il2cpp::vm::PlatformInvoke::MarshalCharArrayOut(a, (Il2CppArray*)managedArray);
+}
+
+inline char** il2cpp_codegen_marshal_allocate_native_string_array(size_t size)
+{
+	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeStringArray(size);
+}
+
+inline uint16_t** il2cpp_codegen_marshal_allocate_native_wstring_array(size_t size)
+{
+	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeWStringArray(size);
 }
 
 inline char** il2cpp_codegen_marshal_string_array(Il2CppCodeGenArray* a)
@@ -635,9 +670,19 @@ inline Il2CppCodeGenArray* il2cpp_codegen_marshal_string_array_result(char** a, 
 	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalStringArrayResult(a, size);
 }
 
+inline void il2cpp_codegen_marshal_string_array_out(char** nativeArray, Il2CppCodeGenArray* managedArray)
+{
+	il2cpp::vm::PlatformInvoke::MarshalStringArrayOut(nativeArray, (Il2CppArray*)managedArray);
+}
+
 inline Il2CppCodeGenArray* il2cpp_codegen_marshal_wstring_array_result(uint16_t** a, size_t size)
 {
 	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalWStringArrayResult(a, size);
+}
+
+inline void il2cpp_codegen_marshal_wstring_array_out(uint16_t** nativeArray, Il2CppCodeGenArray* managedArray)
+{
+	il2cpp::vm::PlatformInvoke::MarshalWStringArrayOut(nativeArray, (Il2CppArray*)managedArray);
 }
 
 inline void il2cpp_codegen_marshal_free(void* ptr)
@@ -855,30 +900,9 @@ static inline void il2cpp_codegen_memory_barrier()
 	il2cpp::vm::Thread::MemoryBarrier();
 }
 
-static inline TypeInfo* il2cpp_codegen_type_info_from_index (TypeIndex index)
+static inline void il2cpp_codegen_initialize_method (uint32_t index)
 {
-	return il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex (index);
-}
-
-static inline const Il2CppType* il2cpp_codegen_type_from_index (TypeIndex index)
-{
-	return il2cpp::vm::MetadataCache::GetIl2CppTypeFromIndex (index);
-}
-
-static inline const MethodInfo* il2cpp_codegen_method_info_from_index (MethodIndex index)
-{
-	return il2cpp::vm::MetadataCache::GetMethodInfoFromIndex (index);
-}
-
-static inline FieldInfo* il2cpp_codegen_field_info_from_index (TypeIndex typeIndex, FieldIndex fieldIndex)
-{
-	TypeInfo* typeInfo = il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex (typeIndex);
-	return typeInfo->fields + fieldIndex;
-}
-
-static inline Il2CppCodeGenString* il2cpp_codegen_string_literal_from_index (StringLiteralIndex index)
-{
-	return (Il2CppCodeGenString*)il2cpp::vm::MetadataCache::GetStringLiteralFromIndex (index);
+	il2cpp::vm::MetadataCache::InitializeMethodMetadata (index);
 }
 
 static inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInfo* methodInfo)

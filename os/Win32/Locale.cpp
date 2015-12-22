@@ -1,8 +1,9 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_WINRT
+#if (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE) && !IL2CPP_TARGET_WINRT
 
 #include "os/Locale.h"
+#include "WindowsHelpers.h"
 #include <vector>
 
 #define WIN32_LEAN_AND_MEAN 1

@@ -130,7 +130,13 @@ struct CustomAttributesCache
 	Il2CppObject** attributes;
 };
 
-typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
+struct CustomAttributeTypeCache
+{
+	int count;
+	TypeInfo** attributeTypes;
+};
+
+typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*, CustomAttributeTypeCache*);
 
 const int THREAD_STATIC_FIELD_OFFSET = -1;
 
@@ -413,14 +419,14 @@ struct Il2CppMetadataRegistration
 	const Il2CppType* const * types;
 	int32_t methodSpecsCount;
 	const Il2CppMethodSpec* methodSpecs;
-	int32_t methodReferencesCount;
-	const EncodedMethodIndex* methodReferences;
 
 	FieldIndex fieldOffsetsCount;
 	const int32_t* fieldOffsets;
 
 	TypeDefinitionIndex typeDefinitionsSizesCount;
 	const Il2CppTypeDefinitionSizes* typeDefinitionsSizes;
+	const size_t metadataUsagesCount;
+	void** const* metadataUsages;
 };
 
 struct Il2CppRuntimeStats
