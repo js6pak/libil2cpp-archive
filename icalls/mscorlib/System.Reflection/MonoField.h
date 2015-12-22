@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct mscorlib_System_Reflection_FieldInfo;
@@ -18,7 +17,7 @@ namespace System
 namespace Reflection
 {
 
-class LIBIL2CPP_CODEGEN_API MonoField
+class MonoField
 {
 public:
 	static int32_t GetFieldOffset (Il2CppReflectionField * __this);

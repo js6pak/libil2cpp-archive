@@ -1,10 +1,8 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_USE_GENERIC_ENVIRONMENT && (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_WINDOWS
 #include "WindowsHelpers.h"
-#if !IL2CPP_TARGET_XBOXONE
 #include <Shlobj.h>
-#endif
 // Windows.h defines GetEnvironmentVariable as GetEnvironmentVariableW for unicode and this will
 // change the string "Environment::GetEnvironmentVariable" below to "Environment::GetEnvironmentVariableW"
 // in the preprocessor. So we undef to avoid this issue and use GetEnvironmentVariableW directly.
@@ -25,12 +23,12 @@ namespace os
 
 std::string Environment::GetMachineName()
 {
-	Il2CppChar computerName[MAX_COMPUTERNAME_LENGTH + 1];
+	WCHAR computerName[MAX_COMPUTERNAME_LENGTH + 1];
 	DWORD size = sizeof(computerName) / sizeof(computerName[0]);
 	if(!GetComputerNameW(computerName, &size))
 		return NULL;
 
-	return utils::StringUtils::Utf16ToUtf8(computerName);
+	return utils::StringUtils::Utf16ToUtf8((const uint16_t*)computerName);
 }
 
 int32_t Environment::GetProcessorCount()
@@ -39,10 +37,6 @@ int32_t Environment::GetProcessorCount()
 	GetSystemInfo (&info);
 	return info.dwNumberOfProcessors;
 }
-
-// GetVersionEx is deprecated on desktop in Windows SDK, and we shim it for WinRT
-#pragma warning( push )
-#pragma warning( disable : 4996 )
 
 std::string Environment::GetOsVersionString()
 {
@@ -63,41 +57,39 @@ std::string Environment::GetOsVersionString()
 	return "0.0.0.0";
 }
 
-#pragma warning( pop )
-
 std::string Environment::GetOsUserName()
 {
-	Il2CppChar user_name[256+1];
+	WCHAR user_name[256+1];
 	DWORD user_name_size = ARRAYSIZE(user_name);
 	if (GetUserNameW(user_name, &user_name_size))
-		return utils::StringUtils::Utf16ToUtf8(user_name);
+		return utils::StringUtils::Utf16ToUtf8((const uint16_t*)user_name);
 
 	return "Unknown";
 }
 
 std::string Environment::GetEnvironmentVariable(const std::string& name)
 {
-	Il2CppChar buffer[BUFFER_SIZE];
+	WCHAR buffer[BUFFER_SIZE];
 
 	const UTF16String varName = utils::StringUtils::Utf8ToUtf16(name.c_str());
 
-	DWORD ret = GetEnvironmentVariableW(varName.c_str(), buffer, BUFFER_SIZE);
+	DWORD ret = GetEnvironmentVariableW((LPWSTR)varName.c_str(), buffer, BUFFER_SIZE);
 
 	if(ret == 0) // Not found
 		return std::string();
 
 	if(ret < BUFFER_SIZE) // Found and fits into buffer
-		return utils::StringUtils::Utf16ToUtf8(buffer);
+		return utils::StringUtils::Utf16ToUtf8((uint16_t*)buffer);
 
 	// Requires bigger buffer
 	assert(ret >= BUFFER_SIZE);
 
-	Il2CppChar* bigbuffer = new Il2CppChar[ret+1];
+	WCHAR *bigbuffer = new WCHAR[ret+1];
 
-	ret = GetEnvironmentVariableW(varName.c_str(), bigbuffer, ret+1);
+	ret = GetEnvironmentVariableW((LPWSTR)varName.c_str(), bigbuffer, ret+1);
 	assert(ret != 0);
 
-	std::string variableValue(utils::StringUtils::Utf16ToUtf8(bigbuffer));
+	std::string variableValue(utils::StringUtils::Utf16ToUtf8((uint16_t*)bigbuffer));
 
 	delete bigbuffer;
 
@@ -107,51 +99,16 @@ std::string Environment::GetEnvironmentVariable(const std::string& name)
 void Environment::SetEnvironmentVariable(const std::string& name, const std::string& value)
 {
 	const UTF16String varName = utils::StringUtils::Utf8ToUtf16(name.c_str());
+	const UTF16String varValue = utils::StringUtils::Utf8ToUtf16(value.c_str());
 
-	if (value.empty())
-		SetEnvironmentVariableW((LPWSTR)varName.c_str(), NULL);
-	else
-	{
-		const UTF16String varValue = utils::StringUtils::Utf8ToUtf16(value.c_str());
-		SetEnvironmentVariableW((LPWSTR)varName.c_str(), (LPWSTR)varValue.c_str());
-	}
+	SetEnvironmentVariableW((LPWSTR)varName.c_str(), (LPWSTR)varValue.c_str());
 }
-
-#if !IL2CPP_TARGET_XBOXONE
 
 std::vector<std::string> Environment::GetEnvironmentVariableNames ()
 {
-	WCHAR* env_strings;
-	WCHAR* env_string;
-	WCHAR* equal_str;
-
-	std::vector<std::string> result;
-
-	env_strings = GetEnvironmentStringsW();
-
-	if (env_strings)
-	{
-		env_string = env_strings;
-		while (*env_string != '\0')
-		{
-			// Skip over environment variables starting with '='
-			if (*env_string != '=')
-			{
-				equal_str = wcschr(env_string, '=');
-				result.push_back(utils::StringUtils::Utf16ToUtf8(env_string, (int)(equal_str - env_string)));
-			}
-			while (*env_string != '\0')
-				env_string++;
-			env_string++;
-		}
-
-		FreeEnvironmentStringsW(env_strings);
-	}
-
-	return result;
+	NOT_IMPLEMENTED_ICALL (Environment::GetEnvironmentVariableNames);
+	return std::vector<std::string>();
 }
-
-#endif
 
 std::string Environment::GetHomeDirectory ()
 {
@@ -170,13 +127,13 @@ void Environment::Exit (int result)
 	NOT_IMPLEMENTED_ICALL (Environment::Exit);
 }
 
-#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
+#if !IL2CPP_TARGET_WINRT
 
 std::string Environment::GetWindowsFolderPath(int32_t folder)
 {
-	Il2CppChar path[MAX_PATH];
+	WCHAR path[MAX_PATH];
 	if (SUCCEEDED(SHGetFolderPathW(NULL, folder | CSIDL_FLAG_CREATE, NULL, 0, path)))
-		return utils::StringUtils::Utf16ToUtf8(path);
+		return utils::StringUtils::Utf16ToUtf8((uint16_t*)path);
 
 	return std::string();
 }

@@ -169,11 +169,6 @@ enum PollFlags
 	kPollFlagsAny	= 0xffffffff
 };
 
-inline void operator|=(PollFlags& left, PollFlags right)
-{
-	left = static_cast<PollFlags>(static_cast<int>(left) | static_cast<int>(right));
-}
-
 enum TransmitFileOptions
 {
 	kTransmitFileOptionsUseDefaultWorkerThread	= 0x00000000,
@@ -188,18 +183,13 @@ class Socket;
 
 struct PollRequest
 {
-	int64_t fd;
+	Socket *socket;
 	PollFlags events;
 	PollFlags revents;
 };
 
 // TODO: this should really be UNIX_PATH_MAX or SUN_LEN(n)
 #define END_POINT_MAX_PATH_LEN	255
-
-#if IL2CPP_COMPILER_MSVC
-#pragma warning( push )
-#pragma warning( disable : 4200 )
-#endif
 
 struct EndPointInfo
 {
@@ -214,10 +204,6 @@ struct EndPointInfo
 		uint8_t raw[IL2CPP_ZERO_LEN_ARRAY];
 	} data;
 };
-
-#if IL2CPP_COMPILER_MSVC
-#pragma warning( pop ) 
-#endif
 
 // NOTE(gab): this must be binary compatible with Windows's WSABUF
 struct WSABuf

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -29,7 +28,7 @@ namespace Diagnostics
 
 struct ProcInfo;
 
-class LIBIL2CPP_CODEGEN_API Process
+class Process
 {
 public:
 	static Il2CppArray* GetProcesses_internal ();

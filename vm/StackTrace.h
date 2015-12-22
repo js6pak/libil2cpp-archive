@@ -2,7 +2,8 @@
 
 #include <stdint.h>
 #include <vector>
-#include "il2cpp-config.h"
+
+#include "il2cpp-api-types.h"
 
 namespace il2cpp
 {
@@ -12,7 +13,7 @@ namespace vm
 
 typedef std::vector<Il2CppStackFrameInfo> StackFrames;
 
-class LIBIL2CPP_CODEGEN_API StackTrace
+class StackTrace
 {
 public:
 	static void InitializeStackTracesForCurrentThread();

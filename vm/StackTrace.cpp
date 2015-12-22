@@ -110,7 +110,7 @@ public:
 
 class NativeMethodStack : public MethodStack
 {
-	static bool GetStackFramesCallback(Il2CppMethodPointer frame, void* context)
+	static bool GetStackFramesCallback(methodPointerType frame, void* context)
 	{
 		const MethodInfo* method = Runtime::GetMethodFromNativeSymbol(frame);
 		StackFrames* stackFrames = static_cast<StackFrames*>(context);
@@ -131,7 +131,7 @@ class NativeMethodStack : public MethodStack
 		const MethodInfo* method;
 	};
 
-	static bool GetStackFrameAtCallback(Il2CppMethodPointer frame, void* context)
+	static bool GetStackFrameAtCallback(methodPointerType frame, void* context)
 	{
 		const MethodInfo* method = Runtime::GetMethodFromNativeSymbol(frame);
 		GetStackFrameAtContext* ctx = static_cast<GetStackFrameAtContext*>(context);
@@ -362,7 +362,7 @@ static void STDCALL GetThreadStackDepthCallback(void* context)
 {
 	GetThreadStackDepthContext* ctx = static_cast<GetThreadStackDepthContext*>(context);
 
-	ctx->stackDepth = static_cast<int32_t>(StackTrace::GetStackDepth());
+	ctx->stackDepth = StackTrace::GetStackDepth();
 	ctx->apcDoneEvent.Set();
 }
 

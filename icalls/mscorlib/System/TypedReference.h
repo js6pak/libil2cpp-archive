@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -25,7 +24,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API TypedReference
+class TypedReference
 {
 public:
 	static Il2CppObject* ToObject (void* /* System.TypedReference */ value);

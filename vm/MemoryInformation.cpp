@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 #include "MemoryInformation.h"
-#include "gc/GarbageCollector.h"
+#include "gc/gc-internal.h"
 #include "gc/GCHandle.h"
 #include "metadata/ArrayMetadata.h"
 #include "metadata/GenericMetadata.h"
@@ -14,7 +14,6 @@
 #include "tabledefs.h"
 
 #include <map>
-#include <limits>
 
 namespace il2cpp
 {
@@ -28,10 +27,10 @@ using namespace il2cpp::metadata;
 struct GatherMetadataContext
 {
 	uint32_t currentIndex;
-	std::map<Il2CppClass*, uint32_t> allTypes;
+	std::map<TypeInfo*, uint32_t> allTypes;
 };
 
-static void GatherMetadataCallback(Il2CppClass* type, void* context)
+static void GatherMetadataCallback(TypeInfo* type, void* context)
 {
 	if (type->initialized)
 	{
@@ -40,9 +39,9 @@ static void GatherMetadataCallback(Il2CppClass* type, void* context)
 	}
 }
 
-static inline int FindTypeInfoIndexInMap(const std::map<Il2CppClass*, uint32_t>& allTypes, Il2CppClass* typeInfo)
+static inline int FindTypeInfoIndexInMap(const std::map<TypeInfo*, uint32_t>& allTypes, TypeInfo* typeInfo)
 {
-	std::map<Il2CppClass*, uint32_t>::const_iterator it = allTypes.find(typeInfo);
+	std::map<TypeInfo*, uint32_t>::const_iterator it = allTypes.find(typeInfo);
 
 	if (it == allTypes.end())
 		return -1;
@@ -59,9 +58,9 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 	{
 		const Il2CppImage& image = *MetadataCache::GetImageFromIndex ((*it)->imageIndex);
 
-		for (uint32_t i = 0; i < image.typeCount; i++)
+		for (size_t i = 0; i < image.typeCount; i++)
 		{
-			Il2CppClass* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image.typeStart + i);
+			TypeInfo* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image.typeStart + i);
 			if (type->initialized)
 				gatherMetadataContext.allTypes.insert(std::make_pair(type, gatherMetadataContext.currentIndex++));
 		}
@@ -72,13 +71,13 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 	GenericMetadata::WalkAllGenericClasses(GatherMetadataCallback, &gatherMetadataContext);
 	MetadataCache::WalkPointerTypes(GatherMetadataCallback, &gatherMetadataContext);
 
-	const std::map<Il2CppClass*, uint32_t>& allTypes = gatherMetadataContext.allTypes;
+	const std::map<TypeInfo*, uint32_t>& allTypes = gatherMetadataContext.allTypes;
 	metadata.typeCount = static_cast<uint32_t>(allTypes.size());
 	metadata.types = static_cast<Il2CppMetadataType*>(IL2CPP_CALLOC(metadata.typeCount, sizeof(Il2CppMetadataType)));
 
-	for (std::map<Il2CppClass*, uint32_t>::const_iterator it = allTypes.begin(); it != allTypes.end(); it++)
+	for (std::map<TypeInfo*, uint32_t>::const_iterator it = allTypes.begin(); it != allTypes.end(); it++)
 	{
-		Il2CppClass* typeInfo = it->first;
+		TypeInfo* typeInfo = it->first;
 
 		uint32_t index = it->second;
 		Il2CppMetadataType& type = metadata.types[index];
@@ -127,7 +126,7 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 				memcpy(type.statics, typeInfo->static_fields, type.staticsSize);
 			}
 
-			Il2CppClass* baseType = Class::GetParent(typeInfo);
+			TypeInfo* baseType = Class::GetParent(typeInfo);
 			type.baseOrElementTypeIndex = baseType != NULL ? FindTypeInfoIndexInMap(allTypes, baseType) : -1;
 		}
 
@@ -153,13 +152,7 @@ static void AllocateMemoryForSection(void* context, void* sectionStart, void* se
 	Il2CppManagedMemorySection& section = *ctx->currentSection;
 
 	section.sectionStartAddress = reinterpret_cast<uint64_t>(sectionStart);
-
-	ptrdiff_t sectionSize = static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart);
-
-	if (sizeof(void*) > 4) // This assert is only valid on 64-bit
-		assert(sectionSize <= static_cast<ptrdiff_t>(std::numeric_limits<uint32_t>::max()));
-
-	section.sectionSize = static_cast<uint32_t>(sectionSize);
+	section.sectionSize = static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart);
 	section.sectionBytes = static_cast<uint8_t*>(IL2CPP_MALLOC(section.sectionSize));
 
 	ctx->currentSection++;
@@ -182,11 +175,11 @@ static void* CaptureHeapInfo(void* voidManagedHeap)
 {
 	Il2CppManagedHeap& heap = *(Il2CppManagedHeap*) voidManagedHeap;
 
-	heap.sectionCount = static_cast<uint32_t>(il2cpp::gc::GarbageCollector::GetSectionCount());
+	heap.sectionCount = static_cast<uint32_t>(il2cpp_gc_get_section_count());
 	heap.sections = static_cast<Il2CppManagedMemorySection*>(IL2CPP_CALLOC(heap.sectionCount, sizeof(Il2CppManagedMemorySection)));
 
 	SectionIterationContext iterationContext = { heap.sections };
-	il2cpp::gc::GarbageCollector::ForEachHeapSection (&iterationContext, AllocateMemoryForSection);
+	il2cpp_gc_foreach_heap_section(&iterationContext, AllocateMemoryForSection);
 
 	return NULL;
 }
@@ -220,11 +213,11 @@ static void VerifyHeapSectionIsStillValid(void* context, void* sectionStart, voi
 
 static bool IsIL2CppManagedHeapStillValid(Il2CppManagedHeap& heap)
 {
-	if (heap.sectionCount != static_cast<uint32_t>(il2cpp::gc::GarbageCollector::GetSectionCount()))
+	if (heap.sectionCount != static_cast<uint32_t>(il2cpp_gc_get_section_count()))
 		return false;
 
 	VerifyHeapSectionStillValidIterationContext iterationContext = { heap.sections, true };
-	il2cpp::gc::GarbageCollector::ForEachHeapSection (&iterationContext, VerifyHeapSectionIsStillValid);
+	il2cpp_gc_foreach_heap_section(&iterationContext, VerifyHeapSectionIsStillValid);
 
 	return iterationContext.wasValid;
 }
@@ -245,22 +238,22 @@ static inline void CaptureManagedHeap(Il2CppManagedHeap& heap)
 {
 	for (;;)
 	{
-		il2cpp::gc::GarbageCollector::CallWithAllocLockHeld (CaptureHeapInfo, &heap);
+		il2cpp_gc_call_with_alloc_lock_held(CaptureHeapInfo, &heap);
 
-		il2cpp::gc::GarbageCollector::StopWorld ();
+		il2cpp_gc_stop_world();
 
 		if (IsIL2CppManagedHeapStillValid(heap))
 			break;
 
-		il2cpp::gc::GarbageCollector::StartWorld ();
+		il2cpp_gc_start_world();
 
 		FreeIL2CppManagedHeap(heap);
 	}
 
 	SectionIterationContext iterationContext = { heap.sections };
-	il2cpp::gc::GarbageCollector::ForEachHeapSection (&iterationContext, CopyHeapSection);
+	il2cpp_gc_foreach_heap_section(&iterationContext, CopyHeapSection);
 
-	il2cpp::gc::GarbageCollector::StartWorld ();
+	il2cpp_gc_start_world();
 }
 
 struct GCHandleTargetIterationContext
@@ -291,9 +284,9 @@ void FillRuntimeInformation(Il2CppRuntimeInformation& runtimeInfo)
 {
 	runtimeInfo.pointerSize = static_cast<uint32_t>(sizeof(void*));
 	runtimeInfo.objectHeaderSize = static_cast<uint32_t>(sizeof(Il2CppObject));
-	runtimeInfo.arrayHeaderSize = static_cast<uint32_t>(kIl2CppSizeOfArray);
-	runtimeInfo.arraySizeOffsetInHeader = kIl2CppOffsetOfArrayLength;
-	runtimeInfo.arrayBoundsOffsetInHeader = kIl2CppOffsetOfArrayBounds;
+	runtimeInfo.arrayHeaderSize = static_cast<uint32_t>(sizeof(Il2CppArray));
+	runtimeInfo.arraySizeOffsetInHeader = offsetof(Il2CppArray, max_length);
+	runtimeInfo.arrayBoundsOffsetInHeader = offsetof(Il2CppArray, bounds);
 	runtimeInfo.allocationGranularity = static_cast<uint32_t>(2 * sizeof(void*));
 }
 

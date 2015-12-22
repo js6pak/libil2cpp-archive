@@ -1,5 +1,5 @@
 #pragma once
-#include "il2cpp-config.h"
+
 struct Il2CppObject;
 
 namespace il2cpp
@@ -7,7 +7,7 @@ namespace il2cpp
 namespace vm
 {
 
-class LIBIL2CPP_CODEGEN_API Monitor
+class Monitor
 {
 public:
 	static void Enter (Il2CppObject* object);

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "il2cpp-config.h"
-#include "utils/StringView.h"
+#include "il2cpp-api-types.h"
+#include <string>
 
 struct PInvokeArguments;
 
@@ -10,10 +11,10 @@ namespace il2cpp
 namespace vm
 {
 
-class LIBIL2CPP_CODEGEN_API LibraryLoader
+class LibraryLoader
 {
 public:
-	static void* LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar> nativeDynamicLibrary);
+	static void* LoadLibrary(const std::string& nativeDynamicLibrary);
 	static void SetFindPluginCallback(Il2CppSetFindPlugInCallback method);
 };
 

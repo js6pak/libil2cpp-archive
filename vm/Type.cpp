@@ -9,7 +9,6 @@
 
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"
-#include "vm/AssemblyName.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
@@ -573,8 +572,8 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 	{
 		case IL2CPP_TYPE_ARRAY:
 			{
-			Il2CppClass* arrayClass = Class::FromIl2CppType (type);
-			Il2CppClass* elementClass = Class::GetElementClass (arrayClass);
+			TypeInfo* arrayClass = Class::FromIl2CppType (type);
+			TypeInfo* elementClass = Class::GetElementClass (arrayClass);
 				Type::GetNameInternal (
 					oss,
 					elementClass->byval_arg,
@@ -597,7 +596,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (elementClass->image->assemblyIndex);
-					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
 				}
 
 				break;
@@ -605,7 +604,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 
 		case IL2CPP_TYPE_SZARRAY:
 			{
-				Il2CppClass* elementClass = Class::FromIl2CppType (type->data.type);
+				TypeInfo* elementClass = Class::FromIl2CppType (type->data.type);
 				Type::GetNameInternal (
 					oss,
 					elementClass->byval_arg,
@@ -620,7 +619,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (elementClass->image->assemblyIndex);
-					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
 				}
 				break;
 			}
@@ -641,7 +640,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (Class::FromIl2CppType (type->data.type)->image->assemblyIndex);
-					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
 				}
 				break;
 			}
@@ -656,10 +655,10 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 
 		default:
 			{
-				Il2CppClass *klass = Class::FromIl2CppType (type);
+				TypeInfo *klass = Class::FromIl2CppType (type);
 				Class::Init (klass);
 
-				Il2CppClass* declaringType = Class::GetDeclaringType (klass);
+				TypeInfo* declaringType = Class::GetDeclaringType (klass);
 				if (declaringType)
 				{
 					Type::GetNameInternal (oss, declaringType->byval_arg, format, true);
@@ -689,7 +688,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 
 					oss << (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-					for (uint32_t i = 0; i < inst->type_argc; i++)
+					for (int32_t i = 0; i < inst->type_argc; i++)
 					{
 						const Il2CppType *t = inst->type_argv [i];
 
@@ -708,11 +707,12 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				}
 				else if (Class::IsGeneric (klass) && (format != IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (format != IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED))
 				{
+					uint32_t i;
 					const Il2CppGenericContainer* container = Class::GetGenericContainer (klass);
 
 					oss << (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-					for (int32_t i = 0; i < container->type_argc; i++)
+					for (i = 0; i < container->type_argc; i++)
 					{
 						if (i) oss << ',';
 						oss << MetadataCache::GetStringFromIndex (GenericContainer::GetGenericParameter (container, i)->nameIndex);
@@ -727,7 +727,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if ((format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED) && (type->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (klass->image->assemblyIndex);
-					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
 				}
 				break;
 			}
@@ -741,7 +741,7 @@ std::string Type::GetName (const Il2CppType *type, Il2CppTypeNameFormat format)
 	return oss.str();
 }
 
-Il2CppClass* Type::GetClassOrElementClass (const Il2CppType *type)
+TypeInfo* Type::GetClassOrElementClass (const Il2CppType *type)
 {
 	// This is a weird function to mimic old mono behaviour.
 	// We incorrectly used the analogous mono function in Unity.
@@ -760,25 +760,13 @@ const Il2CppType* Type::GetUnderlyingType (const Il2CppType *type)
 {
 	if (type->type == IL2CPP_TYPE_VALUETYPE && MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex)->enumtype && !type->byref)
 		return Class::GetEnumBaseType (MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex));
-	if (IsGenericInstance (type))
+	if (type->type == IL2CPP_TYPE_GENERICINST)
 	{
-		Il2CppClass* definition = GenericClass::GetTypeDefinition (type->data.generic_class);
+		TypeInfo* definition = GenericClass::GetTypeDefinition (type->data.generic_class);
 		if (definition != NULL && definition->enumtype && !type->byref)
 			return Class::GetEnumBaseType (definition);
 	}
 	return type;
-}
-
-bool Type::IsGenericInstance (const Il2CppType* type)
-{
-	return type->type == IL2CPP_TYPE_GENERICINST;
-}
-
-uint32_t Type::GetToken (const Il2CppType *type)
-{
-	if (IsGenericInstance (type))
-		return GenericClass::GetTypeDefinition (type->data.generic_class)->token;
-	return GetClass (type)->token;
 }
 
 bool Type::IsReference (const Il2CppType* type)
@@ -793,7 +781,7 @@ bool Type::IsReference (const Il2CppType* type)
 		type->type == IL2CPP_TYPE_ARRAY)
 		return true;
 
-	if (IsGenericInstance(type) && !GenericClass::IsValueType (type->data.generic_class))
+	if (type->type == IL2CPP_TYPE_GENERICINST && !GenericClass::IsValueType (type->data.generic_class))
 		return true;
 
 	return false;
@@ -810,7 +798,7 @@ bool Type::IsStruct (const Il2CppType* type)
 	if (type->type == IL2CPP_TYPE_TYPEDBYREF)
 		return true;
 
-	if (IsGenericInstance (type) &&
+	if (type->type == IL2CPP_TYPE_GENERICINST &&
 		GenericClass::IsValueType (type->data.generic_class) &&
 		!GenericClass::IsEnum (type->data.generic_class))
 		return true;
@@ -820,7 +808,7 @@ bool Type::IsStruct (const Il2CppType* type)
 
 bool Type::GenericInstIsValuetype (const Il2CppType* type)
 {
-	assert (IsGenericInstance (type));
+	assert (type->type == IL2CPP_TYPE_GENERICINST);
 	return GenericClass::IsValueType (type->data.generic_class);
 }
 
@@ -829,39 +817,35 @@ bool Type::IsEnum (const Il2CppType *type)
 	if (type->type != IL2CPP_TYPE_VALUETYPE)
 		return false;
 
-	Il2CppClass* klass = GetClass (type);
+	TypeInfo* klass = GetClass (type);
 	return klass->enumtype;
 }
 
 bool Type::IsValueType (const Il2CppType *type)
 {
-	Il2CppClass* klass = GetClass (type);
+	TypeInfo* klass = GetClass (type);
 	return klass->valuetype;
-}
-bool Type::IsEmptyType (const Il2CppType *type)
-{
-	return IsGenericInstance (type) && type->data.generic_class->typeDefinitionIndex == kTypeIndexInvalid;
 }
 
 bool Type::IsSystemDBNull (const Il2CppType *type)
 {
-	Il2CppClass* klass = GetClass (type);
+	TypeInfo* klass = GetClass (type);
 	return (klass->image == il2cpp_defaults.corlib && strcmp (klass->namespaze, "System") == 0 && strcmp (klass->name, "DBNull") == 0);
 }
 
 bool Type::IsSystemDateTime (const Il2CppType *type)
 {
-	Il2CppClass* klass = GetClass (type);
+	TypeInfo* klass = GetClass (type);
 	return (klass->image == il2cpp_defaults.corlib && strcmp (klass->namespaze, "System") == 0 && strcmp (klass->name, "DateTime") == 0);
 }
 
 bool Type::IsSystemDecimal (const Il2CppType *type)
 {
-	Il2CppClass* klass = GetClass (type);
+	TypeInfo* klass = GetClass (type);
 	return (klass->image == il2cpp_defaults.corlib && strcmp (klass->namespaze, "System") == 0 && strcmp (klass->name, "Decimal") == 0);
 }
 
-Il2CppClass* Type::GetClass (const Il2CppType *type)
+TypeInfo* Type::GetClass (const Il2CppType *type)
 {
 	assert (type->type == IL2CPP_TYPE_CLASS || type->type == IL2CPP_TYPE_VALUETYPE);
 	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex);
@@ -885,7 +869,7 @@ const Il2CppGenericParameter* Type::GetGenericParameter (const Il2CppType *type)
 * In that case addr will most probably not be associated with the
 * correct instantiation of the method.
 */
-void Type::ConstructDelegate (Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
+void Type::ConstructDelegate (Il2CppDelegate* delegate, Il2CppObject* target, methodPointerType addr, const MethodInfo* method)
 {
 	assert(delegate);
 

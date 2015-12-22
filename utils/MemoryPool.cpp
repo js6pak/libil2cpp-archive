@@ -2,7 +2,6 @@
 #include "utils/MemoryPool.h"
 #include "utils/Memory.h"
 #include <algorithm>
-#include <limits>
 
 namespace il2cpp
 {

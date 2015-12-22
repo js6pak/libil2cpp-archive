@@ -41,20 +41,14 @@ public:
 	
 	void QueueUserAPC (Thread::APCFunc func, void* context);
 
-	ApartmentState GetApartment();
-	ApartmentState GetExplicitApartment();
-	ApartmentState SetApartment(ApartmentState state);
-	void SetExplicitApartment(ApartmentState state);
-
 	static void Sleep (uint32_t ms, bool interruptible);
 	static uint64_t CurrentThreadId ();
 	static ThreadImpl* CreateForCurrentThread ();
 
 private:
 	HANDLE m_ThreadHandle;
-	volatile DWORD m_ThreadId;
+	DWORD m_ThreadId;
 	SIZE_T m_StackSize;
-	ApartmentState m_ApartmentState;
 };
 
 }

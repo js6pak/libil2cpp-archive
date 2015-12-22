@@ -7,7 +7,6 @@
 #include "WindowsHelpers.h"
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
-#include <limits>
 
 namespace il2cpp
 {
@@ -25,10 +24,7 @@ void* MemoryMappedFile::Map(FileHandle* file, size_t length, size_t offset)
 	if (mappedFile == NULL)
 		return NULL;
 
-	assert(offset <= std::numeric_limits<DWORD>::max());
-	assert(length <= std::numeric_limits<DWORD>::max());
-
-	void* address = MapViewOfFile(mappedFile, FILE_MAP_READ, 0, static_cast<DWORD>(offset), static_cast<DWORD>(length));
+	void* address = MapViewOfFile(mappedFile, FILE_MAP_READ, 0, offset, length);
 	if (address == NULL)
 	{
 		DWORD error = GetLastError();

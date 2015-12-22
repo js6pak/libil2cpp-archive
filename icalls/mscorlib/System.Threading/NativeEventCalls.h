@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include "object-internals.h"
-#include "il2cpp-config.h"
 
 struct Il2CppString;
 
@@ -21,7 +20,7 @@ struct MonoIOError;
 
 typedef int32_t EventWaitHandleRights;
 
-class LIBIL2CPP_CODEGEN_API NativeEventCalls
+class NativeEventCalls
 {
 public:
 	static Il2CppIntPtr CreateEvent_internal (bool manualReset, bool signaled, Il2CppString* name, bool* created);

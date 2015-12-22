@@ -28,14 +28,9 @@ const char* Property::GetName (const PropertyInfo* prop)
 	return prop->name;
 }
 
-Il2CppClass* Property::GetParent (const PropertyInfo* prop)
+TypeInfo* Property::GetParent (const PropertyInfo* prop)
 {
 	return prop->parent;
-}
-
-uint32_t Property::GetToken (const PropertyInfo* prop)
-{
-	return prop->token;
 }
 
 } /* namespace vm */

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -27,7 +26,7 @@ namespace System
 namespace Globalization
 {
 
-class LIBIL2CPP_CODEGEN_API RegionInfo
+class RegionInfo
 {
 public:
 	static bool construct_internal_region_from_name (void* /* System.Globalization.RegionInfo */ self, Il2CppString* name);

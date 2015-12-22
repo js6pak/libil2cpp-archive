@@ -1,11 +1,9 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINDOWS
 
 #include "metadata.h"
-#include "os/Mutex.h"
 #include "os/LibraryLoader.h"
-#include "vm/PlatformInvoke.h"
 #include "utils/StringUtils.h"
 
 #include <sstream>
@@ -18,53 +16,43 @@ namespace il2cpp
 namespace os
 {
 
-static std::vector<std::pair<std::wstring, HMODULE>> s_NativeDllCache;
-typedef std::vector<std::pair<std::wstring, HMODULE>>::const_iterator DllCacheIterator;
-os::FastMutex s_NativeDllCacheMutex;
+static std::unordered_map<std::string, HMODULE> s_NativeDllCache;
+typedef std::unordered_map<std::string, HMODULE>::const_iterator DllCacheIterator;
 
-void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
+void* LibraryLoader::LoadDynamicLibrary(const std::string& nativeDynamicLibrary)
 {
-	{
-		os::FastAutoLock lock(&s_NativeDllCacheMutex);
+	DllCacheIterator nativeDll = s_NativeDllCache.find(nativeDynamicLibrary);
 
-		for (DllCacheIterator it = s_NativeDllCache.begin(); it != s_NativeDllCache.end(); it++)
-		{
-			if (it->first.compare(0, std::string::npos, nativeDynamicLibrary.Str(), nativeDynamicLibrary.Length()) == 0)
-				return it->second;
-		}
-	}
+	if (nativeDll != s_NativeDllCache.end())
+		return nativeDll->second;
 
-	std::wstring dllName(nativeDynamicLibrary.Str(), nativeDynamicLibrary.Length());
-	HMODULE module = ::LoadLibraryW(dllName.c_str());
-
+	const UTF16String dynamicLibraryWide = il2cpp::utils::StringUtils::Utf8ToUtf16(nativeDynamicLibrary.c_str(), nativeDynamicLibrary.length());
+	HMODULE module = ::LoadLibraryW((LPWSTR)dynamicLibraryWide.c_str());
+	
 	if (module != NULL)
-	{
-		os::FastAutoLock lock(&s_NativeDllCacheMutex);
-		s_NativeDllCache.push_back(std::make_pair(std::move(dllName), module));
-	}
+		s_NativeDllCache.emplace(make_pair(nativeDynamicLibrary, module));
 
 	return module;
 }
 
-Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
+methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
 {
 	if (dynamicLibrary == NULL)
 		return NULL;
 
 	HMODULE module = (HMODULE)dynamicLibrary;
-	StringViewAsNullTerminatedStringOf(char, pinvokeArgs.entryPoint, entryPoint);
 
 	// If there's 'no mangle' flag set, just return directly what GetProcAddress returns
 	if (pinvokeArgs.isNoMangle)
-		return reinterpret_cast<Il2CppMethodPointer>(GetProcAddress(module, entryPoint));
+		return reinterpret_cast<methodPointerType>(GetProcAddress(module, pinvokeArgs.entryPoint));
 
 	const size_t kBufferOverhead = 10;
 	FARPROC functionPtr = NULL;
-	size_t originalFuncNameLength = strlen(entryPoint) + 1;
+	size_t originalFuncNameLength = strlen(pinvokeArgs.entryPoint) + 1;
 	std::string functionName;
 
 	functionName.resize(originalFuncNameLength + kBufferOverhead + 1);	// Let's index the string from '1', because we might have to prepend an underscore in case of stdcall mangling
-	memcpy(&functionName[1], entryPoint, originalFuncNameLength);
+	memcpy(&functionName[1], pinvokeArgs.entryPoint, originalFuncNameLength);
 	ZeroMemory(&functionName[1] + originalFuncNameLength, kBufferOverhead);
 
 	// If there's no 'dont mangle' flag set, 'W' function takes priority over original name, but 'A' function does not (yes, really)
@@ -73,16 +61,16 @@ Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, cons
 		functionName[originalFuncNameLength] = 'W';
 		functionPtr = GetProcAddress(module, functionName.c_str() + 1);
 		if (functionPtr != NULL)
-			return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
+			return reinterpret_cast<methodPointerType>(functionPtr);
 
 		// If charset specific function lookup failed, try with original name
-		functionPtr = GetProcAddress(module, entryPoint);
+		functionPtr = GetProcAddress(module, pinvokeArgs.entryPoint);
 	}
 	else
 	{
-		functionPtr = GetProcAddress(module, entryPoint);
+		functionPtr = GetProcAddress(module, pinvokeArgs.entryPoint);
 		if (functionPtr != NULL)
-			return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
+			return reinterpret_cast<methodPointerType>(functionPtr);
 
 		// If original name function lookup failed, try with mangled name
 		functionName[originalFuncNameLength] = 'A';
@@ -90,7 +78,7 @@ Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, cons
 	}
 
 	if (functionPtr != NULL)
-		return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
+		return reinterpret_cast<methodPointerType>(functionPtr);
 
 	// If it's not cdecl, try mangling the name
 	// THIS ONLY APPLIES TO 32-bit x86!
@@ -104,12 +92,7 @@ Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, cons
 	}
 #endif
 
-	return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
-}
-
-Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const char* functionName)
-{
-	return reinterpret_cast<Il2CppMethodPointer>(GetProcAddress(static_cast<HMODULE>(dynamicLibrary), functionName));
+	return reinterpret_cast<methodPointerType>(functionPtr);
 }
 
 void LibraryLoader::CleanupLoadedLibraries()

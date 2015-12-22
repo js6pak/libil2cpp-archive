@@ -41,7 +41,7 @@ Il2CppArray * MonoCustomAttrs::GetCustomAttributesInternal(Il2CppObject* obj, Il
 		return result;
 	}
 
-	Il2CppClass* attributeClass = Class::FromIl2CppType (type->type);
+	TypeInfo* attributeClass = Class::FromIl2CppType (type->type);
 	int count = 0;
 	for (int i = 0; i < cinfo->count; i++)
 	{
@@ -68,7 +68,13 @@ Il2CppArray * MonoCustomAttrs::GetCustomAttributesInternal(Il2CppObject* obj, Il
 
 bool MonoCustomAttrs::IsDefinedInternal(Il2CppObject *obj, Il2CppReflectionType *attr_type)
 {
-	return il2cpp::vm::Reflection::HasAttribute(obj, Class::FromIl2CppType(attr_type->type));
+	CustomAttributesCache *cinfo;
+
+	cinfo = il2cpp::vm::Reflection::GetCustomAttrsInfo(obj);
+	if (!cinfo)
+		return false;
+
+	return il2cpp::vm::Reflection::CustomAttrsHasAttr (cinfo, Class::FromIl2CppType (attr_type->type));
 }
 
 static Il2CppObject* CreateCustomAttributeData(Il2CppObject* attribute)

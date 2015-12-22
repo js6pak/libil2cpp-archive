@@ -18,7 +18,7 @@ namespace System
 
 Il2CppObject * Activator::CreateInstanceInternal (Il2CppReflectionType *type)
 {
-	Il2CppClass* typeInfo = vm::Class::FromIl2CppType(type->type);
+	TypeInfo* typeInfo = vm::Class::FromIl2CppType(type->type);
 
 	if (typeInfo == NULL)
 		return NULL;

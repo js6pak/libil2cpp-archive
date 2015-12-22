@@ -17,6 +17,21 @@ UNITY_PLATFORM_BEGIN_NAMESPACE;
 
 	#define ATOMIC_HAS_QUEUE	1
 
+#elif UNITY_PS3
+
+	//	The PS3 is managed explicitly here as although it defines _ARCH_PPC64 (but not __ppc__) and is a 64 bit PPC
+	//	it only uses 32-bit pointers so cannot wholly take the _ARCH_PPC64 path and cannot (yet) take the incomplete __ppc__ path
+	//	In particular, a custom PS3 implementation of AtomicList::Clear has been provided which may have general __ppc__ utility once progressed
+	#define	ATOMIC_HAS_QUEUE	1
+
+//#elif (defined (__ppc64__) || defined (_ARCH_PPC64)) && (defined (__clang__) || defined (__GNUC__))
+
+//	#define ATOMIC_HAS_QUEUE	1
+
+//#elif defined (__ppc__) && (defined (__clang__) || defined (__GNUC__))
+//
+//	#define ATOMIC_HAS_QUEUE	1
+//
 #endif
 
 class AtomicNode
