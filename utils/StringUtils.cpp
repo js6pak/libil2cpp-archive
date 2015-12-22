@@ -159,7 +159,7 @@ char* StringUtils::StringDuplicate (const char *strSource)
 	if ((result = (char*)IL2CPP_MALLOC(length)))
 #if IL2CPP_COMPILER_MSVC
 		strcpy_s(result, length, strSource);
-#elif IL2CPP_TARGET_LINUX
+#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN
 		strncpy (result, strSource, length);
 #else
 		strlcpy(result, strSource, length);

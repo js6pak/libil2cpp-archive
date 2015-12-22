@@ -38,19 +38,26 @@ public:
 	static Il2CppString* MarshalCppStringToCSharpStringResult(const char* value);
 	static Il2CppString* MarshalCppWStringToCSharpStringResult(const uint16_t* value);
 
-	static void MarshalStringArray(Il2CppArray* a, char** nativeArray);
-	static void MarshalWStringArray(Il2CppArray* a, uint16_t** nativeArray);
+	static char** MarshalAllocateNativeStringArray(size_t size);
+	static uint16_t** MarshalAllocateNativeWStringArray(size_t size);
 
-	static Il2CppArray* MarshalStringArrayResult(char** a, size_t size);
-	static Il2CppArray* MarshalWStringArrayResult(uint16_t** a, size_t size);
+	static void MarshalStringArrayOut(char** nativeArray, Il2CppArray* managedArray);
+	static void MarshalWStringArrayOut(uint16_t** nativeArray, Il2CppArray* managedArray);
+
+	static void MarshalStringArray(Il2CppArray* managedArray, char** nativeArray);
+	static void MarshalWStringArray(Il2CppArray* managedArray, uint16_t** nativeArray);
+
+	static Il2CppArray* MarshalStringArrayResult(char** nativeArray, size_t size);
+	static Il2CppArray* MarshalWStringArrayResult(uint16_t** nativeArray, size_t size);
 
 	static void MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer);
 	static void MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, uint16_t* buffer);
 
-	static void MarshalCharArray(Il2CppArray* a, char* nativeArray);
-	static Il2CppArray* MarshalCharArrayResult(char* a, size_t size);
+	static void MarshalCharArray(Il2CppArray* managedArray, char* nativeArray);
+	static Il2CppArray* MarshalCharArrayResult(char* nativeArray, size_t size);
+	static void MarshalCharArrayOut(char* nativeArray, Il2CppArray* managedArray);
 
-	static void MarshalFreeStringArray(void** a, size_t size);
+	static void MarshalFreeStringArray(void** nativeArray, size_t size);
 
 	static Il2CppIntPtr MarshalDelegate(Il2CppDelegate* d);
 	static Il2CppDelegate* MarshalFunctionPointerToDelegate(void* functionPtr, TypeInfo* delegateType);
@@ -60,26 +67,31 @@ public:
 	static bool MarshalFreeStruct(void* marshaledStructure, TypeInfo* type);
 
 	template <typename ElementType>
-	static ElementType* MarshalArray(Il2CppArray* a)
+	static ElementType* MarshalArray(Il2CppArray* managedArray)
 	{
-		if (a == NULL)
+		if (managedArray == NULL)
 			return NULL;
 
-		return (ElementType*)a->vector;
+		return (ElementType*)managedArray->vector;
 	}
 
 	template <typename ElementType>
-	static Il2CppArray* MarshalArrayResult(TypeInfo* type, ElementType* cppArray, size_t size)
+	static Il2CppArray* MarshalArrayResult(TypeInfo* type, ElementType* nativeArray, size_t size)
 	{
-		if (cppArray == NULL)
+		if (nativeArray == NULL)
 			return NULL;
 
-		Il2CppArray* array = Array::New(type, (il2cpp_array_size_t)size);
+		Il2CppArray* managedArray = Array::New(type, (il2cpp_array_size_t)size);
+		MarshalArrayOut(nativeArray, managedArray);
 
-		for (size_t i = 0; i < size; ++i)
-			il2cpp_array_setwithsize(array, sizeof(ElementType), i, cppArray[i]);
+		return managedArray;
+	}
 
-		return array;
+	template <typename ElementType>
+	static void MarshalArrayOut(ElementType* nativeArray, Il2CppArray* managedArray)
+	{
+		for (size_t i = 0; i < managedArray->max_length; ++i)
+			il2cpp_array_setwithsize(managedArray, sizeof(ElementType), i, nativeArray[i]);
 	}
 
 	template <typename T>

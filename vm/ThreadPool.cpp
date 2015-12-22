@@ -433,7 +433,7 @@ void SocketPollingThread::RunLoop ()
 					if (read (readPipe, &message, 1) == 1 &&
 						message == kMessageTerminate)
 					{
-						throw vm::Thread::TempAbortWorkaroundException ();
+						throw vm::Thread::NativeThreadAbortException ();
 					}
 					
 					continue;
@@ -523,7 +523,7 @@ static void SocketPollingThreadEntryPoint (void* data)
 	{
 		pollingThread->RunLoop ();
 	}
-	catch (Thread::TempAbortWorkaroundException)
+	catch (Thread::NativeThreadAbortException)
 	{
 		// Nothing to do. Runtime cleanup asked us to exit.
 	}
@@ -811,9 +811,16 @@ static void WorkerThreadEntryPoint (void* data)
 	{
 		compartment->WorkerThreadRunLoop ();
 	}
-	catch (Thread::TempAbortWorkaroundException)
+	catch (Thread::NativeThreadAbortException)
 	{
 		// Nothing to do. Runtime cleanup asked us to exit.
+	}
+	catch (Il2CppExceptionWrapper e)
+	{
+		// Only eat a ThreadAbortException, as it may have been thrown by the runtime
+		// when there was managed code on the stack, but that managed code exited already.
+		if (strcmp(e.ex->object.klass->name, "ThreadAbortException") != 0)
+			throw;
 	}
 
 	// Clean up.

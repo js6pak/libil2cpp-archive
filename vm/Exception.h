@@ -45,7 +45,8 @@ public:
 	static Il2CppException* GetDllNotFoundException(const char* msg);
 	static Il2CppException* GetInvalidOperationException(const char* msg);
 	static Il2CppException* GetThreadInterruptedException ();
-	static Il2CppException* GetThreadStateException ();
+	static Il2CppException* GetThreadAbortException();
+	static Il2CppException* GetThreadStateException (const char* msg);
 	static Il2CppException* GetSynchronizationLockException (const char* msg);
 	static Il2CppException* GetMissingMethodException(const char* msg);
 	static Il2CppException* GetMarshalDirectiveException(const char* msg);
