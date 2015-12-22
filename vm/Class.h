@@ -55,7 +55,9 @@ public:
 	static const PropertyInfo* GetProperties (TypeInfo *klass, void* *iter);
 	static const PropertyInfo* GetPropertyFromName (TypeInfo *klass, const char* name);
 	static int32_t GetValueSize (TypeInfo *klass, uint32_t *align);
-	static bool HasParent (const TypeInfo *klass, const TypeInfo *parent);
+	static bool HasParent (TypeInfo *klass, TypeInfo *parent);
+	// we assume that the TypeInfo's have already been initialized in this case, like in code generation
+	static bool HasParentUnsafe (const TypeInfo* klass, const TypeInfo* parent) { return klass->typeHierarchyDepth >= parent->typeHierarchyDepth && klass->typeHierarchy[parent->typeHierarchyDepth - 1] == parent; }
 	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);
 	static bool IsGeneric (const TypeInfo *klass);
 	static bool IsInflated (const TypeInfo *klass);
@@ -106,8 +108,6 @@ public:
 	static void SetupProperties (TypeInfo *klass);
 	static void SetupTypeHierarchy (TypeInfo *klass);
 	static void SetupInterfaces (TypeInfo *klass);
-
-	static inline bool HasParent (TypeInfo* klass, TypeInfo* parent) { return klass->typeHierarchyDepth >= parent->typeHierarchyDepth && klass->typeHierarchy [parent->typeHierarchyDepth - 1] == parent; }
 
 	static const std::vector<TypeInfo*>& GetStaticFieldData ();
 

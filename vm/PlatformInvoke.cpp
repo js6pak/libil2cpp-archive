@@ -142,54 +142,74 @@ Il2CppString* PlatformInvoke::MarshalCppWStringToCSharpStringResult(const uint16
 	return String::NewUtf16((uint16_t*)value, uint16_tStringLength(value));
 }
 
-void PlatformInvoke::MarshalStringArray(Il2CppArray* a, char** nativeArray)
+char** PlatformInvoke::MarshalAllocateNativeStringArray(size_t size)
 {
-	const uint32_t arraySize = Array::GetLength(a);
+	return (char**)MarshalAlloc::Allocate(size * sizeof(char*));
+}
+
+uint16_t** PlatformInvoke::MarshalAllocateNativeWStringArray(size_t size)
+{
+	return (uint16_t**)MarshalAlloc::Allocate(size * sizeof(uint16_t*));
+}
+
+void PlatformInvoke::MarshalStringArrayOut(char** nativeArray, Il2CppArray* managedArray)
+{
+	for (size_t i = 0; i < managedArray->max_length; ++i)
+		il2cpp_array_setref(managedArray, i, MarshalCppStringToCSharpStringResult(nativeArray[i]));
+}
+
+void PlatformInvoke::MarshalWStringArrayOut(uint16_t** nativeArray, Il2CppArray* managedArray)
+{
+	for (size_t i = 0; i < managedArray->max_length; ++i)
+		il2cpp_array_setref(managedArray, i, MarshalCppWStringToCSharpStringResult(nativeArray[i]));
+}
+
+void PlatformInvoke::MarshalStringArray(Il2CppArray* managedArray, char** nativeArray)
+{
+	const uint32_t arraySize = Array::GetLength(managedArray);
 
 	for (uint32_t i = 0; i < arraySize; ++i)
 	{
-		Il2CppString* managedString = il2cpp_array_get(a, Il2CppString*, i);
+		Il2CppString* managedString = il2cpp_array_get(managedArray, Il2CppString*, i);
 		nativeArray[i] = MarshalCSharpStringToCppString(managedString);
 	}
 
 	nativeArray[arraySize] = NULL;
 }
 
-void PlatformInvoke::MarshalWStringArray(Il2CppArray* a, uint16_t** nativeArray)
+void PlatformInvoke::MarshalWStringArray(Il2CppArray* managedArray, uint16_t** nativeArray)
 {
-	const uint32_t arraySize = Array::GetLength(a);
+	const uint32_t arraySize = Array::GetLength(managedArray);
 
 	for (uint32_t i = 0; i < arraySize; ++i)
 	{
-		Il2CppString* managedString = il2cpp_array_get(a, Il2CppString*, i);
+		Il2CppString* managedString = il2cpp_array_get(managedArray, Il2CppString*, i);
 		nativeArray[i] = MarshalCSharpStringToCppWString(managedString);
 	}
 
 	nativeArray[arraySize] = NULL;
 }
 
-Il2CppArray* PlatformInvoke::MarshalStringArrayResult(char** a, size_t size)
+Il2CppArray* PlatformInvoke::MarshalStringArrayResult(char** nativeArray, size_t size)
 {
-	if (a == NULL)
+	if (nativeArray == NULL)
 		return NULL;
 
-	Il2CppArray* array = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
-	for (size_t i = 0; i < size; ++i)
-		il2cpp_array_setref(array, i, MarshalCppStringToCSharpStringResult(a[i]));
+	Il2CppArray* managedArray = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
+	MarshalStringArrayOut(nativeArray, managedArray);
 
-	return array;
+	return managedArray;
 }
 
-Il2CppArray* PlatformInvoke::MarshalWStringArrayResult(uint16_t** a, size_t size)
+Il2CppArray* PlatformInvoke::MarshalWStringArrayResult(uint16_t** nativeArray, size_t size)
 {
-	if (a == NULL)
+	if (nativeArray == NULL)
 		return NULL;
 
-	Il2CppArray* array = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
-	for (size_t i = 0; i < size; ++i)
-		il2cpp_array_setref(array, i, MarshalCppWStringToCSharpStringResult(a[i]));
+	Il2CppArray* managedArray = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
+	MarshalWStringArrayOut(nativeArray, managedArray);
 
-	return array;
+	return managedArray;
 }
 
 void PlatformInvoke::MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer)
@@ -212,35 +232,40 @@ void PlatformInvoke::MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuil
 	stringBuilder->length = String::GetLength(managedString);
 }
 
-void PlatformInvoke::MarshalCharArray(Il2CppArray* a, char* nativeArray)
+void PlatformInvoke::MarshalCharArray(Il2CppArray* managedArray, char* nativeArray)
 {
-	const uint32_t size = Array::GetLength(a);
+	const uint32_t size = Array::GetLength(managedArray);
 
 	for (uint32_t i = 0; i < size; ++i)
 	{
-		uint16_t* managedElement = (uint16_t*)il2cpp_array_addr_with_size(a, sizeof(uint16_t), i);
+		uint16_t* managedElement = (uint16_t*)il2cpp_array_addr_with_size(managedArray, sizeof(uint16_t), i);
 		nativeArray[i] = (char)*managedElement;
 	}
 }
 
-Il2CppArray* PlatformInvoke::MarshalCharArrayResult(char* a, size_t size)
+Il2CppArray* PlatformInvoke::MarshalCharArrayResult(char* nativeArray, size_t size)
 {
-	if (a == NULL)
+	if (nativeArray == NULL)
 		return NULL;
 
-	Il2CppArray* array = Array::New(il2cpp_defaults.char_class, (il2cpp_array_size_t)size);
-	for (size_t i = 0; i < size; ++i)
-		il2cpp_array_set(array, uint16_t, i, a[i]);
+	Il2CppArray* managedArray = Array::New(il2cpp_defaults.char_class, (il2cpp_array_size_t)size);
+	MarshalCharArrayOut(nativeArray, managedArray);
 
-	return array;
+	return managedArray;
 }
 
-void PlatformInvoke::MarshalFreeStringArray(void** a, size_t size)
+void PlatformInvoke::MarshalCharArrayOut(char* nativeArray, Il2CppArray* managedArray)
+{
+	for (size_t i = 0; i < managedArray->max_length; ++i)
+		il2cpp_array_set(managedArray, uint16_t, i, nativeArray[i]);
+}
+
+void PlatformInvoke::MarshalFreeStringArray(void** nativeArray, size_t size)
 {
 	for (size_t i = 0; i < size; ++i)
-		MarshalAlloc::Free(a[i]);
+		MarshalAlloc::Free(nativeArray[i]);
 
-	MarshalAlloc::Free(a);
+	MarshalAlloc::Free(nativeArray);
 }
 
 Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
