@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
 
 #include "WindowsHeaders.h"
 #undef GetTempPath
@@ -8,6 +8,7 @@
 #include "os/Environment.h"
 #include "os/Path.h"
 #include "utils/StringUtils.h"
+#include "WindowsHelpers.h"
 #include <string>
 
 namespace il2cpp

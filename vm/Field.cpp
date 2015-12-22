@@ -106,21 +106,7 @@ const Il2CppType* Field::GetType (FieldInfo *field)
 
 bool Field::HasAttribute (FieldInfo *field, TypeInfo *attr_class)
 {
-	CustomAttributesCache* attrs = Reflection::GetCustomAttrsInfo (field);
-
-	if (!attrs)
-		return false;
-
-	for(int i = 0; i < attrs->count; ++i)
-	{
-		Il2CppObject* attribute = attrs->attributes[i];
-		TypeInfo *klass = Object::GetClass (attribute);
-
-		if(klass == attr_class)
-			return true;
-	}
-
-	return false;
+	return Reflection::HasAttribute(field, attr_class);
 }
 
 bool Field::IsDeleted (FieldInfo *field)

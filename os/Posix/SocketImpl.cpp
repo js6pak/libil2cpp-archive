@@ -34,7 +34,7 @@
 #include <sys/poll.h>
 #include <sys/stat.h>
 
-#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID
+#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_TIZEN
 #include <sys/sendfile.h>
 #endif
 
