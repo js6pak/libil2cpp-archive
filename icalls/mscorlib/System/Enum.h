@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppObject;
 struct Il2CppReflectionType;
 struct Il2CppEnumInfo;
@@ -14,7 +13,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API Enum
+class Enum
 {
 public:
 	static Il2CppObject* ToObject (Il2CppReflectionType* enumType, Il2CppObject* value);

@@ -1,5 +1,4 @@
 #pragma once
-#include "il2cpp-config.h"
 
 namespace il2cpp
 {
@@ -10,7 +9,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API Math
+class Math
 {
 public:
 	static double Acos (double val);

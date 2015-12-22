@@ -5,7 +5,6 @@
 #include "vm/Type.h"
 #include "metadata/FieldLayout.h"
 #include <cassert>
-#include <limits>
 
 using il2cpp::vm::Class;
 using il2cpp::vm::GenericClass;
@@ -105,7 +104,7 @@ SizeAndAlignment FieldLayout::GetTypeSizeAndAlignment (const Il2CppType* type)
 	case IL2CPP_TYPE_GENERICINST:
 	{
 		Il2CppGenericClass* gclass = type->data.generic_class;
-		Il2CppClass* container_class = GenericClass::GetTypeDefinition (gclass);
+		TypeInfo* container_class = GenericClass::GetTypeDefinition (gclass);
 
 		if (container_class != NULL && container_class->valuetype)
 		{
@@ -150,8 +149,7 @@ void FieldLayout::LayoutFields (size_t parentSize, size_t actualParentSize, size
 {
 	data.classSize = parentSize;
 	data.actualClassSize = actualParentSize;
-	assert(parentAlignment <= std::numeric_limits<uint8_t>::max());
-	data.minimumAlignment = static_cast<uint8_t>(parentAlignment);
+	data.minimumAlignment = parentAlignment;
 	for (Il2CppTypeVector::const_iterator iter = fieldTypes.begin (); iter != fieldTypes.end (); ++iter)
 	{
 		SizeAndAlignment sa = GetTypeSizeAndAlignment (*iter);

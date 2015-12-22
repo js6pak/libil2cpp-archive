@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppReflectionDynamicMethod;
 
 namespace il2cpp
@@ -16,7 +15,7 @@ namespace Reflection
 namespace Emit
 {
 
-class LIBIL2CPP_CODEGEN_API DynamicMethod
+class DynamicMethod
 {
 public:
 	static void create_dynamic_method (Il2CppReflectionDynamicMethod*, Il2CppReflectionDynamicMethod*);

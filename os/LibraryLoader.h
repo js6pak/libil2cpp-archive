@@ -1,7 +1,6 @@
 #pragma once
 
 #include "il2cpp-config.h"
-#include "utils/StringView.h"
 #include <string>
 
 struct PInvokeArguments;
@@ -14,9 +13,8 @@ namespace os
 class LibraryLoader
 {
 public:
-	static void* LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary);
-	static Il2CppMethodPointer GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs);
-	static Il2CppMethodPointer GetFunctionPointer(void* dynamicLibrary, const char* functionName);
+	static void* LoadDynamicLibrary(const std::string& nativeDynamicLibrary);
+	static methodPointerType GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs);
 	static void CleanupLoadedLibraries();
 };
 

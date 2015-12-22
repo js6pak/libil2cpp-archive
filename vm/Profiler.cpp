@@ -1,9 +1,9 @@
 #include "il2cpp-config.h"
-#include "utils/dynamic_array.h"
 #include "vm/Profiler.h"
 #include <cassert>
+#include <vector>
 
-#if IL2CPP_ENABLE_PROFILER
+using namespace std;
 
 namespace il2cpp
 {
@@ -25,7 +25,7 @@ struct ProfilerDesc
 	Il2CppProfileGCResizeFunc gcHeapResizeCallback;
 };
 
-typedef dynamic_array<ProfilerDesc*> ProfilersVec;
+typedef vector<ProfilerDesc*> ProfilersVec;
 static ProfilersVec s_profilers;
 Il2CppProfileFlags Profiler::s_profilerEvents;
 
@@ -72,7 +72,7 @@ void Profiler::InstallGC (Il2CppProfileGCFunc callback, Il2CppProfileGCResizeFun
 
 #if IL2CPP_ENABLE_PROFILER
 
-void Profiler::Allocation (Il2CppObject *obj, Il2CppClass *klass)
+void Profiler::Allocation (Il2CppObject *obj, TypeInfo *klass)
 {
 	for (ProfilersVec::const_iterator iter = s_profilers.begin (); iter != s_profilers.end (); iter++)
 	{
@@ -121,5 +121,3 @@ void Profiler::GCHeapResize (int64_t newSize)
 
 } /* namespace vm */
 } /* namespace il2cpp */
-
-#endif // IL2CPP_ENABLE_PROFILER

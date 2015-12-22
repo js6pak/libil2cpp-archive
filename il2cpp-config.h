@@ -17,6 +17,10 @@
 	#define IL2CPP_TARGET_PS4 1
 	#define _UNICODE 1
 	#define UNICODE 1
+#elif defined(_XBOX)
+	#define IL2CPP_TARGET_XBOX360 1
+	#define _UNICODE 1
+	#define UNICODE 1
 #elif defined(_XBOX_ONE)
 	#define IL2CPP_TARGET_XBOXONE 1
 	#define _UNICODE 1
@@ -42,8 +46,6 @@
 	#define IL2CPP_TARGET_ANDROID 1
 #elif defined(EMSCRIPTEN)
 	#define IL2CPP_TARGET_JAVASCRIPT 1
-#elif defined(TIZEN)
-    #define IL2CPP_TARGET_TIZEN 1
 #elif defined(__linux__)
 	#define IL2CPP_TARGET_LINUX 1
 #elif defined(NN_PLATFORM_CTR)
@@ -72,12 +74,12 @@
 #define IL2CPP_TARGET_JAVASCRIPT 0
 #endif
 
-#ifndef IL2CPP_TARGET_TIZEN
-#define IL2CPP_TARGET_TIZEN 0
-#endif
-
 #ifndef IL2CPP_TARGET_LINUX
 #define IL2CPP_TARGET_LINUX 0
+#endif
+
+#ifndef IL2CPP_TARGET_XBOX360
+#define IL2CPP_TARGET_XBOX360 0
 #endif
 
 #ifndef IL2CPP_TARGET_XBOXONE
@@ -96,7 +98,7 @@
 #define IL2CPP_TARGET_PSP2 0
 #endif
 
-#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_TIZEN)
+#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2)
 #define IL2CPP_COMPILER_MSVC (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 #define IL2CPP_PLATFORM_WIN32 (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 
@@ -114,21 +116,10 @@
 #ifdef _MSC_VER
 # include <malloc.h>
 # define IL2CPP_EXPORT __declspec(dllexport)
-# define IL2CPP_IMPORT __declspec(dllimport)
 #elif IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_PS4
 # define IL2CPP_EXPORT __declspec(dllexport)
-# define IL2CPP_IMPORT __declspec(dllimport)
 #else
 # define IL2CPP_EXPORT __attribute__ ((visibility ("default")))
-# define IL2CPP_IMPORT
-#endif
-
-#ifdef LIBIL2CPP_EXPORT_CODEGEN_API
-# define LIBIL2CPP_CODEGEN_API IL2CPP_EXPORT
-#elif LIBIL2CPP_IMPORT_CODEGEN_API
-# define LIBIL2CPP_CODEGEN_API IL2CPP_IMPORT
-#else
-# define LIBIL2CPP_CODEGEN_API
 #endif
 
 #if defined(__ARMCC_VERSION)
@@ -149,7 +140,7 @@
 #if defined(_MSC_VER)
 	#if defined(_M_X64)
 		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(_M_IX86) || defined(_M_ARM)
+	#elif defined(_M_IX86) || defined(_M_ARM) || defined(_XBOX)
 		#define IL2CPP_SIZEOF_VOID_P 4
 	#else
 		#error invalid windows architecture
@@ -186,53 +177,30 @@
 #define CDECL
 #endif
 
-#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
-#elif IL2CPP_TARGET_IOS
-#define NORETURN
-#elif IL2CPP_TARGET_DARWIN
-#define NORETURN __attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
-#if IL2CPP_TARGET_IOS
-#define REAL_NORETURN __attribute__ ((noreturn))
-#else
-#define REAL_NORETURN NORETURN
-#endif
-
-#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
 #endif
 
-#if IL2CPP_COMPILER_MSVC
-#define NOVTABLE __declspec(novtable)
-#else
-#define NOVTABLE
-#endif
-
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
 
-// We currently use ALIGN_TYPE just for types decorated with IL2CPPStructAlignment, as it's needed for WebGL to properly align UnityEngine.Color.
-// On MSVC, it causes build issues on x86 since you cannot pass aligned type by value as an argument to a function:
-// error C2719: 'value': formal parameter with requested alignment of 16 won't be aligned
-// Since this isn't actually needed for Windows, and it's not a standard .NET feature but just IL2CPP extension, let's just turn it off on Windows
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
 	#define ALIGN_OF(T) __alignof__(T)
 	#define ALIGN_TYPE(val) __attribute__((aligned(val)))
-	#define ALIGN_FIELD(val) ALIGN_TYPE(val)
 	#define FORCE_INLINE inline __attribute__ ((always_inline))
 #elif defined(_MSC_VER)
 	#define ALIGN_OF(T) __alignof(T)
-	#define ALIGN_TYPE(val)
-	#define ALIGN_FIELD(val) __declspec(align(val))
+	#define ALIGN_TYPE(val) __declspec(align(val))
 	#define FORCE_INLINE __forceinline
 #else
 	#define ALIGN_TYPE(size)
-	#define ALIGN_FIELD(size)
 	#define FORCE_INLINE inline
 #endif
 
@@ -266,11 +234,6 @@
 #error "No thread implementation defined"
 #endif
 
-/* Platform support to cleanup attached threads even when native threads are not exited cleanly */
-#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD)
-
-#define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-
 #if !defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE) && IL2CPP_TARGET_IOS
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
 #endif
@@ -278,7 +241,7 @@
 #define IL2CPP_ENABLE_STACKTRACES 1
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
-#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_TIZEN)
+#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS)
 #endif
 
 /* Platforms which use stacktrace sentries */
@@ -295,22 +258,30 @@
 #define IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS IL2CPP_TARGET_IOS
 
 /* Profiler */
-#ifndef IL2CPP_ENABLE_PROFILER
 #define IL2CPP_ENABLE_PROFILER 1
-#endif
 
 /* GC defines*/
-#define IL2CPP_GC_BOEHM 1
+#define IL2CPP_GC_BOEHM !IL2CPP_TARGET_LINUX
 #define IL2CPP_GC_NULL !IL2CPP_GC_BOEHM
 
 /* we always need to NULL pointer free memory with our current allocators */
 #define NEED_TO_ZERO_PTRFREE 1
 #define IL2CPP_HAS_GC_DESCRIPTORS 1
 
+/* compiler specific macros*/
+typedef void (*methodPointerType)();
+
 #if defined(_MSC_VER)
 	#define IL2CPP_ZERO_LEN_ARRAY 0
 #else
 	#define IL2CPP_ZERO_LEN_ARRAY 0
+#endif
+
+#if !defined (IL2CPP_TARGET_PSP2) // __SNC__ has limited support for this
+/* clang specific __has_feature check */
+#ifndef __has_feature
+  #define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
 #endif
 
 #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
@@ -321,13 +292,8 @@
 	#define __has_builtin(x) 0 // Compatibility with non-clang compilers.
 #endif
 
-#if _MSC_VER
-#define IL2CPP_UNREACHABLE __assume(0)
-#elif __has_builtin(__builtin_unreachable)
-#define IL2CPP_UNREACHABLE __builtin_unreachable()
-#else
-#define IL2CPP_UNREACHABLE
-#endif
+/* need to figure out where this goes */
+typedef int32_t il2cpp_array_size_t;
 
 typedef uint32_t Il2CppMethodSlot;
 
@@ -422,10 +388,6 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
 
-#define IL2CPP_USE_GENERIC_COM	(!IL2CPP_PLATFORM_WIN32)
-#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS	(!IL2CPP_TARGET_WINDOWS)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_PLATFORM_WIN32)
-
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 #endif
@@ -465,26 +427,3 @@ const uint64_t kIl2CppUInt64Max = UINT64_MAX;
 
 const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
-
-// Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
-// PS4/PS2: strtol_d doesn't exist
-#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2)
-
-#define NO_UNUSED_WARNING(expr) (void)(expr)
-
-typedef int32_t il2cpp_hresult_t;
-
-#define IL2CPP_S_OK ((il2cpp_hresult_t)0)
-#define IL2CPP_E_NOTIMPL ((il2cpp_hresult_t)0x80004001)
-#define IL2CPP_E_NOINTERFACE ((il2cpp_hresult_t)0x80004002)
-#define IL2CPP_E_POINTER ((il2cpp_hresult_t)0x80004003)
-#define IL2CPP_DISP_E_PARAMNOTFOUND ((il2cpp_hresult_t)0x80020004)
-#define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
-#define IL2CPP_E_INVALIDARG ((il2cpp_hresult_t)0x80070057)
-#define IL2CPP_E_UNEXPECTED ((il2cpp_hresult_t)0x8000FFFF)
-#define IL2CPP_REGDB_E_CLASSNOTREG ((il2cpp_hresult_t)0x80040154)
-
-#define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
-#define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)
-
-#include "il2cpp-api-types.h"

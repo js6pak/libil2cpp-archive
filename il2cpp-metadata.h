@@ -36,7 +36,6 @@ typedef int32_t StringLiteralIndex;
 typedef int32_t GenericInstIndex;
 typedef int32_t ImageIndex;
 typedef int32_t AssemblyIndex;
-typedef int32_t GuidIndex;
 
 const TypeIndex kTypeIndexInvalid = -1;
 const TypeDefinitionIndex kTypeDefinitionIndexInvalid = -1;
@@ -49,41 +48,20 @@ const GenericContainerIndex kGenericContainerIndexInvalid = -1;
 const GenericParameterIndex kGenericParameterIndexInvalid = -1;
 const RGCTXIndex kRGCTXIndexInvalid = -1;
 const StringLiteralIndex kStringLiteralIndexInvalid = -1;
-const GuidIndex kGuidIndexInvalid = -1;
 
 // Encoded index (1 bit)
 // MethodDef - 0
 // MethodSpec - 1
-// We use the top 3 bits to indicate what table to index into
-// Type              Binary            Hex
-// Il2CppClass          001               0x20000000
-// Il2CppType        010               0x40000000
-// MethodInfo        011               0x60000000
-// FieldInfo         100               0x80000000
-// StringLiteral     101               0xA0000000
-// MethodRef         110               0xC0000000
-
 typedef uint32_t EncodedMethodIndex;
 
-enum Il2CppMetadataUsage
+static inline bool IsGenericMethodIndex (EncodedMethodIndex index)
 {
-	kIl2CppMetadataUsageInvalid,
-	kIl2CppMetadataUsageTypeInfo,
-	kIl2CppMetadataUsageIl2CppType,
-	kIl2CppMetadataUsageMethodDef,
-	kIl2CppMetadataUsageFieldInfo,
-	kIl2CppMetadataUsageStringLiteral,
-	kIl2CppMetadataUsageMethodRef,
-};
-
-static inline Il2CppMetadataUsage GetEncodedIndexType (EncodedMethodIndex index)
-{
-	return (Il2CppMetadataUsage)((index & 0xE0000000) >> 29);
+	return (index & 0x80000000U) != 0;
 }
 
 static inline uint32_t GetDecodedMethodIndex (EncodedMethodIndex index)
 {
-	return index & 0x1FFFFFFFU;
+	return index & 0x7FFFFFFFU;
 }
 
 struct Il2CppImage;
@@ -134,10 +112,8 @@ struct Il2CppTypeDefinition
 
 	GenericContainerIndex genericContainerIndex;
 
-	MethodIndex reversePInvokeWrapperIndex;
+	MethodIndex delegateWrapperFromManagedToNativeIndex;
 	int32_t marshalingFunctionsIndex;
-	int32_t ccwFunctionIndex;
-	GuidIndex guidIndex;
 
 	uint32_t flags;
 	
@@ -165,10 +141,8 @@ struct Il2CppTypeDefinition
 	// 03 - has_finalize;
 	// 04 - has_cctor;
 	// 05 - is_blittable;
-	// 06 - is_import_or_windows_runtime;
-	// 07-10 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
+	// 06-09 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
 	uint32_t bitfield;
-	uint32_t token;
 };
 
 struct Il2CppFieldDefinition
@@ -176,7 +150,6 @@ struct Il2CppFieldDefinition
 	StringIndex nameIndex;
 	TypeIndex typeIndex;
 	CustomAttributeIndex customAttributeIndex;
-	uint32_t token;
 };
 
 struct Il2CppFieldDefaultValue
@@ -191,12 +164,6 @@ struct Il2CppFieldMarshaledSize
 	FieldIndex fieldIndex;
 	TypeIndex typeIndex;
 	int32_t size;
-};
-
-struct Il2CppFieldRef
-{
-	TypeIndex typeIndex;
-	FieldIndex fieldIndex; // local offset into type fields
 };
 
 struct Il2CppParameterDefinition
@@ -224,7 +191,7 @@ struct Il2CppMethodDefinition
 	GenericContainerIndex genericContainerIndex;
 	MethodIndex methodIndex;
 	MethodIndex invokerIndex;
-	MethodIndex reversePInvokeWrapperIndex;
+	MethodIndex delegateWrapperIndex;
 	RGCTXIndex rgctxStartIndex;
 	int32_t rgctxCount;
 	uint32_t token;
@@ -242,7 +209,6 @@ struct Il2CppEventDefinition
 	MethodIndex remove;
 	MethodIndex raise;
 	CustomAttributeIndex customAttributeIndex;
-	uint32_t token;
 };
 
 struct Il2CppPropertyDefinition
@@ -252,7 +218,6 @@ struct Il2CppPropertyDefinition
 	MethodIndex set;
 	uint32_t attrs;
 	CustomAttributeIndex customAttributeIndex;
-	uint32_t token;
 };
 
 struct Il2CppMethodSpec
@@ -307,34 +272,13 @@ struct Il2CppImageDefinition
 	uint32_t typeCount;
 
 	MethodIndex entryPointIndex;
-	uint32_t token;
 };
 
 struct Il2CppAssembly
 {
 	ImageIndex imageIndex;
 	CustomAttributeIndex customAttributeIndex;
-	int32_t referencedAssemblyStart;
-	int32_t referencedAssemblyCount;
 	Il2CppAssemblyName aname;
-};
-
-struct Il2CppMetadataUsageList
-{
-	uint32_t start;
-	uint32_t count;
-};
-
-struct Il2CppMetadataUsagePair
-{
-	uint32_t destinationIndex;
-	uint32_t encodedSourceIndex;
-};
-
-struct Il2CppCustomAttributeTypeRange
-{
-	int32_t start;
-	int32_t count;
 };
 
 #pragma pack(push, p1,4)
@@ -388,17 +332,5 @@ struct Il2CppGlobalMetadataHeader
 	int32_t imagesCount;
 	int32_t assembliesOffset; // Il2CppAssemblyDefinition
 	int32_t assembliesCount;
-	int32_t metadataUsageListsOffset; // Il2CppMetadataUsageList
-	int32_t metadataUsageListsCount;
-	int32_t metadataUsagePairsOffset; // Il2CppMetadataUsagePair
-	int32_t metadataUsagePairsCount;
-	int32_t fieldRefsOffset; // Il2CppFieldRef
-	int32_t fieldRefsCount;
-	int32_t referencedAssembliesOffset; // int32_t
-	int32_t referencedAssembliesCount;
-	int32_t attributesInfoOffset; // Il2CppCustomAttributeTypeRange
-	int32_t attributesInfoCount;
-	int32_t attributeTypesOffset; // TypeIndex
-	int32_t attributeTypesCount;
 };
 #pragma pack(pop, p1)

@@ -1,13 +1,11 @@
 ﻿#pragma once
 
-#include "il2cpp-config.h"
-
 namespace il2cpp
 {
 namespace utils
 {
 
-class LIBIL2CPP_CODEGEN_API RegisterRuntimeInitializeAndCleanup
+class RegisterRuntimeInitializeAndCleanup
 {
 public:
 	typedef void (*CallbackFunction) ();

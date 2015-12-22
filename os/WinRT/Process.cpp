@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINRT
 #include "os/Win32/WindowsHeaders.h"
 
 #include "os/Process.h"
@@ -33,12 +33,6 @@ ProcessHandle* Process::GetProcess(int processId)
 void Process::FreeProcess(ProcessHandle* handle)
 {
 	// We have nothing to do here.
-}
-
-std::string Process::GetProcessName(ProcessHandle* handle)
-{
-	NOT_SUPPORTED_IL2CPP(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
-	return std::string();
 }
 
 }

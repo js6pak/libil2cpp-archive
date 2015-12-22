@@ -5,7 +5,6 @@
 #include <io.h>
 #include "os/Win32/WindowsHeaders.h"
 #include "os/Mutex.h"
-#include "utils/Memory.h"
 #include "vm/Exception.h"
 #include "vm/Image.h"
 #include "WinRTImpl.h"
@@ -30,8 +29,7 @@ using namespace ABI::Windows::System::UserProfile;
 using namespace ABI::Windows::Storage;
 using namespace ABI::Windows::UI::Popups;
 
-typedef std::unordered_map<std::wstring, std::wstring> EnvironmentVariableMap;
-static EnvironmentVariableMap s_EnvironmentVariables;
+static std::unordered_map<std::wstring, std::wstring> s_EnvironmentVariables;
 static il2cpp::os::FastMutex s_EnvironmentVariablesMutex;
 
 inline static BOOL CopyHStringToBuffer(HString& source, LPWSTR target, LPDWORD targetSize)
@@ -54,12 +52,6 @@ inline static BOOL CopyHStringToBuffer(HString& source, LPWSTR target, LPDWORD t
 
 extern "C"
 {
-
-BOOL WINAPI FreeEnvironmentStringsW(LPWCH strings)
-{
-	IL2CPP_FREE(strings);
-	return TRUE;
-}
 
 BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize)
 {
@@ -94,48 +86,6 @@ BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize)
 	return CopyHStringToBuffer(displayName, lpBuffer, nSize);
 }
 
-LPWCH WINAPI GetEnvironmentStringsW()
-{
-	il2cpp::os::FastAutoLock lock(&s_EnvironmentVariablesMutex);
-
-	// Two iterations
-	// 1) Figure out length
-	// 2) Make result string
-	size_t length = 0;
-
-	for (EnvironmentVariableMap::const_iterator it = s_EnvironmentVariables.cbegin(); it != s_EnvironmentVariables.cend(); it++)
-	{
-		// Key + value + '=' + '\0'
-		length += it->first.length() + it->second.length() + 2;
-	}
-
-	// Terminating '\0'
-	length++;
-
-	LPWCH result = static_cast<LPWCH>(IL2CPP_MALLOC(length * sizeof(WCHAR)));
-	size_t index = 0;
-
-	for (EnvironmentVariableMap::const_iterator it = s_EnvironmentVariables.cbegin(); it != s_EnvironmentVariables.cend(); it++)
-	{
-		const size_t keyLength = it->first.length();
-		const size_t valueLength = it->second.length();
-
-		memcpy(result + index, it->first.c_str(), keyLength * sizeof(WCHAR));
-		index += keyLength;
-
-		result[index++] = L'=';
-
-		memcpy(result + index, it->second.c_str(), valueLength * sizeof(WCHAR));
-		index += valueLength;
-
-		result[index++] = '\0';
-	}
-
-	result[index++] = '\0';
-	assert(index == length);
-	return result;
-}
-
 DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSize)
 {
 	il2cpp::os::FastAutoLock lock(&s_EnvironmentVariablesMutex);
@@ -146,7 +96,7 @@ DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSiz
 	if (it == s_EnvironmentVariables.end())
 		return 0;
 
-	DWORD sizeNeeded = static_cast<DWORD>(it->second.length());
+	DWORD sizeNeeded = it->second.length();
 
 	if (nSize < sizeNeeded)
 	{
@@ -225,6 +175,11 @@ HANDLE WINAPI GetStdHandle(DWORD nStdHandle)
 	return reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(redirectedFile)));
 }
 
+BOOL WINAPI GetThreadContextWinRT(HANDLE hThread, LPCONTEXT lpContext)
+{
+	return GetThreadContext(hThread, lpContext);
+}
+
 BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer)
 {
 #define ERROR_CHECK(hr) do { if (FAILED(hr)) { SetLastError(WIN32_FROM_HRESULT(hr)); return FALSE; } } while (false)
@@ -297,19 +252,61 @@ BOOL WINAPI GetVersionExW(LPOSVERSIONINFOW lpVersionInformation)
 BOOL WINAPI SetEnvironmentVariableW(LPCWSTR lpName, LPCWSTR lpValue)
 {
 	il2cpp::os::FastAutoLock lock(&s_EnvironmentVariablesMutex);
-	
-	if (lpValue != NULL)
-	{
-		s_EnvironmentVariables[lpName] = lpValue;
-	}
-	else
-	{
-		s_EnvironmentVariables.erase(lpName);
-	}
-
+	s_EnvironmentVariables[lpName] = lpValue;
 	return TRUE;
 }
 
 } // extern "C"
+
+NORETURN void il2cpp::winrt::ThrowExceptionFromHR(HRESULT hr)
+{
+	switch (hr)
+	{
+	case E_NOTIMPL:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System", "NotImplementedException", nullptr));
+
+	case E_NOINTERFACE:
+		vm::Exception::Raise(vm::Exception::GetInvalidCastException(nullptr));
+
+	case E_POINTER:
+		vm::Exception::RaiseNullReferenceException();
+
+	case E_ABORT:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System", "OperationCanceledException", nullptr));
+
+	case E_FAIL:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", "Unspecified error"));
+
+	case E_ACCESSDENIED:
+		vm::Exception::Raise(vm::Exception::GetUnauthorizedAccessException(nullptr));
+
+	case E_OUTOFMEMORY:
+		vm::Exception::RaiseOutOfMemoryException();
+
+	case E_INVALIDARG:
+		vm::Exception::Raise(vm::Exception::GetArgumentException(nullptr, nullptr));
+
+	case E_BOUNDS:
+		vm::Exception::Raise(vm::Exception::GetIndexOutOfRangeException());
+
+	case E_CHANGED_STATE:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", "A concurrent or interleaved operation changed the state of the object, invalidating this operation."));
+
+	case REGDB_E_CLASSNOTREG:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", "Class not registered."));
+
+	case RPC_E_WRONG_THREAD:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", "The application called an interface that was marshalled for a different thread."));
+
+	case RPC_E_DISCONNECTED:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", "The object invoked has disconnected from its clients."));
+
+	case RO_E_CLOSED:
+		vm::Exception::Raise(vm::Exception::FromNameMsg(vm::Image::GetCorlib(), "System", "ObjectDisposedException", nullptr));
+
+	default:
+		vm::Exception::RaiseCOMException(hr);
+	}
+}
 
 #endif

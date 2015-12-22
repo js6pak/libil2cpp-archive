@@ -39,7 +39,7 @@ namespace Reflection
 Il2CppReflectionMethod* MonoMethod::get_base_definition(Il2CppReflectionMethod *m)
 {
 	const MethodInfo *method = m->method;
-	Il2CppClass *klass = method->declaring_type;
+	TypeInfo *klass = method->declaring_type;
 
 	if(klass == NULL)
 		return m;
@@ -50,7 +50,7 @@ Il2CppReflectionMethod* MonoMethod::get_base_definition(Il2CppReflectionMethod *
 	/*if(klass->generic_class)
 		klass = klass->generic_class->container_class;*/
 
-	for (Il2CppClass* parent = klass->parent; parent != NULL; parent = parent->parent)
+	for (TypeInfo* parent = klass->parent; parent != NULL; parent = parent->parent)
 	{
 		if (parent->vtable_count <= method->slot)
 			break;
@@ -62,7 +62,7 @@ Il2CppReflectionMethod* MonoMethod::get_base_definition(Il2CppReflectionMethod *
 
 	il2cpp::vm::Class::Init(klass);
 
-	const MethodInfo *result = klass->vtable[method->slot].method;
+	const MethodInfo *result = klass->vtable[method->slot];
 
 	if(result == NULL)
 	{
@@ -111,7 +111,7 @@ mscorlib_System_Runtime_InteropServices_DllImportAttribute * MonoMethod::GetDllI
 	//instanec on the fly and populate it with the data in the metadata. Turns out that if you call GetCustomAttributes() that ends
 	//up calling this function. For now, we will just return an attribute, but not yet populate it with the correct data.
 
-	Il2CppClass* typeInfo = Class::FromName(il2cpp_defaults.corlib, "System.Runtime.InteropServices", "DllImportAttribute");
+	TypeInfo* typeInfo = Class::FromName(il2cpp_defaults.corlib, "System.Runtime.InteropServices", "DllImportAttribute");
 	assert(typeInfo != NULL);
 
 	return (mscorlib_System_Runtime_InteropServices_DllImportAttribute*)il2cpp::vm::Object::New(typeInfo);
@@ -144,13 +144,13 @@ Il2CppArray* MonoMethod::GetGenericArguments (Il2CppReflectionMethod* method)
 
 	const Il2CppGenericContainer *container = MetadataCache::GetMethodGenericContainer (methodInfo);
 
-	count = container != NULL ? container->type_argc : 0;
+	count = container->type_argc;
 	res = Array::New (il2cpp_defaults.systemtype_class, count);
 
 	for (uint32_t i = 0; i < count; i++)
 	{
 		const Il2CppGenericParameter *param = GenericContainer::GetGenericParameter (container, i);
-		Il2CppClass *pklass = Class::FromGenericParameter (param);
+		TypeInfo *pklass = Class::FromGenericParameter (param);
 		il2cpp_array_setref (res, i, il2cpp::vm::Reflection::GetTypeObject (pklass->byval_arg));
 	}
 
@@ -188,6 +188,9 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 			}
 
 			m = Object::GetVirtualMethod(__this, m);
+			/* must pass the pointer to the value for valuetype methods */
+			if (m->declaring_type->valuetype)
+				obj = Object::Unbox(__this);
 		}
 		else
 #if IL2CPP_ENABLE_MONO_BUG_EMULATION	// Mono doesn't throw on null 'this' if it's an instance constructor, and class libs depend on this behaviour
@@ -236,7 +239,7 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 	// If a managed exception was thrown, we need raise it here because Runtime::Invoke catches the exception and returns a pointer to it.
 	Il2CppException* exception = NULL;
 
-	Il2CppObject *result = il2cpp::vm::Runtime::InvokeArray (m, obj, params, &exception);
+	Il2CppObject *result = il2cpp::vm::Runtime::InvokeArray (m, obj, params, ((Il2CppObject**)&exception));
 
 	if(exception)
 		Exception::Raise(exception);

@@ -129,7 +129,7 @@ public:
 		return kEventKindTypeLoad;
 	}
 
-	Property<Il2CppClass*> type;
+	Property<TypeInfo*> type;
 
 protected:
 	

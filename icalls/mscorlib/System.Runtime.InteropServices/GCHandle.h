@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -19,7 +18,7 @@ namespace Runtime
 namespace InteropServices
 {
 
-class LIBIL2CPP_CODEGEN_API GCHandle
+class GCHandle
 {
 public:
 	static bool CheckCurrentDomain (int32_t handle);

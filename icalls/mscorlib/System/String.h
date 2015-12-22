@@ -1,8 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
-
 struct Il2CppString;
 struct Il2CppArray;
 
@@ -15,7 +13,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API String
+class String
 {
 public:
 	static void RedirectToCreateString();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 
 struct Il2CppString;
 struct Il2CppCultureInfo;
@@ -17,7 +16,7 @@ namespace System
 namespace Globalization
 {
 
-class LIBIL2CPP_CODEGEN_API CultureInfo
+class CultureInfo
 {
 public:
 	static void construct_datetime_format(Il2CppCultureInfo* cultureInfo);

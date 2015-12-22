@@ -5,7 +5,7 @@
 #include <string>
 #include <iterator>
 
-struct Il2CppClass;
+struct TypeInfo;
 
 namespace il2cpp
 {
@@ -45,7 +45,7 @@ public:
 	void WriteFieldId(const FieldInfo *field);
 	void WritePropertyId(const PropertyInfo *prop);
 	void WriteModuleId(const Il2CppImage *image);
-	void WriteTypeId(const Il2CppClass *klass);
+	void WriteTypeId(const TypeInfo *klass);
 	void WriteDomainId(const Il2CppDomain *domain);
 	void WriteLong(uint64_t value);
 	void WriteVariant(const Variant &value);
@@ -53,7 +53,7 @@ public:
 	int32_t ReadInt();
 	uint8_t ReadByte();
 	bool ReadBool();
-	Il2CppClass *ReadType();
+	TypeInfo *ReadType();
 	Il2CppDomain *ReadDomain();
 	Il2CppObject *ReadObject();
 	Il2CppAssembly *ReadAssembly();

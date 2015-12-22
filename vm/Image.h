@@ -2,10 +2,8 @@
 
 #include <stdint.h>
 #include <string>
-#include <vector>
-#include "il2cpp-config.h"
 
-struct Il2CppClass;
+struct TypeInfo;
 struct MethodInfo;
 struct Il2CppAssembly;
 struct Il2CppDelegate;
@@ -14,14 +12,12 @@ struct Il2CppType;
 struct Il2CppGenericContext;
 struct Il2CppGenericContainer;
 struct Il2CppReflectionAssembly;
-struct Il2CppArray;
 class AssemblyVector;
 
 namespace il2cpp
 {
 namespace vm
 {
-	typedef std::vector<const Il2CppClass*> TypeVector;
 
 class TypeNameParseInfo;
 
@@ -37,7 +33,7 @@ struct EmbeddedResourceRecord
 	uint32_t size;
 };
 
-class LIBIL2CPP_CODEGEN_API Image
+class Image
 {
 // exported
 public:
@@ -51,10 +47,9 @@ public:
 	static const Il2CppImage* GetExecutingImage();
 	static const Il2CppImage* GetCallingImage();
 	static size_t GetNumTypes(const Il2CppImage* image);
-	static const Il2CppClass* GetType(const Il2CppImage* image, size_t index);
-	static Il2CppClass* FromTypeNameParseInfo (const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase);
-	static Il2CppClass* ClassFromName (const Il2CppImage* image, const char* namespaze, const char *name);
-	static void GetTypes (const Il2CppImage* image, bool exportedOnly, TypeVector* target);
+	static const TypeInfo* GetType(const Il2CppImage* image, size_t index);
+	static TypeInfo* FromTypeNameParseInfo (const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase);
+	static TypeInfo* ClassFromName (Il2CppImage* image, const char* namespaze, const char *name);
 
 	struct EmbeddedResourceData
 	{

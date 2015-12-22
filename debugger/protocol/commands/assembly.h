@@ -12,7 +12,7 @@ struct AssemblyGetTypeCommand : public CustomCommand<AssemblyGetTypeCommand>
 {
 	struct Reply : public CustomReply
 	{
-		Property<Il2CppClass*> type;
+		Property<TypeInfo*> type;
 
 		void WriteContentTo(Buffer &out) const
 		{

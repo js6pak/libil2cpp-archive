@@ -194,7 +194,7 @@ struct Modifier
 	union {
 		int count; // kModifierKindCount
 		Il2CppThread *thread; // kModifierKindThreadOnly
-		Il2CppClass *exc_class; // kModifierKindExceptionOnly
+		TypeInfo *exc_class; // kModifierKindExceptionOnly
 		Il2CppAssembly **assemblies; // kModifierKindAssemblyOnly
 	} data;
 	bool caught;

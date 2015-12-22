@@ -1,14 +1,13 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 
 namespace il2cpp
 {
 namespace vm
 {
 
-class LIBIL2CPP_CODEGEN_API Atomic
+class Atomic
 {
 public:
 	static int32_t Add(volatile int32_t* location1, int32_t value);

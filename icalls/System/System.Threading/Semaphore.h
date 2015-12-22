@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppString;
@@ -16,7 +15,7 @@ namespace System
 {
 namespace Threading
 {
-	class LIBIL2CPP_CODEGEN_API Semaphore
+	class Semaphore
 	{
 	public:
 		static Il2CppIntPtr CreateSemaphore_internal(int32_t initialCount, int32_t maximumCount, Il2CppString* name, bool* created);

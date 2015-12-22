@@ -17,7 +17,7 @@ enum GCHandleType
 	HANDLE_PINNED
 };
 
-class LIBIL2CPP_CODEGEN_API GCHandle
+class GCHandle
 {
 public:
 	// external

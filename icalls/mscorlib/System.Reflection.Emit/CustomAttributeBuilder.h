@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -29,7 +28,7 @@ namespace Reflection
 namespace Emit
 {
 
-class LIBIL2CPP_CODEGEN_API CustomAttributeBuilder
+class CustomAttributeBuilder
 {
 public:
 	static Il2CppArray* GetBlob (Il2CppAssembly* asmb, void* /* System.Reflection.ConstructorInfo */ con, Il2CppArray* constructorArgs, Il2CppArray* namedProperties, Il2CppArray* propertyValues, Il2CppArray* namedFields, Il2CppArray* fieldValues);
