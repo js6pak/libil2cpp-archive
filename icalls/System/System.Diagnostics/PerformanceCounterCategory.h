@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -29,7 +28,7 @@ namespace Diagnostics
 
 typedef int32_t PerformanceCounterCategoryType;
 
-class LIBIL2CPP_CODEGEN_API PerformanceCounterCategory
+class PerformanceCounterCategory
 {
 public:
 	static Il2CppString* CategoryHelpInternal (Il2CppString* category, Il2CppString* machine);

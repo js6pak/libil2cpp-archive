@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppArray;
 struct Il2CppReflectionSigHelper;
 
@@ -17,7 +16,7 @@ namespace Reflection
 namespace Emit
 {
 
-class LIBIL2CPP_CODEGEN_API SignatureHelper
+class SignatureHelper
 {
 public:
 	static Il2CppArray* get_signature_field (Il2CppReflectionSigHelper*);

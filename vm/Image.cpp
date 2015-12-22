@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <vector>
 #include <map>
-#include <limits>
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "utils/StringUtils.h"
@@ -73,12 +72,12 @@ const Il2CppAssembly* Image::GetAssembly (const Il2CppImage* image)
 
 typedef il2cpp::vm::StackFrames::const_reverse_iterator StackReverseIterator;
 
-static bool IsSystemType(Il2CppClass* klass)
+static bool IsSystemType(TypeInfo* klass)
 {
 	return strcmp(klass->namespaze, "System") == 0 && strcmp(klass->name, "Type") == 0;
 }
 
-static bool IsSystemReflectionAssembly(Il2CppClass* klass)
+static bool IsSystemReflectionAssembly(TypeInfo* klass)
 {
 	return strcmp(klass->namespaze, "System.Reflection") == 0 && strcmp(klass->name, "Assembly") == 0;
 }
@@ -87,7 +86,7 @@ static StackReverseIterator GetNextImageFromStack(StackReverseIterator first, St
 {
 	for (StackReverseIterator it = first; it != last; it++)
 	{
-		Il2CppClass* klass = it->method->declaring_type;
+		TypeInfo* klass = it->method->declaring_type;
 		if (klass->image != NULL && !IsSystemType(klass) && !IsSystemReflectionAssembly(klass))
 		{
 			return it;
@@ -154,7 +153,7 @@ Il2CppImage* Image::GetCorlib ()
 
 static os::FastMutex s_ClassFromNameMutex;
 
-Il2CppClass* Image::ClassFromName (const Il2CppImage* image, const char* namespaze, const char *name)
+TypeInfo* Image::ClassFromName (Il2CppImage* image, const char* namespaze, const char *name)
 {
 	if (!image->nameToClassHashTable)
 	{
@@ -162,7 +161,7 @@ Il2CppClass* Image::ClassFromName (const Il2CppImage* image, const char* namespa
 		if (!image->nameToClassHashTable)
 		{
 			image->nameToClassHashTable = new Il2CppNameToTypeDefinitionIndexHashTable ();
-			for (uint32_t index = 0; index < image->typeCount; index++)
+			for (int32_t index = 0; index < image->typeCount; index++)
 			{
 				TypeDefinitionIndex typeIndex = image->typeStart + index;
 				const Il2CppTypeDefinition* typeDefinition = MetadataCache::GetTypeDefinitionFromIndex (typeIndex);
@@ -183,32 +182,14 @@ Il2CppClass* Image::ClassFromName (const Il2CppImage* image, const char* namespa
 	return NULL;
 }
 
-void Image::GetTypes (const Il2CppImage* image, bool exportedOnly, TypeVector* target)
-{
-	size_t typeCount = Image::GetNumTypes (image);
-
-	for (size_t sourceIndex = 0; sourceIndex < typeCount; sourceIndex++)
-	{
-		const Il2CppClass* type = Image::GetType (image, sourceIndex);
-		if (strcmp (type->name, "<Module>") == 0)
-		{
-			continue;
-		}
-
-		target->push_back(type);
-	}
-}
-
 size_t Image::GetNumTypes(const Il2CppImage* image)
 {
 	return image->typeCount;
 }
 
-const Il2CppClass* Image::GetType(const Il2CppImage* image, size_t index)
+const TypeInfo* Image::GetType(const Il2CppImage* image, size_t index)
 {
-	size_t typeDefinitionIndex = image->typeStart + index;
-	assert(typeDefinitionIndex <= static_cast<size_t>(std::numeric_limits<TypeDefinitionIndex>::max()));
-	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (static_cast<TypeDefinitionIndex>(typeDefinitionIndex));
+	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image->typeStart + index);
 }
 
 static bool StringsMatch(const char* left, const char* right, bool ignoreCase)
@@ -224,11 +205,11 @@ static bool StringsMatch(const char* left, const char* right, bool ignoreCase)
 	}
 }
 
-static Il2CppClass* FindClassMatching (const Il2CppImage* image, const char* namespaze, const char *name, Il2CppClass* declaringType, bool ignoreCase)
+static TypeInfo* FindClassMatching (const Il2CppImage* image, const char* namespaze, const char *name, TypeInfo* declaringType, bool ignoreCase)
 {
-	for (uint32_t i = 0; i < image->typeCount; i++)
+	for (size_t i = 0; i < image->typeCount; i++)
 	{
-		Il2CppClass* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image->typeStart + i);
+		TypeInfo* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image->typeStart + i);
 		if (type->declaringType == declaringType && StringsMatch(namespaze, type->namespaze, ignoreCase) && StringsMatch(name, type->name, ignoreCase))
 		{
 			return type;
@@ -238,10 +219,10 @@ static Il2CppClass* FindClassMatching (const Il2CppImage* image, const char* nam
 	return NULL;
 }
 
-static Il2CppClass* FindNestedType (Il2CppClass* klass, const char* name)
+static TypeInfo* FindNestedType (TypeInfo* klass, const char* name)
 {
 	void* iter = NULL;
-	while (Il2CppClass* nestedType = Class::GetNestedTypes (klass, &iter))
+	while (TypeInfo* nestedType = Class::GetNestedTypes (klass, &iter))
 	{
 		if (!strcmp (name, nestedType->name))
 			return nestedType;
@@ -250,9 +231,9 @@ static Il2CppClass* FindNestedType (Il2CppClass* klass, const char* name)
 	return NULL;
 }
 
-Il2CppClass* Image::FromTypeNameParseInfo (const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase)
+TypeInfo* Image::FromTypeNameParseInfo (const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase)
 {
-	Il2CppClass *parent_class = FindClassMatching (image, info.ns().c_str(), info.name().c_str(), NULL, ignoreCase);
+	TypeInfo *parent_class = FindClassMatching (image, info.ns().c_str(), info.name().c_str(), NULL, ignoreCase);
 
 	if (parent_class == NULL)
 		return NULL;

@@ -71,6 +71,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='WinRT-UWP-Debug' OR '$(Configuration)'=='WinRT-UWP-Release'">
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion>10.0.10069.0</TargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -643,8 +644,7 @@
     <ClInclude Include="debugger\variant.h" />
     <ClInclude Include="externals\MonoPosixHelper.h" />
     <ClInclude Include="gc\Allocator.h" />
-    <ClInclude Include="gc\GarbageCollector.h" />
-    <ClInclude Include="gc\GarbageCollectorImpl.h" />
+    <ClInclude Include="gc\gc-internal.h" />
     <ClInclude Include="gc\GCHandle.h" />
     <ClInclude Include="gc\gc_wrapper.h" />
     <ClInclude Include="gc\WriteBarrier.h" />
@@ -745,10 +745,8 @@
     <ClInclude Include="icalls\System\System.Configuration\InternalConfigurationHost.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\DefaultTraceListener.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\FileVersionInfo.h" />
-    <ClInclude Include="icalls\System\System.Diagnostics\perfcounters-def.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounter.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounterCategory.h" />
-    <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\Process.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\Stopwatch.h" />
     <ClInclude Include="icalls\System\System.IO\FAMWatcher.h" />
@@ -759,13 +757,11 @@
     <ClInclude Include="icalls\System\System.Net.Sockets\SocketException.h" />
     <ClInclude Include="icalls\System\System.Net\Dns.h" />
     <ClInclude Include="icalls\System\System.Threading\Semaphore.h" />
-    <ClInclude Include="il2cpp-api-functions.h" />
     <ClInclude Include="il2cpp-api-types.h" />
     <ClInclude Include="il2cpp-api.h" />
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="il2cpp-debugger.h" />
     <ClInclude Include="il2cpp-metadata.h" />
-    <ClInclude Include="il2cpp-string-types.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="metadata\ArrayMetadata.h" />
     <ClInclude Include="metadata\FieldLayout.h" />
@@ -802,7 +798,6 @@
     <ClInclude Include="os\ErrorCodes.h" />
     <ClInclude Include="os\Event.h" />
     <ClInclude Include="os\File.h" />
-    <ClInclude Include="os\Generic\COM.cpp" />
     <ClInclude Include="os\Generic\SocketImpl.h" />
     <ClInclude Include="os\Handle.h" />
     <ClInclude Include="os\Image.h" />
@@ -811,7 +806,6 @@
     <ClInclude Include="os\LibraryLoader.h" />
     <ClInclude Include="os\Locale.h" />
     <ClInclude Include="os\MarshalAlloc.h" />
-    <ClInclude Include="os\MarshalStringAlloc.h" />
     <ClInclude Include="os\MemoryMappedFile.h" />
     <ClInclude Include="os\Messages.h" />
     <ClInclude Include="os\Mutex.h" />
@@ -826,7 +820,6 @@
     <ClInclude Include="os\Posix\ThreadLocalValueImpl.h" />
     <ClInclude Include="os\Posix\FileHandle.h" />
     <ClInclude Include="os\Process.h" />
-    <ClInclude Include="os\COM.h" />
     <ClInclude Include="os\Semaphore.h" />
     <ClInclude Include="os\Socket.h" />
     <ClInclude Include="os\StackTrace.h" />
@@ -855,18 +848,16 @@
     <ClInclude Include="external\zlib\zconf.h" />
     <ClInclude Include="external\zlib\zlib.h" />
     <ClInclude Include="external\zlib\zutil.h" />
-    <ClInclude Include="os\WindowsRuntime.h" />
     <ClInclude Include="os\WinRT\SynchronousOperation.h" />
     <ClInclude Include="os\WinRT\WinRTImpl.h" />
     <ClInclude Include="tabledefs.h" />
+    <ClInclude Include="types.h" />
     <ClInclude Include="utils\BlobReader.h" />
     <ClInclude Include="utils\CallOnce.h" />
     <ClInclude Include="utils\Collections.h" />
     <ClInclude Include="utils\DirectoryUtils.h" />
-    <ClInclude Include="utils\dynamic_array.h" />
     <ClInclude Include="utils\Functional.h" />
     <ClInclude Include="utils\HashUtils.h" />
-    <ClInclude Include="utils\Il2CppHStringReference.h" />
     <ClInclude Include="utils\MathUtils.h" />
     <ClInclude Include="utils\Memory.h" />
     <ClInclude Include="utils\MemoryPool.h" />
@@ -876,27 +867,19 @@
     <ClInclude Include="utils\StdUnorderedSet.h" />
     <ClInclude Include="utils\StringUtils.h" />
     <ClInclude Include="utils\PathUtils.h" />
-    <ClInclude Include="utils\StringView.h" />
-    <ClInclude Include="utils\StringViewStream.h" />
     <ClInclude Include="utils\ThreadSafeFreeList.h" />
     <ClInclude Include="utils\MemoryRead.h" />
     <ClInclude Include="utils\utf8-cpp\source\utf8\core.h" />
     <ClInclude Include="utils\utf8-cpp\source\utf8\unchecked.h" />
     <ClInclude Include="vm\Array.h" />
     <ClInclude Include="vm\Assembly.h" />
-    <ClInclude Include="vm\AssemblyName.h" />
     <ClInclude Include="vm\Atomic.h" />
-    <ClInclude Include="vm\CCW.h" />
     <ClInclude Include="vm\Class.h" />
-    <ClInclude Include="vm\COM.h" />
-    <ClInclude Include="vm\ComUtils.h" />
     <ClInclude Include="vm\Debug.h" />
     <ClInclude Include="vm\Domain.h" />
     <ClInclude Include="vm\Environment.h" />
-    <ClInclude Include="vm\Event.h" />
     <ClInclude Include="vm\Exception.h" />
     <ClInclude Include="vm\Field.h" />
-    <ClInclude Include="vm\GC.h" />
     <ClInclude Include="vm\GenericClass.h" />
     <ClInclude Include="vm\GenericContainer.h" />
     <ClInclude Include="vm\Image.h" />
@@ -911,14 +894,12 @@
     <ClInclude Include="vm\MetadataLoader.h" />
     <ClInclude Include="vm\MetadataLock.h" />
     <ClInclude Include="vm\Method.h" />
-    <ClInclude Include="vm\Module.h" />
     <ClInclude Include="vm\Monitor.h" />
     <ClInclude Include="vm\Object.h" />
     <ClInclude Include="vm\Parameter.h" />
     <ClInclude Include="vm\PlatformInvoke.h" />
     <ClInclude Include="vm\Profiler.h" />
     <ClInclude Include="vm\Property.h" />
-    <ClInclude Include="vm\RCW.h" />
     <ClInclude Include="vm\Reflection.h" />
     <ClInclude Include="vm\Runtime.h" />
     <ClInclude Include="vm\StackTrace.h" />
@@ -927,10 +908,8 @@
     <ClInclude Include="vm\ThreadPool.h" />
     <ClInclude Include="vm\Type.h" />
     <ClInclude Include="vm\WaitHandle.h" />
-    <ClInclude Include="vm\WindowsRuntime.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="char-conversions.cpp" />
     <ClCompile Include="class-internals.cpp" />
     <ClCompile Include="debugger\agent.cpp" />
     <ClCompile Include="debugger\command-line-parser.cpp" />
@@ -973,7 +952,6 @@
     <ClCompile Include="debugger\transport-tcp.cpp" />
     <ClCompile Include="debugger\variant.cpp" />
     <ClCompile Include="externals\MonoPosixHelper.cpp" />
-    <ClCompile Include="gc\GarbageCollector.cpp" />
     <ClCompile Include="gc\WriteBarrier.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Globalization.Unicode\Normalization.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Interop\ComInteropProxy.cpp" />
@@ -1071,7 +1049,6 @@
     <ClCompile Include="icalls\System\System.Diagnostics\FileVersionInfo.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounter.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounterCategory.cpp" />
-    <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\Process.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\Stopwatch.cpp" />
     <ClCompile Include="icalls\System\System.IO\FAMWatcher.cpp" />
@@ -1084,6 +1061,7 @@
     <ClCompile Include="icalls\System\System.Threading\Semaphore.cpp" />
     <ClCompile Include="il2cpp-debugger.cpp" />
     <ClCompile Include="gc\BoehmGC.cpp" />
+    <ClCompile Include="gc\gc.cpp" />
     <ClCompile Include="gc\GCHandle.cpp" />
     <ClCompile Include="gc\NullGC.cpp" />
     <ClCompile Include="il2cpp-api.cpp" />
@@ -1112,13 +1090,10 @@
     <ClCompile Include="os\Event.cpp" />
     <ClCompile Include="os\Generic\Environment.cpp" />
     <ClCompile Include="os\Generic\Initialize.cpp" />
-    <ClCompile Include="os\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Generic\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Generic\SocketImpl.cpp" />
-    <ClCompile Include="os\Generic\WindowsRuntime.cpp" />
     <ClCompile Include="os\Messages.cpp" />
     <ClCompile Include="os\OSX\Image.cpp" />
-    <ClCompile Include="os\OSX\Process.cpp" />
     <ClCompile Include="os\Path.cpp" />
     <ClCompile Include="os\Posix\Console.cpp" />
     <ClCompile Include="os\Posix\Cryptography.cpp" />
@@ -1129,14 +1104,12 @@
     <ClCompile Include="os\Posix\Encoding.cpp" />
     <ClCompile Include="os\Posix\LibraryLoader.cpp" />
     <ClCompile Include="os\Posix\MarshalAlloc.cpp" />
-    <ClCompile Include="os\Posix\Memory.cpp" />
     <ClCompile Include="os\Posix\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Posix\Path.cpp" />
     <ClCompile Include="os\Posix\PosixWaitObject.cpp" />
     <ClCompile Include="os\Posix\Process.cpp" />
     <ClCompile Include="os\Posix\SocketImpl.cpp" />
     <ClCompile Include="os\Socket.cpp" />
-    <ClCompile Include="os\Win32\COM.cpp" />
     <ClCompile Include="os\Win32\Console.cpp" />
     <ClCompile Include="os\Win32\Debug.cpp" />
     <ClCompile Include="os\Win32\Directory.cpp" />
@@ -1164,8 +1137,6 @@
     <ClCompile Include="os\ThreadLocalValue.cpp" />
     <ClCompile Include="os\Win32\EventImpl.cpp" />
     <ClCompile Include="os\Win32\MarshalAlloc.cpp" />
-    <ClCompile Include="os\Win32\MarshalStringAlloc.cpp" />
-    <ClCompile Include="os\Win32\Memory.cpp" />
     <ClCompile Include="os\Win32\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Win32\MutexImpl.cpp" />
     <ClCompile Include="os\Win32\Path.cpp" />
@@ -1190,7 +1161,6 @@
     <ClCompile Include="external\zlib\trees.c" />
     <ClCompile Include="external\zlib\uncompr.c" />
     <ClCompile Include="external\zlib\zutil.c" />
-    <ClCompile Include="os\Win32\WindowsRuntime.cpp" />
     <ClCompile Include="os\WinRT\Cryptography.cpp" />
     <ClCompile Include="os\WinRT\Environment.cpp" />
     <ClCompile Include="os\WinRT\Initialize.cpp" />
@@ -1206,15 +1176,11 @@
     <ClCompile Include="utils\PathUtils.cpp" />
     <ClCompile Include="vm\Array.cpp" />
     <ClCompile Include="vm\Assembly.cpp" />
-    <ClCompile Include="vm\AssemblyName.cpp" />
     <ClCompile Include="vm\Atomic.cpp" />
-    <ClCompile Include="vm\CCW.cpp" />
     <ClCompile Include="vm\Class.cpp" />
-    <ClCompile Include="vm\COM.cpp" />
     <ClCompile Include="vm\Debug.cpp" />
     <ClCompile Include="vm\Domain.cpp" />
     <ClCompile Include="vm\Environment.cpp" />
-    <ClCompile Include="vm\Event.cpp" />
     <ClCompile Include="vm\Exception.cpp" />
     <ClCompile Include="vm\Field.cpp" />
     <ClCompile Include="vm\GenericClass.cpp" />
@@ -1230,14 +1196,12 @@
     <ClCompile Include="vm\MetadataCache.cpp" />
     <ClCompile Include="vm\MetadataLoader.cpp" />
     <ClCompile Include="vm\Method.cpp" />
-    <ClCompile Include="vm\Module.cpp" />
     <ClCompile Include="vm\Monitor.cpp" />
     <ClCompile Include="vm\Object.cpp" />
     <ClCompile Include="vm\Parameter.cpp" />
     <ClCompile Include="vm\PlatformInvoke.cpp" />
     <ClCompile Include="vm\Profiler.cpp" />
     <ClCompile Include="vm\Property.cpp" />
-    <ClCompile Include="vm\RCW.cpp" />
     <ClCompile Include="vm\Reflection.cpp" />
     <ClCompile Include="vm\Runtime.cpp" />
     <ClCompile Include="vm\StackTrace.cpp" />
@@ -1246,7 +1210,6 @@
     <ClCompile Include="vm\ThreadPool.cpp" />
     <ClCompile Include="vm\Type.cpp" />
     <ClCompile Include="vm\WaitHandle.cpp" />
-    <ClCompile Include="vm\WindowsRuntime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="libil2cpp.def" />

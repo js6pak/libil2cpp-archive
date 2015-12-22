@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 
 struct Il2CppString;
 struct Il2CppReflectionMethod;
@@ -17,7 +16,7 @@ namespace System
 namespace Diagnostics
 {
 
-class LIBIL2CPP_CODEGEN_API StackFrame
+class StackFrame
 {
 public:
 	static bool get_frame_info (

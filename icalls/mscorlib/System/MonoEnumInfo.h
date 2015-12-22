@@ -1,5 +1,4 @@
 #pragma once
-#include "il2cpp-config.h"
 
 struct Il2CppReflectionType;
 struct Il2CppEnumInfo;
@@ -13,7 +12,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API MonoEnumInfo
+class MonoEnumInfo
 {
 public:
 	static void get_enum_info (Il2CppReflectionType* type, Il2CppEnumInfo* info);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct ParameterInfo;
 struct Il2CppObject;
 
@@ -9,7 +8,7 @@ namespace il2cpp
 namespace vm
 {
 
-class LIBIL2CPP_CODEGEN_API Parameter
+class Parameter
 {
 public:
 	// internal

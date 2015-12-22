@@ -8,11 +8,6 @@ namespace il2cpp
 namespace vm
 {
 
-#if _DEBUG
-static os::FastMutex s_Mutex; // Locking only necessary in a debug build.
-static std::map<void*, size_t> s_Allocations;
-#endif
-
 void* MarshalAlloc::Allocate(size_t size)
 {
 	void* ptr = os::MarshalAlloc::Allocate(size);
@@ -33,7 +28,7 @@ void* MarshalAlloc::ReAlloc(void* ptr, size_t size)
 	os::FastAutoLock lock(&s_Mutex);
 	if (ptr != NULL && ptr != realloced)
 	{
-		std::map<void*, size_t>::iterator found = s_Allocations.find(ptr);
+		std::map<void*, int>::iterator found = s_Allocations.find(ptr);
 		assert(found != s_Allocations.end() && "Invalid call to MarshalAlloc::ReAlloc. The pointer is not in the allocation list.");
 		s_Allocations.erase(found);
 	}
@@ -47,7 +42,7 @@ void MarshalAlloc::Free(void* ptr)
 {
 #if _DEBUG
 	os::FastAutoLock lock(&s_Mutex);
-	std::map<void*, size_t>::iterator found = s_Allocations.find(ptr);
+	std::map<void*, int>::iterator found = s_Allocations.find(ptr);
 	if (found != s_Allocations.end())	// It might not be necessarily allocated by us, e.g. we might be freeing memory that's returned from native P/Invoke call
 		s_Allocations.erase(found);
 #endif
@@ -74,6 +69,9 @@ void MarshalAlloc::FreeHGlobal (void* ptr)
 }
 
 #if _DEBUG
+
+std::map<void*, int> MarshalAlloc::s_Allocations;
+os::FastMutex MarshalAlloc::s_Mutex;
 
 bool MarshalAlloc::HasUnfreedAllocations()
 {

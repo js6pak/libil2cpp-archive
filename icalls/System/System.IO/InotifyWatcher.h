@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include "object-internals.h"
-#include "il2cpp-config.h"
 
 struct Il2CppObject;
 struct Il2CppDelegate;
@@ -29,7 +28,7 @@ namespace IO
 
 typedef int32_t InotifyMask;
 
-class LIBIL2CPP_CODEGEN_API InotifyWatcher
+class InotifyWatcher
 {
 public:
 	static Il2CppIntPtr RemoveWatch (Il2CppIntPtr fd, int32_t wd);

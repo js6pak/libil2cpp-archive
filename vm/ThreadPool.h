@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppObject;
 struct Il2CppDelegate;
 struct Il2CppAsyncResult;
@@ -10,7 +9,7 @@ namespace il2cpp
 namespace vm
 {
 
-class LIBIL2CPP_CODEGEN_API ThreadPool
+class ThreadPool
 {
 public:
 

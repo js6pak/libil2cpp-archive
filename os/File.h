@@ -21,7 +21,7 @@ struct FileStat
 	int64_t last_write_time;
 };
 
-class LIBIL2CPP_CODEGEN_API File
+class File
 {
 public:
 

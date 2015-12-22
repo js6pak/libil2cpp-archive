@@ -2,8 +2,9 @@
 
 #include <stdint.h>
 #include <vector>
-#include "il2cpp-config.h"
 #include "utils/NonCopyable.h"
+
+#include "../il2cpp-api-types.h"
 
 struct MethodInfo;
 
@@ -33,16 +34,7 @@ enum ThreadState
 };
 
 
-// System.Threading.ApartmentState
-enum ThreadApartmentState
-{
-	kThreadApartmentStateSTA = 0x00000000,
-	kThreadApartmentStateMTA = 0x00000001,
-	kThreadApartmentStateUnknown = 0x00000002
-};
-
-
-class LIBIL2CPP_CODEGEN_API Thread
+class Thread
 {
 public:
 	static char *GetName (uint32_t *len);
@@ -58,11 +50,9 @@ public:
 	static void RequestInterrupt (Il2CppThread* thread);
 	static void CheckCurrentThreadForInterruptAndThrowIfNecessary();
 
-	static void RequestAbort(Il2CppThread* thread);
-	static void CheckCurrentThreadForAbortAndThrowIfNecessary();
-	static void ResetAbort(Il2CppThread* thread);
-
-	struct NativeThreadAbortException {};
+	////WORKAROUND: A dummy exception we throw when we abort background thread. This needs to be
+	////	replaced with proper thread abortion support.
+	struct TempAbortWorkaroundException {};
 
 public:
 	// internal

@@ -30,13 +30,13 @@ Il2CppString * String::InternalAllocateStr (int length)
 }
 
 static bool
-string_icall_is_in_array (Il2CppArray *chars, int32_t arraylength, Il2CppChar chr)
+string_icall_is_in_array (Il2CppArray *chars, int32_t arraylength, uint16_t chr)
 {
-	Il2CppChar cmpchar;
+	uint16_t cmpchar;
 	int32_t arrpos;
 
 	for (arrpos = 0; arrpos != arraylength; arrpos++) {
-		cmpchar = il2cpp_array_get (chars, Il2CppChar, arrpos);
+		cmpchar = il2cpp_array_get (chars, uint16_t, arrpos);
 		if (cmpchar == chr)
 			return true;
 	}
@@ -50,18 +50,18 @@ typedef enum {
 	STRINGSPLITOPTIONS_REMOVE_EMPTY_ENTRIES = 1
 } StringSplitOptions;
 
-Il2CppArray * String::InternalSplit (Il2CppString* me, Il2CppArray* separator, int count, int options)
+Il2CppArray * String::InternalSplit (Il2CppString* me,Il2CppArray* separator,int count,int options)
 {
-	static Il2CppClass *String_array;
+	static TypeInfo *String_array;
 	Il2CppString * tmpstr;
 	Il2CppArray * retarr;
-	Il2CppChar *src;
+	uint16_t *src;
 	int32_t arrsize, srcsize, splitsize;
 	int32_t i, lastpos, arrpos;
 	int32_t tmpstrsize;
 	int32_t remempty;
 	int32_t flag;
-	Il2CppChar *tmpstrptr;
+	uint16_t *tmpstrptr;
 
 	remempty = options & STRINGSPLITOPTIONS_REMOVE_EMPTY_ENTRIES;
 	src = il2cpp::vm::String::GetChars (me);
@@ -69,7 +69,7 @@ Il2CppArray * String::InternalSplit (Il2CppString* me, Il2CppArray* separator, i
 	arrsize = il2cpp::vm::Array::GetLength (separator);
 
 	if (!String_array) {
-		Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
+		TypeInfo *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
 		//mono_memory_barrier ();
 		String_array = klass;
 	}
@@ -132,7 +132,7 @@ Il2CppArray * String::InternalSplit (Il2CppString* me, Il2CppArray* separator, i
 			tmpstr = il2cpp::vm::String::NewSize (srcsize);
 			tmpstrptr = il2cpp::vm::String::GetChars (tmpstr);
 
-			memcpy (tmpstrptr, src, srcsize * sizeof (Il2CppChar));
+			memcpy (tmpstrptr, src, srcsize * sizeof (uint16_t));
 			retarr = il2cpp::vm::Array::NewSpecific (String_array, 1);
 			il2cpp_array_setref (retarr, 0, tmpstr);
 		}
@@ -152,7 +152,7 @@ Il2CppArray * String::InternalSplit (Il2CppString* me, Il2CppArray* separator, i
 				tmpstr = il2cpp::vm::String::NewSize (tmpstrsize);
 				tmpstrptr = il2cpp::vm::String::GetChars (tmpstr);
 
-				memcpy (tmpstrptr, src + lastpos, tmpstrsize * sizeof (Il2CppChar));
+				memcpy (tmpstrptr, src + lastpos, tmpstrsize * sizeof (uint16_t));
 				il2cpp_array_setref (retarr, arrpos, tmpstr);
 				arrpos++;
 
@@ -182,7 +182,7 @@ Il2CppArray * String::InternalSplit (Il2CppString* me, Il2CppArray* separator, i
 					tmpstr = il2cpp::vm::String::NewSize (tmpstrsize);
 					tmpstrptr = il2cpp::vm::String::GetChars (tmpstr);
 
-					memcpy (tmpstrptr, src + lastpos, tmpstrsize * sizeof (Il2CppChar));
+					memcpy (tmpstrptr, src + lastpos, tmpstrsize * sizeof (uint16_t));
 					il2cpp_array_setref (retarr, arrpos, tmpstr);
 
 					/* Loop will ALWAYS end here. Test criteria in the FOR loop is technically unnecessary. */

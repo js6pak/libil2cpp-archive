@@ -35,22 +35,20 @@ bool File::Isatty(FileHandle* fileHandle)
 	return false;
 }
 
-FileHandle* File::GetStdInput ()
-{
-	return (FileHandle*)GetStdHandle (STD_INPUT_HANDLE);
-}
-
-#if !IL2CPP_TARGET_XBOXONE
 FileHandle* File::GetStdError ()
 {
 	return (FileHandle*)GetStdHandle (STD_ERROR_HANDLE);
+}
+
+FileHandle* File::GetStdInput ()
+{
+	return (FileHandle*)GetStdHandle (STD_INPUT_HANDLE);
 }
 
 FileHandle* File::GetStdOutput ()
 {
 	return (FileHandle*)GetStdHandle (STD_OUTPUT_HANDLE);
 }
-#endif
 
 bool File::CreatePipe (FileHandle** read_handle, FileHandle** write_handle)
 {
@@ -207,7 +205,6 @@ static inline int MonoToWindowsOpenMode(int monoOpenMode)
 
 	default:
 		Assert(false && "Unknown mono open mode");
-		IL2CPP_UNREACHABLE;
 	}
 }
 

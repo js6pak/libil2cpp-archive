@@ -3,17 +3,14 @@
 #include <vector>
 #include <algorithm>
 #include "icalls/mscorlib/System.Reflection/Assembly.h"
-#include "icalls/mscorlib/System.Reflection/Module.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 #include "os/File.h"
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
-#include "os/Path.h"
 #include "utils/Memory.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
-#include "vm/AssemblyName.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
@@ -24,11 +21,8 @@
 #include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Type.h"
-#include "vm/Array.h"
 #include "class-internals.h"
 #include <cassert>
-#include <limits>
-
 
 using namespace il2cpp::vm;
 
@@ -45,7 +39,7 @@ namespace Reflection
 
 Il2CppString* Assembly::get_fullname(Il2CppReflectionAssembly *assembly)
 {
-	return vm::String::New(vm::AssemblyName::AssemblyNameToString(assembly->assembly->aname).c_str());
+	return vm::String::New(vm::Assembly::AssemblyNameToString(assembly->assembly->aname).c_str());
 }
 
 Il2CppString*  Assembly::get_location(Il2CppReflectionAssembly *assembly)
@@ -92,7 +86,7 @@ Il2CppReflectionType* Assembly::InternalGetType(Il2CppReflectionAssembly *assemb
 
 	CHECK_IF_NULL (image);
 
-	Il2CppClass *klass = Image::FromTypeNameParseInfo (image, info, ignoreCase);
+	TypeInfo *klass = Image::FromTypeNameParseInfo (image, info, ignoreCase);
 
 	CHECK_IF_NULL (klass);
 
@@ -117,7 +111,7 @@ Il2CppReflectionAssembly* Assembly::load_with_partial_name(Il2CppString* name, m
 void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflection_AssemblyName * aname)
 {
 	Il2CppObject* assemblyNameObject = reinterpret_cast<Il2CppObject*>(aname);
-	Il2CppClass* assemblyNameType = assemblyNameObject->klass;
+	TypeInfo* assemblyNameType = assemblyNameObject->klass;
 	const Il2CppAssemblyName* assemblyName = &ass->assembly->aname;
 
 	// System.Reflection.AssemblyName is not protected from stripping. Since this call will be used
@@ -130,7 +124,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 		Field::SetValue(assemblyNameObject, assemblyNameField, String::New(MetadataCache::GetStringFromIndex (assemblyName->nameIndex)));
 
 	if (codebaseField != NULL)
-		Field::SetValue(assemblyNameObject, codebaseField, get_code_base(ass, false));
+		Field::SetValue(assemblyNameObject, codebaseField, String::New(utils::StringUtils::Printf("%s.dll", MetadataCache::GetStringFromIndex(assemblyName->nameIndex)).c_str()));
 
 	FieldInfo* field = Class::GetFieldFromName(assemblyNameType, "major");
 	if (field != NULL)
@@ -163,7 +157,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 	field = Class::GetFieldFromName(assemblyNameType, "cultureinfo");
 	if (field != NULL)
 	{
-		Il2CppClass* cultureInfoType = Class::FromIl2CppType(field->type);
+		TypeInfo* cultureInfoType = Class::FromIl2CppType(field->type);
 		FieldInfo* invariantCultureField = Class::GetFieldFromName(cultureInfoType, "invariant_culture_info");
 		Il2CppObject* invariantCulture = NULL;
 
@@ -200,7 +194,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 			if (assemblyName->publicKeyToken[i] != 0)
 			{
 				keyTokenManaged = Array::New(il2cpp_defaults.byte_class, kPublicKeyByteLength);
-				memcpy(il2cpp::vm::Array::GetFirstElementAddress (keyTokenManaged), assemblyName->publicKeyToken, kPublicKeyByteLength);
+				memcpy(keyTokenManaged->vector, assemblyName->publicKeyToken, kPublicKeyByteLength);
 				break;
 			}
 		}
@@ -218,7 +212,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 	field = Class::GetFieldFromName(assemblyNameType, "version");
 	if (field != NULL)
 	{
-		Il2CppClass* versionType = Class::FromIl2CppType(field->type);
+		TypeInfo* versionType = Class::FromIl2CppType(field->type);
 		Il2CppObject* version = Object::New(versionType);
 
 		FieldInfo* versionField = Class::GetFieldFromName(versionType, "_Major");
@@ -279,15 +273,30 @@ Il2CppReflectionAssembly* Assembly::GetCallingAssembly()
 
 Il2CppString* Assembly::get_code_base(Il2CppReflectionAssembly * assembly, bool escaped)
 {
-	std::string executableDirectory = utils::PathUtils::DirectoryName(os::Path::GetExecutablePath());
-	std::replace(executableDirectory.begin(), executableDirectory.end(), '\\', '/');
-	return vm::String::New(utils::StringUtils::Printf("file:///%s/%s.dll", executableDirectory.c_str(), MetadataCache::GetStringFromIndex(assembly->assembly->aname.nameIndex)).c_str());
+	return vm::String::New(MetadataCache::GetStringFromIndex (assembly->assembly->aname.nameIndex));
 }
 
 Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* __this, bool exportedOnly)
 {
 	const Il2CppImage* image = MetadataCache::GetImageFromIndex (__this->assembly->imageIndex);
-	return Module::InternalGetTypes (vm::Reflection::GetModuleObject (image));
+	size_t typeCount = Image::GetNumTypes(image);
+
+	Il2CppArray* result = Array::New(il2cpp_defaults.monotype_class, (il2cpp_array_size_t)typeCount - 1); // typeCount is one less because we're excluding <Module> type
+
+	for (size_t sourceIndex = 0, resultIndex = 0; sourceIndex < typeCount; sourceIndex++)
+	{
+		const TypeInfo* type = Image::GetType (image, sourceIndex);
+		if (strcmp (type->name, "<Module>") == 0)
+		{
+			continue;
+		}
+
+		Il2CppReflectionType* reflectionType = vm::Reflection::GetTypeObject (type->byval_arg);
+		il2cpp_array_set(result, Il2CppReflectionType*, resultIndex, reflectionType);
+		resultIndex++;
+	}
+
+	return result;
 }
 
 Il2CppString* Assembly::InternalImageRuntimeVersion (Il2CppAssembly* self)
@@ -297,9 +306,9 @@ Il2CppString* Assembly::InternalImageRuntimeVersion (Il2CppAssembly* self)
 	return 0;
 }
 
-Il2CppReflectionMethod* Assembly::get_EntryPoint (Il2CppReflectionAssembly* self)
+Il2CppReflectionMethod* Assembly::get_EntryPoint (Il2CppAssembly* self)
 {
-	const MethodInfo* method = Image::GetEntryPoint (MetadataCache::GetImageFromIndex (self->assembly->imageIndex));
+	const MethodInfo* method = Image::GetEntryPoint (MetadataCache::GetImageFromIndex (self->imageIndex));
 	if (method == NULL)
 		return NULL;
 
@@ -337,21 +346,11 @@ Il2CppArray* Assembly::GetNamespaces (Il2CppAssembly* self)
 	return 0;
 }
 
-Il2CppArray* Assembly::GetReferencedAssemblies(Il2CppReflectionAssembly* self)
+Il2CppArray* Assembly::GetReferencedAssemblies(Il2CppAssembly* self)
 {
-	vm::AssemblyNameVector referencedAssemblies;
-	vm::Assembly::GetReferencedAssemblies (self->assembly, &referencedAssemblies);
-	Il2CppArray* result = Array::New (il2cpp_defaults.assembly_name_class, (il2cpp_array_size_t)referencedAssemblies.size());
-	size_t index = 0;
-	for (vm::AssemblyNameVector::const_iterator aname = referencedAssemblies.begin (); aname != referencedAssemblies.end (); ++aname)
-	{
+	NOT_SUPPORTED_IL2CPP(Assembly::GetReferencedAssemblies, "This icall is not supported by il2cpp.");
 
-		Il2CppReflectionAssemblyName* reflectionAssemblyName = vm::Reflection::GetAssemblyNameObject (*aname);
-		il2cpp_array_set (result, Il2CppReflectionAssemblyName*, index, reflectionAssemblyName);
-		index++;
-	}
-
-	return result;
+	return 0;
 }
 
 static void* LoadResourceFile(Il2CppReflectionAssembly* assembly)
@@ -459,9 +458,8 @@ Il2CppArray* Assembly::GetManifestResourceNames (Il2CppReflectionAssembly* assem
 {
 	std::vector<EmbeddedResourceRecord> resourceRecords = GetResourceRecords(assembly);
 
-	assert(resourceRecords.size() <= static_cast<size_t>(std::numeric_limits<il2cpp_array_size_t>::max()));
-	Il2CppArray* resourceNameArray = vm::Array::New(il2cpp_defaults.string_class, static_cast<il2cpp_array_size_t>(resourceRecords.size()));
-	for (size_t i = 0; i < resourceRecords.size(); ++i)
+	Il2CppArray* resourceNameArray = vm::Array::New(il2cpp_defaults.string_class, resourceRecords.size());
+	for (int i = 0; i < resourceRecords.size(); ++i)
 		il2cpp_array_setref(resourceNameArray, i, vm::String::New(resourceRecords[i].name.c_str()));
 
 	return resourceNameArray;

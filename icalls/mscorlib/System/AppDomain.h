@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 
 struct mscorlib_System_AppDomain;
 struct mscorlib_System_AppDomainSetup;
@@ -26,7 +25,7 @@ namespace mscorlib
 namespace System
 {
 
-class LIBIL2CPP_CODEGEN_API AppDomain
+class AppDomain
 {
 public:
 	static void InternalPopDomainRef ();

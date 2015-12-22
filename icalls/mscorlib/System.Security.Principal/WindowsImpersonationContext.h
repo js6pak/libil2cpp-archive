@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -29,7 +28,7 @@ namespace Security
 namespace Principal
 {
 
-class LIBIL2CPP_CODEGEN_API WindowsImpersonationContext
+class WindowsImpersonationContext
 {
 public:
 	static bool RevertToSelf ();

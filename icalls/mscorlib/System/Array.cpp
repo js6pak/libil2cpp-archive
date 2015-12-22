@@ -26,20 +26,20 @@ namespace System
 
 void Array::ClearInternal (Il2CppArray * arr, int32_t idx, int32_t length)
 {
-	int sz = il2cpp_array_element_size (arr->klass);
+	int sz = il2cpp_array_element_size (arr->obj.klass);
 	memset (il2cpp_array_addr_with_size (arr, sz, idx), 0, length * sz);
 }
 
 Il2CppArray * Array::Clone (Il2CppArray * arr)
 {
-	Il2CppClass *typeInfo = arr->klass;
+	TypeInfo *typeInfo = arr->obj.klass;
 	const uint32_t elem_size = il2cpp::vm::Array::GetElementSize (typeInfo);
 	
 	if (arr->bounds == NULL)
 	{
 		il2cpp_array_size_t len = il2cpp::vm::Array::GetLength (arr);
 		Il2CppArray *clone = (Il2CppArray *)il2cpp::vm::Array::NewFull (typeInfo, &len, NULL);
-		memcpy(il2cpp::vm::Array::GetFirstElementAddress (clone), il2cpp::vm::Array::GetFirstElementAddress (arr), elem_size * len);
+		memcpy(&clone->vector, &arr->vector, elem_size * len);
 
 		return clone;
 	}
@@ -56,7 +56,7 @@ Il2CppArray * Array::Clone (Il2CppArray * arr)
 	}
 
 	Il2CppArray* clone = il2cpp::vm::Array::NewFull (typeInfo, &lengths[0], &lowerBounds[0]);
-	memcpy (il2cpp::vm::Array::GetFirstElementAddress (clone), il2cpp::vm::Array::GetFirstElementAddress (arr), size);
+	memcpy (&clone->vector, &arr->vector, size);
 
 	return clone;
 }
@@ -76,12 +76,12 @@ Il2CppArray * Array::CreateInstanceImpl (Il2CppReflectionType * elementType,Il2C
 	il2cpp_array_size_t* i32lengths = NULL;
 	il2cpp_array_size_t* i32bounds = NULL;
 	if(lengths != NULL)
-		i32lengths = (il2cpp_array_size_t*)il2cpp_array_addr_with_size (lengths, il2cpp_array_element_size (lengths->klass), 0);
+		i32lengths = (il2cpp_array_size_t*)il2cpp_array_addr_with_size (lengths, il2cpp_array_element_size (lengths->obj.klass), 0);
 	
 	if(bounds != NULL)
-		i32bounds = (il2cpp_array_size_t*)il2cpp_array_addr_with_size (bounds, il2cpp_array_element_size (bounds->klass), 0);
+		i32bounds = (il2cpp_array_size_t*)il2cpp_array_addr_with_size (bounds, il2cpp_array_element_size (bounds->obj.klass), 0);
 	
-	Il2CppClass* arrayType = il2cpp::vm::Class::GetArrayClassCached (il2cpp::vm::Class::FromIl2CppType (elementType->type), il2cpp::vm::Array::GetLength (lengths));
+	TypeInfo* arrayType = il2cpp::vm::Class::GetArrayClassCached (il2cpp::vm::Class::FromIl2CppType (elementType->type), il2cpp::vm::Array::GetLength (lengths));
 
 	if (arrayType == NULL)
 		vm::Exception::Raise(vm::Exception::GetInvalidOperationException(FormatCreateInstanceException(elementType->type).c_str()));
@@ -92,93 +92,103 @@ Il2CppArray * Array::CreateInstanceImpl (Il2CppReflectionType * elementType,Il2C
 bool Array::FastCopy (Il2CppArray *source, int32_t source_idx, Il2CppArray *dest, int32_t dest_idx, int32_t length)
 {
 	int element_size;
-	Il2CppClass *src_class;
-	Il2CppClass *dest_class;
+	//void * dest_addr;
+	//void * source_addr;
+	TypeInfo *src_class;
+	TypeInfo *dest_class;
 	int i;
 	
-	if (source->klass->rank != dest->klass->rank)
+	NOT_IMPLEMENTED_ICALL_NO_ASSERT (Array::FastCopy, "review against mono version");
+	if (source->obj.klass->rank != dest->obj.klass->rank)
 		return false;
 
 	if (source->bounds || dest->bounds)
 		return false;
 
-	// Our max array length is il2cpp_array_size_t, which is currently int32_t,
-	// so Array::GetLength will never return more than 2^31 - 1
-	// Therefore, casting sum to uint32_t is safe even if it overflows - it if does,
-	// the comparison will succeed and this function will return false
-	if ((static_cast<uint32_t>(dest_idx + length) > il2cpp::vm::Array::GetLength (dest)) ||
-		(static_cast<uint32_t>(source_idx + length) > il2cpp::vm::Array::GetLength (source)))
+	if (source->obj.klass->element_class->valuetype != dest->obj.klass->element_class->valuetype)
 		return false;
 
-	src_class = source->klass->element_class;
-	dest_class = dest->klass->element_class;
+	/* there's no integer overflow since mono_array_length returns an unsigned integer */
+	if ((dest_idx + length > il2cpp::vm::Array::GetLength (dest)) ||
+		(source_idx + length > il2cpp::vm::Array::GetLength (source)))
+		return false;
 
-	// object[] -> valuetype[]
+	src_class = source->obj.klass->element_class;
+	dest_class = dest->obj.klass->element_class;
+
+	/*
+	 * Handle common cases.
+	 */
+
+	/* Case1: object[] -> valuetype[] (ArrayList::ToArray) */
 	if (src_class == il2cpp_defaults.object_class && dest_class->valuetype)
 	{
+		/*
+		int has_refs = false;//dest_class->has_references;
+
 		for (i = source_idx; i < source_idx + length; ++i)
 		{
 			Il2CppObject *elem = il2cpp_array_get (source, Il2CppObject*, i);
-			if (elem && !Object::IsInst (elem, dest_class))
-				return false;
-		}
+			if (elem && !mono_object_isinst (elem, dest_class))
+				return FALSE;
+		}*/
 
-		element_size = il2cpp_array_element_size (dest->klass);
+		element_size = il2cpp_array_element_size (dest->obj.klass);
 		memset (il2cpp_array_addr_with_size (dest, element_size, dest_idx), 0, element_size * length);
 		for (i = 0; i < length; ++i)
 		{
 			Il2CppObject *elem = il2cpp_array_get (source, Il2CppObject*, source_idx + i);
-#if IL2CPP_ENABLE_MONO_BUG_EMULATION
+			void *addr = il2cpp_array_addr_with_size (dest, element_size, dest_idx + i);
 			if (!elem)
 				continue;
-#else
-			if (!elem)
-				Exception::Raise (Exception::GetInvalidCastException ("At least one element in the source array could not be cast down to the destination array type."));
-#endif
-
-			NOT_IMPLEMENTED_ICALL_NO_ASSERT(Array::FastCopy, "Need GC write barrier");
-			memcpy (il2cpp_array_addr_with_size(dest, element_size, dest_idx + i), Object::Unbox (elem), element_size);
+			/*if (has_refs)
+				mono_value_copy (addr, (char *)elem + sizeof (Il2CppObject), dest_class);
+			else*/
+				memcpy (addr, (char *)elem + sizeof (Il2CppObject), element_size);
 		}
 		return true;
 	}
 
-	if (src_class != dest_class)
-	{
-		if (Class::IsValuetype (dest_class) || Class::IsEnum (dest_class) || Class::IsValuetype (src_class) || Class::IsEnum (src_class))
-			return false;
+	/* Check if we're copying a char[] <==> (u)short[] */
+	//if (src_class != dest_class) {
+	//	if (dest_class->valuetype || dest_class->enumtype || src_class->valuetype || src_class->enumtype)
+	//		return false;
 
-		// object[] -> reftype[]
-		if (Class::IsSubclassOf(dest_class, src_class, false))
-		{
-			for (i = source_idx; i < source_idx + length; ++i)
-			{
-				Il2CppObject *elem = il2cpp_array_get (source, Il2CppObject*, i);
-				if (elem && !Object::IsInst(elem, dest_class))
-					Exception::Raise(Exception::GetInvalidCastException("At least one element in the source array could not be cast down to the destination array type."));
-			}
-		}
-		else if (!Class::IsSubclassOf(src_class, dest_class, false))
-			return false;
+	//	if (mono_class_is_subclass_of (src_class, dest_class, FALSE))
+	//		;
+	//	/* Case2: object[] -> reftype[] (ArrayList::ToArray) */
+	//	else if (mono_class_is_subclass_of (dest_class, src_class, FALSE))
+	//		for (i = source_idx; i < source_idx + length; ++i) {
+	//			MonoObject *elem = mono_array_get (source, MonoObject*, i);
+	//			if (elem && !mono_object_isinst (elem, dest_class))
+	//				return FALSE;
+	//		}
+	//	else
+	//		return FALSE;
+	//}
 
-		// derivedtype[] -> basetype[]
-		assert(Type::IsReference(src_class->byval_arg));
-		assert(Type::IsReference(dest_class->byval_arg));
-	}
-
-	assert(il2cpp_array_element_size(dest->klass) == il2cpp_array_element_size(source->klass));
-
-	NOT_IMPLEMENTED_ICALL_NO_ASSERT (Array::FastCopy, "Need GC write barrier");
-	memmove(
-		il2cpp_array_addr_with_size (dest, il2cpp_array_element_size(dest->klass), dest_idx),
-		il2cpp_array_addr_with_size (source, il2cpp_array_element_size(source->klass), source_idx),
-		length * il2cpp_array_element_size (dest->klass));
+	//if (dest_class->valuetype) {
+	//	element_size = mono_array_element_size (source->obj.vtable->klass);
+	//	source_addr = mono_array_addr_with_size (source, element_size, source_idx);
+	//	if (dest_class->has_references) {
+	//		mono_value_copy_array (dest, dest_idx, source_addr, length);
+	//	} else {
+	//		dest_addr = mono_array_addr_with_size (dest, element_size, dest_idx);
+	//		memmove (dest_addr, source_addr, element_size * length);
+	//	}
+	//} else {
+		memmove((uint8_t*)dest + sizeof(Il2CppArray) + dest_idx * il2cpp_array_element_size (dest->obj.klass),
+			(uint8_t*)source + sizeof(Il2CppArray) + source_idx * il2cpp_array_element_size (source->obj.klass),
+			length * il2cpp_array_element_size (dest->obj.klass));
+		//mono_array_memcpy_refs (dest, dest_idx, source, source_idx, length);
+	//}
 
 	return true;
 }
 
 int32_t Array::GetLength (Il2CppArray * __this,int dimension)
 {
-	int32_t rank = __this->klass->rank;
+	int32_t rank = __this->obj.klass->rank;
 	il2cpp_array_size_t length;
 
 	if ((dimension < 0) || (dimension >= rank))
@@ -198,7 +208,7 @@ int32_t Array::GetLength (Il2CppArray * __this,int dimension)
 
 int32_t Array::GetLowerBound (Il2CppArray * __this, int32_t dimension)
 {
-	int32_t rank = __this->klass->rank;
+	int32_t rank = __this->obj.klass->rank;
 
 	if ((dimension < 0) || (dimension >= rank))
 		Exception::Raise (Exception::GetIndexOutOfRangeException ());
@@ -211,28 +221,28 @@ int32_t Array::GetLowerBound (Il2CppArray * __this, int32_t dimension)
 
 int Array::GetRank (Il2CppArray * arr)
 {
-	return arr->klass->rank;
+	return arr->obj.klass->rank;
 }
 
 Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
 {
-	Il2CppClass *ac, *ic;
+	TypeInfo *ac, *ic;
 	Il2CppArray *ao, *io;
 	int32_t i, pos, *ind;
 
 	IL2CPP_CHECK_ARG_NULL (indices);
 
 	io = (Il2CppArray *)indices;
-	ic = (Il2CppClass *)io->klass;
+	ic = (TypeInfo *)io->obj.klass;
 	
 	ao = (Il2CppArray *)__this;
-	ac = (Il2CppClass *)ao->klass;
+	ac = (TypeInfo *)ao->obj.klass;
 
 	assert (ic->rank == 1);
 	if (io->bounds != NULL || io->max_length !=  ac->rank)
 		Exception::Raise (Exception::GetArgumentException (NULL, NULL));
 
-	ind = (int32_t *)il2cpp::vm::Array::GetFirstElementAddress (io);
+	ind = (int32_t *)io->vector;
 
 	if (ao->bounds == NULL)
 	{
@@ -256,7 +266,7 @@ Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
 
 Il2CppObject * Array::GetValueImpl (Il2CppArray * __this, int32_t pos)
 {
-	Il2CppClass* typeInfo = __this->klass;
+	TypeInfo* typeInfo = __this->obj.klass;
 	void **ea;
 
 	ea = (void**)load_array_elema(__this, pos, typeInfo->element_size);
@@ -269,19 +279,19 @@ Il2CppObject * Array::GetValueImpl (Il2CppArray * __this, int32_t pos)
 
 void Array::SetValue (Il2CppArray * __this, Il2CppObject* value, Il2CppArray* idxs)
 {
-	Il2CppClass *ac, *ic;
+	TypeInfo *ac, *ic;
 	int32_t i, pos, *ind;
 
 	IL2CPP_CHECK_ARG_NULL (idxs);
 
-	ic = idxs->klass;
-	ac = __this->klass;
+	ic = idxs->obj.klass;
+	ac = __this->obj.klass;
 
 	assert (ic->rank == 1);
 	if (idxs->bounds != NULL || idxs->max_length != ac->rank)
 		Exception::Raise (Exception::GetArgumentException (NULL, NULL));
 
-	ind = (int32_t *)il2cpp::vm::Array::GetFirstElementAddress (idxs);
+	ind = (int32_t *)idxs->vector;
 
 	if (__this->bounds == NULL)
 	{
@@ -310,7 +320,7 @@ static void ThrowNoWidening ()
 	Exception::Raise (Exception::GetArgumentException ("value", "not a widening conversion"));
 }
 
-static void ThrowInvalidCast (const Il2CppClass* a, const Il2CppClass* b)
+static void ThrowInvalidCast (const TypeInfo* a, const TypeInfo* b)
 {
 	Exception::Raise (Exception::GetInvalidCastException (Exception::FormatInvalidCastException (b, a).c_str ()));
 }
@@ -331,8 +341,6 @@ WidenedValueUnion ExtractWidenedValue (Il2CppTypeEnum type, void* value)
 			extractedValue.u64 = *(uint8_t *)value;
 			break;
 		case IL2CPP_TYPE_CHAR:
-			extractedValue.u64 = *(Il2CppChar*)value;
-			break;
 		case IL2CPP_TYPE_U2:
 			extractedValue.u64 = *(uint16_t *)value;
 			break;
@@ -466,33 +474,17 @@ static void AssignReal (WidenedValueUnion value, void* elementAddress, Il2CppTyp
 	}
 }
 
-static void NullableInit(uint8_t* buf, Il2CppObject* value, Il2CppClass* klass)
-{
-	Il2CppClass *parameterClass = klass->castClass;
-
-	assert(Class::FromIl2CppType(klass->fields[0].type) == parameterClass);
-	assert(Class::FromIl2CppType(klass->fields[1].type) == il2cpp_defaults.boolean_class);
-
-	*(uint8_t*)(buf + klass->fields[1].offset - sizeof(Il2CppObject)) = value ? 1 : 0;
-	if (value)
-		memcpy(buf + klass->fields[0].offset - sizeof(Il2CppObject), Object::Unbox(value), Class::GetValueSize(parameterClass, NULL));
-	else
-		memset(buf + klass->fields[0].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
-}
-
-
 void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 {
-	Il2CppClass* typeInfo = __this->klass;
-	Il2CppClass* elementClass = Class::GetElementClass (typeInfo);
+	TypeInfo* typeInfo = __this->obj.klass;
+	TypeInfo* elementClass = Class::GetElementClass (typeInfo);
 
 	int elementSize = Class::GetArrayElementSize (elementClass);
 	void* elementAddress = il2cpp_array_addr_with_size (__this, elementSize, index);
 
 	if (Class::IsNullable (elementClass))
 	{
-		NullableInit((uint8_t*)elementAddress, value, elementClass);
-		return;
+		NOT_IMPLEMENTED_ICALL (Array::SetValueImpl);
 	}
 
 	if (value == NULL)
@@ -504,7 +496,7 @@ void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 	if (!Class::IsValuetype (elementClass))
 	{
 		if (!Object::IsInst (value, elementClass))
-			Exception::Raise (Exception::GetInvalidCastException (Exception::FormatInvalidCastException (__this->klass->element_class, value->klass).c_str ()));
+			Exception::Raise (Exception::GetInvalidCastException (Exception::FormatInvalidCastException (__this->obj.klass->element_class, value->klass).c_str ()));
 		il2cpp_array_setref (__this, index, value);
 		return;
 	}
@@ -516,7 +508,7 @@ void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 		return;
 	}
 
-	Il2CppClass* valueClass = Object::GetClass (value);
+	TypeInfo* valueClass = Object::GetClass (value);
 
 	if (!Class::IsValuetype (valueClass))
 		ThrowInvalidCast (elementClass, valueClass);
@@ -557,8 +549,6 @@ void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 		AssignUnsigned<uint8_t> (widenedValue, elementAddress, valueType, elementSize, valueSize);
 		break;
 	case IL2CPP_TYPE_CHAR:
-		AssignUnsigned<Il2CppChar>(widenedValue, elementAddress, valueType, elementSize, valueSize);
-		break;
 	case IL2CPP_TYPE_U2:
 		AssignUnsigned<uint16_t> (widenedValue, elementAddress, valueType, elementSize, valueSize);
 		break;

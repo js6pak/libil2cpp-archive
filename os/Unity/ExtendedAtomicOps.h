@@ -110,16 +110,17 @@ enum memory_order_seq_cst_t	{ memory_order_seq_cst = 5 };
 #	include "ExtendedAtomicOps-arm64.h"
 #	define UNITY_ATOMIC_INT_OVERLOAD
 
-#elif IL2CPP_TARGET_TIZEN
-#   include "os/Tizen/ExtendedAtomicOps.h"
-
-#elif defined (_M_ARM) || (defined (__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (!UNITY_STV_API) && (!IL2CPP_TARGET_TIZEN) && (defined (__clang__) || defined (__GNUC__)))
+#elif defined (_M_ARM) || (defined (__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (!UNITY_STV_API) && (defined (__clang__) || defined (__GNUC__)))
 
 #	include "ExtendedAtomicOps-arm.h"
 
-#elif UNITY_WIIU
+#elif UNITY_PS3 || UNITY_WIIU
 
 #	include "ExtendedAtomicOps-ppc.h"
+
+#elif UNITY_XENON
+
+#	include "PlatformDependent/Xbox360/Source/Threads/ExtendedAtomicOps-xenon.h"
 
 #elif UNITY_PSP2
 
@@ -133,6 +134,7 @@ enum memory_order_seq_cst_t	{ memory_order_seq_cst = 5 };
 //#elif defined (__ppc__) && (defined (__clang__) || defined (__GNUC__))
 
 //#	include "Runtime/Threads/ExtendedAtomicOps-ppc.h"
+
 #else
 
     #define UNITY_NO_ATOMIC_OPS
@@ -202,12 +204,12 @@ enum memory_order_seq_cst_t	{ memory_order_seq_cst = 5 };
 
     static inline int atomic_fetch_add (volatile int *p, int val)
     {
-        return static_cast<int>(atomic_fetch_add_explicit (p, val, memory_order_seq_cst));
+        return atomic_fetch_add_explicit (p, val, memory_order_seq_cst);
     }
 
     static inline int atomic_fetch_sub (volatile int *p, int val)
     {
-        return static_cast<int>(atomic_fetch_sub_explicit (p, val, memory_order_seq_cst));
+        return atomic_fetch_sub_explicit (p, val, memory_order_seq_cst);
     }
 
 #endif

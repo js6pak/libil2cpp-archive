@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppString;
 struct mscorlib_System_Reflection_Emit_AssemblyBuilder;
 struct mscorlib_System_Reflection_Module;
@@ -18,7 +17,7 @@ namespace Reflection
 namespace Emit
 {
 
-class LIBIL2CPP_CODEGEN_API AssemblyBuilder
+class AssemblyBuilder
 {
 public:
 	static void basic_init (mscorlib_System_Reflection_Emit_AssemblyBuilder* );

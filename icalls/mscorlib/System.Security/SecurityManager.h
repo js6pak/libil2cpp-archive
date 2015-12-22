@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct mscorlib_System_Reflection_MethodBase;
@@ -17,7 +16,7 @@ namespace System
 namespace Security
 {
 
-class LIBIL2CPP_CODEGEN_API SecurityManager
+class SecurityManager
 {
 public:
 	static bool get_CheckExecutionRights ();

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "il2cpp-config.h"
 struct Il2CppReflectionProperty;
 struct Il2CppPropertyInfo;
 struct Il2CppArray;
@@ -25,7 +24,7 @@ typedef enum {
 	PInfo_Name = 1 << 5
 } PInfo;
 
-class LIBIL2CPP_CODEGEN_API MonoPropertyInfo
+class MonoPropertyInfo
 {
 public:
 	static Il2CppArray* GetTypeModifiers (void* /* System.Reflection.MonoProperty */ prop, bool optional);
