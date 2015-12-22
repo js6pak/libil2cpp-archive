@@ -8,7 +8,7 @@
 #include <map>
 #include <pthread.h>
 
-#if IL2CPP_TARGET_LINUX
+#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN
 #include <sys/prctl.h>
 #endif
 
@@ -121,7 +121,7 @@ void ThreadImpl::SetName (const std::string& name)
 	
 #if IL2CPP_TARGET_DARWIN
 	pthread_setname_np (name.c_str ());
-#elif IL2CPP_TARGET_LINUX || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
+#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
 	pthread_setname_np (m_Handle, name.c_str ());
 #endif
 
@@ -227,6 +227,53 @@ ThreadImpl* ThreadImpl::CreateForCurrentThread ()
 	thread->m_Handle = pthread_self ();
 	return thread;
 }
+
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+
+static pthread_key_t s_CleanupKey;
+static Thread::ThreadCleanupFunc s_CleanupFunc;
+
+static void CleanupThreadIfCanceled (void* arg)
+{
+	if (s_CleanupFunc)
+		s_CleanupFunc (arg);
+}
+
+void ThreadImpl::SetNativeThreadCleanup (Thread::ThreadCleanupFunc cleanupFunction)
+{
+	if (cleanupFunction)
+	{
+		assert (!s_CleanupFunc);
+		s_CleanupFunc = cleanupFunction;
+		int result = pthread_key_create(&s_CleanupKey, &CleanupThreadIfCanceled);
+		assert (!result);
+		((void)result); // Avoid a warning in release builds
+	}
+	else
+	{
+		assert (s_CleanupFunc);
+		int result = pthread_key_delete (s_CleanupKey);
+		assert (!result);
+		((void)result); // Avoid a warning in release builds
+		s_CleanupFunc = NULL;
+	}
+}
+
+void ThreadImpl::RegisterCurrentThreadForCleanup (void* arg)
+{
+	assert (s_CleanupFunc);
+	pthread_setspecific (s_CleanupKey, arg);
+}
+
+void ThreadImpl::UnregisterCurrentThreadForCleanup ()
+{
+	assert (s_CleanupFunc);
+	void* data = pthread_getspecific(s_CleanupKey);
+	if (data != NULL)
+		pthread_setspecific (s_CleanupKey, NULL);
+}
+
+#endif
 
 }
 }

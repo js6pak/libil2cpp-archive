@@ -90,7 +90,6 @@ struct Il2CppMetadataCache
 static Il2CppMetadataCache s_MetadataCache;
 static TypeInfo** s_TypeInfoTable = NULL;
 static TypeInfo** s_TypeInfoDefinitionTable = NULL;
-static const MethodInfo** s_MethodInfoTable = NULL;
 static const MethodInfo** s_MethodInfoDefinitionTable = NULL;
 static Il2CppString** s_StringLiteralTable = NULL;
 static const Il2CppGenericMethod** s_GenericMethodTable = NULL;
@@ -121,6 +120,7 @@ static Il2CppMethodTableMap s_MethodTableMap;
 static const Il2CppCodeRegistration * s_Il2CppCodeRegistration;
 static const Il2CppMetadataRegistration * s_Il2CppMetadataRegistration;
 static CustomAttributesCache** s_CustomAttributesCaches;
+static CustomAttributeTypeCache** s_CustomAttributeTypeCaches;
 
 void MetadataCache::Register (const Il2CppCodeRegistration* const codeRegistration, const Il2CppMetadataRegistration* const metadataRegistration)
 {
@@ -143,7 +143,7 @@ void MetadataCache::Initialize()
 	s_GlobalMetadata = vm::MetadataLoader::LoadMetadataFile ("global-metadata.dat");
 	s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
 	assert (s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-	assert (s_GlobalMetadataHeader->version == 16);
+	assert (s_GlobalMetadataHeader->version == 18);
 
 	const Il2CppAssembly* assemblies = (const Il2CppAssembly*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->assembliesOffset);
 	for (uint32_t i = 0; i < s_GlobalMetadataHeader->assembliesCount / sizeof(Il2CppAssembly); i++)
@@ -155,7 +155,6 @@ void MetadataCache::Initialize()
 	// in the converted metadata, giving a description of runtime metadata to construct.
 	s_TypeInfoTable = (TypeInfo**)IL2CPP_CALLOC (s_Il2CppMetadataRegistration->typesCount, sizeof (TypeInfo*));
 	s_TypeInfoDefinitionTable = (TypeInfo**)IL2CPP_CALLOC (s_GlobalMetadataHeader->typeDefinitionsCount / sizeof (Il2CppTypeDefinition), sizeof (TypeInfo*));
-	s_MethodInfoTable = (const MethodInfo**)IL2CPP_CALLOC (s_Il2CppMetadataRegistration->methodReferencesCount, sizeof (MethodInfo*));
 	s_MethodInfoDefinitionTable = (const MethodInfo**)IL2CPP_CALLOC (s_GlobalMetadataHeader->methodsCount / sizeof (Il2CppMethodDefinition), sizeof (MethodInfo*));
 	s_GenericMethodTable = (const Il2CppGenericMethod**)IL2CPP_CALLOC (s_Il2CppMetadataRegistration->methodSpecsCount, sizeof (Il2CppGenericMethod*));
 	s_ImagesCount = s_GlobalMetadataHeader->imagesCount / sizeof (Il2CppImageDefinition);
@@ -509,18 +508,10 @@ const MethodInfo* MetadataCache::GetMethodInfoFromIndex (EncodedMethodIndex meth
 	if (index == 0)
 		return NULL;
 
-	assert (index < s_Il2CppMetadataRegistration->methodReferencesCount && "Invalid method index ");
-
-	if (s_MethodInfoTable[index])
-		return s_MethodInfoTable[index];
-
-	assert (index < s_Il2CppMetadataRegistration->methodReferencesCount);
-	if (IsGenericMethodIndex (methodIndex))
-		s_MethodInfoTable[index] = GenericMethod::GetMethod (GetGenericMethodFromIndex (s_Il2CppMetadataRegistration->methodReferences[index]));
+	if (GetEncodedIndexType (methodIndex) == kIl2CppMetadataUsageMethodRef)
+		return GenericMethod::GetMethod (GetGenericMethodFromIndex (index));
 	else
-		s_MethodInfoTable[index] = MetadataCache::GetMethodInfoFromMethodDefinitionIndex (s_Il2CppMetadataRegistration->methodReferences[index]);
-
-	return s_MethodInfoTable[index];
+		return MetadataCache::GetMethodInfoFromMethodDefinitionIndex (index);
 }
 
 const Il2CppGenericMethod* MetadataCache::GetGenericMethodFromIndex (GenericMethodIndex index)
@@ -997,9 +988,41 @@ static OnceFlag s_CustomAttributesOnceFlag;
 static void InitializeCustomAttributesCaches (void* arg)
 {
 	s_CustomAttributesCaches = (CustomAttributesCache**)IL2CPP_CALLOC (s_Il2CppCodeRegistration->customAttributeCount, sizeof (CustomAttributesCache*));
+	s_CustomAttributeTypeCaches = (CustomAttributeTypeCache**)IL2CPP_CALLOC(s_Il2CppCodeRegistration->customAttributeCount, sizeof(CustomAttributeTypeCache*));
 }
 
 CustomAttributesCache* MetadataCache::GenerateCustomAttributesCache (CustomAttributeIndex index)
+{
+	if (index == 0)
+		return NULL;
+
+	assert(index <= s_Il2CppCodeRegistration->customAttributeCount);
+
+	CallOnce(s_CustomAttributesOnceFlag, &InitializeCustomAttributesCaches, NULL);
+
+	// use atomics rather than a Mutex here to avoid deadlock. The attribute generators call arbitrary managed code
+	CustomAttributesCache* cache = Atomic::ReadPointer(&s_CustomAttributesCaches[index]);
+	if (cache == NULL)
+	{
+		cache = (CustomAttributesCache*)IL2CPP_CALLOC(1, sizeof(CustomAttributesCache));
+		s_Il2CppCodeRegistration->customAttributeGenerators[index](cache, NULL);
+
+		CustomAttributesCache* original = Atomic::CompareExchangePointer(&s_CustomAttributesCaches[index], cache, (CustomAttributesCache*)NULL);
+		if (original)
+		{
+			// A non-NULL return value indicates some other thread already generated this cache.
+			// We need to cleanup the resources we allocated
+			il2cpp_gc_free_fixed(cache->attributes);
+			IL2CPP_FREE(cache);
+
+			cache = original;
+		}
+	}
+
+	return cache;
+}
+
+CustomAttributeTypeCache* MetadataCache::GenerateCustomAttributeTypeCache (CustomAttributeIndex index)
 {
 	if (index == 0)
 		return NULL;
@@ -1009,18 +1032,18 @@ CustomAttributesCache* MetadataCache::GenerateCustomAttributesCache (CustomAttri
 	CallOnce (s_CustomAttributesOnceFlag, &InitializeCustomAttributesCaches, NULL);
 
 	// use atomics rather than a Mutex here to avoid deadlock. The attribute generators call arbitrary managed code
-	CustomAttributesCache* cache = Atomic::ReadPointer (&s_CustomAttributesCaches[index]);
+	CustomAttributeTypeCache* cache = Atomic::ReadPointer (&s_CustomAttributeTypeCaches[index]);
 	if (cache == NULL)
 	{
-		cache = (CustomAttributesCache*)IL2CPP_CALLOC (1, sizeof (CustomAttributesCache));
-		s_Il2CppCodeRegistration->customAttributeGenerators[index] (cache);
+		cache = (CustomAttributeTypeCache*)IL2CPP_CALLOC (1, sizeof (CustomAttributeTypeCache));
+		s_Il2CppCodeRegistration->customAttributeGenerators[index] (NULL, cache);
 
-		CustomAttributesCache* original = Atomic::CompareExchangePointer (&s_CustomAttributesCaches[index], cache, (CustomAttributesCache*)NULL);
+		CustomAttributeTypeCache* original = Atomic::CompareExchangePointer (&s_CustomAttributeTypeCaches[index], cache, (CustomAttributeTypeCache*)NULL);
 		if (original)
 		{
 			// A non-NULL return value indicates some other thread already generated this cache.
 			// We need to cleanup the resources we allocated
-			il2cpp_gc_free_fixed (cache->attributes);
+			free (cache->attributeTypes);
 			IL2CPP_FREE (cache);
 
 			cache = original;
@@ -1051,6 +1074,66 @@ const char* MetadataCache::GetStringFromIndex (StringIndex index)
 	assert (index <= s_GlobalMetadataHeader->stringCount);
 	const char* strings = ((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->stringOffset) + index;
 	return strings;
+}
+
+template <typename T>
+static T MetadataOffset (void* metadata, size_t sectionOffset, size_t itemIndex)
+{
+	return reinterpret_cast<T> (reinterpret_cast<uint8_t*> (metadata) + sectionOffset) + itemIndex;
+}
+
+FieldInfo* MetadataCache::GetFieldInfoFromIndex(EncodedMethodIndex index)
+{
+	assert(index <= s_GlobalMetadataHeader->fieldRefsCount);
+
+	const Il2CppFieldRef* fieldRef = MetadataOffset<const Il2CppFieldRef*>(s_GlobalMetadata, s_GlobalMetadataHeader->fieldRefsOffset, index);
+	TypeInfo* typeInfo = GetTypeInfoFromTypeIndex(fieldRef->typeIndex);
+	return typeInfo->fields + fieldRef->fieldIndex;
+}
+
+void MetadataCache::InitializeMethodMetadata (uint32_t index)
+{
+	assert(index <= s_GlobalMetadataHeader->metadataUsageListsCount);
+
+
+	const Il2CppMetadataUsageList* metadataUsageLists = MetadataOffset<const Il2CppMetadataUsageList*>(s_GlobalMetadata, s_GlobalMetadataHeader->metadataUsageListsOffset, index);
+
+	uint32_t start = metadataUsageLists->start;
+	uint32_t count = metadataUsageLists->count;
+
+	for (size_t i = 0; i < count; i++)
+	{
+		uint32_t offset = start + i;
+		assert(offset <= s_GlobalMetadataHeader->metadataUsagePairsCount);
+		const Il2CppMetadataUsagePair* metadataUsagePairs = MetadataOffset<const Il2CppMetadataUsagePair*>(s_GlobalMetadata, s_GlobalMetadataHeader->metadataUsagePairsOffset, offset);
+		uint32_t destinationIndex = metadataUsagePairs->destinationIndex;
+		uint32_t encodedSourceIndex = metadataUsagePairs->encodedSourceIndex;
+
+		Il2CppMetadataUsage usage = GetEncodedIndexType (encodedSourceIndex);
+		uint32_t decodedIndex = GetDecodedMethodIndex (encodedSourceIndex);
+		switch (usage)
+		{
+		case kIl2CppMetadataUsageTypeInfo:
+			*s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetTypeInfoFromTypeIndex (decodedIndex);
+			break;
+		case kIl2CppMetadataUsageIl2CppType:
+			*s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = const_cast<Il2CppType*>(GetIl2CppTypeFromIndex (decodedIndex));
+			break;
+		case kIl2CppMetadataUsageMethodDef:
+		case kIl2CppMetadataUsageMethodRef:
+			*s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = const_cast<MethodInfo*>(GetMethodInfoFromIndex (encodedSourceIndex));
+			break;
+		case kIl2CppMetadataUsageFieldInfo:
+			*s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetFieldInfoFromIndex(decodedIndex);
+			break;
+		case kIl2CppMetadataUsageStringLiteral:
+			*s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetStringLiteralFromIndex (decodedIndex);
+			break;
+		default:
+			NOT_IMPLEMENTED (MetadataCache::InitializeMethodMetadata);
+			break;
+		}
+	}
 }
 
 void MetadataCache::WalkPointerTypes(WalkTypesCallback callback, void* context)

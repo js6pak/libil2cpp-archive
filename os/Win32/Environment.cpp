@@ -1,8 +1,10 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_WINDOWS
+#if !IL2CPP_USE_GENERIC_ENVIRONMENT && (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 #include "WindowsHelpers.h"
+#if !IL2CPP_TARGET_XBOXONE
 #include <Shlobj.h>
+#endif
 // Windows.h defines GetEnvironmentVariable as GetEnvironmentVariableW for unicode and this will
 // change the string "Environment::GetEnvironmentVariable" below to "Environment::GetEnvironmentVariableW"
 // in the preprocessor. So we undef to avoid this issue and use GetEnvironmentVariableW directly.
@@ -127,7 +129,7 @@ void Environment::Exit (int result)
 	NOT_IMPLEMENTED_ICALL (Environment::Exit);
 }
 
-#if !IL2CPP_TARGET_WINRT
+#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
 
 std::string Environment::GetWindowsFolderPath(int32_t folder)
 {

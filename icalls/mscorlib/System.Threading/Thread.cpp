@@ -68,7 +68,7 @@ bool Thread::Join_internal (Il2CppThread * __this, int32_t ms, void* thread)
 {
 	// Throw ThreadStateException if thread has not been started yet.
 	if (il2cpp::vm::Thread::GetState (__this) & kThreadStateUnstarted)
-		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetThreadStateException ());
+		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetThreadStateException ("Thread has not been started."));
 
 	// Mark current thread as blocked.
 	Il2CppThread* currentThread = il2cpp::vm::Thread::Current ();
@@ -90,7 +90,7 @@ bool Thread::Join_internal (Il2CppThread * __this, int32_t ms, void* thread)
 
 void Thread::ResetAbort_internal ()
 {
-	NOT_SUPPORTED_IL2CPP (Thread::ResetAbort_internal, "Thread abortion is currently not implemented on IL2CPP; it is recommended to use safer mechanisms to terminate threads.");
+	il2cpp::vm::Thread::ResetAbort(il2cpp::vm::Thread::Current());
 }
 
 Il2CppString* Thread::GetName_internal (Il2CppThread* __this)
@@ -176,10 +176,9 @@ static void ThreadStart (void* arg)
 			if (exc)
 				Runtime::UnhandledException (exc);
 		}
-		catch (il2cpp::vm::Thread::TempAbortWorkaroundException)
+		catch (il2cpp::vm::Thread::NativeThreadAbortException)
 		{
 			// Nothing to do. We've successfully aborted the thread.
-			// This will disappear once we have proper abort support.
 			il2cpp::vm::Thread::SetState (startData->m_Thread, kThreadStateAborted);
 		}
 
@@ -198,6 +197,12 @@ Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * st
 {
 	assert (__this->synch_cs != NULL);
 	il2cpp::os::FastAutoLock lock(__this->synch_cs);
+
+	if (il2cpp::vm::Thread::GetState(__this) & kThreadStateAborted)
+	{
+		Il2CppIntPtr ret = { __this->handle };
+		return ret;
+	}
 
 	// use fixed GC memory since we are storing managed object pointers
 	StartData* startData = (StartData*)il2cpp_gc_alloc_fixed (sizeof(StartData), NULL);
@@ -363,9 +368,9 @@ int32_t Thread::GetNewManagedId_internal()
 	return os::Atomic::Increment(&s_NextManagedThreadId);
 }
 
-void Thread::Abort_internal (void* /* System.Threading.Thread */ self, Il2CppObject* stateInfo)
+void Thread::Abort_internal (Il2CppThread* __this, Il2CppObject* stateInfo)
 {
-	NOT_SUPPORTED_IL2CPP (Thread::Abort_internal, "Thread abortion is currently not implemented on IL2CPP; it is recommended to use safer mechanisms to terminate threads.");
+	il2cpp::vm::Thread::RequestAbort(__this);
 }
 
 Il2CppObject* Thread::GetAbortExceptionState (void* /* System.Threading.Thread */ self)
