@@ -81,6 +81,7 @@ const MethodInfo* GenericMethod::GetMethod (const Il2CppGenericMethod* gmethod)
 	newMethod->is_generic = false;
 	newMethod->is_inflated = true;
 	newMethod->customAttributeIndex = methodDefinition->customAttributeIndex;
+	newMethod->token = methodDefinition->token;
 
 	newMethod->return_type = GenericMetadata::InflateIfNeeded (methodDefinition->return_type, &gmethod->context, true);
 
