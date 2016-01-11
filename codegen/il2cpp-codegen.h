@@ -39,7 +39,6 @@
 #include "vm/Thread.h"
 #include "vm/Type.h"
 
-#define NO_UNUSED_WARNING(expr) (void)(expr)
 #ifdef _MSC_VER
 #define IL2CPP_DEBUG_BREAK() __debugbreak()
 #else
@@ -136,9 +135,13 @@ static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type
 	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
 }
 
-NORETURN static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
+static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
 {
 	il2cpp::vm::Exception::Raise ((Il2CppException*)ex);
+}
+
+NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
+{
 #if __has_builtin(__builtin_unreachable)
 	__builtin_unreachable();
 #endif
@@ -986,3 +989,11 @@ static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* des
 #define IL2CPP_END_CLEANUP(Offset, Target) \
 	if(__leave_target == Offset) \
 		goto Target;
+
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message)\
+	do {\
+		il2cpp_codegen_raise_exception((Il2CppCodeGenException*)message);\
+		il2cpp_codegen_no_return();\
+	} while (0)
+
+

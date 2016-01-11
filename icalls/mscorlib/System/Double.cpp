@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <cassert>
 #include "icalls/mscorlib/System/Double.h"
+#include "os/Locale.h"
 
 namespace il2cpp
 {
@@ -18,11 +19,17 @@ bool Double::ParseImpl (char *ptr, double *result)
 	*result = 0.0;
 
 	if (*ptr)
-		*result = strtod (ptr, &endptr);
+	{
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+		*result = il2cpp::os::Locale::DoubleParseLocaleIndependentImpl(ptr, &endptr);
+#else
+		*result = strtod(ptr, &endptr);
+#endif
+	}
 
 	if (!*ptr || (endptr && *endptr))
 		return false;
-	
+
 	return true;
 }
 

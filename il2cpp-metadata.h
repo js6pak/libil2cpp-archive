@@ -163,6 +163,7 @@ struct Il2CppTypeDefinition
 	// 05 - is_blittable;
 	// 06-09 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
 	uint32_t bitfield;
+	uint32_t token;
 };
 
 struct Il2CppFieldDefinition
@@ -170,6 +171,7 @@ struct Il2CppFieldDefinition
 	StringIndex nameIndex;
 	TypeIndex typeIndex;
 	CustomAttributeIndex customAttributeIndex;
+	uint32_t token;
 };
 
 struct Il2CppFieldDefaultValue
@@ -235,6 +237,7 @@ struct Il2CppEventDefinition
 	MethodIndex remove;
 	MethodIndex raise;
 	CustomAttributeIndex customAttributeIndex;
+	uint32_t token;
 };
 
 struct Il2CppPropertyDefinition
@@ -244,6 +247,7 @@ struct Il2CppPropertyDefinition
 	MethodIndex set;
 	uint32_t attrs;
 	CustomAttributeIndex customAttributeIndex;
+	uint32_t token;
 };
 
 struct Il2CppMethodSpec
@@ -298,6 +302,7 @@ struct Il2CppImageDefinition
 	uint32_t typeCount;
 
 	MethodIndex entryPointIndex;
+	uint32_t token;
 };
 
 struct Il2CppAssembly

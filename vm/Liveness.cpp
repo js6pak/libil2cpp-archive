@@ -229,7 +229,7 @@ void LivenessState::TraverseObjectInternal (Il2CppObject* object, bool isStruct,
 			{
 				char* offseted = (char*)object;
 				offseted += field->offset;
-				if (field->type->type == IL2CPP_TYPE_GENERICINST)
+				if (Type::IsGenericInstance(field->type))
 				{
 					assert(field->type->data.generic_class->cached_class);
 					TraverseObjectInternal ((Il2CppObject*)offseted, true, field->type->data.generic_class->cached_class, state);
@@ -436,7 +436,7 @@ void Liveness::FromStatics (void* state)
 			{
 				char* offseted = (char*)klass->static_fields;
 				offseted += field->offset;
-				if (field->type->type == IL2CPP_TYPE_GENERICINST)
+				if (Type::IsGenericInstance(field->type))
 				{
 					assert(field->type->data.generic_class->cached_class);
 					LivenessState::TraverseObjectInternal ((Il2CppObject*)offseted, true, field->type->data.generic_class->cached_class, liveness_state);
