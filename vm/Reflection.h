@@ -49,6 +49,12 @@ public:
 	static bool HasAttribute (const MethodInfo *method, TypeInfo *attribute);
 	static bool HasAttribute (TypeInfo *klass, TypeInfo *attribute);
 
+	static bool IsType (Il2CppObject *obj);
+	static bool IsField (Il2CppObject *obj);
+	static bool IsAnyMethod (Il2CppObject *obj);
+	static bool IsProperty(Il2CppObject *obj);
+	static bool IsEvent (Il2CppObject *obj);
+
 // internal
 public:
 	static void Initialize ();

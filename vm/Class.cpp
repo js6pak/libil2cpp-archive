@@ -952,6 +952,7 @@ static void SetupFieldsFromDefinition (TypeInfo* klass)
 		newField->parent = klass;
 		newField->offset = MetadataCache::GetFieldOffsetFromIndex (fieldIndex);
 		newField->customAttributeIndex = fieldDefinition->customAttributeIndex;
+		newField->token = fieldDefinition->token;
 
 		newField++;
 	}
@@ -1219,6 +1220,7 @@ static void SetupEventsLocked (TypeInfo *klass, const FastAutoLock& lock)
 				newEvent->raise = klass->methods[eventDefinition->raise];
 
 			newEvent->customAttributeIndex = eventDefinition->customAttributeIndex;
+			newEvent->token = eventDefinition->token;
 
 			newEvent++;
 		}
@@ -1271,6 +1273,7 @@ static void SetupPropertiesLocked (TypeInfo *klass, const FastAutoLock& lock)
 
 			newProperty->attrs = propertyDefinition->attrs;
 			newProperty->customAttributeIndex = propertyDefinition->customAttributeIndex;
+			newProperty->token = propertyDefinition->token;
 
 			newProperty++;
 		}

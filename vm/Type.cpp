@@ -760,13 +760,25 @@ const Il2CppType* Type::GetUnderlyingType (const Il2CppType *type)
 {
 	if (type->type == IL2CPP_TYPE_VALUETYPE && MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex)->enumtype && !type->byref)
 		return Class::GetEnumBaseType (MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex));
-	if (type->type == IL2CPP_TYPE_GENERICINST)
+	if (IsGenericInstance (type))
 	{
 		TypeInfo* definition = GenericClass::GetTypeDefinition (type->data.generic_class);
 		if (definition != NULL && definition->enumtype && !type->byref)
 			return Class::GetEnumBaseType (definition);
 	}
 	return type;
+}
+
+bool Type::IsGenericInstance (const Il2CppType* type)
+{
+	return type->type == IL2CPP_TYPE_GENERICINST;
+}
+
+uint32_t Type::GetToken (const Il2CppType *type)
+{
+	if (IsGenericInstance (type))
+		return GenericClass::GetTypeDefinition (type->data.generic_class)->token;
+	return GetClass (type)->token;
 }
 
 bool Type::IsReference (const Il2CppType* type)
@@ -781,7 +793,7 @@ bool Type::IsReference (const Il2CppType* type)
 		type->type == IL2CPP_TYPE_ARRAY)
 		return true;
 
-	if (type->type == IL2CPP_TYPE_GENERICINST && !GenericClass::IsValueType (type->data.generic_class))
+	if (IsGenericInstance(type) && !GenericClass::IsValueType (type->data.generic_class))
 		return true;
 
 	return false;
@@ -798,7 +810,7 @@ bool Type::IsStruct (const Il2CppType* type)
 	if (type->type == IL2CPP_TYPE_TYPEDBYREF)
 		return true;
 
-	if (type->type == IL2CPP_TYPE_GENERICINST &&
+	if (IsGenericInstance (type) &&
 		GenericClass::IsValueType (type->data.generic_class) &&
 		!GenericClass::IsEnum (type->data.generic_class))
 		return true;
@@ -808,7 +820,7 @@ bool Type::IsStruct (const Il2CppType* type)
 
 bool Type::GenericInstIsValuetype (const Il2CppType* type)
 {
-	assert (type->type == IL2CPP_TYPE_GENERICINST);
+	assert (IsGenericInstance (type));
 	return GenericClass::IsValueType (type->data.generic_class);
 }
 
