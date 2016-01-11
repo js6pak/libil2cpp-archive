@@ -51,6 +51,7 @@ static void InflatePropertyDefinition (const PropertyInfo* propertyDefinition, P
 	newProperty->parent = declaringClass;
 	newProperty->name = propertyDefinition->name;
 	newProperty->customAttributeIndex = propertyDefinition->customAttributeIndex;
+	newProperty->token = propertyDefinition->token;
 
 	if (propertyDefinition->get)
 		newProperty->get = GenericMetadata::Inflate (propertyDefinition->get, declaringClass, context);
@@ -88,6 +89,7 @@ static void InflateEventDefinition (const EventInfo* eventDefinition, EventInfo*
 	newEvent->name = eventDefinition->name;
 	newEvent->parent = declaringClass;
 	newEvent->customAttributeIndex = eventDefinition->customAttributeIndex;
+	newEvent->token = eventDefinition->token;
 
 	if (eventDefinition->add)
 		newEvent->add = GenericMetadata::Inflate (eventDefinition->add, declaringClass, context);
@@ -128,6 +130,7 @@ static FieldInfo* InflateFieldDefinition (const FieldInfo* fieldDefinition, Fiel
 	newField->parent = declaringClass;
 	newField->offset = fieldDefinition->offset;
 	newField->customAttributeIndex = fieldDefinition->customAttributeIndex;
+	newField->token = fieldDefinition->token;
 
 	return newField;
 }
@@ -208,6 +211,7 @@ TypeInfo* GenericClass::GetClass (Il2CppGenericClass *gclass)
 		klass->has_finalize = definition->has_finalize;
 		klass->native_size = klass->thread_static_fields_offset = -1;
 		klass->customAttributeIndex = definition->customAttributeIndex;
+		klass->token = definition->token;
 
 		if (Class::IsNullable (klass))
 			klass->element_class = klass->castClass  = Class::GetNullableArgument (klass);

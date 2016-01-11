@@ -58,6 +58,11 @@ void Field::GetValue (Il2CppObject *obj, FieldInfo *field, void *value)
 	set_value (field->type, value, src, true);
 }
 
+uint32_t Field::GetToken (const FieldInfo *field)
+{
+	return field->token;
+}
+
 Il2CppObject* Field::GetValueObject (FieldInfo *field, Il2CppObject *obj)
 {
 	TypeInfo* fieldType = Class::FromIl2CppType(field->type);

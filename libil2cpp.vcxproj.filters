@@ -664,6 +664,12 @@
     <ClCompile Include="vm\LibraryLoader.cpp">
       <Filter>vm</Filter>
     </ClCompile>
+    <ClCompile Include="vm\Event.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
+    <ClCompile Include="vm\Module.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1253,6 +1259,12 @@
       <Filter>vm</Filter>
     </ClInclude>
     <ClInclude Include="vm\LibraryLoader.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\Event.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\Module.h">
       <Filter>vm</Filter>
     </ClInclude>
   </ItemGroup>
