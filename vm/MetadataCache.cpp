@@ -143,7 +143,7 @@ void MetadataCache::Initialize()
 	s_GlobalMetadata = vm::MetadataLoader::LoadMetadataFile ("global-metadata.dat");
 	s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
 	assert (s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-	assert (s_GlobalMetadataHeader->version == 18);
+	assert (s_GlobalMetadataHeader->version == 19);
 
 	const Il2CppAssembly* assemblies = (const Il2CppAssembly*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->assembliesOffset);
 	for (uint32_t i = 0; i < s_GlobalMetadataHeader->assembliesCount / sizeof(Il2CppAssembly); i++)
@@ -171,6 +171,7 @@ void MetadataCache::Initialize()
 		image->typeStart = imageDefinition->typeStart;
 		image->typeCount = imageDefinition->typeCount;
 		image->entryPointIndex = imageDefinition->entryPointIndex;
+		image->token = imageDefinition->token;
 	}
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
@@ -400,7 +401,7 @@ static const Il2CppGenericInst* GetSharedInst (const Il2CppGenericInst* inst)
 		else
 		{
 			const Il2CppType* type = inst->type_argv[i];
-			if (type->type == IL2CPP_TYPE_GENERICINST)
+			if (Type::IsGenericInstance(type))
 			{
 				const Il2CppGenericInst* sharedInst = GetSharedInst (type->data.generic_class->context.class_inst);
 				Il2CppGenericClass* gklass = GenericMetadata::GetGenericClass (type->data.generic_class->typeDefinitionIndex, sharedInst);
@@ -705,6 +706,7 @@ static TypeInfo* FromTypeDefinition (TypeDefinitionIndex index)
 	typeInfo->vtable_count = typeDefinition->vtable_count;
 	typeInfo->interfaces_count = typeDefinition->interfaces_count;
 	typeInfo->interface_offsets_count = typeDefinition->interface_offsets_count;
+	typeInfo->token = typeDefinition->token;
 	
 	if (typeDefinition->parentIndex != kTypeIndexInvalid)
 		typeInfo->parent = Class::FromIl2CppType (MetadataCache::GetIl2CppTypeFromIndex (typeDefinition->parentIndex));

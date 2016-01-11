@@ -3,6 +3,7 @@
 #include "icalls/mscorlib/System.Reflection/Module.h"
 #include <cassert>
 #include "vm/Exception.h"
+#include "vm/Module.h"
 
 namespace il2cpp
 {
@@ -35,9 +36,7 @@ Il2CppIntPtr Module::GetHINSTANCE (mscorlib_System_Reflection_Module * __this)
 
 int32_t Module::get_MetadataToken (Il2CppReflectionModule* self)
 {
-	NOT_SUPPORTED_IL2CPP (Module::get_MetadataToken, "This icall is not supported by il2cpp.");
-	
-	return 0;
+	return vm::Module::GetToken (self->image);
 }
 
 int32_t Module::GetMDStreamVersion (Il2CppIntPtr module_handle)

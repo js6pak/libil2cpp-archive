@@ -5,6 +5,7 @@
 #include "os/Image.h"
 #include "os/Initialize.h"
 #include "os/LibraryLoader.h"
+#include "os/Locale.h"
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "os/Path.h"
@@ -102,6 +103,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	SanityChecks ();
 
 	os::Initialize();
+	os::Locale::Initialize();
 	MetadataAllocInitialize ();
 
 	s_FrameworkVersion = framework_version_for (runtime_version);
@@ -258,6 +260,7 @@ void Runtime::Shutdown ()
 	vm::Image::ClearCachedResourceData();
 	MetadataAllocCleanup ();
 
+	os::Locale::UnInitialize();
 	os::Uninitialize();
 }
 

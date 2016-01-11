@@ -209,6 +209,8 @@ public:
 	static int GetType (const Il2CppType *type);
 	static TypeInfo* GetClassOrElementClass (const Il2CppType *type);
 	static const Il2CppType* GetUnderlyingType (const Il2CppType *type);
+	static uint32_t GetToken (const Il2CppType *type);
+	static bool IsGenericInstance (const Il2CppType *type);
 
 public:
 	// internal
