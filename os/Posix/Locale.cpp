@@ -3,6 +3,10 @@
 #if IL2CPP_TARGET_POSIX
 
 #include <clocale>
+#include <locale.h>
+#if IL2CPP_TARGET_DARWIN
+#include <xlocale.h>
+#endif
 #include "os/Locale.h"
 
 namespace il2cpp
@@ -42,6 +46,33 @@ std::string Locale::GetLocale()
 
 	return std::string(posix_locale);
 }
+
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+static locale_t s_cLocale = NULL;
+#endif
+
+void Locale::Initialize()
+{
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+	s_cLocale = newlocale(LC_ALL_MASK, NULL, NULL);
+#endif
+}
+
+void Locale::UnInitialize()
+{
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+	freelocale(s_cLocale);
+	s_cLocale = NULL;
+#endif
+}
+
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+double Locale::DoubleParseLocaleIndependentImpl(char *ptr, char** endptr)
+{
+	return strtod_l(ptr, endptr, s_cLocale);
+}
+#endif
+
 
 } /* namespace os */
 } /* namespace il2cpp */

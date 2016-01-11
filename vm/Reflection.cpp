@@ -455,7 +455,7 @@ Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, TypeInfo *re
 }
 
 // TODO: move this somewhere else
-static bool IsType(Il2CppObject *obj)
+bool Reflection::IsType(Il2CppObject *obj)
 {
 	if (obj->klass->image == il2cpp_defaults.corlib)
 		return strcmp(obj->klass->name, "MonoType") == 0 && strcmp(obj->klass->namespaze, "System") == 0;
@@ -490,21 +490,26 @@ static bool IsGenericCMethod(Il2CppObject *obj)
 	return false;
 }
 
-static bool IsField(Il2CppObject *obj)
+bool Reflection::IsAnyMethod (Il2CppObject *obj)
+{
+	return IsMethod (obj) || IsCMethod (obj) || IsGenericMethod (obj) || IsGenericCMethod (obj);
+}
+
+bool Reflection::IsField(Il2CppObject *obj)
 {
 	if (obj->klass->image == il2cpp_defaults.corlib)
 		return strcmp(obj->klass->name, "MonoField") == 0 && strcmp(obj->klass->namespaze, "System.Reflection") == 0;
 	return false;
 }
 
-static bool IsProperty(Il2CppObject *obj)
+bool Reflection::IsProperty(Il2CppObject *obj)
 {
 	if (obj->klass->image == il2cpp_defaults.corlib)
 		return strcmp(obj->klass->name, "MonoProperty") == 0 && strcmp(obj->klass->namespaze, "System.Reflection") == 0;
 	return false;
 }
 
-static bool IsEvent(Il2CppObject *obj)
+bool Reflection::IsEvent(Il2CppObject *obj)
 {
 	if (obj->klass->image == il2cpp_defaults.corlib)
 		return strcmp(obj->klass->name, "MonoEvent") == 0 && strcmp(obj->klass->namespaze, "System.Reflection") == 0;

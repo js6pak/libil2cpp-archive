@@ -20,13 +20,13 @@ void Char::GetDataTablePointers (unsigned char * *category_data,
 	unsigned short * *to_upper_data_low,
 	unsigned short * *to_upper_data_high)
 {
-	*category_data = CategoryData_v4;
-	*numeric_data = NumericData;
-	*numeric_data_values = NumericDataValues;
-	*to_lower_data_low = ToLowerDataLow;
-	*to_lower_data_high = ToLowerDataHigh;
-	*to_upper_data_low = ToUpperDataLow;
-	*to_upper_data_high = ToUpperDataHigh;
+	*category_data = const_cast<uint8_t*> (CategoryData_v4);
+	*numeric_data = const_cast<uint8_t*> (NumericData);
+	*numeric_data_values = const_cast<double*> (NumericDataValues);
+	*to_lower_data_low = const_cast<uint16_t*> (ToLowerDataLow);
+	*to_lower_data_high = const_cast<uint16_t*> (ToLowerDataHigh);
+	*to_upper_data_low = const_cast<uint16_t*> (ToUpperDataLow);
+	*to_upper_data_high = const_cast<uint16_t*> (ToUpperDataHigh);
 }
 
 } /* namespace System */
