@@ -38,6 +38,7 @@ DO_API( TypeInfo*, il2cpp_class_from_system_type, (Il2CppReflectionType *type) )
 DO_API( TypeInfo*, il2cpp_class_get_element_class, (TypeInfo *klass) );
 DO_API( const EventInfo*, il2cpp_class_get_events, (TypeInfo *klass, void* *iter));
 DO_API( FieldInfo*, il2cpp_class_get_fields, (TypeInfo *klass, void* *iter) );
+DO_API( TypeInfo*, il2cpp_class_get_nested_types, (TypeInfo *klass, void* *iter) );
 DO_API( TypeInfo*, il2cpp_class_get_interfaces, (TypeInfo *klass, void* *iter) );
 DO_API( const PropertyInfo*, il2cpp_class_get_properties, (TypeInfo *klass, void* *iter) );
 DO_API( const PropertyInfo*, il2cpp_class_get_property_from_name, (TypeInfo *klass, const char *name) );
