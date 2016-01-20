@@ -400,8 +400,17 @@ static const Il2CppGenericInst* GetSharedInst (const Il2CppGenericInst* inst)
 			types.push_back (il2cpp_defaults.object_class->byval_arg);
 		else
 		{
+#ifdef ENABLE_GENERIC_SHARING_FOR_VALUE_TYPES
+			const Il2CppType* type = Type::GetUnderlyingType(inst->type_argv[i]);
+			if (type->type == IL2CPP_TYPE_BOOLEAN)
+				type = il2cpp_defaults.byte_class->byval_arg;
+			else if (type->type == IL2CPP_TYPE_CHAR)
+				type = il2cpp_defaults.uint16_class->byval_arg;
+			else if (Type::IsGenericInstance(type))
+#else
 			const Il2CppType* type = inst->type_argv[i];
 			if (Type::IsGenericInstance(type))
+#endif //ENABLE_GENERIC_SHARING_FOR_VALUE_TYPES
 			{
 				const Il2CppGenericInst* sharedInst = GetSharedInst (type->data.generic_class->context.class_inst);
 				Il2CppGenericClass* gklass = GenericMetadata::GetGenericClass (type->data.generic_class->typeDefinitionIndex, sharedInst);
