@@ -270,6 +270,11 @@ FieldInfo* il2cpp_class_get_fields (TypeInfo *klass, void* *iter)
 	return Class::GetFields (klass, iter);
 }
 
+TypeInfo* il2cpp_class_get_nested_types (TypeInfo *klass, void* *iter)
+{
+	return Class::GetNestedTypes (klass, iter);
+}
+
 TypeInfo* il2cpp_class_get_interfaces (TypeInfo *klass, void* *iter)
 {
 	return Class::GetInterfaces (klass, iter);
