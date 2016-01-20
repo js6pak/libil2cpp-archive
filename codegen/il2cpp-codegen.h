@@ -489,9 +489,10 @@ inline bool il2cpp_class_init (TypeInfo *klass)
 	return il2cpp::vm::Class::Init (klass);
 }
 
-inline int32_t il2cpp_class_interface_offset (TypeInfo *klass, TypeInfo *itf)
+inline int32_t il2cpp_codegen_class_interface_offset (TypeInfo *klass, TypeInfo *itf)
 {
-	return il2cpp::vm::Class::GetInterfaceOffset (klass, itf);
+	int32_t offset = il2cpp::vm::Class::GetInterfaceOffset (klass, itf);
+	return offset != -1 ? offset : 0;
 }
 
 inline bool il2cpp_codegen_class_is_assignable_from (TypeInfo *klass, TypeInfo *oklass)
@@ -906,6 +907,11 @@ static inline void il2cpp_codegen_memory_barrier()
 static inline void il2cpp_codegen_initialize_method (uint32_t index)
 {
 	il2cpp::vm::MetadataCache::InitializeMethodMetadata (index);
+}
+
+static inline bool il2cpp_codegen_type_implements_virtual_method(TypeInfo* type, int32_t slot)
+{
+	return type->vtable[slot]->declaring_type == type;
 }
 
 static inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInfo* methodInfo)

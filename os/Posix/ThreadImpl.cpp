@@ -247,14 +247,14 @@ void ThreadImpl::SetNativeThreadCleanup (Thread::ThreadCleanupFunc cleanupFuncti
 		s_CleanupFunc = cleanupFunction;
 		int result = pthread_key_create(&s_CleanupKey, &CleanupThreadIfCanceled);
 		assert (!result);
-        NO_UNUSED_WARNING(result);
+		NO_UNUSED_WARNING(result);
 	}
 	else
 	{
 		assert (s_CleanupFunc);
 		int result = pthread_key_delete (s_CleanupKey);
 		assert (!result);
-        NO_UNUSED_WARNING(result);
+		NO_UNUSED_WARNING(result);
 		s_CleanupFunc = NULL;
 	}
 }
