@@ -183,13 +183,15 @@
 #define CDECL
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
+#elif IL2CPP_TARGET_DARWIN
+#define NORETURN __attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
