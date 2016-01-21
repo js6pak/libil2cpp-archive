@@ -58,6 +58,11 @@ void Field::GetValue (Il2CppObject *obj, FieldInfo *field, void *value)
 	set_value (field->type, value, src, true);
 }
 
+uint32_t Field::GetToken (const FieldInfo *field)
+{
+	return field->token;
+}
+
 Il2CppObject* Field::GetValueObject (FieldInfo *field, Il2CppObject *obj)
 {
 	TypeInfo* fieldType = Class::FromIl2CppType(field->type);
@@ -106,21 +111,7 @@ const Il2CppType* Field::GetType (FieldInfo *field)
 
 bool Field::HasAttribute (FieldInfo *field, TypeInfo *attr_class)
 {
-	CustomAttributesCache* attrs = Reflection::GetCustomAttrsInfo (field);
-
-	if (!attrs)
-		return false;
-
-	for(int i = 0; i < attrs->count; ++i)
-	{
-		Il2CppObject* attribute = attrs->attributes[i];
-		TypeInfo *klass = Object::GetClass (attribute);
-
-		if(klass == attr_class)
-			return true;
-	}
-
-	return false;
+	return Reflection::HasAttribute(field, attr_class);
 }
 
 bool Field::IsDeleted (FieldInfo *field)

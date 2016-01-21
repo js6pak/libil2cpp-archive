@@ -184,9 +184,14 @@ Il2CppException* Exception::GetThreadInterruptedException ()
 	return FromNameMsg (vm::Image::GetCorlib (), "System.Threading", "ThreadInterruptedException", NULL);
 }
 
-Il2CppException* Exception::GetThreadStateException ()
+Il2CppException* Exception::GetThreadAbortException()
 {
-	return FromNameMsg (vm::Image::GetCorlib (), "System.Threading", "ThreadStateException", NULL);
+	return FromNameMsg(vm::Image::GetCorlib(), "System.Threading", "ThreadAbortException", NULL);
+}
+
+Il2CppException* Exception::GetThreadStateException (const char* msg)
+{
+	return FromNameMsg (vm::Image::GetCorlib (), "System.Threading", "ThreadStateException", msg);
 }
 
 Il2CppException* Exception::GetSynchronizationLockException (const char* msg)

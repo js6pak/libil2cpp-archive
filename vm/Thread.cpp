@@ -49,13 +49,25 @@ static std::vector<int32_t> s_ThreadStaticSizes;
 
 static ThreadLocalValue s_CurrentThread;
 
+static void
+thread_cleanup_on_cancel (void* arg)
+{
+	Thread::Detach ((Il2CppThread*)arg);
+}
+
 void Thread::Initialize ()
 {
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+	os::Thread::SetNativeThreadCleanup(&thread_cleanup_on_cancel);
+#endif
 	s_AttachedThreads = new GCTrackedThreadVector ();
 }
 
 void Thread::UnInitialize ()
 {
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+	os::Thread::SetNativeThreadCleanup(NULL);
+#endif
 	delete s_AttachedThreads;
 	s_AttachedThreads = NULL;
 }
@@ -82,6 +94,8 @@ Il2CppThread* Thread::Attach (Il2CppDomain *domain)
 
 	thread = (Il2CppThread*)Object::New (il2cpp_defaults.thread_class);
 	thread->handle = osThread;
+	thread->state = kThreadStateRunning;
+	thread->tid = osThread->Id();
 	Setup (thread);
 
 	Initialize(thread, domain);
@@ -116,6 +130,11 @@ void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
 		thread->handle->SetName (utf8Name);
 	}
 
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+	// register us for platform specific cleanup attempt in case thread is not exited cleanly
+	os::Thread::RegisterCurrentThreadForCleanup (thread);
+#endif
+
 	// If an interrupt has been requested before the thread was started, re-request
 	// the interrupt now.
 	if (thread->interruption_requested)
@@ -124,6 +143,11 @@ void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
 
 void Thread::Uninitialize (Il2CppThread *thread)
 {
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+	// unregister from special cleanup since we are doing it now
+	os::Thread::UnregisterCurrentThreadForCleanup ();
+#endif
+
 	if (!il2cpp_gc_unregister_thread())
 		assert(0 && "il2cpp_thread_detach failed");
 
@@ -155,13 +179,11 @@ Il2CppThread** Thread::GetAllAttachedThreads(size_t &size)
 
 static void STDCALL TerminateBackgroundThread (void* context)
 {
-	////TODO: this should use proper thread abortion (a la Thread.Abort)
-	////  For now we just throw a dummy exception to make sure things clean up properly
-	////  and we don't leave any locks behind (such as global locks in the allocator which
-	////  would then deadlock other threads). Ultimately, this will work off ThreadAbortException
-	////  but as long as we don't support proper abort behavior, throwing that exception is not
-	////  a good idea.
-	throw Thread::TempAbortWorkaroundException();
+	// We throw a dummy exception to make sure things clean up properly
+	// and we don't leave any locks behind (such as global locks in the allocator which
+	// would then deadlock other threads). This could work off ThreadAbortException
+	// but we don't want to deal with a managed exception here. So we use a C++ exception.
+	throw Thread::NativeThreadAbortException();
 }
 
 void Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads ()
@@ -375,6 +397,61 @@ void Thread::CheckCurrentThreadForInterruptAndThrowIfNecessary()
 
 	// Throw interrupt exception.
 	il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetThreadInterruptedException ());
+}
+
+static void STDCALL CheckCurrentThreadForAbortCallback(void* context)
+{
+	Thread::CheckCurrentThreadForAbortAndThrowIfNecessary();
+}
+
+void Thread::RequestAbort(Il2CppThread* thread)
+{
+	il2cpp::os::FastAutoLock lock(thread->synch_cs);
+
+	ThreadState state = il2cpp::vm::Thread::GetState(thread);
+	if (state & kThreadStateAbortRequested || state & kThreadStateStopped || state & kThreadStateStopRequested)
+		return;
+
+	il2cpp::os::Thread* osThread = thread->handle;
+	if (osThread)
+	{
+		// If thread has already been started, queue an abort now.
+		Thread::SetState(thread, kThreadStateAbortRequested);
+		osThread->QueueUserAPC(CheckCurrentThreadForAbortCallback, NULL);
+	}
+	else
+	{
+		// If thread has not started, put it in the aborted state.
+		Thread::SetState(thread, kThreadStateAborted);
+	}
+}
+
+void Thread::CheckCurrentThreadForAbortAndThrowIfNecessary()
+{
+	Il2CppThread* currentThread = il2cpp::vm::Thread::Current();
+	if (!currentThread)
+		return;
+
+	il2cpp::os::FastAutoLock lock(currentThread->synch_cs);
+
+	ThreadState state = il2cpp::vm::Thread::GetState(currentThread);
+	if (!(state & kThreadStateAbortRequested))
+		return;
+
+	// Mark the current thread as being unblocked.
+	il2cpp::vm::Thread::ClrState(currentThread, kThreadStateAbortRequested);
+
+	// Throw interrupt exception.
+	Il2CppException* abortException = il2cpp::vm::Exception::GetThreadAbortException();
+	IL2CPP_OBJECT_SETREF(currentThread, abort_exc, (Il2CppObject*)abortException);
+	il2cpp::vm::Exception::Raise(abortException);
+}
+
+void Thread::ResetAbort(Il2CppThread* thread)
+{
+	il2cpp::vm::Thread::ClrState(thread, kThreadStateAbortRequested);
+	if (thread->abort_exc == NULL)
+		il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetThreadStateException("Unable to reset abort because no abort was requested."));
 }
 
 void Thread::MemoryBarrier ()

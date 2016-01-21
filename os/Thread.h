@@ -71,6 +71,13 @@ public:
 	static Thread* GetOrCreateCurrentThread ();
 	static void DetachCurrentThread ();
 
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+	typedef void (*ThreadCleanupFunc) (void* arg);
+	static void SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction);
+	static void RegisterCurrentThreadForCleanup (void* arg);
+	static void UnregisterCurrentThreadForCleanup ();
+#endif
+
 	static const uint64_t kInvalidThreadId = 0;
 
 private:

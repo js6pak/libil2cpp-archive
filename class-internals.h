@@ -123,6 +123,7 @@ struct TypeInfo;
 struct MethodInfo;
 struct FieldInfo;
 struct Il2CppObject;
+struct MemberInfo;
 
 struct CustomAttributesCache
 {
@@ -130,7 +131,13 @@ struct CustomAttributesCache
 	Il2CppObject** attributes;
 };
 
-typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
+struct CustomAttributeTypeCache
+{
+	int count;
+	TypeInfo** attributeTypes;
+};
+
+typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*, CustomAttributeTypeCache*);
 
 const int THREAD_STATIC_FIELD_OFFSET = -1;
 
@@ -141,6 +148,7 @@ struct FieldInfo
 	TypeInfo *parent;
 	int32_t offset;	// If offset is -1, then it's thread static
 	CustomAttributeIndex customAttributeIndex;
+	uint32_t token;
 };
 
 struct PropertyInfo
@@ -151,6 +159,7 @@ struct PropertyInfo
 	const MethodInfo *set;
 	uint32_t attrs;
 	CustomAttributeIndex customAttributeIndex;
+	uint32_t token;
 };
 
 struct EventInfo
@@ -162,6 +171,7 @@ struct EventInfo
 	const MethodInfo* remove;
 	const MethodInfo* raise;
 	CustomAttributeIndex customAttributeIndex;
+	uint32_t token;
 };
 
 struct ParameterInfo
@@ -318,6 +328,7 @@ struct TypeInfo
 	uint32_t thread_static_fields_size;
 	int32_t thread_static_fields_offset;
 	uint32_t flags;
+	uint32_t token;
 
 	uint16_t method_count; // lazily calculated for arrays, i.e. when rank > 0
 	uint16_t property_count;
@@ -374,6 +385,8 @@ struct Il2CppImage
 	MethodIndex entryPointIndex;
 
 	Il2CppNameToTypeDefinitionIndexHashTable* nameToClassHashTable;
+
+	uint32_t token;
 };
 
 struct Il2CppMarshalingFunctions
@@ -413,14 +426,14 @@ struct Il2CppMetadataRegistration
 	const Il2CppType* const * types;
 	int32_t methodSpecsCount;
 	const Il2CppMethodSpec* methodSpecs;
-	int32_t methodReferencesCount;
-	const EncodedMethodIndex* methodReferences;
 
 	FieldIndex fieldOffsetsCount;
 	const int32_t* fieldOffsets;
 
 	TypeDefinitionIndex typeDefinitionsSizesCount;
 	const Il2CppTypeDefinitionSizes* typeDefinitionsSizes;
+	const size_t metadataUsagesCount;
+	void** const* metadataUsages;
 };
 
 struct Il2CppRuntimeStats
