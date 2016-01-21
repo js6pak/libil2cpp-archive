@@ -55,6 +55,9 @@ public:
 	static Il2CppString* GetStringLiteralFromIndex (StringLiteralIndex index);
 	static const char* GetStringFromIndex (StringIndex index);
 
+	static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index);
+	static void InitializeMethodMetadata (uint32_t index);
+
 	static methodPointerType GetMethodPointerFromIndex (MethodIndex index);
 	static InvokerMethod GetMethodInvokerFromIndex (MethodIndex index);
 	static methodPointerType GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index);
@@ -96,6 +99,7 @@ public:
 	static const GenericParameterIndex GetIndexForGenericParameter (const Il2CppGenericParameter* genericParameter);
 
 	static CustomAttributesCache* GenerateCustomAttributesCache (CustomAttributeIndex index);
+	static CustomAttributeTypeCache* GenerateCustomAttributeTypeCache(CustomAttributeIndex index);
 
 	typedef void(*WalkTypesCallback)(TypeInfo* type, void* context);
 	static void WalkPointerTypes(WalkTypesCallback callback, void* context);

@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
 
 #include "metadata.h"
 #include "os/LibraryLoader.h"
