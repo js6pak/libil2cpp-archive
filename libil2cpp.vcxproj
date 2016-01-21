@@ -71,7 +71,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='WinRT-UWP-Debug' OR '$(Configuration)'=='WinRT-UWP-Release'">
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.10069.0</TargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -878,6 +877,7 @@
     <ClInclude Include="vm\Debug.h" />
     <ClInclude Include="vm\Domain.h" />
     <ClInclude Include="vm\Environment.h" />
+    <ClInclude Include="vm\Event.h" />
     <ClInclude Include="vm\Exception.h" />
     <ClInclude Include="vm\Field.h" />
     <ClInclude Include="vm\GenericClass.h" />
@@ -894,6 +894,7 @@
     <ClInclude Include="vm\MetadataLoader.h" />
     <ClInclude Include="vm\MetadataLock.h" />
     <ClInclude Include="vm\Method.h" />
+    <ClInclude Include="vm\Module.h" />
     <ClInclude Include="vm\Monitor.h" />
     <ClInclude Include="vm\Object.h" />
     <ClInclude Include="vm\Parameter.h" />
@@ -1181,6 +1182,7 @@
     <ClCompile Include="vm\Debug.cpp" />
     <ClCompile Include="vm\Domain.cpp" />
     <ClCompile Include="vm\Environment.cpp" />
+    <ClCompile Include="vm\Event.cpp" />
     <ClCompile Include="vm\Exception.cpp" />
     <ClCompile Include="vm\Field.cpp" />
     <ClCompile Include="vm\GenericClass.cpp" />
@@ -1196,6 +1198,7 @@
     <ClCompile Include="vm\MetadataCache.cpp" />
     <ClCompile Include="vm\MetadataLoader.cpp" />
     <ClCompile Include="vm\Method.cpp" />
+    <ClCompile Include="vm\Module.cpp" />
     <ClCompile Include="vm\Monitor.cpp" />
     <ClCompile Include="vm\Object.cpp" />
     <ClCompile Include="vm\Parameter.cpp" />

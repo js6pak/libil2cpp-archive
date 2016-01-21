@@ -33,5 +33,10 @@ TypeInfo* Property::GetParent (const PropertyInfo* prop)
 	return prop->parent;
 }
 
+uint32_t Property::GetToken (const PropertyInfo* prop)
+{
+	return prop->token;
+}
+
 } /* namespace vm */
 } /* namespace il2cpp */
