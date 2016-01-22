@@ -1,8 +1,9 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_WINRT
+#if (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 
 #include "os/Locale.h"
+#include "WindowsHelpers.h"
 #include <vector>
 
 #define WIN32_LEAN_AND_MEAN 1
@@ -13,6 +14,7 @@ namespace il2cpp
 namespace os
 {
 
+#if !IL2CPP_TARGET_WINRT
 std::string Locale::GetLocale()
 {
 	LCID lcid = GetThreadLocale();
@@ -28,6 +30,33 @@ std::string Locale::GetLocale()
 
 	return std::string(locale_name_char.begin(), locale_name_char.end());
 }
+#endif
+
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+static _locale_t s_cLocale = NULL;
+#endif
+
+void Locale::Initialize()
+{
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+	s_cLocale = _create_locale(LC_ALL, "C");
+#endif
+}
+
+void Locale::UnInitialize()
+{
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+	_free_locale(s_cLocale);
+	s_cLocale = NULL;
+#endif
+}
+
+#if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
+double Locale::DoubleParseLocaleIndependentImpl(char *ptr, char** endptr)
+{
+	return _strtod_l(ptr, endptr, s_cLocale);
+}
+#endif
 
 } /* namespace os */
 } /* namespace il2cpp */

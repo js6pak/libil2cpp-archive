@@ -46,6 +46,8 @@
 	#define IL2CPP_TARGET_ANDROID 1
 #elif defined(EMSCRIPTEN)
 	#define IL2CPP_TARGET_JAVASCRIPT 1
+#elif defined(TIZEN)
+    #define IL2CPP_TARGET_TIZEN 1
 #elif defined(__linux__)
 	#define IL2CPP_TARGET_LINUX 1
 #elif defined(NN_PLATFORM_CTR)
@@ -74,6 +76,10 @@
 #define IL2CPP_TARGET_JAVASCRIPT 0
 #endif
 
+#ifndef IL2CPP_TARGET_TIZEN
+#define IL2CPP_TARGET_TIZEN 0
+#endif
+
 #ifndef IL2CPP_TARGET_LINUX
 #define IL2CPP_TARGET_LINUX 0
 #endif
@@ -98,7 +104,7 @@
 #define IL2CPP_TARGET_PSP2 0
 #endif
 
-#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2)
+#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_TIZEN)
 #define IL2CPP_COMPILER_MSVC (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 #define IL2CPP_PLATFORM_WIN32 (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 
@@ -177,13 +183,15 @@
 #define CDECL
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
+#elif IL2CPP_TARGET_DARWIN
+#define NORETURN __attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
@@ -234,6 +242,9 @@
 #error "No thread implementation defined"
 #endif
 
+/* Platform support to cleanup attached threads even when native threads are not exited cleanly */
+#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD)
+
 #if !defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE) && IL2CPP_TARGET_IOS
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
 #endif
@@ -241,7 +252,7 @@
 #define IL2CPP_ENABLE_STACKTRACES 1
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
-#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS)
+#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_TIZEN)
 #endif
 
 /* Platforms which use stacktrace sentries */
@@ -427,3 +438,9 @@ const uint64_t kIl2CppUInt64Max = UINT64_MAX;
 
 const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
+
+// Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
+// PS4/PS2: strtol_d doesn't exist
+#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2)
+
+#define NO_UNUSED_WARNING(expr) (void)(expr)
