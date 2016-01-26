@@ -182,6 +182,22 @@ TypeInfo* Image::ClassFromName (Il2CppImage* image, const char* namespaze, const
 	return NULL;
 }
 
+void Image::GetTypes (const Il2CppImage* image, bool exportedOnly, TypeVector* target)
+{
+	size_t typeCount = Image::GetNumTypes (image);
+
+	for (size_t sourceIndex = 0; sourceIndex < typeCount; sourceIndex++)
+	{
+		const TypeInfo* type = Image::GetType (image, sourceIndex);
+		if (strcmp (type->name, "<Module>") == 0)
+		{
+			continue;
+		}
+
+		target->push_back(type);
+	}
+}
+
 size_t Image::GetNumTypes(const Il2CppImage* image)
 {
 	return image->typeCount;

@@ -4,6 +4,10 @@
 #include <cassert>
 #include "vm/Exception.h"
 #include "vm/Module.h"
+#include "vm/Image.h"
+#include "vm/Array.h"
+#include "class-internals.h"
+#include "vm/Reflection.h"
 
 namespace il2cpp
 {
@@ -16,10 +20,20 @@ namespace System
 namespace Reflection
 {
 
-Il2CppArray* Module::InternalGetTypes (mscorlib_System_Reflection_Module * __this)
+Il2CppArray* Module::InternalGetTypes (Il2CppReflectionModule * self)
 {
-	NOT_IMPLEMENTED_ICALL (Module::InternalGetTypes);
-	return 0;
+	vm::TypeVector types;
+	vm::Image::GetTypes (self->image, true, &types);
+	Il2CppArray* result = vm::Array::New (il2cpp_defaults.monotype_class, (il2cpp_array_size_t)types.size());
+	size_t index = 0;
+	for (vm::TypeVector::const_iterator type = types.begin (); type != types.end (); ++type)
+	{
+		Il2CppReflectionType* reflectionType = vm::Reflection::GetTypeObject ((*type)->byval_arg);
+		il2cpp_array_set (result, Il2CppReflectionType*, index, reflectionType);
+		index++;
+	}
+
+	return result;
 }
 
 Il2CppString* Module::GetGuidInternal (mscorlib_System_Reflection_Module * __this)

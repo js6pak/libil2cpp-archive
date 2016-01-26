@@ -17,6 +17,7 @@
 #include "vm/Parameter.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
+#include "vm/AssemblyName.h"
 #include "utils/StdUnorderedMap.h"
 #include "utils/StringUtils.h"
 
@@ -129,6 +130,14 @@ Il2CppReflectionAssembly* Reflection::GetAssemblyObject (const Il2CppAssembly *a
 	s_AssemblyMap->insert (AssemblyMap::value_type (key, res));
 
 	return res;
+}
+
+Il2CppReflectionAssemblyName* Reflection::GetAssemblyNameObject (const Il2CppAssemblyName *assemblyName)
+{
+	std::string fullAssemblyName = vm::AssemblyName::AssemblyNameToString (*assemblyName);
+	Il2CppReflectionAssemblyName* reflectionAssemblyName = (Il2CppReflectionAssemblyName*)Object::New (il2cpp_defaults.assembly_name_class);
+	vm::AssemblyName::ParseName (reflectionAssemblyName, fullAssemblyName);
+	return reflectionAssemblyName;
 }
 
 Il2CppReflectionField* Reflection::GetFieldObject (TypeInfo *klass, FieldInfo *field)

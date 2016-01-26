@@ -325,26 +325,46 @@ static inline void* il2cpp_codegen_get_delegate_this(Il2CppCodeGenMulticastDeleg
 
 static Il2CppCodeGenRuntimeTypeHandle LoadTypeToken(const Il2CppType* ptr)
 {
-	Il2CppCodeGenRuntimeTypeHandle handle = { { (void*)ptr } } ;
+	Il2CppCodeGenIntPtr intptr;
+	intptr.set_m_value_0(const_cast<Il2CppType*>(ptr));
+
+	Il2CppCodeGenRuntimeTypeHandle handle;
+	handle.set_value_0(intptr);
+
 	return handle;
 }
 
 static Il2CppCodeGenRuntimeFieldHandle LoadFieldToken(void* ptr)
 {
-	Il2CppCodeGenRuntimeFieldHandle handle = { { (void*)ptr } } ;
+	Il2CppCodeGenIntPtr intptr;
+	intptr.set_m_value_0(ptr);
+
+	Il2CppCodeGenRuntimeFieldHandle handle;
+	handle.set_value_0(intptr);
+
 	return handle;
 }
 
 static Il2CppCodeGenRuntimeArgumentHandle LoadArgList()
 {
-	Il2CppCodeGenRuntimeArgumentHandle handle = { { NULL } } ;
+	Il2CppCodeGenIntPtr intptr;
+	intptr.set_m_value_0(NULL);
+
+	Il2CppCodeGenRuntimeArgumentHandle handle;
+	handle.set_args_0(intptr);
+
 	assert(false && "__arglist usage not supported.");
 	return handle;
 }
 
 static Il2CppCodeGenRuntimeMethodHandle LoadMethodToken(const MethodInfo* ptr)
 {
-	Il2CppCodeGenRuntimeMethodHandle handle = { { (void*)ptr } } ;
+	Il2CppCodeGenIntPtr intptr;
+	intptr.set_m_value_0(const_cast<MethodInfo*>(ptr));
+
+	Il2CppCodeGenRuntimeMethodHandle handle;
+	handle.set_value_0(intptr);
+
 	return handle;
 }
 
@@ -397,84 +417,10 @@ static inline Il2CppCodeGenArray* SZArrayNew (TypeInfo* arrayType, uint32_t leng
 	return (Il2CppCodeGenArray*)il2cpp::vm::Array::NewSpecific (arrayType, length);
 }
 
-static inline Il2CppCodeGenArray* GenArrayNew2 (TypeInfo* arrayType, uint32_t length1, uint32_t length2)
+static inline Il2CppCodeGenArray* GenArrayNew(TypeInfo* arrayType, il2cpp_array_size_t* dimensions)
 {
-	il2cpp::vm::Class::Init (arrayType);
-	return (Il2CppCodeGenArray*)il2cpp::vm::Array::New2 (arrayType, length1, length2);
+	return (Il2CppCodeGenArray*)il2cpp::vm::Array::NewFull(arrayType, dimensions, NULL);
 }
-
-static inline Il2CppCodeGenArray* GenArrayNew3 (TypeInfo* arrayType, uint32_t length1, uint32_t length2, uint32_t length3)
-{
-	il2cpp::vm::Class::Init (arrayType);
-	return (Il2CppCodeGenArray*)il2cpp::vm::Array::New3 (arrayType, length1, length2, length3);
-}
-
-static inline Il2CppCodeGenArray* GenArrayNew4(TypeInfo* arrayType, uint32_t length1, uint32_t length2, uint32_t length3, uint32_t length4)
-{
-	il2cpp::vm::Class::Init(arrayType);
-	return (Il2CppCodeGenArray*)il2cpp::vm::Array::New4(arrayType, length1, length2, length3, length4);
-}
-
-#if IL2CPP_DEBUG
-static inline void* SZArrayLdElema (Il2CppCodeGenArray* arr, uint32_t index, size_t size)
-{
-	TypeInfo* arrayKlass = arr->_typeInfo;
-	assert (size == arr->_typeInfo->element_size);
-	return (void*)(((uint8_t*)(arr)) + sizeof (Il2CppCodeGenArray) + (arrayKlass->element_size * (index)));
-}
-#else
-#define SZArrayLdElema(a,index,size)\
-		(void*)(((uint8_t*)(a)) + sizeof (Il2CppCodeGenArray) + ((size) * (index)))
-#endif
-
-static inline uint8_t* GenArrayAddress2 (Il2CppCodeGenArray* a, uint32_t length1, uint32_t length2)
-{
-	size_t size = a->_typeInfo->element_size;
-	return (((uint8_t*)a) + sizeof(Il2CppCodeGenArray) + a->bounds[1].length * size * (length1) + size * (length2));
-}
-
-#define GenArrayGet2(a, length1, length2, type) \
-		*(type*)GenArrayAddress2 (a, length1, length2)
-
-#define GenArraySet2(a, length1, length2, value, type) \
-	do { \
-		*(type*)GenArrayAddress2 (a, length1, length2) = value; \
-	} while (0)
-
-static inline uint8_t* GenArrayAddress3 (Il2CppCodeGenArray* a, uint32_t length1, uint32_t length2, uint32_t length3)
-{
-	size_t size = a->_typeInfo->element_size;
-	return (((uint8_t*)a) + sizeof(Il2CppCodeGenArray) +
-		a->bounds[1].length * a->bounds[2].length * size * (length1) +
-		a->bounds[2].length * size * (length2) +
-		size * (length3));
-}
-
-#define GenArrayGet3(a, length1, length2, length3, type) \
-		*(type*)GenArrayAddress3 (a, length1, length2, length3)
-
-#define GenArraySet3(a, length1, length2, length3, value, type) \
-	do { \
-		*(type*)GenArrayAddress3 (a, length1, length2, length3) = value; \
-	} while (0)
-
-static inline uint8_t* GenArrayAddress4(Il2CppCodeGenArray* a, uint32_t length1, uint32_t length2, uint32_t length3, uint32_t length4)
-{
-	size_t size = a->_typeInfo->element_size;
-	return (((uint8_t*)a) + sizeof(Il2CppCodeGenArray) +
-		a->bounds[1].length * a->bounds[2].length * a->bounds[3].length * size * (length1) +
-		a->bounds[2].length * a->bounds[3].length * size * (length2) +
-		a->bounds[3].length * size * (length3) +
-		size * (length4));
-}
-
-#define GenArrayGet4(a, length1, length2, length3, length4, type) \
-		*(type*)GenArrayAddress4 (a, length1, length2, length3, length4)
-
-#define GenArraySet4(a, length1, length2, length3, length4, value, type) \
-	do { \
-		*(type*)GenArrayAddress4 (a, length1, length2, length3, length4) = value; \
-		} while (0)
 
 // Performance optimization as detailed here: http://blogs.msdn.com/b/clrcodegeneration/archive/2009/08/13/array-bounds-check-elimination-in-the-clr.aspx
 // Since array size is a signed int32_t, a single unsigned check can be performed to determine if index is less than array size.
@@ -1003,3 +949,8 @@ static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* des
 	} while (0)
 
 
+template <typename T>
+inline void Il2CppCodeGenWriteBarrier(T** targetAddress, T* object)
+{
+	// TODO
+}

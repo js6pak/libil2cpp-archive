@@ -13,6 +13,7 @@
 #include "../protocol/commands/internal-error.h"
 
 #include "../../vm/Assembly.h"
+#include "../../vm/AssemblyName.h"
 
 namespace il2cpp
 {
@@ -104,7 +105,7 @@ const Reply *Agent::Process(const AssemblyGetNameCommand *command)
 
 	const Il2CppAssembly *assembly = command->assembly();
 
-	reply->name(il2cpp::vm::Assembly::AssemblyNameToString(assembly->aname));
+	reply->name(il2cpp::vm::AssemblyName::AssemblyNameToString(assembly->aname));
 
 	return reply;
 }

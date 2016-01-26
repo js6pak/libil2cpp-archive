@@ -43,7 +43,7 @@ Il2CppIntPtr NativeEventCalls::CreateEvent_internal (bool manualReset, bool sign
 	else 
 		NOT_SUPPORTED_IL2CPP (NativeEventCalls::CreateEvent_internal, "Named events are not supported.");
 
-	Il2CppIntPtr ret = { new EventHandle (event) };
+	Il2CppIntPtr ret = { new EventHandle(event) };
 	return ret;
 }
 
