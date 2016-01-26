@@ -19,9 +19,6 @@ public:
 	static uint32_t GetLength (Il2CppArray* array);
 	static uint32_t GetByteLength (Il2CppArray* array);
 	static Il2CppArray* New (TypeInfo *elementTypeInfo, il2cpp_array_size_t length);
-	static Il2CppArray* New2 (TypeInfo *cm, uint32_t length1, uint32_t length2);
-	static Il2CppArray* New3 (TypeInfo *cm, uint32_t length1, uint32_t length2, uint32_t length3);
-	static Il2CppArray* New4 (TypeInfo *cm, uint32_t length1, uint32_t length2, uint32_t length3, uint32_t length4);
 	static Il2CppArray* NewSpecific (TypeInfo *arrayTypeInfo, il2cpp_array_size_t length);
 	static Il2CppArray* NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths, il2cpp_array_size_t *lower_bounds);
 public:

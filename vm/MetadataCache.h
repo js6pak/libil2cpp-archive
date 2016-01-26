@@ -94,6 +94,8 @@ public:
 
 	// returns the compiler computer field offset for type definition fields
 	static int32_t GetFieldOffsetFromIndex (FieldIndex index);
+
+	static int32_t GetReferenceAssemblyIndexIntoAssemblyTable (int32_t referencedAssemblyTableIndex);
 	
 	static const TypeDefinitionIndex GetIndexForTypeDefinition (const TypeInfo* typeDefinition);
 	static const GenericParameterIndex GetIndexForGenericParameter (const Il2CppGenericParameter* genericParameter);

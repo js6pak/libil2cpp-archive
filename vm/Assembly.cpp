@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "vm/Assembly.h"
+#include "vm/AssemblyName.h"
 #include "vm/MetadataCache.h"
 #include "vm/Runtime.h"
 #include <sstream>
@@ -35,10 +36,22 @@ const Il2CppAssembly* Assembly::GetLoadedAssembly(const char* name)
 	return NULL;
 }
 
-
 Il2CppImage* Assembly::GetImage (const Il2CppAssembly* assembly)
 {
 	return MetadataCache::GetImageFromIndex (assembly->imageIndex);
+}
+
+
+
+void Assembly::GetReferencedAssemblies (const Il2CppAssembly* assembly, AssemblyNameVector* target)
+{
+	for (size_t sourceIndex = 0; sourceIndex < assembly->referencedAssemblyCount; sourceIndex++)
+	{
+		int32_t indexIntoMainAssemblyTable = MetadataCache::GetReferenceAssemblyIndexIntoAssemblyTable (assembly->referencedAssemblyStart + sourceIndex);
+		const Il2CppAssembly* refAssembly = MetadataCache::GetAssemblyFromIndex (indexIntoMainAssemblyTable);
+
+		target->push_back (&refAssembly->aname);
+	}
 }
 
 static bool ends_with(const char *str, const char *suffix)
@@ -109,42 +122,6 @@ void Assembly::Initialize ()
 		il2cpp_debugger_notify_assembly_load(*assembly);
 #endif
 	}
-}
-
-static char HexValueToLowercaseAscii(uint8_t hexValue)
-{
-	if (hexValue < 10)
-		return char(hexValue + 48);
-
-	return char(hexValue + 87);
-}
-
-static std::string PublicKeyTokenToString(const uint8_t* publicKeyToken)
-{
-	std::string result(kPublicKeyByteLength*2, '0');
-	for (int i = 0; i < kPublicKeyByteLength; ++i)
-	{
-		uint8_t hi = (publicKeyToken[i] & 0xF0) >> 4;
-		uint8_t lo = publicKeyToken[i] & 0x0F;
-
-		result[i*2] = HexValueToLowercaseAscii(hi);
-		result[i*2 + 1] = HexValueToLowercaseAscii(lo);
-	}
-
-	return result;
-}
-
-std::string Assembly::AssemblyNameToString(const Il2CppAssemblyName& aname)
-{
-	std::stringstream stream;
-
-	stream << MetadataCache::GetStringFromIndex (aname.nameIndex)
-		<< ", Version=" << aname.major << "." << aname.minor << "." << aname.build << "." << aname.revision
-		<< ", Culture=" << (aname.cultureIndex != kStringLiteralIndexInvalid ? MetadataCache::GetStringFromIndex (aname.cultureIndex) : "neutral")
-		<< ", PublicKeyToken=" << (aname.publicKeyToken[0] ? PublicKeyTokenToString(aname.publicKeyToken).c_str() : "null")
-		<< ((aname.flags & ASSEMBLYREF_RETARGETABLE_FLAG) ? ", Retargetable=Yes" : "");
-
-	return stream.str();
 }
 
 } /* namespace vm */
