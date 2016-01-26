@@ -3,8 +3,6 @@
 #include <cassert>
 #include <vector>
 
-using namespace std;
-
 namespace il2cpp
 {
 namespace vm
@@ -25,7 +23,7 @@ struct ProfilerDesc
 	Il2CppProfileGCResizeFunc gcHeapResizeCallback;
 };
 
-typedef vector<ProfilerDesc*> ProfilersVec;
+typedef std::vector<ProfilerDesc*> ProfilersVec;
 static ProfilersVec s_profilers;
 Il2CppProfileFlags Profiler::s_profilerEvents;
 

@@ -1256,7 +1256,7 @@ void Socket::Shutdown (Il2CppIntPtr socket, SocketShutdown how, int32_t* error)
 
 Il2CppIntPtr Socket::Socket_internal (Il2CppObject *self, AddressFamily family, SocketType type, ProtocolType protocol, int32_t* error)
 {
-	Il2CppIntPtr socket = {0};
+	Il2CppIntPtr socket = { NULL };
 	
 	*error = 0;
 	
