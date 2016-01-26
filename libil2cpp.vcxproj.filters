@@ -670,6 +670,9 @@
     <ClCompile Include="vm\Module.cpp">
       <Filter>vm</Filter>
     </ClCompile>
+    <ClCompile Include="vm\AssemblyName.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1265,6 +1268,9 @@
       <Filter>vm</Filter>
     </ClInclude>
     <ClInclude Include="vm\Module.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\AssemblyName.h">
       <Filter>vm</Filter>
     </ClInclude>
   </ItemGroup>

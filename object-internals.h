@@ -361,7 +361,8 @@ struct Il2CppArgumentException {
 };
 
 // System.TypedReference
-struct Il2CppTypedRef {
+struct Il2CppTypedRef
+{
 	Il2CppType *type;
 	void*  value;
 	TypeInfo *klass;

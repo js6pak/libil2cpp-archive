@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include "icalls/mscorlib/System.Reflection/Assembly.h"
+#include "icalls/mscorlib/System.Reflection/Module.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 #include "os/File.h"
@@ -11,6 +12,7 @@
 #include "utils/Memory.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
+#include "vm/AssemblyName.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
@@ -21,6 +23,7 @@
 #include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Type.h"
+#include "vm/Array.h"
 #include "class-internals.h"
 #include <cassert>
 
@@ -39,7 +42,7 @@ namespace Reflection
 
 Il2CppString* Assembly::get_fullname(Il2CppReflectionAssembly *assembly)
 {
-	return vm::String::New(vm::Assembly::AssemblyNameToString(assembly->assembly->aname).c_str());
+	return vm::String::New(vm::AssemblyName::AssemblyNameToString(assembly->assembly->aname).c_str());
 }
 
 Il2CppString*  Assembly::get_location(Il2CppReflectionAssembly *assembly)
@@ -279,24 +282,7 @@ Il2CppString* Assembly::get_code_base(Il2CppReflectionAssembly * assembly, bool 
 Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* __this, bool exportedOnly)
 {
 	const Il2CppImage* image = MetadataCache::GetImageFromIndex (__this->assembly->imageIndex);
-	size_t typeCount = Image::GetNumTypes(image);
-
-	Il2CppArray* result = Array::New(il2cpp_defaults.monotype_class, (il2cpp_array_size_t)typeCount - 1); // typeCount is one less because we're excluding <Module> type
-
-	for (size_t sourceIndex = 0, resultIndex = 0; sourceIndex < typeCount; sourceIndex++)
-	{
-		const TypeInfo* type = Image::GetType (image, sourceIndex);
-		if (strcmp (type->name, "<Module>") == 0)
-		{
-			continue;
-		}
-
-		Il2CppReflectionType* reflectionType = vm::Reflection::GetTypeObject (type->byval_arg);
-		il2cpp_array_set(result, Il2CppReflectionType*, resultIndex, reflectionType);
-		resultIndex++;
-	}
-
-	return result;
+	return Module::InternalGetTypes (vm::Reflection::GetModuleObject (image));
 }
 
 Il2CppString* Assembly::InternalImageRuntimeVersion (Il2CppAssembly* self)
@@ -346,11 +332,21 @@ Il2CppArray* Assembly::GetNamespaces (Il2CppAssembly* self)
 	return 0;
 }
 
-Il2CppArray* Assembly::GetReferencedAssemblies(Il2CppAssembly* self)
+Il2CppArray* Assembly::GetReferencedAssemblies(Il2CppReflectionAssembly* self)
 {
-	NOT_SUPPORTED_IL2CPP(Assembly::GetReferencedAssemblies, "This icall is not supported by il2cpp.");
+	vm::AssemblyNameVector referencedAssemblies;
+	vm::Assembly::GetReferencedAssemblies (self->assembly, &referencedAssemblies);
+	Il2CppArray* result = Array::New (il2cpp_defaults.assembly_name_class, (il2cpp_array_size_t)referencedAssemblies.size());
+	size_t index = 0;
+	for (vm::AssemblyNameVector::const_iterator aname = referencedAssemblies.begin (); aname != referencedAssemblies.end (); ++aname)
+	{
 
-	return 0;
+		Il2CppReflectionAssemblyName* reflectionAssemblyName = vm::Reflection::GetAssemblyNameObject (*aname);
+		il2cpp_array_set (result, Il2CppReflectionAssemblyName*, index, reflectionAssemblyName);
+		index++;
+	}
+
+	return result;
 }
 
 static void* LoadResourceFile(Il2CppReflectionAssembly* assembly)
