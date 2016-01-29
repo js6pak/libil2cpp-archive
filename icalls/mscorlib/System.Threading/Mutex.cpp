@@ -29,7 +29,7 @@ Il2CppIntPtr Mutex::CreateMutex_internal (bool initiallyOwned, Il2CppString* nam
 	if (initiallyOwned)
 		mutex->Lock ();
 
-	Il2CppIntPtr ret = { new il2cpp::os::MutexHandle (mutex) };
+	Il2CppIntPtr ret = { new il2cpp::os::MutexHandle(mutex) };
 	return ret;
 }
 

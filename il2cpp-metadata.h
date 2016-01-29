@@ -309,6 +309,8 @@ struct Il2CppAssembly
 {
 	ImageIndex imageIndex;
 	CustomAttributeIndex customAttributeIndex;
+	int32_t referencedAssemblyStart;
+	int32_t referencedAssemblyCount;
 	Il2CppAssemblyName aname;
 };
 
@@ -381,5 +383,7 @@ struct Il2CppGlobalMetadataHeader
 	int32_t metadataUsagePairsCount;
 	int32_t fieldRefsOffset; // Il2CppFieldRef
 	int32_t fieldRefsCount;
+	int32_t referencedAssembliesOffset; // int32_t
+	int32_t referencedAssembliesCount;
 };
 #pragma pack(pop, p1)
