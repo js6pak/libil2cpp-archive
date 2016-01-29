@@ -143,7 +143,7 @@ void MetadataCache::Initialize()
 	s_GlobalMetadata = vm::MetadataLoader::LoadMetadataFile ("global-metadata.dat");
 	s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
 	assert (s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-	assert (s_GlobalMetadataHeader->version == 19);
+	assert (s_GlobalMetadataHeader->version == 20);
 
 	const Il2CppAssembly* assemblies = (const Il2CppAssembly*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->assembliesOffset);
 	for (uint32_t i = 0; i < s_GlobalMetadataHeader->assembliesCount / sizeof(Il2CppAssembly); i++)
@@ -400,8 +400,17 @@ static const Il2CppGenericInst* GetSharedInst (const Il2CppGenericInst* inst)
 			types.push_back (il2cpp_defaults.object_class->byval_arg);
 		else
 		{
+#ifdef ENABLE_GENERIC_SHARING_FOR_VALUE_TYPES
+			const Il2CppType* type = Type::GetUnderlyingType(inst->type_argv[i]);
+			if (type->type == IL2CPP_TYPE_BOOLEAN)
+				type = il2cpp_defaults.byte_class->byval_arg;
+			else if (type->type == IL2CPP_TYPE_CHAR)
+				type = il2cpp_defaults.uint16_class->byval_arg;
+			else if (Type::IsGenericInstance(type))
+#else
 			const Il2CppType* type = inst->type_argv[i];
 			if (Type::IsGenericInstance(type))
+#endif //ENABLE_GENERIC_SHARING_FOR_VALUE_TYPES
 			{
 				const Il2CppGenericInst* sharedInst = GetSharedInst (type->data.generic_class->context.class_inst);
 				Il2CppGenericClass* gklass = GenericMetadata::GetGenericClass (type->data.generic_class->typeDefinitionIndex, sharedInst);
@@ -966,6 +975,14 @@ int32_t MetadataCache::GetFieldOffsetFromIndex (FieldIndex index)
 {
 	assert (index <= s_Il2CppMetadataRegistration->fieldOffsetsCount);
 	return s_Il2CppMetadataRegistration->fieldOffsets [index];
+}
+
+
+int32_t MetadataCache::GetReferenceAssemblyIndexIntoAssemblyTable (int32_t referencedAssemblyTableIndex)
+{
+	assert (referencedAssemblyTableIndex <= s_GlobalMetadataHeader->referencedAssembliesCount / sizeof(int32_t));
+	const int32_t* referenceAssemblyIndicies = (const int32_t*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->referencedAssembliesOffset);
+	return referenceAssemblyIndicies[referencedAssemblyTableIndex];
 }
 
 const TypeDefinitionIndex MetadataCache::GetIndexForTypeDefinition (const TypeInfo* typeDefinition)
