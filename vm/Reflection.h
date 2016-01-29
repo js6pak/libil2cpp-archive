@@ -5,6 +5,7 @@
 struct Il2CppString;
 struct Il2CppArray;
 struct Il2CppReflectionAssembly;
+struct Il2CppReflectionAssemblyName;
 struct Il2CppReflectionField;
 struct Il2CppReflectionMethod;
 struct Il2CppReflectionModule;
@@ -21,6 +22,7 @@ struct TypeInfo;
 struct CustomAttributesCache;
 struct CustomAttributeTypeCache;
 struct Il2CppAssembly;
+struct Il2CppAssemblyName;
 struct Il2CppImage;
 struct Il2CppType;
 struct Il2CppObject;
@@ -35,6 +37,7 @@ class Reflection
 // exported
 public:
 	static Il2CppReflectionAssembly* GetAssemblyObject (const Il2CppAssembly *assembly);
+	static Il2CppReflectionAssemblyName* GetAssemblyNameObject (const Il2CppAssemblyName *assemblyName);
 	static Il2CppReflectionField* GetFieldObject (TypeInfo *klass, FieldInfo *field);
 	static Il2CppReflectionProperty* GetPropertyObject (TypeInfo *klass, const PropertyInfo *property);
 	static Il2CppReflectionEvent* GetEventObject(TypeInfo *klass, const EventInfo *event);
