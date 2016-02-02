@@ -344,7 +344,7 @@ struct Il2CppException {
 	Il2CppString *stack_trace;
 	Il2CppString *remote_stack_trace;
 	int32_t    remote_stack_index;
-	int32_t    hresult;
+	il2cpp_hresult_t hresult;
 	Il2CppString *source;
 	Il2CppObject *_data;
 };
@@ -646,4 +646,19 @@ struct Il2CppAppContext
 	int32_t domain_id;
 	int32_t context_id;
 	void* static_data;
+};
+
+struct Il2CppGuid
+{
+	uint32_t data1;
+	uint16_t data2;
+	uint16_t data3;
+	uint8_t data4[8];
+};
+
+struct NOVTABLE Il2CppIUnknown
+{
+	virtual il2cpp_hresult_t STDCALL QueryInterface(const Il2CppGuid& iid, void** object) = 0;
+	virtual uint32_t STDCALL AddRef() = 0;
+	virtual uint32_t STDCALL Release() = 0;
 };

@@ -257,6 +257,8 @@ void Runtime::Shutdown ()
 	// after the gc cleanup so the finalizer thread can unregister itself
 	Thread::UnInitialize ();
 
+	os::Thread::Shutdown ();
+
 	vm::Image::ClearCachedResourceData();
 	MetadataAllocCleanup ();
 
@@ -606,17 +608,17 @@ VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeIn
 	Assert(slot != 65535 && "GetInterfaceInvokeData got called on a non-virtual method");
 
 	TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
-	int32_t itf_offset = Class::GetInterfaceOffset (typeInfo, declaringInterface);
-	assert (itf_offset != -1);
+	int32_t itf_offset = Class::GetInterfaceOffset(typeInfo, declaringInterface);
+	assert(itf_offset != -1);
 	slot += itf_offset;
 	const MethodInfo* targetMethodInfo = typeInfo->vtable[slot];
 #if IL2CPP_DEBUG
 	assert(targetMethodInfo);
 #endif
-	
+
 	if (!targetMethodInfo->method)
 		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
-	
+
 	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
 	if (targetMethodType->valuetype && !targetMethodType->enumtype)
 		obj = (void*)((char*)obj + sizeof(Il2CppObject));
