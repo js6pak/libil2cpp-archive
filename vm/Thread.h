@@ -34,6 +34,15 @@ enum ThreadState
 };
 
 
+// System.Threading.ApartmentState
+enum ThreadApartmentState
+{
+	kThreadApartmentStateSTA = 0x00000000,
+	kThreadApartmentStateMTA = 0x00000001,
+	kThreadApartmentStateUnknown = 0x00000002
+};
+
+
 class Thread
 {
 public:

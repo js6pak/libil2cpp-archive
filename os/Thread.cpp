@@ -38,7 +38,14 @@ Thread::~Thread()
 
 void Thread::Init ()
 {
-	GetOrCreateCurrentThread ();
+	Thread* thread = GetOrCreateCurrentThread ();
+	thread->SetApartment (kApartmentStateInMTA);
+}
+
+void Thread::Shutdown ()
+{
+	Thread* thread = GetCurrentThread();
+	thread->SetApartment (kApartmentStateUnknown);
 }
 
 Thread::ThreadId Thread::Id ()
@@ -75,6 +82,14 @@ void Thread::RunWrapper (void* arg)
 
 	// Store thread reference.
 	Thread* thread = data->thread;
+
+	const ApartmentState apartment = thread->GetExplicitApartment();
+	if (apartment != kApartmentStateUnknown)
+	{
+		thread->SetExplicitApartment(kApartmentStateUnknown);
+		thread->SetApartment(apartment);
+	}
+
 	s_CurrentThread.SetValue (thread);
 
 	// Get rid of StartData.
@@ -89,6 +104,8 @@ void Thread::RunWrapper (void* arg)
 	thread->m_State = kThreadRunning;
 	startFunction (startFunctionArgument);
 	thread->m_State = kThreadExited;
+
+	thread->SetApartment(kApartmentStateUnknown);
 
 	// Signal that we've finished execution.
 	thread->m_ThreadExitedEvent.Set ();
@@ -129,6 +146,43 @@ void Thread::QueueUserAPC (APCFunc func, void* context)
 	m_Thread->QueueUserAPC (func, context);
 }
 
+ApartmentState Thread::GetApartment()
+{
+#if IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS
+	return m_Thread->GetApartment();
+#else
+	return kApartmentStateUnknown;
+#endif
+}
+
+ApartmentState Thread::GetExplicitApartment()
+{
+#if IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS
+	return m_Thread->GetExplicitApartment();
+#else
+	return kApartmentStateUnknown;
+#endif
+}
+
+ApartmentState Thread::SetApartment(ApartmentState state)
+{
+#if IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS
+	return m_Thread->SetApartment(state);
+#else
+	NO_UNUSED_WARNING(state);
+	return GetApartment();
+#endif
+}
+
+void Thread::SetExplicitApartment(ApartmentState state)
+{
+#if IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS
+	m_Thread->SetExplicitApartment(state);
+#else
+	NO_UNUSED_WARNING(state);
+#endif
+}
+
 void Thread::Sleep (uint32_t milliseconds, bool interruptible)
 {
 	ThreadImpl::Sleep (milliseconds, interruptible);
@@ -163,9 +217,9 @@ Thread* Thread::GetOrCreateCurrentThread ()
 void Thread::DetachCurrentThread ()
 {
 #if IL2CPP_DEBUG
-	void* value;
-	s_CurrentThread.GetValue (&value);
-	assert (value != NULL);
+		void* value;
+		s_CurrentThread.GetValue(&value);
+		assert(value != NULL);
 #endif
 
 	s_CurrentThread.SetValue (NULL);

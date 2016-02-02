@@ -106,6 +106,7 @@ Il2CppThread* Thread::Attach (Il2CppDomain *domain)
 void Thread::Setup (Il2CppThread* thread)
 {
 	thread->synch_cs = new il2cpp::os::FastMutex ();
+	thread->apartment_state = kApartmentStateUnknown;
 }
 
 void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
@@ -129,6 +130,9 @@ void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
 		std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8 (thread->name);
 		thread->handle->SetName (utf8Name);
 	}
+
+	// Sync thread apartment state.
+	thread->apartment_state = thread->handle->GetApartment();
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 	// register us for platform specific cleanup attempt in case thread is not exited cleanly
