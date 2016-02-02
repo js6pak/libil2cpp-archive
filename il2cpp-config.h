@@ -197,6 +197,12 @@
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
 #endif
 
+#if IL2CPP_COMPILER_MSVC
+#define NOVTABLE __declspec(novtable)
+#else
+#define NOVTABLE
+#endif
+
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
 
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
@@ -244,6 +250,8 @@
 
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
 #define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD)
+
+#define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 
 #if !defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE) && IL2CPP_TARGET_IOS
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
@@ -444,3 +452,8 @@ const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2)
 
 #define NO_UNUSED_WARNING(expr) (void)(expr)
+
+typedef int32_t il2cpp_hresult_t;
+
+#define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
+#define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)

@@ -161,7 +161,8 @@ struct Il2CppTypeDefinition
 	// 03 - has_finalize;
 	// 04 - has_cctor;
 	// 05 - is_blittable;
-	// 06-09 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
+	// 06 - is_import;
+	// 07-10 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
 	uint32_t bitfield;
 	uint32_t token;
 };
