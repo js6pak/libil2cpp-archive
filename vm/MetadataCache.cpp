@@ -676,7 +676,8 @@ static const int kBitIsEnum = 2;
 static const int kBitHasFinalizer = 3;
 static const int kBitHasStaticConstructor = 4;
 static const int kBitIsBlittable = 5;
-static const int kPackingSize = 6; // This uses 4 bits from bit 6 to bit 9
+static const int kBitIsImport = 6;
+static const int kPackingSize = 7; // This uses 4 bits from bit 7 to bit 10
 
 static TypeInfo* FromTypeDefinition (TypeDefinitionIndex index)
 {
@@ -706,6 +707,7 @@ static TypeInfo* FromTypeDefinition (TypeDefinitionIndex index)
 	typeInfo->has_finalize = (typeDefinition->bitfield >> (kBitHasFinalizer - 1)) & 0x1;
 	typeInfo->has_cctor = (typeDefinition->bitfield >> (kBitHasStaticConstructor - 1)) & 0x1;
 	typeInfo->is_blittable = (typeDefinition->bitfield >> (kBitIsBlittable - 1)) & 0x1;
+	typeInfo->is_import = (typeDefinition->bitfield >> (kBitIsImport - 1)) & 0x1;
 	typeInfo->packingSize = ConvertPackingSizeEnumToValue(static_cast<PackingSize>((typeDefinition->bitfield >> (kPackingSize - 1)) & 0xF));
 	typeInfo->method_count = typeDefinition->method_count;
 	typeInfo->property_count = typeDefinition->property_count;

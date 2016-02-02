@@ -56,11 +56,62 @@ void Exception::RaiseDivideByZeroException ()
 	Raise (GetDivideByZeroException ());
 }
 
-void Exception::RaiseCOMException(int hresult)
+void Exception::RaiseCOMException(il2cpp_hresult_t hresult, const char* msg)
 {
-	Il2CppException* exception = Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", NULL);
+	Il2CppException* exception = Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", msg);
 	exception->hresult = hresult;
 	Exception::Raise(exception);
+}
+
+void Exception::Raise(il2cpp_hresult_t hresult)
+{
+	switch (hresult)
+	{
+	case (il2cpp_hresult_t)0x80004001: // E_NOTIMPL
+		Raise(FromNameMsg(Image::GetCorlib(), "System", "NotImplementedException", NULL));
+
+	case (il2cpp_hresult_t)0x80004002: // E_NOINTERFACE
+		Raise(GetInvalidCastException(NULL));
+
+	case (il2cpp_hresult_t)0x80004003: // E_POINTER
+		RaiseNullReferenceException();
+
+	case (il2cpp_hresult_t)0x80004004: // E_ABORT
+		Raise(FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", NULL));
+
+	case (il2cpp_hresult_t)0x80004005: // E_FAIL
+		RaiseCOMException(hresult, "Unspecified error");
+
+	case (il2cpp_hresult_t)0x80070005: // E_ACCESSDENIED
+		Raise(GetUnauthorizedAccessException(NULL));
+
+	case (il2cpp_hresult_t)0x8007000E: // E_OUTOFMEMORY
+		RaiseOutOfMemoryException();
+
+	case (il2cpp_hresult_t)0x80070057: // E_INVALIDARG
+		Raise(GetArgumentException(NULL, NULL));
+
+	case (il2cpp_hresult_t)0x8000000B: // E_BOUNDS
+		Raise(GetIndexOutOfRangeException());
+
+	case (il2cpp_hresult_t)0x8000000C: // E_CHANGED_STATE
+		RaiseCOMException(hresult, "A concurrent or interleaved operation changed the state of the object, invalidating this operation.");
+
+	case (il2cpp_hresult_t)0x80040154: // REGDB_E_CLASSNOTREG
+		RaiseCOMException(hresult, "Class not registered.");
+
+	case (il2cpp_hresult_t)0x8001010E: // RPC_E_WRONG_THREAD
+		RaiseCOMException(hresult, "The application called an interface that was marshalled for a different thread.");
+
+	case (il2cpp_hresult_t)0x80010108: // RPC_E_DISCONNECTED
+		RaiseCOMException(hresult, "The object invoked has disconnected from its clients.");
+
+	case (il2cpp_hresult_t)0x80000013: // RO_E_CLOSED
+		Raise(FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", NULL));
+
+	default:
+		RaiseCOMException(hresult);
+	}
 }
 
 Il2CppException* Exception::FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg)

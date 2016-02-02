@@ -135,7 +135,7 @@ static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type
 	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
 }
 
-static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
+inline void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
 {
 	il2cpp::vm::Exception::Raise ((Il2CppException*)ex);
 }
@@ -912,6 +912,13 @@ template <typename T>
 static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* newValue, T* oldValue)
 {
 	return il2cpp::vm::Atomic::CompareExchangePointer(dest, newValue, oldValue);
+}
+
+// COM
+
+static inline void il2cpp_codegen_com_raise_exception_if_failed(il2cpp_hresult_t hr)
+{
+	il2cpp::vm::Exception::RaiseIfFailed(hr);
 }
 
 // Exception support macros
