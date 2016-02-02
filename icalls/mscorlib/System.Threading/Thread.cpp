@@ -214,6 +214,7 @@ Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * st
 
 	il2cpp::os::Thread* thread = new il2cpp::os::Thread();
 	thread->SetStackSize (__this->stack_size);
+	thread->SetExplicitApartment (static_cast<il2cpp::os::ApartmentState>(__this->apartment_state));
 	il2cpp::os::ErrorCode status = thread->Run(&ThreadStart, startData);
 	if (status != il2cpp::os::kErrorCodeSuccess)
 	{
