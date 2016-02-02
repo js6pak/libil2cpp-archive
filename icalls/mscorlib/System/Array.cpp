@@ -92,20 +92,14 @@ Il2CppArray * Array::CreateInstanceImpl (Il2CppReflectionType * elementType,Il2C
 bool Array::FastCopy (Il2CppArray *source, int32_t source_idx, Il2CppArray *dest, int32_t dest_idx, int32_t length)
 {
 	int element_size;
-	//void * dest_addr;
-	//void * source_addr;
 	TypeInfo *src_class;
 	TypeInfo *dest_class;
 	int i;
 	
-	NOT_IMPLEMENTED_ICALL_NO_ASSERT (Array::FastCopy, "review against mono version");
 	if (source->obj.klass->rank != dest->obj.klass->rank)
 		return false;
 
 	if (source->bounds || dest->bounds)
-		return false;
-
-	if (source->obj.klass->element_class->valuetype != dest->obj.klass->element_class->valuetype)
 		return false;
 
 	/* there's no integer overflow since mono_array_length returns an unsigned integer */
@@ -116,72 +110,65 @@ bool Array::FastCopy (Il2CppArray *source, int32_t source_idx, Il2CppArray *dest
 	src_class = source->obj.klass->element_class;
 	dest_class = dest->obj.klass->element_class;
 
-	/*
-	 * Handle common cases.
-	 */
-
-	/* Case1: object[] -> valuetype[] (ArrayList::ToArray) */
+	// object[] -> valuetype[]
 	if (src_class == il2cpp_defaults.object_class && dest_class->valuetype)
 	{
-		/*
-		int has_refs = false;//dest_class->has_references;
-
 		for (i = source_idx; i < source_idx + length; ++i)
 		{
 			Il2CppObject *elem = il2cpp_array_get (source, Il2CppObject*, i);
-			if (elem && !mono_object_isinst (elem, dest_class))
-				return FALSE;
-		}*/
+			if (elem && !Object::IsInst (elem, dest_class))
+				return false;
+		}
 
 		element_size = il2cpp_array_element_size (dest->obj.klass);
 		memset (il2cpp_array_addr_with_size (dest, element_size, dest_idx), 0, element_size * length);
 		for (i = 0; i < length; ++i)
 		{
 			Il2CppObject *elem = il2cpp_array_get (source, Il2CppObject*, source_idx + i);
-			void *addr = il2cpp_array_addr_with_size (dest, element_size, dest_idx + i);
+#if IL2CPP_ENABLE_MONO_BUG_EMULATION
 			if (!elem)
 				continue;
-			/*if (has_refs)
-				mono_value_copy (addr, (char *)elem + sizeof (Il2CppObject), dest_class);
-			else*/
-				memcpy (addr, (char *)elem + sizeof (Il2CppObject), element_size);
+#else
+			if (!elem)
+				Exception::Raise (Exception::GetInvalidCastException ("At least one element in the source array could not be cast down to the destination array type."));
+#endif
+
+			NOT_IMPLEMENTED_ICALL_NO_ASSERT(Array::FastCopy, "Need GC write barrier");
+			memcpy (il2cpp_array_addr_with_size(dest, element_size, dest_idx + i), Object::Unbox (elem), element_size);
 		}
 		return true;
 	}
 
-	/* Check if we're copying a char[] <==> (u)short[] */
-	//if (src_class != dest_class) {
-	//	if (dest_class->valuetype || dest_class->enumtype || src_class->valuetype || src_class->enumtype)
-	//		return false;
+	if (src_class != dest_class)
+	{
+		if (Class::IsValuetype (dest_class) || Class::IsEnum (dest_class) || Class::IsValuetype (src_class) || Class::IsEnum (src_class))
+			return false;
 
-	//	if (mono_class_is_subclass_of (src_class, dest_class, FALSE))
-	//		;
-	//	/* Case2: object[] -> reftype[] (ArrayList::ToArray) */
-	//	else if (mono_class_is_subclass_of (dest_class, src_class, FALSE))
-	//		for (i = source_idx; i < source_idx + length; ++i) {
-	//			MonoObject *elem = mono_array_get (source, MonoObject*, i);
-	//			if (elem && !mono_object_isinst (elem, dest_class))
-	//				return FALSE;
-	//		}
-	//	else
-	//		return FALSE;
-	//}
+		// object[] -> reftype[]
+		if (Class::IsSubclassOf(dest_class, src_class, false))
+		{
+			for (i = source_idx; i < source_idx + length; ++i)
+			{
+				Il2CppObject *elem = il2cpp_array_get (source, Il2CppObject*, i);
+				if (elem && !Object::IsInst(elem, dest_class))
+					Exception::Raise(Exception::GetInvalidCastException("At least one element in the source array could not be cast down to the destination array type."));
+			}
+		}
+		else if (!Class::IsSubclassOf(src_class, dest_class, false))
+			return false;
 
-	//if (dest_class->valuetype) {
-	//	element_size = mono_array_element_size (source->obj.vtable->klass);
-	//	source_addr = mono_array_addr_with_size (source, element_size, source_idx);
-	//	if (dest_class->has_references) {
-	//		mono_value_copy_array (dest, dest_idx, source_addr, length);
-	//	} else {
-	//		dest_addr = mono_array_addr_with_size (dest, element_size, dest_idx);
-	//		memmove (dest_addr, source_addr, element_size * length);
-	//	}
-	//} else {
-		memmove((uint8_t*)dest + sizeof(Il2CppArray) + dest_idx * il2cpp_array_element_size (dest->obj.klass),
-			(uint8_t*)source + sizeof(Il2CppArray) + source_idx * il2cpp_array_element_size (source->obj.klass),
-			length * il2cpp_array_element_size (dest->obj.klass));
-		//mono_array_memcpy_refs (dest, dest_idx, source, source_idx, length);
-	//}
+		// derivedtype[] -> basetype[]
+		assert(Type::IsReference(src_class->byval_arg));
+		assert(Type::IsReference(dest_class->byval_arg));
+	}
+
+	assert(il2cpp_array_element_size(dest->obj.klass) == il2cpp_array_element_size(source->obj.klass));
+
+	NOT_IMPLEMENTED_ICALL_NO_ASSERT (Array::FastCopy, "Need GC write barrier");
+	memmove(
+		il2cpp_array_addr_with_size (dest, il2cpp_array_element_size(dest->obj.klass), dest_idx),
+		il2cpp_array_addr_with_size (source, il2cpp_array_element_size(source->obj.klass), source_idx),
+		length * il2cpp_array_element_size (dest->obj.klass));
 
 	return true;
 }
