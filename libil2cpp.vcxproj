@@ -855,6 +855,7 @@
     <ClInclude Include="utils\CallOnce.h" />
     <ClInclude Include="utils\Collections.h" />
     <ClInclude Include="utils\DirectoryUtils.h" />
+    <ClInclude Include="utils\dynamic_array.h" />
     <ClInclude Include="utils\Functional.h" />
     <ClInclude Include="utils\HashUtils.h" />
     <ClInclude Include="utils\MathUtils.h" />
@@ -1106,6 +1107,7 @@
     <ClCompile Include="os\Posix\Encoding.cpp" />
     <ClCompile Include="os\Posix\LibraryLoader.cpp" />
     <ClCompile Include="os\Posix\MarshalAlloc.cpp" />
+    <ClCompile Include="os\Posix\Memory.cpp" />
     <ClCompile Include="os\Posix\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Posix\Path.cpp" />
     <ClCompile Include="os\Posix\PosixWaitObject.cpp" />
@@ -1139,6 +1141,7 @@
     <ClCompile Include="os\ThreadLocalValue.cpp" />
     <ClCompile Include="os\Win32\EventImpl.cpp" />
     <ClCompile Include="os\Win32\MarshalAlloc.cpp" />
+    <ClCompile Include="os\Win32\Memory.cpp" />
     <ClCompile Include="os\Win32\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Win32\MutexImpl.cpp" />
     <ClCompile Include="os\Win32\Path.cpp" />

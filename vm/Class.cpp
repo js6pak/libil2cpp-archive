@@ -52,7 +52,7 @@ namespace il2cpp
 namespace vm
 {
 
-static std::vector<TypeInfo*> s_staticFieldData;
+static dynamic_array<TypeInfo*> s_staticFieldData;
 static int32_t s_FinalizerSlot = -1;
 static int32_t s_GetHashCodeSlot = -1;
 
@@ -1709,7 +1709,7 @@ bool Class::HasReferences (TypeInfo *klass)
 	}
 }
 
-const std::vector<TypeInfo*>& Class::GetStaticFieldData ()
+const dynamic_array<TypeInfo*>& Class::GetStaticFieldData ()
 {
 	return s_staticFieldData;
 }

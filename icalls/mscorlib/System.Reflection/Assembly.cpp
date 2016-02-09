@@ -197,7 +197,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 			if (assemblyName->publicKeyToken[i] != 0)
 			{
 				keyTokenManaged = Array::New(il2cpp_defaults.byte_class, kPublicKeyByteLength);
-				memcpy(keyTokenManaged->vector, assemblyName->publicKeyToken, kPublicKeyByteLength);
+				memcpy(il2cpp::vm::Array::GetFirstElementAddress (keyTokenManaged), assemblyName->publicKeyToken, kPublicKeyByteLength);
 				break;
 			}
 		}
