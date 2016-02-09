@@ -72,7 +72,7 @@ public:
 		if (managedArray == NULL)
 			return NULL;
 
-		return (ElementType*)managedArray->vector;
+		return (ElementType*)Array::GetFirstElementAddress(managedArray);
 	}
 
 	template <typename ElementType>
