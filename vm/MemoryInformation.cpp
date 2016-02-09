@@ -284,9 +284,9 @@ void FillRuntimeInformation(Il2CppRuntimeInformation& runtimeInfo)
 {
 	runtimeInfo.pointerSize = static_cast<uint32_t>(sizeof(void*));
 	runtimeInfo.objectHeaderSize = static_cast<uint32_t>(sizeof(Il2CppObject));
-	runtimeInfo.arrayHeaderSize = static_cast<uint32_t>(sizeof(Il2CppArray));
-	runtimeInfo.arraySizeOffsetInHeader = offsetof(Il2CppArray, max_length);
-	runtimeInfo.arrayBoundsOffsetInHeader = offsetof(Il2CppArray, bounds);
+	runtimeInfo.arrayHeaderSize = static_cast<uint32_t>(kIl2CppSizeOfArray);
+	runtimeInfo.arraySizeOffsetInHeader = kIl2CppOffsetOfArrayLength;
+	runtimeInfo.arrayBoundsOffsetInHeader = kIl2CppOffsetOfArrayBounds;
 	runtimeInfo.allocationGranularity = static_cast<uint32_t>(2 * sizeof(void*));
 }
 

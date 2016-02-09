@@ -123,6 +123,12 @@
     <ClCompile Include="debugger\handlers\array-ref.cpp">
       <Filter>debugger\handlers</Filter>
     </ClCompile>
+	<ClCompile Include="os\Win32\Memory.cpp">
+      <Filter>os\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Posix\Memory.cpp">
+      <Filter>os\Posix</Filter>
+    </ClCompile>
     <ClCompile Include="os\Thread.cpp">
       <Filter>os</Filter>
     </ClCompile>
@@ -682,6 +688,9 @@
     <ClInclude Include="metadata.h" />
     <ClInclude Include="number-formatter.h" />
     <ClInclude Include="object-internals.h" />
+    <ClInclude Include="utils\dynamic_array.h">
+      <Filter>utils</Filter>
+    </ClInclude>
     <ClInclude Include="icalls\mscorlib\System\Type.h">
       <Filter>icalls\mscorlib\System</Filter>
     </ClInclude>

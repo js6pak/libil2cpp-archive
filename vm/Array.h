@@ -28,6 +28,7 @@ public:
 		return New (elementTypeInfo, length);
 	}
 
+	static char* GetFirstElementAddress (Il2CppArray *array);
 };
 
 } /* namespace vm */
@@ -40,7 +41,7 @@ extern "C"
 	IL2CPP_EXPORT int il2cpp_array_element_size (const TypeInfo *ac);
 }
 
-#define load_array_elema(arr,idx,size) ((((uint8_t*)(arr)) + sizeof (Il2CppArray)) + ((size) * (idx)))
+#define load_array_elema(arr,idx,size) ((((uint8_t*)(arr)) + kIl2CppSizeOfArray) + ((size) * (idx)))
 
 #define il2cpp_array_setwithsize(array, elementSize, index, value)  \
     do {    \

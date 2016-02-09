@@ -404,11 +404,11 @@ static inline T InterlockedExchangeImpl (T* location, T value)
 }
 
 static inline void ArrayGetGenericValueImpl (Il2CppCodeGenArray* __this, int32_t pos, void* value){
-	memcpy(value, ((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->_typeInfo->element_size, __this->_typeInfo->element_size);
+	memcpy(value, ((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->klass->element_size, __this->klass->element_size);
 }
 
 static inline void ArraySetGenericValueImpl (Il2CppCodeGenArray * __this, int32_t pos, void* value){
-	memcpy(((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->_typeInfo->element_size, value, __this->_typeInfo->element_size);
+	memcpy(((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->klass->element_size, value, __this->klass->element_size);
 }
 
 static inline Il2CppCodeGenArray* SZArrayNew (TypeInfo* arrayType, uint32_t length)
@@ -757,7 +757,7 @@ static inline bool MethodHasParameters(const MethodInfo* method)
 
 inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 {
-	if (value != NULL && !il2cpp_codegen_class_is_assignable_from(((Il2CppArray*)array)->obj.klass->element_class, ((Il2CppObject*)value)->klass))
+	if (value != NULL && !il2cpp_codegen_class_is_assignable_from(((Il2CppArray*)array)->klass->element_class, ((Il2CppObject*)value)->klass))
 		il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
 }
 

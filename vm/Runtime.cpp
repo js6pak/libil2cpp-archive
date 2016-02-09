@@ -363,7 +363,7 @@ Il2CppObject* Runtime::InvokeArray (const MethodInfo *method, void *obj, Il2CppA
 		return InvokeConvertArgs(method, obj, NULL, 0, exc);
 
 	// TO DO: when changing GC to one that moves managed objects around, mark params array local variable as pinned!
-	return InvokeConvertArgs(method, obj, reinterpret_cast<Il2CppObject**>(&params->vector), Array::GetLength(params), exc);
+	return InvokeConvertArgs(method, obj, reinterpret_cast<Il2CppObject**>(Array::GetFirstElementAddress(params)), Array::GetLength(params), exc);
 }
 
 void Runtime::ObjectInit (Il2CppObject *object)
