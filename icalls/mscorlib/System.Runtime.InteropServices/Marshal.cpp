@@ -61,13 +61,13 @@ Il2CppIntPtr Marshal::AllocHGlobal (Il2CppIntPtr size)
 
 void Marshal::copy_from_unmanaged (Il2CppIntPtr source,int startIndex, Il2CppArray * destination, int length)
 {
-	uint32_t element_size = (uint32_t)il2cpp_array_element_size (destination->obj.klass);
+	uint32_t element_size = (uint32_t)il2cpp_array_element_size (destination->klass);
 	memcpy (il2cpp_array_addr_with_size (destination, element_size, startIndex), source.m_value, length * element_size);
 }
 
 void Marshal::copy_to_unmanaged (Il2CppArray * source, int32_t startIndex, Il2CppIntPtr destination, int32_t length)
 {
-	uint32_t element_size = (uint32_t)il2cpp_array_element_size (source->obj.klass);
+	uint32_t element_size = (uint32_t)il2cpp_array_element_size (source->klass);
 	memcpy (destination.m_value, il2cpp_array_addr_with_size (source, element_size, startIndex), length * element_size);
 }
 
@@ -605,7 +605,7 @@ Il2CppIntPtr Marshal::ReAllocHGlobal (Il2CppIntPtr ptr, Il2CppIntPtr size)
 Il2CppIntPtr Marshal::UnsafeAddrOfPinnedArrayElement (Il2CppArray* arr, int32_t index)
 {
 	Il2CppIntPtr address;
-	address.m_value = il2cpp_array_addr_with_size(arr, il2cpp_array_element_size(arr->obj.klass), index);
+	address.m_value = il2cpp_array_addr_with_size(arr, il2cpp_array_element_size(arr->klass), index);
 	return address;
 }
 

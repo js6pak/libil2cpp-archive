@@ -23,12 +23,12 @@ const Reply *Agent::Process(const ArrayRefGetValuesCommand *command)
 	if(arr == 0)
 		return get_values_reply;
 
-	TypeInfo *array_klass = il2cpp_object_get_class(&arr->obj);
+	TypeInfo *array_klass = il2cpp_object_get_class(arr);
 
 	int32_t element_size = il2cpp_array_element_size (array_klass);
 	for(int32_t i = command->index(); i < command->index() + command->length(); ++i)
 	{
-		void *element = (void*)((uint8_t*)arr->vector + (i * element_size));
+		void *element = (void*)((uint8_t*)arr + kIl2CppSizeOfArray + (i * element_size));
 		get_values_reply->values().push_back(
 			Variant(array_klass->element_class->byval_arg, element));
 	}
@@ -44,7 +44,7 @@ const Reply *Agent::Process(const ArrayRefGetLengthCommand *command)
 	if(arr == 0)
 		return get_length_reply;
 
-	TypeInfo *array_klass = il2cpp_object_get_class(&arr->obj);
+	TypeInfo *array_klass = il2cpp_object_get_class(arr);
 
 	get_length_reply->rank(array_klass->rank);
 

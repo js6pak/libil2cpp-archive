@@ -90,6 +90,21 @@ void AtomicStack::Push (AtomicNode* node)
 		: "r" (&_top), "r" (node)
 		: "cc", "memory"
 	);
+	
+#elif UNITY_N3DS
+	AtomicNode* top;
+	int success;
+	
+	__asm__ __volatile__
+	{
+		//dmb	ishst //not supported on N3DS
+		one:
+		ldrex top, [&_top]
+		str top, [node]
+		strex success, node, [&_top]
+		teq success, #0
+		bne one
+	};
 
 #elif defined (__arm__)
 
@@ -195,6 +210,21 @@ void AtomicStack::PushAll (AtomicNode* first, AtomicNode* last)
 		: "=&r" (top), "+m" (_top), "=m" (*last), "=&r" (success)
 		: "r" (&_top), "r" (first), "r" (last)
 		: "cc", "memory"
+	);
+
+#elif UNITY_N3DS
+	AtomicNode* top;
+	int success;
+	
+	__asm__ __volatile__
+	(
+		//"dmb	ishst\n\t" //not supported on N3DS
+	"0:\n\t"
+		"ldrex	top, [&_top]\n\t"
+		"str    top, [last]\n\t"
+		"strex	success, first, [&_top]\n\t"
+		"teq    success, #0\n\t"
+		"bne	0b\n\t"
 	);
 
 #elif defined (__arm__)
@@ -309,6 +339,28 @@ AtomicNode* AtomicStack::Pop ()
 		: "r" (&_top)
 		: "cc", "memory"
 	);
+	return top;
+	
+#elif UNITY_N3DS
+
+	AtomicNode* top = NULL;
+	AtomicNode* tmp;
+	int success = 0;
+	
+	__asm__ __volatile__
+	{
+		one:
+		ldrex top, [&_top]
+		cmp top, #0
+		beq two
+		ldr tmp, [top]
+		strex success, tmp, [&_top]
+		teq success, #0
+		bne one
+		//isb
+		two:
+	};
+	
 	return top;
 	
 #elif defined (__arm__)
@@ -437,6 +489,26 @@ AtomicNode* AtomicStack::PopAll ()
 	);
 	return top;
 	
+#elif UNITY_N3DS
+
+	AtomicNode* top;
+	AtomicNode* tmp;
+	int success;
+	
+	__asm__ __volatile__
+	(
+	"0:\n\t"
+		"ldrex	top, [&_top]\n\t"
+		"cmp	top, #0\n\t"
+		"beq	1f\n\t"
+		"strex	success, #0, [&_top]\n\t"
+		"teq	success, #0\n\t"
+		"bne	0b\n\t"
+		//"isb\n\t" //not supported on N3DS
+	"1:\n\t"
+	);
+	return top;
+
 #elif defined (__arm__)
 
 	AtomicNode* top;
@@ -615,6 +687,22 @@ void AtomicQueue::Enqueue (AtomicNode* node)
 		: "cc", "memory"
 	);
 	
+#elif UNITY_N3DS
+
+	AtomicNode* head;
+	int success;
+	
+	__asm__ __volatile__
+	(
+		//"dmb	ishst\n\t" //not supported on N3DS
+	"0:\n\t"
+		"ldrex	head, [&_head]\n\t"
+		"strex	success, node, [&_head]\n\t"
+		"teq    success, #0\n\t"
+		"bne	0b\n\t"
+		"str    node, [head]\n\t"
+	);
+	
 #elif defined (__arm__)
 
 	AtomicNode* head;
@@ -712,6 +800,22 @@ void AtomicQueue::EnqueueAll (AtomicNode* first, AtomicNode* last)
 		: "=&r" (head), "+m" (_head), "=&r" (success)
 		: "r" (&_head), "r" (first), "r" (last)
 		: "cc", "memory"
+	);
+	
+#elif UNITY_N3DS
+
+	AtomicNode* head;
+	int success;
+	
+	__asm__ __volatile__
+	(
+		//"dmb	ishst\n\t" //not supported on N3DS
+	"0:\n\t"
+		"ldrex	head, [&_head]\n\t"
+		"strex	success, last, [&_head]\n\t"
+		"teq    success, #0\n\t"
+		"bne	0b\n\t"
+		"str    first, [head]\n\t"
 	);
 	
 #elif defined (__arm__)
@@ -852,7 +956,47 @@ AtomicNode* AtomicQueue::Dequeue ()
 		tail = 0;
 	}
 	return tail;
+	
+#elif UNITY_N3DS
 
+	AtomicNode* tail;
+	AtomicNode* tmp;
+	void* data0;
+	void* data1;
+	void* data2 = 0;
+	int success = 1;
+	
+	__asm__ __volatile__ (
+	"0:\n\t"
+		"ldrex	tail, [data2]\n\t"
+		"ldr	tmp, [tail]\n\t"
+		"cmp	tmp, #0\n\t"
+		"beq	1f\n\t"
+		"ldr	tail, [tmp, #4]\n\t"
+		"ldr	data0, [tmp, #8]\n\t"
+		"ldr	data1, [tmp, #12]\n\t"
+		// create an artificial dependency to ensure previous loads are not reordered
+		"orr	data2, data2, success, lsr #32\n\t" // nop
+		"orr	data2, data2, tail, lsr #32\n\t" // nop
+		"orr	data2, data2, data0, lsr #32\n\t" // nop
+		"strex	success, tmp, [data2]\n\t"
+		"teq	success, #0\n\t"
+		"bne	0b\n\t"
+		// "isb\n\t" //not available on N3DS
+	"1:\n\t"
+	);
+	if(tmp)
+	{
+		tail->data[0] = data0;
+		tail->data[1] = data1;
+		tail->data[2] = data2;
+	}
+	else
+	{
+		tail = 0;
+	}
+	return tail;
+	
 #elif defined (__arm__)
 
 	AtomicNode* tail;
@@ -996,6 +1140,9 @@ AtomicQueue* CreateAtomicQueue ()
 	// should be properly aligned
 #if defined (ATOMIC_HAS_DCAS)
 	return UNITY_PLATFORM_NEW_ALIGNED (AtomicQueue, kMemThread, sizeof(atomic_word2));
+#elif UNITY_N3DS
+	//seems like UNITY_PLATFORM_NEW shouldn't take an alignment...?
+	return UNITY_PLATFORM_NEW (AtomicQueue, kMemThread);
 #else
 	return UNITY_PLATFORM_NEW (AtomicQueue, kMemThread, sizeof(atomic_word));
 #endif
@@ -1156,6 +1303,33 @@ bool AtomicList::Add (AtomicNode *first, AtomicNode *last, atomic_word tag)
 	);
 	return failure == 0;
 
+#elif UNITY_N3DS
+
+	/*
+	AtomicNode* res;
+	AtomicNode* tmp;
+	int failure = 1;
+
+	__asm__ __volatile__
+	(
+		"dmb	ishst\n\t"
+		"0:\n\t"
+		"ldrex	%0, [%4]\n\t"
+		"add	%4, %4, %0\n\t"	// nop
+		"sub	%4, %4, %0\n\t" // nop
+		"ldr	%1, [%4, #4]\n\t"
+		"cmp	%1, %7\n\t"
+		"bne	1f\n\t"
+		"str	%0, [%6]\n\t"
+		"strex	%3, %5, [%4]\n\t"
+		"teq	%3, #0\n\t"
+		"bne	0b\n\t"
+		"1:\n\t"
+	);
+	return res;
+	*/
+	return false;
+
 #elif defined (__arm__)
 
 	AtomicNode* res;
@@ -1285,7 +1459,6 @@ AtomicNode* AtomicList::Touch (atomic_word tag)
 
 	atomic_store_explicit(&_ver, tag, memory_order_release);
 	atomic_word w = atomic_exchange_explicit(&_top, 0, memory_order_acquire);
-	
 	return (AtomicNode *) w;
 	
 #endif
@@ -1352,6 +1525,36 @@ AtomicNode* AtomicList::Clear (AtomicNode* old, atomic_word tag)
 		: "=&r" (res), "=&r" (tmp), "+m" (_top), "=&r" (success)
 		: "r" (&_top)
 		: "cc", "memory"
+	);
+	return res;
+	
+#elif UNITY_N3DS
+
+	AtomicNode* res;
+	AtomicNode* tmp;
+	int success;
+	int theTop = (int)(&_top);
+	
+	__asm__ __volatile__
+	(
+	"0:\n\t"
+		"ldrex	res, [theTop]\n\t"
+		"cmp	res, #0\n\t"
+		"beq	2f\n\t"
+		"ldr    tmp, [res]\n\t"
+		"strex	success, tmp, [theTop]\n\t"
+		"teq	success, #0\n\t"
+		"bne	0b\n\t"
+		"add	theTop, theTop, 4\n\t"
+	"1:\n\t"
+		"ldrex	success, [theTop]\n\t"
+		"add	success, success, 1\n\t"
+		"strex	success, success, [theTop]\n\t"
+		"teq	success, #0\n\t"
+		"bne	1b\n\t"
+		"sub	theTop, theTop, 4\n\t"
+		//"isb\n\t" //not available on N3DS
+	"2:\n\t"
 	);
 	return res;
 	
@@ -1561,6 +1764,8 @@ void AtomicList::Relax ()
 	__asm__ __volatile__ ("pause" ::: "memory");
 #elif defined (__x86__) || defined (__i386__) || defined (_M_IX86)
 	__asm__ __volatile__ ("rep; nop" ::: "memory");
+#elif UNITY_N3DS
+	__asm__ __volatile__ ("yield");
 #elif (defined (__arm64__) || (defined (__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)))) && (defined (__clang__) || defined (__GNUC__))
 	// could be interesting to use wfe/sev instead of a semaphore
 	__asm__ __volatile__ ("yield");

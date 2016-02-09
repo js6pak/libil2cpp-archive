@@ -32,7 +32,7 @@ uint32_t Array::GetByteLength (Il2CppArray* array)
 	int length;
 	int i;
 
-	klass = array->obj.klass;
+	klass = array->klass;
 
 	if (array->bounds == NULL)
 		length = array->max_length;
@@ -87,7 +87,7 @@ Il2CppArray* Array::NewSpecific (TypeInfo *klass, il2cpp_array_size_t n)
 	//	mono_gc_out_of_memory (MONO_ARRAY_MAX_SIZE);
 	//	return NULL;
 	//}
-	byte_len += sizeof (Il2CppArray);
+	byte_len += kIl2CppSizeOfArray;
 	if (!klass->has_references) {
 		o = Object::AllocatePtrFree (byte_len, klass);
 #if NEED_TO_ZERO_PTRFREE
@@ -167,7 +167,7 @@ Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths
 	byte_len *= len;
 	//if (CHECK_ADD_OVERFLOW_UN (byte_len, sizeof (MonoArray)))
 	//	mono_gc_out_of_memory (MONO_ARRAY_MAX_SIZE);
-	byte_len += sizeof (Il2CppArray);
+	byte_len += kIl2CppSizeOfArray;
 	if (bounds_size) {
 		/* align */
 		//if (CHECK_ADD_OVERFLOW_UN (byte_len, 3))
@@ -218,13 +218,18 @@ Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths
 	return array;
 }
 
+char* Array::GetFirstElementAddress(Il2CppArray *array)
+{
+	return reinterpret_cast<char*> (array) + kIl2CppSizeOfArray;
+}
+
 } /* namespace vm */
 } /* namespace il2cpp */
 
 char*
 il2cpp_array_addr_with_size (Il2CppArray *array, int32_t size, uintptr_t idx)
 {
-	return ((char*)array) + sizeof(Il2CppArray) + size * idx;
+	return ((char*)array) + kIl2CppSizeOfArray + size * idx;
 }
 
 int32_t
