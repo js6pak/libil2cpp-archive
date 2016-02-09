@@ -33,8 +33,8 @@ bool Buffer::BlockCopyInternal (Il2CppArray * src, int src_offset, Il2CppArray *
 	if (((uint32_t)src_offset > il2cpp::vm::Array::GetByteLength(src) - count) || ((uint32_t)dest_offset > il2cpp::vm::Array::GetByteLength(dest) - count))
 		return false;
 
-	char *src_buf = ((char*)il2cpp_array_addr_with_size (src, Class::GetInstanceSize (src->obj.klass->element_class), 0)) + src_offset;
-	char *dest_buf = ((char*)il2cpp_array_addr_with_size (dest, Class::GetInstanceSize (dest->obj.klass->element_class), 0)) + dest_offset;
+	char *src_buf = ((char*)il2cpp_array_addr_with_size (src, Class::GetInstanceSize (src->klass->element_class), 0)) + src_offset;
+	char *dest_buf = ((char*)il2cpp_array_addr_with_size (dest, Class::GetInstanceSize (dest->klass->element_class), 0)) + dest_offset;
 
 	if(src != dest)
 		memcpy (dest_buf, src_buf, count);

@@ -49,7 +49,7 @@ Il2CppIntPtr GCHandle::GetAddrOfPinnedObject (int32_t handle)
 	if (obj->klass->rank > 0)
 	{
 		// Pointer to first array element
-		offset = offsetof(Il2CppArray, vector);
+		offset = kIl2CppSizeOfArray;
 	}
 	else if (obj->klass->byval_arg->type == IL2CPP_TYPE_STRING)
 	{
