@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
+#include "utils/dynamic_array.h"
 #include "vm/Profiler.h"
 #include <cassert>
-#include <vector>
 
 namespace il2cpp
 {
@@ -23,7 +23,7 @@ struct ProfilerDesc
 	Il2CppProfileGCResizeFunc gcHeapResizeCallback;
 };
 
-typedef std::vector<ProfilerDesc*> ProfilersVec;
+typedef dynamic_array<ProfilerDesc*> ProfilersVec;
 static ProfilersVec s_profilers;
 Il2CppProfileFlags Profiler::s_profilerEvents;
 

@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 #include "blob.h"
-#include <vector>
 #include "metadata/Il2CppTypeVector.h"
+#include "utils/dynamic_array.h"
 #include "class-internals.h"
 
 struct TypeInfo;
@@ -109,7 +109,7 @@ public:
 	static void SetupTypeHierarchy (TypeInfo *klass);
 	static void SetupInterfaces (TypeInfo *klass);
 
-	static const std::vector<TypeInfo*>& GetStaticFieldData ();
+	static const dynamic_array<TypeInfo*>& GetStaticFieldData ();
 
 	static size_t GetBitmapSize (const TypeInfo* klass);
 	static void GetBitmap (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit);
