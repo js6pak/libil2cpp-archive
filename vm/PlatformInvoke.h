@@ -53,10 +53,6 @@ public:
 	static void MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer);
 	static void MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, uint16_t* buffer);
 
-	static void MarshalCharArray(Il2CppArray* managedArray, char* nativeArray);
-	static Il2CppArray* MarshalCharArrayResult(char* nativeArray, size_t size);
-	static void MarshalCharArrayOut(char* nativeArray, Il2CppArray* managedArray);
-
 	static void MarshalFreeStringArray(void** nativeArray, size_t size);
 
 	static Il2CppIntPtr MarshalDelegate(Il2CppDelegate* d);
@@ -90,7 +86,7 @@ public:
 	template <typename ElementType>
 	static void MarshalArrayOut(ElementType* nativeArray, Il2CppArray* managedArray)
 	{
-		for (size_t i = 0; i < managedArray->max_length; ++i)
+		for (il2cpp_array_size_t i = 0; i < managedArray->max_length; ++i)
 			il2cpp_array_setwithsize(managedArray, sizeof(ElementType), i, nativeArray[i]);
 	}
 

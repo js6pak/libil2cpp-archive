@@ -718,7 +718,7 @@ WaitStatus SocketImpl::Shutdown (int32_t how)
 
 WaitStatus SocketImpl::Accept (os::Socket **socket)
 {
-	int32_t new_fd = 0;
+	SocketDescriptor new_fd = 0;
 
 	*socket = NULL;
 
@@ -789,9 +789,10 @@ WaitStatus SocketImpl::Receive (const uint8_t *data, int32_t count, os::SocketFl
 WaitStatus SocketImpl::ReceiveFromInternal(const uint8_t *data, size_t count, int32_t flags, int32_t *len, struct sockaddr *from, int32_t *fromlen)
 {
 	int32_t ret = 0;
+	assert(count < static_cast<size_t>(std::numeric_limits<int>::max()));
 
 	do {
-		ret = recvfrom ((SOCKET) _fd, (char*)data, count, flags, from, (socklen_t*)fromlen);
+		ret = recvfrom ((SOCKET) _fd, (char*)data, static_cast<int>(count), flags, from, (socklen_t*)fromlen);
 	} while (ret == -1 && errno == EINTR);
 
 	if (ret == 0 && count > 0)
@@ -1424,10 +1425,10 @@ static PollFlags poll_events_to_poll_flags (short events)
 
 WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error)
 {
-	const int32_t n_fd = requests.size ();
+	const size_t n_fd = requests.size ();
 	pollfd *p_fd = (pollfd*)calloc (n_fd, sizeof (pollfd));
 
-	for (int32_t i = 0; i < n_fd; ++i)
+	for (size_t i = 0; i < n_fd; ++i)
 	{
 		if (requests[i].socket->IsClosed ())
 		{
@@ -1451,7 +1452,8 @@ WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout
 
 	do
 	{
-		ret = WSAPoll (p_fd, n_fd, timeout);
+		assert(n_fd <= std::numeric_limits<ULONG>::max());
+		ret = WSAPoll (p_fd, static_cast<ULONG>(n_fd), timeout);
 
 		if (timeout > 0 && ret < 0)
 		{
@@ -1487,7 +1489,7 @@ WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout
 		return kWaitStatusSuccess;
 	}
 
-	for (int32_t i = 0; i < n_fd; ++i)
+	for (size_t i = 0; i < n_fd; ++i)
 	{
 		requests[i].revents = poll_events_to_poll_flags (p_fd[i].revents);
 	}

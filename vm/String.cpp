@@ -75,10 +75,11 @@ Il2CppString* String::NewUtf16 (const uint16_t *text, int32_t len)
 Il2CppString* String::NewSize (int32_t len)
 {
 	Il2CppString *s;
+	assert(len >= 0);
 	size_t size = (sizeof (Il2CppString) + ((len + 1) * 2));
 
 	/* overflow ? can't fit it, can't allocate it! */
-	if (len > size)
+	if (static_cast<uint32_t>(len) > size)
 		Exception::RaiseOutOfMemoryException ();
 
 	s = reinterpret_cast<Il2CppString*> (Object::AllocatePtrFree (size, il2cpp_defaults.string_class));

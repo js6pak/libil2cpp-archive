@@ -135,16 +135,21 @@ static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type
 	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
 }
 
-inline void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
+inline NORETURN void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
 {
 	il2cpp::vm::Exception::Raise ((Il2CppException*)ex);
 }
 
-NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
+// This function exists to help with generation of callstacks for exceptions
+// on iOS. There we call the backtrace function, which does not play nicely with
+// NORETURN, since the compiler eliminates the method prologue code setting up
+// the address of the return frame (which makes sense). So on iOS we need to make
+// the NORETURN define do nothing, then we use this dummy method which has the
+// attribute for clang on iOS defined to prevent clang compiler errors for
+// method that end by throwing a managed exception.
+REAL_NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
 {
-#if __has_builtin(__builtin_unreachable)
-	__builtin_unreachable();
-#endif
+	IL2CPP_UNREACHABLE;
 }
 
 static void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const MethodInfo* method)
@@ -278,9 +283,7 @@ static inline void* UnBox(Il2CppCodeGenObject* obj)
 {
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
-		#if __has_builtin(__builtin_unreachable)
-			__builtin_unreachable();
-		#endif
+		IL2CPP_UNREACHABLE;
 	}
 
 	return il2cpp::vm::Object::Unbox((Il2CppObject*)obj);
@@ -290,9 +293,7 @@ static inline void* UnBox(Il2CppCodeGenObject* obj, TypeInfo* klass)
 {
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
-		#if __has_builtin(__builtin_unreachable)
-			__builtin_unreachable();
-		#endif
+		IL2CPP_UNREACHABLE;
 	}
 
 	Il2CppObject* obj2 = (Il2CppObject*)obj;
@@ -563,26 +564,6 @@ inline void il2cpp_codegen_marshal_array_out(ElementType* cppArray, Il2CppCodeGe
 	il2cpp::vm::PlatformInvoke::MarshalArrayOut(cppArray, (Il2CppArray*)managedArray);
 }
 
-inline char* il2cpp_codegen_marshal_char_array(Il2CppCodeGenArray* a)
-{
-	if (a == NULL)
-		return NULL;
-
-	char* nativeArray = il2cpp_codegen_marshal_allocate_array<char>(a->max_length);
-	il2cpp::vm::PlatformInvoke::MarshalCharArray((Il2CppArray*)a, nativeArray);
-	return nativeArray;
-}
-
-inline Il2CppCodeGenArray* il2cpp_codegen_marshal_char_array_result(char* a, size_t size)
-{
-	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalCharArrayResult(a, size);
-}
-
-inline void il2cpp_codegen_marshal_char_array_out(char* a, Il2CppCodeGenArray* managedArray)
-{
-	il2cpp::vm::PlatformInvoke::MarshalCharArrayOut(a, (Il2CppArray*)managedArray);
-}
-
 inline char** il2cpp_codegen_marshal_allocate_native_string_array(size_t size)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeStringArray(size);
@@ -712,9 +693,7 @@ inline void NullCheck (void* this_ptr)
 		return;
 
 	il2cpp::vm::Exception::RaiseNullReferenceException ();
-	#if __has_builtin(__builtin_unreachable)
-		__builtin_unreachable();
-	#endif
+	IL2CPP_UNREACHABLE;
 }
 
 inline void DivideByZeroCheck(int64_t denominator)
@@ -723,9 +702,7 @@ inline void DivideByZeroCheck(int64_t denominator)
 		return;
 
 	il2cpp::vm::Exception::RaiseDivideByZeroException();
-#if __has_builtin(__builtin_unreachable)
-	__builtin_unreachable();
-#endif
+	IL2CPP_UNREACHABLE;
 }
 
 static inline void Initobj (TypeInfo* type, void* data)
@@ -763,12 +740,18 @@ inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 
 inline const MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot)
 {
+	if (!pThis)
+		il2cpp::vm::Exception::RaiseNullReferenceException();
+
 	VirtualInvokeData data = il2cpp::vm::Runtime::GetVirtualInvokeData (slot, pThis);
 	return data.methodInfo;
 }
 
 inline const MethodInfo* GetInterfaceMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot, TypeInfo* declaringInterface)
 {
+	if (!pThis)
+		il2cpp::vm::Exception::RaiseNullReferenceException();
+
 	VirtualInvokeData data = il2cpp::vm::Runtime::GetInterfaceInvokeData (slot, declaringInterface, pThis);
 	return data.methodInfo;
 }

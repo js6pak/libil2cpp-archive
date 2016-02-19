@@ -71,10 +71,10 @@ bool StackFrame::get_frame_info (
 	// Finally, find the location in the stack we actually want to use by offsetting from the end of the stack the number of
 	// frames we skipped, and offsetting it by one more to account for this icall itself.
 	int64_t index = stack.size () - skip - 1;
-	if (index >= stack.size () || index < 0)
+	if (static_cast<uint64_t>(index) >= stack.size () || index < 0)
 		return false;
 
-	const Il2CppStackFrameInfo& info = stack[index];
+	const Il2CppStackFrameInfo& info = stack[static_cast<size_t>(index)];
 
 	NOT_IMPLEMENTED_ICALL_NO_ASSERT (StackFrame::get_frame_info, "use gc write barrier");
 	*method = Reflection::GetMethodObject (info.method, info.method->declaring_type);

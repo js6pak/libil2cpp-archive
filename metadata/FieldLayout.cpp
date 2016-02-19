@@ -149,7 +149,8 @@ void FieldLayout::LayoutFields (size_t parentSize, size_t actualParentSize, size
 {
 	data.classSize = parentSize;
 	data.actualClassSize = actualParentSize;
-	data.minimumAlignment = parentAlignment;
+	assert(parentAlignment <= std::numeric_limits<uint8_t>::max());
+	data.minimumAlignment = static_cast<uint8_t>(parentAlignment);
 	for (Il2CppTypeVector::const_iterator iter = fieldTypes.begin (); iter != fieldTypes.end (); ++iter)
 	{
 		SizeAndAlignment sa = GetTypeSizeAndAlignment (*iter);
