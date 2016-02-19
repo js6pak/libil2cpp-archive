@@ -185,10 +185,18 @@
 
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
+#elif IL2CPP_TARGET_IOS
+#define NORETURN
 #elif IL2CPP_TARGET_DARWIN
 #define NORETURN __attribute__ ((noreturn))
 #else
 #define NORETURN
+#endif
+
+#if IL2CPP_TARGET_IOS
+#define REAL_NORETURN __attribute__ ((noreturn))
+#else
+#define REAL_NORETURN NORETURN
 #endif
 
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
@@ -310,6 +318,15 @@ typedef void (*methodPointerType)();
 #ifndef __has_builtin
 	#define __has_builtin(x) 0 // Compatibility with non-clang compilers.
 #endif
+
+#if _MSC_VER
+#define IL2CPP_UNREACHABLE __assume(0)
+#elif __has_builtin(__builtin_unreachable)
+#define IL2CPP_UNREACHABLE __builtin_unreachable()
+#else
+#define IL2CPP_UNREACHABLE
+#endif
+
 
 /* need to figure out where this goes */
 typedef int32_t il2cpp_array_size_t;

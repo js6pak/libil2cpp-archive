@@ -76,8 +76,6 @@ std::string StringUtils::NPrintf(const char* format, size_t max_n, ...)
 	va_list argsToCheckSize;
 	size_t n;
 	std::string ret;
-	// use a temporary buffer as some docs indicate we cannot pass NULL to vsnprintf
-	char buf[1];
 
 	va_start (argsToCheckSize, max_n);
 #if IL2CPP_COMPILER_MSVC
@@ -85,6 +83,8 @@ std::string StringUtils::NPrintf(const char* format, size_t max_n, ...)
 	// the needed size. Used their 'special' function instead to get required size
 	n = _vscprintf_p(format, argsToCheckSize);
 #else
+	// use a temporary buffer as some docs indicate we cannot pass NULL to vsnprintf
+	char buf[1];
 	n = vsnprintf (buf, 0, format, argsToCheckSize);
 #endif
 	if (n == -1)

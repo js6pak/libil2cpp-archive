@@ -18,7 +18,7 @@ namespace il2cpp
 namespace vm
 {
 
-void Exception::Raise (Il2CppException* ex)
+NORETURN void Exception::Raise (Il2CppException* ex)
 {
 	if (ex->trace_ips == NULL)
 	{
@@ -41,29 +41,29 @@ void Exception::Raise (Il2CppException* ex)
 	throw Il2CppExceptionWrapper (ex);
 }
 
-void Exception::RaiseOutOfMemoryException ()
+NORETURN void Exception::RaiseOutOfMemoryException ()
 {
 	Raise (GetOutOfMemoryException ());
 }
 
-void Exception::RaiseNullReferenceException ()
+NORETURN void Exception::RaiseNullReferenceException ()
 {
 	Raise (GetNullReferenceException ());
 }
 
-void Exception::RaiseDivideByZeroException ()
+NORETURN void Exception::RaiseDivideByZeroException ()
 {
 	Raise (GetDivideByZeroException ());
 }
 
-void Exception::RaiseCOMException(il2cpp_hresult_t hresult, const char* msg)
+NORETURN void Exception::RaiseCOMException(il2cpp_hresult_t hresult, const char* msg)
 {
 	Il2CppException* exception = Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", msg);
 	exception->hresult = hresult;
 	Exception::Raise(exception);
 }
 
-void Exception::Raise(il2cpp_hresult_t hresult)
+NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 {
 	switch (hresult)
 	{

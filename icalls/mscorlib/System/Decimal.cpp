@@ -446,7 +446,7 @@ my_g_bit_nth_msf(uintptr_t mask)
 	i = 4 * 8;
 	while (i > 0) {
 		i--;
-		if (mask & (1UL << i))
+		if (mask & static_cast<uintptr_t>(1ULL << i))
 			return i;
 	}
 	return -1;
@@ -843,7 +843,7 @@ int Decimal::string2decimal(il2cpp_decimal_repr *pA, Il2CppString *str, unsigned
 			if (sigLen < 0) {
 				firstNonZero = i;
 				sigLen = (len - firstNonZero > DECIMAL_MAX_SCALE + 1) ? DECIMAL_MAX_SCALE + 1 + firstNonZero : len;
-				if (decrDecimal > sigLen + 1) 
+				if (decrDecimal > static_cast<uint32_t>(sigLen + 1))
 					return DECIMAL_OVERFLOW;
 			}
 			if (i >= sigLen)
@@ -1062,7 +1062,7 @@ int32_t Decimal::decimal2Int64 (il2cpp_decimal_repr * pA, int64_t* pResult)
 int32_t Decimal::decimalMult(il2cpp_decimal_repr* pA, il2cpp_decimal_repr* pB)
 {
 	uint64_t low, mid, high;
-	uint64_t factor;
+	uint32_t factor;
 	int scale, sign;
 
 	mult96by96to192(pA->lo32, pA->mid32, pA->hi32, pB->lo32, pB->mid32, pB->hi32, &low, &mid, &high);
