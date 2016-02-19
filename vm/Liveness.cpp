@@ -118,7 +118,7 @@ void LivenessState::Finalize ()
 void LivenessState::Reset ()
 {
 	first_index_in_all_objects = (int32_t)all_objects->size ();
-	process_array->clear ();
+	process_array->resize_uninitialized (0);
 }
 
 void LivenessState::TraverseObjects ()
