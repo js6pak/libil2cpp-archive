@@ -568,7 +568,6 @@ Il2CppArray * MonoType::GetGenericArguments (Il2CppReflectionType* type)
 {
 	Il2CppArray *res;
 	TypeInfo *klass, *pklass;
-	uint32_t i;
 
 	klass = Class::FromIl2CppType (type->type);
 
@@ -576,7 +575,7 @@ Il2CppArray * MonoType::GetGenericArguments (Il2CppReflectionType* type)
 	{
 		const Il2CppGenericContainer *container = MetadataCache::GetGenericContainerFromIndex (klass->genericContainerIndex);
 		res = Array::New (il2cpp_defaults.systemtype_class, container->type_argc);
-		for (i = 0; i < container->type_argc; ++i)
+		for (int32_t i = 0; i < container->type_argc; ++i)
 		{
 			pklass = Class::FromGenericParameter (GenericContainer::GetGenericParameter (container, i));
 			il2cpp_array_setref (res, i, Reflection::GetTypeObject (pklass->byval_arg));
@@ -586,7 +585,7 @@ Il2CppArray * MonoType::GetGenericArguments (Il2CppReflectionType* type)
 	{
 		const Il2CppGenericInst *inst = klass->generic_class->context.class_inst;
 		res = Array::New (il2cpp_defaults.systemtype_class, inst->type_argc);
-		for (i = 0; i < inst->type_argc; ++i)
+		for (uint32_t i = 0; i < inst->type_argc; ++i)
 			il2cpp_array_setref (res, i, Reflection::GetTypeObject (inst->type_argv [i]));
 	}
 	else

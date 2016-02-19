@@ -9,6 +9,7 @@
 
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"
+#include "vm/AssemblyName.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
@@ -596,7 +597,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (elementClass->image->assemblyIndex);
-					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
 				}
 
 				break;
@@ -619,7 +620,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (elementClass->image->assemblyIndex);
-					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
 				}
 				break;
 			}
@@ -640,7 +641,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (Class::FromIl2CppType (type->data.type)->image->assemblyIndex);
-					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
 				}
 				break;
 			}
@@ -688,7 +689,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 
 					oss << (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-					for (int32_t i = 0; i < inst->type_argc; i++)
+					for (uint32_t i = 0; i < inst->type_argc; i++)
 					{
 						const Il2CppType *t = inst->type_argv [i];
 
@@ -707,12 +708,11 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				}
 				else if (Class::IsGeneric (klass) && (format != IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (format != IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED))
 				{
-					uint32_t i;
 					const Il2CppGenericContainer* container = Class::GetGenericContainer (klass);
 
 					oss << (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-					for (i = 0; i < container->type_argc; i++)
+					for (int32_t i = 0; i < container->type_argc; i++)
 					{
 						if (i) oss << ',';
 						oss << MetadataCache::GetStringFromIndex (GenericContainer::GetGenericParameter (container, i)->nameIndex);
@@ -727,7 +727,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				if ((format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED) && (type->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
 				{
 					const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex (klass->image->assemblyIndex);
-					oss << ", " << vm::Assembly::AssemblyNameToString(ta->aname);
+					oss << ", " << vm::AssemblyName::AssemblyNameToString(ta->aname);
 				}
 				break;
 			}
@@ -837,6 +837,10 @@ bool Type::IsValueType (const Il2CppType *type)
 {
 	TypeInfo* klass = GetClass (type);
 	return klass->valuetype;
+}
+bool Type::IsEmptyType (const Il2CppType *type)
+{
+	return IsGenericInstance (type) && type->data.generic_class->typeDefinitionIndex == kTypeIndexInvalid;
 }
 
 bool Type::IsSystemDBNull (const Il2CppType *type)

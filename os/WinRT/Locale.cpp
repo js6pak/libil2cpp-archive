@@ -17,7 +17,7 @@ std::string Locale::GetLocale()
 	if (GetUserDefaultLocaleName(wideLocaleName, LOCALE_NAME_MAX_LENGTH) == 0)
 		return std::string();
 
-	int length = wcslen(wideLocaleName);
+	int length = static_cast<int>(wcslen(wideLocaleName));
 	std::string multiLocaleName;
 	multiLocaleName.resize(2 * length);
 	int narrowLength = WideCharToMultiByte(CP_ACP, 0, &wideLocaleName[0], length, &multiLocaleName[0], 2 * length, NULL, NULL);

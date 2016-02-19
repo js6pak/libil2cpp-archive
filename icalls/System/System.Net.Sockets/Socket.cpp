@@ -285,11 +285,11 @@ static bool check_thread_status ()
 #define AUTO_ACQUIRE_SOCKET \
 	os::SocketHandleWrapper socketHandle (os::PointerToSocketHandle (socket.m_value))
 
-#define RETURN_IF_SOCKET_IS_INVALID(value) \
+#define RETURN_IF_SOCKET_IS_INVALID(...) \
 	if (!socketHandle.IsValid ()) \
 	{ \
 		*error = os::kErrorCodeInvalidHandle; \
-		return value; \
+		return __VA_ARGS__; \
 	}
 
 Il2CppIntPtr Socket::Accept (Il2CppIntPtr socket, int32_t* error, bool blocking)
@@ -314,7 +314,7 @@ Il2CppIntPtr Socket::Accept (Il2CppIntPtr socket, int32_t* error, bool blocking)
 	
 	Il2CppIntPtr ret;
 	if (new_sock)
-		ret.m_value = reinterpret_cast<void*> (os::CreateSocketHandle (new_sock));
+		ret.m_value = reinterpret_cast<void*>(static_cast<uintptr_t>(os::CreateSocketHandle (new_sock)));
 	else
 		ret.m_value = NULL;
 	
@@ -365,7 +365,7 @@ void Socket::Bind (Il2CppIntPtr socket, Il2CppSocketAddress* socket_address, int
 	*error = 0;
 	
 	const int32_t length = socket_address->data->max_length;
-	const uint8_t *buffer = (uint8_t*) socket_address->data->vector;
+	const uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress (socket_address->data);
 	
 	if (length < 2)
 	{
@@ -473,7 +473,7 @@ void Socket::Connect (Il2CppIntPtr socket, Il2CppSocketAddress* socket_address, 
 	*error = 0;
 	
 	const int32_t length = socket_address->data->max_length;
-	const uint8_t *buffer = (uint8_t*) socket_address->data->vector;
+	const uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress (socket_address->data);
 	
 	if (length < 2)
 	{
@@ -563,7 +563,7 @@ void Socket::GetSocketOptionArray (Il2CppIntPtr socket, SocketOptionLevel level,
 	const os::SocketOptionLevel system_level = (os::SocketOptionLevel) (level);
 	
 	int32_t length = (*byte_val)->max_length;
-	uint8_t *buffer = (uint8_t*) (*byte_val)->vector;
+	uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress ((*byte_val));
 	
 	AUTO_ACQUIRE_SOCKET;
 	RETURN_IF_SOCKET_IS_INVALID ();
@@ -758,7 +758,7 @@ int32_t Socket::RecvFrom (Il2CppIntPtr socket, Il2CppArray *buffer, int32_t offs
 	int32_t len = 0;
 	
 	const int32_t length = (*socket_address)->data->max_length;
-	const uint8_t *socket_buffer = (uint8_t*) (*socket_address)->data->vector;
+	const uint8_t *socket_buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress ((*socket_address)->data);
 	
 	if (length < 2)
 	{
@@ -886,7 +886,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 	*error = 0;
 	
 	// Layout: READ, null, WRITE, null, ERROR, null
-	const int32_t input_sockets_count = (*sockets)->max_length;
+	const uint32_t input_sockets_count = (*sockets)->max_length;
 	
 	std::vector<os::PollRequest> requests;
 	std::vector<os::SocketHandleWrapper> socketHandles;
@@ -895,7 +895,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 	
 	int32_t mode = 0;
 	
-	for (int32_t i = 0; i < input_sockets_count; ++i)
+	for (uint32_t i = 0; i < input_sockets_count; ++i)
 	{
 		Il2CppObject *obj = il2cpp_array_get (*sockets, Il2CppObject*, i);
 		
@@ -946,7 +946,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 	{
 		mode = 0;
 
-		int32_t request_index = 0;
+		uint32_t request_index = 0;
 
 		// This odd loop is due to the layout of the sockets input array:
 		// Layout: READ, null, WRITE, null, ERROR, null
@@ -1053,7 +1053,7 @@ int32_t Socket::SendTo (Il2CppIntPtr socket, Il2CppArray *buffer, int32_t offset
 	int32_t len = 0;
 	
 	const int32_t length = socket_address->data->max_length;
-	const uint8_t *socket_buffer = (uint8_t*) socket_address->data->vector;
+	const uint8_t *socket_buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress (socket_address->data);
 	
 	if (length < 2)
 	{
@@ -1188,7 +1188,7 @@ void Socket::SetSocketOption (Il2CppIntPtr socket, SocketOptionLevel level, Sock
 	if (byte_val != NULL)
 	{
 		const int32_t length = byte_val->max_length;
-		const uint8_t *buffer = (uint8_t*) byte_val->vector;
+		const uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress (byte_val);
 		
 		status = socketHandle->SetSocketOptionArray (system_level, system_name, buffer, length);
 	}
@@ -1256,7 +1256,7 @@ void Socket::Shutdown (Il2CppIntPtr socket, SocketShutdown how, int32_t* error)
 
 Il2CppIntPtr Socket::Socket_internal (Il2CppObject *self, AddressFamily family, SocketType type, ProtocolType protocol, int32_t* error)
 {
-	Il2CppIntPtr socket = {0};
+	Il2CppIntPtr socket = { NULL };
 	
 	*error = 0;
 	
@@ -1297,7 +1297,7 @@ Il2CppIntPtr Socket::Socket_internal (Il2CppObject *self, AddressFamily family, 
 	}
 	
 	os::SocketHandle socketHandle = os::CreateSocketHandle (sock);
-	socket.m_value = reinterpret_cast<void*> (socketHandle);
+	socket.m_value = reinterpret_cast<void*>(static_cast<uintptr_t>(socketHandle));
 	
 	return socket;
 }
@@ -1316,10 +1316,10 @@ int32_t Socket::WSAIoctl (Il2CppIntPtr socket, int32_t code, Il2CppArray *input,
 	}
 	
 	const int32_t in_length = (input ? input->max_length : 0);
-	const uint8_t *in_buffer = (input ? (uint8_t*) input->vector : NULL);
+	const uint8_t *in_buffer = (input ? (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress (input) : NULL);
 	
 	const int32_t out_length = (output ? output->max_length : 0);
-	uint8_t *out_buffer = (output ? (uint8_t*) output->vector : NULL);
+	uint8_t *out_buffer = (output ? (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress (output) : NULL);
 	
 	int32_t output_bytes = 0;
 	

@@ -164,7 +164,7 @@ uint32_t Object::GetSize (Il2CppObject* obj)
 		return sizeof (Il2CppString) + 2 * String::GetLength ((Il2CppString*) obj) + 2;
 	} else if (obj->klass->rank) {
 		Il2CppArray *array = (Il2CppArray*)obj;
-		size_t size = sizeof (Il2CppArray) + Array::GetElementSize (klass) * Array::GetLength (array);
+		size_t size = kIl2CppSizeOfArray + Array::GetElementSize (klass) * Array::GetLength (array);
 		if (array->bounds) {
 			size += 3;
 			size &= ~3;

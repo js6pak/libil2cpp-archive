@@ -205,6 +205,7 @@ static inline int MonoToWindowsOpenMode(int monoOpenMode)
 
 	default:
 		Assert(false && "Unknown mono open mode");
+		IL2CPP_UNREACHABLE;
 	}
 }
 

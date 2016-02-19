@@ -185,16 +185,30 @@
 
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
+#elif IL2CPP_TARGET_IOS
+#define NORETURN
 #elif IL2CPP_TARGET_DARWIN
 #define NORETURN __attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
+#if IL2CPP_TARGET_IOS
+#define REAL_NORETURN __attribute__ ((noreturn))
+#else
+#define REAL_NORETURN NORETURN
+#endif
+
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
+#endif
+
+#if IL2CPP_COMPILER_MSVC
+#define NOVTABLE __declspec(novtable)
+#else
+#define NOVTABLE
 #endif
 
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
@@ -244,6 +258,8 @@
 
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
 #define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD)
+
+#define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 
 #if !defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE) && IL2CPP_TARGET_IOS
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
@@ -302,6 +318,15 @@ typedef void (*methodPointerType)();
 #ifndef __has_builtin
 	#define __has_builtin(x) 0 // Compatibility with non-clang compilers.
 #endif
+
+#if _MSC_VER
+#define IL2CPP_UNREACHABLE __assume(0)
+#elif __has_builtin(__builtin_unreachable)
+#define IL2CPP_UNREACHABLE __builtin_unreachable()
+#else
+#define IL2CPP_UNREACHABLE
+#endif
+
 
 /* need to figure out where this goes */
 typedef int32_t il2cpp_array_size_t;
@@ -444,3 +469,8 @@ const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2)
 
 #define NO_UNUSED_WARNING(expr) (void)(expr)
+
+typedef int32_t il2cpp_hresult_t;
+
+#define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
+#define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)

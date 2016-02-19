@@ -221,6 +221,7 @@ public:
 
 	static bool IsEnum (const Il2CppType *type);
 	static bool IsValueType (const Il2CppType *type);
+	static bool IsEmptyType (const Il2CppType *type);
 
 	static bool IsSystemDBNull (const Il2CppType *type);
 	static bool IsSystemDateTime (const Il2CppType *type);

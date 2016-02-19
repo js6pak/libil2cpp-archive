@@ -32,7 +32,7 @@ uint32_t Array::GetByteLength (Il2CppArray* array)
 	int length;
 	int i;
 
-	klass = array->obj.klass;
+	klass = array->klass;
 
 	if (array->bounds == NULL)
 		length = array->max_length;
@@ -48,91 +48,6 @@ uint32_t Array::GetByteLength (Il2CppArray* array)
 Il2CppArray* Array::New (TypeInfo *elementTypeInfo, il2cpp_array_size_t length)
 {
 	return NewSpecific (Class::GetArrayClass (elementTypeInfo, 1), length);
-}
-
-
-Il2CppArray* Array::New2 (TypeInfo *cm, uint32_t length1, uint32_t length2)
-{
-	il2cpp_array_size_t lengths [2];
-	il2cpp_array_size_t *lower_bounds;
-	//int pcount;
-	//int rank;
-
-	//pcount = mono_method_signature (cm)->param_count;
-	//rank = cm->klass->rank;
-
-	lengths [0] = length1;
-	lengths [1] = length2;
-
-	//g_assert (rank == pcount);
-	
-	NOT_IMPLEMENTED_NO_ASSERT (Array::New2,"IGNORING non-zero based arrays!");
-
-	//if (cm->klass->byval_arg.type == MONO_TYPE_ARRAY) {
-	//	lower_bounds = alloca (sizeof (uint32_t) * rank);
-	//	memset (lower_bounds, 0, sizeof (uint32_t) * rank);
-	//} else {
-		lower_bounds = NULL;
-	//}
-
-	return Array::NewFull (cm, lengths, lower_bounds);
-}
-
-Il2CppArray* Array::New3 (TypeInfo *cm, uint32_t length1, uint32_t length2, uint32_t length3)
-{
-	il2cpp_array_size_t lengths [3];
-	il2cpp_array_size_t *lower_bounds;
-	//int pcount;
-	//int rank;
-
-	//pcount = mono_method_signature (cm)->param_count;
-	//rank = cm->klass->rank;
-
-	lengths [0] = length1;
-	lengths [1] = length2;
-	lengths [2] = length3;
-
-	//g_assert (rank == pcount);
-	
-	NOT_IMPLEMENTED_NO_ASSERT (Array::New3,"IGNORING non-zero based arrays!");
-	
-	//if (cm->klass->byval_arg.type == MONO_TYPE_ARRAY) {
-	//	lower_bounds = alloca (sizeof (uint32_t) * rank);
-	//	memset (lower_bounds, 0, sizeof (uint32_t) * rank);
-	//} else {
-		lower_bounds = NULL;
-	//}
-
-	return Array::NewFull (cm, lengths, lower_bounds);
-}
-
-Il2CppArray* Array::New4 (TypeInfo *cm, uint32_t length1, uint32_t length2, uint32_t length3, uint32_t length4)
-{
-	il2cpp_array_size_t lengths [4];
-	il2cpp_array_size_t *lower_bounds;
-	//int pcount;
-	//int rank;
-
-	//pcount = mono_method_signature (cm)->param_count;
-	//rank = cm->klass->rank;
-
-	lengths[0] = length1;
-	lengths[1] = length2;
-	lengths[2] = length3;
-	lengths[3] = length4;
-
-	//g_assert (rank == pcount);
-
-	NOT_IMPLEMENTED_NO_ASSERT (Array::New4, "IGNORING non-zero based arrays!");
-
-	//if (cm->klass->byval_arg.type == MONO_TYPE_ARRAY) {
-	//	lower_bounds = alloca (sizeof (uint32_t) * rank);
-	//	memset (lower_bounds, 0, sizeof (uint32_t) * rank);
-	//} else {
-	lower_bounds = NULL;
-	//}
-
-	return Array::NewFull (cm, lengths, lower_bounds);
 }
 
 static void RaiseOverflowException()
@@ -172,7 +87,7 @@ Il2CppArray* Array::NewSpecific (TypeInfo *klass, il2cpp_array_size_t n)
 	//	mono_gc_out_of_memory (MONO_ARRAY_MAX_SIZE);
 	//	return NULL;
 	//}
-	byte_len += sizeof (Il2CppArray);
+	byte_len += kIl2CppSizeOfArray;
 	if (!klass->has_references) {
 		o = Object::AllocatePtrFree (byte_len, klass);
 #if NEED_TO_ZERO_PTRFREE
@@ -214,8 +129,8 @@ Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths
 	assert (array_class->initialized);
 	assert (array_class->element_class->initialized);
 
-	NOT_IMPLEMENTED_NO_ASSERT (Array::New2,"IGNORING non-zero based arrays!");
-	NOT_IMPLEMENTED_NO_ASSERT (Array::NewSpecific,"Handle allocations with a GC descriptor");
+	NOT_IMPLEMENTED_NO_ASSERT (Array::NewFull,"IGNORING non-zero based arrays!");
+	NOT_IMPLEMENTED_NO_ASSERT (Array::NewFull,"Handle allocations with a GC descriptor");
 
 	for (i = 0; i < array_class->rank; ++i)
 	{
@@ -252,7 +167,7 @@ Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths
 	byte_len *= len;
 	//if (CHECK_ADD_OVERFLOW_UN (byte_len, sizeof (MonoArray)))
 	//	mono_gc_out_of_memory (MONO_ARRAY_MAX_SIZE);
-	byte_len += sizeof (Il2CppArray);
+	byte_len += kIl2CppSizeOfArray;
 	if (bounds_size) {
 		/* align */
 		//if (CHECK_ADD_OVERFLOW_UN (byte_len, 3))
@@ -280,7 +195,6 @@ Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths
 	else {
 		o = Object::Allocate (byte_len, array_class);
 	}
-	o =  (Il2CppObject*)Object::Allocate (byte_len, array_class);
 
 	array = (Il2CppArray*)o;
 	array->max_length = len;
@@ -303,13 +217,18 @@ Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths
 	return array;
 }
 
+char* Array::GetFirstElementAddress(Il2CppArray *array)
+{
+	return reinterpret_cast<char*> (array) + kIl2CppSizeOfArray;
+}
+
 } /* namespace vm */
 } /* namespace il2cpp */
 
 char*
 il2cpp_array_addr_with_size (Il2CppArray *array, int32_t size, uintptr_t idx)
 {
-	return ((char*)array) + sizeof(Il2CppArray) + size * idx;
+	return ((char*)array) + kIl2CppSizeOfArray + size * idx;
 }
 
 int32_t
