@@ -38,10 +38,9 @@ size_t Il2CppTypeHash::Hash (const Il2CppType* t1)
 		}
 	case IL2CPP_TYPE_GENERICINST:
 		{
-		int i;
 		const Il2CppGenericInst *inst = t1->data.generic_class->context.class_inst;
 		hash = HashUtils::Combine (hash, t1->data.generic_class->typeDefinitionIndex);
-		for (i = 0; i < inst->type_argc; ++i)
+		for (uint32_t i = 0; i < inst->type_argc; ++i)
 		{
 			hash = HashUtils::Combine (hash, Hash (inst->type_argv[i]));
 		}

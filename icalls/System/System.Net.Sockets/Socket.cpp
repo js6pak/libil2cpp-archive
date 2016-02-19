@@ -285,11 +285,11 @@ static bool check_thread_status ()
 #define AUTO_ACQUIRE_SOCKET \
 	os::SocketHandleWrapper socketHandle (os::PointerToSocketHandle (socket.m_value))
 
-#define RETURN_IF_SOCKET_IS_INVALID(value) \
+#define RETURN_IF_SOCKET_IS_INVALID(...) \
 	if (!socketHandle.IsValid ()) \
 	{ \
 		*error = os::kErrorCodeInvalidHandle; \
-		return value; \
+		return __VA_ARGS__; \
 	}
 
 Il2CppIntPtr Socket::Accept (Il2CppIntPtr socket, int32_t* error, bool blocking)
@@ -314,7 +314,7 @@ Il2CppIntPtr Socket::Accept (Il2CppIntPtr socket, int32_t* error, bool blocking)
 	
 	Il2CppIntPtr ret;
 	if (new_sock)
-		ret.m_value = reinterpret_cast<void*> (os::CreateSocketHandle (new_sock));
+		ret.m_value = reinterpret_cast<void*>(static_cast<uintptr_t>(os::CreateSocketHandle (new_sock)));
 	else
 		ret.m_value = NULL;
 	
@@ -886,7 +886,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 	*error = 0;
 	
 	// Layout: READ, null, WRITE, null, ERROR, null
-	const int32_t input_sockets_count = (*sockets)->max_length;
+	const uint32_t input_sockets_count = (*sockets)->max_length;
 	
 	std::vector<os::PollRequest> requests;
 	std::vector<os::SocketHandleWrapper> socketHandles;
@@ -895,7 +895,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 	
 	int32_t mode = 0;
 	
-	for (int32_t i = 0; i < input_sockets_count; ++i)
+	for (uint32_t i = 0; i < input_sockets_count; ++i)
 	{
 		Il2CppObject *obj = il2cpp_array_get (*sockets, Il2CppObject*, i);
 		
@@ -946,7 +946,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 	{
 		mode = 0;
 
-		int32_t request_index = 0;
+		uint32_t request_index = 0;
 
 		// This odd loop is due to the layout of the sockets input array:
 		// Layout: READ, null, WRITE, null, ERROR, null
@@ -1297,7 +1297,7 @@ Il2CppIntPtr Socket::Socket_internal (Il2CppObject *self, AddressFamily family, 
 	}
 	
 	os::SocketHandle socketHandle = os::CreateSocketHandle (sock);
-	socket.m_value = reinterpret_cast<void*> (socketHandle);
+	socket.m_value = reinterpret_cast<void*>(static_cast<uintptr_t>(socketHandle));
 	
 	return socket;
 }

@@ -732,12 +732,13 @@ enum FieldLayoutKind
 
 static void SetupFieldOffsets (FieldLayoutKind fieldLayoutKind, TypeInfo* klass, size_t size, const std::vector<size_t>& fieldOffsets)
 {
+	assert(size < std::numeric_limits<uint32_t>::max());
 	if (fieldLayoutKind == FIELD_LAYOUT_INSTANCE)
-		klass->instance_size = size;
+		klass->instance_size = static_cast<uint32_t>(size);
 	if (fieldLayoutKind == FIELD_LAYOUT_STATIC)
-		klass->static_fields_size = size;
+		klass->static_fields_size = static_cast<uint32_t>(size);
 	if (fieldLayoutKind == FIELD_LAYOUT_THREADSTATIC)
-		klass->thread_static_fields_size = size;
+		klass->thread_static_fields_size = static_cast<uint32_t>(size);
 
 	if (!(klass->flags & TYPE_ATTRIBUTE_EXPLICIT_LAYOUT))
 	{
@@ -759,7 +760,7 @@ static void SetupFieldOffsets (FieldLayoutKind fieldLayoutKind, TypeInfo* klass,
 				continue;
 			}
 
-			field->offset = fieldOffsets[fieldIndex];
+			field->offset = static_cast<int32_t>(fieldOffsets[fieldIndex]);
 			fieldIndex++;
 		}
 	}
@@ -880,7 +881,7 @@ static void LayoutFieldsLocked (TypeInfo *klass, const FastAutoLock& lock)
 
 		// need to set this in case there are no fields in a generic instance type
 		if (klass->generic_class)
-			klass->instance_size = instanceSize;
+			klass->instance_size = static_cast<uint32_t>(instanceSize);
 
 		klass->size_inited = true;
 
@@ -888,7 +889,7 @@ static void LayoutFieldsLocked (TypeInfo *klass, const FastAutoLock& lock)
 		FieldLayout::LayoutFields (0, 0, 1, threadStaticFieldTypes, threadStaticLayoutData);
 
 		klass->minimumAlignment = layoutData.minimumAlignment;
-		klass->actualSize = layoutData.actualClassSize;
+		klass->actualSize = static_cast<uint32_t>(layoutData.actualClassSize);
 
 		size_t staticSize = staticLayoutData.classSize;
 		size_t threadStaticSize = threadStaticLayoutData.classSize;
@@ -915,13 +916,13 @@ static void LayoutFieldsLocked (TypeInfo *klass, const FastAutoLock& lock)
 	{
 		// need to set this in case there are no fields in a generic instance type
 		if (klass->generic_class)
-			klass->instance_size = instanceSize;
+			klass->instance_size = static_cast<uint32_t>(instanceSize);
 		
 		// Always set the actual size, as a derived class without fields could end up
 		// with the wrong actual size (i.e. sizeof may be incorrect), if the last
 		// field of the base class doesn't go to an alignment boundary and the compiler ABI
 		// uses that extra space (as clang does).
-		klass->actualSize = actualSize;
+		klass->actualSize = static_cast<uint32_t>(actualSize);
 	}
 
 	if (klass->static_fields_size)
@@ -1064,7 +1065,7 @@ void SetupMethodsLocked (TypeInfo *klass, const FastAutoLock& lock)
 			newMethod->flags = methodDefinition->flags;
 			newMethod->iflags = methodDefinition->iflags;
 			newMethod->slot = methodDefinition->slot;
-			newMethod->parameters_count = methodDefinition->parameterCount;
+			newMethod->parameters_count = static_cast<const uint8_t>(methodDefinition->parameterCount);
 			newMethod->is_inflated = false;
 			newMethod->token = methodDefinition->token;
 			newMethod->methodDefinition = methodDefinition;
@@ -1654,7 +1655,9 @@ int Class::GetFieldMarshaledSize(const FieldInfo *field)
 	if (field->type->type == IL2CPP_TYPE_CHAR)
 		return 1;
 
-	return metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).size;
+	size_t size = metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).size;
+	assert(size < static_cast<size_t>(std::numeric_limits<int>::max()));
+	return static_cast<int>(size);
 }
 
 TypeInfo* Class::GetPtrClass (const Il2CppType* type)

@@ -332,7 +332,7 @@ void* Thread::GetThreadStaticData (int32_t offset)
 {
 	// No lock. We allocate static_data once with a fixed size so we can read it
 	// safely without a lock here.
-	assert(offset < s_ThreadStaticSizes.size ());
+	assert(offset >= 0 && static_cast<uint32_t>(offset) < s_ThreadStaticSizes.size ());
 	return Current ()->static_data [offset];
 }
 
