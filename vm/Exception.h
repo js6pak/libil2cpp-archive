@@ -16,18 +16,18 @@ class Exception
 {
 // exported
 public:
-	static void Raise (Il2CppException* ex);
-	static void RaiseOutOfMemoryException ();
-	static void RaiseNullReferenceException ();
-	static void RaiseDivideByZeroException ();
+	static NORETURN void Raise (Il2CppException* ex);
+	static NORETURN void RaiseOutOfMemoryException ();
+	static NORETURN void RaiseNullReferenceException ();
+	static NORETURN void RaiseDivideByZeroException ();
 
-	inline static void RaiseCOMException (il2cpp_hresult_t hresult)
+	inline NORETURN static void RaiseCOMException (il2cpp_hresult_t hresult)
 	{
 		RaiseCOMException (hresult, NULL);
 	}
 
-	static void RaiseCOMException (il2cpp_hresult_t hresult, const char* msg);
-	static void Raise (il2cpp_hresult_t hresult);
+	static NORETURN void RaiseCOMException (il2cpp_hresult_t hresult, const char* msg);
+	static NORETURN void Raise (il2cpp_hresult_t hresult);
 
 	inline static void RaiseIfFailed (il2cpp_hresult_t hresult)
 	{
