@@ -454,8 +454,9 @@ Il2CppArray* Assembly::GetManifestResourceNames (Il2CppReflectionAssembly* assem
 {
 	std::vector<EmbeddedResourceRecord> resourceRecords = GetResourceRecords(assembly);
 
-	Il2CppArray* resourceNameArray = vm::Array::New(il2cpp_defaults.string_class, resourceRecords.size());
-	for (int i = 0; i < resourceRecords.size(); ++i)
+	assert(resourceRecords.size() <= static_cast<size_t>(std::numeric_limits<il2cpp_array_size_t>::max()));
+	Il2CppArray* resourceNameArray = vm::Array::New(il2cpp_defaults.string_class, static_cast<il2cpp_array_size_t>(resourceRecords.size()));
+	for (size_t i = 0; i < resourceRecords.size(); ++i)
 		il2cpp_array_setref(resourceNameArray, i, vm::String::New(resourceRecords[i].name.c_str()));
 
 	return resourceNameArray;
