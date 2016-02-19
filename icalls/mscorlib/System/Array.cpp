@@ -102,9 +102,12 @@ bool Array::FastCopy (Il2CppArray *source, int32_t source_idx, Il2CppArray *dest
 	if (source->bounds || dest->bounds)
 		return false;
 
-	/* there's no integer overflow since mono_array_length returns an unsigned integer */
-	if ((dest_idx + length > il2cpp::vm::Array::GetLength (dest)) ||
-		(source_idx + length > il2cpp::vm::Array::GetLength (source)))
+	// Our max array length is il2cpp_array_size_t, which is currently int32_t,
+	// so Array::GetLength will never return more than 2^31 - 1
+	// Therefore, casting sum to uint32_t is safe even if it overflows - it if does,
+	// the comparison will succeed and this function will return false
+	if ((static_cast<uint32_t>(dest_idx + length) > il2cpp::vm::Array::GetLength (dest)) ||
+		(static_cast<uint32_t>(source_idx + length) > il2cpp::vm::Array::GetLength (source)))
 		return false;
 
 	src_class = source->klass->element_class;

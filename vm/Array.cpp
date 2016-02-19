@@ -195,7 +195,6 @@ Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths
 	else {
 		o = Object::Allocate (byte_len, array_class);
 	}
-	o =  (Il2CppObject*)Object::Allocate (byte_len, array_class);
 
 	array = (Il2CppArray*)o;
 	array->max_length = len;

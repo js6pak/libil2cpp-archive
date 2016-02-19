@@ -96,7 +96,7 @@ DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSiz
 	if (it == s_EnvironmentVariables.end())
 		return 0;
 
-	DWORD sizeNeeded = it->second.length();
+	DWORD sizeNeeded = static_cast<DWORD>(it->second.length());
 
 	if (nSize < sizeNeeded)
 	{
