@@ -805,6 +805,7 @@
     <ClInclude Include="os\LibraryLoader.h" />
     <ClInclude Include="os\Locale.h" />
     <ClInclude Include="os\MarshalAlloc.h" />
+    <ClInclude Include="os\MarshalStringAlloc.h" />
     <ClInclude Include="os\MemoryMappedFile.h" />
     <ClInclude Include="os\Messages.h" />
     <ClInclude Include="os\Mutex.h" />
@@ -1093,6 +1094,7 @@
     <ClCompile Include="os\Event.cpp" />
     <ClCompile Include="os\Generic\Environment.cpp" />
     <ClCompile Include="os\Generic\Initialize.cpp" />
+    <ClCompile Include="os\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Generic\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Generic\SocketImpl.cpp" />
     <ClCompile Include="os\Messages.cpp" />
@@ -1141,6 +1143,7 @@
     <ClCompile Include="os\ThreadLocalValue.cpp" />
     <ClCompile Include="os\Win32\EventImpl.cpp" />
     <ClCompile Include="os\Win32\MarshalAlloc.cpp" />
+    <ClCompile Include="os\Win32\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Win32\Memory.cpp" />
     <ClCompile Include="os\Win32\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Win32\MutexImpl.cpp" />

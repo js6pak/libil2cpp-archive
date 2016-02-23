@@ -679,6 +679,12 @@
     <ClCompile Include="vm\AssemblyName.cpp">
       <Filter>vm</Filter>
     </ClCompile>
+    <ClCompile Include="os\Generic\MarshalStringAlloc.cpp">
+      <Filter>os\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Win32\MarshalStringAlloc.cpp">
+      <Filter>os\Win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1281,6 +1287,9 @@
     </ClInclude>
     <ClInclude Include="vm\AssemblyName.h">
       <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="os\MarshalStringAlloc.h">
+      <Filter>os</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
