@@ -308,8 +308,7 @@ Il2CppIntPtr Marshal::ReadIntPtr (Il2CppIntPtr ptr, int32_t ofs)
 
 int32_t Marshal::ReleaseInternal (Il2CppIntPtr pUnk)
 {
-	NOT_SUPPORTED_IL2CPP(Marshal::ReleaseInternal, "COM icalls are not supported.");
-	return 0;
+	return static_cast<Il2CppIUnknown*>(pUnk.m_value)->Release();
 }
 
 int32_t Marshal::ReleaseComObjectInternal (Il2CppObject* co)

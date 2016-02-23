@@ -424,6 +424,8 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
 
+#define IL2CPP_USE_GENERIC_BSTR_MARSHALLING	(!IL2CPP_PLATFORM_WIN32)
+
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 #endif
@@ -471,6 +473,10 @@ const int ipv6AddressSize = 16;
 #define NO_UNUSED_WARNING(expr) (void)(expr)
 
 typedef int32_t il2cpp_hresult_t;
+
+#define IL2CPP_S_OK ((il2cpp_hresult_t)0)
+#define IL2CPP_E_NOTIMPL ((il2cpp_hresult_t)0x80004001)
+#define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
 
 #define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
 #define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)
