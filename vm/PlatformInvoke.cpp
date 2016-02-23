@@ -9,6 +9,7 @@
 #include "Object.h"
 #include "Type.h"
 #include "os/LibraryLoader.h"
+#include "os/MarshalStringAlloc.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 
@@ -110,6 +111,19 @@ void PlatformInvoke::MarshalCSharpStringToCppWStringFixed(Il2CppString* managedS
 	}
 }
 
+uint16_t* PlatformInvoke::MarshalCSharpStringToCppBString(Il2CppString* managedString)
+{
+	if (managedString == NULL)
+		return NULL;
+
+	int32_t stringLength = String::GetLength(managedString);
+	uint16_t* stringChars = String::GetChars(managedString);
+	uint16_t* bstr;
+	const il2cpp_hresult_t hr = os::MarshalStringAlloc::AllocateBStringLength(stringChars, stringLength, &bstr);
+	Exception::RaiseIfFailed(hr);
+	return bstr;
+}
+
 Il2CppString* PlatformInvoke::MarshalCppStringToCSharpStringResult(const char* value)
 {
 	if (value == NULL)
@@ -142,12 +156,35 @@ Il2CppString* PlatformInvoke::MarshalCppWStringToCSharpStringResult(const uint16
 	return String::NewUtf16((uint16_t*)value, uint16_tStringLength(value));
 }
 
+Il2CppString* PlatformInvoke::MarshalCppBStringToCSharpStringResult(const uint16_t* value)
+{
+	if (value == NULL)
+		return NULL;
+
+	int32_t length;
+	const il2cpp_hresult_t hr = os::MarshalStringAlloc::GetBStringLength((uint16_t*)value, &length);
+	Exception::RaiseIfFailed(hr);
+
+	return String::NewUtf16((uint16_t*)value, length);
+}
+
+void PlatformInvoke::MarshalFreeBString(const uint16_t* value)
+{
+	const il2cpp_hresult_t hr = os::MarshalStringAlloc::FreeBString((uint16_t*)value);
+	Exception::RaiseIfFailed(hr);
+}
+
 char** PlatformInvoke::MarshalAllocateNativeStringArray(size_t size)
 {
 	return (char**)MarshalAlloc::Allocate(size * sizeof(char*));
 }
 
 uint16_t** PlatformInvoke::MarshalAllocateNativeWStringArray(size_t size)
+{
+	return (uint16_t**)MarshalAlloc::Allocate(size * sizeof(uint16_t*));
+}
+
+uint16_t** PlatformInvoke::MarshalAllocateNativeBStringArray(size_t size)
 {
 	return (uint16_t**)MarshalAlloc::Allocate(size * sizeof(uint16_t*));
 }
@@ -162,6 +199,12 @@ void PlatformInvoke::MarshalWStringArrayOut(uint16_t** nativeArray, Il2CppArray*
 {
 	for (il2cpp_array_size_t i = 0; i < managedArray->max_length; ++i)
 		il2cpp_array_setref(managedArray, i, MarshalCppWStringToCSharpStringResult(nativeArray[i]));
+}
+
+void PlatformInvoke::MarshalBStringArrayOut(uint16_t** nativeArray, Il2CppArray* managedArray)
+{
+	for (il2cpp_array_size_t i = 0; i < managedArray->max_length; ++i)
+		il2cpp_array_setref(managedArray, i, MarshalCppBStringToCSharpStringResult(nativeArray[i]));
 }
 
 void PlatformInvoke::MarshalStringArray(Il2CppArray* managedArray, char** nativeArray)
@@ -190,6 +233,19 @@ void PlatformInvoke::MarshalWStringArray(Il2CppArray* managedArray, uint16_t** n
 	nativeArray[arraySize] = NULL;
 }
 
+void PlatformInvoke::MarshalBStringArray(Il2CppArray* managedArray, uint16_t** nativeArray)
+{
+	const uint32_t arraySize = Array::GetLength(managedArray);
+
+	for (uint32_t i = 0; i < arraySize; ++i)
+	{
+		Il2CppString* managedString = il2cpp_array_get(managedArray, Il2CppString*, i);
+		nativeArray[i] = MarshalCSharpStringToCppBString(managedString);
+	}
+
+	nativeArray[arraySize] = NULL;
+}
+
 Il2CppArray* PlatformInvoke::MarshalStringArrayResult(char** nativeArray, size_t size)
 {
 	if (nativeArray == NULL)
@@ -210,6 +266,60 @@ Il2CppArray* PlatformInvoke::MarshalWStringArrayResult(uint16_t** nativeArray, s
 	MarshalWStringArrayOut(nativeArray, managedArray);
 
 	return managedArray;
+}
+
+Il2CppArray* PlatformInvoke::MarshalBStringArrayResult(uint16_t** nativeArray, size_t size)
+{
+	if (nativeArray == NULL)
+		return NULL;
+
+	Il2CppArray* managedArray = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
+	MarshalBStringArrayOut(nativeArray, managedArray);
+
+	return managedArray;
+}
+
+char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
+{
+	if (stringBuilder == NULL)
+		return NULL;
+
+	size_t stringLength = String::GetLength(stringBuilder->str);
+
+	// not sure if this is necessary but it's better to be safe than sorry
+	assert(stringLength >= stringBuilder->length);
+	if (stringLength < stringBuilder->length)
+		stringLength = stringBuilder->length;
+
+	std::string utf8String = utils::StringUtils::Utf16ToUtf8(stringBuilder->str->chars, stringBuilder->length);
+	if (stringLength < utf8String.length())
+		stringLength = utf8String.length();
+
+	char* nativeString = MarshalAllocateStringBuffer<char>(stringLength + 1);
+	strcpy(nativeString, utf8String.c_str());
+
+	return nativeString;
+}
+
+uint16_t* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder)
+{
+	if (stringBuilder == NULL)
+		return NULL;
+
+	int32_t stringLength = String::GetLength(stringBuilder->str);
+
+	// not sure if this is necessary but it's better to be safe than sorry
+	assert(stringLength >= stringBuilder->length);
+	if (stringLength < stringBuilder->length)
+		stringLength = stringBuilder->length;
+
+	uint16_t* nativeString = MarshalAllocateStringBuffer<uint16_t>(stringLength + 1);
+	for (int32_t i = 0; i < stringBuilder->length; ++i)
+		nativeString[i] = stringBuilder->str->chars[i];
+
+	nativeString[stringBuilder->length] = '\0';
+
+	return nativeString;
 }
 
 void PlatformInvoke::MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer)
@@ -236,6 +346,14 @@ void PlatformInvoke::MarshalFreeStringArray(void** nativeArray, size_t size)
 {
 	for (size_t i = 0; i < size; ++i)
 		MarshalAlloc::Free(nativeArray[i]);
+
+	MarshalAlloc::Free(nativeArray);
+}
+
+void PlatformInvoke::MarshalFreeBStringArray(uint16_t** nativeArray, size_t size)
+{
+	for (size_t i = 0; i < size; ++i)
+		os::MarshalStringAlloc::FreeBString(nativeArray[i]);
 
 	MarshalAlloc::Free(nativeArray);
 }
