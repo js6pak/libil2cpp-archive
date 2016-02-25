@@ -45,7 +45,7 @@ Il2CppImage* Assembly::GetImage (const Il2CppAssembly* assembly)
 
 void Assembly::GetReferencedAssemblies (const Il2CppAssembly* assembly, AssemblyNameVector* target)
 {
-	for (size_t sourceIndex = 0; sourceIndex < assembly->referencedAssemblyCount; sourceIndex++)
+	for (int32_t sourceIndex = 0; sourceIndex < assembly->referencedAssemblyCount; sourceIndex++)
 	{
 		int32_t indexIntoMainAssemblyTable = MetadataCache::GetReferenceAssemblyIndexIntoAssemblyTable (assembly->referencedAssemblyStart + sourceIndex);
 		const Il2CppAssembly* refAssembly = MetadataCache::GetAssemblyFromIndex (indexIntoMainAssemblyTable);

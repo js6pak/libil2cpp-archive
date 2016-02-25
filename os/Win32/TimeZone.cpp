@@ -45,11 +45,12 @@ convert_to_absolute_date(SYSTEMTIME *date)
 		date->wDay -= 7;
 }
 
+// names[0] - standardName
+// names[1] - daylightName
 bool TimeZone::GetTimeZoneData (int32_t year, int64_t data[4], std::string names[2])
 {
 	TIME_ZONE_INFORMATION tz_info;
 	FILETIME ft;
-	int i;
 	int err, tz_id;
 	// TODO: Get proper unicode conversion routines
 	char daylightName[33] = {0};
@@ -59,21 +60,18 @@ bool TimeZone::GetTimeZoneData (int32_t year, int64_t data[4], std::string names
 	if (tz_id == TIME_ZONE_ID_INVALID)
 		return 0;
 
-	for (i = 0; i < 32; ++i)
-	{
-		daylightName[i] = tz_info.DaylightName [i];
-		if (!tz_info.DaylightName [i])
-			break;
-	}
-	names [1] = daylightName; // use i
+	const int kMaxUtf8NameLength = 64;
+	names[0].resize(kMaxUtf8NameLength);
+	names[1].resize(kMaxUtf8NameLength);
 
-	for (i = 0; i < 32; ++i)
-	{
-		standardName[i] = tz_info.StandardName [i];
-		if (!tz_info.StandardName [i])
-			break;
-	}
-	names [0] = standardName; // use i
+	// WideCharToMultiByte returns the number of bytes written to the buffer pointed to by lpMultiByteStr if successful. 
+	// WideCharToMultiByte does not null-terminate an output string if the input string length is explicitly specified without a terminating null character.
+	// In our case, input string is null terminated
+	int standardNameLength = WideCharToMultiByte(CP_UTF8, 0, tz_info.StandardName, -1, &names[0][0], kMaxUtf8NameLength, NULL, NULL);
+	names[0].resize(standardNameLength - 1);
+
+	int daylightNameLength = WideCharToMultiByte(CP_UTF8, 0, tz_info.DaylightName, -1, &names[1][0], kMaxUtf8NameLength, NULL, NULL);
+	names[1].resize(daylightNameLength - 1);
 
 	if ((year <= 1601) || (year > 30827)) {
 		/*

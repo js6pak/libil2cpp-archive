@@ -24,7 +24,10 @@ void* MemoryMappedFile::Map(FileHandle* file, size_t length, size_t offset)
 	if (mappedFile == NULL)
 		return NULL;
 
-	void* address = MapViewOfFile(mappedFile, FILE_MAP_READ, 0, offset, length);
+	assert(offset <= std::numeric_limits<DWORD>::max());
+	assert(length <= std::numeric_limits<DWORD>::max());
+
+	void* address = MapViewOfFile(mappedFile, FILE_MAP_READ, 0, static_cast<DWORD>(offset), static_cast<DWORD>(length));
 	if (address == NULL)
 	{
 		DWORD error = GetLastError();
