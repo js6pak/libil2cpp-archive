@@ -206,12 +206,12 @@ enum memory_order_seq_cst_t	{ memory_order_seq_cst = 5 };
 
     static inline int atomic_fetch_add (volatile int *p, int val)
     {
-        return atomic_fetch_add_explicit (p, val, memory_order_seq_cst);
+        return static_cast<int>(atomic_fetch_add_explicit (p, val, memory_order_seq_cst));
     }
 
     static inline int atomic_fetch_sub (volatile int *p, int val)
     {
-        return atomic_fetch_sub_explicit (p, val, memory_order_seq_cst);
+        return static_cast<int>(atomic_fetch_sub_explicit (p, val, memory_order_seq_cst));
     }
 
 #endif

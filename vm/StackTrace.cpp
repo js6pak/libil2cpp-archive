@@ -362,7 +362,7 @@ static void STDCALL GetThreadStackDepthCallback(void* context)
 {
 	GetThreadStackDepthContext* ctx = static_cast<GetThreadStackDepthContext*>(context);
 
-	ctx->stackDepth = StackTrace::GetStackDepth();
+	ctx->stackDepth = static_cast<int32_t>(StackTrace::GetStackDepth());
 	ctx->apcDoneEvent.Set();
 }
 

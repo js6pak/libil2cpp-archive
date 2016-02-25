@@ -16,6 +16,9 @@ using namespace Microsoft::WRL::Wrappers;
 
 namespace il2cpp
 {
+
+using namespace vm;
+
 namespace os
 {
 
@@ -82,19 +85,19 @@ static inline std::string GetAppFolder(T appDataToStorageFolder)
 	HString appDataPath;
 
 	auto hr = RoGetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), __uuidof(IApplicationDataStatics), &appDataStatics);
-	il2cpp::winrt::ThrowExceptionIfFailed(hr);
+	Exception::RaiseIfFailed(hr);
 
 	hr = appDataStatics->get_Current(&appData);
-	il2cpp::winrt::ThrowExceptionIfFailed(hr);
+	Exception::RaiseIfFailed(hr);
 
 	hr = appDataToStorageFolder(appData.Get(), &appDataFolder);
-	il2cpp::winrt::ThrowExceptionIfFailed(hr);
+	Exception::RaiseIfFailed(hr);
 
 	hr = appDataFolder.As(&appDataFolderItem);
-	il2cpp::winrt::ThrowExceptionIfFailed(hr);
+	Exception::RaiseIfFailed(hr);
 
 	hr = appDataFolderItem->get_Path(appDataPath.GetAddressOf());
-	il2cpp::winrt::ThrowExceptionIfFailed(hr);
+	Exception::RaiseIfFailed(hr);
 
 	unsigned int dummy;
 	return utils::StringUtils::Utf16ToUtf8(reinterpret_cast<const uint16_t*>(appDataPath.GetRawBuffer(&dummy)));		
@@ -121,7 +124,7 @@ std::string Environment::GetWindowsFolderPath(int32_t folder)
 		return GetLocalAppDataFolder();
 
 	default:
-		vm::Exception::Raise(vm::Exception::GetUnauthorizedAccessException("Failed getting the path of a special folder: Access Denied."));
+		Exception::Raise(Exception::GetUnauthorizedAccessException("Failed getting the path of a special folder: Access Denied."));
 	}	
 }
 

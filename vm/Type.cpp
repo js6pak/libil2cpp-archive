@@ -689,7 +689,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 
 					oss << (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-					for (int32_t i = 0; i < inst->type_argc; i++)
+					for (uint32_t i = 0; i < inst->type_argc; i++)
 					{
 						const Il2CppType *t = inst->type_argv [i];
 
@@ -708,12 +708,11 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 				}
 				else if (Class::IsGeneric (klass) && (format != IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (format != IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED))
 				{
-					uint32_t i;
 					const Il2CppGenericContainer* container = Class::GetGenericContainer (klass);
 
 					oss << (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-					for (i = 0; i < container->type_argc; i++)
+					for (int32_t i = 0; i < container->type_argc; i++)
 					{
 						if (i) oss << ',';
 						oss << MetadataCache::GetStringFromIndex (GenericContainer::GetGenericParameter (container, i)->nameIndex);

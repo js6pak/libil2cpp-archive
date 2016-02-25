@@ -449,7 +449,7 @@ void SocketPollingThread::RunLoop ()
 
 			// Go through our requests and see which ones we can forward, which ones are
 			// obsolete, and which ones still need to be waited on.
-			for (int i = 0; i < pollRequests.size ();)
+			for (size_t i = 0; i < pollRequests.size ();)
 			{
 				os::PollRequest& pollRequest = pollRequests[i];
 
@@ -584,7 +584,8 @@ void ThreadPoolCompartment::QueueWorkItem (Il2CppAsyncResult* asyncResult)
 	{
 		os::FastAutoLock lock (&mutex);
 		queue.push (asyncResult);
-		if (queue.size() > numIdleThreads)
+		assert(numIdleThreads >= 0);
+		if (queue.size() > static_cast<uint32_t>(numIdleThreads))
 			forceNewThread = true;
 	}
 
@@ -593,8 +594,9 @@ void ThreadPoolCompartment::QueueWorkItem (Il2CppAsyncResult* asyncResult)
 	// is currently being processed and we don't have idle threads, force a new
 	// thread to be spawned even if we are at max capacity. This prevents deadlocks
 	// if the code queuing the item then goes and waits on the item it just queued.
+	assert(maxThreads >= 0);
 	if (forceNewThread &&
-	    (threads.size () < maxThreads || IsCurrentThreadAWorkerThread ()))
+	    (threads.size () < static_cast<uint32_t>(maxThreads) || IsCurrentThreadAWorkerThread ()))
 	{
 		SpawnNewWorkerThread ();
 	}
@@ -666,7 +668,8 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 			// If we've exceeded the normal number of threads for the pool (minThreads),
 			// wait around for a bit and then, if there is no work to do,
 			// terminate.
-			if (threads.size () > minThreads)
+			assert(minThreads >= 0);
+			if (threads.size () > static_cast<uint32_t>(minThreads))
 			{
 				if (waitingToTerminate)
 				{

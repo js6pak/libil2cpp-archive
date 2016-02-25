@@ -1021,7 +1021,7 @@ bool il2cpp_thread_get_frame_at(Il2CppThread* thread, int32_t offset, Il2CppStac
 
 int32_t il2cpp_current_thread_get_stack_depth()
 {
-	return StackTrace::GetStackDepth();
+	return static_cast<int32_t>(StackTrace::GetStackDepth());
 }
 
 

@@ -135,16 +135,21 @@ static Il2CppCodeGenType* il2cpp_codegen_type_get_object (const Il2CppType* type
 	return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject (type);
 }
 
-static void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
+inline NORETURN void il2cpp_codegen_raise_exception (Il2CppCodeGenException *ex)
 {
 	il2cpp::vm::Exception::Raise ((Il2CppException*)ex);
 }
 
-NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
+// This function exists to help with generation of callstacks for exceptions
+// on iOS. There we call the backtrace function, which does not play nicely with
+// NORETURN, since the compiler eliminates the method prologue code setting up
+// the address of the return frame (which makes sense). So on iOS we need to make
+// the NORETURN define do nothing, then we use this dummy method which has the
+// attribute for clang on iOS defined to prevent clang compiler errors for
+// method that end by throwing a managed exception.
+REAL_NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
 {
-#if __has_builtin(__builtin_unreachable)
-	__builtin_unreachable();
-#endif
+	IL2CPP_UNREACHABLE;
 }
 
 static void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const MethodInfo* method)
@@ -278,9 +283,7 @@ static inline void* UnBox(Il2CppCodeGenObject* obj)
 {
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
-		#if __has_builtin(__builtin_unreachable)
-			__builtin_unreachable();
-		#endif
+		IL2CPP_UNREACHABLE;
 	}
 
 	return il2cpp::vm::Object::Unbox((Il2CppObject*)obj);
@@ -290,9 +293,7 @@ static inline void* UnBox(Il2CppCodeGenObject* obj, TypeInfo* klass)
 {
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
-		#if __has_builtin(__builtin_unreachable)
-			__builtin_unreachable();
-		#endif
+		IL2CPP_UNREACHABLE;
 	}
 
 	Il2CppObject* obj2 = (Il2CppObject*)obj;
@@ -404,11 +405,11 @@ static inline T InterlockedExchangeImpl (T* location, T value)
 }
 
 static inline void ArrayGetGenericValueImpl (Il2CppCodeGenArray* __this, int32_t pos, void* value){
-	memcpy(value, ((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->_typeInfo->element_size, __this->_typeInfo->element_size);
+	memcpy(value, ((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->klass->element_size, __this->klass->element_size);
 }
 
 static inline void ArraySetGenericValueImpl (Il2CppCodeGenArray * __this, int32_t pos, void* value){
-	memcpy(((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->_typeInfo->element_size, value, __this->_typeInfo->element_size);
+	memcpy(((uint8_t*)__this) + sizeof(Il2CppCodeGenArray) + pos*__this->klass->element_size, value, __this->klass->element_size);
 }
 
 static inline Il2CppCodeGenArray* SZArrayNew (TypeInfo* arrayType, uint32_t length)
@@ -509,6 +510,11 @@ inline void il2cpp_codegen_marshal_wstring_fixed(Il2CppCodeGenString* il2CppStri
 	return il2cpp::vm::PlatformInvoke::MarshalCSharpStringToCppWStringFixed((Il2CppString*)il2CppString, buffer, numberOfCharacters);
 }
 
+inline uint16_t* il2cpp_codegen_marshal_bstring(Il2CppCodeGenString* il2CppString)
+{
+	return il2cpp::vm::PlatformInvoke::MarshalCSharpStringToCppBString((Il2CppString*)il2CppString);
+}
+
 inline Il2CppCodeGenString* il2cpp_codegen_marshal_string_result(const char* value)
 {
 	return (Il2CppCodeGenString*)il2cpp::vm::PlatformInvoke::MarshalCppStringToCSharpStringResult(value);
@@ -519,20 +525,24 @@ inline Il2CppCodeGenString* il2cpp_codegen_marshal_wstring_result(const uint16_t
 	return (Il2CppCodeGenString*)il2cpp::vm::PlatformInvoke::MarshalCppWStringToCSharpStringResult((uint16_t*)value);
 }
 
+inline Il2CppCodeGenString* il2cpp_codegen_marshal_bstring_result(const uint16_t* value)
+{
+	return (Il2CppCodeGenString*)il2cpp::vm::PlatformInvoke::MarshalCppBStringToCSharpStringResult(value);
+}
+
+inline void il2cpp_codegen_marshal_free_bstring(const uint16_t* value)
+{
+	il2cpp::vm::PlatformInvoke::MarshalFreeBString(value);
+}
+
 inline char* il2cpp_codegen_marshal_string_builder(Il2CppCodeGenStringBuilder* stringBuilder)
 {
-	if (stringBuilder == NULL)
-		return NULL;
-
-	return il2cpp::vm::PlatformInvoke::MarshalAllocateStringBuffer<char>(il2cpp::vm::String::GetLength(((Il2CppStringBuilder*)stringBuilder)->str));
+	return il2cpp::vm::PlatformInvoke::MarshalStringBuilder((Il2CppStringBuilder*)stringBuilder);
 }
 
 inline uint16_t* il2cpp_codegen_marshal_wstring_builder(Il2CppCodeGenStringBuilder* stringBuilder)
 {
-	if (stringBuilder == NULL)
-		return NULL;
-
-	return il2cpp::vm::PlatformInvoke::MarshalAllocateStringBuffer<uint16_t>(il2cpp::vm::String::GetLength(((Il2CppStringBuilder*)stringBuilder)->str));
+	return il2cpp::vm::PlatformInvoke::MarshalWStringBuilder((Il2CppStringBuilder*)stringBuilder);
 }
 
 inline void il2cpp_codegen_marshal_string_builder_result(Il2CppCodeGenStringBuilder* stringBuilder, char* buffer)
@@ -563,26 +573,6 @@ inline void il2cpp_codegen_marshal_array_out(ElementType* cppArray, Il2CppCodeGe
 	il2cpp::vm::PlatformInvoke::MarshalArrayOut(cppArray, (Il2CppArray*)managedArray);
 }
 
-inline char* il2cpp_codegen_marshal_char_array(Il2CppCodeGenArray* a)
-{
-	if (a == NULL)
-		return NULL;
-
-	char* nativeArray = il2cpp_codegen_marshal_allocate_array<char>(a->max_length);
-	il2cpp::vm::PlatformInvoke::MarshalCharArray((Il2CppArray*)a, nativeArray);
-	return nativeArray;
-}
-
-inline Il2CppCodeGenArray* il2cpp_codegen_marshal_char_array_result(char* a, size_t size)
-{
-	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalCharArrayResult(a, size);
-}
-
-inline void il2cpp_codegen_marshal_char_array_out(char* a, Il2CppCodeGenArray* managedArray)
-{
-	il2cpp::vm::PlatformInvoke::MarshalCharArrayOut(a, (Il2CppArray*)managedArray);
-}
-
 inline char** il2cpp_codegen_marshal_allocate_native_string_array(size_t size)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeStringArray(size);
@@ -591,6 +581,11 @@ inline char** il2cpp_codegen_marshal_allocate_native_string_array(size_t size)
 inline uint16_t** il2cpp_codegen_marshal_allocate_native_wstring_array(size_t size)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeWStringArray(size);
+}
+
+inline uint16_t** il2cpp_codegen_marshal_allocate_native_bstring_array(size_t size)
+{
+	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeBStringArray(size);
 }
 
 inline char** il2cpp_codegen_marshal_string_array(Il2CppCodeGenArray* a)
@@ -615,6 +610,17 @@ inline uint16_t** il2cpp_codegen_marshal_wstring_array(Il2CppCodeGenArray* a)
 	return nativeArray;
 }
 
+inline uint16_t** il2cpp_codegen_marshal_bstring_array(Il2CppCodeGenArray* a)
+{
+	if (a == NULL)
+		return NULL;
+
+	// Mono adds a null terminator on the a string array, so we will do the same.
+	uint16_t** nativeArray = il2cpp_codegen_marshal_allocate_array<uint16_t*>(a->max_length + 1);
+	il2cpp::vm::PlatformInvoke::MarshalBStringArray((Il2CppArray*)a, nativeArray);
+	return nativeArray;
+}
+
 inline Il2CppCodeGenArray* il2cpp_codegen_marshal_string_array_result(char** a, size_t size)
 {
 	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalStringArrayResult(a, size);
@@ -630,9 +636,19 @@ inline Il2CppCodeGenArray* il2cpp_codegen_marshal_wstring_array_result(uint16_t*
 	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalWStringArrayResult(a, size);
 }
 
+inline Il2CppCodeGenArray* il2cpp_codegen_marshal_bstring_array_result(uint16_t** a, size_t size)
+{
+	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalBStringArrayResult(a, size);
+}
+
 inline void il2cpp_codegen_marshal_wstring_array_out(uint16_t** nativeArray, Il2CppCodeGenArray* managedArray)
 {
 	il2cpp::vm::PlatformInvoke::MarshalWStringArrayOut(nativeArray, (Il2CppArray*)managedArray);
+}
+
+inline void il2cpp_codegen_marshal_bstring_array_out(uint16_t** nativeArray, Il2CppCodeGenArray* managedArray)
+{
+	il2cpp::vm::PlatformInvoke::MarshalBStringArrayOut(nativeArray, (Il2CppArray*)managedArray);
 }
 
 inline void il2cpp_codegen_marshal_free(void* ptr)
@@ -643,6 +659,11 @@ inline void il2cpp_codegen_marshal_free(void* ptr)
 inline void il2cpp_codegen_marshal_free_string_array(void** a, size_t arrayLength)
 {
 	il2cpp::vm::PlatformInvoke::MarshalFreeStringArray(a, arrayLength);
+}
+
+inline void il2cpp_codegen_marshal_free_bstring_array(uint16_t** a, size_t arrayLength)
+{
+	il2cpp::vm::PlatformInvoke::MarshalFreeBStringArray(a, arrayLength);
 }
 
 inline methodPointerType il2cpp_codegen_marshal_delegate(Il2CppCodeGenMulticastDelegate* d)
@@ -712,9 +733,7 @@ inline void NullCheck (void* this_ptr)
 		return;
 
 	il2cpp::vm::Exception::RaiseNullReferenceException ();
-	#if __has_builtin(__builtin_unreachable)
-		__builtin_unreachable();
-	#endif
+	IL2CPP_UNREACHABLE;
 }
 
 inline void DivideByZeroCheck(int64_t denominator)
@@ -723,9 +742,7 @@ inline void DivideByZeroCheck(int64_t denominator)
 		return;
 
 	il2cpp::vm::Exception::RaiseDivideByZeroException();
-#if __has_builtin(__builtin_unreachable)
-	__builtin_unreachable();
-#endif
+	IL2CPP_UNREACHABLE;
 }
 
 static inline void Initobj (TypeInfo* type, void* data)
@@ -757,18 +774,24 @@ static inline bool MethodHasParameters(const MethodInfo* method)
 
 inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 {
-	if (value != NULL && !il2cpp_codegen_class_is_assignable_from(((Il2CppArray*)array)->obj.klass->element_class, ((Il2CppObject*)value)->klass))
+	if (value != NULL && !il2cpp_codegen_class_is_assignable_from(((Il2CppArray*)array)->klass->element_class, ((Il2CppObject*)value)->klass))
 		il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
 }
 
 inline const MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot)
 {
+	if (!pThis)
+		il2cpp::vm::Exception::RaiseNullReferenceException();
+
 	VirtualInvokeData data = il2cpp::vm::Runtime::GetVirtualInvokeData (slot, pThis);
 	return data.methodInfo;
 }
 
 inline const MethodInfo* GetInterfaceMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot, TypeInfo* declaringInterface)
 {
+	if (!pThis)
+		il2cpp::vm::Exception::RaiseNullReferenceException();
+
 	VirtualInvokeData data = il2cpp::vm::Runtime::GetInterfaceInvokeData (slot, declaringInterface, pThis);
 	return data.methodInfo;
 }
@@ -912,6 +935,13 @@ template <typename T>
 static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* newValue, T* oldValue)
 {
 	return il2cpp::vm::Atomic::CompareExchangePointer(dest, newValue, oldValue);
+}
+
+// COM
+
+static inline void il2cpp_codegen_com_raise_exception_if_failed(il2cpp_hresult_t hr)
+{
+	il2cpp::vm::Exception::RaiseIfFailed(hr);
 }
 
 // Exception support macros
