@@ -161,7 +161,7 @@ TypeInfo* Image::ClassFromName (Il2CppImage* image, const char* namespaze, const
 		if (!image->nameToClassHashTable)
 		{
 			image->nameToClassHashTable = new Il2CppNameToTypeDefinitionIndexHashTable ();
-			for (int32_t index = 0; index < image->typeCount; index++)
+			for (uint32_t index = 0; index < image->typeCount; index++)
 			{
 				TypeDefinitionIndex typeIndex = image->typeStart + index;
 				const Il2CppTypeDefinition* typeDefinition = MetadataCache::GetTypeDefinitionFromIndex (typeIndex);
@@ -205,7 +205,9 @@ size_t Image::GetNumTypes(const Il2CppImage* image)
 
 const TypeInfo* Image::GetType(const Il2CppImage* image, size_t index)
 {
-	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image->typeStart + index);
+	size_t typeDefinitionIndex = image->typeStart + index;
+	assert(typeDefinitionIndex <= static_cast<size_t>(std::numeric_limits<TypeDefinitionIndex>::max()));
+	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (static_cast<TypeDefinitionIndex>(typeDefinitionIndex));
 }
 
 static bool StringsMatch(const char* left, const char* right, bool ignoreCase)
@@ -223,7 +225,7 @@ static bool StringsMatch(const char* left, const char* right, bool ignoreCase)
 
 static TypeInfo* FindClassMatching (const Il2CppImage* image, const char* namespaze, const char *name, TypeInfo* declaringType, bool ignoreCase)
 {
-	for (size_t i = 0; i < image->typeCount; i++)
+	for (uint32_t i = 0; i < image->typeCount; i++)
 	{
 		TypeInfo* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image->typeStart + i);
 		if (type->declaringType == declaringType && StringsMatch(namespaze, type->namespaze, ignoreCase) && StringsMatch(name, type->name, ignoreCase))

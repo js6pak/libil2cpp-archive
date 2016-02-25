@@ -110,8 +110,10 @@ static void SetupArrayMethods (TypeInfo* arrayClass)
 	uint8_t rank = arrayClass->rank;
 	::std::vector<TypeInfo*> interfaces;
 	CollectImplicitArrayInterfaces (arrayClass, interfaces);
-	uint16_t methodCount = 3 + (rank > 1 ? 2 : 1) + interfaces.size () * GetArrayGenericMethodsCount ();
-	arrayClass->method_count = methodCount;
+
+	size_t methodCount = 3 + (rank > 1 ? 2 : 1) + interfaces.size () * GetArrayGenericMethodsCount ();
+	assert(methodCount <= std::numeric_limits<uint16_t>::max());
+	arrayClass->method_count = static_cast<uint16_t>(methodCount);
 	arrayClass->methods = (const MethodInfo**)MetadataCalloc (methodCount, sizeof (MethodInfo*));
 
 	const Il2CppType** parameters = (const Il2CppType**)alloca (rank * sizeof (Il2CppType*));
@@ -143,7 +145,8 @@ static void SetupArrayMethods (TypeInfo* arrayClass)
 		parameters[i] = il2cpp_defaults.int32_class->byval_arg;
 	arrayClass->methods[methodIndex++] = ConstructArrayMethod (arrayClass, "Get", arrayClass->element_class->byval_arg, rank, parameters);
 
-	PopulateArrayGenericMethods (arrayClass, methodIndex, s_GenericArrayMethods);
+	assert(methodIndex <= std::numeric_limits<uint16_t>::max());
+	PopulateArrayGenericMethods (arrayClass, static_cast<uint16_t>(methodIndex), s_GenericArrayMethods);
 }
 
 static void CollectImplicitArrayInterfaces (TypeInfo* arrayClass, ::std::vector<TypeInfo*>& interfaces)
@@ -315,7 +318,9 @@ static void SetupArrayVTableAndInterfaceOffsets (TypeInfo* klass)
 	}
 
 	klass->vtable = arrayVTable;
-	klass->interface_offsets_count = arrayInterfacesCount + 3 * interfaces.size ();
+	size_t interfaceOffsetsCount = arrayInterfacesCount + 3 * interfaces.size();
+	assert(interfaceOffsetsCount <= std::numeric_limits<uint16_t>::max());
+	klass->interface_offsets_count = static_cast<uint16_t>(interfaceOffsetsCount);
 	klass->interfaceOffsets = newInterfaceOffsets;
 }
 
