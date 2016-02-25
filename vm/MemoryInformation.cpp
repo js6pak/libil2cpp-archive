@@ -58,7 +58,7 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 	{
 		const Il2CppImage& image = *MetadataCache::GetImageFromIndex ((*it)->imageIndex);
 
-		for (size_t i = 0; i < image.typeCount; i++)
+		for (uint32_t i = 0; i < image.typeCount; i++)
 		{
 			TypeInfo* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image.typeStart + i);
 			if (type->initialized)
@@ -152,7 +152,10 @@ static void AllocateMemoryForSection(void* context, void* sectionStart, void* se
 	Il2CppManagedMemorySection& section = *ctx->currentSection;
 
 	section.sectionStartAddress = reinterpret_cast<uint64_t>(sectionStart);
-	section.sectionSize = static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart);
+
+	ptrdiff_t sectionSize = static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart);
+	assert(sectionSize <= static_cast<ptrdiff_t>(std::numeric_limits<uint32_t>::max()));
+	section.sectionSize = static_cast<uint32_t>(sectionSize);
 	section.sectionBytes = static_cast<uint8_t*>(IL2CPP_MALLOC(section.sectionSize));
 
 	ctx->currentSection++;
@@ -284,9 +287,9 @@ void FillRuntimeInformation(Il2CppRuntimeInformation& runtimeInfo)
 {
 	runtimeInfo.pointerSize = static_cast<uint32_t>(sizeof(void*));
 	runtimeInfo.objectHeaderSize = static_cast<uint32_t>(sizeof(Il2CppObject));
-	runtimeInfo.arrayHeaderSize = static_cast<uint32_t>(sizeof(Il2CppArray));
-	runtimeInfo.arraySizeOffsetInHeader = offsetof(Il2CppArray, max_length);
-	runtimeInfo.arrayBoundsOffsetInHeader = offsetof(Il2CppArray, bounds);
+	runtimeInfo.arrayHeaderSize = static_cast<uint32_t>(kIl2CppSizeOfArray);
+	runtimeInfo.arraySizeOffsetInHeader = kIl2CppOffsetOfArrayLength;
+	runtimeInfo.arrayBoundsOffsetInHeader = kIl2CppOffsetOfArrayBounds;
 	runtimeInfo.allocationGranularity = static_cast<uint32_t>(2 * sizeof(void*));
 }
 

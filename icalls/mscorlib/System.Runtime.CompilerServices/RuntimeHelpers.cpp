@@ -35,7 +35,7 @@ int RuntimeHelpers::get_OffsetToStringData (void)
 void RuntimeHelpers::InitializeArray (Il2CppArray * array,Il2CppIntPtr ptr)
 {
 	FieldInfo* field_handle = (FieldInfo*)ptr.m_value;
-	TypeInfo *klass = array->obj.klass;
+	TypeInfo *klass = array->klass;
 	uint32_t size = Array::GetElementSize (klass);
 	const Il2CppType *type = Type::GetUnderlyingType (klass->element_class->byval_arg);
 	

@@ -40,6 +40,10 @@ int32_t Environment::GetProcessorCount()
 	return info.dwNumberOfProcessors;
 }
 
+// GetVersionEx is deprecated on desktop in Windows SDK, and we shim it for WinRT
+#pragma warning( push )
+#pragma warning( disable : 4996 )
+
 std::string Environment::GetOsVersionString()
 {
 	OSVERSIONINFO verinfo;
@@ -58,6 +62,8 @@ std::string Environment::GetOsVersionString()
 
 	return "0.0.0.0";
 }
+
+#pragma warning( pop )
 
 std::string Environment::GetOsUserName()
 {

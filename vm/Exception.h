@@ -16,11 +16,24 @@ class Exception
 {
 // exported
 public:
-	static void Raise (Il2CppException* ex);
-	static void RaiseOutOfMemoryException ();
-	static void RaiseNullReferenceException ();
-	static void RaiseDivideByZeroException ();
-	static void RaiseCOMException(int hresult);
+	static NORETURN void Raise (Il2CppException* ex);
+	static NORETURN void RaiseOutOfMemoryException ();
+	static NORETURN void RaiseNullReferenceException ();
+	static NORETURN void RaiseDivideByZeroException ();
+
+	inline NORETURN static void RaiseCOMException (il2cpp_hresult_t hresult)
+	{
+		RaiseCOMException (hresult, NULL);
+	}
+
+	static NORETURN void RaiseCOMException (il2cpp_hresult_t hresult, const char* msg);
+	static NORETURN void Raise (il2cpp_hresult_t hresult);
+
+	inline static void RaiseIfFailed (il2cpp_hresult_t hresult)
+	{
+		if (IL2CPP_HR_FAILED (hresult))
+			Raise (hresult);
+	}
 
 	////TODO: rename to NewFromClassNameAndMessage
 	static Il2CppException* FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg);
