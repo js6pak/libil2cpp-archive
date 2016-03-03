@@ -141,8 +141,12 @@ UTF16String StringUtils::Utf8ToUtf16 (const char* utf8String)
 UTF16String StringUtils::Utf8ToUtf16 (const char* utf8String, size_t length)
 {
 	UTF16String utf16String;
-	utf16String.reserve(length);
-	utf8::unchecked::utf8to16(utf8String, utf8String + length, std::back_inserter(utf16String));
+
+	if (utf8::is_valid(utf8String, utf8String + length))
+	{
+		utf16String.reserve(length);
+		utf8::unchecked::utf8to16(utf8String, utf8String + length, std::back_inserter(utf16String));
+	}
 
 	return utf16String;
 }
