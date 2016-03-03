@@ -123,7 +123,7 @@
     <ClCompile Include="debugger\handlers\array-ref.cpp">
       <Filter>debugger\handlers</Filter>
     </ClCompile>
-	<ClCompile Include="os\Win32\Memory.cpp">
+    <ClCompile Include="os\Win32\Memory.cpp">
       <Filter>os\Win32</Filter>
     </ClCompile>
     <ClCompile Include="os\Posix\Memory.cpp">
@@ -684,6 +684,12 @@
     </ClCompile>
     <ClCompile Include="os\Win32\MarshalStringAlloc.cpp">
       <Filter>os\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Win32\COM.cpp">
+      <Filter>os\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="vm\RCW.cpp">
+      <Filter>vm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1290,6 +1296,15 @@
     </ClInclude>
     <ClInclude Include="os\MarshalStringAlloc.h">
       <Filter>os</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Generic\COM.cpp">
+      <Filter>os\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="os\COM.h">
+      <Filter>os</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\RCW.h">
+      <Filter>vm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
