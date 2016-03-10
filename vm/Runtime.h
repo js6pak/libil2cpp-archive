@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include "il2cpp-config.h"
 #include "il2cpp-api-types.h"
 #include "il2cpp-metadata.h"
 
@@ -23,7 +24,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Runtime
+class LIBIL2CPP_CODEGEN_API Runtime
 {
 public:
 	static void Init (const char* filename, const char *runtime_version);
@@ -72,12 +73,6 @@ public:
 private:
 	static void CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppObject* exc);
 	static Il2CppObject* CreateUnhandledExceptionEventArgs (Il2CppObject* exc);
-
-	static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy;
-	static const char *s_BundledMachineConfig;
-	static std::string s_ConfigDir;
-	static std::string s_DataDir;
-	static const char *s_FrameworkVersion;
 };
 
 } /* namespace vm */

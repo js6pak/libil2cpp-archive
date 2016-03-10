@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <string>
+#include "il2cpp-config.h"
 
 struct Il2CppException;
 struct Il2CppImage;
@@ -12,7 +13,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Exception
+class LIBIL2CPP_CODEGEN_API Exception
 {
 // exported
 public:

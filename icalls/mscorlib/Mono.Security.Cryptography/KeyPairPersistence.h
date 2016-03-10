@@ -1,4 +1,5 @@
 #pragma once
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 
@@ -15,7 +16,7 @@ namespace Security
 namespace Cryptography
 {
 
-class KeyPairPersistence
+class LIBIL2CPP_CODEGEN_API KeyPairPersistence
 {
 public:
 	static bool _CanSecure (Il2CppString* root);

@@ -21,6 +21,9 @@ RegisterRuntimeInitializeAndCleanup::RegisterRuntimeInitializeAndCleanup(Callbac
 
 void RegisterRuntimeInitializeAndCleanup::ExecuteInitializations()
 {
+	if (_registrationCallbacks == NULL)
+		return;
+	
 	for (RegistrationCallbackSet::iterator iter = (*_registrationCallbacks).begin(); iter != (*_registrationCallbacks).end(); ++iter)
 	{
 		(*iter)();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppArray;
 struct Il2CppObject;
@@ -15,7 +16,7 @@ namespace mscorlib
 namespace System
 {
 
-class MonoCustomAttrs
+class LIBIL2CPP_CODEGEN_API MonoCustomAttrs
 {
 public:
 	static Il2CppArray* GetCustomAttributesDataInternal (Il2CppObject* obj);

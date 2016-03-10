@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct mscorlib_System_Guid;
@@ -24,7 +25,7 @@ namespace Runtime
 namespace InteropServices
 {
 
-class Marshal
+class LIBIL2CPP_CODEGEN_API Marshal
 {
 public:
 	static int32_t GetLastWin32Error ();

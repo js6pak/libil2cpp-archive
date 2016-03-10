@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct EventInfo;
 
@@ -9,7 +10,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Event
+class LIBIL2CPP_CODEGEN_API Event
 {
 public:
 	// exported

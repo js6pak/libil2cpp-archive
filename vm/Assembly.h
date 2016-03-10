@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
-
+#include "il2cpp-config.h"
 struct Il2CppAssembly;
 struct Il2CppAssemblyName;
 struct Il2CppImage;
@@ -17,7 +17,7 @@ namespace vm
 typedef std::vector<const Il2CppAssembly*> AssemblyVector;
 typedef std::vector<const Il2CppAssemblyName*> AssemblyNameVector;
 
-class Assembly
+class LIBIL2CPP_CODEGEN_API Assembly
 {
 // exported
 public:

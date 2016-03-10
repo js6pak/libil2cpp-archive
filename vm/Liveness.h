@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct TypeInfo;
 struct Il2CppObject;
@@ -10,7 +11,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Liveness
+class LIBIL2CPP_CODEGEN_API Liveness
 {
 public:
 	typedef void (*register_object_callback)(void** arr, int size, void* userdata);

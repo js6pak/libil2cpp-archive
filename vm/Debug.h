@@ -1,5 +1,5 @@
 #pragma once
-
+#include "il2cpp-config.h"
 struct Il2CppThread;
 struct Il2CppDebugDocument;
 struct Il2CppDebugTypeInfo;
@@ -12,7 +12,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Debug
+class LIBIL2CPP_CODEGEN_API Debug
 {
 public:
 
