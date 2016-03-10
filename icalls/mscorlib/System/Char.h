@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 namespace il2cpp
 {
@@ -11,7 +12,7 @@ namespace mscorlib
 namespace System
 {
 
-class Char
+class LIBIL2CPP_CODEGEN_API Char
 {
 public:
 	static void GetDataTablePointers(unsigned char * *category_data,

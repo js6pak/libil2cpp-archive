@@ -4,7 +4,7 @@
 
 #include <cassert>
 #include <map>
-
+#include <limits>
 #include "class-internals.h"
 #include "tabledefs.h"
 #include "gc/gc-internal.h"

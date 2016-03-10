@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include "il2cpp-config.h"
 #include "utils/NonCopyable.h"
 
 #include "../il2cpp-api-types.h"
@@ -43,7 +44,7 @@ enum ThreadApartmentState
 };
 
 
-class Thread
+class LIBIL2CPP_CODEGEN_API Thread
 {
 public:
 	static char *GetName (uint32_t *len);

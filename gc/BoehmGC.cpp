@@ -278,7 +278,7 @@ il2cpp_gc_make_descr_for_array (int vector, size_t *elem_bitmap, int numbits, si
 #endif
 }
 
-void*
+LIBIL2CPP_CODEGEN_API void*
 il2cpp_gc_alloc_fixed (size_t size, void *descr)
 {
 	// Note that we changed the implementation from mono.
@@ -295,7 +295,7 @@ il2cpp_gc_alloc_fixed (size_t size, void *descr)
 	return GC_MALLOC_UNCOLLECTABLE(size);
 }
 
-void
+LIBIL2CPP_CODEGEN_API void
 il2cpp_gc_free_fixed (void* addr)
 {
 	GC_FREE(addr);

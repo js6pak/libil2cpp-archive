@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -26,7 +27,7 @@ namespace System
 namespace Diagnostics
 {
 
-class DefaultTraceListener
+class LIBIL2CPP_CODEGEN_API DefaultTraceListener
 {
 public:
 	static void WriteWindowsDebugString (Il2CppString* message);

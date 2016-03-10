@@ -62,12 +62,12 @@ namespace vm
 
 il2cpp::os::FastMutex g_MetadataLock;
 
-std::string Runtime::s_ConfigDir;
-std::string Runtime::s_DataDir;
+static std::string s_ConfigDir;
+static std::string s_DataDir;
 static std::string s_DataDirFallback;
-const char *Runtime::s_FrameworkVersion = 0;
-const char *Runtime::s_BundledMachineConfig = 0;
-Il2CppRuntimeUnhandledExceptionPolicy Runtime::s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
+static const char *s_FrameworkVersion = 0;
+static const char *s_BundledMachineConfig = 0;
+static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
 
 #define DEFAULTS_INIT(field,ns,n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n); \
 	assert(il2cpp_defaults.field); } while (0)

@@ -11,7 +11,7 @@ namespace il2cpp
 namespace vm
 {
 
-class LibraryLoader
+class LIBIL2CPP_CODEGEN_API LibraryLoader
 {
 public:
 	static void* LoadLibrary(const std::string& nativeDynamicLibrary);

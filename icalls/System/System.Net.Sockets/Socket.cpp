@@ -952,6 +952,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 		// Layout: READ, null, WRITE, null, ERROR, null
 		// We need to iterate each request and iterate the sockets array, skipping
 		// the null entries. We try to avoid an infinite loop here as well.
+		uint32_t add_index = 0;
 		while (request_index < requests.size())
 		{
 			const uint32_t input_sockets_index = (request_index + mode);
@@ -974,17 +975,26 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 				{
 				case 0:
 					if (request.revents & (os::kPollFlagsIn | os::kPollFlagsErr))
-						il2cpp_array_setref(new_sockets, (request_index + mode), obj);
+					{
+						il2cpp_array_setref (new_sockets, (add_index + mode), obj);
+						add_index++;
+					}
 					break;
 
 				case 1:
 					if (request.revents & (os::kPollFlagsOut | os::kPollFlagsErr))
-						il2cpp_array_setref(new_sockets, (request_index + mode), obj);
+					{
+						il2cpp_array_setref (new_sockets, (add_index + mode), obj);
+						add_index++;
+					}
 					break;
 
 				default:
 					if (request.revents & os::kPollFlagsErr)
-						il2cpp_array_setref(new_sockets, (request_index + mode), obj);
+					{
+						il2cpp_array_setref (new_sockets, (add_index + mode), obj);
+						add_index++;
+					}
 					break;
 				}
 			}

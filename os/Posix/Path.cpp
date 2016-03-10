@@ -7,6 +7,12 @@
 
 #if defined(__APPLE__)
 #include "mach-o/dyld.h"
+#elif IL2CPP_TARGET_LINUX
+#include <linux/limits.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
 #endif
 
 namespace il2cpp
@@ -26,6 +32,15 @@ std::string Path::GetExecutablePath()
 	result.resize(size + 1);
 	_NSGetExecutablePath(&result[0], &size);
 	return result;
+#elif IL2CPP_TARGET_LINUX
+	char path[PATH_MAX];
+	char dest[PATH_MAX];
+	struct stat info;
+	pid_t pid = getpid();
+	sprintf(path, "/proc/%d/exe", pid);
+	if (readlink(path, dest, PATH_MAX) == -1)
+		return std::string();
+	return dest;
 #else
 	return std::string();
 #endif

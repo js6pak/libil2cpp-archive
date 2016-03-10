@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include "il2cpp-config.h"
 struct Il2CppDomain;
 
 namespace il2cpp
@@ -9,7 +9,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Environment
+class LIBIL2CPP_CODEGEN_API Environment
 {
 public:
 	static char** GetMainArgs();

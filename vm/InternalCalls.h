@@ -1,11 +1,13 @@
 #pragma once
 
+#include "il2cpp-config.h"
+
 namespace il2cpp
 {
 namespace vm
 {
 
-class InternalCalls
+class LIBIL2CPP_CODEGEN_API InternalCalls
 {
 public:
 	static void Init ();
