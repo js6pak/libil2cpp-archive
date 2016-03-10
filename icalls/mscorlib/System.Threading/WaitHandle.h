@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "object-internals.h"
+#include "il2cpp-config.h"
 
 struct Il2CppArray;
 struct Il2CppObject;
@@ -17,7 +18,7 @@ namespace System
 namespace Threading
 {
 
-class WaitHandle
+class LIBIL2CPP_CODEGEN_API WaitHandle
 {
 public:
 	static bool SignalAndWait_Internal (Il2CppIntPtr toSignal, Il2CppIntPtr toWaitOn, int32_t ms, bool exitContext);

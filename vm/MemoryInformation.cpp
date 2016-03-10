@@ -14,6 +14,7 @@
 #include "tabledefs.h"
 
 #include <map>
+#include <limits>
 
 namespace il2cpp
 {

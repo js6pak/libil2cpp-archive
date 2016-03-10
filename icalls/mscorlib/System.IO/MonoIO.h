@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppArray;
@@ -30,7 +31,7 @@ struct FileStat
 	int64_t last_write_time;
 };
 
-class MonoIO
+class LIBIL2CPP_CODEGEN_API MonoIO
 {
 public:
 	static bool Close (Il2CppIntPtr handle,int *error);

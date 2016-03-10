@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 struct Il2CppArray;
 struct Il2CppObject;
 struct Il2CppReflectionMethod;
@@ -18,7 +19,7 @@ namespace Runtime
 namespace Remoting
 {
 
-class RemotingServices
+class LIBIL2CPP_CODEGEN_API RemotingServices
 {
 public:
 	static Il2CppReflectionMethod * GetVirtualMethod(Il2CppReflectionType*, Il2CppReflectionMethod*);

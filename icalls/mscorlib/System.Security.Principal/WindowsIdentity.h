@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppString;
@@ -17,7 +18,7 @@ namespace Security
 namespace Principal
 {
 
-class WindowsIdentity
+class LIBIL2CPP_CODEGEN_API WindowsIdentity
 {
 public:
 	static Il2CppIntPtr GetUserToken (Il2CppString* username);

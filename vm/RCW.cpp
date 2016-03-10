@@ -32,6 +32,7 @@ void RCW::Initialize(Il2CppRCW* rcw, const Il2CppGuid& clsid)
 	{
 		FastAutoLock lock(&g_CacheMutex);
 		const bool inserted = g_Cache.insert(std::make_pair(rcw->identity, rcw)).second;
+		NO_UNUSED_WARNING(inserted);
 		assert(inserted);
 	}
 
@@ -48,6 +49,7 @@ void RCW::Cleanup(void* obj, void* data)
 	{
 		FastAutoLock lock(&g_CacheMutex);
 		const size_t erased = g_Cache.erase(rcw->identity);
+		NO_UNUSED_WARNING(erased);
 		assert(1 == erased);
 	}
 
@@ -101,6 +103,7 @@ Il2CppRCW* RCW::Create(Il2CppIUnknown* unknown)
 		rcw->identity = identity;
 
 		const bool inserted = g_Cache.insert(std::make_pair(rcw->identity, rcw)).second;
+		NO_UNUSED_WARNING(inserted);
 		assert(inserted);
 	}
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct mscorlib_System_ArgIterator;
@@ -14,7 +15,7 @@ namespace mscorlib
 namespace System
 {
 
-class ArgIterator
+class LIBIL2CPP_CODEGEN_API ArgIterator
 {
 public:
 	static void* /* System.TypedReference */ IntGetNextArg (ArgIterator self);
