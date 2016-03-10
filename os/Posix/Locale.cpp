@@ -61,7 +61,8 @@ void Locale::Initialize()
 void Locale::UnInitialize()
 {
 #if IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING
-	freelocale(s_cLocale);
+	if (s_cLocale)
+		freelocale(s_cLocale);
 	s_cLocale = NULL;
 #endif
 }

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "il2cpp-config.h"
 
 struct TypeInfo;
 struct MethodInfo;
@@ -36,7 +37,7 @@ struct EmbeddedResourceRecord
 	uint32_t size;
 };
 
-class Image
+class LIBIL2CPP_CODEGEN_API Image
 {
 // exported
 public:

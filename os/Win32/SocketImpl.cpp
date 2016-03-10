@@ -22,6 +22,7 @@
 #include "os/Win32/SocketImpl.h"
 #include "utils/StringUtils.h"
 #include "vm/Exception.h"
+#include <limits>
 
 typedef int socklen_t;
 
@@ -1425,78 +1426,124 @@ static PollFlags poll_events_to_poll_flags (short events)
 
 WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error)
 {
-	const size_t n_fd = requests.size ();
-	pollfd *p_fd = (pollfd*)calloc (n_fd, sizeof (pollfd));
+	const size_t nfds = requests.size ();
+	pollfd *ufds = (pollfd*)calloc (nfds, sizeof (pollfd));
 
-	for (size_t i = 0; i < n_fd; ++i)
+	struct timeval tv, *tvptr;
+	size_t i;
+	int32_t fd, events, affected, count;
+	fd_set rfds, wfds, efds;
+	int32_t nexc = 0;
+	int32_t maxfd = 0;
+	int32_t shouldrepeat = 0;
+
+	for (size_t i = 0; i < nfds; ++i)
 	{
 		if (requests[i].socket->IsClosed ())
 		{
-			p_fd[i].fd = -1;
-			p_fd[i].events = kPollFlagsNone;
-			p_fd[i].revents = kPollFlagsNone;
+			ufds[i].fd = -1;
+			ufds[i].events = kPollFlagsNone;
+			ufds[i].revents = kPollFlagsNone;
 		}
 		else
 		{
-			p_fd[i].fd = (SOCKET) requests[i].socket->GetDescriptor ();
-			p_fd[i].events = poll_flags_to_poll_events (requests[i].events);
-			p_fd[i].revents = kPollFlagsNone;
+			ufds[i].fd = (SOCKET)requests[i].socket->GetDescriptor ();
+			ufds[i].events = (short)requests[i].events;
+			ufds[i].revents = kPollFlagsNone;
 		}
 	}
 
-	int32_t ret = 0;
-	time_t start = time (NULL);
-
-	////FIXME: WSAPoll calls with infinite waits are always interruptible; this is not in line with Socket.Poll() specs.
-	timeout = (timeout >= 0) ? (timeout / 1000) : -1;
-
-	do
+	if (timeout < 0)
 	{
-		assert(n_fd <= std::numeric_limits<ULONG>::max());
-		ret = WSAPoll (p_fd, static_cast<ULONG>(n_fd), timeout);
+		timeout = 1000;
+		shouldrepeat = 1;
+	}
 
-		if (timeout > 0 && ret < 0)
-		{
-			const int32_t err = errno;
-			const int32_t sec = (int32_t)(time(NULL) - start);
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000;
+	tvptr = &tv;
 
-			timeout -= sec * 1000;
+	FD_ZERO (&rfds);
+	FD_ZERO (&wfds);
+	FD_ZERO (&efds);
 
-			if (timeout < 0)
-				timeout = 0;
-
-			errno = err;
-		}
-	} while (ret == -1 && errno == EINTR); // EINTR shouldn't really happen with WSAPoll.
-
-	*result = ret;
-
-	if (ret == -1)
+	for (i = 0; i < nfds; i++)
 	{
-		free (p_fd);
+		ufds[i].revents = 0;
+		fd = (int32_t)ufds[i].fd;
+		if (fd < 0)
+			continue;
 
+		events = ufds[i].events;
+		if ((events & kPollFlagsIn) != 0)
+			FD_SET (fd, &rfds);
+
+		if ((events & kPollFlagsOut) != 0)
+			FD_SET (fd, &wfds);
+
+		FD_SET (fd, &efds);
+		nexc++;
+		if (fd > maxfd)
+			maxfd = fd;
+	}
+
+	affected = select (maxfd + 1, &rfds, &wfds, &efds, tvptr);
+	if (affected == -1)
+	{
 		*error = WSAGetLastError ();
-
-		////TODO: if the error is 10038, loop through the requests, poll them, and set ERR on any request that is has a bad descriptor
-
+		free (ufds);
 		return kWaitStatusFailure;
 	}
 
-	if (ret == 0)
-	{
-		free (p_fd);
+	// TODO : Do we need to handle thread interruptions?
 
+	count = 0;
+	for (i = 0; i < nfds && affected > 0; i++)
+	{
+		fd = (int32_t)ufds[i].fd;
+		if (fd < 0)
+			continue;
+
+		events = ufds[i].events;
+		if ((events & kPollFlagsIn) != 0 && FD_ISSET (fd, &rfds))
+		{
+			ufds[i].revents |= kPollFlagsIn;
+			affected--;
+		}
+
+		if ((events & kPollFlagsOut) != 0 && FD_ISSET (fd, &wfds))
+		{
+			ufds[i].revents |= kPollFlagsOut;
+			affected--;
+		}
+
+		if (FD_ISSET (fd, &efds))
+		{
+			ufds[i].revents |= kPollFlagsErr;
+			affected--;
+		}
+
+		if (ufds[i].revents != 0)
+			count++;
+	}
+
+	*result = count;
+
+	if (count == 0)
+	{
+		free (ufds);
 		return kWaitStatusSuccess;
 	}
 
-	for (size_t i = 0; i < n_fd; ++i)
+	for (i = 0; i < nfds; ++i)
 	{
-		requests[i].revents = poll_events_to_poll_flags (p_fd[i].revents);
+		requests[i].revents = (PollFlags)ufds[i].revents;
 	}
 
-	free (p_fd);
+	free (ufds);
 
 	return kWaitStatusSuccess;
+
 }
 
 WaitStatus SocketImpl::SetSocketOption (SocketOptionLevel level, SocketOptionName name, int32_t value)

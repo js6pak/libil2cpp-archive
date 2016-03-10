@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "object-internals.h"
+#include "il2cpp-config.h"
 
 struct Il2CppObject;
 struct Il2CppDelegate;
@@ -26,7 +27,7 @@ namespace System
 namespace Configuration
 {
 
-class DefaultConfig
+class LIBIL2CPP_CODEGEN_API DefaultConfig
 {
 public:
 	static Il2CppString* get_machine_config_path ();

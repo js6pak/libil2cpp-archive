@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include "il2cpp-config.h"
 #include "Assembly.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "class-internals.h"
@@ -20,7 +21,7 @@ namespace il2cpp
 namespace vm
 {
 
-class MetadataCache
+class LIBIL2CPP_CODEGEN_API MetadataCache
 {
 public:
 

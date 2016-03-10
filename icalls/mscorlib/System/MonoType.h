@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
+
 struct mscorlib_System_Reflection_MethodInfo;
 
 struct Il2CppArray;
@@ -23,7 +25,7 @@ namespace mscorlib
 namespace System
 {
 
-class MonoType
+class LIBIL2CPP_CODEGEN_API MonoType
 {
 public:
 	static Il2CppString* getFullName (Il2CppReflectionType* type,bool full_name, bool assembly_qualified);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 namespace il2cpp
@@ -15,7 +16,7 @@ namespace Runtime
 namespace CompilerServices
 {
 
-class RuntimeHelpers
+class LIBIL2CPP_CODEGEN_API RuntimeHelpers
 {
 public:
 	static Il2CppObject* GetObjectValue (Il2CppObject* obj);

@@ -106,7 +106,7 @@ private:
 };
 
 // declare extern rather than include "gc/gc-internal.h" until WebGL includes Boehm headers
-extern void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
+LIBIL2CPP_CODEGEN_API extern void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
 
 // TODO: This file should contain all the functions and type declarations needed for the generated code.
 // Hopefully, we stop including everything in the generated code and know exactly what dependencies we have.

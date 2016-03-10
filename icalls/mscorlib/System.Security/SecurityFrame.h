@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include "il2cpp-config.h"
 struct Il2CppArray;
 
 namespace il2cpp
@@ -15,7 +15,7 @@ namespace System
 namespace Security
 {
 
-class SecurityFrame
+class LIBIL2CPP_CODEGEN_API SecurityFrame
 {
 public:
 	static void* /* System.Security.RuntimeSecurityFrame */ _GetSecurityFrame (int32_t skip);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -26,7 +27,7 @@ namespace System
 namespace Reflection
 {
 
-class MonoCMethod
+class LIBIL2CPP_CODEGEN_API MonoCMethod
 {
 public:
 	static Il2CppObject* InternalInvoke (void* /* System.Reflection.MonoCMethod */ self, Il2CppObject* obj, Il2CppArray* parameters, Il2CppException** exc);

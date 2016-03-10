@@ -26,6 +26,8 @@
 #include "vm/Array.h"
 #include "class-internals.h"
 #include <cassert>
+#include <limits>
+
 
 using namespace il2cpp::vm;
 
@@ -292,9 +294,9 @@ Il2CppString* Assembly::InternalImageRuntimeVersion (Il2CppAssembly* self)
 	return 0;
 }
 
-Il2CppReflectionMethod* Assembly::get_EntryPoint (Il2CppAssembly* self)
+Il2CppReflectionMethod* Assembly::get_EntryPoint (Il2CppReflectionAssembly* self)
 {
-	const MethodInfo* method = Image::GetEntryPoint (MetadataCache::GetImageFromIndex (self->imageIndex));
+	const MethodInfo* method = Image::GetEntryPoint (MetadataCache::GetImageFromIndex (self->assembly->imageIndex));
 	if (method == NULL)
 		return NULL;
 

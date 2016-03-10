@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -28,7 +29,7 @@ namespace Globalization
 namespace Unicode
 {
 
-class Normalization
+class LIBIL2CPP_CODEGEN_API Normalization
 {
 public:
 	static void load_normalization_resource (Il2CppIntPtr* argProps, Il2CppIntPtr* argMappedChars, Il2CppIntPtr* argCharMapIndex, Il2CppIntPtr* argHelperIndex, Il2CppIntPtr* argMapIdxToComposite, Il2CppIntPtr* argCombiningClass);
