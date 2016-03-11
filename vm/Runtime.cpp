@@ -627,6 +627,26 @@ VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeIn
 	return data;
 }
 
+VirtualInvokeData Runtime::GetComInterfaceInvokeData(Il2CppMethodSlot slot, TypeInfo* declaringInterface, void* obj)
+{
+	// check for regular managed object that implements com interface
+	if (((Il2CppObject*)obj)->klass != il2cpp_defaults.object_class)
+		return GetInterfaceInvokeData(slot, declaringInterface, obj);
+
+	// it's an rcw. invoke com interface method directly
+
+	const MethodInfo* targetMethodInfo = declaringInterface->vtable[slot];
+#if IL2CPP_DEBUG
+	assert(targetMethodInfo);
+#endif
+
+	if (!targetMethodInfo->method)
+		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
+
+	VirtualInvokeData data = { obj, targetMethodInfo };
+	return data;
+}
+
 static const MethodInfo* GetGenericVirtualMethod (const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
 {
 	NOT_IMPLEMENTED_NO_ASSERT (GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");

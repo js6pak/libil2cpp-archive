@@ -107,7 +107,7 @@ il2cpp_gc_run_finalize (void *obj, void *data)
 	}
 }
 
-static void register_finalizer (Il2CppObject* obj, void (*callback)(void *, void*))
+void il2cpp_gc_register_finalizer_with_callback (Il2CppObject* obj, void (*callback)(void *, void *))
 {
 	NOT_IMPLEMENTED_NO_ASSERT (register_finalizer, "Compare to mono implementation special cases");
 
@@ -121,12 +121,12 @@ static void register_finalizer (Il2CppObject* obj, void (*callback)(void *, void
 
 void il2cpp_gc_register_finalizer (Il2CppObject* obj)
 {
-	register_finalizer (obj, &il2cpp_gc_run_finalize);
+	il2cpp_gc_register_finalizer_with_callback (obj, &il2cpp_gc_run_finalize);
 }
 
 void il2cpp_gc_suppress_finalizer (Il2CppObject* obj)
 {
-	register_finalizer (obj, NULL);
+	il2cpp_gc_register_finalizer_with_callback (obj, NULL);
 }
 
 void il2cpp_gc_wait_for_pending_finalizers ()
