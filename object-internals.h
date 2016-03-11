@@ -664,7 +664,13 @@ struct Il2CppGuid
 
 struct NOVTABLE Il2CppIUnknown
 {
+	static const Il2CppGuid IID;
 	virtual il2cpp_hresult_t STDCALL QueryInterface(const Il2CppGuid& iid, void** object) = 0;
 	virtual uint32_t STDCALL AddRef() = 0;
 	virtual uint32_t STDCALL Release() = 0;
+};
+
+struct Il2CppRCW : Il2CppObject
+{
+	Il2CppIUnknown* identity;
 };

@@ -1874,7 +1874,7 @@ std::string Messages::FromCode (ErrorCode code)
 		return message;
 #endif
 
-	return NULL;
+	return std::string ();
 }
 
 }

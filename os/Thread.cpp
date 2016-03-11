@@ -39,7 +39,8 @@ Thread::~Thread()
 void Thread::Init ()
 {
 	Thread* thread = GetOrCreateCurrentThread ();
-	thread->SetApartment (kApartmentStateInMTA);
+	if (thread->GetApartment () == kApartmentStateUnknown)
+		thread->SetApartment (kApartmentStateInMTA);
 }
 
 void Thread::Shutdown ()

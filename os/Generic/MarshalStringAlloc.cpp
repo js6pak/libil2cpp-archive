@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_USE_GENERIC_BSTR_MARSHALLING
+#if IL2CPP_USE_GENERIC_COM
 #include "os/MarshalStringAlloc.h"
 
 namespace il2cpp
