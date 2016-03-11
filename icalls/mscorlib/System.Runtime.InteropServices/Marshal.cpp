@@ -41,8 +41,7 @@ namespace InteropServices
 
 int32_t Marshal::AddRefInternal (Il2CppIntPtr pUnk)
 {
-	NOT_SUPPORTED_IL2CPP(Marshal::AddRefInternal, "COM icalls are not supported.");
-	return false;
+	return static_cast<Il2CppIUnknown*>(pUnk.m_value)->AddRef();
 }
 
 Il2CppIntPtr Marshal::AllocCoTaskMem(int32_t size)
@@ -123,6 +122,16 @@ Il2CppIntPtr Marshal::GetIDispatchForObjectInternal (Il2CppObject* o)
 
 Il2CppIntPtr Marshal::GetIUnknownForObjectInternal (Il2CppObject* o)
 {
+	for (TypeInfo* klass = o->klass; klass; klass = klass->parent)
+	{
+		if (klass->is_import)
+		{
+			Il2CppIntPtr result;
+			result.m_value = static_cast<Il2CppRCW*>(o)->identity;
+			return result;
+		}
+	}
+
 	NOT_SUPPORTED_IL2CPP(Marshal::GetIUnknownForObjectInternal, "COM icalls are not supported.");
 	return Il2CppIntPtr::Zero;
 }
