@@ -32,6 +32,7 @@
 #include "vm/Object.h"
 #include "vm/PlatformInvoke.h"
 #include "vm/Profiler.h"
+#include "vm/RCW.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
 #include "vm/StackTrace.h"
@@ -938,6 +939,21 @@ static inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* des
 }
 
 // COM
+
+static inline void il2cpp_codegen_com_initialize_object(Il2CppRCW* rcw, const Il2CppGuid& clsid)
+{
+	il2cpp::vm::RCW::Initialize(rcw, clsid);
+}
+
+static inline Il2CppIUnknown* il2cpp_codegen_com_query_interface(Il2CppRCW* rcw, const Il2CppGuid& iid)
+{
+	return il2cpp::vm::RCW::QueryInterface(rcw, iid);
+}
+
+static inline Il2CppRCW* il2cpp_codegen_com_create_rcw(Il2CppIUnknown* unknown)
+{
+	return il2cpp::vm::RCW::Create(unknown);
+}
 
 static inline void il2cpp_codegen_com_raise_exception_if_failed(il2cpp_hresult_t hr)
 {

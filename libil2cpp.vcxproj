@@ -797,6 +797,7 @@
     <ClInclude Include="os\ErrorCodes.h" />
     <ClInclude Include="os\Event.h" />
     <ClInclude Include="os\File.h" />
+    <ClInclude Include="os\Generic\COM.cpp" />
     <ClInclude Include="os\Generic\SocketImpl.h" />
     <ClInclude Include="os\Handle.h" />
     <ClInclude Include="os\Image.h" />
@@ -820,6 +821,7 @@
     <ClInclude Include="os\Posix\ThreadLocalValueImpl.h" />
     <ClInclude Include="os\Posix\FileHandle.h" />
     <ClInclude Include="os\Process.h" />
+    <ClInclude Include="os\COM.h" />
     <ClInclude Include="os\Semaphore.h" />
     <ClInclude Include="os\Socket.h" />
     <ClInclude Include="os\StackTrace.h" />
@@ -904,6 +906,7 @@
     <ClInclude Include="vm\PlatformInvoke.h" />
     <ClInclude Include="vm\Profiler.h" />
     <ClInclude Include="vm\Property.h" />
+    <ClInclude Include="vm\RCW.h" />
     <ClInclude Include="vm\Reflection.h" />
     <ClInclude Include="vm\Runtime.h" />
     <ClInclude Include="vm\StackTrace.h" />
@@ -1116,6 +1119,7 @@
     <ClCompile Include="os\Posix\Process.cpp" />
     <ClCompile Include="os\Posix\SocketImpl.cpp" />
     <ClCompile Include="os\Socket.cpp" />
+    <ClCompile Include="os\Win32\COM.cpp" />
     <ClCompile Include="os\Win32\Console.cpp" />
     <ClCompile Include="os\Win32\Debug.cpp" />
     <ClCompile Include="os\Win32\Directory.cpp" />
@@ -1213,6 +1217,7 @@
     <ClCompile Include="vm\PlatformInvoke.cpp" />
     <ClCompile Include="vm\Profiler.cpp" />
     <ClCompile Include="vm\Property.cpp" />
+    <ClCompile Include="vm\RCW.cpp" />
     <ClCompile Include="vm\Reflection.cpp" />
     <ClCompile Include="vm\Runtime.cpp" />
     <ClCompile Include="vm\StackTrace.cpp" />
