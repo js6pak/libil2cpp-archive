@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 struct Il2CppArray;
@@ -32,7 +33,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Reflection
+class LIBIL2CPP_CODEGEN_API Reflection
 {
 // exported
 public:

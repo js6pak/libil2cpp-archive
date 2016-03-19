@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct mscorlib_System_Reflection_Assembly;
@@ -17,7 +18,7 @@ namespace mscorlib
 namespace System
 {
 
-class Type
+class LIBIL2CPP_CODEGEN_API Type
 {
 public:
 	static bool EqualsInternal (Il2CppReflectionType* left, Il2CppReflectionType* right);

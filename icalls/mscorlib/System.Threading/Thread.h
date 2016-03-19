@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "object-internals.h"
 #include "vm/Thread.h"
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 struct Il2CppThread;
@@ -21,7 +22,7 @@ namespace System
 namespace Threading
 {
 
-class Thread
+class LIBIL2CPP_CODEGEN_API Thread
 {
 public:
 	static int32_t GetDomainID ();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct mscorlib_System_Runtime_InteropServices_DllImportAttribute;
@@ -17,7 +18,7 @@ namespace System
 namespace Reflection
 {
 
-class MonoMethod
+class LIBIL2CPP_CODEGEN_API MonoMethod
 {
 public:
 	static mscorlib_System_Runtime_InteropServices_DllImportAttribute * GetDllImportAttribute (Il2CppIntPtr);

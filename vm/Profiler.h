@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "il2cpp-api-types.h"
 
 namespace il2cpp
@@ -8,7 +9,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Profiler
+class LIBIL2CPP_CODEGEN_API Profiler
 {
 // exported
 public:

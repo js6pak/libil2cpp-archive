@@ -5,6 +5,7 @@
 #include "vm/Type.h"
 #include "metadata/FieldLayout.h"
 #include <cassert>
+#include <limits>
 
 using il2cpp::vm::Class;
 using il2cpp::vm::GenericClass;

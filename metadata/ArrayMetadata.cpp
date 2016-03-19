@@ -25,6 +25,7 @@
 #include <cassert>
 #include <sstream>
 #include <vector>
+#include <limits>
 
 using namespace il2cpp::vm;
 using il2cpp::os::FastAutoLock;

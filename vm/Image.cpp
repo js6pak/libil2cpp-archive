@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include <vector>
 #include <map>
+#include <limits>
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "utils/StringUtils.h"
