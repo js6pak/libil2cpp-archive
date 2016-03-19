@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "il2cpp-config.h"
 #include "class-internals.h"
 
 #ifdef major
@@ -201,7 +202,7 @@ private:
 	std::string::const_iterator _end;
 };
 
-class Type
+class LIBIL2CPP_CODEGEN_API Type
 {
 public:
 	// exported

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppArray;
 struct Il2CppObject;
@@ -14,7 +15,7 @@ namespace mscorlib
 namespace System
 {
 
-class ValueType
+class LIBIL2CPP_CODEGEN_API ValueType
 {
 public:
 	static bool InternalEquals(Il2CppObject * __this, Il2CppObject * that, Il2CppArray** fields);

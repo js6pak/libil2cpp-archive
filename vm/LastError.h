@@ -1,13 +1,14 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 namespace il2cpp
 {
 namespace vm
 {
 
-class LastError
+class LIBIL2CPP_CODEGEN_API LastError
 {
 public:
 	static uint32_t GetLastError();

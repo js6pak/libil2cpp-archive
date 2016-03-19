@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "object-internals.h"
+#include "il2cpp-config.h"
 
 struct Il2CppObject;
 struct Il2CppDelegate;
@@ -26,7 +27,7 @@ namespace System
 namespace Threading
 {
 
-class ThreadPool
+class LIBIL2CPP_CODEGEN_API ThreadPool
 {
 public:
 	static void GetAvailableThreads (int32_t* workerThreads, int32_t* completionPortThreads);

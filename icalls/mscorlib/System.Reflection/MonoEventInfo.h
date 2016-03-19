@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 struct Il2CppReflectionMonoEvent;
 struct Il2CppReflectionMonoEventInfo;
 
@@ -14,7 +15,7 @@ namespace System
 namespace Reflection
 {
 
-class MonoEventInfo
+class LIBIL2CPP_CODEGEN_API MonoEventInfo
 {
 public:
 	static void get_event_info(Il2CppReflectionMonoEvent* event, Il2CppReflectionMonoEventInfo* eventInfo);

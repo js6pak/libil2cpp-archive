@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include "il2cpp-config.h"
 struct TypeInfo;
 struct Il2CppGenericClass;
 struct Il2CppGenericContext;
@@ -11,7 +11,7 @@ namespace il2cpp
 namespace vm
 {
 
-class GenericClass
+class LIBIL2CPP_CODEGEN_API GenericClass
 {
 public:
 	// exported

@@ -169,6 +169,11 @@ enum PollFlags
 	kPollFlagsAny	= 0xffffffff
 };
 
+inline void operator|=(PollFlags& left, PollFlags right)
+{
+	left = static_cast<PollFlags>(static_cast<int>(left) | static_cast<int>(right));
+}
+
 enum TransmitFileOptions
 {
 	kTransmitFileOptionsUseDefaultWorkerThread	= 0x00000000,
@@ -183,7 +188,7 @@ class Socket;
 
 struct PollRequest
 {
-	Socket *socket;
+	int64_t fd;
 	PollFlags events;
 	PollFlags revents;
 };

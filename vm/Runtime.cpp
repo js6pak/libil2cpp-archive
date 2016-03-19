@@ -62,12 +62,12 @@ namespace vm
 
 il2cpp::os::FastMutex g_MetadataLock;
 
-std::string Runtime::s_ConfigDir;
-std::string Runtime::s_DataDir;
+static std::string s_ConfigDir;
+static std::string s_DataDir;
 static std::string s_DataDirFallback;
-const char *Runtime::s_FrameworkVersion = 0;
-const char *Runtime::s_BundledMachineConfig = 0;
-Il2CppRuntimeUnhandledExceptionPolicy Runtime::s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
+static const char *s_FrameworkVersion = 0;
+static const char *s_BundledMachineConfig = 0;
+static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
 
 #define DEFAULTS_INIT(field,ns,n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n); \
 	assert(il2cpp_defaults.field); } while (0)
@@ -634,6 +634,16 @@ VirtualInvokeData Runtime::GetComInterfaceInvokeData(Il2CppMethodSlot slot, Type
 		return GetInterfaceInvokeData(slot, declaringInterface, obj);
 
 	// it's an rcw. invoke com interface method directly
+
+	// declaringInterface vtable starts at the very end (after imlemeted interfaces' vtables)
+	int32_t itf_offset = 0;
+	if (declaringInterface->interface_offsets_count)
+	{
+		const Il2CppRuntimeInterfaceOffsetPair* pair = declaringInterface->interfaceOffsets + declaringInterface->interface_offsets_count - 1;
+		itf_offset = pair->offset + pair->interfaceType->vtable_count;
+	}
+	assert(itf_offset != -1);
+	slot += itf_offset;
 
 	const MethodInfo* targetMethodInfo = declaringInterface->vtable[slot];
 #if IL2CPP_DEBUG

@@ -1967,14 +1967,15 @@ WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout
 
 	for (int32_t i = 0; i < n_fd; ++i)
 	{
-		if (requests[i].socket->IsClosed ())
+		if (requests[i].fd == -1)
 		{
 			p_fd[i].fd = -1;
 			p_fd[i].events = kPollFlagsNone;
 			p_fd[i].revents = kPollFlagsNone;
-		} else
+		}
+		else
 		{
-			p_fd[i].fd = requests[i].socket->GetDescriptor ();
+			p_fd[i].fd = requests[i].fd;
 			p_fd[i].events = posix::PollFlagsToPollEvents (requests[i].events);
 			p_fd[i].revents = kPollFlagsNone;
 		}
