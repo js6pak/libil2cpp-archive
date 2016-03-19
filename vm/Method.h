@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <string>
+#include "il2cpp-config.h"
 
 struct MethodInfo;
 struct PropertyInfo;
@@ -17,7 +18,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Method
+class LIBIL2CPP_CODEGEN_API Method
 {
 public:
 	static const Il2CppType* GetReturnType (const MethodInfo* method);

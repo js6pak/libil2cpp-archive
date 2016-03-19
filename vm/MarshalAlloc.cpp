@@ -8,6 +8,11 @@ namespace il2cpp
 namespace vm
 {
 
+#if _DEBUG
+static os::FastMutex s_Mutex; // Locking only necessary in a debug build.
+static std::map<void*, size_t> s_Allocations;
+#endif
+
 void* MarshalAlloc::Allocate(size_t size)
 {
 	void* ptr = os::MarshalAlloc::Allocate(size);
@@ -69,9 +74,6 @@ void MarshalAlloc::FreeHGlobal (void* ptr)
 }
 
 #if _DEBUG
-
-std::map<void*, size_t> MarshalAlloc::s_Allocations;
-os::FastMutex MarshalAlloc::s_Mutex;
 
 bool MarshalAlloc::HasUnfreedAllocations()
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -29,7 +30,7 @@ namespace Diagnostics
 struct CounterSample;
 struct PerformanceCounterType;
 
-class PerformanceCounter
+class LIBIL2CPP_CODEGEN_API PerformanceCounter
 {
 public:
 	static void FreeData (Il2CppIntPtr impl);

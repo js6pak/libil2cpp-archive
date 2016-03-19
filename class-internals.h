@@ -407,6 +407,8 @@ struct Il2CppCodeRegistration
 	const methodPointerType* delegateWrappersFromManagedToNative;
 	uint32_t marshalingFunctionsCount;
 	const Il2CppMarshalingFunctions* marshalingFunctions;
+	uint32_t ccwMarshalingFunctionsCount;
+	const methodPointerType* ccwMarshalingFunctions;
 	uint32_t genericMethodPointersCount;
 	const methodPointerType* genericMethodPointers;
 	uint32_t invokerPointersCount;

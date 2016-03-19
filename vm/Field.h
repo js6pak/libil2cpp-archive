@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include "il2cpp-config.h"
 struct FieldInfo;
 struct Il2CppType;
 struct TypeInfo;
@@ -12,7 +12,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Field
+class LIBIL2CPP_CODEGEN_API Field
 {
 public:
 	// exported

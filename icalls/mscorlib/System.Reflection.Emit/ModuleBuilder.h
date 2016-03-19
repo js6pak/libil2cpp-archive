@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -24,7 +25,7 @@ namespace Reflection
 namespace Emit
 {
 
-class ModuleBuilder
+class LIBIL2CPP_CODEGEN_API ModuleBuilder
 {
 public:
 	static void RegisterToken (Il2CppReflectionModuleBuilder*, Il2CppObject*, int);

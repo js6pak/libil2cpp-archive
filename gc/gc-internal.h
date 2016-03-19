@@ -26,8 +26,8 @@ void il2cpp_gc_add_weak_track_handle (Il2CppObject *obj, uint32_t gchandle);
 void il2cpp_gc_change_weak_track_handle (Il2CppObject *old_obj, Il2CppObject *obj, uint32_t gchandle);
 void il2cpp_gc_remove_weak_track_handle (uint32_t gchandle);
 
-void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
-void il2cpp_gc_free_fixed (void* addr);
+LIBIL2CPP_CODEGEN_API void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
+LIBIL2CPP_CODEGEN_API void il2cpp_gc_free_fixed (void* addr);
 size_t il2cpp_gc_get_generation (void* addr);
 void il2cpp_gc_add_memory_pressure (int64_t value);
 

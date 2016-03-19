@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct MethodInfo;
 struct PropertyInfo;
@@ -11,7 +12,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Property
+class LIBIL2CPP_CODEGEN_API Property
 {
 public:
 	// exported

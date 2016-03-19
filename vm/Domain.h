@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include "il2cpp-config.h"
 struct Il2CppDomain;
 struct Il2CppAppContext;
 
@@ -10,7 +10,7 @@ namespace il2cpp
 namespace vm
 {
 
-class Domain
+class LIBIL2CPP_CODEGEN_API Domain
 {
 public:
 	static Il2CppDomain* GetCurrent ();

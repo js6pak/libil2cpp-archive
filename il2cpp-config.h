@@ -122,10 +122,21 @@
 #ifdef _MSC_VER
 # include <malloc.h>
 # define IL2CPP_EXPORT __declspec(dllexport)
+# define IL2CPP_IMPORT __declspec(dllimport)
 #elif IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_PS4
 # define IL2CPP_EXPORT __declspec(dllexport)
+# define IL2CPP_IMPORT __declspec(dllimport)
 #else
 # define IL2CPP_EXPORT __attribute__ ((visibility ("default")))
+# define IL2CPP_IMPORT
+#endif
+
+#ifdef LIBIL2CPP_EXPORT_CODEGEN_API
+# define LIBIL2CPP_CODEGEN_API IL2CPP_EXPORT
+#elif LIBIL2CPP_IMPORT_CODEGEN_API
+# define LIBIL2CPP_CODEGEN_API IL2CPP_IMPORT
+#else
+# define LIBIL2CPP_CODEGEN_API
 #endif
 
 #if defined(__ARMCC_VERSION)
@@ -288,7 +299,7 @@
 #define IL2CPP_ENABLE_PROFILER 1
 
 /* GC defines*/
-#define IL2CPP_GC_BOEHM !IL2CPP_TARGET_LINUX
+#define IL2CPP_GC_BOEHM 1
 #define IL2CPP_GC_NULL !IL2CPP_GC_BOEHM
 
 /* we always need to NULL pointer free memory with our current allocators */
@@ -476,6 +487,8 @@ typedef int32_t il2cpp_hresult_t;
 
 #define IL2CPP_S_OK ((il2cpp_hresult_t)0)
 #define IL2CPP_E_NOTIMPL ((il2cpp_hresult_t)0x80004001)
+#define IL2CPP_E_NOINTERFACE ((il2cpp_hresult_t)0x80004002)
+#define IL2CPP_E_POINTER ((il2cpp_hresult_t)0x80004003)
 #define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
 
 #define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)

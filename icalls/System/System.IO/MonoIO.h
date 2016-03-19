@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "object-internals.h"
+#include "il2cpp-config.h"
 
 struct Il2CppObject;
 struct Il2CppDelegate;
@@ -28,7 +29,7 @@ namespace IO
 
 struct MonoIOError;
 
-class MonoIO
+class LIBIL2CPP_CODEGEN_API MonoIO
 {
 public:
 	static Il2CppIntPtr get_ConsoleError ();

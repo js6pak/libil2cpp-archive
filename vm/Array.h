@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppArray;
 struct Il2CppObject;
@@ -11,8 +12,7 @@ namespace il2cpp
 {
 namespace vm
 {
-
-class Array
+class LIBIL2CPP_CODEGEN_API Array
 {
 public:
 	static int32_t GetElementSize (const TypeInfo *klass);
@@ -34,7 +34,7 @@ public:
 } /* namespace vm */
 } /* namespace il2cpp */
 
-char* il2cpp_array_addr_with_size (Il2CppArray *array, int32_t size, uintptr_t idx);
+LIBIL2CPP_CODEGEN_API char* il2cpp_array_addr_with_size (Il2CppArray *array, int32_t size, uintptr_t idx);
 
 extern "C"
 {

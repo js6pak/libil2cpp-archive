@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include "os/Mutex.h"
 
 namespace il2cpp
