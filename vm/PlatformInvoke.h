@@ -21,7 +21,7 @@ namespace il2cpp
 namespace vm
 {
 
-class PlatformInvoke
+class LIBIL2CPP_CODEGEN_API PlatformInvoke
 {
 public:
 	static int SumParameterSize(Il2CppTypeEnum parameterTypes[]);

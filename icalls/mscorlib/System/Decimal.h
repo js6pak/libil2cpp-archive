@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 struct mscorlib_System_Decimal;
@@ -31,7 +32,7 @@ namespace mscorlib
 namespace System
 {
 
-class Decimal
+class LIBIL2CPP_CODEGEN_API Decimal
 {
 public:
 	static int32_t decimal2Int64 (il2cpp_decimal_repr* val, int64_t* result);

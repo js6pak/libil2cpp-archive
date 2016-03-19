@@ -1,10 +1,12 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "blob.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "utils/dynamic_array.h"
 #include "class-internals.h"
+
 
 struct TypeInfo;
 struct EventInfo;
@@ -27,7 +29,7 @@ namespace vm
 
 class TypeNameParseInfo;
 
-class Class
+class LIBIL2CPP_CODEGEN_API Class
 {
 public:
 	static TypeInfo* FromIl2CppType (const Il2CppType* type);

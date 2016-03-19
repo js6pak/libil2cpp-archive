@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppArray;
 struct Il2CppString;
@@ -14,7 +15,7 @@ namespace mscorlib
 namespace System
 {
 
-class Convert
+class LIBIL2CPP_CODEGEN_API Convert
 {
 public:
 	static Il2CppArray* InternalFromBase64CharArray (Il2CppArray* arr, int32_t offset, int32_t length);

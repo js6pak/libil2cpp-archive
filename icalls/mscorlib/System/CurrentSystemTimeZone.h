@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppArray;
 
@@ -13,7 +14,7 @@ namespace mscorlib
 namespace System
 {
 
-class CurrentSystemTimeZone
+class LIBIL2CPP_CODEGEN_API CurrentSystemTimeZone
 {
 public:
 	static bool GetTimeZoneData(int,Il2CppArray * *,Il2CppArray * *);
