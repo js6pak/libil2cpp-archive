@@ -21,7 +21,9 @@
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Atomic.h"
+#include "vm/CCW.h"
 #include "vm/Class.h"
+#include "vm/ComUtils.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
 #include "vm/InternalCalls.h"
@@ -106,7 +108,7 @@ private:
 };
 
 // declare extern rather than include "gc/gc-internal.h" until WebGL includes Boehm headers
-extern void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
+LIBIL2CPP_CODEGEN_API extern void* il2cpp_gc_alloc_fixed (size_t size, void *descr);
 
 // TODO: This file should contain all the functions and type declarations needed for the generated code.
 // Hopefully, we stop including everything in the generated code and know exactly what dependencies we have.
@@ -950,9 +952,19 @@ static inline Il2CppIUnknown* il2cpp_codegen_com_query_interface(Il2CppRCW* rcw,
 	return il2cpp::vm::RCW::QueryInterface(rcw, iid);
 }
 
-static inline Il2CppRCW* il2cpp_codegen_com_create_rcw(Il2CppIUnknown* unknown)
+static inline Il2CppCodeGenObject* il2cpp_codegen_com_create_rcw(Il2CppIUnknown* unknown)
 {
-	return il2cpp::vm::RCW::Create(unknown);
+	return (Il2CppCodeGenObject*)il2cpp::vm::RCW::Create(unknown);
+}
+
+static inline Il2CppIUnknown* il2cpp_codegen_com_create_ccw(Il2CppCodeGenObject* obj, const Il2CppGuid& iid)
+{
+	return il2cpp::vm::CCW::Create((Il2CppObject*)obj, iid);
+}
+
+static inline void il2cpp_codegen_com_raise_exception(il2cpp_hresult_t hr)
+{
+	il2cpp::vm::Exception::Raise(hr);
 }
 
 static inline void il2cpp_codegen_com_raise_exception_if_failed(il2cpp_hresult_t hr)

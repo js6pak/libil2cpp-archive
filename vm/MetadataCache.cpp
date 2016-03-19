@@ -1,10 +1,9 @@
 #include "il2cpp-config.h"
-#include "il2cpp-config.h"
 #include "MetadataCache.h"
 
 #include <cassert>
 #include <map>
-
+#include <limits>
 #include "class-internals.h"
 #include "tabledefs.h"
 #include "gc/gc-internal.h"
@@ -619,6 +618,15 @@ methodPointerType MetadataCache::GetMarshalCleanupFuncFromIndex (MethodIndex ind
 
 	assert (index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->marshalingFunctionsCount);
 	return s_Il2CppCodeRegistration->marshalingFunctions[index].marshal_cleanup_func;
+}
+
+methodPointerType MetadataCache::GetCreateCcwFuncFromIndex(MethodIndex index)
+{
+	if (index == kMethodIndexInvalid)
+		return NULL;
+
+	assert(index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->ccwMarshalingFunctionsCount);
+	return s_Il2CppCodeRegistration->ccwMarshalingFunctions[index];
 }
 
 static const Il2CppImage* GetImageForTypeDefinitionIndex (TypeDefinitionIndex index)

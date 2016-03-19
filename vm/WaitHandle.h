@@ -8,7 +8,7 @@ namespace il2cpp
 namespace vm
 {
 
-class WaitHandle
+class LIBIL2CPP_CODEGEN_API WaitHandle
 {
 public:
 	static Il2CppWaitHandle* NewManualResetEvent (bool initialState);

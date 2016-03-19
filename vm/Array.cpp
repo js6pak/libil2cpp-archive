@@ -225,13 +225,13 @@ char* Array::GetFirstElementAddress(Il2CppArray *array)
 } /* namespace vm */
 } /* namespace il2cpp */
 
-char*
+LIBIL2CPP_CODEGEN_API char*
 il2cpp_array_addr_with_size (Il2CppArray *array, int32_t size, uintptr_t idx)
 {
 	return ((char*)array) + kIl2CppSizeOfArray + size * idx;
 }
 
-int32_t
+LIBIL2CPP_CODEGEN_API int32_t
 il2cpp_array_element_size (TypeInfo *ac)
 {
 	return il2cpp::vm::Array::GetElementSize (ac);

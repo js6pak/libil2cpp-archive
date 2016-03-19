@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppObject;
 struct Il2CppReflectionType;
@@ -17,7 +18,7 @@ namespace mscorlib
 namespace System
 {
 
-class Delegate
+class LIBIL2CPP_CODEGEN_API Delegate
 {
 public:
 	static Il2CppDelegate * CreateDelegate_internal (Il2CppReflectionType *,Il2CppObject *, Il2CppReflectionMethod *,bool);

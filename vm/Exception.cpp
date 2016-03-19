@@ -77,6 +77,7 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 		RaiseNullReferenceException();
 
 	case (il2cpp_hresult_t)0x80004004: // E_ABORT
+	case (il2cpp_hresult_t)0x8013153b: // COR_E_OPERATIONCANCELED
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", NULL));
 
 	case (il2cpp_hresult_t)0x80004005: // E_FAIL
@@ -108,6 +109,9 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 
 	case (il2cpp_hresult_t)0x80000013: // RO_E_CLOSED
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", NULL));
+
+	case (il2cpp_hresult_t)0x80131500: // COR_E_EXCEPTION
+		Raise(FromNameMsg(Image::GetCorlib(), "System", "Exception", NULL));
 
 	default:
 		RaiseCOMException(hresult);

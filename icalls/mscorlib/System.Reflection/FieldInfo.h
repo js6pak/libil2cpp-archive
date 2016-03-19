@@ -1,6 +1,7 @@
 #pragma once
 
 #include "object-internals.h"
+#include "il2cpp-config.h"
 
 struct Il2CppReflectionField;
 struct Il2CppReflectionMarshal;
@@ -16,7 +17,7 @@ namespace System
 namespace Reflection
 {
 
-class FieldInfo
+class LIBIL2CPP_CODEGEN_API FieldInfo
 {
 public:
 	static Il2CppReflectionMarshal* GetUnmanagedMarshal (Il2CppReflectionField* field);

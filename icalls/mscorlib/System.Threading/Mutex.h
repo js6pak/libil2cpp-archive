@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "object-internals.h"
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 
@@ -20,7 +21,7 @@ struct MonoIOError;
 
 typedef int32_t MutexRights;
 
-class Mutex
+class LIBIL2CPP_CODEGEN_API Mutex
 {
 public:
 	static Il2CppIntPtr CreateMutex_internal (bool initiallyOwned, Il2CppString* name, bool* created);
