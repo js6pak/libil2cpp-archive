@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 struct Il2CppArray;
 struct Il2CppMethodMessage;
 struct Il2CppReflectionMethod;
@@ -19,7 +20,7 @@ namespace Remoting
 namespace Messaging
 {
 
-class MonoMethodMessage
+class LIBIL2CPP_CODEGEN_API MonoMethodMessage
 {
 public:
 	static void InitMessage (Il2CppMethodMessage*, Il2CppReflectionMethod*, Il2CppArray*);

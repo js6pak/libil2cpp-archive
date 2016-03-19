@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 struct Il2CppGenericClass;
 struct Il2CppGenericMethod;
 

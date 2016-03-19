@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 
@@ -15,7 +16,7 @@ namespace System
 namespace ComponentModel
 {
 
-class Win32Exception
+class LIBIL2CPP_CODEGEN_API Win32Exception
 {
 public:
 	static Il2CppString *W32ErrorMessage (int32_t code);

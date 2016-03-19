@@ -14,6 +14,7 @@
 #include "tabledefs.h"
 
 #include <map>
+#include <limits>
 
 namespace il2cpp
 {
@@ -154,7 +155,10 @@ static void AllocateMemoryForSection(void* context, void* sectionStart, void* se
 	section.sectionStartAddress = reinterpret_cast<uint64_t>(sectionStart);
 
 	ptrdiff_t sectionSize = static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart);
-	assert(sectionSize <= static_cast<ptrdiff_t>(std::numeric_limits<uint32_t>::max()));
+
+	if (sizeof(void*) > 4) // This assert is only valid on 64-bit
+		assert(sectionSize <= static_cast<ptrdiff_t>(std::numeric_limits<uint32_t>::max()));
+
 	section.sectionSize = static_cast<uint32_t>(sectionSize);
 	section.sectionBytes = static_cast<uint8_t*>(IL2CPP_MALLOC(section.sectionSize));
 

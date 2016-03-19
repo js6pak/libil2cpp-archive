@@ -7,6 +7,7 @@
 #include "WindowsHelpers.h"
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
+#include <limits>
 
 namespace il2cpp
 {

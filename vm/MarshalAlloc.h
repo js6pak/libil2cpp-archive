@@ -1,4 +1,5 @@
 #pragma once
+#include "il2cpp-config.h"
 
 #if _DEBUG
 #include <map>
@@ -10,7 +11,7 @@ namespace il2cpp
 namespace vm
 {
 
-class MarshalAlloc
+class LIBIL2CPP_CODEGEN_API MarshalAlloc
 {
 public:
 	static void* Allocate(size_t size);
@@ -24,12 +25,7 @@ public:
 #if _DEBUG
 	static bool HasUnfreedAllocations();
 	static void ClearAllTrackedAllocations();
-
-private:
-	static os::FastMutex s_Mutex; // Locking only necessary in a debug build.
-	static std::map<void*, size_t> s_Allocations;
 #endif
-
 };
 
 } /* namespace vm */

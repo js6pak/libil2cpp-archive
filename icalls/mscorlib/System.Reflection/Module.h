@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppArray;
@@ -21,7 +22,7 @@ namespace System
 namespace Reflection
 {
 
-class Module
+class LIBIL2CPP_CODEGEN_API Module
 {
 public:
 	static Il2CppReflectionType* GetGlobalType (Il2CppReflectionModule* self);

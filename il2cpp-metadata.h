@@ -134,6 +134,7 @@ struct Il2CppTypeDefinition
 
 	MethodIndex delegateWrapperFromManagedToNativeIndex;
 	int32_t marshalingFunctionsIndex;
+	int32_t ccwFunctionIndex;
 
 	uint32_t flags;
 	

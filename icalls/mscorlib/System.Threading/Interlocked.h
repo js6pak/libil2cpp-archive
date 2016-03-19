@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 namespace il2cpp
@@ -15,7 +15,7 @@ namespace System
 namespace Threading
 {
 
-class Interlocked
+class LIBIL2CPP_CODEGEN_API Interlocked
 {
 public:
 	static int32_t Add(int32_t* location1, int32_t value);

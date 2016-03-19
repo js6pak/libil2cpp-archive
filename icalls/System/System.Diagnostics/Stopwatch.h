@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 namespace il2cpp
 {
@@ -13,7 +14,7 @@ namespace System
 namespace Diagnostics
 {
 
-class Stopwatch
+class LIBIL2CPP_CODEGEN_API Stopwatch
 {
 public:
 	static int64_t GetTimestamp ();

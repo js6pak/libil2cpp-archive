@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -26,7 +27,7 @@ namespace System
 namespace Diagnostics
 {
 
-class FileVersionInfo
+class LIBIL2CPP_CODEGEN_API FileVersionInfo
 {
 public:
 	static void GetVersionInfo_internal (void* /* System.Diagnostics.FileVersionInfo */ self, Il2CppString* fileName);

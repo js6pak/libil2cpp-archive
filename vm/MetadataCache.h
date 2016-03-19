@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include "il2cpp-config.h"
 #include "Assembly.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "class-internals.h"
@@ -20,7 +21,7 @@ namespace il2cpp
 namespace vm
 {
 
-class MetadataCache
+class LIBIL2CPP_CODEGEN_API MetadataCache
 {
 public:
 
@@ -66,6 +67,8 @@ public:
 	static methodPointerType GetMarshalToNativeFuncFromIndex (MethodIndex index);
 	static methodPointerType GetMarshalFromNativeFuncFromIndex (MethodIndex index);
 	static methodPointerType GetMarshalCleanupFuncFromIndex (MethodIndex index);
+
+	static methodPointerType GetCreateCcwFuncFromIndex (MethodIndex index);
 	
 	static const Il2CppAssembly* GetAssemblyFromIndex (AssemblyIndex index);
 	static Il2CppImage* GetImageFromIndex (ImageIndex index);

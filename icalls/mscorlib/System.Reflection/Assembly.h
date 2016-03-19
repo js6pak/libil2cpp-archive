@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppString;
@@ -21,7 +22,7 @@ namespace System
 namespace Reflection
 {
 
-class Assembly
+class LIBIL2CPP_CODEGEN_API Assembly
 {
 public:
 	static Il2CppReflectionAssembly* GetExecutingAssembly ();
@@ -42,7 +43,7 @@ public:
 	static Il2CppAssembly* LoadFrom (Il2CppString* assemblyFile, bool refonly);
 	static bool LoadPermissions (mscorlib_System_Reflection_Assembly* a, Il2CppIntPtr* minimum, int32_t* minLength, Il2CppIntPtr* optional, int32_t* optLength, Il2CppIntPtr* refused, int32_t* refLength);
 	static int32_t MonoDebugger_GetMethodToken (void* /* System.Reflection.MethodBase */ method);
-	static Il2CppReflectionMethod* get_EntryPoint (Il2CppAssembly* self);
+	static Il2CppReflectionMethod* get_EntryPoint (Il2CppReflectionAssembly* self);
 	static bool get_ReflectionOnly (Il2CppAssembly* self);
 	static Il2CppString* get_code_base(Il2CppReflectionAssembly* assembly, bool escaped);
 	static Il2CppString* get_fullname (Il2CppReflectionAssembly *ass);

@@ -35,6 +35,7 @@
 #include <string>
 #include <memory.h>
 #include <algorithm>
+#include <limits>
 
 #if IL2CPP_DEBUGGER_ENABLED
 	#include "il2cpp-debugger.h"

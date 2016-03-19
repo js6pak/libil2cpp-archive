@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 
@@ -9,7 +10,7 @@ namespace il2cpp
 namespace vm
 {
 
-class String
+class LIBIL2CPP_CODEGEN_API String
 {
 public:
 	//exported

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-
+#include "il2cpp-config.h"
 struct Il2CppObject;
 
 namespace il2cpp
@@ -15,7 +15,7 @@ namespace System
 namespace Threading
 {
 
-class Monitor
+class LIBIL2CPP_CODEGEN_API Monitor
 {
 public:
 	static void Enter (Il2CppObject *);

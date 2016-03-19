@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppArray;
 struct Il2CppString;
@@ -16,7 +17,7 @@ namespace System
 namespace Net
 {
 
-class Dns
+class LIBIL2CPP_CODEGEN_API Dns
 {
 public:
 	static bool GetHostByAddr (Il2CppString*, Il2CppString**, Il2CppArray**, Il2CppArray**);
