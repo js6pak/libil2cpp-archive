@@ -659,10 +659,6 @@ WaitStatus SocketImpl::ConnectInternal (struct sockaddr *sa, int32_t sa_size)
 
 		if (errno != EINTR)
 		{
-			// errnum = errno_to_WSA (errnum, __func__);
-			// if (errnum == WSAEINPROGRESS)
-			//	errnum = WSAEWOULDBLOCK; /* see bug #73053 */
-
 			StoreLastError();
 			return kWaitStatusFailure;
 		}
