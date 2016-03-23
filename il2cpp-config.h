@@ -487,6 +487,8 @@ typedef int32_t il2cpp_hresult_t;
 
 #define IL2CPP_S_OK ((il2cpp_hresult_t)0)
 #define IL2CPP_E_NOTIMPL ((il2cpp_hresult_t)0x80004001)
+#define IL2CPP_E_NOINTERFACE ((il2cpp_hresult_t)0x80004002)
+#define IL2CPP_E_POINTER ((il2cpp_hresult_t)0x80004003)
 #define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
 
 #define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)

@@ -670,6 +670,13 @@ struct NOVTABLE Il2CppIUnknown
 	virtual uint32_t STDCALL Release() = 0;
 };
 
+struct NOVTABLE Il2CppIManagedObject : Il2CppIUnknown
+{
+	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(uint16_t** bstr) = 0;
+	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(uint16_t** bstr_guid, int32_t* app_domain_id, intptr_t* ccw) = 0;
+};
+
 struct Il2CppRCW : Il2CppObject
 {
 	Il2CppIUnknown* identity;
