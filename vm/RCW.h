@@ -15,7 +15,7 @@ class LIBIL2CPP_CODEGEN_API RCW
 public:
 	static void Initialize(Il2CppRCW* rcw, const Il2CppGuid& clsid);
 	static Il2CppIUnknown* QueryInterface(Il2CppRCW* rcw, const Il2CppGuid& iid);
-	static Il2CppRCW* Create(Il2CppIUnknown* unknown);
+	static Il2CppObject* Create(Il2CppIUnknown* unknown);
 
 private:
 	static void Cleanup(void* obj, void* data);

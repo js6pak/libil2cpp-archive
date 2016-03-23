@@ -635,6 +635,16 @@ VirtualInvokeData Runtime::GetComInterfaceInvokeData(Il2CppMethodSlot slot, Type
 
 	// it's an rcw. invoke com interface method directly
 
+	// declaringInterface vtable starts at the very end (after imlemeted interfaces' vtables)
+	int32_t itf_offset = 0;
+	if (declaringInterface->interface_offsets_count)
+	{
+		const Il2CppRuntimeInterfaceOffsetPair* pair = declaringInterface->interfaceOffsets + declaringInterface->interface_offsets_count - 1;
+		itf_offset = pair->offset + pair->interfaceType->vtable_count;
+	}
+	assert(itf_offset != -1);
+	slot += itf_offset;
+
 	const MethodInfo* targetMethodInfo = declaringInterface->vtable[slot];
 #if IL2CPP_DEBUG
 	assert(targetMethodInfo);
