@@ -67,6 +67,8 @@ public:
 	static methodPointerType GetMarshalToNativeFuncFromIndex (MethodIndex index);
 	static methodPointerType GetMarshalFromNativeFuncFromIndex (MethodIndex index);
 	static methodPointerType GetMarshalCleanupFuncFromIndex (MethodIndex index);
+
+	static methodPointerType GetCreateCcwFuncFromIndex (MethodIndex index);
 	
 	static const Il2CppAssembly* GetAssemblyFromIndex (AssemblyIndex index);
 	static Il2CppImage* GetImageFromIndex (ImageIndex index);
