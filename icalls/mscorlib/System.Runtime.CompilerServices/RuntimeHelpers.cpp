@@ -35,7 +35,7 @@ int RuntimeHelpers::get_OffsetToStringData (void)
 void RuntimeHelpers::InitializeArray (Il2CppArray * array,Il2CppIntPtr ptr)
 {
 	FieldInfo* field_handle = (FieldInfo*)ptr.m_value;
-	TypeInfo *klass = array->klass;
+	Il2CppClass *klass = array->klass;
 	uint32_t size = Array::GetElementSize (klass);
 	const Il2CppType *type = Type::GetUnderlyingType (klass->element_class->byval_arg);
 	
@@ -78,7 +78,7 @@ void RuntimeHelpers::RunClassConstructor (Il2CppIntPtr type)
 {
 	IL2CPP_CHECK_ARG_NULL (type.m_value);
 
-	TypeInfo* klass = Class::FromIl2CppType ((const Il2CppType*)type.m_value);
+	Il2CppClass* klass = Class::FromIl2CppType ((const Il2CppType*)type.m_value);
 	//MONO_CHECK_ARG(handle, klass);
 
 	il2cpp::vm::Runtime::ClassInit (klass);

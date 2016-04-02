@@ -28,10 +28,10 @@ using namespace il2cpp::metadata;
 struct GatherMetadataContext
 {
 	uint32_t currentIndex;
-	std::map<TypeInfo*, uint32_t> allTypes;
+	std::map<Il2CppClass*, uint32_t> allTypes;
 };
 
-static void GatherMetadataCallback(TypeInfo* type, void* context)
+static void GatherMetadataCallback(Il2CppClass* type, void* context)
 {
 	if (type->initialized)
 	{
@@ -40,9 +40,9 @@ static void GatherMetadataCallback(TypeInfo* type, void* context)
 	}
 }
 
-static inline int FindTypeInfoIndexInMap(const std::map<TypeInfo*, uint32_t>& allTypes, TypeInfo* typeInfo)
+static inline int FindTypeInfoIndexInMap(const std::map<Il2CppClass*, uint32_t>& allTypes, Il2CppClass* typeInfo)
 {
-	std::map<TypeInfo*, uint32_t>::const_iterator it = allTypes.find(typeInfo);
+	std::map<Il2CppClass*, uint32_t>::const_iterator it = allTypes.find(typeInfo);
 
 	if (it == allTypes.end())
 		return -1;
@@ -61,7 +61,7 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 
 		for (uint32_t i = 0; i < image.typeCount; i++)
 		{
-			TypeInfo* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image.typeStart + i);
+			Il2CppClass* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex (image.typeStart + i);
 			if (type->initialized)
 				gatherMetadataContext.allTypes.insert(std::make_pair(type, gatherMetadataContext.currentIndex++));
 		}
@@ -72,13 +72,13 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 	GenericMetadata::WalkAllGenericClasses(GatherMetadataCallback, &gatherMetadataContext);
 	MetadataCache::WalkPointerTypes(GatherMetadataCallback, &gatherMetadataContext);
 
-	const std::map<TypeInfo*, uint32_t>& allTypes = gatherMetadataContext.allTypes;
+	const std::map<Il2CppClass*, uint32_t>& allTypes = gatherMetadataContext.allTypes;
 	metadata.typeCount = static_cast<uint32_t>(allTypes.size());
 	metadata.types = static_cast<Il2CppMetadataType*>(IL2CPP_CALLOC(metadata.typeCount, sizeof(Il2CppMetadataType)));
 
-	for (std::map<TypeInfo*, uint32_t>::const_iterator it = allTypes.begin(); it != allTypes.end(); it++)
+	for (std::map<Il2CppClass*, uint32_t>::const_iterator it = allTypes.begin(); it != allTypes.end(); it++)
 	{
-		TypeInfo* typeInfo = it->first;
+		Il2CppClass* typeInfo = it->first;
 
 		uint32_t index = it->second;
 		Il2CppMetadataType& type = metadata.types[index];
@@ -127,7 +127,7 @@ static inline void GatherMetadata(Il2CppMetadataSnapshot& metadata)
 				memcpy(type.statics, typeInfo->static_fields, type.staticsSize);
 			}
 
-			TypeInfo* baseType = Class::GetParent(typeInfo);
+			Il2CppClass* baseType = Class::GetParent(typeInfo);
 			type.baseOrElementTypeIndex = baseType != NULL ? FindTypeInfoIndexInMap(allTypes, baseType) : -1;
 		}
 

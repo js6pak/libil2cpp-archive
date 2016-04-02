@@ -59,7 +59,7 @@ Il2CppAppDomain* AppDomain::createDomain(Il2CppString*, mscorlib_System_AppDomai
 
 Il2CppArray* AppDomain::GetAssemblies(Il2CppAppDomain* ad, bool refonly)
 {
-	static TypeInfo *System_Reflection_Assembly;
+	static Il2CppClass *System_Reflection_Assembly;
 
 	if (!System_Reflection_Assembly)
 		System_Reflection_Assembly = Class::FromName (

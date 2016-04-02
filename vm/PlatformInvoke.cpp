@@ -375,7 +375,7 @@ Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
 	return functionPointer;
 }
 
-Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, TypeInfo* delegateType)
+Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)
 {
 	Il2CppObject* delegate = il2cpp::vm::Object::New(delegateType);
 	methodPointerType nativeFunctionPointer = (methodPointerType)functionPtr;
@@ -397,19 +397,19 @@ Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionP
 
 typedef void(*MarshalFunc)(void*, void*);
 
-void PlatformInvoke::MarshalStructToNative(void* managedStructure, void* marshaledStructure, TypeInfo* type)
+void PlatformInvoke::MarshalStructToNative(void* managedStructure, void* marshaledStructure, Il2CppClass* type)
 {
 	MarshalFunc marshalFunc = (MarshalFunc)MetadataCache::GetMarshalToNativeFuncFromIndex (type->typeDefinition->marshalingFunctionsIndex);
 	marshalFunc(managedStructure, marshaledStructure);
 }
 
-void PlatformInvoke::MarshalStructFromNative(void* marshaledStructure, void* managedStructure, TypeInfo* type)
+void PlatformInvoke::MarshalStructFromNative(void* marshaledStructure, void* managedStructure, Il2CppClass* type)
 {
 	MarshalFunc marshalFunc = (MarshalFunc)MetadataCache::GetMarshalFromNativeFuncFromIndex (type->typeDefinition->marshalingFunctionsIndex);
 	marshalFunc(marshaledStructure, managedStructure);
 }
 
-bool PlatformInvoke::MarshalFreeStruct(void* marshaledStructure, TypeInfo* type)
+bool PlatformInvoke::MarshalFreeStruct(void* marshaledStructure, Il2CppClass* type)
 {
 	typedef void(*CleanupFunc)(void*);
 

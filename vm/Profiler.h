@@ -24,7 +24,7 @@ public:
 public:
 
 #if IL2CPP_ENABLE_PROFILER
-	static void Allocation (Il2CppObject *obj, TypeInfo *klass);
+	static void Allocation (Il2CppObject *obj, Il2CppClass *klass);
 	static void MethodEnter (const MethodInfo *method);
 	static void MethodExit (const MethodInfo *method);
 	static void GCEvent (Il2CppGCEvent eventType);

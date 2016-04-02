@@ -7,7 +7,8 @@
 
 #define IL2CPP_CLASS_IS_ARRAY(c) ((c)->rank)
 
-struct TypeInfo;
+struct Il2CppClass;
+struct Il2CppGuid;
 struct Il2CppImage;
 struct Il2CppAssembly;
 struct Il2CppAppDomain;
@@ -26,100 +27,101 @@ extern bool g_il2cpp_is_fully_initialized;
 
 typedef struct {
 	Il2CppImage *corlib;
-	TypeInfo *object_class;
-	TypeInfo *byte_class;
-	TypeInfo *void_class;
-	TypeInfo *boolean_class;
-	TypeInfo *sbyte_class;
-	TypeInfo *int16_class;
-	TypeInfo *uint16_class;
-	TypeInfo *int32_class;
-	TypeInfo *uint32_class;
-	TypeInfo *int_class;
-	TypeInfo *uint_class;
-	TypeInfo *int64_class;
-	TypeInfo *uint64_class;
-	TypeInfo *single_class;
-	TypeInfo *double_class;
-	TypeInfo *char_class;
-	TypeInfo *string_class;
-	TypeInfo *enum_class;
-	TypeInfo *array_class;
-	TypeInfo *delegate_class;
-	TypeInfo *multicastdelegate_class;
-	TypeInfo *asyncresult_class;
-	TypeInfo *manualresetevent_class;
-	TypeInfo *typehandle_class;
-	TypeInfo *fieldhandle_class;
-	TypeInfo *methodhandle_class;
-	TypeInfo *systemtype_class;
-	TypeInfo *monotype_class;
-	TypeInfo *exception_class;
-	TypeInfo *threadabortexception_class;
-	TypeInfo *thread_class;
-	/*TypeInfo *transparent_proxy_class;
-	TypeInfo *real_proxy_class;
-	TypeInfo *mono_method_message_class;*/
-	TypeInfo *appdomain_class;
-	TypeInfo *appdomain_setup_class;
-	TypeInfo *field_info_class;
-	TypeInfo *method_info_class;
-	TypeInfo *property_info_class;
-	TypeInfo *event_info_class;
-	TypeInfo *mono_event_info_class;
-	TypeInfo *stringbuilder_class;
-	/*TypeInfo *math_class;*/
-	TypeInfo *stack_frame_class;
-	TypeInfo *stack_trace_class;
-	TypeInfo *marshal_class;
-	/*TypeInfo *iserializeable_class;
-	TypeInfo *serializationinfo_class;
-	TypeInfo *streamingcontext_class;*/
-	TypeInfo *typed_reference_class;
-	/*TypeInfo *argumenthandle_class;*/
-	TypeInfo *marshalbyrefobject_class;
-	/*TypeInfo *monitor_class;
-	TypeInfo *iremotingtypeinfo_class;
-	TypeInfo *runtimesecurityframe_class;
-	TypeInfo *executioncontext_class;
-	TypeInfo *internals_visible_class;*/
-	TypeInfo *generic_ilist_class;
-	TypeInfo *generic_icollection_class;
-	TypeInfo *generic_ienumerable_class;
-	TypeInfo *generic_nullable_class;
-	/*TypeInfo *variant_class;
-	TypeInfo *com_object_class;
-	TypeInfo *com_interop_proxy_class;
-	TypeInfo *iunknown_class;
-	TypeInfo *idispatch_class;
-	TypeInfo *safehandle_class;
-	TypeInfo *handleref_class;
-	TypeInfo *attribute_class;*/
-	TypeInfo *customattribute_data_class;
-	//TypeInfo *critical_finalizer_object;
-	TypeInfo *version;
-	TypeInfo *culture_info;
-	TypeInfo *async_call_class;
-	TypeInfo *assembly_class;
-	TypeInfo *assembly_name_class;
-	TypeInfo *enum_info_class;
-	TypeInfo *mono_field_class;
-	TypeInfo *mono_method_class;
-	TypeInfo *mono_method_info_class;
-	TypeInfo *mono_property_info_class;
-	TypeInfo *parameter_info_class;
-	TypeInfo *module_class;
-	TypeInfo *pointer_class;
-	TypeInfo *system_exception_class;
-	TypeInfo *argument_exception_class;
-	TypeInfo *wait_handle_class;
-	TypeInfo *safe_handle_class;
-	TypeInfo *sort_key_class;
+	Il2CppClass *object_class;
+	Il2CppClass *byte_class;
+	Il2CppClass *void_class;
+	Il2CppClass *boolean_class;
+	Il2CppClass *sbyte_class;
+	Il2CppClass *int16_class;
+	Il2CppClass *uint16_class;
+	Il2CppClass *int32_class;
+	Il2CppClass *uint32_class;
+	Il2CppClass *int_class;
+	Il2CppClass *uint_class;
+	Il2CppClass *int64_class;
+	Il2CppClass *uint64_class;
+	Il2CppClass *single_class;
+	Il2CppClass *double_class;
+	Il2CppClass *char_class;
+	Il2CppClass *string_class;
+	Il2CppClass *enum_class;
+	Il2CppClass *array_class;
+	Il2CppClass *delegate_class;
+	Il2CppClass *multicastdelegate_class;
+	Il2CppClass *asyncresult_class;
+	Il2CppClass *manualresetevent_class;
+	Il2CppClass *typehandle_class;
+	Il2CppClass *fieldhandle_class;
+	Il2CppClass *methodhandle_class;
+	Il2CppClass *systemtype_class;
+	Il2CppClass *monotype_class;
+	Il2CppClass *exception_class;
+	Il2CppClass *threadabortexception_class;
+	Il2CppClass *thread_class;
+	/*Il2CppClass *transparent_proxy_class;
+	Il2CppClass *real_proxy_class;
+	Il2CppClass *mono_method_message_class;*/
+	Il2CppClass *appdomain_class;
+	Il2CppClass *appdomain_setup_class;
+	Il2CppClass *field_info_class;
+	Il2CppClass *method_info_class;
+	Il2CppClass *property_info_class;
+	Il2CppClass *event_info_class;
+	Il2CppClass *mono_event_info_class;
+	Il2CppClass *stringbuilder_class;
+	/*Il2CppClass *math_class;*/
+	Il2CppClass *stack_frame_class;
+	Il2CppClass *stack_trace_class;
+	Il2CppClass *marshal_class;
+	/*Il2CppClass *iserializeable_class;
+	Il2CppClass *serializationinfo_class;
+	Il2CppClass *streamingcontext_class;*/
+	Il2CppClass *typed_reference_class;
+	/*Il2CppClass *argumenthandle_class;*/
+	Il2CppClass *marshalbyrefobject_class;
+	/*Il2CppClass *monitor_class;
+	Il2CppClass *iremotingtypeinfo_class;
+	Il2CppClass *runtimesecurityframe_class;
+	Il2CppClass *executioncontext_class;
+	Il2CppClass *internals_visible_class;*/
+	Il2CppClass *generic_ilist_class;
+	Il2CppClass *generic_icollection_class;
+	Il2CppClass *generic_ienumerable_class;
+	Il2CppClass *generic_nullable_class;
+	/*Il2CppClass *variant_class;
+	Il2CppClass *com_object_class;*/
+	Il2CppClass *il2cpp_com_object_class;
+	/*Il2CppClass *com_interop_proxy_class;
+	Il2CppClass *iunknown_class;
+	Il2CppClass *idispatch_class;
+	Il2CppClass *safehandle_class;
+	Il2CppClass *handleref_class;
+	Il2CppClass *attribute_class;*/
+	Il2CppClass *customattribute_data_class;
+	//Il2CppClass *critical_finalizer_object;
+	Il2CppClass *version;
+	Il2CppClass *culture_info;
+	Il2CppClass *async_call_class;
+	Il2CppClass *assembly_class;
+	Il2CppClass *assembly_name_class;
+	Il2CppClass *enum_info_class;
+	Il2CppClass *mono_field_class;
+	Il2CppClass *mono_method_class;
+	Il2CppClass *mono_method_info_class;
+	Il2CppClass *mono_property_info_class;
+	Il2CppClass *parameter_info_class;
+	Il2CppClass *module_class;
+	Il2CppClass *pointer_class;
+	Il2CppClass *system_exception_class;
+	Il2CppClass *argument_exception_class;
+	Il2CppClass *wait_handle_class;
+	Il2CppClass *safe_handle_class;
+	Il2CppClass *sort_key_class;
 } Il2CppDefaults;
 
 extern Il2CppDefaults il2cpp_defaults;
 
-struct TypeInfo;
+struct Il2CppClass;
 struct MethodInfo;
 struct FieldInfo;
 struct Il2CppObject;
@@ -134,10 +136,10 @@ struct CustomAttributesCache
 struct CustomAttributeTypeCache
 {
 	int count;
-	TypeInfo** attributeTypes;
+	Il2CppClass** attributeTypes;
 };
 
-typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*, CustomAttributeTypeCache*);
+typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
 
 const int THREAD_STATIC_FIELD_OFFSET = -1;
 
@@ -145,7 +147,7 @@ struct FieldInfo
 {
 	const char* name;
 	const Il2CppType* type;
-	TypeInfo *parent;
+	Il2CppClass *parent;
 	int32_t offset;	// If offset is -1, then it's thread static
 	CustomAttributeIndex customAttributeIndex;
 	uint32_t token;
@@ -153,7 +155,7 @@ struct FieldInfo
 
 struct PropertyInfo
 {
-	TypeInfo *parent;
+	Il2CppClass *parent;
 	const char *name;
 	const MethodInfo *get;
 	const MethodInfo *set;
@@ -166,7 +168,7 @@ struct EventInfo
 {
 	const char* name;
 	const Il2CppType* eventType;
-	TypeInfo* parent;
+	Il2CppClass* parent;
 	const MethodInfo* add;
 	const MethodInfo* remove;
 	const MethodInfo* raise;
@@ -199,7 +201,7 @@ struct Il2CppDebugTypeInfo
 
 struct Il2CppDebugLocalsInfo
 {
-	TypeInfo *type;
+	Il2CppClass *type;
 	const char *name;
 	uint32_t start_offset;
 	uint32_t end_offset;
@@ -232,7 +234,7 @@ union Il2CppRGCTXData
 	void* rgctxDataDummy;
 	const MethodInfo* method;
 	const Il2CppType* type;
-	TypeInfo* klass;
+	Il2CppClass* klass;
 };
 
 struct MethodInfo
@@ -240,7 +242,7 @@ struct MethodInfo
 	methodPointerType method;
 	InvokerMethod invoker_method;
 	const char* name;
-	TypeInfo *declaring_type;
+	Il2CppClass *declaring_type;
 	const Il2CppType *return_type;
 	const ParameterInfo* parameters;
 
@@ -273,25 +275,25 @@ struct MethodInfo
 
 struct Il2CppRuntimeInterfaceOffsetPair
 {
-	TypeInfo* interfaceType;
+	Il2CppClass* interfaceType;
 	int32_t offset;
 };
 
-struct TypeInfo
+struct Il2CppClass
 {
-	// The following fields are always valid for a TypeInfo structure
+	// The following fields are always valid for a Il2CppClass structure
 	const Il2CppImage* image;
 	void* gc_desc;
 	const char* name;
 	const char* namespaze;
 	const Il2CppType* byval_arg;
 	const Il2CppType* this_arg;
-	TypeInfo* element_class;
-	TypeInfo* castClass;
-	TypeInfo* declaringType;
-	TypeInfo* parent;
+	Il2CppClass* element_class;
+	Il2CppClass* castClass;
+	Il2CppClass* declaringType;
+	Il2CppClass* parent;
 	Il2CppGenericClass *generic_class;
-	const Il2CppTypeDefinition* typeDefinition; // non-NULL for TypeInfo's constructed from type defintions
+	const Il2CppTypeDefinition* typeDefinition; // non-NULL for Il2CppClass's constructed from type defintions
 	// End always valid fields
 	
 	// The following fields need initialized before access. This can be done per field or as an aggregate via a call to Class::Init
@@ -299,14 +301,14 @@ struct TypeInfo
 	const EventInfo* events; // Initialized in SetupEvents
 	const PropertyInfo* properties; // Initialized in SetupProperties
 	const MethodInfo** methods; // Initialized in SetupMethods
-	TypeInfo** nestedTypes; // Initialized in SetupNestedTypes
-	TypeInfo** implementedInterfaces; // Initialized in SetupInterfaces
+	Il2CppClass** nestedTypes; // Initialized in SetupNestedTypes
+	Il2CppClass** implementedInterfaces; // Initialized in SetupInterfaces
 	const MethodInfo** vtable; // Initialized in Init
 	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets; // Initialized in Init
 	void* static_fields; // Initialized in Init
 	const Il2CppRGCTXData* rgctx_data; // Initialized in Init
 	// used for fast parent checks
-	TypeInfo** typeHierarchy; // Initialized in SetupTypeHierachy
+	Il2CppClass** typeHierarchy; // Initialized in SetupTypeHierachy
 	// End initialization required fields
 
 #if IL2CPP_DEBUGGER_ENABLED
@@ -397,6 +399,11 @@ struct Il2CppMarshalingFunctions
 	methodPointerType marshal_cleanup_func;
 };
 
+struct Il2CppCodeGenOptions
+{
+	bool enablePrimitiveValueTypeGenericSharing;
+};
+
 struct Il2CppCodeRegistration
 {
 	uint32_t methodPointersCount;
@@ -415,6 +422,8 @@ struct Il2CppCodeRegistration
 	const InvokerMethod* invokerPointers;
 	CustomAttributeIndex customAttributeCount;
 	const CustomAttributesCacheGenerator* customAttributeGenerators;
+	GuidIndex guidCount;
+	const Il2CppGuid** guids;
 };
 
 struct Il2CppMetadataRegistration

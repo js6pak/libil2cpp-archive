@@ -17,7 +17,7 @@
 
 struct FieldInfo;
 struct Il2CppType;
-struct TypeInfo;
+struct Il2CppClass;
 struct Il2CppGenericParameter;
 struct Il2CppString;
 
@@ -208,7 +208,7 @@ public:
 	// exported
 	static std::string GetName (const Il2CppType *type, Il2CppTypeNameFormat format);
 	static int GetType (const Il2CppType *type);
-	static TypeInfo* GetClassOrElementClass (const Il2CppType *type);
+	static Il2CppClass* GetClassOrElementClass (const Il2CppType *type);
 	static const Il2CppType* GetUnderlyingType (const Il2CppType *type);
 	static uint32_t GetToken (const Il2CppType *type);
 	static bool IsGenericInstance (const Il2CppType *type);
@@ -228,7 +228,7 @@ public:
 	static bool IsSystemDateTime (const Il2CppType *type);
 	static bool IsSystemDecimal (const Il2CppType *type);
 
-	static TypeInfo* GetClass (const Il2CppType *type);
+	static Il2CppClass* GetClass (const Il2CppType *type);
 	static const Il2CppGenericParameter* GetGenericParameter (const Il2CppType *type);
 
 	static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, methodPointerType addr, const MethodInfo* method);

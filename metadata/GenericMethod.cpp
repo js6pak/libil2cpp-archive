@@ -55,7 +55,7 @@ const MethodInfo* GenericMethod::GetMethod (const Il2CppGenericMethod* gmethod)
 		return iter->second;
 
 	const MethodInfo* methodDefinition = gmethod->methodDefinition;
-	TypeInfo* declaringClass = methodDefinition->declaring_type;
+	Il2CppClass* declaringClass = methodDefinition->declaring_type;
 	if (gmethod->context.class_inst)
 	{
 		assert (!declaringClass->generic_class);
