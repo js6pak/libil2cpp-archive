@@ -53,16 +53,16 @@ namespace il2cpp
 namespace vm
 {
 
-static dynamic_array<TypeInfo*> s_staticFieldData;
+static dynamic_array<Il2CppClass*> s_staticFieldData;
 static int32_t s_FinalizerSlot = -1;
 static int32_t s_GetHashCodeSlot = -1;
 
-static void SetupGCDescriptor (TypeInfo* klass);
-static void GetBitmapNoInit (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset);
-static TypeInfo* ResolveGenericInstanceType (TypeInfo*, const il2cpp::vm::TypeNameParseInfo&, bool, bool);
-static bool InitLocked (TypeInfo *klass, const FastAutoLock& lock);
+static void SetupGCDescriptor (Il2CppClass* klass);
+static void GetBitmapNoInit (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset);
+static Il2CppClass* ResolveGenericInstanceType (Il2CppClass*, const il2cpp::vm::TypeNameParseInfo&, bool, bool);
+static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock);
 
-TypeInfo* Class::FromIl2CppType (const Il2CppType* type)
+Il2CppClass* Class::FromIl2CppType (const Il2CppType* type)
 {
 	switch (type->type)
 	{
@@ -104,7 +104,7 @@ TypeInfo* Class::FromIl2CppType (const Il2CppType* type)
 		return il2cpp_defaults.typed_reference_class;
 	case IL2CPP_TYPE_ARRAY:
 	{
-		TypeInfo* elementClass = FromIl2CppType (type->data.array->etype);
+		Il2CppClass* elementClass = FromIl2CppType (type->data.array->etype);
 		return Class::GetBoundedArrayClass (elementClass, type->data.array->rank, true);
 	}
 	case IL2CPP_TYPE_PTR:
@@ -114,7 +114,7 @@ TypeInfo* Class::FromIl2CppType (const Il2CppType* type)
 		return NULL; //mono_fnptr_class_get (type->data.method);
 	case IL2CPP_TYPE_SZARRAY:
 		{
-			TypeInfo* elementClass = FromIl2CppType (type->data.type);
+			Il2CppClass* elementClass = FromIl2CppType (type->data.type);
 			return Class::GetArrayClass (elementClass, 1);
 		}
 	case IL2CPP_TYPE_CLASS:
@@ -145,7 +145,7 @@ TypeInfo* Class::FromIl2CppType (const Il2CppType* type)
 		e. native int, or unsigned native int, then its reduced type is native int.
 	2. Otherwise, the reduced type is itself.
 */
-static inline const TypeInfo* GetReducedType(const TypeInfo* type)
+static inline const Il2CppClass* GetReducedType(const Il2CppClass* type)
 {
 	switch (type->byval_arg->type)
 	{
@@ -174,22 +174,22 @@ static inline const TypeInfo* GetReducedType(const TypeInfo* type)
 	}
 }
 
-TypeInfo* Class::FromSystemType (Il2CppReflectionType *type)
+Il2CppClass* Class::FromSystemType (Il2CppReflectionType *type)
 {
 	return Class::FromIl2CppType (type->type);
 }
 
-static void SetupInterfacesLocked (TypeInfo* klass, const FastAutoLock& lock)
+static void SetupInterfacesLocked (Il2CppClass* klass, const FastAutoLock& lock)
 {
 	if (klass->generic_class)
 	{
-		TypeInfo* genericTypeDefinition = GenericClass::GetTypeDefinition (klass->generic_class);
+		Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition (klass->generic_class);
 		Il2CppGenericContext* context = &klass->generic_class->context;
 
 		if (genericTypeDefinition->interfaces_count > 0 && klass->implementedInterfaces == NULL)
 		{
 			assert (genericTypeDefinition->interfaces_count == klass->interfaces_count);
-			klass->implementedInterfaces = (TypeInfo**)MetadataCalloc (genericTypeDefinition->interfaces_count, sizeof (TypeInfo*));
+			klass->implementedInterfaces = (Il2CppClass**)MetadataCalloc (genericTypeDefinition->interfaces_count, sizeof (Il2CppClass*));
 			for (uint16_t i = 0; i < genericTypeDefinition->interfaces_count; i++)
 				klass->implementedInterfaces[i] = Class::FromIl2CppType (GenericMetadata::InflateIfNeeded (MetadataCache::GetInterfaceFromIndex (genericTypeDefinition->typeDefinition->interfacesStart + i), context, false));
 		}
@@ -202,17 +202,17 @@ static void SetupInterfacesLocked (TypeInfo* klass, const FastAutoLock& lock)
 	{
 		if (klass->interfaces_count > 0 && klass->implementedInterfaces == NULL)
 		{
-			klass->implementedInterfaces = (TypeInfo**)MetadataCalloc (klass->interfaces_count, sizeof (TypeInfo*));
+			klass->implementedInterfaces = (Il2CppClass**)MetadataCalloc (klass->interfaces_count, sizeof (Il2CppClass*));
 			for (uint16_t i = 0; i < klass->interfaces_count; i++)
 				klass->implementedInterfaces[i] = Class::FromIl2CppType (MetadataCache::GetInterfaceFromIndex (klass->typeDefinition->interfacesStart + i));
 		}
 	}
 }
 
-typedef unordered_map<const Il2CppGenericParameter*, TypeInfo*> GenericParameterMap;
+typedef unordered_map<const Il2CppGenericParameter*, Il2CppClass*> GenericParameterMap;
 static GenericParameterMap s_GenericParameterMap;
 
-TypeInfo* Class::FromGenericParameter (const Il2CppGenericParameter *param)
+Il2CppClass* Class::FromGenericParameter (const Il2CppGenericParameter *param)
 {
 	assert (param->ownerIndex != kGenericContainerIndexInvalid);
 
@@ -222,7 +222,7 @@ TypeInfo* Class::FromGenericParameter (const Il2CppGenericParameter *param)
 	if (iter != s_GenericParameterMap.end ())
 		return iter->second;
 
-	TypeInfo* klass = (TypeInfo*)MetadataCalloc (1, sizeof (TypeInfo));
+	Il2CppClass* klass = (Il2CppClass*)MetadataCalloc (1, sizeof (Il2CppClass));
 
 	klass->name = MetadataCache::GetStringFromIndex (param->nameIndex);
 	klass->namespaze = "";
@@ -256,12 +256,12 @@ TypeInfo* Class::FromGenericParameter (const Il2CppGenericParameter *param)
 	return klass;
 }
 
-TypeInfo* Class::GetElementClass (TypeInfo *klass)
+Il2CppClass* Class::GetElementClass (Il2CppClass *klass)
 {
 	return klass->element_class;
 }
 
-const Il2CppType* Class::GetEnumBaseType (TypeInfo *klass)
+const Il2CppType* Class::GetEnumBaseType (Il2CppClass *klass)
 {
 	if (klass->element_class == klass)
 		/* SRE or broken types */
@@ -270,7 +270,7 @@ const Il2CppType* Class::GetEnumBaseType (TypeInfo *klass)
 		return klass->element_class->byval_arg;
 }
 
-const EventInfo* Class::GetEvents (TypeInfo *klass, void* *iter)
+const EventInfo* Class::GetEvents (Il2CppClass *klass, void* *iter)
 {
 	if (!iter)
 		return NULL;
@@ -296,7 +296,7 @@ const EventInfo* Class::GetEvents (TypeInfo *klass, void* *iter)
 	return NULL;
 }
 
-FieldInfo* Class::GetFields (TypeInfo *klass, void* *iter)
+FieldInfo* Class::GetFields (Il2CppClass *klass, void* *iter)
 {
 
 	if (!iter)
@@ -323,7 +323,7 @@ FieldInfo* Class::GetFields (TypeInfo *klass, void* *iter)
 	return NULL;
 }
 
-FieldInfo* Class::GetFieldFromName (TypeInfo *klass, const char* name)
+FieldInfo* Class::GetFieldFromName (Il2CppClass *klass, const char* name)
 {
 	while (klass)
 	{
@@ -343,7 +343,7 @@ FieldInfo* Class::GetFieldFromName (TypeInfo *klass, const char* name)
 	return NULL;
 }
 
-const MethodInfo* Class::GetFinalizer (TypeInfo *klass)
+const MethodInfo* Class::GetFinalizer (Il2CppClass *klass)
 {
 	if (!klass->initialized)
 		Class::Init (klass);
@@ -354,13 +354,13 @@ const MethodInfo* Class::GetFinalizer (TypeInfo *klass)
 	return klass->vtable [s_FinalizerSlot];
 }
 
-int32_t Class::GetInstanceSize (const TypeInfo *klass)
+int32_t Class::GetInstanceSize (const Il2CppClass *klass)
 {
 	assert(klass->size_inited);
 	return klass->instance_size;
 }
 
-TypeInfo* Class::GetInterfaces (TypeInfo *klass, void* *iter)
+Il2CppClass* Class::GetInterfaces (Il2CppClass *klass, void* *iter)
 {
 	if (!iter)
 		return NULL;
@@ -375,7 +375,7 @@ TypeInfo* Class::GetInterfaces (TypeInfo *klass, void* *iter)
 		return klass->implementedInterfaces[0];
 	}
 
-	TypeInfo** interfaceAddress = (TypeInfo**)*iter;
+	Il2CppClass** interfaceAddress = (Il2CppClass**)*iter;
 	interfaceAddress++;
 	if (interfaceAddress < &klass->implementedInterfaces[klass->interfaces_count])
 	{
@@ -386,7 +386,7 @@ TypeInfo* Class::GetInterfaces (TypeInfo *klass, void* *iter)
 	return NULL;
 }
 
-const MethodInfo* Class::GetMethods (TypeInfo *klass, void* *iter)
+const MethodInfo* Class::GetMethods (Il2CppClass *klass, void* *iter)
 {
 	if (!iter)
 		return NULL;
@@ -412,12 +412,12 @@ const MethodInfo* Class::GetMethods (TypeInfo *klass, void* *iter)
 	return NULL;
 }
 
-const MethodInfo* Class::GetMethodFromName (TypeInfo *klass, const char* name, int argsCount)
+const MethodInfo* Class::GetMethodFromName (Il2CppClass *klass, const char* name, int argsCount)
 {
 	return GetMethodFromNameFlags (klass, name, argsCount, 0);
 }
 
-const MethodInfo* Class::GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags)
+const MethodInfo* Class::GetMethodFromNameFlags (Il2CppClass *klass, const char* name, int argsCount, int32_t flags)
 {
 	Class::Init (klass);
 
@@ -441,17 +441,17 @@ const MethodInfo* Class::GetMethodFromNameFlags (TypeInfo *klass, const char* na
 	return NULL;
 }
 
-const char* Class::GetName (TypeInfo *klass)
+const char* Class::GetName (Il2CppClass *klass)
 {
 	return klass->name;
 }
 
-const char* Class::GetNamespace (TypeInfo *klass)
+const char* Class::GetNamespace (Il2CppClass *klass)
 {
 	return klass->namespaze;
 }
 
-TypeInfo* Class::GetNestedTypes (TypeInfo *klass, void* *iter)
+Il2CppClass* Class::GetNestedTypes (Il2CppClass *klass, void* *iter)
 {
 	if (!iter)
 		return NULL;
@@ -472,7 +472,7 @@ TypeInfo* Class::GetNestedTypes (TypeInfo *klass, void* *iter)
 		return klass->nestedTypes[0];
 	}
 
-	TypeInfo** nestedTypeAddress = (TypeInfo**)*iter;
+	Il2CppClass** nestedTypeAddress = (Il2CppClass**)*iter;
 	nestedTypeAddress++;
 	if (nestedTypeAddress < &klass->nestedTypes[klass->nested_type_count])
 	{
@@ -483,27 +483,27 @@ TypeInfo* Class::GetNestedTypes (TypeInfo *klass, void* *iter)
 	return NULL;
 }
 
-size_t Class::GetNumMethods(const TypeInfo* klass)
+size_t Class::GetNumMethods(const Il2CppClass* klass)
 {
 	return klass->method_count;
 }
 
-size_t Class::GetNumProperties(const TypeInfo* klass)
+size_t Class::GetNumProperties(const Il2CppClass* klass)
 {
 	return klass->property_count;
 }
 
-size_t Class::GetNumFields(const TypeInfo* klass)
+size_t Class::GetNumFields(const Il2CppClass* klass)
 {
 	return klass->field_count;
 }
 
-TypeInfo* Class::GetParent (TypeInfo *klass)
+Il2CppClass* Class::GetParent (Il2CppClass *klass)
 {
 	return klass->parent;
 }
 
-const PropertyInfo* Class::GetProperties (TypeInfo *klass, void* *iter)
+const PropertyInfo* Class::GetProperties (Il2CppClass *klass, void* *iter)
 {
 	if (!iter)
 		return NULL;
@@ -529,7 +529,7 @@ const PropertyInfo* Class::GetProperties (TypeInfo *klass, void* *iter)
 	return NULL;
 }
 
-const PropertyInfo* Class::GetPropertyFromName (TypeInfo *klass, const char* name)
+const PropertyInfo* Class::GetPropertyFromName (Il2CppClass *klass, const char* name)
 {
 	while (klass)
 	{
@@ -548,7 +548,7 @@ const PropertyInfo* Class::GetPropertyFromName (TypeInfo *klass, const char* nam
 	return NULL;
 }
 
-int32_t Class::GetValueSize (TypeInfo *klass, uint32_t *align)
+int32_t Class::GetValueSize (Il2CppClass *klass, uint32_t *align)
 {
 	int32_t size;
 
@@ -565,7 +565,7 @@ int32_t Class::GetValueSize (TypeInfo *klass, uint32_t *align)
 	return size;
 }
 
-bool Class::HasParent (TypeInfo *klass, TypeInfo *parent)
+bool Class::HasParent (Il2CppClass *klass, Il2CppClass *parent)
 {
 	Class::SetupTypeHierarchy (klass);
 	Class::SetupTypeHierarchy (parent);
@@ -573,7 +573,7 @@ bool Class::HasParent (TypeInfo *klass, TypeInfo *parent)
 	return HasParentUnsafe (klass, parent);
 }
 
-bool Class::IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass)
+bool Class::IsAssignableFrom (Il2CppClass *klass, Il2CppClass *oklass)
 {
 	// Cast to original class - fast path
 	if (klass == oklass)
@@ -610,7 +610,7 @@ bool Class::IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass)
 		{
 			if (Class::IsNullable(oklass))
 				NOT_IMPLEMENTED (Class::IsAssignableFrom);
-			TypeInfo* nullableArg = Class::GetNullableArgument(klass);
+			Il2CppClass* nullableArg = Class::GetNullableArgument(klass);
 			return Class::IsAssignableFrom(nullableArg, oklass);
 		}
 
@@ -639,17 +639,17 @@ bool Class::IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass)
 	return false;
 }
 
-bool Class::IsGeneric (const TypeInfo *klass)
+bool Class::IsGeneric (const Il2CppClass *klass)
 {
 	return klass->is_generic;
 }
 
-bool Class::IsInflated(const TypeInfo *klass)
+bool Class::IsInflated(const Il2CppClass *klass)
 {
 	return klass->generic_class != NULL;
 }
 
-bool Class::IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces)
+bool Class::IsSubclassOf (Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces)
 {
 	Class::SetupTypeHierarchy (klass);
 	Class::SetupTypeHierarchy (klassc);
@@ -657,7 +657,7 @@ bool Class::IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfac
 
 	if (check_interfaces && IsInterface (klassc) && !IsInterface (klass))
 	{
-		TypeInfo *oklass = klass;
+		Il2CppClass *oklass = klass;
 
 		while(oklass)
 		{
@@ -698,13 +698,13 @@ bool Class::IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfac
 	return false;
 }
 
-bool Class::IsValuetype (const TypeInfo *klass)
+bool Class::IsValuetype (const Il2CppClass *klass)
 {
 	return klass->valuetype;
 }
 
 
-int32_t Class::GetInterfaceOffset (TypeInfo *klass, TypeInfo *itf)
+int32_t Class::GetInterfaceOffset (Il2CppClass *klass, Il2CppClass *itf)
 {
 	// TODO: this should only be needed in reflection case.
 	// In codegen case we are operating on instance that must have
@@ -731,7 +731,7 @@ enum FieldLayoutKind
 };
 
 
-static void SetupFieldOffsets (FieldLayoutKind fieldLayoutKind, TypeInfo* klass, size_t size, const std::vector<size_t>& fieldOffsets)
+static void SetupFieldOffsets (FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets)
 {
 	assert(size < std::numeric_limits<uint32_t>::max());
 	if (fieldLayoutKind == FIELD_LAYOUT_INSTANCE)
@@ -767,7 +767,7 @@ static void SetupFieldOffsets (FieldLayoutKind fieldLayoutKind, TypeInfo* klass,
 	}
 }
 
-static void ValidateFieldOffsets (FieldLayoutKind fieldLayoutKind, TypeInfo* klass, size_t size, const std::vector<size_t>& fieldOffsets)
+static void ValidateFieldOffsets (FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets)
 {
 	if (fieldLayoutKind == FIELD_LAYOUT_INSTANCE && klass->parent && !(klass->flags & TYPE_ATTRIBUTE_EXPLICIT_LAYOUT))
 		assert (klass->instance_size == size);
@@ -802,7 +802,7 @@ static void ValidateFieldOffsets (FieldLayoutKind fieldLayoutKind, TypeInfo* kla
 	}
 }
 
-static void LayoutFieldsLocked (TypeInfo *klass, const FastAutoLock& lock)
+static void LayoutFieldsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (Class::IsGeneric (klass))
 		return;
@@ -937,7 +937,7 @@ static void LayoutFieldsLocked (TypeInfo *klass, const FastAutoLock& lock)
 		klass->thread_static_fields_offset = il2cpp::vm::Thread::AllocThreadStaticData (klass->thread_static_fields_size);
 }
 
-static void SetupFieldsFromDefinition (TypeInfo* klass)
+static void SetupFieldsFromDefinition (Il2CppClass* klass)
 {
 	if (klass->field_count == 0)
 	{
@@ -970,7 +970,7 @@ static void SetupFieldsFromDefinition (TypeInfo* klass)
 }
 
 // passing lock to ensure we have acquired it. We can add asserts later
-void SetupFieldsLocked (TypeInfo *klass, const FastAutoLock& lock)
+void SetupFieldsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (klass->size_inited)
 		return;
@@ -996,7 +996,7 @@ void SetupFieldsLocked (TypeInfo *klass, const FastAutoLock& lock)
 	klass->size_inited = true;
 }
 
-void Class::SetupFields (TypeInfo *klass)
+void Class::SetupFields (Il2CppClass *klass)
 {
 	if (!klass->size_inited)
 	{
@@ -1006,7 +1006,7 @@ void Class::SetupFields (TypeInfo *klass)
 }
 
 // passing lock to ensure we have acquired it. We can add asserts later
-void SetupMethodsLocked (TypeInfo *klass, const FastAutoLock& lock)
+void SetupMethodsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if ((!klass->method_count && !klass->rank) || klass->methods)
 		return;
@@ -1081,7 +1081,7 @@ void SetupMethodsLocked (TypeInfo *klass, const FastAutoLock& lock)
 	}
 }
 
-void Class::SetupMethods (TypeInfo *klass)
+void Class::SetupMethods (Il2CppClass *klass)
 {
 	if (klass->method_count || klass->rank)
 	{
@@ -1090,20 +1090,20 @@ void Class::SetupMethods (TypeInfo *klass)
 	}
 }
 
-void SetupNestedTypesLocked (TypeInfo *klass, const FastAutoLock& lock)
+void SetupNestedTypesLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (klass->generic_class)
 		return;
 
 	if (klass->nested_type_count > 0)
 	{
-		klass->nestedTypes = (TypeInfo**)MetadataCalloc (klass->nested_type_count, sizeof (TypeInfo*));
+		klass->nestedTypes = (Il2CppClass**)MetadataCalloc (klass->nested_type_count, sizeof (Il2CppClass*));
 		for (uint16_t i = 0; i < klass->nested_type_count; i++)
 			klass->nestedTypes[i] = MetadataCache::GetNestedTypeFromIndex (klass->typeDefinition->nestedTypesStart + i);
 	}
 }
 
-void Class::SetupNestedTypes (TypeInfo *klass)
+void Class::SetupNestedTypes (Il2CppClass *klass)
 {
 	if (klass->generic_class)
 		return;
@@ -1115,11 +1115,11 @@ void Class::SetupNestedTypes (TypeInfo *klass)
 	}
 }
 
-static void SetupVTable (TypeInfo *klass, const FastAutoLock& lock)
+static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (klass->generic_class)
 	{
-		TypeInfo* genericTypeDefinition = GenericClass::GetTypeDefinition (klass->generic_class);
+		Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition (klass->generic_class);
 		Il2CppGenericContext* context = &klass->generic_class->context;
 		if (genericTypeDefinition->interface_offsets_count > 0 && klass->interfaceOffsets == NULL)
 		{
@@ -1187,7 +1187,7 @@ static void SetupVTable (TypeInfo *klass, const FastAutoLock& lock)
 	}
 }
 
-static void SetupEventsLocked (TypeInfo *klass, const FastAutoLock& lock)
+static void SetupEventsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (klass->generic_class)
 	{
@@ -1239,7 +1239,7 @@ static void SetupEventsLocked (TypeInfo *klass, const FastAutoLock& lock)
 }
 
 
-void Class::SetupEvents (TypeInfo *klass)
+void Class::SetupEvents (Il2CppClass *klass)
 {
 	if (!klass->events && klass->event_count)
 	{
@@ -1248,7 +1248,7 @@ void Class::SetupEvents (TypeInfo *klass)
 	}
 }
 
-static void SetupPropertiesLocked (TypeInfo *klass, const FastAutoLock& lock)
+static void SetupPropertiesLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (klass->generic_class)
 	{
@@ -1291,7 +1291,7 @@ static void SetupPropertiesLocked (TypeInfo *klass, const FastAutoLock& lock)
 	}
 }
 
-void Class::SetupProperties (TypeInfo *klass)
+void Class::SetupProperties (Il2CppClass *klass)
 {
 	if (!klass->properties && klass->property_count)
 	{
@@ -1300,7 +1300,7 @@ void Class::SetupProperties (TypeInfo *klass)
 	}
 }
 
-static void SetupTypeHierarchyLocked (TypeInfo *klass, const FastAutoLock& lock)
+static void SetupTypeHierarchyLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (klass->typeHierarchy != NULL)
 		return;
@@ -1312,7 +1312,7 @@ static void SetupTypeHierarchyLocked (TypeInfo *klass, const FastAutoLock& lock)
 	else
 		klass->typeHierarchyDepth = 1;
 
-	klass->typeHierarchy = (TypeInfo**)MetadataCalloc (klass->typeHierarchyDepth, sizeof (TypeInfo*));
+	klass->typeHierarchy = (Il2CppClass**)MetadataCalloc (klass->typeHierarchyDepth, sizeof (Il2CppClass*));
 
 	if (klass->parent) {
 		klass->typeHierarchy [klass->typeHierarchyDepth - 1] = klass;
@@ -1322,19 +1322,19 @@ static void SetupTypeHierarchyLocked (TypeInfo *klass, const FastAutoLock& lock)
 	}
 }
 
-void Class::SetupTypeHierarchy (TypeInfo *klass)
+void Class::SetupTypeHierarchy (Il2CppClass *klass)
 {
 	FastAutoLock lock (&g_MetadataLock);
 	SetupTypeHierarchyLocked (klass, lock);
 }
 
-void Class::SetupInterfaces (TypeInfo *klass)
+void Class::SetupInterfaces (Il2CppClass *klass)
 {
 	FastAutoLock lock (&g_MetadataLock);
 	SetupInterfacesLocked (klass, lock);
 }
 
-static bool InitLocked (TypeInfo *klass, const FastAutoLock& lock)
+static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 {
 	if (klass->initialized)
 		return true;
@@ -1348,7 +1348,7 @@ static bool InitLocked (TypeInfo *klass, const FastAutoLock& lock)
 
 	if (klass->byval_arg->type == IL2CPP_TYPE_ARRAY || klass->byval_arg->type == IL2CPP_TYPE_SZARRAY)
 	{
-		TypeInfo *element_class = klass->element_class;
+		Il2CppClass *element_class = klass->element_class;
 		if (!element_class->initialized)
 			InitLocked (element_class, lock);
 	}
@@ -1405,7 +1405,7 @@ static bool InitLocked (TypeInfo *klass, const FastAutoLock& lock)
 	return true;
 }
 
-bool Class::Init (TypeInfo *klass)
+bool Class::Init (Il2CppClass *klass)
 {
 	if (!klass->initialized)
 	{
@@ -1416,22 +1416,22 @@ bool Class::Init (TypeInfo *klass)
 	return true;
 }
 
-TypeInfo* Class::FromName (Il2CppImage* image, const char* namespaze, const char *name)
+Il2CppClass* Class::FromName (Il2CppImage* image, const char* namespaze, const char *name)
 {
 	return Image::ClassFromName (image, namespaze, name);
 }
 
-TypeInfo* Class::GetArrayClass (TypeInfo *element_class, uint32_t rank)
+Il2CppClass* Class::GetArrayClass (Il2CppClass *element_class, uint32_t rank)
 {
 	return GetBoundedArrayClass (element_class, rank, false);
 }
 
-TypeInfo* Class::GetBoundedArrayClass (TypeInfo *eclass, uint32_t rank, bool bounded)
+Il2CppClass* Class::GetBoundedArrayClass (Il2CppClass *eclass, uint32_t rank, bool bounded)
 {
 	return ArrayMetadata::GetBoundedArrayClass (eclass, rank, bounded);
 }
 
-TypeInfo* Class::GetInflatedGenericInstanceClass (TypeInfo* klass, const metadata::Il2CppTypeVector& types)
+Il2CppClass* Class::GetInflatedGenericInstanceClass (Il2CppClass* klass, const metadata::Il2CppTypeVector& types)
 {
 	assert (Class::IsGeneric (klass));
 
@@ -1441,7 +1441,7 @@ TypeInfo* Class::GetInflatedGenericInstanceClass (TypeInfo* klass, const metadat
 	return GenericClass::GetClass (gclass);
 }
 
-TypeInfo* Class::InflateGenericClass (TypeInfo* klass, Il2CppGenericContext *context)
+Il2CppClass* Class::InflateGenericClass (Il2CppClass* klass, Il2CppGenericContext *context)
 {
 	const Il2CppType* inflated = InflateGenericType (klass->byval_arg, context);
 
@@ -1453,7 +1453,7 @@ const Il2CppType* Class::InflateGenericType (const Il2CppType* type, Il2CppGener
 	return GenericMetadata::InflateIfNeeded (type, context, true);
 }
 
-bool Class::HasDefaultConstructor (TypeInfo* klass)
+bool Class::HasDefaultConstructor (Il2CppClass* klass)
 {
 	const char ctorName[] = ".ctor";
 	void* iter = NULL;
@@ -1466,33 +1466,33 @@ bool Class::HasDefaultConstructor (TypeInfo* klass)
 	return false;
 }
 
-int Class::GetFlags (const TypeInfo *klass)
+int Class::GetFlags (const Il2CppClass *klass)
 {
 	return klass->flags;
 }
 
-bool Class::IsAbstract (const TypeInfo *klass)
+bool Class::IsAbstract (const Il2CppClass *klass)
 {
 	return (klass->flags & TYPE_ATTRIBUTE_ABSTRACT) != 0;
 }
 
-bool Class::IsInterface (const TypeInfo *klass)
+bool Class::IsInterface (const Il2CppClass *klass)
 {
 	return (klass->flags & TYPE_ATTRIBUTE_INTERFACE) || (klass->byval_arg->type == IL2CPP_TYPE_VAR) || (klass->byval_arg->type == IL2CPP_TYPE_MVAR);
 }
 
-bool Class::IsNullable (const TypeInfo *klass)
+bool Class::IsNullable (const Il2CppClass *klass)
 {
 	return klass->generic_class != NULL &&
 		GenericClass::GetTypeDefinition (klass->generic_class) == il2cpp_defaults.generic_nullable_class;
 }
 
-TypeInfo* Class::GetNullableArgument(const TypeInfo* klass)
+Il2CppClass* Class::GetNullableArgument(const Il2CppClass* klass)
 {
 	return Class::FromIl2CppType(klass->generic_class->context.class_inst->type_argv[0]);
 }
 
-int Class::GetArrayElementSize (const TypeInfo *klass)
+int Class::GetArrayElementSize (const Il2CppClass *klass)
 {
 	const Il2CppType *type = klass->byval_arg;
 	
@@ -1555,12 +1555,12 @@ handle_enum:
 	return -1;
 }
 
-const Il2CppType* Class::GetType (TypeInfo *klass)
+const Il2CppType* Class::GetType (Il2CppClass *klass)
 {
 	return klass->byval_arg;
 }
 
-const Il2CppType* Class::GetType (TypeInfo *klass, const TypeNameParseInfo &info)
+const Il2CppType* Class::GetType (Il2CppClass *klass, const TypeNameParseInfo &info)
 {
 	// Attempt to resolve a generic type definition.
 	if (Class::IsGeneric (klass))
@@ -1603,27 +1603,27 @@ const Il2CppType* Class::GetType (TypeInfo *klass, const TypeNameParseInfo &info
 	return klass->byval_arg;
 }
 
-bool Class::HasAttribute (TypeInfo *klass, TypeInfo *attr_class)
+bool Class::HasAttribute (Il2CppClass *klass, Il2CppClass *attr_class)
 {
 	return Reflection::HasAttribute (klass, attr_class);
 }
 
-bool Class::IsEnum (const TypeInfo *klass)
+bool Class::IsEnum (const Il2CppClass *klass)
 {
 	return klass->enumtype;
 }
 
-const Il2CppImage* Class::GetImage (TypeInfo *klass)
+const Il2CppImage* Class::GetImage (Il2CppClass *klass)
 {
 	return klass->image;
 }
 
-const Il2CppGenericContainer* Class::GetGenericContainer (TypeInfo *klass)
+const Il2CppGenericContainer* Class::GetGenericContainer (Il2CppClass *klass)
 {
 	return MetadataCache::GetGenericContainerFromIndex (klass->genericContainerIndex);
 }
 
-const MethodInfo* Class::GetCCtor (TypeInfo *klass)
+const MethodInfo* Class::GetCCtor (Il2CppClass *klass)
 {
 	if (!klass->has_cctor)
 		return NULL;
@@ -1661,20 +1661,20 @@ int Class::GetFieldMarshaledSize(const FieldInfo *field)
 	return static_cast<int>(size);
 }
 
-TypeInfo* Class::GetPtrClass (const Il2CppType* type)
+Il2CppClass* Class::GetPtrClass (const Il2CppType* type)
 {
 	return GetPtrClass (Class::FromIl2CppType (type));
 }
 
-TypeInfo* Class::GetPtrClass (TypeInfo* elementClass)
+Il2CppClass* Class::GetPtrClass (Il2CppClass* elementClass)
 {
 	FastAutoLock lock(&g_MetadataLock);
 
-	TypeInfo* pointerClass = MetadataCache::GetPointerType(elementClass);
+	Il2CppClass* pointerClass = MetadataCache::GetPointerType(elementClass);
 	if (pointerClass)
 		return pointerClass;
 
-	pointerClass = (TypeInfo*)MetadataCalloc (1, sizeof (TypeInfo));
+	pointerClass = (Il2CppClass*)MetadataCalloc (1, sizeof (Il2CppClass));
 
 	pointerClass->namespaze = elementClass->namespaze;
 	pointerClass->name = il2cpp::utils::StringUtils::StringDuplicate(il2cpp::utils::StringUtils::Printf("%s*", elementClass->name).c_str());
@@ -1701,7 +1701,7 @@ TypeInfo* Class::GetPtrClass (TypeInfo* elementClass)
 	return pointerClass;
 }
 
-bool Class::HasReferences (TypeInfo *klass)
+bool Class::HasReferences (Il2CppClass *klass)
 {
 	if (klass->init_pending) {
 		/* Be conservative */
@@ -1713,12 +1713,12 @@ bool Class::HasReferences (TypeInfo *klass)
 	}
 }
 
-const dynamic_array<TypeInfo*>& Class::GetStaticFieldData ()
+const dynamic_array<Il2CppClass*>& Class::GetStaticFieldData ()
 {
 	return s_staticFieldData;
 }
 
-const Il2CppDebugTypeInfo *Class::GetDebugInfo (const TypeInfo *klass)
+const Il2CppDebugTypeInfo *Class::GetDebugInfo (const Il2CppClass *klass)
 {
 #if IL2CPP_DEBUGGER_ENABLED
 	return klass->debug_info;
@@ -1734,27 +1734,27 @@ static inline void set_bit (size_t* bitmap, size_t index)
 	bitmap[index / kWordSize] |= (size_t)1 << (index % kWordSize);
 }
 
-size_t Class::GetBitmapSize (const TypeInfo* klass)
+size_t Class::GetBitmapSize (const Il2CppClass* klass)
 {
 	size_t maxBits = klass->instance_size / sizeof (void*);
 	size_t maxWords = 1 + (maxBits / sizeof (size_t));
 	return sizeof (size_t) * maxWords;
 }
 
-void Class::GetBitmap (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit)
+void Class::GetBitmap (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit)
 {
 	Class::Init (klass);
 	return il2cpp::vm::GetBitmapNoInit (klass, bitmap, maxSetBit, 0);
 }
 
-const char *Class::GetAssemblyName (const TypeInfo *klass)
+const char *Class::GetAssemblyName (const Il2CppClass *klass)
 {
 	return klass->image->name;
 }
 
-void GetBitmapNoInit (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset)
+void GetBitmapNoInit (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset)
 {
-	TypeInfo* currentClass = klass;
+	Il2CppClass* currentClass = klass;
 
 	while (currentClass)
 	{
@@ -1814,7 +1814,7 @@ void GetBitmapNoInit (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit, size_t
 				}
 			case IL2CPP_TYPE_VALUETYPE:
 			{
-				TypeInfo* fieldClass = Class::FromIl2CppType (field->type);
+				Il2CppClass* fieldClass = Class::FromIl2CppType (field->type);
 				Class::Init (fieldClass);
 				if (fieldClass->has_references)
 					GetBitmapNoInit (fieldClass, bitmap, maxSetBit, offset - sizeof (Il2CppObject) /* nested field offset includes padding for boxed structure. Remove for struct fields */);
@@ -1830,7 +1830,7 @@ void GetBitmapNoInit (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit, size_t
 	}
 }
 
-void SetupGCDescriptor (TypeInfo* klass)
+void SetupGCDescriptor (Il2CppClass* klass)
 {
 	const size_t kMaxAllocaSize = 1024;
 	size_t bitmapSize = Class::GetBitmapSize (klass);
@@ -1865,9 +1865,9 @@ void SetupGCDescriptor (TypeInfo* klass)
 	if ( (v) == NULL ) \
 		return NULL;
 
-static TypeInfo * resolve_generic_instance_internal(const il2cpp::vm::TypeNameParseInfo &info, TypeInfo *generic_class, Il2CppTypeVector &generic_arguments, bool throwOnError)
+static Il2CppClass * resolve_generic_instance_internal(const il2cpp::vm::TypeNameParseInfo &info, Il2CppClass *generic_class, Il2CppTypeVector &generic_arguments, bool throwOnError)
 {
-	TypeInfo *klass = NULL;
+	Il2CppClass *klass = NULL;
 
 	const Il2CppGenericContainer* container = Class::GetGenericContainer (generic_class);
 	if (container->type_argc != generic_arguments.size ())
@@ -1901,7 +1901,7 @@ static TypeInfo * resolve_generic_instance_internal(const il2cpp::vm::TypeNamePa
 	return klass;
 }
 
-static TypeInfo* ResolveGenericInstanceType(TypeInfo* klass, const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
+static Il2CppClass* ResolveGenericInstanceType(Il2CppClass* klass, const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
 {
 	if (info.has_generic_arguments())
 	{
@@ -1931,9 +1931,9 @@ static TypeInfo* ResolveGenericInstanceType(TypeInfo* klass, const TypeNameParse
 	return klass;
 }
 
-static TypeInfo* resolve_parse_info_internal(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
+static Il2CppClass* resolve_parse_info_internal(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
 {
-	TypeInfo *klass = NULL;
+	Il2CppClass *klass = NULL;
 
 	if (info.assembly_name().name.empty())
 	{
@@ -1965,7 +1965,7 @@ static TypeInfo* resolve_parse_info_internal(const TypeNameParseInfo& info, bool
 
 const Il2CppType* Class::il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
 {
-	TypeInfo *klass = resolve_parse_info_internal(info, throwOnError, ignoreCase);
+	Il2CppClass *klass = resolve_parse_info_internal(info, throwOnError, ignoreCase);
 
 	CHECK_IF_NULL(klass);
 
@@ -1980,7 +1980,7 @@ const Il2CppType* Class::il2cpp_type_from_type_info(const TypeNameParseInfo& inf
 	return type;
 }
 
-TypeInfo* Class::GetDeclaringType(TypeInfo* klass)
+Il2CppClass* Class::GetDeclaringType(Il2CppClass* klass)
 {
 	return klass->declaringType;
 }

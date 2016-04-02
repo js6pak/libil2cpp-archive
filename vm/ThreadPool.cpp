@@ -61,17 +61,17 @@ typedef std::vector<Il2CppAsyncResult*, AsyncResultAllocator> AsyncResultVector;
 typedef std::queue<Il2CppAsyncResult*, AsyncResultList> AsyncResultQueue;
 
 
-static const TypeInfo* g_SocketAsyncCallClass;
-static const TypeInfo* g_ProcessAsyncCallClass;
-static const TypeInfo* g_WriteDelegateClass;
-static const TypeInfo* g_ReadDelegateClass;
+static const Il2CppClass* g_SocketAsyncCallClass;
+static const Il2CppClass* g_ProcessAsyncCallClass;
+static const Il2CppClass* g_WriteDelegateClass;
+static const Il2CppClass* g_ReadDelegateClass;
 ////TODO: add System.Net.Sockets.Socket.SendFileHandler?
 
-static bool IsInstanceOfDelegateClass (Il2CppDelegate* delegate, const char* delegateClassName, const char* outerClassName, const TypeInfo*& cachePtr)
+static bool IsInstanceOfDelegateClass (Il2CppDelegate* delegate, const char* delegateClassName, const char* outerClassName, const Il2CppClass*& cachePtr)
 {
-	TypeInfo* klass = delegate->object.klass;
+	Il2CppClass* klass = delegate->object.klass;
 
-	TypeInfo* declaringType = Class::GetDeclaringType(klass);
+	Il2CppClass* declaringType = Class::GetDeclaringType(klass);
 
 	if (cachePtr == 0 &&
 		strcmp (klass->name, delegateClassName) == 0 &&
@@ -177,7 +177,14 @@ struct SocketPollingThread
 #endif
 
 	SocketPollingThread ()
-		: threadStartupAcknowledged (true) {}
+		: threadStartupAcknowledged (true)
+		, thread (NULL)
+#if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && (IL2CPP_TARGET_POSIX || IL2CPP_PLATFORM_WIN32)
+		, readPipe (0)
+		, writePipe (0)
+#endif
+	{
+	}
 
 	void QueueRequest (Il2CppAsyncResult* asyncResult)
 	{
@@ -251,7 +258,8 @@ struct ThreadPoolCompartment
 	std::vector<Il2CppThread*> threads;
 
 	ThreadPoolCompartment ()
-		: minThreads (0)
+		: compartmentName (NULL)
+		, minThreads (0)
 		, maxThreads (4)
 		, signalThreads (0, std::numeric_limits<int32_t>::max())
 		, numIdleThreads (0)
@@ -298,8 +306,8 @@ enum
 	kNumThreadPoolCompartments
 };
 
-static ThreadPoolCompartment g_ThreadPoolCompartments[kNumThreadPoolCompartments];
-static SocketPollingThread g_SocketPollingThread;
+static ThreadPoolCompartment* g_ThreadPoolCompartments[kNumThreadPoolCompartments];
+static SocketPollingThread* g_SocketPollingThread;
 
 #if IL2CPP_TARGET_POSIX && !IL2CPP_USE_SOCKET_MULTIPLEX_IO
 	typedef pollfd NativePollRequest;
@@ -458,7 +466,7 @@ void SocketPollingThread::RunLoop ()
 			if (pollRequests[i].revents)
 			{
 				// Yes.
-				g_ThreadPoolCompartments[kAsyncIOPool].QueueWorkItem (asyncResults[i]);
+				g_ThreadPoolCompartments[kAsyncIOPool]->QueueWorkItem (asyncResults[i]);
 
 				pollRequests.erase (pollRequests.begin () + i);
 				asyncResults.erase (asyncResults.begin () + i);
@@ -605,29 +613,29 @@ static void SocketPollingThreadEntryPoint (void* data)
 
 static void SpawnSocketPollingThreadIfNeeded ()
 {
-	if (g_SocketPollingThread.thread)
+	if (g_SocketPollingThread->thread)
 		return;
 
 	// Spawn thread.
 	{
-		os::FastAutoLock lock (&g_SocketPollingThread.mutex);
+		os::FastAutoLock lock (&g_SocketPollingThread->mutex);
 		// Double-check after lock to avoid race condition.
-		if (!g_SocketPollingThread.thread)
+		if (!g_SocketPollingThread->thread)
 		{
-			g_SocketPollingThread.thread = new os::Thread ();
-			g_SocketPollingThread.thread->Run (SocketPollingThreadEntryPoint, &g_SocketPollingThread);
+			g_SocketPollingThread->thread = new os::Thread ();
+			g_SocketPollingThread->thread->Run (SocketPollingThreadEntryPoint, g_SocketPollingThread);
 		}
 	}
 
 	// Wait for thread to have started up so we can queue requests on it.
-	g_SocketPollingThread.threadStartupAcknowledged.Wait ();
+	g_SocketPollingThread->threadStartupAcknowledged.Wait ();
 }
 
 void SocketPollingThread::Terminate ()
 {
 	// Workaround on POSIX while we don't have proper thread abortion.
 #if IL2CPP_TARGET_POSIX
-	if (!g_SocketPollingThread.thread)
+	if (!g_SocketPollingThread->thread)
 		return;
 	
 #if !IL2CPP_USE_SOCKET_MULTIPLEX_IO
@@ -635,7 +643,7 @@ void SocketPollingThread::Terminate ()
 	write (writePipe, &message, 1);
 #endif	
 
-	g_SocketPollingThread.thread->Join ();
+	g_SocketPollingThread->thread->Join ();
 #endif
 }
 
@@ -801,7 +809,7 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 		for (uint8_t i = 0; i < paramsCount; ++i)
 		{
 			Il2CppType* paramType = (Il2CppType*)delegate->method->parameters[i].parameter_type;
-			const TypeInfo* paramClass = il2cpp_class_from_type (paramType);
+			const Il2CppClass* paramClass = il2cpp_class_from_type (paramType);
 			const bool isValueType = il2cpp_class_is_valuetype (paramClass);
 
 			if (paramType->byref)
@@ -902,31 +910,35 @@ static void WorkerThreadEntryPoint (void* data)
 
 void ThreadPool::Initialize ()
 {
-	g_ThreadPoolCompartments[kWorkerThreadPool].compartmentName = "Worker Pool";
-	g_ThreadPoolCompartments[kAsyncIOPool].compartmentName = "Async I/O Pool";
+	g_SocketPollingThread = new SocketPollingThread ();
+	g_ThreadPoolCompartments[kWorkerThreadPool] = new ThreadPoolCompartment ();
+	g_ThreadPoolCompartments[kAsyncIOPool] = new ThreadPoolCompartment();
+
+	g_ThreadPoolCompartments[kWorkerThreadPool]->compartmentName = "Worker Pool";
+	g_ThreadPoolCompartments[kAsyncIOPool]->compartmentName = "Async I/O Pool";
 
 	int numCores = os::Environment::GetProcessorCount ();
-	g_ThreadPoolCompartments[kWorkerThreadPool].minThreads = numCores;
-	g_ThreadPoolCompartments[kWorkerThreadPool].maxThreads = 20 + THREADS_PER_CORE * numCores;
-	g_ThreadPoolCompartments[kAsyncIOPool].minThreads = g_ThreadPoolCompartments[kWorkerThreadPool].minThreads;
-	g_ThreadPoolCompartments[kAsyncIOPool].maxThreads = g_ThreadPoolCompartments[kWorkerThreadPool].maxThreads;
+	g_ThreadPoolCompartments[kWorkerThreadPool]->minThreads = numCores;
+	g_ThreadPoolCompartments[kWorkerThreadPool]->maxThreads = 20 + THREADS_PER_CORE * numCores;
+	g_ThreadPoolCompartments[kAsyncIOPool]->minThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->minThreads;
+	g_ThreadPoolCompartments[kAsyncIOPool]->maxThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->maxThreads;
 }
 
 void ThreadPool::Shutdown ()
 {
-	g_SocketPollingThread.Terminate ();
+	g_SocketPollingThread->Terminate ();
 }
 
 ThreadPool::Configuration ThreadPool::GetConfiguration ()
 {
 	Configuration configuration;
 
-	configuration.availableThreads = g_ThreadPoolCompartments[kWorkerThreadPool].numIdleThreads;
-	configuration.availableAsyncIOThreads = g_ThreadPoolCompartments[kAsyncIOPool].numIdleThreads;
-	configuration.minThreads = g_ThreadPoolCompartments[kWorkerThreadPool].minThreads;
-	configuration.maxThreads = g_ThreadPoolCompartments[kWorkerThreadPool].maxThreads;
-	configuration.minAsyncIOThreads = g_ThreadPoolCompartments[kAsyncIOPool].minThreads;
-	configuration.maxAsyncIOThreads = g_ThreadPoolCompartments[kAsyncIOPool].maxThreads;
+	configuration.availableThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->numIdleThreads;
+	configuration.availableAsyncIOThreads = g_ThreadPoolCompartments[kAsyncIOPool]->numIdleThreads;
+	configuration.minThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->minThreads;
+	configuration.maxThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->maxThreads;
+	configuration.minAsyncIOThreads = g_ThreadPoolCompartments[kAsyncIOPool]->minThreads;
+	configuration.maxAsyncIOThreads = g_ThreadPoolCompartments[kAsyncIOPool]->maxThreads;
 
 	return configuration;
 }
@@ -940,16 +952,16 @@ void ThreadPool::SetConfiguration (const Configuration& configuration)
 	assert (configuration.maxThreads > 0 && "Invalid configuration");
 	assert (configuration.maxAsyncIOThreads > 0 && "Invalid configuration");
 
-	g_ThreadPoolCompartments[kWorkerThreadPool].minThreads = configuration.minThreads;
-	g_ThreadPoolCompartments[kWorkerThreadPool].maxThreads = configuration.maxThreads;
-	g_ThreadPoolCompartments[kAsyncIOPool].minThreads = configuration.minAsyncIOThreads;
-	g_ThreadPoolCompartments[kAsyncIOPool].maxThreads = configuration.maxAsyncIOThreads;
+	g_ThreadPoolCompartments[kWorkerThreadPool]->minThreads = configuration.minThreads;
+	g_ThreadPoolCompartments[kWorkerThreadPool]->maxThreads = configuration.maxThreads;
+	g_ThreadPoolCompartments[kAsyncIOPool]->minThreads = configuration.minAsyncIOThreads;
+	g_ThreadPoolCompartments[kAsyncIOPool]->maxThreads = configuration.maxAsyncIOThreads;
 
 	// Get our worker threads to respond and exit, if necessary.
 	// The method here isn't very smart and in fact won't even work reliably as idle worker
 	// threads will steal the signal from threads that are currently busy.
-	g_ThreadPoolCompartments[kWorkerThreadPool].SignalAllThreads ();
-	g_ThreadPoolCompartments[kAsyncIOPool].SignalAllThreads ();
+	g_ThreadPoolCompartments[kWorkerThreadPool]->SignalAllThreads ();
+	g_ThreadPoolCompartments[kAsyncIOPool]->SignalAllThreads ();
 }
 
 Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state)
@@ -994,22 +1006,22 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 		if ((socketAsyncResult->operation == AIO_OP_CONNECT && socketAsyncResult->blocking)
 			|| !IsSocketAsyncOperation (asyncResult))
 		{
-			g_ThreadPoolCompartments[kAsyncIOPool].QueueWorkItem (asyncResult);
+			g_ThreadPoolCompartments[kAsyncIOPool]->QueueWorkItem (asyncResult);
 		}
 		else
 		{
 			// Give it to polling thread.
 			SpawnSocketPollingThreadIfNeeded ();
-			g_SocketPollingThread.QueueRequest (asyncResult);
+			g_SocketPollingThread->QueueRequest (asyncResult);
 		}
 	}
 	else if (IsFileStreamAsyncCall (delegate))
 	{
-		g_ThreadPoolCompartments[kAsyncIOPool].QueueWorkItem (asyncResult);
+		g_ThreadPoolCompartments[kAsyncIOPool]->QueueWorkItem (asyncResult);
 	}
 	else
 	{
-		g_ThreadPoolCompartments[kWorkerThreadPool].QueueWorkItem (asyncResult);
+		g_ThreadPoolCompartments[kWorkerThreadPool]->QueueWorkItem (asyncResult);
 	}
 
 	return asyncResult;
@@ -1061,7 +1073,7 @@ Il2CppObject* ThreadPool::Wait (Il2CppAsyncResult* asyncResult, void** outArgs)
 		for(uint8_t i = 0; i < paramsCount; ++i)
 		{
 			Il2CppType* paramType = (Il2CppType*) delegate->method->parameters[i].parameter_type;
-			const TypeInfo* paramClass = il2cpp_class_from_type (paramType);
+			const Il2CppClass* paramClass = il2cpp_class_from_type (paramType);
 
 			if (!paramType->byref)
 				continue;

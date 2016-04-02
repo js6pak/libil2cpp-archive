@@ -36,6 +36,7 @@ typedef int32_t StringLiteralIndex;
 typedef int32_t GenericInstIndex;
 typedef int32_t ImageIndex;
 typedef int32_t AssemblyIndex;
+typedef int32_t GuidIndex;
 
 const TypeIndex kTypeIndexInvalid = -1;
 const TypeDefinitionIndex kTypeDefinitionIndexInvalid = -1;
@@ -48,13 +49,14 @@ const GenericContainerIndex kGenericContainerIndexInvalid = -1;
 const GenericParameterIndex kGenericParameterIndexInvalid = -1;
 const RGCTXIndex kRGCTXIndexInvalid = -1;
 const StringLiteralIndex kStringLiteralIndexInvalid = -1;
+const GuidIndex kGuidIndexInvalid = -1;
 
 // Encoded index (1 bit)
 // MethodDef - 0
 // MethodSpec - 1
 // We use the top 3 bits to indicate what table to index into
 // Type              Binary            Hex
-// TypeInfo          001               0x20000000
+// Il2CppClass          001               0x20000000
 // Il2CppType        010               0x40000000
 // MethodInfo        011               0x60000000
 // FieldInfo         100               0x80000000
@@ -135,6 +137,7 @@ struct Il2CppTypeDefinition
 	MethodIndex delegateWrapperFromManagedToNativeIndex;
 	int32_t marshalingFunctionsIndex;
 	int32_t ccwFunctionIndex;
+	GuidIndex guidIndex;
 
 	uint32_t flags;
 	
@@ -328,6 +331,12 @@ struct Il2CppMetadataUsagePair
 	uint32_t encodedSourceIndex;
 };
 
+struct Il2CppCustomAttributeTypeRange
+{
+	int32_t start;
+	int32_t count;
+};
+
 #pragma pack(push, p1,4)
 struct Il2CppGlobalMetadataHeader
 {
@@ -387,5 +396,9 @@ struct Il2CppGlobalMetadataHeader
 	int32_t fieldRefsCount;
 	int32_t referencedAssembliesOffset; // int32_t
 	int32_t referencedAssembliesCount;
+	int32_t attributesInfoOffset; // Il2CppCustomAttributeTypeRange
+	int32_t attributesInfoCount;
+	int32_t attributeTypesOffset; // TypeIndex
+	int32_t attributeTypesCount;
 };
 #pragma pack(pop, p1)

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-struct TypeInfo;
+struct Il2CppClass;
 struct MethodInfo;
 struct PropertyInfo;
 struct FieldInfo;
@@ -17,6 +17,7 @@ struct Il2CppDomain;
 struct Il2CppString;
 struct Il2CppReflectionMethod;
 struct Il2CppAsyncCall;
+struct Il2CppIUnknown;
 struct MonitorData;
 
 namespace il2cpp
@@ -32,7 +33,7 @@ struct Il2CppReflectionAssembly;
 
 struct Il2CppObject
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	MonitorData *monitor;
 };
 
@@ -148,7 +149,7 @@ struct Il2CppEnumInfo {
 // System.Reflection.MonoField
 struct Il2CppReflectionField {
 	Il2CppObject object;
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	FieldInfo *field;
 	Il2CppString *name;
 	Il2CppReflectionType *type;
@@ -158,7 +159,7 @@ struct Il2CppReflectionField {
 // System.Reflection.MonoProperty
 struct Il2CppReflectionProperty {
 	Il2CppObject object;
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	const PropertyInfo *property;
 };
 
@@ -371,7 +372,7 @@ struct Il2CppTypedRef
 {
 	Il2CppType *type;
 	void*  value;
-	TypeInfo *klass;
+	Il2CppClass *klass;
 };
 
 // System.Delegate
@@ -398,6 +399,11 @@ struct Il2CppDelegate {
 struct Il2CppMarshalByRefObject {
 	Il2CppObject obj;
 	Il2CppObject *identity;
+};
+
+// System.__Il2CppComObject (dummy type that replaces System.__ComObject)
+struct Il2CppComObject : Il2CppObject {
+	Il2CppIUnknown *identity;
 };
 
 // System.AppDomain
@@ -662,6 +668,27 @@ struct Il2CppGuid
 	uint8_t data4[8];
 };
 
+struct Il2CppFileTime
+{
+	uint32_t low;
+	uint32_t high;
+};
+
+struct Il2CppStatStg
+{
+	uint16_t* name;
+	uint32_t type;
+	uint64_t size;
+	Il2CppFileTime mtime;
+	Il2CppFileTime ctime;
+	Il2CppFileTime atime;
+	uint32_t mode;
+	uint32_t locks;
+	Il2CppGuid clsid;
+	uint32_t state;
+	uint32_t reserved;
+};
+
 struct NOVTABLE Il2CppIUnknown
 {
 	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
@@ -670,14 +697,41 @@ struct NOVTABLE Il2CppIUnknown
 	virtual uint32_t STDCALL Release() = 0;
 };
 
+struct NOVTABLE Il2CppISequentialStream : Il2CppIUnknown
+{
+	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+	virtual il2cpp_hresult_t STDCALL Read(void* buffer, uint32_t size, uint32_t* read) = 0;
+	virtual il2cpp_hresult_t STDCALL Write(const void* buffer, uint32_t size, uint32_t* written) = 0;
+};
+
+struct NOVTABLE Il2CppIStream : Il2CppISequentialStream
+{
+	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+	virtual il2cpp_hresult_t STDCALL Seek(int64_t move, uint32_t origin, uint64_t* position) = 0;
+	virtual il2cpp_hresult_t STDCALL SetSize(uint64_t size) = 0;
+	virtual il2cpp_hresult_t STDCALL CopyTo(Il2CppIStream* stream, uint64_t size, uint64_t* read, uint64_t* written) = 0;
+	virtual il2cpp_hresult_t STDCALL Commit(uint32_t flags) = 0;
+	virtual il2cpp_hresult_t STDCALL Revert() = 0;
+	virtual il2cpp_hresult_t STDCALL LockRegion(uint64_t offset, uint64_t size, uint32_t type) = 0;
+	virtual il2cpp_hresult_t STDCALL UnlockRegion(uint64_t offset, uint64_t size, uint32_t type) = 0;
+	virtual il2cpp_hresult_t STDCALL Stat(Il2CppStatStg* data, uint32_t flags) = 0;
+	virtual il2cpp_hresult_t STDCALL Clone(Il2CppIStream** stream) = 0;
+};
+
+struct NOVTABLE Il2CppIMarshal : Il2CppIUnknown
+{
+	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+	virtual il2cpp_hresult_t STDCALL GetUnmarshalClass(const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags, Il2CppGuid* clsid) = 0;
+	virtual il2cpp_hresult_t STDCALL GetMarshalSizeMax(const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags, uint32_t* size) = 0;
+	virtual il2cpp_hresult_t STDCALL MarshalInterface(Il2CppIStream* stream, const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags) = 0;
+	virtual il2cpp_hresult_t STDCALL UnmarshalInterface(Il2CppIStream* stream, const Il2CppGuid& iid, void** object) = 0;
+	virtual il2cpp_hresult_t STDCALL ReleaseMarshalData(Il2CppIStream* stream) = 0;
+	virtual il2cpp_hresult_t STDCALL DisconnectObject(uint32_t reserved) = 0;
+};
+
 struct NOVTABLE Il2CppIManagedObject : Il2CppIUnknown
 {
 	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
 	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(uint16_t** bstr) = 0;
 	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(uint16_t** bstr_guid, int32_t* app_domain_id, intptr_t* ccw) = 0;
-};
-
-struct Il2CppRCW : Il2CppObject
-{
-	Il2CppIUnknown* identity;
 };

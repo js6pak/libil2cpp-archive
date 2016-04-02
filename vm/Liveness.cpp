@@ -15,19 +15,19 @@ typedef dynamic_array<Il2CppObject*> custom_growable_array;
 
 #define MARK_OBJ(obj) \
 	do { \
-		(obj)->klass = (TypeInfo*)(((size_t)(obj)->klass) | (size_t)1); \
+		(obj)->klass = (Il2CppClass*)(((size_t)(obj)->klass) | (size_t)1); \
 	} while (0)
 
 #define CLEAR_OBJ(obj) \
 	do { \
-		(obj)->klass = (TypeInfo*)(((size_t)(obj)->klass) & ~(size_t)1); \
+		(obj)->klass = (Il2CppClass*)(((size_t)(obj)->klass) & ~(size_t)1); \
 	} while (0)
 
 #define IS_MARKED(obj) \
 	(((size_t)(obj)->klass) & (size_t)1)
 
 #define GET_CLASS(obj) \
-	((TypeInfo*)(((size_t)(obj)->klass) & ~(size_t)1))
+	((Il2CppClass*)(((size_t)(obj)->klass) & ~(size_t)1))
 
 namespace il2cpp
 {
@@ -36,7 +36,7 @@ namespace vm
 
 struct LivenessState
 {
-	LivenessState (TypeInfo* filter, uint32_t maxCount, Liveness::register_object_callback callback, void*callback_userdata, Liveness::WorldChangedCallback onWorldStarted, Liveness::WorldChangedCallback onWorldStopped);
+	LivenessState (Il2CppClass* filter, uint32_t maxCount, Liveness::register_object_callback callback, void*callback_userdata, Liveness::WorldChangedCallback onWorldStarted, Liveness::WorldChangedCallback onWorldStopped);
 	~LivenessState();
 
 	void Finalize ();
@@ -47,17 +47,17 @@ struct LivenessState
 	static void TraverseGenericObject( Il2CppObject* object, LivenessState* state );
 	static void TraverseObject (Il2CppObject* object, LivenessState* state);
 	static void TraverseGCDescriptor (Il2CppObject* object, LivenessState* state);
-	static void TraverseObjectInternal (Il2CppObject* object, bool isStruct, TypeInfo* klass, LivenessState* state);
+	static void TraverseObjectInternal (Il2CppObject* object, bool isStruct, Il2CppClass* klass, LivenessState* state);
 	static void TraverseArray (Il2CppArray* array, LivenessState* state);
 	static void AddProcessObject (Il2CppObject* object, LivenessState* state);
-	static bool ShouldProcessValue (Il2CppObject* val, TypeInfo* filter);
+	static bool ShouldProcessValue (Il2CppObject* val, Il2CppClass* filter);
 	static bool FieldCanContainReferences (FieldInfo* field);
 	void SafeGrowArray (custom_growable_array* array);
 
 	int32_t                first_index_in_all_objects;
 	custom_growable_array* all_objects;
 
-	TypeInfo*          filter;
+	Il2CppClass*          filter;
 
 	custom_growable_array* process_array;
 	uint32_t               initial_alloc_count;
@@ -69,7 +69,7 @@ struct LivenessState
 	Liveness::WorldChangedCallback onWorldStopped;
 };
 
-LivenessState::LivenessState (TypeInfo* filter, uint32_t maxCount, Liveness::register_object_callback callback, void*callback_userdata, Liveness::WorldChangedCallback onWorldStarted, Liveness::WorldChangedCallback onWorldStopped) :
+LivenessState::LivenessState (Il2CppClass* filter, uint32_t maxCount, Liveness::register_object_callback callback, void*callback_userdata, Liveness::WorldChangedCallback onWorldStarted, Liveness::WorldChangedCallback onWorldStopped) :
 	first_index_in_all_objects(0),
 	all_objects(NULL),
 	filter(NULL),
@@ -196,10 +196,10 @@ void LivenessState::TraverseGCDescriptor (Il2CppObject* object, LivenessState* s
 	}
 }
 
-void LivenessState::TraverseObjectInternal (Il2CppObject* object, bool isStruct, TypeInfo* klass, LivenessState* state)
+void LivenessState::TraverseObjectInternal (Il2CppObject* object, bool isStruct, Il2CppClass* klass, LivenessState* state)
 {
 	FieldInfo *field;
-	TypeInfo *p;
+	Il2CppClass *p;
 
 	assert (object);
 
@@ -254,7 +254,7 @@ void LivenessState::TraverseArray (Il2CppArray* array, LivenessState* state)
 	size_t i = 0;
 	bool has_references;
 	Il2CppObject* object = (Il2CppObject*)array;
-	TypeInfo* element_class;
+	Il2CppClass* element_class;
 	size_t elementClassSize;
 	size_t array_length;
 	
@@ -327,9 +327,9 @@ void LivenessState::AddProcessObject (Il2CppObject* object, LivenessState* state
 	}
 }
 	
-bool LivenessState::ShouldProcessValue (Il2CppObject* val, TypeInfo* filter)
+bool LivenessState::ShouldProcessValue (Il2CppObject* val, Il2CppClass* filter)
 {
-	TypeInfo* val_class = GET_CLASS(val);
+	Il2CppClass* val_class = GET_CLASS(val);
 	if (filter && !Class::HasParentUnsafe (val_class, filter))
 		return false;
 
@@ -366,7 +366,7 @@ void LivenessState::SafeGrowArray (custom_growable_array* array)
 	}
 }
 	
-void* Liveness::Begin (TypeInfo* filter, int max_object_count, register_object_callback callback, void* userdata, WorldChangedCallback onWorldStarted, WorldChangedCallback onWorldStopped)
+void* Liveness::Begin (Il2CppClass* filter, int max_object_count, register_object_callback callback, void* userdata, WorldChangedCallback onWorldStarted, WorldChangedCallback onWorldStopped)
 {
 	// ensure filter is initialized so we can do fast (and lock free) check HasParentUnsafe
 	Class::SetupTypeHierarchy (filter);
@@ -403,15 +403,15 @@ void Liveness::FromRoot (Il2CppObject* root, void* state)
 void Liveness::FromStatics (void* state)
 {
 	LivenessState* liveness_state = (LivenessState*)state;
-	const dynamic_array<TypeInfo*>& classesWithStatics = Class::GetStaticFieldData ();
+	const dynamic_array<Il2CppClass*>& classesWithStatics = Class::GetStaticFieldData ();
 
 	liveness_state->Reset ();
 
-	for (dynamic_array<TypeInfo*>::const_iterator iter = classesWithStatics.begin ();
+	for (dynamic_array<Il2CppClass*>::const_iterator iter = classesWithStatics.begin ();
 		iter != classesWithStatics.end();
 		iter++)
 	{
-		TypeInfo* klass = *iter;
+		Il2CppClass* klass = *iter;
 		FieldInfo *field;
 		if (!klass)
 			continue;

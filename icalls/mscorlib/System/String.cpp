@@ -52,7 +52,7 @@ typedef enum {
 
 Il2CppArray * String::InternalSplit (Il2CppString* me,Il2CppArray* separator,int count,int options)
 {
-	static TypeInfo *String_array;
+	static Il2CppClass *String_array;
 	Il2CppString * tmpstr;
 	Il2CppArray * retarr;
 	uint16_t *src;
@@ -69,7 +69,7 @@ Il2CppArray * String::InternalSplit (Il2CppString* me,Il2CppArray* separator,int
 	arrsize = il2cpp::vm::Array::GetLength (separator);
 
 	if (!String_array) {
-		TypeInfo *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
+		Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
 		//mono_memory_barrier ();
 		String_array = klass;
 	}
