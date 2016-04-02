@@ -18,6 +18,14 @@ il2cpp_hresult_t COM::CreateInstance(const Il2CppGuid& clsid, Il2CppIUnknown** o
 	return IL2CPP_E_NOTIMPL;
 }
 
+il2cpp_hresult_t COM::CreateFreeThreadedMarshaler(Il2CppIUnknown* outer, Il2CppIUnknown** marshal)
+{
+	NO_UNUSED_WARNING(outer);
+	assert(marshal);
+	*marshal = NULL;
+	return IL2CPP_E_NOTIMPL;
+}
+
 }
 }
 #endif

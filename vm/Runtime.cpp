@@ -196,6 +196,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT_TYPE(system_exception_class, "System", "SystemException", Il2CppSystemException);
 	DEFAULTS_INIT_TYPE(argument_exception_class, "System", "ArgumentException", Il2CppArgumentException);
 	DEFAULTS_INIT_TYPE(marshalbyrefobject_class, "System", "MarshalByRefObject", Il2CppMarshalByRefObject);
+	DEFAULTS_INIT_TYPE(il2cpp_com_object_class, "System", "__Il2CppComObject", Il2CppComObject);
 	DEFAULTS_INIT_TYPE(wait_handle_class, "System.Threading", "WaitHandle", Il2CppWaitHandle);
 	DEFAULTS_INIT_TYPE(safe_handle_class, "System.Runtime.InteropServices", "SafeHandle", Il2CppSafeHandle);
 	DEFAULTS_INIT_TYPE(sort_key_class, "System.Globalization", "SortKey", Il2CppSortKey);
@@ -374,7 +375,7 @@ void Runtime::ObjectInit (Il2CppObject *object)
 void Runtime::ObjectInitException (Il2CppObject *object, Il2CppObject **exc)
 {
 	const MethodInfo *method = NULL;
-	TypeInfo *klass = object->klass;
+	Il2CppClass *klass = object->klass;
 
 	method = Class::GetMethodFromName (klass, ".ctor", 0);
 	assert (method != NULL && "ObjectInit; no default constructor for object is found");
@@ -441,7 +442,7 @@ void Runtime::UnhandledException (Il2CppObject* exc)
 
 static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* thisArg, void** convertedParameters, Il2CppObject** exception)
 {
-	TypeInfo* thisType = method->declaring_type;
+	Il2CppClass* thisType = method->declaring_type;
 
 	if ((method->flags & METHOD_ATTRIBUTE_STATIC) == 0 && Class::IsNullable(thisType))
 	{
@@ -507,7 +508,7 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 		for (int i = 0; i < paramCount; i++)
 		{
 			bool passedByReference = method->parameters[i].parameter_type->byref;
-			TypeInfo* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
+			Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
 			Class::Init(parameterType);
 
 			if (parameterType->valuetype)
@@ -563,7 +564,7 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 			if (!method->parameters[i].parameter_type->byref)
 				continue;
 
-			TypeInfo* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
+			Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
 
 			if (Class::IsNullable(parameterType))
 				parameters[i] = Object::Box(parameterType, convertedParameters[i]);
@@ -572,7 +573,7 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 
 	if (method->return_type->type == IL2CPP_TYPE_PTR)
 	{
-		static TypeInfo* pointerClass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Pointer");
+		static Il2CppClass* pointerClass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Pointer");
 		Il2CppReflectionPointer* pointer = reinterpret_cast<Il2CppReflectionPointer*>(Object::New(pointerClass));
 		pointer->data = result;
 		pointer->type = Reflection::GetTypeObject(method->return_type);
@@ -586,7 +587,7 @@ VirtualInvokeData Runtime::GetVirtualInvokeData (Il2CppMethodSlot slot, void* ob
 {
 	Assert(slot != 65535 && "GetVirtualInvokeData got called on a non-virtual method");
 
-	const TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	const Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
 	const MethodInfo* targetMethodInfo = typeInfo->vtable[slot];
 #if IL2CPP_DEBUG
 	assert(targetMethodInfo);
@@ -595,7 +596,7 @@ VirtualInvokeData Runtime::GetVirtualInvokeData (Il2CppMethodSlot slot, void* ob
 	if (!targetMethodInfo->method)
 		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
 	
-	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
 	if (targetMethodType->valuetype && !targetMethodType->enumtype)
 		obj = (void*)((char*)obj + sizeof(Il2CppObject));
 
@@ -603,11 +604,11 @@ VirtualInvokeData Runtime::GetVirtualInvokeData (Il2CppMethodSlot slot, void* ob
 	return data;
 }
 
-VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeInfo* declaringInterface, void* obj)
+VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj)
 {
 	Assert(slot != 65535 && "GetInterfaceInvokeData got called on a non-virtual method");
 
-	TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
 	int32_t itf_offset = Class::GetInterfaceOffset(typeInfo, declaringInterface);
 	assert(itf_offset != -1);
 	slot += itf_offset;
@@ -619,7 +620,7 @@ VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeIn
 	if (!targetMethodInfo->method)
 		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
 
-	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
 	if (targetMethodType->valuetype && !targetMethodType->enumtype)
 		obj = (void*)((char*)obj + sizeof(Il2CppObject));
 
@@ -627,10 +628,10 @@ VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeIn
 	return data;
 }
 
-VirtualInvokeData Runtime::GetComInterfaceInvokeData(Il2CppMethodSlot slot, TypeInfo* declaringInterface, void* obj)
+VirtualInvokeData Runtime::GetComInterfaceInvokeData(Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj)
 {
 	// check for regular managed object that implements com interface
-	if (((Il2CppObject*)obj)->klass != il2cpp_defaults.object_class)
+	if (!Class::HasParent(static_cast<Il2CppObject*>(obj)->klass, il2cpp_defaults.il2cpp_com_object_class))
 		return GetInterfaceInvokeData(slot, declaringInterface, obj);
 
 	// it's an rcw. invoke com interface method directly
@@ -678,7 +679,7 @@ static const MethodInfo* GetGenericVirtualMethod (const MethodInfo* methodDefini
 
 VirtualInvokeData Runtime::GetGenericVirtualInvokeData (const MethodInfo* method, void* obj)
 {
-	const TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	const Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
 	uint16_t slot = method->slot;
 	const MethodInfo* methodDefinition = typeInfo->vtable[slot];
 	const MethodInfo* targetMethodInfo = GetGenericVirtualMethod (methodDefinition, method);
@@ -686,7 +687,7 @@ VirtualInvokeData Runtime::GetGenericVirtualInvokeData (const MethodInfo* method
 	assert(targetMethodInfo);
 #endif
 	VirtualInvokeData data = { obj, targetMethodInfo };
-	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
 	if (targetMethodType->valuetype && !targetMethodType->enumtype)
 		data.target = Object::Unbox ((Il2CppObject *)obj);
 
@@ -695,7 +696,7 @@ VirtualInvokeData Runtime::GetGenericVirtualInvokeData (const MethodInfo* method
 
 VirtualInvokeData Runtime::GetGenericInterfaceInvokeData (const MethodInfo* method, void* obj)
 {
-	TypeInfo* typeInfo = ((Il2CppObject *)obj)->klass;
+	Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
 	uint16_t slot = method->slot;
 	int32_t itf_offset = Class::GetInterfaceOffset (typeInfo, method->declaring_type);
 	assert (itf_offset != -1);
@@ -706,7 +707,7 @@ VirtualInvokeData Runtime::GetGenericInterfaceInvokeData (const MethodInfo* meth
 	assert(targetMethodInfo);
 #endif
 	VirtualInvokeData data = { obj, targetMethodInfo };
-	TypeInfo* targetMethodType = targetMethodInfo->declaring_type;
+	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
 	if (targetMethodType->valuetype && !targetMethodType->enumtype)
 		data.target = Object::Unbox ((Il2CppObject *)obj);
 
@@ -732,7 +733,7 @@ static il2cpp::os::FastMutex s_TypeInitializationLock;
 // 2. Just before reading any static field
 // 3. Just before calling any static method
 // 4. Just before calling class instance constructor from a derived class instance constructor
-void Runtime::ClassInit (TypeInfo *klass)
+void Runtime::ClassInit (Il2CppClass *klass)
 {
 	// Nothing to do if class has no static constructor.
 	if (!klass->has_cctor)
@@ -954,7 +955,7 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (methodPointerType nativeMe
 
 Il2CppObject* Runtime::CreateUnhandledExceptionEventArgs (Il2CppObject *exc)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	void* args [2];
 	const MethodInfo *method = NULL;
 	bool is_terminating = true;

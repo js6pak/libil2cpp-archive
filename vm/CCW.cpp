@@ -3,6 +3,7 @@
 #include "class-internals.h"
 #include "vm/Object.h"
 #include "vm/CCW.h"
+#include "vm/Class.h"
 #include "vm/ComUtils.h"
 #include "vm/Exception.h"
 #include "vm/MetadataCache.h"
@@ -29,9 +30,17 @@ Il2CppIUnknown* CCW::Create(Il2CppObject* obj, const Il2CppGuid& iid)
 	if (!obj)
 		return NULL;
 
+	il2cpp_hresult_t hr;
+	Il2CppIUnknown* result;
+
 	// check for rcw object. com interface can be extracted from it and there's no need to create ccw
 
-	// todo: implement (this requires chaning rcw object type from System.Object to something else. it's not trivial and will follow in a separate pr)
+	if (Class::HasParent(obj->klass, il2cpp_defaults.il2cpp_com_object_class))
+	{
+		hr = static_cast<Il2CppComObject*>(obj)->identity->QueryInterface(iid, reinterpret_cast<void**>(&result));
+		Exception::RaiseIfFailed(hr);
+		return result;
+	}
 
 	// check for ccw create function (implemented by com import types)
 
@@ -43,11 +52,10 @@ Il2CppIUnknown* CCW::Create(Il2CppObject* obj, const Il2CppGuid& iid)
 		return createCcw(obj, iid);
 	}
 
-	// otherwise create generic ccw object that only implements IUnknown and IManagedObject interfaces
+	// otherwise create generic ccw object that only implements IUnknown, IMarshal and IManagedObject interfaces
 
 	ComObject<ManagedObject>* instance = ComObject<ManagedObject>::__CreateInstance(obj);
-	Il2CppIUnknown* result;
-	const il2cpp_hresult_t hr = instance->QueryInterface(iid, reinterpret_cast<void**>(&result));
+	hr = instance->QueryInterface(iid, reinterpret_cast<void**>(&result));
 	if (IL2CPP_HR_FAILED(hr))
 	{
 		instance->__DestroyInstance();

@@ -12,7 +12,7 @@ struct ObjectRefGetTypeCommand : public CustomCommand<ObjectRefGetTypeCommand>
 {
 	struct Reply : public CustomReply
 	{
-		Property<TypeInfo*> type;
+		Property<Il2CppClass*> type;
 
 		void WriteContentTo(Buffer &out) const
 		{

@@ -86,7 +86,7 @@ void il2cpp_debugger_sequence_point_hit(int64_t uid, int32_t offset)
 	debugger::Agent::instance().SequencePointHit(uid, offset);
 }
 
-void il2cpp_debugger_notify_type_load(TypeInfo *type)
+void il2cpp_debugger_notify_type_load(Il2CppClass *type)
 {
 	debugger::Agent::instance().NotifyTypeLoad(type);
 }

@@ -8,7 +8,7 @@
 #include "class-internals.h"
 
 
-struct TypeInfo;
+struct Il2CppClass;
 struct EventInfo;
 struct FieldInfo;
 struct PropertyInfo;
@@ -32,93 +32,93 @@ class TypeNameParseInfo;
 class LIBIL2CPP_CODEGEN_API Class
 {
 public:
-	static TypeInfo* FromIl2CppType (const Il2CppType* type);
-	static TypeInfo* FromName (Il2CppImage* image, const char* namespaze, const char *name);
-	static TypeInfo* FromSystemType (Il2CppReflectionType *type);
-	static TypeInfo* FromGenericParameter (const Il2CppGenericParameter *param);
-	static TypeInfo* GetElementClass (TypeInfo *klass);
-	static const Il2CppType* GetEnumBaseType (TypeInfo *klass);
-	static const EventInfo* GetEvents (TypeInfo *klass, void* *iter);
-	static FieldInfo* GetFields (TypeInfo *klass, void* *iter);
-	static FieldInfo* GetFieldFromName (TypeInfo *klass, const char* name);
-	static const MethodInfo* GetFinalizer (TypeInfo *klass);
-	static int32_t GetInstanceSize (const TypeInfo *klass);
-	static TypeInfo* GetInterfaces (TypeInfo *klass, void* *iter);
-	static const MethodInfo* GetMethods (TypeInfo *klass, void* *iter);
-	static const MethodInfo* GetMethodFromName (TypeInfo *klass, const char* name, int argsCount);
-	static const MethodInfo* GetMethodFromNameFlags (TypeInfo *klass, const char* name, int argsCount, int32_t flags);
-	static const char* GetName (TypeInfo *klass);
-	static const char* GetNamespace (TypeInfo *klass);
-	static TypeInfo* GetNestedTypes (TypeInfo *klass, void* *iter);
-	static size_t GetNumMethods(const TypeInfo* klass);
-	static size_t GetNumProperties(const TypeInfo* klass);
-	static size_t GetNumFields(const TypeInfo* klass);
-	static TypeInfo* GetParent(TypeInfo *klass);
-	static const PropertyInfo* GetProperties (TypeInfo *klass, void* *iter);
-	static const PropertyInfo* GetPropertyFromName (TypeInfo *klass, const char* name);
-	static int32_t GetValueSize (TypeInfo *klass, uint32_t *align);
-	static bool HasParent (TypeInfo *klass, TypeInfo *parent);
-	// we assume that the TypeInfo's have already been initialized in this case, like in code generation
-	static bool HasParentUnsafe (const TypeInfo* klass, const TypeInfo* parent) { return klass->typeHierarchyDepth >= parent->typeHierarchyDepth && klass->typeHierarchy[parent->typeHierarchyDepth - 1] == parent; }
-	static bool IsAssignableFrom (TypeInfo *klass, TypeInfo *oklass);
-	static bool IsGeneric (const TypeInfo *klass);
-	static bool IsInflated (const TypeInfo *klass);
-	static bool IsSubclassOf (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces);
-	static bool IsValuetype (const TypeInfo *klass);
-	static bool HasDefaultConstructor (TypeInfo* klass);
-	static int GetFlags (const TypeInfo *klass);
-	static bool IsAbstract (const TypeInfo *klass);
-	static bool IsInterface (const TypeInfo *klass);
-	static bool IsNullable (const TypeInfo *klass);
-	static TypeInfo* GetNullableArgument(const TypeInfo* klass);
-	static int GetArrayElementSize (const TypeInfo *klass);
-	static const Il2CppType* GetType (TypeInfo *klass);
-	static const Il2CppType* GetType (TypeInfo *klass, const TypeNameParseInfo &info);
-	static bool HasAttribute (TypeInfo *klass, TypeInfo *attr_class);
-	static bool IsEnum (const TypeInfo *klass);
-	static const Il2CppImage* GetImage (TypeInfo* klass);
-	static const Il2CppDebugTypeInfo *GetDebugInfo (const TypeInfo *klass);
-	static const char *GetAssemblyName (const TypeInfo *klass);
+	static Il2CppClass* FromIl2CppType (const Il2CppType* type);
+	static Il2CppClass* FromName (Il2CppImage* image, const char* namespaze, const char *name);
+	static Il2CppClass* FromSystemType (Il2CppReflectionType *type);
+	static Il2CppClass* FromGenericParameter (const Il2CppGenericParameter *param);
+	static Il2CppClass* GetElementClass (Il2CppClass *klass);
+	static const Il2CppType* GetEnumBaseType (Il2CppClass *klass);
+	static const EventInfo* GetEvents (Il2CppClass *klass, void* *iter);
+	static FieldInfo* GetFields (Il2CppClass *klass, void* *iter);
+	static FieldInfo* GetFieldFromName (Il2CppClass *klass, const char* name);
+	static const MethodInfo* GetFinalizer (Il2CppClass *klass);
+	static int32_t GetInstanceSize (const Il2CppClass *klass);
+	static Il2CppClass* GetInterfaces (Il2CppClass *klass, void* *iter);
+	static const MethodInfo* GetMethods (Il2CppClass *klass, void* *iter);
+	static const MethodInfo* GetMethodFromName (Il2CppClass *klass, const char* name, int argsCount);
+	static const MethodInfo* GetMethodFromNameFlags (Il2CppClass *klass, const char* name, int argsCount, int32_t flags);
+	static const char* GetName (Il2CppClass *klass);
+	static const char* GetNamespace (Il2CppClass *klass);
+	static Il2CppClass* GetNestedTypes (Il2CppClass *klass, void* *iter);
+	static size_t GetNumMethods(const Il2CppClass* klass);
+	static size_t GetNumProperties(const Il2CppClass* klass);
+	static size_t GetNumFields(const Il2CppClass* klass);
+	static Il2CppClass* GetParent(Il2CppClass *klass);
+	static const PropertyInfo* GetProperties (Il2CppClass *klass, void* *iter);
+	static const PropertyInfo* GetPropertyFromName (Il2CppClass *klass, const char* name);
+	static int32_t GetValueSize (Il2CppClass *klass, uint32_t *align);
+	static bool HasParent (Il2CppClass *klass, Il2CppClass *parent);
+	// we assume that the Il2CppClass's have already been initialized in this case, like in code generation
+	static bool HasParentUnsafe (const Il2CppClass* klass, const Il2CppClass* parent) { return klass->typeHierarchyDepth >= parent->typeHierarchyDepth && klass->typeHierarchy[parent->typeHierarchyDepth - 1] == parent; }
+	static bool IsAssignableFrom (Il2CppClass *klass, Il2CppClass *oklass);
+	static bool IsGeneric (const Il2CppClass *klass);
+	static bool IsInflated (const Il2CppClass *klass);
+	static bool IsSubclassOf (Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces);
+	static bool IsValuetype (const Il2CppClass *klass);
+	static bool HasDefaultConstructor (Il2CppClass* klass);
+	static int GetFlags (const Il2CppClass *klass);
+	static bool IsAbstract (const Il2CppClass *klass);
+	static bool IsInterface (const Il2CppClass *klass);
+	static bool IsNullable (const Il2CppClass *klass);
+	static Il2CppClass* GetNullableArgument(const Il2CppClass* klass);
+	static int GetArrayElementSize (const Il2CppClass *klass);
+	static const Il2CppType* GetType (Il2CppClass *klass);
+	static const Il2CppType* GetType (Il2CppClass *klass, const TypeNameParseInfo &info);
+	static bool HasAttribute (Il2CppClass *klass, Il2CppClass *attr_class);
+	static bool IsEnum (const Il2CppClass *klass);
+	static const Il2CppImage* GetImage (Il2CppClass* klass);
+	static const Il2CppDebugTypeInfo *GetDebugInfo (const Il2CppClass *klass);
+	static const char *GetAssemblyName (const Il2CppClass *klass);
 
 public:
 	//internal
-	static int32_t GetInterfaceOffset (TypeInfo *klass, TypeInfo *itf);
-	static bool Init (TypeInfo *klass);
+	static int32_t GetInterfaceOffset (Il2CppClass *klass, Il2CppClass *itf);
+	static bool Init (Il2CppClass *klass);
 
-	static TypeInfo* GetArrayClass (TypeInfo *element_class, uint32_t rank);
-	static TypeInfo* GetBoundedArrayClass (TypeInfo *element_class, uint32_t rank, bool bounded);
-	static TypeInfo* GetInflatedGenericInstanceClass (TypeInfo* klass, const metadata::Il2CppTypeVector& types);
-	static TypeInfo* InflateGenericClass (TypeInfo* klass, Il2CppGenericContext *context);
+	static Il2CppClass* GetArrayClass (Il2CppClass *element_class, uint32_t rank);
+	static Il2CppClass* GetBoundedArrayClass (Il2CppClass *element_class, uint32_t rank, bool bounded);
+	static Il2CppClass* GetInflatedGenericInstanceClass (Il2CppClass* klass, const metadata::Il2CppTypeVector& types);
+	static Il2CppClass* InflateGenericClass (Il2CppClass* klass, Il2CppGenericContext *context);
 	static const Il2CppType* InflateGenericType (const Il2CppType* type, Il2CppGenericContext *context);
 
-	static TypeInfo* GetArrayClassCached (TypeInfo *element_class, uint32_t rank)
+	static Il2CppClass* GetArrayClassCached (Il2CppClass *element_class, uint32_t rank)
 	{
 		return GetArrayClass (element_class, rank);
 	}
 
-	static const Il2CppGenericContainer* GetGenericContainer (TypeInfo *klass);
-	static const MethodInfo* GetCCtor (TypeInfo *klass);
+	static const Il2CppGenericContainer* GetGenericContainer (Il2CppClass *klass);
+	static const MethodInfo* GetCCtor (Il2CppClass *klass);
 	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
 	static int GetFieldMarshaledSize(const FieldInfo *field);
-	static TypeInfo* GetPtrClass (const Il2CppType* type);
-	static TypeInfo* GetPtrClass (TypeInfo* elementClass);
-	static bool HasReferences (TypeInfo *klass);
-	static void SetupEvents (TypeInfo *klass);
-	static void SetupFields (TypeInfo *klass);
-	static void SetupMethods (TypeInfo *klass);
-	static void SetupNestedTypes (TypeInfo *klass);
-	static void SetupProperties (TypeInfo *klass);
-	static void SetupTypeHierarchy (TypeInfo *klass);
-	static void SetupInterfaces (TypeInfo *klass);
+	static Il2CppClass* GetPtrClass (const Il2CppType* type);
+	static Il2CppClass* GetPtrClass (Il2CppClass* elementClass);
+	static bool HasReferences (Il2CppClass *klass);
+	static void SetupEvents (Il2CppClass *klass);
+	static void SetupFields (Il2CppClass *klass);
+	static void SetupMethods (Il2CppClass *klass);
+	static void SetupNestedTypes (Il2CppClass *klass);
+	static void SetupProperties (Il2CppClass *klass);
+	static void SetupTypeHierarchy (Il2CppClass *klass);
+	static void SetupInterfaces (Il2CppClass *klass);
 
-	static const dynamic_array<TypeInfo*>& GetStaticFieldData ();
+	static const dynamic_array<Il2CppClass*>& GetStaticFieldData ();
 
-	static size_t GetBitmapSize (const TypeInfo* klass);
-	static void GetBitmap (TypeInfo* klass, size_t* bitmap, size_t& maxSetBit);
+	static size_t GetBitmapSize (const Il2CppClass* klass);
+	static void GetBitmap (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit);
 
 	static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase);
 
-	static TypeInfo* GetDeclaringType(TypeInfo* klass);
+	static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
 private:
 };
 

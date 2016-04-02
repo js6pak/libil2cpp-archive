@@ -120,7 +120,7 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 
 Il2CppException* Exception::FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg)
 {
-	TypeInfo* exceptionClass = Class::FromName (image, name_space, name);
+	Il2CppClass* exceptionClass = Class::FromName (image, name_space, name);
 	Il2CppException* ex = (Il2CppException*)Object::New (exceptionClass);
 	Runtime::ObjectInit ((Il2CppObject*)ex);
 	
@@ -299,7 +299,7 @@ std::string Exception::FormatException(const Il2CppException* ex)
 		return exception_namespace + "." + exception_type;
 }
 
-std::string Exception::FormatInvalidCastException(const TypeInfo* fromType, const TypeInfo* toType)
+std::string Exception::FormatInvalidCastException(const Il2CppClass* fromType, const Il2CppClass* toType)
 {
 	std::stringstream message;
 
