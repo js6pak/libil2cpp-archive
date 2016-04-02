@@ -573,8 +573,8 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 	{
 		case IL2CPP_TYPE_ARRAY:
 			{
-			TypeInfo* arrayClass = Class::FromIl2CppType (type);
-			TypeInfo* elementClass = Class::GetElementClass (arrayClass);
+			Il2CppClass* arrayClass = Class::FromIl2CppType (type);
+			Il2CppClass* elementClass = Class::GetElementClass (arrayClass);
 				Type::GetNameInternal (
 					oss,
 					elementClass->byval_arg,
@@ -605,7 +605,7 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 
 		case IL2CPP_TYPE_SZARRAY:
 			{
-				TypeInfo* elementClass = Class::FromIl2CppType (type->data.type);
+				Il2CppClass* elementClass = Class::FromIl2CppType (type->data.type);
 				Type::GetNameInternal (
 					oss,
 					elementClass->byval_arg,
@@ -656,10 +656,10 @@ void Type::GetNameInternal (std::ostringstream &oss, const Il2CppType *type, Il2
 
 		default:
 			{
-				TypeInfo *klass = Class::FromIl2CppType (type);
+				Il2CppClass *klass = Class::FromIl2CppType (type);
 				Class::Init (klass);
 
-				TypeInfo* declaringType = Class::GetDeclaringType (klass);
+				Il2CppClass* declaringType = Class::GetDeclaringType (klass);
 				if (declaringType)
 				{
 					Type::GetNameInternal (oss, declaringType->byval_arg, format, true);
@@ -741,7 +741,7 @@ std::string Type::GetName (const Il2CppType *type, Il2CppTypeNameFormat format)
 	return oss.str();
 }
 
-TypeInfo* Type::GetClassOrElementClass (const Il2CppType *type)
+Il2CppClass* Type::GetClassOrElementClass (const Il2CppType *type)
 {
 	// This is a weird function to mimic old mono behaviour.
 	// We incorrectly used the analogous mono function in Unity.
@@ -762,7 +762,7 @@ const Il2CppType* Type::GetUnderlyingType (const Il2CppType *type)
 		return Class::GetEnumBaseType (MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex));
 	if (IsGenericInstance (type))
 	{
-		TypeInfo* definition = GenericClass::GetTypeDefinition (type->data.generic_class);
+		Il2CppClass* definition = GenericClass::GetTypeDefinition (type->data.generic_class);
 		if (definition != NULL && definition->enumtype && !type->byref)
 			return Class::GetEnumBaseType (definition);
 	}
@@ -829,13 +829,13 @@ bool Type::IsEnum (const Il2CppType *type)
 	if (type->type != IL2CPP_TYPE_VALUETYPE)
 		return false;
 
-	TypeInfo* klass = GetClass (type);
+	Il2CppClass* klass = GetClass (type);
 	return klass->enumtype;
 }
 
 bool Type::IsValueType (const Il2CppType *type)
 {
-	TypeInfo* klass = GetClass (type);
+	Il2CppClass* klass = GetClass (type);
 	return klass->valuetype;
 }
 bool Type::IsEmptyType (const Il2CppType *type)
@@ -845,23 +845,23 @@ bool Type::IsEmptyType (const Il2CppType *type)
 
 bool Type::IsSystemDBNull (const Il2CppType *type)
 {
-	TypeInfo* klass = GetClass (type);
+	Il2CppClass* klass = GetClass (type);
 	return (klass->image == il2cpp_defaults.corlib && strcmp (klass->namespaze, "System") == 0 && strcmp (klass->name, "DBNull") == 0);
 }
 
 bool Type::IsSystemDateTime (const Il2CppType *type)
 {
-	TypeInfo* klass = GetClass (type);
+	Il2CppClass* klass = GetClass (type);
 	return (klass->image == il2cpp_defaults.corlib && strcmp (klass->namespaze, "System") == 0 && strcmp (klass->name, "DateTime") == 0);
 }
 
 bool Type::IsSystemDecimal (const Il2CppType *type)
 {
-	TypeInfo* klass = GetClass (type);
+	Il2CppClass* klass = GetClass (type);
 	return (klass->image == il2cpp_defaults.corlib && strcmp (klass->namespaze, "System") == 0 && strcmp (klass->name, "Decimal") == 0);
 }
 
-TypeInfo* Type::GetClass (const Il2CppType *type)
+Il2CppClass* Type::GetClass (const Il2CppType *type)
 {
 	assert (type->type == IL2CPP_TYPE_CLASS || type->type == IL2CPP_TYPE_VALUETYPE);
 	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex);

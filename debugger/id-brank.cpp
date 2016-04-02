@@ -17,7 +17,7 @@ static int32_t get_or_create_id_for(IdType type, const void *ptr)
 		return 0;
 
 	// Note: we don't use GCHandles here as long as `ptr` is always supposed to point to
-	// memory statically allocated or managed directly by il2cpp (like TypeInfo*, Il2CppType*, etc).
+	// memory statically allocated or managed directly by il2cpp (like Il2CppClass*, Il2CppType*, etc).
 
 	if(gTypesMap.find(type) == gTypesMap.end())
 	{
@@ -123,7 +123,7 @@ namespace il2cpp
 namespace debugger
 {
 
-Id TypeId(const TypeInfo *type)
+Id TypeId(const Il2CppClass *type)
 {
 	Id id;
 
@@ -203,12 +203,12 @@ Id PropertyId(const PropertyInfo *prop)
 	return id;
 }
 
-TypeInfo *TypeFromId(int32_t id)
+Il2CppClass *TypeFromId(int32_t id)
 {
-	return (TypeInfo*)get_ptr_from_id(kIdTypeType, id);
+	return (Il2CppClass*)get_ptr_from_id(kIdTypeType, id);
 }
 
-TypeInfo *TypeFromId(Id &id)
+Il2CppClass *TypeFromId(Id &id)
 {
 	assert(id.type == kIdTypeType && "TypeFromId can only be used on kIdTypeType ids.");
 

@@ -28,7 +28,7 @@ const char* Property::GetName (const PropertyInfo* prop)
 	return prop->name;
 }
 
-TypeInfo* Property::GetParent (const PropertyInfo* prop)
+Il2CppClass* Property::GetParent (const PropertyInfo* prop)
 {
 	return prop->parent;
 }

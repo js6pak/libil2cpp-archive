@@ -54,7 +54,7 @@ void MethodGetLocalsInfoCommand::Reply::WriteContentTo(Buffer &out) const
 
 	for(it = _locals.begin(); it != _locals.end(); ++it)
 	{
-		out.WriteTypeId((TypeInfo*)(*it).type);
+		out.WriteTypeId((Il2CppClass*)(*it).type);
 	}
 
 	for(it = _locals.begin(); it != _locals.end(); ++it)
