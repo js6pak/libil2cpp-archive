@@ -3,6 +3,7 @@
 #include "gc/GCHandle.h"
 #include "utils/Memory.h"
 #include "vm/Atomic.h"
+#include "vm/COM.h"
 #include "vm/Exception.h"
 
 struct Il2CppObject;
@@ -78,10 +79,12 @@ struct ComObject : T
 public:
 	inline static ComObject* __CreateInstance(Il2CppObject* obj)
 	{
-		void* memory = utils::Memory::Malloc(sizeof(T));
+		void* memory = utils::Memory::Malloc(sizeof(ComObject));
 		if (!memory)
 			Exception::Raise(IL2CPP_E_OUTOFMEMORY);
-		return new(memory) ComObject(obj);
+		ComObject* instance = new(memory) ComObject(obj);
+		instance->__Construct();
+		return instance;
 	}
 
 	inline void __DestroyInstance()
@@ -141,12 +144,67 @@ public:
 			static_cast<ComObject<T>*>(this)->__DestroyInstance();
 		return count;
 	}
+
+protected:
+	inline void __Construct() {}
 };
 
 template <typename T, typename I0 = details::ComNil, typename I1 = details::ComNil, typename I2 = details::ComNil, typename I3 = details::ComNil, typename I4 = details::ComNil, typename I5 = details::ComNil, typename I6 = details::ComNil, typename I7 = details::ComNil, typename I8 = details::ComNil>
-struct NOVTABLE ManagedObjectBase : ComObjectBase<T, Il2CppIManagedObject, I0, I1, I2, I3, I4, I5, I6, I7, I8>
+struct NOVTABLE ManagedObjectBase : ComObjectBase<T, Il2CppIMarshal, Il2CppIManagedObject, I0, I1, I2, I3, I4, I5, I6, I7>
 {
-	inline ManagedObjectBase(Il2CppObject* obj) : ComObjectBase<T, Il2CppIManagedObject, I0, I1, I2, I3, I4, I5, I6, I7, I8>(obj) {}
+private:
+	Il2CppIMarshal* __marshal;
+
+public:
+	inline ManagedObjectBase(Il2CppObject* obj) : ComObjectBase<T, Il2CppIMarshal, Il2CppIManagedObject, I0, I1, I2, I3, I4, I5, I6, I7>(obj), __marshal(NULL) {}
+
+	inline ~ManagedObjectBase()
+	{
+		if (__marshal)
+			__marshal->Release();
+	}
+
+	virtual il2cpp_hresult_t STDCALL GetUnmarshalClass(const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags, Il2CppGuid* clsid)
+	{
+		if (!__marshal)
+			return IL2CPP_E_OUTOFMEMORY;
+		return __marshal->GetUnmarshalClass(iid, object, context, reserved, flags, clsid);
+	}
+
+	virtual il2cpp_hresult_t STDCALL GetMarshalSizeMax(const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags, uint32_t* size)
+	{
+		if (!__marshal)
+			return IL2CPP_E_OUTOFMEMORY;
+		return __marshal->GetMarshalSizeMax(iid, object, context, reserved, flags, size);
+	}
+
+	virtual il2cpp_hresult_t STDCALL MarshalInterface(Il2CppIStream* stream, const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags)
+	{
+		if (!__marshal)
+			return IL2CPP_E_OUTOFMEMORY;
+		return __marshal->MarshalInterface(stream, iid, object, context, reserved, flags);
+	}
+
+	virtual il2cpp_hresult_t STDCALL UnmarshalInterface(Il2CppIStream* stream, const Il2CppGuid& iid, void** object)
+	{
+		if (!__marshal)
+			return IL2CPP_E_OUTOFMEMORY;
+		return __marshal->UnmarshalInterface(stream, iid, object);
+	}
+
+	virtual il2cpp_hresult_t STDCALL ReleaseMarshalData(Il2CppIStream* stream)
+	{
+		if (!__marshal)
+			return IL2CPP_E_OUTOFMEMORY;
+		return __marshal->ReleaseMarshalData(stream);
+	}
+
+	virtual il2cpp_hresult_t STDCALL DisconnectObject(uint32_t reserved)
+	{
+		if (!__marshal)
+			return IL2CPP_E_OUTOFMEMORY;
+		return __marshal->DisconnectObject(reserved);
+	}
 
 	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(uint16_t** bstr)
 	{
@@ -164,6 +222,17 @@ struct NOVTABLE ManagedObjectBase : ComObjectBase<T, Il2CppIManagedObject, I0, I
 		*app_domain_id = 0;
 		*ccw = reinterpret_cast<intptr_t>(gc::GCHandle::GetTarget(this->__handle));
 		return IL2CPP_S_OK;
+	}
+
+protected:
+	inline void __Construct()
+	{
+		Il2CppIUnknown* unknown;
+		if (IL2CPP_HR_SUCCEEDED(COM::CreateFreeThreadedMarshaler(NULL, &unknown)))
+		{
+			unknown->QueryInterface(Il2CppIMarshal::IID, reinterpret_cast<void**>(&__marshal));
+			unknown->Release();
+		}
 	}
 };
 

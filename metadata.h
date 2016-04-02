@@ -4,7 +4,7 @@
 #include "blob.h"
 #include "il2cpp-metadata.h"
 
-struct TypeInfo;
+struct Il2CppClass;
 struct MethodInfo;
 struct Il2CppType;
 
@@ -42,7 +42,7 @@ struct Il2CppGenericParameter
 struct Il2CppGenericContainer
 {
 	/* index of the generic type definition or the generic method definition corresponding to this container */
-	int32_t ownerIndex; // either index into TypeInfo metadata array or Il2CppMethodDefinition array
+	int32_t ownerIndex; // either index into Il2CppClass metadata array or Il2CppMethodDefinition array
 	int32_t type_argc;
 	/* If true, we're a generic method, otherwise a generic type definition. */
 	int32_t is_method;
@@ -54,7 +54,7 @@ struct Il2CppGenericClass
 {
 	TypeDefinitionIndex typeDefinitionIndex;	/* the generic type definition */
 	Il2CppGenericContext context;	/* a context that contains the type instantiation doesn't contain any method instantiation */
-	TypeInfo *cached_class;	/* if present, the TypeInfo corresponding to the instantiation.  */
+	Il2CppClass *cached_class;	/* if present, the Il2CppClass corresponding to the instantiation.  */
 };
 
 struct Il2CppGenericMethod

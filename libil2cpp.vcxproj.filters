@@ -694,6 +694,9 @@
     <ClCompile Include="vm\CCW.cpp">
       <Filter>vm</Filter>
     </ClCompile>
+    <ClCompile Include="vm\COM.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1313,6 +1316,9 @@
       <Filter>vm</Filter>
     </ClInclude>
     <ClInclude Include="vm\ComUtils.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\COM.h">
       <Filter>vm</Filter>
     </ClInclude>
   </ItemGroup>

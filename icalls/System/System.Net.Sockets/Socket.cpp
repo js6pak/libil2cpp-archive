@@ -198,7 +198,7 @@ static os::SocketFlags convert_socket_flags (SocketFlags flags)
 
 static Il2CppSocketAddress* end_point_info_to_socket_address (const os::EndPointInfo &info)
 {
-	static TypeInfo *System_Net_SocketAddress = NULL;
+	static Il2CppClass *System_Net_SocketAddress = NULL;
 	
 	Il2CppSocketAddress *socket_address = NULL;
 	
@@ -600,7 +600,7 @@ void Socket::GetSocketOptionObj (Il2CppIntPtr socket, SocketOptionLevel level, S
 	{
 		case kSocketOptionNameLinger:
 			{
-				static TypeInfo *System_Net_Sockets_LingerOption = NULL;
+				static Il2CppClass *System_Net_Sockets_LingerOption = NULL;
 				
 				if (!System_Net_Sockets_LingerOption)
 				{

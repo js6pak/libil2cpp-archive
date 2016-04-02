@@ -32,7 +32,7 @@ void Array::ClearInternal (Il2CppArray * arr, int32_t idx, int32_t length)
 
 Il2CppArray * Array::Clone (Il2CppArray * arr)
 {
-	TypeInfo *typeInfo = arr->klass;
+	Il2CppClass *typeInfo = arr->klass;
 	const uint32_t elem_size = il2cpp::vm::Array::GetElementSize (typeInfo);
 	
 	if (arr->bounds == NULL)
@@ -81,7 +81,7 @@ Il2CppArray * Array::CreateInstanceImpl (Il2CppReflectionType * elementType,Il2C
 	if(bounds != NULL)
 		i32bounds = (il2cpp_array_size_t*)il2cpp_array_addr_with_size (bounds, il2cpp_array_element_size (bounds->klass), 0);
 	
-	TypeInfo* arrayType = il2cpp::vm::Class::GetArrayClassCached (il2cpp::vm::Class::FromIl2CppType (elementType->type), il2cpp::vm::Array::GetLength (lengths));
+	Il2CppClass* arrayType = il2cpp::vm::Class::GetArrayClassCached (il2cpp::vm::Class::FromIl2CppType (elementType->type), il2cpp::vm::Array::GetLength (lengths));
 
 	if (arrayType == NULL)
 		vm::Exception::Raise(vm::Exception::GetInvalidOperationException(FormatCreateInstanceException(elementType->type).c_str()));
@@ -92,8 +92,8 @@ Il2CppArray * Array::CreateInstanceImpl (Il2CppReflectionType * elementType,Il2C
 bool Array::FastCopy (Il2CppArray *source, int32_t source_idx, Il2CppArray *dest, int32_t dest_idx, int32_t length)
 {
 	int element_size;
-	TypeInfo *src_class;
-	TypeInfo *dest_class;
+	Il2CppClass *src_class;
+	Il2CppClass *dest_class;
 	int i;
 	
 	if (source->klass->rank != dest->klass->rank)
@@ -216,17 +216,17 @@ int Array::GetRank (Il2CppArray * arr)
 
 Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
 {
-	TypeInfo *ac, *ic;
+	Il2CppClass *ac, *ic;
 	Il2CppArray *ao, *io;
 	int32_t i, pos, *ind;
 
 	IL2CPP_CHECK_ARG_NULL (indices);
 
 	io = (Il2CppArray *)indices;
-	ic = (TypeInfo *)io->klass;
+	ic = (Il2CppClass *)io->klass;
 	
 	ao = (Il2CppArray *)__this;
-	ac = (TypeInfo *)ao->klass;
+	ac = (Il2CppClass *)ao->klass;
 
 	assert (ic->rank == 1);
 	if (io->bounds != NULL || io->max_length !=  ac->rank)
@@ -256,7 +256,7 @@ Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
 
 Il2CppObject * Array::GetValueImpl (Il2CppArray * __this, int32_t pos)
 {
-	TypeInfo* typeInfo = __this->klass;
+	Il2CppClass* typeInfo = __this->klass;
 	void **ea;
 
 	ea = (void**)load_array_elema(__this, pos, typeInfo->element_size);
@@ -269,7 +269,7 @@ Il2CppObject * Array::GetValueImpl (Il2CppArray * __this, int32_t pos)
 
 void Array::SetValue (Il2CppArray * __this, Il2CppObject* value, Il2CppArray* idxs)
 {
-	TypeInfo *ac, *ic;
+	Il2CppClass *ac, *ic;
 	int32_t i, pos, *ind;
 
 	IL2CPP_CHECK_ARG_NULL (idxs);
@@ -310,7 +310,7 @@ static void ThrowNoWidening ()
 	Exception::Raise (Exception::GetArgumentException ("value", "not a widening conversion"));
 }
 
-static void ThrowInvalidCast (const TypeInfo* a, const TypeInfo* b)
+static void ThrowInvalidCast (const Il2CppClass* a, const Il2CppClass* b)
 {
 	Exception::Raise (Exception::GetInvalidCastException (Exception::FormatInvalidCastException (b, a).c_str ()));
 }
@@ -466,8 +466,8 @@ static void AssignReal (WidenedValueUnion value, void* elementAddress, Il2CppTyp
 
 void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 {
-	TypeInfo* typeInfo = __this->klass;
-	TypeInfo* elementClass = Class::GetElementClass (typeInfo);
+	Il2CppClass* typeInfo = __this->klass;
+	Il2CppClass* elementClass = Class::GetElementClass (typeInfo);
 
 	int elementSize = Class::GetArrayElementSize (elementClass);
 	void* elementAddress = il2cpp_array_addr_with_size (__this, elementSize, index);
@@ -498,7 +498,7 @@ void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 		return;
 	}
 
-	TypeInfo* valueClass = Object::GetClass (value);
+	Il2CppClass* valueClass = Object::GetClass (value);
 
 	if (!Class::IsValuetype (valueClass))
 		ThrowInvalidCast (elementClass, valueClass);

@@ -72,7 +72,7 @@ Il2CppObject* GCHandle::GetTarget (int32_t handle)
 
 static inline bool IsObjectPinnable(Il2CppObject* obj)
 {
-	TypeInfo* klass = obj->klass;
+	Il2CppClass* klass = obj->klass;
 	if (klass->byval_arg->type == IL2CPP_TYPE_ARRAY || klass->byval_arg->type == IL2CPP_TYPE_SZARRAY)
 		return klass->element_class->is_blittable;
 

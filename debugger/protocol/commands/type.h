@@ -24,13 +24,13 @@ struct TypeGetInfoCommand : public CustomCommand<TypeGetInfoCommand>
 		Property<std::string> fullname;
 		Property<Il2CppAssembly*> assembly;
 		Property<Il2CppImage*> module;
-		Property<TypeInfo*> parent_type;
-		Property<TypeInfo*> underlying_type;
+		Property<Il2CppClass*> parent_type;
+		Property<Il2CppClass*> underlying_type;
 		Property<int32_t> type_token;
 		Property<uint8_t> rank;
 		Property<int32_t> flags;
 		Property<uint8_t> by_val_flags;
-		Property<std::vector<TypeInfo*> > nested_types;
+		Property<std::vector<Il2CppClass*> > nested_types;
 
 		void WriteContentTo(Buffer &out) const
 		{
@@ -52,7 +52,7 @@ struct TypeGetInfoCommand : public CustomCommand<TypeGetInfoCommand>
 
 	CUSTOM_COMMAND(Type, GetInfo);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -75,7 +75,7 @@ struct TypeGetSourceFilesCommand : public CustomCommand<TypeGetSourceFilesComman
 
 	CUSTOM_COMMAND(Type, GetSourceFiles);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -111,7 +111,7 @@ struct TypeGetPropertiesCommand : public CustomCommand<TypeGetPropertiesCommand>
 
 	CUSTOM_COMMAND(Type, GetProperties);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -134,7 +134,7 @@ struct TypeGetSourceFiles2Command : public CustomCommand<TypeGetSourceFiles2Comm
 
 	CUSTOM_COMMAND(Type, GetSourceFiles2);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -157,8 +157,8 @@ struct TypeGetPropertyCAttrsCommand : public CustomCommand<TypeGetPropertyCAttrs
 
 	CUSTOM_COMMAND(Type, GetPropertyCAttrs);
 
-	Property<TypeInfo*> type;
-	Property<TypeInfo*> attr_type;
+	Property<Il2CppClass*> type;
+	Property<Il2CppClass*> attr_type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -182,8 +182,8 @@ struct TypeGetFieldCAttrsCommand : public CustomCommand<TypeGetFieldCAttrsComman
 
 	CUSTOM_COMMAND(Type, GetFieldCAttrs);
 
-	Property<TypeInfo*> type;
-	Property<TypeInfo*> attr_type;
+	Property<Il2CppClass*> type;
+	Property<Il2CppClass*> attr_type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -205,7 +205,7 @@ struct TypeIsAssignableFromCommand : public CustomCommand<TypeIsAssignableFromCo
 
 	CUSTOM_COMMAND(Type, IsAssignableFrom);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -228,8 +228,8 @@ struct TypeGetCAttrsCommand : public CustomCommand<TypeGetCAttrsCommand>
 
 	CUSTOM_COMMAND(Type, GetCAttrs);
 
-	Property<TypeInfo*> type;
-	Property<TypeInfo*> attr_type;
+	Property<Il2CppClass*> type;
+	Property<Il2CppClass*> attr_type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -257,7 +257,7 @@ struct TypeGetValuesCommand : public CustomCommand<TypeGetValuesCommand>
 
 	CUSTOM_COMMAND(Type, GetValues);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 	Property<std::vector<FieldInfo*> > fields;
 
 	void ReadProperties(Buffer &in)
@@ -282,7 +282,7 @@ struct TypeGetObjectCommand : public CustomCommand<TypeGetObjectCommand>
 
 	CUSTOM_COMMAND(Type, GetObject);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -316,7 +316,7 @@ struct TypeGetFieldsCommand : public CustomCommand<TypeGetFieldsCommand>
 
 	CUSTOM_COMMAND(Type, GetFields);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -337,7 +337,7 @@ struct TypeSetValuesCommand : public CustomCommand<TypeSetValuesCommand>
 
 	CUSTOM_COMMAND(Type, SetValues);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{
@@ -360,7 +360,7 @@ struct TypeGetMethodsCommand : public CustomCommand<TypeGetMethodsCommand>
 
 	CUSTOM_COMMAND(Type, GetMethods);
 
-	Property<TypeInfo*> type;
+	Property<Il2CppClass*> type;
 
 	void ReadProperties(Buffer &in)
 	{

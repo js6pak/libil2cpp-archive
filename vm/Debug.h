@@ -24,7 +24,7 @@ public:
 	static size_t GetCodeSize (const Il2CppDebugMethodInfo* info);
 	static void UpdateFrameIlOffset(int32_t il_offset);
 	static const Il2CppDebugLocalsInfo **GetLocalsInfo (const Il2CppDebugMethodInfo* info);
-	static const TypeInfo *GetType (const Il2CppDebugLocalsInfo *info);
+	static const Il2CppClass *GetType (const Il2CppDebugLocalsInfo *info);
 	static const char *GetName (const Il2CppDebugLocalsInfo *info);
 	static uint32_t GetStartOffset (const Il2CppDebugLocalsInfo *info);
 	static uint32_t GetEndOffset (const Il2CppDebugLocalsInfo *info);
