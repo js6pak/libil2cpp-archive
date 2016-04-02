@@ -19,7 +19,7 @@ namespace System
 
 Il2CppDelegate * Delegate::CreateDelegate_internal (Il2CppReflectionType *__type, Il2CppObject *target, Il2CppReflectionMethod *info, bool throwOnBindFailure)
 {
-	TypeInfo *delegate_class = il2cpp::vm::Class::FromIl2CppType(__type->type);
+	Il2CppClass *delegate_class = il2cpp::vm::Class::FromIl2CppType(__type->type);
 	const MethodInfo *method = info->method;
 
 	assert(delegate_class->parent == il2cpp_defaults.multicastdelegate_class);

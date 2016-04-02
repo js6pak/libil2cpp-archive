@@ -31,7 +31,7 @@ const char* Field::GetName (FieldInfo *field)
 	return field->name;
 }
 
-TypeInfo* Field::GetParent (FieldInfo *field)
+Il2CppClass* Field::GetParent (FieldInfo *field)
 {
 	return field->parent;
 }
@@ -65,7 +65,7 @@ uint32_t Field::GetToken (const FieldInfo *field)
 
 Il2CppObject* Field::GetValueObject (FieldInfo *field, Il2CppObject *obj)
 {
-	TypeInfo* fieldType = Class::FromIl2CppType(field->type);
+	Il2CppClass* fieldType = Class::FromIl2CppType(field->type);
 
 	if (field->type->attrs & FIELD_ATTRIBUTE_LITERAL)
 	{
@@ -109,7 +109,7 @@ const Il2CppType* Field::GetType (FieldInfo *field)
 	return field->type;
 }
 
-bool Field::HasAttribute (FieldInfo *field, TypeInfo *attr_class)
+bool Field::HasAttribute (FieldInfo *field, Il2CppClass *attr_class)
 {
 	return Reflection::HasAttribute(field, attr_class);
 }
@@ -267,7 +267,7 @@ handle_enum:
 			t = Class::GetEnumBaseType (Type::GetClass (type))->type;
 			goto handle_enum;
 		} else {
-			TypeInfo *klass = Class::FromIl2CppType (type);
+			Il2CppClass *klass = Class::FromIl2CppType (type);
 			int size = Class::GetValueSize (klass, NULL);
 			if (value == NULL) {
 				memset (dest, 0, size);

@@ -322,7 +322,7 @@ Il2CppArray* CultureInfo::internal_get_cultures (bool neutral, bool specific, bo
 		++numMatchingCultures;
 
 	// Allocate result array.
-	TypeInfo* cultureInfoClass = il2cpp_defaults.culture_info;
+	Il2CppClass* cultureInfoClass = il2cpp_defaults.culture_info;
 	Il2CppArray* array = il2cpp_array_new (cultureInfoClass, numMatchingCultures);
 
 	int index = 0;

@@ -15,7 +15,7 @@ namespace il2cpp
 namespace vm
 {
 
-int32_t Array::GetElementSize (const TypeInfo *klass)
+int32_t Array::GetElementSize (const Il2CppClass *klass)
 {
 	assert (klass->rank);
 	return klass->element_size;
@@ -28,7 +28,7 @@ uint32_t Array::GetLength (Il2CppArray* array)
 
 uint32_t Array::GetByteLength (Il2CppArray* array)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	int length;
 	int i;
 
@@ -45,7 +45,7 @@ uint32_t Array::GetByteLength (Il2CppArray* array)
 	return length * GetElementSize (klass);
 }
 
-Il2CppArray* Array::New (TypeInfo *elementTypeInfo, il2cpp_array_size_t length)
+Il2CppArray* Array::New (Il2CppClass *elementTypeInfo, il2cpp_array_size_t length)
 {
 	return NewSpecific (Class::GetArrayClass (elementTypeInfo, 1), length);
 }
@@ -55,7 +55,7 @@ static void RaiseOverflowException()
 	vm::Exception::Raise(vm::Exception::GetOverflowException("Arithmetic operation resulted in an overflow."));
 }
 
-Il2CppArray* Array::NewSpecific (TypeInfo *klass, il2cpp_array_size_t n)
+Il2CppArray* Array::NewSpecific (Il2CppClass *klass, il2cpp_array_size_t n)
 {
 	Il2CppObject *o;
 	Il2CppArray *ao;
@@ -116,7 +116,7 @@ Il2CppArray* Array::NewSpecific (TypeInfo *klass, il2cpp_array_size_t n)
 	return ao;
 }
 
-Il2CppArray* Array::NewFull (TypeInfo *array_class, il2cpp_array_size_t *lengths, il2cpp_array_size_t *lower_bounds)
+Il2CppArray* Array::NewFull (Il2CppClass *array_class, il2cpp_array_size_t *lengths, il2cpp_array_size_t *lower_bounds)
 {
 
 	il2cpp_array_size_t byte_len, len, bounds_size;
@@ -232,7 +232,7 @@ il2cpp_array_addr_with_size (Il2CppArray *array, int32_t size, uintptr_t idx)
 }
 
 LIBIL2CPP_CODEGEN_API int32_t
-il2cpp_array_element_size (TypeInfo *ac)
+il2cpp_array_element_size (Il2CppClass *ac)
 {
 	return il2cpp::vm::Array::GetElementSize (ac);
 }

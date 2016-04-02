@@ -45,7 +45,7 @@ bool Type::EqualsInternal( Il2CppReflectionType * left, Il2CppReflectionType * r
 
 bool Type::get_IsGenericType (Il2CppReflectionType* type)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	
 	NOT_IMPLEMENTED_ICALL_NO_ASSERT (MonoType::get_IsGenericTypeDefinition,"Check for custom Type implementations");
 	//if (!IS_MONOTYPE (type))
@@ -60,7 +60,7 @@ bool Type::get_IsGenericType (Il2CppReflectionType* type)
 
 bool Type::get_IsGenericTypeDefinition(Il2CppReflectionType * type)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	
 	NOT_IMPLEMENTED_ICALL_NO_ASSERT (MonoType::get_IsGenericTypeDefinition,"Check for custom Type implementations");
 	//if (!IS_MONOTYPE (type))
@@ -83,7 +83,7 @@ int32_t Type::GetGenericParameterPosition (Il2CppReflectionType* type)
 
 Il2CppReflectionType * Type::GetGenericTypeDefinition_impl (Il2CppReflectionType* type)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 
 	if (type->type->byref)
 		return NULL;
@@ -94,7 +94,7 @@ Il2CppReflectionType * Type::GetGenericTypeDefinition_impl (Il2CppReflectionType
 
 	if (klass->generic_class)
 	{
-		TypeInfo *generic_class = GenericClass::GetTypeDefinition (klass->generic_class);
+		Il2CppClass *generic_class = GenericClass::GetTypeDefinition (klass->generic_class);
 		return Reflection::GetTypeObject (generic_class->byval_arg);
 	}
 
@@ -201,7 +201,7 @@ handle_enum:
 Il2CppReflectionType * Type::internal_from_handle(Il2CppIntPtr ptr)
 {
 	const Il2CppType* type = (const Il2CppType*)ptr.m_value;
-	TypeInfo *klass = Class::FromIl2CppType (type);
+	Il2CppClass *klass = Class::FromIl2CppType (type);
 
 	return il2cpp::vm::Reflection::GetTypeObject (klass->byval_arg);
 }
@@ -238,13 +238,13 @@ bool Type::IsArrayImpl (Il2CppReflectionType *t)
 {
 	NOT_IMPLEMENTED_ICALL_NO_ASSERT (Type::IsArrayImpl, "Faulty implementation?");
 	
-	TypeInfo* typeInfo = Class::FromSystemType (t);
+	Il2CppClass* typeInfo = Class::FromSystemType (t);
 	return typeInfo->rank > 0;
 }
 
 bool Type::IsInstanceOfType(Il2CppReflectionType *type,Il2CppObject * obj)
 {
-	TypeInfo *klass = Class::FromIl2CppType (type->type);
+	Il2CppClass *klass = Class::FromIl2CppType (type->type);
 	return il2cpp::vm::Object::IsInst (obj, klass) != NULL;
 }
 
@@ -265,7 +265,7 @@ void validate_make_array_type_inputs(Il2CppReflectionType* type, int32_t rank)
 		il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.str().c_str()));
 	}
 
-	const TypeInfo *klass = Class::FromIl2CppType (type->type);
+	const Il2CppClass *klass = Class::FromIl2CppType (type->type);
 
 	if((strcmp(klass->namespaze, "System") == 0 && strcmp(klass->name, "TypedReference") == 0))
 	{
@@ -279,9 +279,9 @@ Il2CppReflectionType* Type::make_array_type (Il2CppReflectionType* type, int32_t
 {
 	validate_make_array_type_inputs(type, rank);
 
-	TypeInfo* arrayClass;
+	Il2CppClass* arrayClass;
 
-	TypeInfo* klass = il2cpp_class_from_il2cpp_type(type->type);
+	Il2CppClass* klass = il2cpp_class_from_il2cpp_type(type->type);
 	if (rank == 0) //single dimentional array
 		arrayClass = il2cpp_array_class_get(klass, 1);
 	else
@@ -310,7 +310,7 @@ static std::string FormatExceptionMessageForNonConstructableGenericType (const I
 Il2CppReflectionType * Type::MakeGenericType (Il2CppReflectionType* type,Il2CppArray* genericArgumentTypes)
 {
 	const Il2CppType* genericTypeDefinitionType = type->type;
-	TypeInfo* genericTypeDefinitionClass = Class::FromIl2CppType (genericTypeDefinitionType);
+	Il2CppClass* genericTypeDefinitionClass = Class::FromIl2CppType (genericTypeDefinitionType);
 	assert (Class::IsGeneric (genericTypeDefinitionClass));
 
 	uint32_t arrayLength = Array::GetLength (genericArgumentTypes);
@@ -325,7 +325,7 @@ Il2CppReflectionType * Type::MakeGenericType (Il2CppReflectionType* type,Il2CppA
 
 	const Il2CppGenericInst* inst = MetadataCache::GetGenericInst (genericArguments);
 	Il2CppGenericClass* genericClass = GenericMetadata::GetGenericClass (genericTypeDefinitionClass, inst);
-	TypeInfo* genericInstanceTypeClass = GenericClass::GetClass (genericClass);
+	Il2CppClass* genericInstanceTypeClass = GenericClass::GetClass (genericClass);
 
 	if (!genericInstanceTypeClass)
 	{
@@ -338,8 +338,8 @@ Il2CppReflectionType * Type::MakeGenericType (Il2CppReflectionType* type,Il2CppA
 
 bool Type::type_is_assignable_from(Il2CppReflectionType * type,Il2CppReflectionType * c)
 {
-	TypeInfo *klass;
-	TypeInfo *klassc;
+	Il2CppClass *klass;
+	Il2CppClass *klassc;
 
 	klass = Class::FromIl2CppType (type->type);
 	klassc = Class::FromIl2CppType (c->type);
@@ -352,8 +352,8 @@ bool Type::type_is_assignable_from(Il2CppReflectionType * type,Il2CppReflectionT
 
 bool Type::type_is_subtype_of(Il2CppReflectionType *type,Il2CppReflectionType *c,bool check_interfaces)
 {
-	TypeInfo *klass;
-	TypeInfo *klassc;
+	Il2CppClass *klass;
+	Il2CppClass *klassc;
 
 	assert (type != NULL);
 
@@ -371,7 +371,7 @@ bool Type::type_is_subtype_of(Il2CppReflectionType *type,Il2CppReflectionType *c
 
 Il2CppReflectionType* Type::make_byref_type (Il2CppReflectionType *type)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 
 	klass = Class::FromIl2CppType (type->type);
 
@@ -380,15 +380,15 @@ Il2CppReflectionType* Type::make_byref_type (Il2CppReflectionType *type)
 
 Il2CppReflectionType * Type::MakePointerType (Il2CppReflectionType* type)
 {
-	TypeInfo* pointerType = Class::GetPtrClass (type->type);
+	Il2CppClass* pointerType = Class::GetPtrClass (type->type);
 
 	return Reflection::GetTypeObject (pointerType->byval_arg);
 }
 
 void Type::GetInterfaceMapData (Il2CppReflectionType* type, Il2CppReflectionType* iface, Il2CppArray** targets, Il2CppArray** methods)
 {
-	TypeInfo* klass = il2cpp_class_from_il2cpp_type(type->type);
-	TypeInfo* iklass = il2cpp_class_from_il2cpp_type(iface->type);
+	Il2CppClass* klass = il2cpp_class_from_il2cpp_type(type->type);
+	Il2CppClass* iklass = il2cpp_class_from_il2cpp_type(iface->type);
 
 	int32_t numberOfMethods = (int32_t)Class::GetNumMethods(iklass);
 	*targets = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfMethods);

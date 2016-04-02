@@ -105,7 +105,7 @@ SizeAndAlignment FieldLayout::GetTypeSizeAndAlignment (const Il2CppType* type)
 	case IL2CPP_TYPE_GENERICINST:
 	{
 		Il2CppGenericClass* gclass = type->data.generic_class;
-		TypeInfo* container_class = GenericClass::GetTypeDefinition (gclass);
+		Il2CppClass* container_class = GenericClass::GetTypeDefinition (gclass);
 
 		if (container_class != NULL && container_class->valuetype)
 		{

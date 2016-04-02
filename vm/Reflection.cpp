@@ -73,13 +73,13 @@ struct ReflectionMap : unordered_map<
 {
 };
 
-typedef ReflectionMap<std::pair<const Il2CppAssembly*, TypeInfo*>, Il2CppReflectionAssembly*> AssemblyMap;
-typedef ReflectionMap<std::pair<const FieldInfo*, TypeInfo*>, Il2CppReflectionField*> FieldMap;
-typedef ReflectionMap<std::pair<const PropertyInfo*, TypeInfo*>, Il2CppReflectionProperty*> PropertyMap;
-typedef ReflectionMap<std::pair<const EventInfo*, TypeInfo*>, Il2CppReflectionEvent*> EventMap;
-typedef ReflectionMap<std::pair<const MethodInfo*, TypeInfo*>, Il2CppReflectionMethod*> MethodMap;
-typedef ReflectionMap<std::pair<const Il2CppImage*, TypeInfo*>, Il2CppReflectionModule*> ModuleMap;
-typedef ReflectionMap<std::pair<const MethodInfo*, TypeInfo*>, Il2CppArray*> ParametersMap;
+typedef ReflectionMap<std::pair<const Il2CppAssembly*, Il2CppClass*>, Il2CppReflectionAssembly*> AssemblyMap;
+typedef ReflectionMap<std::pair<const FieldInfo*, Il2CppClass*>, Il2CppReflectionField*> FieldMap;
+typedef ReflectionMap<std::pair<const PropertyInfo*, Il2CppClass*>, Il2CppReflectionProperty*> PropertyMap;
+typedef ReflectionMap<std::pair<const EventInfo*, Il2CppClass*>, Il2CppReflectionEvent*> EventMap;
+typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppReflectionMethod*> MethodMap;
+typedef ReflectionMap<std::pair<const Il2CppImage*, Il2CppClass*>, Il2CppReflectionModule*> ModuleMap;
+typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppArray*> ParametersMap;
 
 typedef const Il2CppType* TypeMapKey;
 typedef Il2CppReflectionType* TypeMapValue;
@@ -111,12 +111,12 @@ static il2cpp::os::FastMutex s_ReflectionICallsMutex;
 
 Il2CppReflectionAssembly* Reflection::GetAssemblyObject (const Il2CppAssembly *assembly)
 {
-	static TypeInfo *System_Reflection_Assembly;
+	static Il2CppClass *System_Reflection_Assembly;
 	Il2CppReflectionAssembly *res;
 	
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	AssemblyMap::key_type key (assembly, (TypeInfo*)NULL);
+	AssemblyMap::key_type key (assembly, (Il2CppClass*)NULL);
 	AssemblyMap::iterator iter = s_AssemblyMap->find (key);
 	if (iter != s_AssemblyMap->end ())
 		return iter->second;
@@ -140,10 +140,10 @@ Il2CppReflectionAssemblyName* Reflection::GetAssemblyNameObject (const Il2CppAss
 	return reflectionAssemblyName;
 }
 
-Il2CppReflectionField* Reflection::GetFieldObject (TypeInfo *klass, FieldInfo *field)
+Il2CppReflectionField* Reflection::GetFieldObject (Il2CppClass *klass, FieldInfo *field)
 {
 	Il2CppReflectionField *res;
-	static TypeInfo *monofield_klass;
+	static Il2CppClass *monofield_klass;
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
@@ -170,15 +170,15 @@ Il2CppReflectionField* Reflection::GetFieldObject (TypeInfo *klass, FieldInfo *f
  * We use the same C representation for methods and constructors, but the type
  * name in C# is different.
  */
-static TypeInfo *System_Reflection_MonoMethod = NULL;
-static TypeInfo *System_Reflection_MonoCMethod = NULL;
+static Il2CppClass *System_Reflection_MonoMethod = NULL;
+static Il2CppClass *System_Reflection_MonoCMethod = NULL;
 
-static TypeInfo *System_Reflection_MonoGenericCMethod = NULL;
-static TypeInfo *System_Reflection_MonoGenericMethod = NULL;
+static Il2CppClass *System_Reflection_MonoGenericCMethod = NULL;
+static Il2CppClass *System_Reflection_MonoGenericMethod = NULL;
 
-Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, TypeInfo *refclass)
+Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, Il2CppClass *refclass)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	Il2CppReflectionMethod *ret;
 
 	if (method->is_inflated)
@@ -245,13 +245,13 @@ Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, T
 
 Il2CppReflectionModule* Reflection::GetModuleObject (const Il2CppImage *image)
 {
-	static TypeInfo *System_Reflection_Module;
+	static Il2CppClass *System_Reflection_Module;
 	Il2CppReflectionModule *res;
 	//char* basename;
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	ModuleMap::key_type key (image, (TypeInfo*)NULL);
+	ModuleMap::key_type key (image, (Il2CppClass*)NULL);
 	ModuleMap::iterator iter = s_ModuleMap->find (key);
 	if (iter != s_ModuleMap->end ())
 		return iter->second;
@@ -290,10 +290,10 @@ Il2CppReflectionModule* Reflection::GetModuleObject (const Il2CppImage *image)
 	return res;
 }
 
-Il2CppReflectionProperty* Reflection::GetPropertyObject (TypeInfo *klass, const PropertyInfo *property)
+Il2CppReflectionProperty* Reflection::GetPropertyObject (Il2CppClass *klass, const PropertyInfo *property)
 {
 	Il2CppReflectionProperty *res;
-	static TypeInfo *monoproperty_klass;
+	static Il2CppClass *monoproperty_klass;
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
@@ -313,10 +313,10 @@ Il2CppReflectionProperty* Reflection::GetPropertyObject (TypeInfo *klass, const 
 	return res;
 }
 
-Il2CppReflectionEvent* Reflection::GetEventObject(TypeInfo* klass, const EventInfo* event)
+Il2CppReflectionEvent* Reflection::GetEventObject(Il2CppClass* klass, const EventInfo* event)
 {
 	Il2CppReflectionEvent* result;
-	static TypeInfo* monoproperty_klass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "MonoEvent");
+	static Il2CppClass* monoproperty_klass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "MonoEvent");
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
@@ -358,7 +358,7 @@ static Il2CppObject* GetDBNullObject()
 
 	if (!dbNullValueField)
 	{
-		TypeInfo* klass = Image::ClassFromName(il2cpp_defaults.corlib, "System", "DBNull");
+		Il2CppClass* klass = Image::ClassFromName(il2cpp_defaults.corlib, "System", "DBNull");
 		Class::Init(klass);
 		dbNullValueField = Class::GetFieldFromName(klass, "Value");
 		assert(dbNullValueField);
@@ -376,7 +376,7 @@ static Il2CppObject* GetReflectionMissingObject()
 
 	if (!reflectionMissingField)
 	{
-		TypeInfo* klass = Image::ClassFromName(il2cpp_defaults.corlib, "System.Reflection", "Missing");
+		Il2CppClass* klass = Image::ClassFromName(il2cpp_defaults.corlib, "System.Reflection", "Missing");
 		Class::Init(klass);
 		reflectionMissingField = Class::GetFieldFromName(klass, "Value");
 		assert(reflectionMissingField);
@@ -395,10 +395,10 @@ static Il2CppObject* GetObjectForMissingDefaultValue(uint32_t parameterAttribute
 		return GetDBNullObject();
 }
 
-Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, TypeInfo *refclass)
+Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, Il2CppClass *refclass)
 {
-	static TypeInfo *System_Reflection_ParameterInfo;
-	static TypeInfo *System_Reflection_ParameterInfo_array;
+	static Il2CppClass *System_Reflection_ParameterInfo;
+	static Il2CppClass *System_Reflection_ParameterInfo_array;
 	Il2CppArray *res = NULL;
 	Il2CppReflectionMethod *member = NULL;
 
@@ -407,7 +407,7 @@ Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, TypeInfo *re
 	NOT_IMPLEMENTED_NO_ASSERT (Reflection::GetParamObjects, "Work in progress!");
 
 	if (!System_Reflection_ParameterInfo_array) {
-		TypeInfo *klass;
+		Il2CppClass *klass;
 
 		klass = Class::FromName (il2cpp_defaults.corlib, "System.Reflection", "ParameterInfo");
 		//mono_memory_barrier ();
@@ -539,7 +539,7 @@ static bool IsAssembly(Il2CppObject *obj)
 	return false;
 }
 
-CustomAttributesCache* Reflection::GetCustomAttributesCacheFor (TypeInfo *klass)
+CustomAttributesCache* Reflection::GetCustomAttributesCacheFor (Il2CppClass *klass)
 {
 	return MetadataCache::GenerateCustomAttributesCache (klass->customAttributeIndex);
 }
@@ -619,7 +619,7 @@ CustomAttributesCache* Reflection::GetCustomAttrsInfo (Il2CppObject *obj)
 	if (IsAssembly(obj))
 		return GetCustomAttributesCacheFor(((Il2CppReflectionAssembly*)obj)->assembly);
 
-	TypeInfo *klass = IsType (obj)
+	Il2CppClass *klass = IsType (obj)
 		? Class::FromSystemType ((Il2CppReflectionType*)obj)
 		: obj->klass;
 
@@ -647,7 +647,7 @@ CustomAttributeTypeCache* Reflection::GetCustomAttrsTypeInfo (Il2CppObject *obj)
 	if (IsAssembly (obj))
 		return MetadataCache::GenerateCustomAttributeTypeCache ((((Il2CppReflectionAssembly*)obj)->assembly)->customAttributeIndex);
 
-	TypeInfo *klass = IsType (obj)
+	Il2CppClass *klass = IsType (obj)
 		? Class::FromSystemType ((Il2CppReflectionType*)obj)
 		: obj->klass;
 
@@ -667,13 +667,13 @@ void Reflection::Initialize ()
 	s_TypeMap = new TypeMap ();
 }
 
-bool Reflection::CustomAttrsHasAttr (CustomAttributeTypeCache *ainfo, TypeInfo *attr_klass)
+bool Reflection::CustomAttrsHasAttr (CustomAttributeTypeCache *ainfo, Il2CppClass *attr_klass)
 {
 	assert (ainfo);
 	assert (attr_klass);
 
 	int i;
-	TypeInfo *klass;
+	Il2CppClass *klass;
 
 	for(i = 0; i < ainfo->count; ++i)
 	{
@@ -685,7 +685,7 @@ bool Reflection::CustomAttrsHasAttr (CustomAttributeTypeCache *ainfo, TypeInfo *
 	return false;
 }
 
-bool Reflection::HasAttribute(Il2CppObject *obj, TypeInfo *attribute)
+bool Reflection::HasAttribute(Il2CppObject *obj, Il2CppClass *attribute)
 {
 	CustomAttributeTypeCache* attrs = GetCustomAttrsTypeInfo(obj);
 	if (!attrs)
@@ -694,7 +694,7 @@ bool Reflection::HasAttribute(Il2CppObject *obj, TypeInfo *attribute)
 	return CustomAttrsHasAttr(attrs, attribute);
 }
 
-bool Reflection::HasAttribute(FieldInfo *field, TypeInfo *attribute)
+bool Reflection::HasAttribute(FieldInfo *field, Il2CppClass *attribute)
 {
 	CustomAttributeTypeCache* attrs = MetadataCache::GenerateCustomAttributeTypeCache(field->customAttributeIndex);
 	if (!attrs)
@@ -704,7 +704,7 @@ bool Reflection::HasAttribute(FieldInfo *field, TypeInfo *attribute)
 	return CustomAttrsHasAttr(attrs, attribute);
 }
 
-bool Reflection::HasAttribute(const MethodInfo *method, TypeInfo *attribute)
+bool Reflection::HasAttribute(const MethodInfo *method, Il2CppClass *attribute)
 {
 	CustomAttributeTypeCache* attrs = MetadataCache::GenerateCustomAttributeTypeCache(method->customAttributeIndex);
 	if (!attrs)
@@ -713,7 +713,7 @@ bool Reflection::HasAttribute(const MethodInfo *method, TypeInfo *attribute)
 	return CustomAttrsHasAttr(attrs, attribute);
 }
 
-bool Reflection::HasAttribute(TypeInfo *klass, TypeInfo *attribute)
+bool Reflection::HasAttribute(Il2CppClass *klass, Il2CppClass *attribute)
 {
 	CustomAttributeTypeCache* attrs = MetadataCache::GenerateCustomAttributeTypeCache(klass->customAttributeIndex);
 	if (!attrs)
@@ -723,7 +723,7 @@ bool Reflection::HasAttribute(TypeInfo *klass, TypeInfo *attribute)
 }
 
 
-TypeInfo* Reflection::TypeGetHandle (Il2CppReflectionType* ref)
+Il2CppClass* Reflection::TypeGetHandle (Il2CppReflectionType* ref)
 {
 	if (!ref)
 		return NULL;

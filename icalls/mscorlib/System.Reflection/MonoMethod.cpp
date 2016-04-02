@@ -39,7 +39,7 @@ namespace Reflection
 Il2CppReflectionMethod* MonoMethod::get_base_definition(Il2CppReflectionMethod *m)
 {
 	const MethodInfo *method = m->method;
-	TypeInfo *klass = method->declaring_type;
+	Il2CppClass *klass = method->declaring_type;
 
 	if(klass == NULL)
 		return m;
@@ -50,7 +50,7 @@ Il2CppReflectionMethod* MonoMethod::get_base_definition(Il2CppReflectionMethod *
 	/*if(klass->generic_class)
 		klass = klass->generic_class->container_class;*/
 
-	for (TypeInfo* parent = klass->parent; parent != NULL; parent = parent->parent)
+	for (Il2CppClass* parent = klass->parent; parent != NULL; parent = parent->parent)
 	{
 		if (parent->vtable_count <= method->slot)
 			break;
@@ -111,7 +111,7 @@ mscorlib_System_Runtime_InteropServices_DllImportAttribute * MonoMethod::GetDllI
 	//instanec on the fly and populate it with the data in the metadata. Turns out that if you call GetCustomAttributes() that ends
 	//up calling this function. For now, we will just return an attribute, but not yet populate it with the correct data.
 
-	TypeInfo* typeInfo = Class::FromName(il2cpp_defaults.corlib, "System.Runtime.InteropServices", "DllImportAttribute");
+	Il2CppClass* typeInfo = Class::FromName(il2cpp_defaults.corlib, "System.Runtime.InteropServices", "DllImportAttribute");
 	assert(typeInfo != NULL);
 
 	return (mscorlib_System_Runtime_InteropServices_DllImportAttribute*)il2cpp::vm::Object::New(typeInfo);
@@ -150,7 +150,7 @@ Il2CppArray* MonoMethod::GetGenericArguments (Il2CppReflectionMethod* method)
 	for (uint32_t i = 0; i < count; i++)
 	{
 		const Il2CppGenericParameter *param = GenericContainer::GetGenericParameter (container, i);
-		TypeInfo *pklass = Class::FromGenericParameter (param);
+		Il2CppClass *pklass = Class::FromGenericParameter (param);
 		il2cpp_array_setref (res, i, il2cpp::vm::Reflection::GetTypeObject (pklass->byval_arg));
 	}
 

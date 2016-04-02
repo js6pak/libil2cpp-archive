@@ -11,6 +11,9 @@
 #include "utils/StdUnorderedMap.h"
 
 const Il2CppGuid Il2CppIUnknown::IID = { 0x00000000, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
+const Il2CppGuid Il2CppISequentialStream::IID = { 0x0c733a30, 0x2a1c, 0x11ce, 0xad, 0xe5, 0x00, 0xaa, 0x00, 0x44, 0x77, 0x3d };
+const Il2CppGuid Il2CppIStream::IID = { 0x0000000c, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
+const Il2CppGuid Il2CppIMarshal::IID = { 0x00000003, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 const Il2CppGuid Il2CppIManagedObject::IID = { 0xc3fcc19e, 0xa970, 0x11d2, 0x8b, 0x5a, 0x00, 0xa0, 0xc9, 0xb7, 0xc9, 0xc4 };
 
 namespace il2cpp
@@ -21,12 +24,12 @@ using namespace os;
 namespace vm
 {
 
-typedef unordered_map<Il2CppIUnknown*, Il2CppRCW*> RCWCache;
+typedef unordered_map<Il2CppIUnknown*, Il2CppComObject*> RCWCache;
 
 static FastMutex g_CacheMutex;
 static RCWCache g_Cache;
 
-void RCW::Initialize(Il2CppRCW* rcw, const Il2CppGuid& clsid)
+void RCW::Initialize(Il2CppComObject* rcw, const Il2CppGuid& clsid)
 {
 	const il2cpp_hresult_t hr = COM::CreateInstance(clsid, &rcw->identity);
 	Exception::RaiseIfFailed(hr);
@@ -43,7 +46,7 @@ void RCW::Initialize(Il2CppRCW* rcw, const Il2CppGuid& clsid)
 
 void RCW::Cleanup(void* obj, void* data)
 {
-	Il2CppRCW* rcw = static_cast<Il2CppRCW*>(obj);
+	Il2CppComObject* rcw = static_cast<Il2CppComObject*>(obj);
 
 	// RCW is removed from the cache before finalizer is run.
 	// In case finalizer somehow resurrects RCW, duplicate RCW object will be created.
@@ -65,13 +68,18 @@ void RCW::Cleanup(void* obj, void* data)
 	}
 }
 
-Il2CppIUnknown* RCW::QueryInterface(Il2CppRCW* rcw, const Il2CppGuid& iid)
+Il2CppIUnknown* RCW::QueryInterface(Il2CppComObject* rcw, const Il2CppGuid& iid, bool throwOnError)
 {
 	assert(rcw);
 	assert(rcw->identity);
 	Il2CppIUnknown* result;
 	const il2cpp_hresult_t hr = rcw->identity->QueryInterface(iid, reinterpret_cast<void**>(&result));
-	Exception::RaiseIfFailed(hr);
+	if (IL2CPP_HR_FAILED(hr))
+	{
+		if (throwOnError)
+			Exception::Raise(hr);
+		return NULL;
+	}
 	assert(result);
 	return result;
 }
@@ -114,7 +122,7 @@ Il2CppObject* RCW::Create(Il2CppIUnknown* unknown)
 	Exception::RaiseIfFailed(hr);
 	assert(identity);
 
-	Il2CppRCW* rcw;
+	Il2CppComObject* rcw;
 
 	{
 		FastAutoLock lock(&g_CacheMutex);
@@ -130,11 +138,7 @@ Il2CppObject* RCW::Create(Il2CppIUnknown* unknown)
 
 		// create new rcw object otherwise
 
-		rcw = static_cast<Il2CppRCW*>(Object::AllocatePtrFree(sizeof(Il2CppRCW), il2cpp_defaults.object_class));
-#if NEED_TO_ZERO_PTRFREE
-		memset((char*)rcw + sizeof(Il2CppObject), 0, sizeof(Il2CppRCW) - sizeof(Il2CppObject));
-#endif
-
+		rcw = static_cast<Il2CppComObject*>(Object::New(il2cpp_defaults.il2cpp_com_object_class));
 		rcw->identity = identity;
 
 		const bool inserted = g_Cache.insert(std::make_pair(rcw->identity, rcw)).second;

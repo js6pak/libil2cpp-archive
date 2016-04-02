@@ -33,7 +33,7 @@ static bool socket_security_enabled = false;
 
 static Il2CppArray* ToIl2CppArray(const std::vector<std::string>& strings)
 {
-	TypeInfo *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
+	Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
 	Il2CppArray* array = (Il2CppArray*)il2cpp::vm::Array::NewSpecific (klass, (il2cpp_array_size_t)strings.size());
 
 	for(size_t i = 0, size = strings.size(); i < size; ++i)
@@ -81,7 +81,7 @@ Il2CppArray* Environment::GetCommandLineArgs ()
 	if (!main_args)
 		return NULL;
 
-	TypeInfo *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
+	Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
 	res = (Il2CppArray*)il2cpp::vm::Array::NewSpecific (klass, num_main_args);
 
 	for (i = 0; i < num_main_args; ++i)

@@ -26,7 +26,7 @@ void MonoEventInfo::get_event_info(Il2CppReflectionMonoEvent* event, Il2CppRefle
 	eventInfo->reflectedType = event->reflectedType;
 	eventInfo->name = vm::String::New(event->eventInfo->name);
 
-	TypeInfo* reflectedTypeInfo = vm::Class::FromIl2CppType(event->reflectedType->type);
+	Il2CppClass* reflectedTypeInfo = vm::Class::FromIl2CppType(event->reflectedType->type);
 	eventInfo->addMethod = event->eventInfo->add != NULL ? vm::Reflection::GetMethodObject(event->eventInfo->add, reflectedTypeInfo) : NULL;
 	eventInfo->removeMethod = event->eventInfo->remove != NULL ? vm::Reflection::GetMethodObject(event->eventInfo->remove, reflectedTypeInfo) : NULL;
 	eventInfo->raiseMethod = event->eventInfo->raise != NULL ? vm::Reflection::GetMethodObject(event->eventInfo->raise, reflectedTypeInfo) : NULL;
