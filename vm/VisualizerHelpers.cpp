@@ -8,12 +8,12 @@ namespace VisualizerHelpers
 {
 	struct Il2CppRawTypeName
 	{
-		TypeInfo t;
+		Il2CppClass t;
 	};
 
 	struct Il2CppRawTypeNameWithoutDeclaringType
 	{
-		TypeInfo t;
+		Il2CppClass t;
 	};
 
 	struct Il2CppGenericParameters_DeclaringTypeHas0Parameters

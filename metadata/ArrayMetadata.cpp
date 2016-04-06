@@ -57,7 +57,7 @@ static const char* GetArrayName (const char* elementClassName, uint32_t rank, bo
 	return StringUtils::StringDuplicate (nameStream.str ().c_str ());
 }
 
-static MethodInfo* ConstructArrayMethod (TypeInfo* declaringType, const char* name, const Il2CppType* returnType, uint8_t parameterCount, const Il2CppType** parameterTypes)
+static MethodInfo* ConstructArrayMethod (Il2CppClass* declaringType, const char* name, const Il2CppType* returnType, uint8_t parameterCount, const Il2CppType** parameterTypes)
 {
 	MethodInfo* method = (MethodInfo*)MetadataCalloc (1, sizeof (MethodInfo));
 	method->declaring_type = declaringType;
@@ -101,15 +101,15 @@ typedef vector<GenericArrayMethod> GenericArrayMethods;
 static GenericArrayMethods s_GenericArrayMethods;
 
 static size_t GetArrayGenericMethodsCount ();
-static void PopulateArrayGenericMethods (TypeInfo* klass, uint16_t offset, const GenericArrayMethods& genericArrayMethods);
+static void PopulateArrayGenericMethods (Il2CppClass* klass, uint16_t offset, const GenericArrayMethods& genericArrayMethods);
 
-static void CollectImplicitArrayInterfaces (TypeInfo* elementClass, ::std::vector<TypeInfo*>& interfaces);
+static void CollectImplicitArrayInterfaces (Il2CppClass* elementClass, ::std::vector<Il2CppClass*>& interfaces);
 
-static void SetupArrayMethods (TypeInfo* arrayClass)
+static void SetupArrayMethods (Il2CppClass* arrayClass)
 {
 	size_t methodIndex = 0;
 	uint8_t rank = arrayClass->rank;
-	::std::vector<TypeInfo*> interfaces;
+	::std::vector<Il2CppClass*> interfaces;
 	CollectImplicitArrayInterfaces (arrayClass, interfaces);
 
 	size_t methodCount = 3 + (rank > 1 ? 2 : 1) + interfaces.size () * GetArrayGenericMethodsCount ();
@@ -150,17 +150,17 @@ static void SetupArrayMethods (TypeInfo* arrayClass)
 	PopulateArrayGenericMethods (arrayClass, static_cast<uint16_t>(methodIndex), s_GenericArrayMethods);
 }
 
-static void CollectImplicitArrayInterfaces (TypeInfo* arrayClass, ::std::vector<TypeInfo*>& interfaces)
+static void CollectImplicitArrayInterfaces (Il2CppClass* arrayClass, ::std::vector<Il2CppClass*>& interfaces)
 {
 	if (arrayClass->byval_arg->type != IL2CPP_TYPE_SZARRAY)
 		return;
 
-	TypeInfo* elementClass = arrayClass->element_class;
+	Il2CppClass* elementClass = arrayClass->element_class;
 	while (elementClass != NULL)
 	{
 		interfaces.push_back (elementClass);
 		void* iter = NULL;
-		while (TypeInfo* itf = Class::GetInterfaces (elementClass, &iter))
+		while (Il2CppClass* itf = Class::GetInterfaces (elementClass, &iter))
 			interfaces.push_back (itf);
 
 		elementClass = Class::GetParent (elementClass);
@@ -183,7 +183,7 @@ static void CollectGenericArrayMethods (GenericArrayMethods& genericArrayMethods
 		std::string name;
 		std::string methodName;
 
-		TypeInfo* implementingInterface = NULL;
+		Il2CppClass* implementingInterface = NULL;
 		if (!strncmp (method->name, "InternalArray__ICollection_", 27))
 		{
 			implementingInterface = il2cpp_defaults.generic_icollection_class;
@@ -223,7 +223,7 @@ static size_t GetArrayGenericMethodsCount ()
 	return s_GenericArrayMethods.size ();
 }
 
-static MethodInfo* ConstructGenericArrayMethod (const GenericArrayMethod& genericArrayMethod, TypeInfo* klass, Il2CppGenericContext* context)
+static MethodInfo* ConstructGenericArrayMethod (const GenericArrayMethod& genericArrayMethod, Il2CppClass* klass, Il2CppGenericContext* context)
 {
 	MethodInfo* inflatedMethod = (MethodInfo*)MetadataCalloc (1, sizeof (MethodInfo));
 	inflatedMethod->name = StringUtils::StringDuplicate (genericArrayMethod.name.c_str ());
@@ -251,15 +251,15 @@ static MethodInfo* ConstructGenericArrayMethod (const GenericArrayMethod& generi
 	return inflatedMethod;
 }
 
-static void PopulateArrayGenericMethods (TypeInfo* klass, uint16_t offset, const GenericArrayMethods& genericArrayMethods)
+static void PopulateArrayGenericMethods (Il2CppClass* klass, uint16_t offset, const GenericArrayMethods& genericArrayMethods)
 {
 	for (int i = 0; i < klass->interface_offsets_count; i++)
 	{
-		TypeInfo* interfaceType = klass->interfaceOffsets[i].interfaceType;
+		Il2CppClass* interfaceType = klass->interfaceOffsets[i].interfaceType;
 		if (!interfaceType->generic_class)
 			continue;
 
-		TypeInfo* interfaceDefinition = GenericClass::GetTypeDefinition (interfaceType->generic_class);
+		Il2CppClass* interfaceDefinition = GenericClass::GetTypeDefinition (interfaceType->generic_class);
 
 		Il2CppGenericContext context = { 0 };
 		Il2CppTypeVector types;
@@ -278,12 +278,12 @@ static void PopulateArrayGenericMethods (TypeInfo* klass, uint16_t offset, const
 	}
 }
 
-static void SetupArrayVTableAndInterfaceOffsets (TypeInfo* klass)
+static void SetupArrayVTableAndInterfaceOffsets (Il2CppClass* klass)
 {
-	TypeInfo* arrayClass = Class::GetParent (klass);
+	Il2CppClass* arrayClass = Class::GetParent (klass);
 	size_t arrayInterfacesCount = arrayClass->interface_offsets_count;
 
-	::std::vector<TypeInfo*> interfaces;
+	::std::vector<Il2CppClass*> interfaces;
 
 	if (klass->byval_arg->type == IL2CPP_TYPE_SZARRAY)
 	{
@@ -300,7 +300,7 @@ static void SetupArrayVTableAndInterfaceOffsets (TypeInfo* klass)
 
 	size_t index = arrayInterfacesCount;
 	int32_t vtableSlot = arrayVTableSlot;
-	for (::std::vector<TypeInfo*>::iterator iter = interfaces.begin (); iter != interfaces.end (); iter++, index += 3)
+	for (::std::vector<Il2CppClass*>::iterator iter = interfaces.begin (); iter != interfaces.end (); iter++, index += 3)
 	{
 		Il2CppTypeVector genericArguments;
 		genericArguments.push_back ((*iter)->byval_arg);
@@ -325,9 +325,9 @@ static void SetupArrayVTableAndInterfaceOffsets (TypeInfo* klass)
 	klass->interfaceOffsets = newInterfaceOffsets;
 }
 
-void SetupCastClass (TypeInfo *arrayType)
+void SetupCastClass (Il2CppClass *arrayType)
 {
-	TypeInfo *elementType = arrayType->element_class;
+	Il2CppClass *elementType = arrayType->element_class;
 
 	if (elementType->enumtype)
 		arrayType->castClass = elementType->element_class;
@@ -360,7 +360,7 @@ void SetupCastClass (TypeInfo *arrayType)
 	arrayType->has_references = Type::IsReference (elementType->byval_arg) || elementType->has_references;
 }
 
-void ArrayMetadata::SetupArrayInterfaces (TypeInfo* klass, const FastAutoLock& lock)
+void ArrayMetadata::SetupArrayInterfaces (Il2CppClass* klass, const FastAutoLock& lock)
 {
 	if (klass->byval_arg->type == IL2CPP_TYPE_SZARRAY)
 	{
@@ -368,7 +368,7 @@ void ArrayMetadata::SetupArrayInterfaces (TypeInfo* klass, const FastAutoLock& l
 		genericArguments.push_back (klass->element_class->byval_arg);
 
 		assert (klass->interfaces_count == 3);
-		klass->implementedInterfaces = (TypeInfo**)MetadataMalloc (klass->interfaces_count * sizeof (TypeInfo*));
+		klass->implementedInterfaces = (Il2CppClass**)MetadataMalloc (klass->interfaces_count * sizeof (Il2CppClass*));
 		klass->implementedInterfaces[0] = Class::GetInflatedGenericInstanceClass (il2cpp_defaults.generic_ilist_class, genericArguments);
 		assert (klass->implementedInterfaces[0]);
 		klass->implementedInterfaces[1] = Class::GetInflatedGenericInstanceClass (il2cpp_defaults.generic_icollection_class, genericArguments);
@@ -378,7 +378,7 @@ void ArrayMetadata::SetupArrayInterfaces (TypeInfo* klass, const FastAutoLock& l
 	}
 }
 
-void ArrayMetadata::SetupArrayVTable (TypeInfo* klass, const FastAutoLock& lock)
+void ArrayMetadata::SetupArrayVTable (Il2CppClass* klass, const FastAutoLock& lock)
 {
 	// we assume we are being called as part of Class::Init and that the element class has already been initialized
 	assert (klass->element_class->initialized);
@@ -395,7 +395,7 @@ void ArrayMetadata::SetupArrayVTable (TypeInfo* klass, const FastAutoLock& lock)
 
 struct SZArrayClassHash
 {
-	size_t operator( ) (const TypeInfo* arrayClass) const
+	size_t operator( ) (const Il2CppClass* arrayClass) const
 	{
 		return Il2CppTypeHash::Hash (arrayClass->byval_arg);
 	}
@@ -403,7 +403,7 @@ struct SZArrayClassHash
 
 struct SZArrayClassCompare
 {
-	bool operator() (const TypeInfo* arrayClass1, const TypeInfo* arrayClass2) const
+	bool operator() (const Il2CppClass* arrayClass1, const Il2CppClass* arrayClass2) const
 	{
 		return Il2CppTypeCompare::Compare (arrayClass1->byval_arg, arrayClass2->byval_arg);
 	}
@@ -411,7 +411,7 @@ struct SZArrayClassCompare
 
 struct SZArrayClassLess
 {
-	bool operator() (const TypeInfo* arrayClass1, const TypeInfo* arrayClass2) const
+	bool operator() (const Il2CppClass* arrayClass1, const Il2CppClass* arrayClass2) const
 	{
 		return Il2CppTypeLess::Compare (arrayClass1->byval_arg, arrayClass2->byval_arg);
 	}
@@ -419,7 +419,7 @@ struct SZArrayClassLess
 
 struct ArrayClassHash
 {
-	size_t operator( ) (const std::pair<TypeInfo*, uint32_t> arrayClass) const
+	size_t operator( ) (const std::pair<Il2CppClass*, uint32_t> arrayClass) const
 	{
 		return Il2CppTypeHash::Hash (arrayClass.first->byval_arg) * arrayClass.second;
 	}
@@ -427,7 +427,7 @@ struct ArrayClassHash
 
 struct ArrayClassCompare
 {
-	bool operator() (const std::pair<TypeInfo*, uint32_t> arrayClass1, const std::pair<TypeInfo*, uint32_t> arrayClass2) const
+	bool operator() (const std::pair<Il2CppClass*, uint32_t> arrayClass1, const std::pair<Il2CppClass*, uint32_t> arrayClass2) const
 	{
 		return Il2CppTypeCompare::Compare (arrayClass1.first->byval_arg, arrayClass2.first->byval_arg) && arrayClass1.second == arrayClass2.second;
 	}
@@ -435,20 +435,20 @@ struct ArrayClassCompare
 
 struct ArrayClassLess
 {
-	bool operator() (const std::pair<TypeInfo*, uint32_t> arrayClass1, const std::pair<TypeInfo*, uint32_t> arrayClass2) const
+	bool operator() (const std::pair<Il2CppClass*, uint32_t> arrayClass1, const std::pair<Il2CppClass*, uint32_t> arrayClass2) const
 	{
 		return Il2CppTypeLess::Compare (arrayClass1.first->byval_arg, arrayClass2.first->byval_arg) && arrayClass1.second == arrayClass2.second;
 	}
 };
 
-typedef unordered_map<TypeInfo*, TypeInfo*,
+typedef unordered_map<Il2CppClass*, Il2CppClass*,
 #if IL2CPP_HAS_UNORDERED_CONTAINER
 	SZArrayClassHash, SZArrayClassCompare
 #else
 	SZArrayClassLess
 #endif
 	> SZArrayClassMap;
-typedef unordered_map<std::pair<TypeInfo*, uint32_t>, TypeInfo*,
+typedef unordered_map<std::pair<Il2CppClass*, uint32_t>, Il2CppClass*,
 #if IL2CPP_HAS_UNORDERED_CONTAINER
 	ArrayClassHash, ArrayClassCompare
 #else
@@ -459,7 +459,7 @@ typedef unordered_map<std::pair<TypeInfo*, uint32_t>, TypeInfo*,
 SZArrayClassMap s_SZArrayClassMap;
 ArrayClassMap s_ArrayClassMap;
 
-TypeInfo* ArrayMetadata::GetBoundedArrayClass (TypeInfo* elementClass, uint32_t rank, bool bounded)
+Il2CppClass* ArrayMetadata::GetBoundedArrayClass (Il2CppClass* elementClass, uint32_t rank, bool bounded)
 {
 	FastAutoLock lock (&il2cpp::vm::g_MetadataLock);
 	NOT_IMPLEMENTED_NO_ASSERT (ArrayMetadata::GetBoundedArrayClass, "Use more granular lock for looking up arrays, but then handle race between lookup, construction, and caching");
@@ -482,10 +482,10 @@ TypeInfo* ArrayMetadata::GetBoundedArrayClass (TypeInfo* elementClass, uint32_t 
 			return iter->second;
 	}
 
-	TypeInfo* arrayClass = il2cpp_defaults.array_class;
+	Il2CppClass* arrayClass = il2cpp_defaults.array_class;
 	Class::Init (arrayClass);
 
-	TypeInfo* klass = (TypeInfo*)MetadataCalloc (1, sizeof (TypeInfo));
+	Il2CppClass* klass = (Il2CppClass*)MetadataCalloc (1, sizeof (Il2CppClass));
 	klass->image = elementClass->image;
 	// can share the const char* since it's immutable
 	klass->namespaze = elementClass->namespaze;

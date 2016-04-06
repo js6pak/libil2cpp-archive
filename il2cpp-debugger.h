@@ -2,7 +2,7 @@
 
 #include "il2cpp-config.h"
 
-struct TypeInfo;
+struct Il2CppClass;
 struct MethodInfo;
 struct Il2CppThread;
 struct Il2CppDomain;
@@ -25,7 +25,7 @@ void il2cpp_debugger_notify_assembly_load(const Il2CppAssembly *assembly);
 void il2cpp_debugger_sequence_point_hit(int64_t uid, int32_t offset);
 void il2cpp_debugger_notify_thread_attach(Il2CppThread *thread);
 void il2cpp_debugger_notify_thread_detach(Il2CppThread *thread);
-void il2cpp_debugger_notify_type_load(TypeInfo *type);
+void il2cpp_debugger_notify_type_load(Il2CppClass *type);
 void il2cpp_debugger_method_entry(const Il2CppStackFrameInfo &info);
 void il2cpp_debugger_method_exit(const Il2CppStackFrameInfo &info);
 #endif
