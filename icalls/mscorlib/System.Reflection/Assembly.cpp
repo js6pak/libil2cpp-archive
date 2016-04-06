@@ -91,7 +91,7 @@ Il2CppReflectionType* Assembly::InternalGetType(Il2CppReflectionAssembly *assemb
 
 	CHECK_IF_NULL (image);
 
-	TypeInfo *klass = Image::FromTypeNameParseInfo (image, info, ignoreCase);
+	Il2CppClass *klass = Image::FromTypeNameParseInfo (image, info, ignoreCase);
 
 	CHECK_IF_NULL (klass);
 
@@ -116,7 +116,7 @@ Il2CppReflectionAssembly* Assembly::load_with_partial_name(Il2CppString* name, m
 void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflection_AssemblyName * aname)
 {
 	Il2CppObject* assemblyNameObject = reinterpret_cast<Il2CppObject*>(aname);
-	TypeInfo* assemblyNameType = assemblyNameObject->klass;
+	Il2CppClass* assemblyNameType = assemblyNameObject->klass;
 	const Il2CppAssemblyName* assemblyName = &ass->assembly->aname;
 
 	// System.Reflection.AssemblyName is not protected from stripping. Since this call will be used
@@ -162,7 +162,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 	field = Class::GetFieldFromName(assemblyNameType, "cultureinfo");
 	if (field != NULL)
 	{
-		TypeInfo* cultureInfoType = Class::FromIl2CppType(field->type);
+		Il2CppClass* cultureInfoType = Class::FromIl2CppType(field->type);
 		FieldInfo* invariantCultureField = Class::GetFieldFromName(cultureInfoType, "invariant_culture_info");
 		Il2CppObject* invariantCulture = NULL;
 
@@ -217,7 +217,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 	field = Class::GetFieldFromName(assemblyNameType, "version");
 	if (field != NULL)
 	{
-		TypeInfo* versionType = Class::FromIl2CppType(field->type);
+		Il2CppClass* versionType = Class::FromIl2CppType(field->type);
 		Il2CppObject* version = Object::New(versionType);
 
 		FieldInfo* versionField = Class::GetFieldFromName(versionType, "_Major");

@@ -11,7 +11,7 @@
 #include "../os/Thread.h"
 
 struct Il2CppAssembly;
-struct TypeInfo;
+struct Il2CppClass;
 struct Il2CppObject;
 struct Il2CppImage;
 struct Il2CppDomain;

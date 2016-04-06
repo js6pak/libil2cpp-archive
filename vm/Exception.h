@@ -6,7 +6,7 @@
 
 struct Il2CppException;
 struct Il2CppImage;
-struct TypeInfo;
+struct Il2CppClass;
 
 namespace il2cpp
 {
@@ -73,7 +73,7 @@ public:
 
 	static std::string FormatException(const Il2CppException* ex);
 	static std::string FormatStackTrace(const Il2CppException* ex);
-	static std::string FormatInvalidCastException(const TypeInfo* fromType, const TypeInfo* toType);
+	static std::string FormatInvalidCastException(const Il2CppClass* fromType, const Il2CppClass* toType);
 };
 
 } /* namespace vm */

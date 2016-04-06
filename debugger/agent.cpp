@@ -376,7 +376,7 @@ void Agent::NotifyAssemblyLoad(const Il2CppAssembly *assembly)
 	LOG("Done notifying AssemblyLoad " << (uintptr_t)assembly);
 }
 
-void Agent::NotifyTypeLoad(TypeInfo *type)
+void Agent::NotifyTypeLoad(Il2CppClass *type)
 {
 	LOG("Notifying TypeLoad " << il2cpp_class_get_namespace(type) << "." << il2cpp_class_get_name(type));
 
@@ -521,7 +521,7 @@ void Agent::NotifyTypeLoadPendingEvents()
 
 	_is_notifying_pending_events = true;
 
-	std::set<TypeInfo*>::const_iterator dit = _pending_types.begin();
+	std::set<Il2CppClass*>::const_iterator dit = _pending_types.begin();
 
 	while(dit != _pending_types.end())
 	{

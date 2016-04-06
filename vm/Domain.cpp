@@ -34,7 +34,7 @@ Il2CppDomain* Domain::GetRoot ()
 
 void Domain::ContextInit (Il2CppDomain *domain)
 {
-	TypeInfo* klass = Class::FromName (il2cpp_defaults.corlib, "System.Runtime.Remoting.Contexts", "Context");
+	Il2CppClass* klass = Class::FromName (il2cpp_defaults.corlib, "System.Runtime.Remoting.Contexts", "Context");
 	Il2CppAppContext* context = (Il2CppAppContext*)Object::New (klass);
 
 	// To match Mono's implementation we do not call the constructor here. If we do, context_id will be 1, which

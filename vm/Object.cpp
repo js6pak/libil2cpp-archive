@@ -5,8 +5,10 @@
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
+#include "vm/MetadataCache.h"
 #include "vm/Object.h"
 #include "vm/Profiler.h"
+#include "vm/RCW.h"
 #include "vm/Runtime.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
@@ -44,7 +46,7 @@ namespace il2cpp
 namespace vm
 {
 
-Il2CppObject * Object::Allocate (size_t size, TypeInfo *typeInfo)
+Il2CppObject * Object::Allocate (size_t size, Il2CppClass *typeInfo)
 {
 	assert (typeInfo->initialized);
 	Il2CppObject *o;
@@ -55,7 +57,7 @@ Il2CppObject * Object::Allocate (size_t size, TypeInfo *typeInfo)
 	return o;
 }
 
-Il2CppObject * Object::AllocatePtrFree (size_t size, TypeInfo *typeInfo)
+Il2CppObject * Object::AllocatePtrFree (size_t size, Il2CppClass *typeInfo)
 {
 	assert (typeInfo->initialized);
 	Il2CppObject *o;
@@ -66,7 +68,7 @@ Il2CppObject * Object::AllocatePtrFree (size_t size, TypeInfo *typeInfo)
 	return o;
 }
 
-Il2CppObject * Object::AllocateSpec (size_t size, TypeInfo *typeInfo)
+Il2CppObject * Object::AllocateSpec (size_t size, Il2CppClass *typeInfo)
 {
 	assert (typeInfo->initialized);
 	Il2CppObject *o;
@@ -77,7 +79,7 @@ Il2CppObject * Object::AllocateSpec (size_t size, TypeInfo *typeInfo)
 	return o;
 }
 
-Il2CppObject* Object::Box (TypeInfo *typeInfo, void* val)
+Il2CppObject* Object::Box (Il2CppClass *typeInfo, void* val)
 {
 	Class::Init (typeInfo);
 	if (!typeInfo->valuetype)
@@ -138,7 +140,7 @@ Il2CppObject* Object::Clone (Il2CppObject *obj)
 	return o;
 }
 
-TypeInfo* Object::GetClass (Il2CppObject* obj)
+Il2CppClass* Object::GetClass (Il2CppObject* obj)
 {
 	return obj->klass;
 }
@@ -159,7 +161,7 @@ int32_t Object::GetHash (Il2CppObject* obj)
 
 uint32_t Object::GetSize (Il2CppObject* obj)
 {
-	TypeInfo* klass = GetClass (obj);
+	Il2CppClass* klass = GetClass (obj);
 	if (klass == il2cpp_defaults.string_class) {
 		return sizeof (Il2CppString) + 2 * String::GetLength ((Il2CppString*) obj) + 2;
 	} else if (obj->klass->rank) {
@@ -178,7 +180,7 @@ uint32_t Object::GetSize (Il2CppObject* obj)
 
 const MethodInfo* Object::GetVirtualMethod (Il2CppObject *obj, const MethodInfo *method)
 {
-	TypeInfo* typeInfo = obj->klass;
+	Il2CppClass* typeInfo = obj->klass;
 	const MethodInfo **vtable = typeInfo->vtable;
 	const MethodInfo *res = NULL;
 
@@ -194,7 +196,7 @@ const MethodInfo* Object::GetVirtualMethod (Il2CppObject *obj, const MethodInfo 
 }
 
 
-Il2CppObject* Object::IsInst (Il2CppObject *obj, TypeInfo *klass)
+Il2CppObject* Object::IsInst (Il2CppObject *obj, Il2CppClass *klass)
 {
 	NOT_IMPLEMENTED_NO_ASSERT (Object::IsInst, "Review commented code");
 	//if (!klass->inited)
@@ -206,16 +208,34 @@ Il2CppObject* Object::IsInst (Il2CppObject *obj, TypeInfo *klass)
 	if (!obj)
 		return NULL;
 
-	return Class::IsAssignableFrom (klass, Object::GetClass (obj)) ? obj : NULL;
+	if (Class::IsAssignableFrom (klass, Object::GetClass (obj)))
+		return obj;
+
+	// check if klass is a com interface and obj is a rcw object
+	if (Class::IsInterface (klass) && klass->is_import && Class::HasParent (obj->klass, il2cpp_defaults.il2cpp_com_object_class))
+	{
+		const Il2CppGuid* iid = MetadataCache::GetGuid (klass->typeDefinition->guidIndex);
+		if (iid)
+		{
+			Il2CppIUnknown* unknown = RCW::QueryInterface (static_cast<Il2CppComObject*> (obj), *iid, false);
+			if (unknown)
+			{
+				unknown->Release ();
+				return static_cast<Il2CppComObject*> (obj);
+			}
+		}
+	}
+
+	return NULL;
 }
 
-Il2CppObject* Object::New (TypeInfo *klass)
+Il2CppObject* Object::New (Il2CppClass *klass)
 {
 	// same as NewAllocSpecific as we only support a single domain
 	return NewAllocSpecific (klass);
 }
 
-Il2CppObject* Object::NewPinned (TypeInfo *klass)
+Il2CppObject* Object::NewPinned (Il2CppClass *klass)
 {
 #if (IL2CPP_GC_BOEHM || IL2CPP_GC_NULL)
 	return New (klass);
@@ -224,7 +244,7 @@ Il2CppObject* Object::NewPinned (TypeInfo *klass)
 #endif
 }
 
-Il2CppObject * Object::NewAllocSpecific (TypeInfo *klass)
+Il2CppObject * Object::NewAllocSpecific (Il2CppClass *klass)
 {
 	Il2CppObject *o = NULL;
 
@@ -255,7 +275,7 @@ Il2CppObject * Object::NewAllocSpecific (TypeInfo *klass)
 }
 
 
-Il2CppObject* Object::NewPtrFree (TypeInfo *klass)
+Il2CppObject* Object::NewPtrFree (Il2CppClass *klass)
 {
 	Il2CppObject *obj = {0};
 
@@ -291,7 +311,7 @@ void* Object::Unbox (Il2CppObject* obj)
 	return val;
 }
 
-void Object::UnboxNullable(Il2CppObject* obj, TypeInfo* klass, void* storage)
+void Object::UnboxNullable(Il2CppObject* obj, Il2CppClass* klass, void* storage)
 {
 	uint32_t valueSize = il2cpp::vm::Class::GetNullableArgument(klass)->instance_size - sizeof(Il2CppObject);
 

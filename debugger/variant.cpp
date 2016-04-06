@@ -198,7 +198,7 @@ ErrorCode Variant::ReadInto(Buffer &in, const Il2CppType *expected_type, void *a
 			
 			assert(!is_enum && "Variant::ReadFrom: is_enum not implemented!");
 
-			TypeInfo *klass = in.ReadType();
+			Il2CppClass *klass = in.ReadType();
 
 			void *iter = 0;
 			FieldInfo *field;
@@ -288,7 +288,7 @@ void VTypeVariant::WriteTo(Buffer &out) const
 		case IL2CPP_TYPE_VALUETYPE:
 			{
 				FieldInfo *field_info;
-				TypeInfo *klass = il2cpp_class_from_il2cpp_type(type());
+				Il2CppClass *klass = il2cpp_class_from_il2cpp_type(type());
 
 				out.WriteByte(IL2CPP_TYPE_VALUETYPE);
 				out.WriteByte(klass->enumtype);

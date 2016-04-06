@@ -41,7 +41,7 @@ Il2CppArray * MonoCustomAttrs::GetCustomAttributesInternal(Il2CppObject* obj, Il
 		return result;
 	}
 
-	TypeInfo* attributeClass = Class::FromIl2CppType (type->type);
+	Il2CppClass* attributeClass = Class::FromIl2CppType (type->type);
 	int count = 0;
 	for (int i = 0; i < cinfo->count; i++)
 	{

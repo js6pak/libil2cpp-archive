@@ -11,7 +11,7 @@ struct Il2CppArray;
 struct Il2CppDelegate;
 struct Il2CppObject;
 struct MethodInfo;
-struct TypeInfo;
+struct Il2CppClass;
 
 struct VirtualInvokeData
 {
@@ -43,8 +43,8 @@ public:
 	static void SetUnhandledExceptionPolicy (Il2CppRuntimeUnhandledExceptionPolicy value);
 
 	static VirtualInvokeData GetVirtualInvokeData (Il2CppMethodSlot slot, void* obj);
-	static VirtualInvokeData GetInterfaceInvokeData (Il2CppMethodSlot slot, TypeInfo* declaringInterface, void* obj);
-	static VirtualInvokeData GetComInterfaceInvokeData (Il2CppMethodSlot slot, TypeInfo* declaringInterface, void* obj);
+	static VirtualInvokeData GetInterfaceInvokeData (Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj);
+	static VirtualInvokeData GetComInterfaceInvokeData (Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj);
 	static VirtualInvokeData GetGenericVirtualInvokeData (const MethodInfo* method, void* obj);
 	static VirtualInvokeData GetGenericInterfaceInvokeData (const MethodInfo* method, void* obj);
 
@@ -54,7 +54,7 @@ public:
 	// internal
 	static Il2CppRuntimeUnhandledExceptionPolicy GetUnhandledExceptionPolicy ();
 	static void UnhandledException (Il2CppObject* exc);
-	static void ClassInit (TypeInfo *klass);
+	static void ClassInit (Il2CppClass *klass);
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 	struct MethodDefinitionKey
