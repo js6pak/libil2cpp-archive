@@ -27,7 +27,7 @@ namespace System
 
 void MonoEnumInfo::get_enum_info(Il2CppReflectionType* type,Il2CppEnumInfo* info)
 {
-	TypeInfo* enumType = Class::FromIl2CppType(type->type);
+	Il2CppClass* enumType = Class::FromIl2CppType(type->type);
 	
 	size_t nvalues = Class::GetNumFields (enumType) ? Class::GetNumFields (enumType) - 1 : 0;
 	

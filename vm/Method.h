@@ -10,7 +10,7 @@ struct ParameterInfo;
 
 struct Il2CppString;
 struct Il2CppType;
-struct TypeInfo;
+struct Il2CppClass;
 struct Il2CppDebugMethodInfo;
 
 namespace il2cpp
@@ -29,9 +29,9 @@ public:
 	static bool IsInstance (const MethodInfo *method);
 	static uint32_t GetParamCount (const MethodInfo *method);
 	static const Il2CppType* GetParam (const MethodInfo *method, uint32_t index);
-	static TypeInfo* GetClass (const MethodInfo *method);
-	static bool HasAttribute (const MethodInfo *method, TypeInfo *attr_class);
-	static TypeInfo *GetDeclaringType (const MethodInfo* method);
+	static Il2CppClass* GetClass (const MethodInfo *method);
+	static bool HasAttribute (const MethodInfo *method, Il2CppClass *attr_class);
+	static Il2CppClass *GetDeclaringType (const MethodInfo* method);
 	static const Il2CppDebugMethodInfo *GetDebugInfo (const MethodInfo *method);
 	static uint32_t GetImplementationFlags (const MethodInfo *method);
 	static uint32_t GetFlags (const MethodInfo *method);

@@ -22,7 +22,7 @@ Il2CppObject* Parameter::GetDefaultParameterValueObject(const MethodInfo* method
 	if (data == NULL)
 		return NULL;
 
-	TypeInfo* parameterType = Class::FromIl2CppType(parameter->parameter_type);
+	Il2CppClass* parameterType = Class::FromIl2CppType(parameter->parameter_type);
 	if (parameterType->valuetype)
 	{
 		Class::SetupFields(parameterType);

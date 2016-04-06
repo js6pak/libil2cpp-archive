@@ -30,7 +30,7 @@ namespace Reflection
 
 Il2CppReflectionType * MonoField::GetParentType (Il2CppReflectionField * field, bool declaring)
 {
-	TypeInfo *parent;
+	Il2CppClass *parent;
 
 	parent = declaring ? field->field->parent: field->klass;
 
@@ -50,7 +50,7 @@ Il2CppObject* MonoField::GetValueInternal (Il2CppReflectionField * field, Il2Cpp
 void MonoField::SetValueInternal (Il2CppReflectionField* field, Il2CppObject* obj, Il2CppObject* value)
 {
 	FieldInfo* fieldInfo = field->field;
-	TypeInfo* fieldType = Class::FromIl2CppType(fieldInfo->type);
+	Il2CppClass* fieldType = Class::FromIl2CppType(fieldInfo->type);
 
 	if (value != NULL && !Class::IsAssignableFrom(fieldType, value->klass))
 	{
@@ -97,7 +97,7 @@ void MonoField::SetValueInternal (Il2CppReflectionField* field, Il2CppObject* ob
 		}
 		else
 		{
-			TypeInfo* nullableArg = Class::GetNullableArgument(fieldType);
+			Il2CppClass* nullableArg = Class::GetNullableArgument(fieldType);
 			uint32_t valueSize = Class::GetInstanceSize(nullableArg) - sizeof(Il2CppObject);
 
 			if (value != NULL)

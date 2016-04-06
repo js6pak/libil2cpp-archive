@@ -15,6 +15,7 @@
 #include "vm/MarshalAlloc.h"
 #include "vm/Object.h"
 #include "vm/PlatformInvoke.h"
+#include "vm/RCW.h"
 #include "vm/String.h"
 #include "vm/Type.h"
 #include "utils/StringUtils.h"
@@ -105,7 +106,7 @@ int32_t Marshal::GetComSlotForMethodInfoInternal (mscorlib_System_Reflection_Mem
 
 Il2CppDelegate* Marshal::GetDelegateForFunctionPointerInternal(Il2CppIntPtr ptr, Il2CppReflectionType* t)
 {
-	TypeInfo* delegateType = il2cpp::vm::Class::FromIl2CppType(t->type);
+	Il2CppClass* delegateType = il2cpp::vm::Class::FromIl2CppType(t->type);
 	return PlatformInvoke::MarshalFunctionPointerToDelegate(ptr.m_value, delegateType);
 }
 
@@ -122,24 +123,13 @@ Il2CppIntPtr Marshal::GetIDispatchForObjectInternal (Il2CppObject* o)
 
 Il2CppIntPtr Marshal::GetIUnknownForObjectInternal (Il2CppObject* o)
 {
-	for (TypeInfo* klass = o->klass; klass; klass = klass->parent)
-	{
-		if (klass->is_import)
-		{
-			Il2CppIntPtr result;
-			result.m_value = static_cast<Il2CppRCW*>(o)->identity;
-			return result;
-		}
-	}
-
-	NOT_SUPPORTED_IL2CPP(Marshal::GetIUnknownForObjectInternal, "COM icalls are not supported.");
+	NOT_SUPPORTED_IL2CPP(Marshal::GetIUnknownForObjectInternal, "This icall is not supported by il2cpp. Use the il2cpp_codegen_com_get_iunknown_for_object intrinsic instead.");
 	return Il2CppIntPtr::Zero;
 }
 
 Il2CppObject* Marshal::GetObjectForCCW (Il2CppIntPtr pUnk)
 {
-	NOT_SUPPORTED_IL2CPP(Marshal::GetObjectForCCW, "COM icalls are not supported.");
-	return 0;
+	return RCW::Create(static_cast<Il2CppIUnknown*>(pUnk.m_value));
 }
 
 Il2CppString* Marshal::PtrToStringBSTR (Il2CppIntPtr ptr)
@@ -197,7 +187,7 @@ Il2CppObject* Marshal::PtrToStructure (Il2CppIntPtr ptr, Il2CppReflectionType* s
 	if (structureType == NULL)
 		Exception::Raise(Exception::GetArgumentNullException("structureType"));
 
-	TypeInfo* type = Class::FromIl2CppType(structureType->type);
+	Il2CppClass* type = Class::FromIl2CppType(structureType->type);
 
 	Il2CppTypeEnum typeType = structureType->type->type;
 
@@ -258,7 +248,7 @@ void Marshal::PtrToStructureObject(Il2CppIntPtr ptr, Il2CppObject* structure)
 	if (structure == NULL)
 		Exception::Raise(Exception::GetArgumentNullException("structure"));
 
-	TypeInfo* type = structure->klass;
+	Il2CppClass* type = structure->klass;
 
 	// This is only legal for classes.
 	if (type->byval_arg->type != IL2CPP_TYPE_CLASS)
@@ -331,7 +321,7 @@ int Marshal::SizeOf(Il2CppReflectionType* rtype)
 	if (rtype == NULL)
 		Exception::Raise(Exception::GetArgumentNullException("t"));
 
-	TypeInfo* typeInfo = Class::FromIl2CppType(rtype->type);
+	Il2CppClass* typeInfo = Class::FromIl2CppType(rtype->type);
 
 	if (typeInfo->native_size != -1)
 	{
@@ -396,7 +386,7 @@ void Marshal::StructureToPtr(Il2CppObject* structure, Il2CppIntPtr ptr, bool del
 	if (ptr.m_value == NULL)
 		Exception::Raise(Exception::GetArgumentNullException("ptr"));
 
-	TypeInfo* type = structure->klass;
+	Il2CppClass* type = structure->klass;
 
 	if (type->typeDefinition != NULL && type->typeDefinition->marshalingFunctionsIndex != -1)
 	{
@@ -475,7 +465,7 @@ void Marshal::DestroyStructure (Il2CppIntPtr ptr, Il2CppReflectionType* structur
 	if (structureType == NULL)
 		Exception::Raise(Exception::GetArgumentNullException("structureType"));
 
-	TypeInfo* type = Class::FromIl2CppType(structureType->type);
+	Il2CppClass* type = Class::FromIl2CppType(structureType->type);
 
 	// If cleanup function exists, it will call it and return true
 	// In that case, we're done.
@@ -515,7 +505,7 @@ static size_t RoundUpToMultiple(size_t numToRound, size_t multiple)
 Il2CppIntPtr Marshal::OffsetOf (Il2CppReflectionType* t, Il2CppString* fieldName)
 {
 	std::string fieldNameToFind = utils::StringUtils::Utf16ToUtf8(fieldName->chars);
-	TypeInfo* type = Class::FromIl2CppType(t->type);
+	Il2CppClass* type = Class::FromIl2CppType(t->type);
 
 	FieldInfo* field = vm::Class::GetFieldFromName(type, fieldNameToFind.c_str());
 	if (field == NULL || (vm::Field::GetFlags(field) & FIELD_ATTRIBUTE_STATIC))
@@ -526,7 +516,7 @@ Il2CppIntPtr Marshal::OffsetOf (Il2CppReflectionType* t, Il2CppString* fieldName
 	}
 
 	// Order the base classes so the most base class is first.
-	std::deque<TypeInfo*> inheritanceHierarchy;
+	std::deque<Il2CppClass*> inheritanceHierarchy;
 	while (type)
 	{
 		inheritanceHierarchy.push_front(type);
@@ -537,7 +527,7 @@ Il2CppIntPtr Marshal::OffsetOf (Il2CppReflectionType* t, Il2CppString* fieldName
 
 	size_t offset = 0;
 	FieldInfo* previousField = NULL;
-	for (std::deque<TypeInfo*>::iterator it = inheritanceHierarchy.begin(); it < inheritanceHierarchy.end(); ++it)
+	for (std::deque<Il2CppClass*>::iterator it = inheritanceHierarchy.begin(); it < inheritanceHierarchy.end(); ++it)
 	{
 		type = *it;
 		void* iter = NULL;

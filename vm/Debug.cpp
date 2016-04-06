@@ -55,7 +55,7 @@ const Il2CppDebugLocalsInfo **Debug::GetLocalsInfo (const Il2CppDebugMethodInfo*
 	return info->locals;
 }
 
-const TypeInfo *Debug::GetType (const Il2CppDebugLocalsInfo *info)
+const Il2CppClass *Debug::GetType (const Il2CppDebugLocalsInfo *info)
 {
 	return info->type;
 }
@@ -80,7 +80,7 @@ Il2CppObject *Debug::GetParamValue (const Il2CppStackFrameInfo *info, uint32_t p
 	assert(info != 0 && "Debug::GetParamValue cannot be invoked on a null Il2CppDebugMethodInfo." );
 	assert(position < info->method->parameters_count && "Debug::GetParamValue was invoked with an outside of range position");
 
-	TypeInfo *param_type = Type::GetClass (info->method->parameters[position].parameter_type);
+	Il2CppClass *param_type = Type::GetClass (info->method->parameters[position].parameter_type);
 	void *param_addr = info->params[position];
 
 	if(param_type->valuetype)
@@ -94,7 +94,7 @@ Il2CppObject *Debug::GetLocalValue (const Il2CppStackFrameInfo *info, uint32_t p
 	assert(info != 0 && "Debug::GetLocalValue cannot be invoked on a null Il2CppDebugMethodInfo." );
 	assert(position < info->locals_count && "Debug::GetLocalValue was invoked with an outside of range position");
 
-	TypeInfo *local_type = info->method->debug_info->locals[position]->type;
+	Il2CppClass *local_type = info->method->debug_info->locals[position]->type;
 	void *local_addr = info->locals[position];
 
 	if(local_type->valuetype)

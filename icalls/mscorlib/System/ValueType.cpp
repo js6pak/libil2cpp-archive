@@ -27,7 +27,7 @@ namespace System
 
 bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2CppArray** fields)
 {
-	TypeInfo *klass;
+	Il2CppClass *klass;
 	Il2CppObject **values = NULL;
 	Il2CppObject *o;
 	FieldInfo* field;
@@ -142,7 +142,7 @@ int ValueType::InternalGetHashCode (Il2CppObject* obj,Il2CppArray** fields)
 	FieldInfo* field = NULL;
 	void* iter = NULL;
 
-	TypeInfo* klass = Object::GetClass (obj);
+	Il2CppClass* klass = Object::GetClass (obj);
 
 	if (Class::GetNumFields (klass) == 0)
 		return Object::GetHash (obj);

@@ -60,7 +60,7 @@ const Reply *Agent::Process(const AssemblyGetTypeCommand *command)
 		name = command->name();
 	}
 
-	TypeInfo *type = il2cpp_class_from_name(
+	Il2CppClass *type = il2cpp_class_from_name(
 		il2cpp_assembly_get_image(command->assembly()),
 		ns.c_str(), name.c_str());
 	

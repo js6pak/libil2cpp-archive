@@ -880,6 +880,7 @@
     <ClInclude Include="vm\Atomic.h" />
     <ClInclude Include="vm\CCW.h" />
     <ClInclude Include="vm\Class.h" />
+    <ClInclude Include="vm\COM.h" />
     <ClInclude Include="vm\ComUtils.h" />
     <ClInclude Include="vm\Debug.h" />
     <ClInclude Include="vm\Domain.h" />
@@ -1194,6 +1195,7 @@
     <ClCompile Include="vm\Atomic.cpp" />
     <ClCompile Include="vm\CCW.cpp" />
     <ClCompile Include="vm\Class.cpp" />
+    <ClCompile Include="vm\COM.cpp" />
     <ClCompile Include="vm\Debug.cpp" />
     <ClCompile Include="vm\Domain.cpp" />
     <ClCompile Include="vm\Environment.cpp" />

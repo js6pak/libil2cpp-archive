@@ -21,14 +21,14 @@ namespace Reflection
 {
 
 
-static TypeInfo* il2cpp_class_get_generic_type_definition(TypeInfo *klass)
+static Il2CppClass* il2cpp_class_get_generic_type_definition(Il2CppClass *klass)
 {
 	return klass->generic_class ? il2cpp::vm::GenericClass::GetTypeDefinition (klass->generic_class) : klass;
 }
 
 Il2CppReflectionMethod * MethodBase::GetMethodFromHandleInternalType(Il2CppIntPtr method,Il2CppIntPtr type)
 {
-	TypeInfo *klass = NULL;
+	Il2CppClass *klass = NULL;
 	MethodInfo* methodInfo = (MethodInfo*)method.m_value;
 	if (type.m_value)
 	{

@@ -208,7 +208,7 @@ Il2CppArray* MonoIO::GetFileSystemEntries (Il2CppString* path, Il2CppString* pat
 
 	const std::set<std::string> entries(il2cpp::os::Directory::GetFileSystemEntries (pathString, pathPatternString, attrs, mask, error));
 
-	TypeInfo *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
+	Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
 	Il2CppArray* array = (Il2CppArray*)il2cpp::vm::Array::NewSpecific (klass, (il2cpp_array_size_t)entries.size());
 
 	size_t index = 0;
