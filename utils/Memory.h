@@ -7,7 +7,7 @@ namespace il2cpp
 namespace utils
 {
 
-struct Memory
+struct LIBIL2CPP_CODEGEN_API Memory
 {
 	static void SetMemoryCallbacks (Il2CppMemoryCallbacks* callbacks);
 

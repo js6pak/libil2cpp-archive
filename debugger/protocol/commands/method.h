@@ -15,7 +15,7 @@ struct MethodGetDeclaringTypeCommand : public CustomCommand<MethodGetDeclaringTy
 {
 	struct Reply : public CustomReply
 	{
-		Property<TypeInfo*> type;
+		Property<Il2CppClass*> type;
 
 		void WriteContentTo(Buffer &out) const
 		{
@@ -94,12 +94,12 @@ struct MethodGetParamInfoCommand : public CustomCommand<MethodGetParamInfoComman
 		struct ParamInfo
 		{
 			const char *name;
-			TypeInfo *type;
+			Il2CppClass *type;
 		};
 
 		Property<int32_t> call_convention;
 		Property<int32_t> generic_param_count;
-		Property<TypeInfo*> return_type;
+		Property<Il2CppClass*> return_type;
 
 		inline std::vector<ParamInfo> &params()
 		{
@@ -153,7 +153,7 @@ struct MethodGetLocalsInfoCommand : public CustomCommand<MethodGetLocalsInfoComm
 	{
 		struct LocalInfo
 		{
-			const TypeInfo *type;
+			const Il2CppClass *type;
 			std::string name;
 			uint32_t begin_scope;
 			uint32_t end_scope;

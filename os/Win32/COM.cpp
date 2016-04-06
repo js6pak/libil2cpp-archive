@@ -17,6 +17,12 @@ il2cpp_hresult_t COM::CreateInstance(const Il2CppGuid& clsid, Il2CppIUnknown** o
 	return ::CoCreateInstance(reinterpret_cast<REFCLSID>(clsid), NULL, CLSCTX_ALL, IID_IUnknown, reinterpret_cast<LPVOID*>(object));
 }
 
+il2cpp_hresult_t COM::CreateFreeThreadedMarshaler(Il2CppIUnknown* outer, Il2CppIUnknown** marshal)
+{
+	assert(marshal);
+	return ::CoCreateFreeThreadedMarshaler(reinterpret_cast<LPUNKNOWN>(outer), reinterpret_cast<LPUNKNOWN*>(marshal));
+}
+
 }
 }
 #endif
