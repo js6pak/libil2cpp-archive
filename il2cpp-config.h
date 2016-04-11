@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include "il2cpp-api-types.h"
 
 /* first setup platform defines*/
 #if defined(SN_TARGET_PSP2)
@@ -306,9 +307,6 @@
 #define NEED_TO_ZERO_PTRFREE 1
 #define IL2CPP_HAS_GC_DESCRIPTORS 1
 
-/* compiler specific macros*/
-typedef void (*methodPointerType)();
-
 #if defined(_MSC_VER)
 	#define IL2CPP_ZERO_LEN_ARRAY 0
 #else
@@ -337,10 +335,6 @@ typedef void (*methodPointerType)();
 #else
 #define IL2CPP_UNREACHABLE
 #endif
-
-
-/* need to figure out where this goes */
-typedef int32_t il2cpp_array_size_t;
 
 typedef uint32_t Il2CppMethodSlot;
 
@@ -436,6 +430,7 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
 
 #define IL2CPP_USE_GENERIC_COM	(!IL2CPP_PLATFORM_WIN32)
+#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS	(!IL2CPP_TARGET_WINDOWS)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
@@ -489,7 +484,9 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_E_NOTIMPL ((il2cpp_hresult_t)0x80004001)
 #define IL2CPP_E_NOINTERFACE ((il2cpp_hresult_t)0x80004002)
 #define IL2CPP_E_POINTER ((il2cpp_hresult_t)0x80004003)
+#define IL2CPP_DISP_E_PARAMNOTFOUND ((il2cpp_hresult_t)0x80020004)
 #define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
+#define IL2CPP_E_INVALIDARG ((il2cpp_hresult_t)0x80070057)
 
 #define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
 #define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)

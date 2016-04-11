@@ -383,7 +383,7 @@ inline Il2CppClass* il2cpp_codegen_class_from_type (const Il2CppType *type)
 	return InitializedTypeInfo (il2cpp::vm::Class::FromIl2CppType (type));
 }
 
-inline methodPointerType il2cpp_codegen_resolve_icall (const char* name);
+inline Il2CppMethodPointer il2cpp_codegen_resolve_icall (const char* name);
 
 inline void* InterlockedCompareExchangeImplRef (void** location, void* value, void* comparand)
 {
@@ -455,9 +455,14 @@ inline Il2CppObject* il2cpp_codegen_object_new (Il2CppClass *klass)
 	return il2cpp::vm::Object::New (klass);
 }
 
-inline methodPointerType il2cpp_codegen_resolve_icall (const char* name)
+inline Il2CppMethodPointer il2cpp_codegen_resolve_icall (const char* name)
 {
-	return il2cpp::vm::InternalCalls::Resolve (name);
+	Il2CppMethodPointer method = il2cpp::vm::InternalCalls::Resolve (name);
+	if (!method)
+	{
+		il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetMissingMethodException(name));
+	}
+	return method;
 }
 
 template <typename FunctionPointerType>
@@ -669,13 +674,13 @@ inline void il2cpp_codegen_marshal_free_bstring_array(uint16_t** a, size_t array
 	il2cpp::vm::PlatformInvoke::MarshalFreeBStringArray(a, arrayLength);
 }
 
-inline methodPointerType il2cpp_codegen_marshal_delegate(Il2CppCodeGenMulticastDelegate* d)
+inline Il2CppMethodPointer il2cpp_codegen_marshal_delegate(Il2CppCodeGenMulticastDelegate* d)
 {
-	return (methodPointerType)il2cpp::vm::PlatformInvoke::MarshalDelegate((Il2CppDelegate*)d).m_value;
+	return (Il2CppMethodPointer)il2cpp::vm::PlatformInvoke::MarshalDelegate((Il2CppDelegate*)d).m_value;
 }
 
 template <typename T>
-inline T* il2cpp_codegen_marshal_function_ptr_to_delegate(methodPointerType functionPtr, Il2CppClass* delegateType)
+inline T* il2cpp_codegen_marshal_function_ptr_to_delegate(Il2CppMethodPointer functionPtr, Il2CppClass* delegateType)
 {
 	return (T*)il2cpp::vm::PlatformInvoke::MarshalFunctionPointerToDelegate(reinterpret_cast<void*>(functionPtr), delegateType);
 }
@@ -891,7 +896,7 @@ inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInf
 	return (Il2CppCodeGenMethodBase*)il2cpp::vm::Reflection::GetMethodObject(methodInfo, methodInfo->declaring_type);
 }
 
-inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunction, Il2CppCodeGenString* typeName, const char* assemblyName)
+inline Il2CppCodeGenType* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, Il2CppCodeGenString* typeName, const char* assemblyName)
 {
 	typedef Il2CppCodeGenType* (*getTypeFuncType)(Il2CppCodeGenObject*, Il2CppCodeGenString*, const MethodInfo*);
 	Il2CppString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((Il2CppString*)typeName, assemblyName);
@@ -903,7 +908,7 @@ inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunct
 	return type;
 }
 
-inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunction, Il2CppCodeGenString* typeName, bool throwOnError, const char* assemblyName)
+inline Il2CppCodeGenType* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, Il2CppCodeGenString* typeName, bool throwOnError, const char* assemblyName)
 {
 	typedef Il2CppCodeGenType* (*getTypeFuncType)(Il2CppCodeGenObject*, Il2CppCodeGenString*, bool, const MethodInfo*);
 	Il2CppString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((Il2CppString*)typeName, assemblyName);
@@ -915,7 +920,7 @@ inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunct
 	return type;
 }
 
-inline Il2CppCodeGenType* il2cpp_codegen_get_type(methodPointerType getTypeFunction, Il2CppCodeGenString* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
+inline Il2CppCodeGenType* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, Il2CppCodeGenString* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
 {
 	typedef Il2CppCodeGenType* (*getTypeFuncType)(Il2CppCodeGenObject*, Il2CppCodeGenString*, bool, bool, const MethodInfo*);
 	Il2CppString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((Il2CppString*)typeName, assemblyName);
@@ -942,6 +947,46 @@ inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* n
 
 // COM
 
+inline void il2cpp_codegen_com_marshal_variant(Il2CppObject* obj, Il2CppVariant* variant)
+{
+	il2cpp::vm::COM::MarshalVariant(obj, variant);
+}
+
+inline Il2CppObject* il2cpp_codegen_com_marshal_variant_result(Il2CppVariant* variant)
+{
+	return il2cpp::vm::COM::MarshalVariantResult(variant);
+}
+
+inline void il2cpp_codegen_com_destroy_variant(Il2CppVariant* variant)
+{
+	il2cpp::vm::COM::DestroyVariant(variant);
+}
+
+inline Il2CppSafeArray* il2cpp_codegen_com_marshal_safe_array(uint16_t type, Il2CppArray* managedArray)
+{
+	return il2cpp::vm::COM::MarshalSafeArray(type, managedArray);
+}
+
+inline Il2CppArray* il2cpp_codegen_com_marshal_safe_array_result(uint16_t variantType, Il2CppClass* type, Il2CppSafeArray* safeArray)
+{
+	return il2cpp::vm::COM::MarshalSafeArrayResult(variantType, type, safeArray);
+}
+
+inline Il2CppSafeArray* il2cpp_codegen_com_marshal_safe_array_bstring(Il2CppArray* managedArray)
+{
+	return il2cpp::vm::COM::MarshalSafeArrayBString((Il2CppArray*)managedArray);
+}
+
+inline Il2CppArray* il2cpp_codegen_com_marshal_safe_array_bstring_result(Il2CppClass* type, Il2CppSafeArray* safeArray)
+{
+	return il2cpp::vm::COM::MarshalSafeArrayBStringResult(type, safeArray);
+}
+
+inline void il2cpp_codegen_com_destroy_safe_array(Il2CppSafeArray* safeArray)
+{
+	il2cpp::vm::COM::DestroySafeArray(safeArray);
+}
+
 inline void il2cpp_codegen_com_initialize_object(Il2CppComObject* rcw, const Il2CppGuid& clsid)
 {
 	il2cpp::vm::RCW::Initialize(rcw, clsid);
@@ -952,17 +997,17 @@ inline Il2CppIUnknown* il2cpp_codegen_com_query_interface(Il2CppComObject* rcw, 
 	return il2cpp::vm::RCW::QueryInterface(rcw, iid, true);
 }
 
-inline Il2CppCodeGenObject* il2cpp_codegen_com_create_rcw(Il2CppIUnknown* unknown)
+inline Il2CppObject* il2cpp_codegen_com_create_rcw(Il2CppIUnknown* unknown)
 {
-	return (Il2CppCodeGenObject*)il2cpp::vm::RCW::Create(unknown);
+	return il2cpp::vm::RCW::Create(unknown);
 }
 
-inline Il2CppIUnknown* il2cpp_codegen_com_create_ccw(Il2CppCodeGenObject* obj, const Il2CppGuid& iid)
+inline Il2CppIUnknown* il2cpp_codegen_com_create_ccw(Il2CppObject* obj, const Il2CppGuid& iid)
 {
 	return il2cpp::vm::CCW::Create((Il2CppObject*)obj, iid);
 }
 
-inline Il2CppCodeGenIntPtr il2cpp_codegen_com_get_iunknown_for_object(Il2CppCodeGenObject* obj)
+inline Il2CppCodeGenIntPtr il2cpp_codegen_com_get_iunknown_for_object(Il2CppObject* obj)
 {
 	Il2CppCodeGenIntPtr result;
 	result.set_m_value_0(il2cpp::vm::CCW::Create((Il2CppObject*)obj, Il2CppIUnknown::IID));

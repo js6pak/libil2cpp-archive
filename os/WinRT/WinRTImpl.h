@@ -84,8 +84,6 @@ DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSiz
 
 HANDLE WINAPI GetStdHandle(DWORD nStdHandle);
 
-BOOL WINAPI GetThreadContextWinRT(HANDLE hThread, LPCONTEXT lpContext);
-
 BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer);
 
 BOOL WINAPI GetVersionExW(LPOSVERSIONINFOW lpVersionInformation);

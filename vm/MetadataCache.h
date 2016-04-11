@@ -37,8 +37,8 @@ public:
 	static const Il2CppGenericContainer* GetMethodGenericContainer(const MethodInfo* method);
 	static const MethodInfo* GetGenericMethodDefinition(const MethodInfo* method);
 
-	static const MethodInfo* GetNativeDelegate (methodPointerType nativeFunctionPointer);
-	static void AddNativeDelegate (methodPointerType nativeFunctionPointer, const MethodInfo* managedMethodInfo);
+	static const MethodInfo* GetNativeDelegate (Il2CppMethodPointer nativeFunctionPointer);
+	static void AddNativeDelegate (Il2CppMethodPointer nativeFunctionPointer, const MethodInfo* managedMethodInfo);
 
 	static Il2CppClass* GetPointerType(Il2CppClass* type);
 	static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
@@ -47,7 +47,7 @@ public:
 	static const Il2CppGenericMethod* GetGenericMethod (const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
 
 	static InvokerMethod GetInvokerMethodPointer (const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
-	static methodPointerType GetMethodPointer (const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
+	static Il2CppMethodPointer GetMethodPointer (const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
 
 	static Il2CppClass* GetTypeInfoFromTypeIndex (TypeIndex index);
 	static const Il2CppType* GetIl2CppTypeFromIndex (TypeIndex index);
@@ -59,16 +59,16 @@ public:
 	static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index);
 	static void InitializeMethodMetadata (uint32_t index);
 
-	static methodPointerType GetMethodPointerFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetMethodPointerFromIndex (MethodIndex index);
 	static InvokerMethod GetMethodInvokerFromIndex (MethodIndex index);
-	static methodPointerType GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index);
-	static methodPointerType GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index);
 	
-	static methodPointerType GetMarshalToNativeFuncFromIndex (MethodIndex index);
-	static methodPointerType GetMarshalFromNativeFuncFromIndex (MethodIndex index);
-	static methodPointerType GetMarshalCleanupFuncFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetMarshalToNativeFuncFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetMarshalFromNativeFuncFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetMarshalCleanupFuncFromIndex (MethodIndex index);
 
-	static methodPointerType GetCreateCcwFuncFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetCreateCcwFuncFromIndex (MethodIndex index);
 	static const Il2CppGuid* GetGuid (GuidIndex index);
 	
 	static const Il2CppAssembly* GetAssemblyFromIndex (AssemblyIndex index);

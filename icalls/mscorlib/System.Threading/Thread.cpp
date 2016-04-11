@@ -169,7 +169,7 @@ static void ThreadStart (void* arg)
 	
 		try
 		{
-			Il2CppObject* exc = NULL;
+			Il2CppException* exc = NULL;
 			void* args[1] = { startData->m_StartArg };
 			Runtime::DelegateInvoke (startData->m_Delegate, args, &exc);
 

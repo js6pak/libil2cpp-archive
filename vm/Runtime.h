@@ -34,12 +34,12 @@ public:
 	static std::string GetConfigDir();
 	static std::string GetDataDir();
 	static const char *GetFrameworkVersion();
-	static Il2CppObject* DelegateInvoke (Il2CppDelegate *obj, void **params, Il2CppObject **exc);
-	static Il2CppObject* Invoke (const MethodInfo *method, void *obj, void **params, Il2CppObject **exc);
-	static Il2CppObject* InvokeConvertArgs (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppObject **exc);
-	static Il2CppObject* InvokeArray (const MethodInfo *method, void *obj, Il2CppArray *params, Il2CppObject **exc);
+	static Il2CppObject* DelegateInvoke (Il2CppDelegate *obj, void **params, Il2CppException **exc);
+	static Il2CppObject* Invoke (const MethodInfo *method, void *obj, void **params, Il2CppException **exc);
+	static Il2CppObject* InvokeConvertArgs (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppException **exc);
+	static Il2CppObject* InvokeArray (const MethodInfo *method, void *obj, Il2CppArray *params, Il2CppException **exc);
 	static void ObjectInit (Il2CppObject* object);
-	static void ObjectInitException (Il2CppObject* object, Il2CppObject **exc);
+	static void ObjectInitException (Il2CppObject* object, Il2CppException **exc);
 	static void SetUnhandledExceptionPolicy (Il2CppRuntimeUnhandledExceptionPolicy value);
 
 	static VirtualInvokeData GetVirtualInvokeData (Il2CppMethodSlot slot, void* obj);
@@ -53,26 +53,26 @@ public:
 public:
 	// internal
 	static Il2CppRuntimeUnhandledExceptionPolicy GetUnhandledExceptionPolicy ();
-	static void UnhandledException (Il2CppObject* exc);
+	static void UnhandledException (Il2CppException* exc);
 	static void ClassInit (Il2CppClass *klass);
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 	struct MethodDefinitionKey
 	{
-		methodPointerType method;
+		Il2CppMethodPointer method;
 		MethodIndex methodIndex;
 	};
 
 	static void RegisterMethods (const std::vector<MethodDefinitionKey>& managedMethods);
-	static const MethodInfo* GetMethodFromNativeSymbol (methodPointerType nativeMethod);
+	static const MethodInfo* GetMethodFromNativeSymbol (Il2CppMethodPointer nativeMethod);
 #endif
 	
 	static const char *GetBundledMachineConfig ();
 	static void RegisterBundledMachineConfig (const char *config_xml);
 
 private:
-	static void CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppObject* exc);
-	static Il2CppObject* CreateUnhandledExceptionEventArgs (Il2CppObject* exc);
+	static void CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppException* exc);
+	static Il2CppObject* CreateUnhandledExceptionEventArgs (Il2CppException* exc);
 };
 
 } /* namespace vm */

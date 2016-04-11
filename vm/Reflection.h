@@ -64,6 +64,7 @@ public:
 	static void Initialize ();
 	static bool CustomAttrsHasAttr (CustomAttributeTypeCache *ainfo, Il2CppClass *attr_klass);
 	static Il2CppClass* TypeGetHandle (Il2CppReflectionType* ref);
+	static Il2CppObject* GetDBNullObject ();
 
 private:
 	static CustomAttributeTypeCache* GetCustomAttrsTypeInfo (Il2CppObject *obj);
