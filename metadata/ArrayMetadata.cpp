@@ -164,6 +164,8 @@ static void CollectImplicitArrayInterfaces (Il2CppClass* arrayClass, ::std::vect
 			interfaces.push_back (itf);
 
 		elementClass = Class::GetParent (elementClass);
+		if (elementClass != NULL && (elementClass->valuetype || elementClass == il2cpp_defaults.value_type_class))
+			break;
 	}
 }
 

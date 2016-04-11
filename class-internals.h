@@ -117,6 +117,10 @@ typedef struct {
 	Il2CppClass *wait_handle_class;
 	Il2CppClass *safe_handle_class;
 	Il2CppClass *sort_key_class;
+	Il2CppClass *dbnull_class;
+	Il2CppClass *error_wrapper_class;
+	Il2CppClass *missing_class;
+	Il2CppClass *value_type_class;
 } Il2CppDefaults;
 
 extern Il2CppDefaults il2cpp_defaults;
@@ -239,7 +243,7 @@ union Il2CppRGCTXData
 
 struct MethodInfo
 {
-	methodPointerType method;
+	Il2CppMethodPointer method;
 	InvokerMethod invoker_method;
 	const char* name;
 	Il2CppClass *declaring_type;
@@ -387,16 +391,16 @@ struct Il2CppImage
 
 	MethodIndex entryPointIndex;
 
-	Il2CppNameToTypeDefinitionIndexHashTable* nameToClassHashTable;
+	mutable Il2CppNameToTypeDefinitionIndexHashTable* nameToClassHashTable;
 
 	uint32_t token;
 };
 
 struct Il2CppMarshalingFunctions
 {
-	methodPointerType marshal_to_native_func;
-	methodPointerType marshal_from_native_func;
-	methodPointerType marshal_cleanup_func;
+	Il2CppMethodPointer marshal_to_native_func;
+	Il2CppMethodPointer marshal_from_native_func;
+	Il2CppMethodPointer marshal_cleanup_func;
 };
 
 struct Il2CppCodeGenOptions
@@ -407,17 +411,17 @@ struct Il2CppCodeGenOptions
 struct Il2CppCodeRegistration
 {
 	uint32_t methodPointersCount;
-	const methodPointerType* methodPointers;
+	const Il2CppMethodPointer* methodPointers;
 	uint32_t delegateWrappersFromNativeToManagedCount;
-	const methodPointerType** delegateWrappersFromNativeToManaged; // note the double indirection to handle different calling conventions
+	const Il2CppMethodPointer** delegateWrappersFromNativeToManaged; // note the double indirection to handle different calling conventions
 	uint32_t delegateWrappersFromManagedToNativeCount;
-	const methodPointerType* delegateWrappersFromManagedToNative;
+	const Il2CppMethodPointer* delegateWrappersFromManagedToNative;
 	uint32_t marshalingFunctionsCount;
 	const Il2CppMarshalingFunctions* marshalingFunctions;
 	uint32_t ccwMarshalingFunctionsCount;
-	const methodPointerType* ccwMarshalingFunctions;
+	const Il2CppMethodPointer* ccwMarshalingFunctions;
 	uint32_t genericMethodPointersCount;
-	const methodPointerType* genericMethodPointers;
+	const Il2CppMethodPointer* genericMethodPointers;
 	uint32_t invokerPointersCount;
 	const InvokerMethod* invokerPointers;
 	CustomAttributeIndex customAttributeCount;
