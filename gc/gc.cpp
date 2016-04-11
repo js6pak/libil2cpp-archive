@@ -92,7 +92,7 @@ il2cpp_gc_run_finalize (void *obj, void *data)
 {
 	NOT_IMPLEMENTED_NO_ASSERT (il2cpp_gc_run_finalize, "Compare to mono implementation special cases");
 
-	Il2CppObject *exc = NULL;
+	Il2CppException *exc = NULL;
 	Il2CppObject *o;
 	const MethodInfo* finalizer = NULL;
 

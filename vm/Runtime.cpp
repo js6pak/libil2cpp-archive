@@ -200,7 +200,11 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT_TYPE(wait_handle_class, "System.Threading", "WaitHandle", Il2CppWaitHandle);
 	DEFAULTS_INIT_TYPE(safe_handle_class, "System.Runtime.InteropServices", "SafeHandle", Il2CppSafeHandle);
 	DEFAULTS_INIT_TYPE(sort_key_class, "System.Globalization", "SortKey", Il2CppSortKey);
+	DEFAULTS_INIT(dbnull_class, "System", "DBNull");
+	DEFAULTS_INIT_TYPE(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
+	DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
 	DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
+	DEFAULTS_INIT(value_type_class, "System", "ValueType");
 
 	Class::Init (il2cpp_defaults.string_class);
 
@@ -309,7 +313,7 @@ std::string Runtime::GetDataDir()
 	return s_DataDirFallback;
 }
 
-Il2CppObject* Runtime::DelegateInvoke (Il2CppDelegate *delegate, void **params, Il2CppObject **exc)
+Il2CppObject* Runtime::DelegateInvoke (Il2CppDelegate *delegate, void **params, Il2CppException **exc)
 {
 	const MethodInfo* invoke = Class::GetMethodFromName (delegate->object.klass, "Invoke", -1);
 	assert (invoke);
@@ -339,7 +343,7 @@ void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* 
 	}
 }
 
-Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **params, Il2CppObject **exc)
+Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
 {
 	if (exc)
 		*exc = NULL;
@@ -353,12 +357,12 @@ Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **param
 	catch (Il2CppExceptionWrapper& ex)
 	{
 		if (exc)
-			*exc = (Il2CppObject *)ex.ex;
+			*exc = ex.ex;
 		return NULL;
 	}
 }
 
-Il2CppObject* Runtime::InvokeArray (const MethodInfo *method, void *obj, Il2CppArray *params, Il2CppObject **exc)
+Il2CppObject* Runtime::InvokeArray (const MethodInfo *method, void *obj, Il2CppArray *params, Il2CppException **exc)
 {
 	if (params == NULL)
 		return InvokeConvertArgs(method, obj, NULL, 0, exc);
@@ -372,7 +376,7 @@ void Runtime::ObjectInit (Il2CppObject *object)
 	ObjectInitException(object, NULL);
 }
 
-void Runtime::ObjectInitException (Il2CppObject *object, Il2CppObject **exc)
+void Runtime::ObjectInitException (Il2CppObject *object, Il2CppException **exc)
 {
 	const MethodInfo *method = NULL;
 	Il2CppClass *klass = object->klass;
@@ -395,7 +399,7 @@ Il2CppRuntimeUnhandledExceptionPolicy Runtime::GetUnhandledExceptionPolicy ()
 	return s_UnhandledExceptionPolicy;
 }
 
-void Runtime::UnhandledException (Il2CppObject* exc)
+void Runtime::UnhandledException (Il2CppException* exc)
 {
 	Il2CppDomain *currentDomain = Domain::GetCurrent ();
 	Il2CppDomain *rootDomain = Domain::GetRoot ();
@@ -406,7 +410,9 @@ void Runtime::UnhandledException (Il2CppObject* exc)
 	field = Class::GetFieldFromName (il2cpp_defaults.appdomain_class, "UnhandledException");
 	assert (field);
 
-	if (exc->klass != il2cpp_defaults.threadabortexception_class) {
+	Il2CppObject* excObject = (Il2CppObject*)exc;
+
+	if (excObject->klass != il2cpp_defaults.threadabortexception_class) {
 		//bool abort_process = (Thread::Current () == Thread::Main ()) ||
 		//	(Runtime::GetUnhandledExceptionPolicy () == IL2CPP_UNHANDLED_POLICY_CURRENT);
 
@@ -440,7 +446,7 @@ void Runtime::UnhandledException (Il2CppObject* exc)
 	}
 }
 
-static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* thisArg, void** convertedParameters, Il2CppObject** exception)
+static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* thisArg, void** convertedParameters, Il2CppException** exception)
 {
 	Il2CppClass* thisType = method->declaring_type;
 
@@ -495,7 +501,7 @@ static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* t
 	return instance;
 }
 
-Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg, Il2CppObject** parameters, int paramCount, Il2CppObject** exception)
+Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg, Il2CppObject** parameters, int paramCount, Il2CppException** exception)
 {
 	void** convertedParameters = NULL;
 	bool hasByRefNullables = false;
@@ -714,9 +720,9 @@ VirtualInvokeData Runtime::GetGenericInterfaceInvokeData (const MethodInfo* meth
 	return data;
 }
 
-void Runtime::CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppObject* exc)
+void Runtime::CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppException* exc)
 {
-	Il2CppObject *e = NULL;
+	Il2CppException *e = NULL;
 	void* pa [2];
 
 	pa [0] = domain->domain;
@@ -781,7 +787,7 @@ void Runtime::ClassInit (Il2CppClass *klass)
 		const MethodInfo* cctor = Class::GetCCtor (klass);
 		if (cctor != NULL)
 		{
-			vm::Runtime::Invoke(cctor, NULL, NULL, ((Il2CppObject**)&exception));
+			vm::Runtime::Invoke(cctor, NULL, NULL, &exception);
 		}
 
 		// Let other threads know we finished.
@@ -811,7 +817,7 @@ struct ConstCharCompare
 
 struct MethodInfoToMethodPointerConverter
 {
-	methodPointerType operator()(const Runtime::MethodDefinitionKey& methodInfo) const
+	Il2CppMethodPointer operator()(const Runtime::MethodDefinitionKey& methodInfo) const
 	{
 		// On ARMv7 with Thumb instructions the lowest bit is always set.
 		// With Thumb2 the second-to-lowest bit is also set. Mask both of
@@ -819,11 +825,11 @@ struct MethodInfoToMethodPointerConverter
 		// from the linker map file. On other architectures this operation should
 		// not matter, as we assume these two bits are always zero because the pointer
 		// will be aligned.
-		return (methodPointerType)((size_t)methodInfo.method & ~3);
+		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~3);
 	}
 };
 
-typedef il2cpp::utils::collections::ArrayValueMap<methodPointerType, Runtime::MethodDefinitionKey, MethodInfoToMethodPointerConverter> NativeMethodMap;
+typedef il2cpp::utils::collections::ArrayValueMap<Il2CppMethodPointer, Runtime::MethodDefinitionKey, MethodInfoToMethodPointerConverter> NativeMethodMap;
 static NativeMethodMap s_NativeMethods;
 
 void Runtime::RegisterMethods (const std::vector<MethodDefinitionKey>& managedMethods)
@@ -898,7 +904,7 @@ static bool CompareEndOfSymbols (const SymbolInfo &a, const SymbolInfo &b)
 
 static bool s_TriedToInitializeSymbolInfo = false;
 
-const MethodInfo* Runtime::GetMethodFromNativeSymbol (methodPointerType nativeMethod)
+const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer nativeMethod)
 {
 	if (!s_TriedToInitializeSymbolInfo)
 	{
@@ -925,7 +931,7 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (methodPointerType nativeMe
 		if (containingSymbol == end)
 			return NULL;
 
-		nativeMethod = (methodPointerType)((char*)s_ImageBase + containingSymbol->address);
+		nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
 
 		// do exact lookup based on the symbol start address, as that is our key
 		NativeMethodMap::iterator iter = s_NativeMethods.find_first (nativeMethod);
@@ -953,7 +959,7 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (methodPointerType nativeMe
 
 #endif
 
-Il2CppObject* Runtime::CreateUnhandledExceptionEventArgs (Il2CppObject *exc)
+Il2CppObject* Runtime::CreateUnhandledExceptionEventArgs (Il2CppException *exc)
 {
 	Il2CppClass *klass;
 	void* args [2];
