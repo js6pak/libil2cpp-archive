@@ -26,7 +26,7 @@ class LIBIL2CPP_CODEGEN_API PlatformInvoke
 public:
 	static int SumParameterSize(Il2CppTypeEnum parameterTypes[]);
 	static void SetFindPluginCallback(Il2CppSetFindPlugInCallback method);
-	static methodPointerType Resolve(const PInvokeArguments& pinvokeArgs);
+	static Il2CppMethodPointer Resolve(const PInvokeArguments& pinvokeArgs);
 
 	static void MarshalFree(void* ptr);
 
@@ -34,6 +34,7 @@ public:
 	static void MarshalCSharpStringToCppStringFixed(Il2CppString* managedString, char* buffer, int numberOfCharacters);
 	static uint16_t* MarshalCSharpStringToCppWString(Il2CppString* managedString);
 	static void MarshalCSharpStringToCppWStringFixed(Il2CppString* managedString, uint16_t* buffer, int numberOfCharacters);
+	static il2cpp_hresult_t MarshalCSharpStringToCppBStringNoThrow(Il2CppString* managedString, uint16_t** bstr);
 	static uint16_t* MarshalCSharpStringToCppBString(Il2CppString* managedString);
 
 	static Il2CppString* MarshalCppStringToCSharpStringResult(const char* value);

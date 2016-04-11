@@ -32,7 +32,7 @@ void* MemoryMappedFile::Map(FileHandle* file, size_t length, size_t offset)
 		return NULL;
 	}
 
-	int bytesRead = File::Read(file, (char*)buffer, length, &error);
+	int bytesRead = File::Read(file, (char*)buffer, (int)length, &error);
 	if (bytesRead != length || error != 0)
 	{
 		IL2CPP_FREE(buffer);

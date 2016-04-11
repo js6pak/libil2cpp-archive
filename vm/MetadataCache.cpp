@@ -67,7 +67,7 @@ using il2cpp::utils::CallOnce;
 using il2cpp::utils::HashUtils;
 using il2cpp::utils::OnceFlag;
 
-typedef std::map<methodPointerType, const MethodInfo*> NativeDelegateMap;
+typedef std::map<Il2CppMethodPointer, const MethodInfo*> NativeDelegateMap;
 typedef std::map<Il2CppClass*, Il2CppClass*> PointerTypeMap;
 
 typedef unordered_set<const Il2CppGenericMethod*,
@@ -306,7 +306,7 @@ const Il2CppGenericContainer* MetadataCache::GetMethodGenericContainer(const Met
 	return method->genericContainer;
 }
 
-const MethodInfo* MetadataCache::GetNativeDelegate (methodPointerType nativeFunctionPointer)
+const MethodInfo* MetadataCache::GetNativeDelegate (Il2CppMethodPointer nativeFunctionPointer)
 {
 	os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
 
@@ -317,7 +317,7 @@ const MethodInfo* MetadataCache::GetNativeDelegate (methodPointerType nativeFunc
 	return i->second;
 }
 
-void MetadataCache::AddNativeDelegate(methodPointerType nativeFunctionPointer, const MethodInfo* managedMethodInfo)
+void MetadataCache::AddNativeDelegate(Il2CppMethodPointer nativeFunctionPointer, const MethodInfo* managedMethodInfo)
 {
 	os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
 	s_MetadataCache.m_NativeDelegateMethods.insert(std::make_pair(nativeFunctionPointer, managedMethodInfo));
@@ -465,7 +465,7 @@ InvokerMethod MetadataCache::GetInvokerMethodPointer (const MethodInfo* methodDe
 	return NULL;
 }
 
-methodPointerType MetadataCache::GetMethodPointer (const MethodInfo* methodDefinition, const Il2CppGenericContext* context)
+Il2CppMethodPointer MetadataCache::GetMethodPointer (const MethodInfo* methodDefinition, const Il2CppGenericContext* context)
 {
 	Il2CppGenericMethod method = { 0 };
 	method.methodDefinition = const_cast<MethodInfo*>(methodDefinition);
@@ -561,7 +561,7 @@ const Il2CppGenericMethod* MetadataCache::GetGenericMethodFromIndex (GenericMeth
 	return s_GenericMethodTable[index];
 }
 
-methodPointerType MetadataCache::GetMethodPointerFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetMethodPointerFromIndex (MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
@@ -579,7 +579,7 @@ InvokerMethod MetadataCache::GetMethodInvokerFromIndex (MethodIndex index)
 	return s_Il2CppCodeRegistration->invokerPointers[index];
 }
 
-methodPointerType MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
@@ -589,7 +589,7 @@ methodPointerType MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (Met
 	return *(s_Il2CppCodeRegistration->delegateWrappersFromNativeToManaged[index]);
 }
 
-methodPointerType MetadataCache::GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
@@ -599,7 +599,7 @@ methodPointerType MetadataCache::GetDelegateWrapperManagedToNativeFromIndex (Met
 	return s_Il2CppCodeRegistration->delegateWrappersFromManagedToNative[index];
 }
 
-methodPointerType MetadataCache::GetMarshalToNativeFuncFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetMarshalToNativeFuncFromIndex (MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
@@ -609,7 +609,7 @@ methodPointerType MetadataCache::GetMarshalToNativeFuncFromIndex (MethodIndex in
 	return s_Il2CppCodeRegistration->marshalingFunctions[index].marshal_to_native_func;
 }
 
-methodPointerType MetadataCache::GetMarshalFromNativeFuncFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetMarshalFromNativeFuncFromIndex (MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
@@ -619,7 +619,7 @@ methodPointerType MetadataCache::GetMarshalFromNativeFuncFromIndex (MethodIndex 
 	return s_Il2CppCodeRegistration->marshalingFunctions[index].marshal_from_native_func;
 }
 
-methodPointerType MetadataCache::GetMarshalCleanupFuncFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetMarshalCleanupFuncFromIndex (MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
@@ -629,7 +629,7 @@ methodPointerType MetadataCache::GetMarshalCleanupFuncFromIndex (MethodIndex ind
 	return s_Il2CppCodeRegistration->marshalingFunctions[index].marshal_cleanup_func;
 }
 
-methodPointerType MetadataCache::GetCreateCcwFuncFromIndex(MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetCreateCcwFuncFromIndex(MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
