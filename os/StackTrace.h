@@ -8,7 +8,7 @@ namespace il2cpp
 namespace os
 {
 
-typedef bool(*WalkStackCallback)(methodPointerType frame, void* context);
+typedef bool(*WalkStackCallback)(Il2CppMethodPointer frame, void* context);
 
 class StackTrace
 {

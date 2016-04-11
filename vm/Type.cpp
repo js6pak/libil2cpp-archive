@@ -885,7 +885,7 @@ const Il2CppGenericParameter* Type::GetGenericParameter (const Il2CppType *type)
 * In that case addr will most probably not be associated with the
 * correct instantiation of the method.
 */
-void Type::ConstructDelegate (Il2CppDelegate* delegate, Il2CppObject* target, methodPointerType addr, const MethodInfo* method)
+void Type::ConstructDelegate (Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
 {
 	assert(delegate);
 

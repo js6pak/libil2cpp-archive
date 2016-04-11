@@ -195,16 +195,8 @@ const MethodInfo* Object::GetVirtualMethod (Il2CppObject *obj, const MethodInfo 
 	return res;
 }
 
-
 Il2CppObject* Object::IsInst (Il2CppObject *obj, Il2CppClass *klass)
 {
-	NOT_IMPLEMENTED_NO_ASSERT (Object::IsInst, "Review commented code");
-	//if (!klass->inited)
-	//	mono_class_init (klass);
-
-	//if (klass->marshalbyref || klass->flags & TYPE_ATTRIBUTE_INTERFACE)
-	//	return mono_object_isinst_mbyref (obj, klass);
-
 	if (!obj)
 		return NULL;
 
