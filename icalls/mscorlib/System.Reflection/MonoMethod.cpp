@@ -239,7 +239,7 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 	// If a managed exception was thrown, we need raise it here because Runtime::Invoke catches the exception and returns a pointer to it.
 	Il2CppException* exception = NULL;
 
-	Il2CppObject *result = il2cpp::vm::Runtime::InvokeArray (m, obj, params, ((Il2CppObject**)&exception));
+	Il2CppObject *result = il2cpp::vm::Runtime::InvokeArray (m, obj, params, &exception);
 
 	if(exception)
 		Exception::Raise(exception);

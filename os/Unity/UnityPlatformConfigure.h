@@ -35,7 +35,7 @@ inline void* operator new (size_t size, int alignment)
 	return result;
 }
 
-#if IL2CPP_TARGET_WINDOWS // Visual C++ warns if new is overridden but delete is not.
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE // Visual C++ warns if new is overridden but delete is not.
 inline void operator delete (void* ptr, int alignment) throw ()
 {
 	free (ptr);

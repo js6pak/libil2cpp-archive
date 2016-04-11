@@ -27,7 +27,7 @@ void PlatformInvoke::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
 	LibraryLoader::SetFindPluginCallback(method);
 }
 
-methodPointerType PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
+Il2CppMethodPointer PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
 {
 	void* dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
 	if (dynamicLibrary == NULL)
@@ -37,7 +37,7 @@ methodPointerType PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
 		Exception::Raise(Exception::GetDllNotFoundException(message.str().c_str()));
 	}
 
-	methodPointerType function = os::LibraryLoader::GetFunctionPointer(dynamicLibrary, pinvokeArgs);
+	Il2CppMethodPointer function = os::LibraryLoader::GetFunctionPointer(dynamicLibrary, pinvokeArgs);
 	if (function == NULL)
 	{
 		std::stringstream message;
@@ -111,15 +111,25 @@ void PlatformInvoke::MarshalCSharpStringToCppWStringFixed(Il2CppString* managedS
 	}
 }
 
-uint16_t* PlatformInvoke::MarshalCSharpStringToCppBString(Il2CppString* managedString)
+il2cpp_hresult_t PlatformInvoke::MarshalCSharpStringToCppBStringNoThrow(Il2CppString* managedString, uint16_t** bstr)
 {
+	assert(bstr);
+
 	if (managedString == NULL)
-		return NULL;
+	{
+		*bstr = NULL;
+		return IL2CPP_S_OK;
+	}
 
 	int32_t stringLength = String::GetLength(managedString);
 	uint16_t* stringChars = String::GetChars(managedString);
+	return os::MarshalStringAlloc::AllocateBStringLength(stringChars, stringLength, bstr);
+}
+
+uint16_t* PlatformInvoke::MarshalCSharpStringToCppBString(Il2CppString* managedString)
+{
 	uint16_t* bstr;
-	const il2cpp_hresult_t hr = os::MarshalStringAlloc::AllocateBStringLength(stringChars, stringLength, &bstr);
+	const il2cpp_hresult_t hr = MarshalCSharpStringToCppBStringNoThrow(managedString, &bstr);
 	Exception::RaiseIfFailed(hr);
 	return bstr;
 }
@@ -366,7 +376,7 @@ Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
 	assert (!d->method->is_inflated);
 	assert (d->method->methodDefinition);
 
-	methodPointerType nativeDelegateWrapper = MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (d->method->methodDefinition->delegateWrapperIndex);
+	Il2CppMethodPointer nativeDelegateWrapper = MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (d->method->methodDefinition->delegateWrapperIndex);
 	if (nativeDelegateWrapper == NULL)
 		vm::Exception::Raise(vm::Exception::GetNotSupportedException("To marshal a manged method, please add an attribute named 'MonoPInvokeCallback' to the method definition."));
 
@@ -378,7 +388,7 @@ Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
 Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)
 {
 	Il2CppObject* delegate = il2cpp::vm::Object::New(delegateType);
-	methodPointerType nativeFunctionPointer = (methodPointerType)functionPtr;
+	Il2CppMethodPointer nativeFunctionPointer = (Il2CppMethodPointer)functionPtr;
 
 	const MethodInfo* method = MetadataCache::GetNativeDelegate (nativeFunctionPointer);
 	if (method == NULL)

@@ -781,7 +781,7 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 
 		// Invoke delegate.
 		Il2CppAsyncCall* asyncCall = asyncResult->object_data;
-		Il2CppObject* exception = NULL;
+		Il2CppException* exception = NULL;
 		uint32_t argsGCHandle = (uint32_t) ((uintptr_t) asyncResult->data);
 		Il2CppArray* args = (Il2CppArray*) gc::GCHandle::GetTarget (argsGCHandle);
 		

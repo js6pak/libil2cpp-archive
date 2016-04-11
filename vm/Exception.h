@@ -37,7 +37,7 @@ public:
 	}
 
 	////TODO: rename to NewFromClassNameAndMessage
-	static Il2CppException* FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg);
+	static Il2CppException* FromNameMsg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg);
 
 public:
 	////TODO: rename all of these to NewXXX

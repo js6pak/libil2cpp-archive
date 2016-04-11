@@ -25,7 +25,7 @@ void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder 
 	{
 		for (size_t i = frames; i--;)
 		{
-			if (!callback(reinterpret_cast<methodPointerType>(callstack[i]), context))
+			if (!callback(reinterpret_cast<Il2CppMethodPointer>(callstack[i]), context))
 				break;
 		}
 	}
@@ -33,7 +33,7 @@ void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder 
 	{
 		for (size_t i = 0; i < frames; i++)
 		{
-			if (!callback(reinterpret_cast<methodPointerType>(callstack[i]), context))
+			if (!callback(reinterpret_cast<Il2CppMethodPointer>(callstack[i]), context))
 				break;
 		}
 	}
