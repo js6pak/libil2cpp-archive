@@ -118,7 +118,7 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 	}
 }
 
-Il2CppException* Exception::FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg)
+Il2CppException* Exception::FromNameMsg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg)
 {
 	Il2CppClass* exceptionClass = Class::FromName (image, name_space, name);
 	Il2CppException* ex = (Il2CppException*)Object::New (exceptionClass);
@@ -159,7 +159,7 @@ Il2CppException * Exception::GetTypeInitializationException(const char *msg, Il2
 	Il2CppException* ex = FromNameMsg(Image::GetCorlib(), "System", "TypeInitializationException", msg);
 
 	if (innerException != NULL)
-		IL2CPP_OBJECT_SETREF(ex, inner_ex, (Il2CppObject*)innerException);
+		IL2CPP_OBJECT_SETREF(ex, inner_ex, innerException);
 
 	return ex;
 }
