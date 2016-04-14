@@ -154,7 +154,7 @@ Il2CppImage* Image::GetCorlib ()
 
 static os::FastMutex s_ClassFromNameMutex;
 
-Il2CppClass* Image::ClassFromName (Il2CppImage* image, const char* namespaze, const char *name)
+Il2CppClass* Image::ClassFromName (const Il2CppImage* image, const char* namespaze, const char *name)
 {
 	if (!image->nameToClassHashTable)
 	{

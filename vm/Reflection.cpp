@@ -351,16 +351,14 @@ Il2CppReflectionType* Reflection::GetTypeObject (const Il2CppType *type)
 	return typeObject;
 }
 
-static Il2CppObject* GetDBNullObject()
+Il2CppObject* Reflection::GetDBNullObject ()
 {
 	Il2CppObject* valueFieldValue;
 	static FieldInfo *dbNullValueField = NULL;
 
 	if (!dbNullValueField)
 	{
-		Il2CppClass* klass = Image::ClassFromName(il2cpp_defaults.corlib, "System", "DBNull");
-		Class::Init(klass);
-		dbNullValueField = Class::GetFieldFromName(klass, "Value");
+		dbNullValueField = Class::GetFieldFromName(il2cpp_defaults.dbnull_class, "Value");
 		assert(dbNullValueField);
 	}
 
@@ -392,7 +390,7 @@ static Il2CppObject* GetObjectForMissingDefaultValue(uint32_t parameterAttribute
 	if (parameterAttributes & PARAM_ATTRIBUTE_OPTIONAL)
 		return GetReflectionMissingObject();
 	else
-		return GetDBNullObject();
+		return Reflection::GetDBNullObject();
 }
 
 Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, Il2CppClass *refclass)
