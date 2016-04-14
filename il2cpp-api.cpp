@@ -135,17 +135,17 @@ void il2cpp_set_memory_callbacks (Il2CppMemoryCallbacks* callbacks)
 	Memory::SetMemoryCallbacks (callbacks);
 }
 
-Il2CppImage* il2cpp_get_corlib ()
+const Il2CppImage* il2cpp_get_corlib ()
 {
 	return Image::GetCorlib ();
 }
 
-void il2cpp_add_internal_call(const char* name, methodPointerType method)
+void il2cpp_add_internal_call(const char* name, Il2CppMethodPointer method)
 {
 	return InternalCalls::Add (name, method);
 }
 
-methodPointerType il2cpp_resolve_icall(const char* name)
+Il2CppMethodPointer il2cpp_resolve_icall(const char* name)
 {
 	return InternalCalls::Resolve (name);
 }
@@ -203,7 +203,7 @@ int il2cpp_array_element_size (const Il2CppClass* klass)
 }
 
 // assembly
-Il2CppImage* il2cpp_assembly_get_image (const Il2CppAssembly *assembly)
+const Il2CppImage* il2cpp_assembly_get_image (const Il2CppAssembly *assembly)
 {
 	return Assembly::GetImage (assembly);
 }
@@ -250,7 +250,7 @@ Il2CppClass* il2cpp_class_from_il2cpp_type(const Il2CppType* type)
 	return Class::FromIl2CppType (type);
 }
 
-Il2CppClass* il2cpp_class_from_name (Il2CppImage* image, const char* namespaze, const char *name)
+Il2CppClass* il2cpp_class_from_name (const Il2CppImage* image, const char* namespaze, const char *name)
 {
 	return Class::FromName (image, namespaze, name);
 }
@@ -365,7 +365,7 @@ int il2cpp_class_array_element_size (const Il2CppClass *klass)
 	return Class::GetArrayElementSize (klass);
 }
 
-Il2CppClass* il2cpp_class_from_type (Il2CppType *type)
+Il2CppClass* il2cpp_class_from_type (const Il2CppType *type)
 {
 	return Class::FromIl2CppType (type);
 }
@@ -517,7 +517,7 @@ void il2cpp_raise_exception(Il2CppException* exc)
 	Exception::Raise (exc);
 }
 
-Il2CppException* il2cpp_exception_from_name_msg (Il2CppImage* image, const char *name_space, const char *name, const char *msg)
+Il2CppException* il2cpp_exception_from_name_msg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg)
 {
 	return Exception::FromNameMsg (image, name_space, name, msg);
 }
@@ -539,7 +539,7 @@ void il2cpp_format_stack_trace(const Il2CppException* ex, char* output, int outp
 
 void il2cpp_unhandled_exception(Il2CppException* exc)
 {
-	Runtime::UnhandledException((Il2CppObject*)exc);
+	Runtime::UnhandledException(exc);
 }
 
 // field
@@ -640,7 +640,7 @@ void il2cpp_gchandle_free (uint32_t gchandle)
 
 // liveness
 
-void* il2cpp_unity_liveness_calculation_begin (Il2CppClass* filter, int max_object_count, register_object_callback callback, void* userdata, WorldChangedCallback onWorldStarted, WorldChangedCallback onWorldStopped)
+void* il2cpp_unity_liveness_calculation_begin (Il2CppClass* filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_WorldChangedCallback onWorldStarted, il2cpp_WorldChangedCallback onWorldStopped)
 {
 	return Liveness::Begin (filter, max_object_count, callback, userdata, onWorldStarted, onWorldStopped);
 }
@@ -869,13 +869,13 @@ bool il2cpp_monitor_try_wait (Il2CppObject* obj, uint32_t timeout)
 
 // runtime
 
-Il2CppObject* il2cpp_runtime_invoke_convert_args (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppObject **exc)
+Il2CppObject* il2cpp_runtime_invoke_convert_args (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppException **exc)
 {
 	return Runtime::InvokeConvertArgs (method, obj, params, paramCount, exc);
 }
 
 Il2CppObject* il2cpp_runtime_invoke (const MethodInfo *method,
-	void *obj, void **params, Il2CppObject **exc)
+	void *obj, void **params, Il2CppException **exc)
 {
 	return Runtime::Invoke (method, obj, params, exc);
 }
@@ -890,7 +890,7 @@ void il2cpp_runtime_object_init (Il2CppObject *obj)
 	Runtime::ObjectInit (obj);
 }
 
-void il2cpp_runtime_object_init_exception (Il2CppObject *obj, Il2CppObject **exc)
+void il2cpp_runtime_object_init_exception (Il2CppObject *obj, Il2CppException **exc)
 {
 	Runtime::ObjectInitException (obj, exc);
 }

@@ -14,7 +14,7 @@ class LibraryLoader
 {
 public:
 	static void* LoadDynamicLibrary(const std::string& nativeDynamicLibrary);
-	static methodPointerType GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs);
+	static Il2CppMethodPointer GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs);
 	static void CleanupLoadedLibraries();
 };
 

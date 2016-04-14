@@ -175,11 +175,6 @@ HANDLE WINAPI GetStdHandle(DWORD nStdHandle)
 	return reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(redirectedFile)));
 }
 
-BOOL WINAPI GetThreadContextWinRT(HANDLE hThread, LPCONTEXT lpContext)
-{
-	return GetThreadContext(hThread, lpContext);
-}
-
 BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer)
 {
 #define ERROR_CHECK(hr) do { if (FAILED(hr)) { SetLastError(WIN32_FROM_HRESULT(hr)); return FALSE; } } while (false)
