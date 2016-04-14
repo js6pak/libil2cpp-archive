@@ -1416,7 +1416,7 @@ bool Class::Init (Il2CppClass *klass)
 	return true;
 }
 
-Il2CppClass* Class::FromName (Il2CppImage* image, const char* namespaze, const char *name)
+Il2CppClass* Class::FromName (const Il2CppImage* image, const char* namespaze, const char *name)
 {
 	return Image::ClassFromName (image, namespaze, name);
 }

@@ -106,7 +106,7 @@ void* LibraryLoader::LoadDynamicLibrary(const std::string& nativeDynamicLibrary)
 	return handle;
 }
 
-methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
+Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
 {
 #ifdef VERBOSE_OUTPUT
 	printf("Attempting to load method at entry point: %s\n", pinvokeArgs.entryPoint);
@@ -118,7 +118,7 @@ methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const 
 		printf("Error: %s\n", dlerror());
 #endif
 
-	return (methodPointerType)method;
+	return (Il2CppMethodPointer)method;
 }
 
 void LibraryLoader::CleanupLoadedLibraries()

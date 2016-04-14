@@ -110,7 +110,7 @@ public:
 
 class NativeMethodStack : public MethodStack
 {
-	static bool GetStackFramesCallback(methodPointerType frame, void* context)
+	static bool GetStackFramesCallback(Il2CppMethodPointer frame, void* context)
 	{
 		const MethodInfo* method = Runtime::GetMethodFromNativeSymbol(frame);
 		StackFrames* stackFrames = static_cast<StackFrames*>(context);
@@ -131,7 +131,7 @@ class NativeMethodStack : public MethodStack
 		const MethodInfo* method;
 	};
 
-	static bool GetStackFrameAtCallback(methodPointerType frame, void* context)
+	static bool GetStackFrameAtCallback(Il2CppMethodPointer frame, void* context)
 	{
 		const MethodInfo* method = Runtime::GetMethodFromNativeSymbol(frame);
 		GetStackFrameAtContext* ctx = static_cast<GetStackFrameAtContext*>(context);

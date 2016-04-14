@@ -135,7 +135,7 @@ void LivenessState::TraverseObjects ()
 
 void LivenessState::FilterObjects ()
 {
-	void* filtered_objects[64];
+	Il2CppObject* filtered_objects[64];
 	int32_t num_objects = 0;
 
 	size_t i = (size_t)first_index_in_all_objects;
