@@ -1321,6 +1321,9 @@
     <ClInclude Include="vm\COM.h">
       <Filter>vm</Filter>
     </ClInclude>
+    <ClInclude Include="vm\GC.h">
+      <Filter>vm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />

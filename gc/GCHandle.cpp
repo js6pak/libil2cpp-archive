@@ -4,6 +4,7 @@
 #include "gc-internal.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
+#include "vm/GC.h"
 #include <cassert>
 #include <memory>
 
@@ -106,7 +107,7 @@ alloc_handle (HandleData *handles, Il2CppObject *obj, bool track)
 			domain_ids = (uint16_t*)IL2CPP_MALLOC_ZERO (sizeof (uint16_t) * new_size);
 			entries = (void**)IL2CPP_MALLOC (sizeof (void*) * new_size);
 			/* we disable GC because we could lose some disappearing link updates */
-			il2cpp_gc_disable ();
+			il2cpp::vm::GC::Disable ();
 			memcpy (entries, handles->entries, sizeof (void*) * handles->size);
 			memset (entries + handles->size, 0, sizeof (void*) * handles->size);
 			memcpy (domain_ids, handles->domain_ids, sizeof (uint16_t) * handles->size);
@@ -123,7 +124,7 @@ alloc_handle (HandleData *handles, Il2CppObject *obj, bool track)
 			IL2CPP_FREE (handles->domain_ids);
 			handles->entries = entries;
 			handles->domain_ids = domain_ids;
-			il2cpp_gc_enable ();
+			il2cpp::vm::GC::Enable ();
 		}
 
 		/* set i and slot to the next free position */
