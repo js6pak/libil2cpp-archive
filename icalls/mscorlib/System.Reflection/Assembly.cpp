@@ -9,6 +9,7 @@
 #include "os/File.h"
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
+#include "os/Path.h"
 #include "utils/Memory.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
@@ -129,7 +130,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 		Field::SetValue(assemblyNameObject, assemblyNameField, String::New(MetadataCache::GetStringFromIndex (assemblyName->nameIndex)));
 
 	if (codebaseField != NULL)
-		Field::SetValue(assemblyNameObject, codebaseField, String::New(utils::StringUtils::Printf("%s.dll", MetadataCache::GetStringFromIndex(assemblyName->nameIndex)).c_str()));
+		Field::SetValue(assemblyNameObject, codebaseField, get_code_base(ass, false));
 
 	FieldInfo* field = Class::GetFieldFromName(assemblyNameType, "major");
 	if (field != NULL)
@@ -278,7 +279,9 @@ Il2CppReflectionAssembly* Assembly::GetCallingAssembly()
 
 Il2CppString* Assembly::get_code_base(Il2CppReflectionAssembly * assembly, bool escaped)
 {
-	return vm::String::New(MetadataCache::GetStringFromIndex (assembly->assembly->aname.nameIndex));
+	std::string executableDirectory = utils::PathUtils::DirectoryName(os::Path::GetExecutablePath());
+	std::replace(executableDirectory.begin(), executableDirectory.end(), '\\', '/');
+	return vm::String::New(utils::StringUtils::Printf("file:///%s/%s.dll", executableDirectory.c_str(), MetadataCache::GetStringFromIndex(assembly->assembly->aname.nameIndex)).c_str());
 }
 
 Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* __this, bool exportedOnly)
