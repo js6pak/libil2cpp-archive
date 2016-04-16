@@ -600,9 +600,24 @@ void il2cpp_field_static_set_value (FieldInfo *field, void *value)
 }
 
 // gc
-void il2cpp_gc_collect(int maxGenerations)
+void il2cpp_gc_collect (int maxGenerations)
 {
-	GC::Collect(maxGenerations);
+	GC::Collect (maxGenerations);
+}
+
+int32_t il2cpp_gc_collect_a_little ()
+{
+	return GC::CollectALittle ();
+}
+
+void il2cpp_gc_enable ()
+{
+	GC::Enable ();
+}
+
+void il2cpp_gc_disable ()
+{
+	GC::Disable ();
 }
 
 int64_t il2cpp_gc_get_used_size ()

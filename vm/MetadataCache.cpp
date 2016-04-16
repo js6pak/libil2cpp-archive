@@ -1055,7 +1055,7 @@ CustomAttributesCache* MetadataCache::GenerateCustomAttributesCache (CustomAttri
 		return NULL;
 
 	assert (index > 0 && index <= s_Il2CppCodeRegistration->customAttributeCount);
-	assert (index > 0 && index <= s_GlobalMetadataHeader->attributesInfoCount / sizeof (Il2CppCustomAttributeTypeRange));
+	assert (index > 0 && index <= static_cast<int32_t>(s_GlobalMetadataHeader->attributesInfoCount / sizeof (Il2CppCustomAttributeTypeRange)));
 
 	CallOnce(s_CustomAttributesOnceFlag, &InitializeCustomAttributesCaches, NULL);
 
@@ -1100,7 +1100,7 @@ CustomAttributeTypeCache* MetadataCache::GenerateCustomAttributeTypeCache (Custo
 		return NULL;
 
 	assert (index > 0 && index <= s_Il2CppCodeRegistration->customAttributeCount);
-	assert (index > 0 && index <= s_GlobalMetadataHeader->attributesInfoCount / sizeof(Il2CppCustomAttributeTypeRange));
+	assert (index > 0 && index <= static_cast<int32_t>(s_GlobalMetadataHeader->attributesInfoCount / sizeof(Il2CppCustomAttributeTypeRange)));
 
 	CallOnce (s_CustomAttributesOnceFlag, &InitializeCustomAttributesCaches, NULL);
 

@@ -8,10 +8,6 @@ struct Il2CppThread;
 void il2cpp_gc_init (void);
 void il2cpp_gc_base_init (void);
 void il2cpp_gc_cleanup (void);
-void il2cpp_gc_enable (void);
-void il2cpp_gc_disable (void);
-
-void il2cpp_gc_collect (int generation);
 
 bool il2cpp_gc_is_gc_thread (void);
 
