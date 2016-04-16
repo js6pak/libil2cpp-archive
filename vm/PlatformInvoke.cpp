@@ -297,8 +297,8 @@ char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
 	size_t stringLength = String::GetLength(stringBuilder->str);
 
 	// not sure if this is necessary but it's better to be safe than sorry
-	assert(stringLength >= stringBuilder->length);
-	if (stringLength < stringBuilder->length)
+	assert(static_cast<int32_t>(stringLength) >= stringBuilder->length);
+	if (static_cast<int32_t>(stringLength) < stringBuilder->length)
 		stringLength = stringBuilder->length;
 
 	std::string utf8String = utils::StringUtils::Utf16ToUtf8(stringBuilder->str->chars, stringBuilder->length);
