@@ -44,7 +44,7 @@ void GC::KeepAlive (Il2CppObject* obj)
 
 void GC::InternalCollect(int generation)
 {
-	il2cpp_gc_collect (generation);
+	il2cpp::vm::GC::Collect (generation);
 }
 
 int32_t GC::get_MaxGeneration()
@@ -65,7 +65,7 @@ void GC::WaitForPendingFinalizers()
 int64_t GC::GetTotalMemory (bool forceFullCollection)
 {
 	if ( forceFullCollection )
-		il2cpp_gc_collect (il2cpp_gc_max_generation());
+		il2cpp::vm::GC::Collect (il2cpp_gc_max_generation());
 
 	return il2cpp::vm::GC::GetUsedHeapSize ();
 }
