@@ -4,7 +4,6 @@
 
 #if IL2CPP_SUPPORT_THREADS
 
-#include "gc/gc-internal.h"
 #include "os/Atomic.h"
 #include "os/Event.h"
 #include "os/Semaphore.h"

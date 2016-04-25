@@ -1,5 +1,5 @@
 #include "il2cpp-config.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include <utils/dynamic_array.h>
 #include "vm/Array.h"
 #include "vm/Class.h"
@@ -466,12 +466,12 @@ void Liveness::FromStatics (void* state)
 void Liveness::StopWorld (WorldChangedCallback onWorldStopped)
 {
 	onWorldStopped();
-	il2cpp_gc_stop_world ();
+	il2cpp::gc::GarbageCollector::StopWorld ();
 }
 
 void Liveness::StartWorld (WorldChangedCallback onWorldStarted)
 {
-	il2cpp_gc_start_world ();
+	il2cpp::gc::GarbageCollector::StartWorld ();
 	onWorldStarted();
 }
 

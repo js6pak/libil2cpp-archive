@@ -6,7 +6,7 @@
 #include <limits>
 #include "class-internals.h"
 #include "tabledefs.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "metadata/ArrayMetadata.h"
 #include "metadata/GenericMetadata.h"
 #include "metadata/GenericMethod.h"
@@ -45,6 +45,7 @@ using namespace il2cpp;
 using namespace il2cpp::utils::collections;
 using namespace il2cpp::vm;
 
+using il2cpp::gc::GarbageCollector;
 using il2cpp::metadata::ArrayMetadata;
 using il2cpp::metadata::GenericMetadata;
 using il2cpp::metadata::GenericMethod;
@@ -233,7 +234,7 @@ void MetadataCache::Initialize()
 // this is called later in the intialization cycle with more systems setup like GC
 void MetadataCache::InitializeGCSafe ()
 {
-	s_StringLiteralTable = (Il2CppString**)il2cpp_gc_alloc_fixed (s_GlobalMetadataHeader->stringLiteralCount / sizeof (Il2CppStringLiteral) * sizeof (Il2CppString*), NULL);
+	s_StringLiteralTable = (Il2CppString**)GarbageCollector::AllocateFixed (s_GlobalMetadataHeader->stringLiteralCount / sizeof (Il2CppStringLiteral) * sizeof (Il2CppString*), NULL);
 
 	for (int32_t i = 0; i < s_Il2CppMetadataRegistration->genericMethodTableCount; i++)
 	{
@@ -1067,7 +1068,7 @@ CustomAttributesCache* MetadataCache::GenerateCustomAttributesCache (CustomAttri
 
 		cache = (CustomAttributesCache*)IL2CPP_CALLOC (1, sizeof(CustomAttributesCache));
 		cache->count = attributeTypeRange->count;
-		cache->attributes = (Il2CppObject**)il2cpp_gc_alloc_fixed (sizeof(Il2CppObject *) * cache->count, 0);
+		cache->attributes = (Il2CppObject**)GarbageCollector::AllocateFixed (sizeof(Il2CppObject *) * cache->count, 0);
 
 		for (int32_t i = 0; i < attributeTypeRange->count; i++)
 		{
@@ -1084,7 +1085,7 @@ CustomAttributesCache* MetadataCache::GenerateCustomAttributesCache (CustomAttri
 		{
 			// A non-NULL return value indicates some other thread already generated this cache.
 			// We need to cleanup the resources we allocated
-			il2cpp_gc_free_fixed(cache->attributes);
+			GarbageCollector::FreeFixed (cache->attributes);
 			IL2CPP_FREE(cache);
 
 			cache = original;

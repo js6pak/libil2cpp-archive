@@ -37,7 +37,7 @@
 #include "class-internals.h"
 #include "object-internals.h"
 #include "tabledefs.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "vm/InternalCalls.h"
 #include "utils/Collections.h"
 #include "utils/Memory.h"
@@ -114,7 +114,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 
 	MetadataCache::Initialize ();
 	Assembly::Initialize ();
-	il2cpp_gc_base_init();
+	gc::GarbageCollector::Initialize ();
 
 	// Thread needs GC initialized
 	Thread::Initialize ();
@@ -229,7 +229,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 
 	LastError::InitializeLastErrorThreadStatic();
 
-	il2cpp_gc_init();
+	gc::GarbageCollector::InitializeFinalizer ();
 
 	MetadataCache::InitializeGCSafe ();
 	ThreadPool::Initialize ();
@@ -257,7 +257,7 @@ void Runtime::Shutdown ()
 	os::Socket::Cleanup ();
 
 	os::LibraryLoader::CleanupLoadedLibraries();
-	il2cpp_gc_cleanup ();
+	il2cpp::gc::GarbageCollector::Uninitialize ();
 
 	// after the gc cleanup so the finalizer thread can unregister itself
 	Thread::UnInitialize ();

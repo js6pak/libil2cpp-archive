@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "object-internals.h"
+#include "GarbageCollector.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -9,10 +10,6 @@
 #include "os/Semaphore.h"
 #include "os/Thread.h"
 #include <cassert>
-
-// gc-internal.h includes gc-wrapper.h, which includes gc.h, which includes windows.h, 
-// and that conflicts with vm/Thread.h as it defines MemoryBarrier macro. So include this last.
-#include "gc-internal.h"
 
 using namespace il2cpp::os;
 using namespace il2cpp::vm;
@@ -37,7 +34,7 @@ static void FinalizerThread (void* arg)
 	{
 		s_FinalizerSemaphore.Wait ();
 
-		il2cpp_gc_invoke_finalizers ();
+		il2cpp::gc::GarbageCollector::InvokeFinalizers ();
 
 		s_FinalizersCompletedEvent.Set ();
 	}
@@ -45,14 +42,14 @@ static void FinalizerThread (void* arg)
 	il2cpp::vm::Thread::Detach (s_FinalizerThreadObject);
 }
 
-bool il2cpp_gc_is_gc_thread (Il2CppThread *thread)
+bool il2cpp::gc::GarbageCollector::IsFinalizerThread (Il2CppThread *thread)
 {
 	return s_FinalizerThreadObject == thread;
 }
 
 #else
 
-bool il2cpp_gc_is_gc_thread (Il2CppThread *thread)
+bool il2cpp::gc::GarbageCollector::IsFinalizerThread (Il2CppThread *thread)
 {
 	return false;
 }
@@ -60,9 +57,9 @@ bool il2cpp_gc_is_gc_thread (Il2CppThread *thread)
 #endif
 
 void
-il2cpp_gc_init (void)
+il2cpp::gc::GarbageCollector::InitializeFinalizer ()
 {
-	il2cpp_gc_base_init();
+	GarbageCollector::InvokeFinalizers ();
 #if IL2CPP_SUPPORT_THREADS
 	s_FinalizerThread.Run (&FinalizerThread, NULL);
 	s_FinalizersThreadStartedEvent.Wait();
@@ -71,16 +68,17 @@ il2cpp_gc_init (void)
 
 
 void
-il2cpp_gc_cleanup (void)
+il2cpp::gc::GarbageCollector::Uninitialize ()
 {
 #if IL2CPP_SUPPORT_THREADS
 	s_StopFinalizer = true;
-	il2cpp_gc_finalize_notify ();
+	NotifyFinalizers ();
 	s_FinalizerThread.Join ();
 #endif
 }
 
-void il2cpp_gc_finalize_notify ()
+void
+il2cpp::gc::GarbageCollector::NotifyFinalizers ()
 {
 #if IL2CPP_SUPPORT_THREADS
 	s_FinalizerSemaphore.Post (1, NULL);
@@ -88,9 +86,9 @@ void il2cpp_gc_finalize_notify ()
 }
 
 void
-il2cpp_gc_run_finalize (void *obj, void *data)
+il2cpp::gc::GarbageCollector::RunFinalizer (void *obj, void *data)
 {
-	NOT_IMPLEMENTED_NO_ASSERT (il2cpp_gc_run_finalize, "Compare to mono implementation special cases");
+	NOT_IMPLEMENTED_NO_ASSERT (il2cpp::gc::GarbageCollector::RunFinalizer, "Compare to mono implementation special cases");
 
 	Il2CppException *exc = NULL;
 	Il2CppObject *o;
@@ -102,36 +100,23 @@ il2cpp_gc_run_finalize (void *obj, void *data)
 
 	Runtime::Invoke (finalizer, o, NULL, &exc);
 
-	if (exc) {
-		/* fixme: do something useful */
-	}
+	if (exc)
+		Runtime::UnhandledException (exc);
 }
 
-void il2cpp_gc_register_finalizer_with_callback (Il2CppObject* obj, void (*callback)(void *, void *))
+void il2cpp::gc::GarbageCollector::RegisterFinalizer (Il2CppObject* obj)
 {
-	NOT_IMPLEMENTED_NO_ASSERT (register_finalizer, "Compare to mono implementation special cases");
-
-	if (obj == NULL)
-		Exception::Raise (Exception::GetArgumentNullException ("obj"));
-
-#if !IL2CPP_GC_NULL
-	GC_REGISTER_FINALIZER_NO_ORDER ((char*)obj, callback, NULL, NULL, NULL);
-#endif
+	RegisterFinalizerWithCallback (obj, &il2cpp::gc::GarbageCollector::RunFinalizer);
 }
 
-void il2cpp_gc_register_finalizer (Il2CppObject* obj)
+void il2cpp::gc::GarbageCollector::SuppressFinalizer (Il2CppObject* obj)
 {
-	il2cpp_gc_register_finalizer_with_callback (obj, &il2cpp_gc_run_finalize);
+	RegisterFinalizerWithCallback (obj, NULL);
 }
 
-void il2cpp_gc_suppress_finalizer (Il2CppObject* obj)
+void il2cpp::gc::GarbageCollector::WaitForPendingFinalizers ()
 {
-	il2cpp_gc_register_finalizer_with_callback (obj, NULL);
-}
-
-void il2cpp_gc_wait_for_pending_finalizers ()
-{
-	if (!il2cpp_gc_pending_finalizers ())
+	if (!il2cpp::gc::GarbageCollector::HasPendingFinalizers ())
 		return;
 	
 #if IL2CPP_SUPPORT_THREADS
@@ -140,18 +125,21 @@ void il2cpp_gc_wait_for_pending_finalizers ()
 		return;
 
 	s_FinalizersCompletedEvent.Reset ();
-	il2cpp_gc_finalize_notify ();
+	NotifyFinalizers ();
 	s_FinalizersCompletedEvent.Wait ();
 #else
-	il2cpp_gc_invoke_finalizers ();
+	il2cpp::gc::GarbageCollector::InvokeFinalizers ();
 #endif
 }
 
-bool
-il2cpp_gc_has_finalizer_thread_object()
+int32_t
+il2cpp::gc::GarbageCollector::GetGeneration (void* addr)
 {
-#if IL2CPP_SUPPORT_THREADS
-	return s_FinalizerThreadObject != NULL;
-#endif
-	return false;
+	return 0;
 }
+
+void
+il2cpp::gc::GarbageCollector::AddMemoryPressure (int64_t value)
+{
+}
+
