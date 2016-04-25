@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "gc/gc-internal.h"
+#include "GarbageCollector.h"
 
 namespace il2cpp
 {
@@ -21,13 +21,13 @@ namespace gc
 		Allocator(const Allocator&) {}
 
 		pointer allocate(size_type n, const void * = 0) {
-			T* t = (T*) il2cpp_gc_alloc_fixed(n * sizeof(T), 0);
+			T* t = (T*)GarbageCollector::AllocateFixed (n * sizeof(T), 0);
 			return t;
 		}
   
 		void deallocate(void* p, size_type) {
 			if (p) {
-				il2cpp_gc_free_fixed(p);
+				GarbageCollector::FreeFixed (p);
 			} 
 		}
 

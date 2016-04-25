@@ -1,5 +1,5 @@
 #include "il2cpp-config.h"
-#include "gc/gc-internal.h"
+#include "gc/gc_wrapper.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"

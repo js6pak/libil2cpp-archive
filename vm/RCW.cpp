@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include "object-internals.h"
 #include "class-internals.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "vm/Exception.h"
 #include "vm/Object.h"
 #include "vm/PlatformInvoke.h"
@@ -41,7 +41,7 @@ void RCW::Initialize(Il2CppComObject* rcw, const Il2CppGuid& clsid)
 		assert(inserted);
 	}
 
-	il2cpp_gc_register_finalizer_with_callback(rcw, &RCW::Cleanup);
+	il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (rcw, &RCW::Cleanup);
 }
 
 void RCW::Cleanup(void* obj, void* data)
@@ -59,7 +59,7 @@ void RCW::Cleanup(void* obj, void* data)
 	}
 
 	if (rcw->klass->has_finalize)
-		il2cpp_gc_run_finalize(obj, data);
+		il2cpp::gc::GarbageCollector::RunFinalizer (obj, data);
 
 	if (rcw->identity)
 	{
@@ -146,7 +146,7 @@ Il2CppObject* RCW::Create(Il2CppIUnknown* unknown)
 		assert(inserted);
 	}
 
-	il2cpp_gc_register_finalizer_with_callback(rcw, &RCW::Cleanup);
+	il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (rcw, &RCW::Cleanup);
 
 	return rcw;
 }

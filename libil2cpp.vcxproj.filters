@@ -50,9 +50,6 @@
     <ClCompile Include="gc\BoehmGC.cpp">
       <Filter>gc</Filter>
     </ClCompile>
-    <ClCompile Include="gc\gc.cpp">
-      <Filter>gc</Filter>
-    </ClCompile>
     <ClCompile Include="gc\GCHandle.cpp">
       <Filter>gc</Filter>
     </ClCompile>
@@ -697,6 +694,9 @@
     <ClCompile Include="vm\COM.cpp">
       <Filter>vm</Filter>
     </ClCompile>
+    <ClCompile Include="gc\GarbageCollector.cpp">
+      <Filter>gc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1321,9 +1321,14 @@
     <ClInclude Include="vm\COM.h">
       <Filter>vm</Filter>
     </ClInclude>
-    <ClInclude Include="vm\GC.h">
-      <Filter>vm</Filter>
+    <ClInclude Include="il2cpp-api-functions.h" />
+    <ClInclude Include="gc\GarbageCollector.h">
+      <Filter>gc</Filter>
     </ClInclude>
+    <ClInclude Include="gc\GarbageCollectorImpl.h">
+      <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\GC.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1387,9 +1392,6 @@
       <Filter>vm</Filter>
     </ClInclude>
     <ClInclude Include="gc\Allocator.h">
-      <Filter>gc</Filter>
-    </ClInclude>
-    <ClInclude Include="gc\gc-internal.h">
       <Filter>gc</Filter>
     </ClInclude>
     <ClInclude Include="gc\gc_wrapper.h">
