@@ -84,25 +84,25 @@ struct Il2CppEventInfoLess
 struct PropertyPair
 {
 	const PropertyInfo *property;
-	Il2CppReflectionProperty *reflectionProperty;
+	Il2CppClass* originalType;
 
-	PropertyPair(const PropertyInfo *property, Il2CppReflectionProperty *reflectionProperty) : property(property), reflectionProperty(reflectionProperty)
+	PropertyPair(const PropertyInfo *property, Il2CppClass* originalType) : property(property), originalType(originalType)
 	{
 	}
 };
 
-typedef std::vector<PropertyPair, il2cpp::gc::Allocator<PropertyPair> > PropertyPairVector;
+typedef std::vector<PropertyPair> PropertyPairVector;
 
 typedef unordered_map<
 	const EventInfo*,
-	Il2CppReflectionEvent*,
+	Il2CppClass*,
 #if IL2CPP_HAS_UNORDERED_CONTAINER
 	Il2CppEventInfoHash,
-	Il2CppEventInfoCompare,
+	Il2CppEventInfoCompare
 #else
-	Il2CppEventInfoLess,
+	Il2CppEventInfoLess
 #endif
-	il2cpp::gc::Allocator<std::pair<const EventInfo* const, Il2CppReflectionEvent*> > > EventMap;
+	> EventMap;
 
 static bool PropertyEqual(const PropertyInfo* prop1, const PropertyInfo* prop2)
 {
@@ -366,11 +366,10 @@ Il2CppArray* MonoType::GetConstructors_internal(Il2CppReflectionType* type, int3
 	Il2CppClass *startklass, *klass, *refklass;
 	Il2CppArray *res;
 	const MethodInfo *method;
-	Il2CppObject *member;
 	int match;
 	void* iter = NULL;
-	typedef std::vector<Il2CppObject*, il2cpp::gc::Allocator<Il2CppObject*> > TempVec;
-	TempVec tmp_vec;
+	typedef std::vector< std::pair<const MethodInfo*, Il2CppClass*> > MethodPairVector;
+	MethodPairVector tmp_vec;
 
 	if (type->type->byref)
 		return il2cpp::vm::Array::NewCached (il2cpp_defaults.method_info_class, 0);
@@ -407,15 +406,14 @@ Il2CppArray* MonoType::GetConstructors_internal(Il2CppReflectionType* type, int3
 
 		if (!match)
 			continue;
-		member = (Il2CppObject*)Reflection::GetMethodObject (method, refklass);
 
-		tmp_vec.push_back(member);
+		tmp_vec.push_back(std::make_pair(method, refklass));
 	}
 
 	res = il2cpp::vm::Array::NewCached (System_Reflection_ConstructorInfo, (il2cpp_array_size_t)tmp_vec.size());
 
 	for (size_t i = 0; i < tmp_vec.size(); ++i)
-		il2cpp_array_setref (res, i, tmp_vec[i]);
+		il2cpp_array_setref (res, i, (Il2CppObject*)Reflection::GetMethodObject(tmp_vec[i].first, tmp_vec[i].second));
 
 	return res;
 }
@@ -739,7 +737,7 @@ static void CollectTypeProperties(Il2CppClass* type, uint32_t bindingFlags, cons
 			if (PropertyPairVectorContains(properties, property))
 				continue;
 
-			properties.push_back(PropertyPair(property, Reflection::GetPropertyObject(originalType, property)));
+			properties.push_back(PropertyPair(property, originalType));
 		}
 	}
 }
@@ -767,7 +765,7 @@ static Il2CppArray* GetPropertiesByNameImpl(const Il2CppType* type, uint32_t bin
 
 	for (PropertyPairVector::const_iterator iter = properties.begin(); iter != properties.end(); iter++)
 	{
-		il2cpp_array_setref(res, i, iter->reflectionProperty);
+		il2cpp_array_setref(res, i, Reflection::GetPropertyObject(iter->originalType, iter->property));
 		i++;
 	}
 
@@ -878,7 +876,7 @@ static inline void CollectTypeEvents(Il2CppClass* type, Il2CppClass* const origi
 			if (events.find(event) != events.end())
 				continue;
 
-			events[event] = Reflection::GetEventObject(originalType, event);
+			events[event] = originalType;
 		}
 	}
 }
@@ -910,7 +908,7 @@ Il2CppArray* MonoType::GetEvents_internal(Il2CppReflectionType* _this, int32_t b
 
 	for (EventMap::const_iterator iter = events.begin(); iter != events.end(); iter++)
 	{
-		il2cpp_array_setref(result, i, iter->second);
+		il2cpp_array_setref(result, i, Reflection::GetEventObject(iter->second, iter->first));
 		i++;
 	}
 

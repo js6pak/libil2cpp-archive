@@ -16,7 +16,8 @@
 #include "vm/Type.h"
 #include "class-internals.h"
 #include "object-internals.h"
-#include "gc/gc-internal.h"
+#include "gc/gc_wrapper.h"
+#include "gc/GarbageCollector.h"
 #include "tabledefs.h"
 
 #if IL2CPP_GC_BOEHM
@@ -130,7 +131,7 @@ Il2CppObject* Object::Clone (Il2CppObject *obj)
 //#endif
 
 	if (obj->klass->has_finalize)
-		il2cpp_gc_register_finalizer (o);
+		il2cpp::gc::GarbageCollector::RegisterFinalizer (o);
 
 #if IL2CPP_ENABLE_PROFILER
 	if (Profiler::ProfileAllocations ())
@@ -255,7 +256,7 @@ Il2CppObject * Object::NewAllocSpecific (Il2CppClass *klass)
 		o = Allocate (klass->instance_size, klass);
 	}
 	if (klass->has_finalize)
-		il2cpp_gc_register_finalizer (o);
+		il2cpp::gc::GarbageCollector::RegisterFinalizer (o);
 	
 #if IL2CPP_ENABLE_PROFILER
 	if (Profiler::ProfileAllocations ())
