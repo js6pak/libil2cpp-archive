@@ -28,7 +28,7 @@
 #include "class-internals.h"
 #include "object-internals.h"
 #include "tabledefs.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "utils/StdUnorderedMap.h"
 #include "utils/StringUtils.h"
 #include <cassert>
@@ -928,7 +928,7 @@ static void LayoutFieldsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 
 	if (klass->static_fields_size)
 	{
-		klass->static_fields = il2cpp_gc_alloc_fixed(klass->static_fields_size, NULL);
+		klass->static_fields = il2cpp::gc::GarbageCollector::AllocateFixed (klass->static_fields_size, NULL);
 		s_staticFieldData.push_back (klass);
 
 		il2cpp_runtime_stats.class_static_data_size += klass->static_fields_size;
@@ -1852,11 +1852,11 @@ void SetupGCDescriptor (Il2CppClass* klass)
 	GetBitmapNoInit (klass, bitmap, maxSetBit, 0);
 
 	if (klass == il2cpp_defaults.string_class)
-		klass->gc_desc = GC_NO_DESCRIPTOR;
+		klass->gc_desc = il2cpp::gc::GarbageCollector::MakeDescriptorForString ();
 	else if (klass->rank)
-		klass->gc_desc = GC_NO_DESCRIPTOR;
+		klass->gc_desc = il2cpp::gc::GarbageCollector::MakeDescriptorForArray ();
 	else
-		klass->gc_desc = il2cpp_gc_make_descr_for_object (bitmap, (int)maxSetBit + 1);
+		klass->gc_desc = il2cpp::gc::GarbageCollector::MakeDescriptorForObject (bitmap, (int)maxSetBit + 1);
 }
 
 #define CHECK_IF_NULL(v)	\

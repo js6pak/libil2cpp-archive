@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 #include "MemoryInformation.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 #include "metadata/ArrayMetadata.h"
 #include "metadata/GenericMetadata.h"
@@ -182,11 +182,11 @@ static void* CaptureHeapInfo(void* voidManagedHeap)
 {
 	Il2CppManagedHeap& heap = *(Il2CppManagedHeap*) voidManagedHeap;
 
-	heap.sectionCount = static_cast<uint32_t>(il2cpp_gc_get_section_count());
+	heap.sectionCount = static_cast<uint32_t>(il2cpp::gc::GarbageCollector::GetSectionCount());
 	heap.sections = static_cast<Il2CppManagedMemorySection*>(IL2CPP_CALLOC(heap.sectionCount, sizeof(Il2CppManagedMemorySection)));
 
 	SectionIterationContext iterationContext = { heap.sections };
-	il2cpp_gc_foreach_heap_section(&iterationContext, AllocateMemoryForSection);
+	il2cpp::gc::GarbageCollector::ForEachHeapSection (&iterationContext, AllocateMemoryForSection);
 
 	return NULL;
 }
@@ -220,11 +220,11 @@ static void VerifyHeapSectionIsStillValid(void* context, void* sectionStart, voi
 
 static bool IsIL2CppManagedHeapStillValid(Il2CppManagedHeap& heap)
 {
-	if (heap.sectionCount != static_cast<uint32_t>(il2cpp_gc_get_section_count()))
+	if (heap.sectionCount != static_cast<uint32_t>(il2cpp::gc::GarbageCollector::GetSectionCount()))
 		return false;
 
 	VerifyHeapSectionStillValidIterationContext iterationContext = { heap.sections, true };
-	il2cpp_gc_foreach_heap_section(&iterationContext, VerifyHeapSectionIsStillValid);
+	il2cpp::gc::GarbageCollector::ForEachHeapSection (&iterationContext, VerifyHeapSectionIsStillValid);
 
 	return iterationContext.wasValid;
 }
@@ -245,22 +245,22 @@ static inline void CaptureManagedHeap(Il2CppManagedHeap& heap)
 {
 	for (;;)
 	{
-		il2cpp_gc_call_with_alloc_lock_held(CaptureHeapInfo, &heap);
+		il2cpp::gc::GarbageCollector::CallWithAllocLockHeld (CaptureHeapInfo, &heap);
 
-		il2cpp_gc_stop_world();
+		il2cpp::gc::GarbageCollector::StopWorld ();
 
 		if (IsIL2CppManagedHeapStillValid(heap))
 			break;
 
-		il2cpp_gc_start_world();
+		il2cpp::gc::GarbageCollector::StartWorld ();
 
 		FreeIL2CppManagedHeap(heap);
 	}
 
 	SectionIterationContext iterationContext = { heap.sections };
-	il2cpp_gc_foreach_heap_section(&iterationContext, CopyHeapSection);
+	il2cpp::gc::GarbageCollector::ForEachHeapSection (&iterationContext, CopyHeapSection);
 
-	il2cpp_gc_start_world();
+	il2cpp::gc::GarbageCollector::StartWorld ();
 }
 
 struct GCHandleTargetIterationContext
