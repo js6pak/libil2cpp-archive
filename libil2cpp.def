@@ -81,6 +81,9 @@ il2cpp_field_static_get_value
 il2cpp_field_static_set_value
 
 il2cpp_gc_collect
+il2cpp_gc_collect_a_little
+il2cpp_gc_disable
+il2cpp_gc_enable
 il2cpp_gc_get_used_size
 il2cpp_gc_get_heap_size
 

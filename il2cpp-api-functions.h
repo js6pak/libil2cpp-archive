@@ -101,6 +101,9 @@ DO_API( void, il2cpp_field_static_set_value, (FieldInfo *field, void *value) );
 
 // gc
 DO_API( void, il2cpp_gc_collect, (int maxGenerations) );
+DO_API( int32_t, il2cpp_gc_collect_a_little, ());
+DO_API( void, il2cpp_gc_disable, ());
+DO_API( void, il2cpp_gc_enable, () );
 DO_API( int64_t, il2cpp_gc_get_used_size, () );
 DO_API( int64_t, il2cpp_gc_get_heap_size, () );
 
