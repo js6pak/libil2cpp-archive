@@ -888,6 +888,7 @@
     <ClInclude Include="vm\Event.h" />
     <ClInclude Include="vm\Exception.h" />
     <ClInclude Include="vm\Field.h" />
+    <ClInclude Include="vm\GC.h" />
     <ClInclude Include="vm\GenericClass.h" />
     <ClInclude Include="vm\GenericContainer.h" />
     <ClInclude Include="vm\Image.h" />
