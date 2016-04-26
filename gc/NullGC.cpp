@@ -14,17 +14,6 @@ il2cpp_gc_base_init (void)
 {
 }
 
-void
-il2cpp_gc_disable (void)
-{
-}
-
-void
-il2cpp_gc_enable (void)
-{
-}
-
-
 void*
 il2cpp_gc_alloc_fixed (size_t size, void *descr)
 {
@@ -135,7 +124,23 @@ il2cpp_gc_change_weak_track_handle (Il2CppObject *old_obj, Il2CppObject *obj, ui
 }
 
 void
-il2cpp_gc_collect (int generation)
+il2cpp::vm::GC::Collect (int maxGeneration)
+{
+}
+
+int32_t
+il2cpp::vm::GC::CollectALittle ()
+{
+	return 0;
+}
+
+void
+il2cpp::vm::GC::Enable ()
+{
+}
+
+void
+il2cpp::vm::GC::Disable ()
 {
 }
 
