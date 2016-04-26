@@ -45,12 +45,6 @@ il2cpp_gc_base_init (void)
 	s_GCInitialized = true;
 }
 
-void
-il2cpp_gc_collect (int generation)
-{
-	GC_gcollect ();
-}
-
 int
 il2cpp_gc_max_generation (void)
 {
@@ -81,6 +75,24 @@ il2cpp::vm::GC::Collect (int maxGeneration)
 	GC_gcollect ();
 }
 
+int32_t
+il2cpp::vm::GC::CollectALittle ()
+{
+	return GC_collect_a_little ();
+}
+
+void
+il2cpp::vm::GC::Enable()
+{
+	GC_enable();
+}
+
+void
+il2cpp::vm::GC::Disable()
+{
+	GC_disable();
+}
+
 int64_t
 il2cpp::vm::GC::GetUsedHeapSize (void)
 {
@@ -91,18 +103,6 @@ int64_t
 il2cpp::vm::GC::GetAllocatedHeapSize (void)
 {
 	return GC_get_heap_size ();
-}
-
-void
-il2cpp_gc_disable (void)
-{
-	GC_disable ();
-}
-
-void
-il2cpp_gc_enable (void)
-{
-	GC_enable ();
 }
 
 bool
