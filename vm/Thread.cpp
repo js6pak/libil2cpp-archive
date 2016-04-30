@@ -12,7 +12,7 @@
 #include "vm/StackTrace.h"
 #include "vm/Thread.h"
 #include "gc/Allocator.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
@@ -27,6 +27,7 @@
 #endif
 
 using namespace il2cpp::os;
+using il2cpp::gc::GarbageCollector;
 using il2cpp::os::FastMutex;
 
 namespace il2cpp
@@ -80,8 +81,8 @@ Il2CppThread* Thread::Attach (Il2CppDomain *domain)
 		return thread;
 
 	int temp = 0;
-	if (!il2cpp_gc_register_thread (&temp))
-		assert (0 && "il2cpp_gc_register_thread failed");
+	if (!GarbageCollector::RegisterThread (&temp))
+		assert (0 && "GarbageCollector::RegisterThread failed");
 
 	StackTrace::InitializeStackTracesForCurrentThread();
 
@@ -152,8 +153,8 @@ void Thread::Uninitialize (Il2CppThread *thread)
 	os::Thread::UnregisterCurrentThreadForCleanup ();
 #endif
 
-	if (!il2cpp_gc_unregister_thread())
-		assert(0 && "il2cpp_thread_detach failed");
+	if (!GarbageCollector::UnregisterThread ())
+		assert(0 && "GarbageCollector::UnregisterThread failed");
 
 #if IL2CPP_DEBUGGER_ENABLED
 	il2cpp_debugger_notify_thread_detach(thread);
@@ -204,7 +205,7 @@ void Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads ()
 		Il2CppThread* thread = s_AttachedThreads->back ();
 		os::Thread* osThread = thread->handle;
 
-		if (il2cpp_gc_is_gc_thread (thread))
+		if (GarbageCollector::IsFinalizerThread (thread))
 		{
 			assert (gcFinalizerThread == NULL && "There seems to be more than one finalizer thread!");
 			gcFinalizerThread = thread;
@@ -292,7 +293,7 @@ void Thread::AdjustStaticData ()
 	for (std::vector<int32_t>::const_iterator iter = s_ThreadStaticSizes.begin (); iter != s_ThreadStaticSizes.end (); ++iter)
 	{
 		if (!thread->static_data [index])
-			thread->static_data [index] = il2cpp_gc_alloc_fixed (*iter, NULL);
+			thread->static_data [index] = GarbageCollector::AllocateFixed (*iter, NULL);
 		index++;
 	}
 }
@@ -308,7 +309,7 @@ int32_t Thread::AllocThreadStaticData (int32_t size)
 		Il2CppThread* thread = *iter;
 		if (!thread->static_data)
 			thread->static_data = (void**)IL2CPP_CALLOC (kMaxThreadStaticSlots, sizeof (void*));
-		thread->static_data[index] = il2cpp_gc_alloc_fixed (size, NULL);
+		thread->static_data[index] = GarbageCollector::AllocateFixed (size, NULL);
 	}
 
 	return index;
@@ -321,7 +322,7 @@ void Thread::FreeThreadStaticData (Il2CppThread *thread)
 	for (std::vector<int32_t>::const_iterator iter = s_ThreadStaticSizes.begin (); iter != s_ThreadStaticSizes.end (); ++iter)
 	{
 		if (thread->static_data [index])
-			il2cpp_gc_free_fixed (thread->static_data [index]);
+			GarbageCollector::FreeFixed (thread->static_data [index]);
 		index++;
 	}
 	IL2CPP_FREE (thread->static_data);
@@ -352,7 +353,7 @@ void Thread::Unregister (Il2CppThread *thread)
 
 bool Thread::IsVmThread (Il2CppThread *thread)
 {
-	return !il2cpp_gc_is_gc_thread (thread);
+	return !GarbageCollector::IsFinalizerThread (thread);
 }
 
 char *Thread::GetName (uint32_t *len)
