@@ -3,7 +3,7 @@
 #include <memory>
 #include "icalls/mscorlib/System.Threading/Thread.h"
 #include "class-internals.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "os/Atomic.h"
 #include "os/Thread.h"
 #include "os/Mutex.h"
@@ -22,7 +22,7 @@
 #include "utils/StringUtils.h"
 
 using namespace il2cpp::vm;
-
+using il2cpp::gc::GarbageCollector;
 
 namespace il2cpp
 {
@@ -159,8 +159,8 @@ static void ThreadStart (void* arg)
 
 	{
 		int temp = 0;
-		if (!il2cpp_gc_register_thread (&temp))
-			assert (0 && "il2cpp_gc_register_thread failed");
+		if (!GarbageCollector::RegisterThread (&temp))
+			assert (0 && "GarbageCollector::RegisterThread failed");
 
 		il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
@@ -190,7 +190,7 @@ static void ThreadStart (void* arg)
 	}
 
 	delete startData->m_Semaphore;
-	il2cpp_gc_free_fixed (startData);
+	GarbageCollector::FreeFixed (startData);
 }
 
 Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * start)
@@ -205,7 +205,7 @@ Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * st
 	}
 
 	// use fixed GC memory since we are storing managed object pointers
-	StartData* startData = (StartData*)il2cpp_gc_alloc_fixed (sizeof(StartData), NULL);
+	StartData* startData = (StartData*)GarbageCollector::AllocateFixed (sizeof(StartData), NULL);
 	startData->m_Thread = __this;
 	startData->m_Domain = Domain::GetCurrent ();
 	startData->m_Delegate = start;

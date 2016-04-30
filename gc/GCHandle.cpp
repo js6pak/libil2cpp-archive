@@ -1,10 +1,9 @@
 #include "il2cpp-config.h"
 #include "gc/GCHandle.h"
 #include "object-internals.h"
-#include "gc-internal.h"
+#include "GarbageCollector.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
-#include "vm/GC.h"
 #include <cassert>
 #include <memory>
 
@@ -59,7 +58,7 @@ alloc_handle (HandleData *handles, Il2CppObject *obj, bool track)
 	if (!handles->size) {
 		handles->size = 32;
 		if (handles->type > HANDLE_WEAK_TRACK) {
-			handles->entries = (void**)il2cpp_gc_alloc_fixed (sizeof (void*) * handles->size, NULL);
+			handles->entries = (void**)GarbageCollector::AllocateFixed (sizeof (void*) * handles->size, NULL);
 		} else {
 			handles->entries = (void**)IL2CPP_MALLOC_ZERO (sizeof (void*) * handles->size);
 			handles->domain_ids = (uint16_t*)IL2CPP_MALLOC_ZERO (sizeof (uint16_t) * handles->size);
@@ -96,35 +95,35 @@ alloc_handle (HandleData *handles, Il2CppObject *obj, bool track)
 		/* resize and copy the entries */
 		if (handles->type > HANDLE_WEAK_TRACK) {
 			void* *entries;
-			entries = (void**)il2cpp_gc_alloc_fixed (sizeof (void*) * new_size, NULL);
+			entries = (void**)GarbageCollector::AllocateFixed (sizeof (void*) * new_size, NULL);
 			memcpy (entries, handles->entries, sizeof (void*) * handles->size);
 			void** previous_entries = handles->entries;
 			handles->entries = entries;
-			il2cpp_gc_free_fixed(previous_entries);
+			GarbageCollector::FreeFixed (previous_entries);
 		} else {
 			void* *entries;
 			uint16_t *domain_ids;
 			domain_ids = (uint16_t*)IL2CPP_MALLOC_ZERO (sizeof (uint16_t) * new_size);
 			entries = (void**)IL2CPP_MALLOC (sizeof (void*) * new_size);
 			/* we disable GC because we could lose some disappearing link updates */
-			il2cpp::vm::GC::Disable ();
+			GarbageCollector::Disable ();
 			memcpy (entries, handles->entries, sizeof (void*) * handles->size);
 			memset (entries + handles->size, 0, sizeof (void*) * handles->size);
 			memcpy (domain_ids, handles->domain_ids, sizeof (uint16_t) * handles->size);
 			for (i = 0; i < (int32_t)handles->size; ++i) {
-				Il2CppObject *obj = il2cpp_gc_weak_link_get (&(handles->entries [i]));
+				Il2CppObject *obj = GarbageCollector::GetWeakLink (&(handles->entries [i]));
 				if (handles->entries [i])
-					il2cpp_gc_weak_link_remove (&(handles->entries [i]));
+					GarbageCollector::RemoveWeakLink (&(handles->entries [i]));
 				/*g_print ("reg/unreg entry %d of type %d at %p to object %p (%p), was: %p\n", i, handles->type, &(entries [i]), obj, entries [i], handles->entries [i]);*/
 				if (obj) {
-					il2cpp_gc_weak_link_add (&(entries [i]), obj, track);
+					GarbageCollector::AddWeakLink (&(entries [i]), obj, track);
 				}
 			}
 			IL2CPP_FREE (handles->entries);
 			IL2CPP_FREE (handles->domain_ids);
 			handles->entries = entries;
 			handles->domain_ids = domain_ids;
-			il2cpp::vm::GC::Enable ();
+			GarbageCollector::Enable ();
 		}
 
 		/* set i and slot to the next free position */
@@ -138,7 +137,7 @@ alloc_handle (HandleData *handles, Il2CppObject *obj, bool track)
 	handles->entries [slot] = obj;
 	if (handles->type <= HANDLE_WEAK_TRACK) {
 		if (obj)
-			il2cpp_gc_weak_link_add (&(handles->entries [slot]), obj, track);
+			GarbageCollector::AddWeakLink (&(handles->entries [slot]), obj, track);
 	}
 
 	//mono_perfcounters->gc_num_handles++;
@@ -159,7 +158,7 @@ uint32_t GCHandle::NewWeakref (Il2CppObject *obj, bool track_resurrection)
 
 #ifndef HAVE_SGEN_GC
 	if (track_resurrection)
-		il2cpp_gc_add_weak_track_handle (obj, handle);
+		NOT_IMPLEMENTED (GCHandle::NewWeakref);
 #endif
 
 	return handle;
@@ -186,7 +185,7 @@ Il2CppObject* GCHandle::GetTarget (uint32_t gchandle)
 	lock_handles (handles);
 	if (slot < handles->size && (handles->bitmap [slot / 32] & (1 << (slot % 32)))) {
 		if (handles->type <= HANDLE_WEAK_TRACK) {
-			obj = il2cpp_gc_weak_link_get (&handles->entries [slot]);
+			obj = GarbageCollector::GetWeakLink (&handles->entries [slot]);
 		} else {
 			obj = (Il2CppObject*)handles->entries [slot];
 		}
@@ -213,9 +212,9 @@ il2cpp_gchandle_set_target (uint32_t gchandle, Il2CppObject *obj)
 		if (handles->type <= HANDLE_WEAK_TRACK) {
 			old_obj = (Il2CppObject*)handles->entries [slot];
 			if (handles->entries [slot])
-				il2cpp_gc_weak_link_remove (&handles->entries [slot]);
+				GarbageCollector::RemoveWeakLink (&handles->entries [slot]);
 			if (obj)
-				il2cpp_gc_weak_link_add (&handles->entries [slot], obj, handles->type == HANDLE_WEAK_TRACK);
+				GarbageCollector::AddWeakLink (&handles->entries [slot], obj, handles->type == HANDLE_WEAK_TRACK);
 		} else {
 			handles->entries [slot] = obj;
 		}
@@ -226,7 +225,7 @@ il2cpp_gchandle_set_target (uint32_t gchandle, Il2CppObject *obj)
 
 #ifndef HAVE_SGEN_GC
 	if (type == HANDLE_WEAK_TRACK)
-		il2cpp_gc_change_weak_track_handle (old_obj, obj, gchandle);
+		NOT_IMPLEMENTED (il2cpp_gchandle_set_target);
 #endif
 }
 
@@ -239,14 +238,14 @@ void GCHandle::Free (uint32_t gchandle)
 		return;
 #ifndef HAVE_SGEN_GC
 	if (type == HANDLE_WEAK_TRACK)
-		il2cpp_gc_remove_weak_track_handle (gchandle);
+		NOT_IMPLEMENTED (GCHandle::Free);
 #endif
 
 	lock_handles (handles);
 	if (slot < handles->size && (handles->bitmap [slot / 32] & (1 << (slot % 32)))) {
 		if (handles->type <= HANDLE_WEAK_TRACK) {
 			if (handles->entries [slot])
-				il2cpp_gc_weak_link_remove (&handles->entries [slot]);
+				GarbageCollector::RemoveWeakLink (&handles->entries [slot]);
 		} else {
 			handles->entries [slot] = NULL;
 		}
