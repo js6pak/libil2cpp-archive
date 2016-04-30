@@ -643,7 +643,8 @@
     <ClInclude Include="debugger\variant.h" />
     <ClInclude Include="externals\MonoPosixHelper.h" />
     <ClInclude Include="gc\Allocator.h" />
-    <ClInclude Include="gc\gc-internal.h" />
+    <ClInclude Include="gc\GarbageCollector.h" />
+    <ClInclude Include="gc\GarbageCollectorImpl.h" />
     <ClInclude Include="gc\GCHandle.h" />
     <ClInclude Include="gc\gc_wrapper.h" />
     <ClInclude Include="gc\WriteBarrier.h" />
@@ -756,6 +757,7 @@
     <ClInclude Include="icalls\System\System.Net.Sockets\SocketException.h" />
     <ClInclude Include="icalls\System\System.Net\Dns.h" />
     <ClInclude Include="icalls\System\System.Threading\Semaphore.h" />
+    <ClInclude Include="il2cpp-api-functions.h" />
     <ClInclude Include="il2cpp-api-types.h" />
     <ClInclude Include="il2cpp-api.h" />
     <ClInclude Include="il2cpp-config.h" />
@@ -963,6 +965,7 @@
     <ClCompile Include="debugger\transport-tcp.cpp" />
     <ClCompile Include="debugger\variant.cpp" />
     <ClCompile Include="externals\MonoPosixHelper.cpp" />
+    <ClCompile Include="gc\GarbageCollector.cpp" />
     <ClCompile Include="gc\WriteBarrier.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Globalization.Unicode\Normalization.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Interop\ComInteropProxy.cpp" />
@@ -1072,7 +1075,6 @@
     <ClCompile Include="icalls\System\System.Threading\Semaphore.cpp" />
     <ClCompile Include="il2cpp-debugger.cpp" />
     <ClCompile Include="gc\BoehmGC.cpp" />
-    <ClCompile Include="gc\gc.cpp" />
     <ClCompile Include="gc\GCHandle.cpp" />
     <ClCompile Include="gc\NullGC.cpp" />
     <ClCompile Include="il2cpp-api.cpp" />
