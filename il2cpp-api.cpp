@@ -8,7 +8,6 @@
 #include "vm/Environment.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
-#include "vm/GC.h"
 #include "vm/Image.h"
 #include "vm/InternalCalls.h"
 #include "vm/Liveness.h"
@@ -33,6 +32,7 @@
 	#include "vm/Debug.h"
 #endif
 
+#include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 
 #include <cassert>
@@ -602,32 +602,32 @@ void il2cpp_field_static_set_value (FieldInfo *field, void *value)
 // gc
 void il2cpp_gc_collect (int maxGenerations)
 {
-	GC::Collect (maxGenerations);
+	GarbageCollector::Collect (maxGenerations);
 }
 
 int32_t il2cpp_gc_collect_a_little ()
 {
-	return GC::CollectALittle ();
+	return GarbageCollector::CollectALittle ();
 }
 
 void il2cpp_gc_enable ()
 {
-	GC::Enable ();
+	GarbageCollector::Enable ();
 }
 
 void il2cpp_gc_disable ()
 {
-	GC::Disable ();
+	GarbageCollector::Disable ();
 }
 
 int64_t il2cpp_gc_get_used_size ()
 {
-	return GC::GetUsedHeapSize();
+	return GarbageCollector::GetUsedHeapSize();
 }
 
 int64_t il2cpp_gc_get_heap_size ()
 {
-	return GC::GetAllocatedHeapSize();
+	return GarbageCollector::GetAllocatedHeapSize();
 }
 
 
