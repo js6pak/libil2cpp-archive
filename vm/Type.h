@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "il2cpp-config.h"
 #include "class-internals.h"
 
 #ifdef major
@@ -16,7 +17,7 @@
 
 struct FieldInfo;
 struct Il2CppType;
-struct TypeInfo;
+struct Il2CppClass;
 struct Il2CppGenericParameter;
 struct Il2CppString;
 
@@ -201,13 +202,13 @@ private:
 	std::string::const_iterator _end;
 };
 
-class Type
+class LIBIL2CPP_CODEGEN_API Type
 {
 public:
 	// exported
 	static std::string GetName (const Il2CppType *type, Il2CppTypeNameFormat format);
 	static int GetType (const Il2CppType *type);
-	static TypeInfo* GetClassOrElementClass (const Il2CppType *type);
+	static Il2CppClass* GetClassOrElementClass (const Il2CppType *type);
 	static const Il2CppType* GetUnderlyingType (const Il2CppType *type);
 	static uint32_t GetToken (const Il2CppType *type);
 	static bool IsGenericInstance (const Il2CppType *type);
@@ -227,10 +228,10 @@ public:
 	static bool IsSystemDateTime (const Il2CppType *type);
 	static bool IsSystemDecimal (const Il2CppType *type);
 
-	static TypeInfo* GetClass (const Il2CppType *type);
+	static Il2CppClass* GetClass (const Il2CppType *type);
 	static const Il2CppGenericParameter* GetGenericParameter (const Il2CppType *type);
 
-	static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, methodPointerType addr, const MethodInfo* method);
+	static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
 
 	static Il2CppString* AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName);
 };

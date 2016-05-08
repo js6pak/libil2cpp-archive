@@ -30,7 +30,7 @@ void ActivationServices::EnableProxyActivation (Il2CppReflectionType*, bool)
 
 Il2CppObject* ActivationServices::AllocateUninitializedClassInstance(Il2CppReflectionType * type)
 {
-	TypeInfo* typeInfo = vm::Class::FromIl2CppType(type->type);
+	Il2CppClass* typeInfo = vm::Class::FromIl2CppType(type->type);
 		
 	if (typeInfo == NULL)
 		return NULL;

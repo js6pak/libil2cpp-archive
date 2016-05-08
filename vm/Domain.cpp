@@ -4,7 +4,7 @@
 #include "vm/Object.h"
 #include "vm/Runtime.h"
 #include "vm/Thread.h"
-#include "gc/gc-internal.h"
+#include "gc/GarbageCollector.h"
 #include "class-internals.h"
 #include "object-internals.h"
 
@@ -21,7 +21,7 @@ Il2CppDomain* Domain::GetCurrent ()
 		return S_domain;
 
 	// allocate using gc memory since we hold onto object references
-	S_domain = (Il2CppDomain*)il2cpp_gc_alloc_fixed (sizeof(Il2CppDomain), NULL);
+	S_domain = (Il2CppDomain*)il2cpp::gc::GarbageCollector::AllocateFixed (sizeof(Il2CppDomain), NULL);
 
 	return S_domain;
 }
@@ -34,7 +34,7 @@ Il2CppDomain* Domain::GetRoot ()
 
 void Domain::ContextInit (Il2CppDomain *domain)
 {
-	TypeInfo* klass = Class::FromName (il2cpp_defaults.corlib, "System.Runtime.Remoting.Contexts", "Context");
+	Il2CppClass* klass = Class::FromName (il2cpp_defaults.corlib, "System.Runtime.Remoting.Contexts", "Context");
 	Il2CppAppContext* context = (Il2CppAppContext*)Object::New (klass);
 
 	// To match Mono's implementation we do not call the constructor here. If we do, context_id will be 1, which

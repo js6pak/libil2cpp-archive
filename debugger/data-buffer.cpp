@@ -190,7 +190,7 @@ void Buffer::WriteModuleId(const Il2CppImage *image)
 	WritePtrId(ModuleId(image));
 }
 
-void Buffer::WriteTypeId(const TypeInfo *klass)
+void Buffer::WriteTypeId(const Il2CppClass *klass)
 {
 	WritePtrId(TypeId(klass));
 }
@@ -256,7 +256,7 @@ bool Buffer::ReadBool()
 	return ReadByte() ? true : false;
 }
 
-TypeInfo *Buffer::ReadType()
+Il2CppClass *Buffer::ReadType()
 {
 	return TypeFromId(ReadInt());
 }

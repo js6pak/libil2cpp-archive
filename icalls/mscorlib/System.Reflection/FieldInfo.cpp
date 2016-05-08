@@ -42,7 +42,7 @@ Il2CppReflectionField* FieldInfo::internal_from_handle_type (Il2CppIntPtr field_
 	if(il2cppType == NULL)
 		return vm::Reflection::GetFieldObject(fieldInfo->parent, fieldInfo);
 	
-	for (TypeInfo* k = vm::Class::FromIl2CppType(il2cppType); k; k = k->parent)
+	for (Il2CppClass* k = vm::Class::FromIl2CppType(il2cppType); k; k = k->parent)
 	{
 		if (k == fieldInfo->parent)
 			return vm::Reflection::GetFieldObject(fieldInfo->parent, fieldInfo);

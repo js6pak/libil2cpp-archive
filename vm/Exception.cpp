@@ -77,6 +77,7 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 		RaiseNullReferenceException();
 
 	case (il2cpp_hresult_t)0x80004004: // E_ABORT
+	case (il2cpp_hresult_t)0x8013153b: // COR_E_OPERATIONCANCELED
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", NULL));
 
 	case (il2cpp_hresult_t)0x80004005: // E_FAIL
@@ -109,14 +110,17 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 	case (il2cpp_hresult_t)0x80000013: // RO_E_CLOSED
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", NULL));
 
+	case (il2cpp_hresult_t)0x80131500: // COR_E_EXCEPTION
+		Raise(FromNameMsg(Image::GetCorlib(), "System", "Exception", NULL));
+
 	default:
 		RaiseCOMException(hresult);
 	}
 }
 
-Il2CppException* Exception::FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg)
+Il2CppException* Exception::FromNameMsg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg)
 {
-	TypeInfo* exceptionClass = Class::FromName (image, name_space, name);
+	Il2CppClass* exceptionClass = Class::FromName (image, name_space, name);
 	Il2CppException* ex = (Il2CppException*)Object::New (exceptionClass);
 	Runtime::ObjectInit ((Il2CppObject*)ex);
 	
@@ -155,7 +159,7 @@ Il2CppException * Exception::GetTypeInitializationException(const char *msg, Il2
 	Il2CppException* ex = FromNameMsg(Image::GetCorlib(), "System", "TypeInitializationException", msg);
 
 	if (innerException != NULL)
-		IL2CPP_OBJECT_SETREF(ex, inner_ex, (Il2CppObject*)innerException);
+		IL2CPP_OBJECT_SETREF(ex, inner_ex, innerException);
 
 	return ex;
 }
@@ -295,7 +299,7 @@ std::string Exception::FormatException(const Il2CppException* ex)
 		return exception_namespace + "." + exception_type;
 }
 
-std::string Exception::FormatInvalidCastException(const TypeInfo* fromType, const TypeInfo* toType)
+std::string Exception::FormatInvalidCastException(const Il2CppClass* fromType, const Il2CppClass* toType)
 {
 	std::stringstream message;
 

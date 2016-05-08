@@ -155,7 +155,7 @@ typedef unordered_set<Il2CppGenericClass*,
 	> Il2CppGenericClassSet;
 static Il2CppGenericClassSet s_GenericClassSet;
 
-Il2CppGenericClass* GenericMetadata::GetGenericClass (TypeInfo* containerClass, const Il2CppGenericInst* inst)
+Il2CppGenericClass* GenericMetadata::GetGenericClass (Il2CppClass* containerClass, const Il2CppGenericInst* inst)
 {
 	return GetGenericClass (MetadataCache::GetIndexForTypeDefinition (containerClass), inst);
 }
@@ -183,7 +183,7 @@ Il2CppGenericClass* GenericMetadata::GetGenericClass (TypeDefinitionIndex elemen
 	return newClass;
 }
 
-const MethodInfo* GenericMetadata::Inflate (const MethodInfo* methodDefinition, TypeInfo* declaringClass, const Il2CppGenericContext* context)
+const MethodInfo* GenericMetadata::Inflate (const MethodInfo* methodDefinition, Il2CppClass* declaringClass, const Il2CppGenericContext* context)
 {
 	const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod (methodDefinition, context->class_inst, context->method_inst);
 	return GenericMethod::GetMethod (gmethod);

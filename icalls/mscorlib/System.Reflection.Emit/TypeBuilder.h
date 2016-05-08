@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 struct Il2CppReflectionEvent;
 struct Il2CppReflectionEventBuilder;
 struct Il2CppReflectionType;
@@ -18,7 +19,7 @@ namespace Reflection
 namespace Emit
 {
 
-class TypeBuilder
+class LIBIL2CPP_CODEGEN_API TypeBuilder
 {
 public:
 	static void create_generic_class (Il2CppReflectionTypeBuilder*);

@@ -68,7 +68,7 @@ static void z_free(void *opaque, void *ptr)
 	free(ptr);
 }
 
-intptr_t CreateZStream(int32_t compress, uint8_t gzip, methodPointerType func_ptr, intptr_t gchandle)
+intptr_t CreateZStream(int32_t compress, uint8_t gzip, Il2CppMethodPointer func_ptr, intptr_t gchandle)
 {
 	z_stream *z;
 	int32_t retval;

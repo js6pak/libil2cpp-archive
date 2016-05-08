@@ -3,8 +3,9 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "il2cpp-config.h"
 
-struct TypeInfo;
+struct Il2CppClass;
 struct MethodInfo;
 struct Il2CppAssembly;
 struct Il2CppDelegate;
@@ -20,7 +21,7 @@ namespace il2cpp
 {
 namespace vm
 {
-	typedef std::vector<const TypeInfo*> TypeVector;
+	typedef std::vector<const Il2CppClass*> TypeVector;
 
 class TypeNameParseInfo;
 
@@ -36,7 +37,7 @@ struct EmbeddedResourceRecord
 	uint32_t size;
 };
 
-class Image
+class LIBIL2CPP_CODEGEN_API Image
 {
 // exported
 public:
@@ -50,9 +51,9 @@ public:
 	static const Il2CppImage* GetExecutingImage();
 	static const Il2CppImage* GetCallingImage();
 	static size_t GetNumTypes(const Il2CppImage* image);
-	static const TypeInfo* GetType(const Il2CppImage* image, size_t index);
-	static TypeInfo* FromTypeNameParseInfo (const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase);
-	static TypeInfo* ClassFromName (Il2CppImage* image, const char* namespaze, const char *name);
+	static const Il2CppClass* GetType(const Il2CppImage* image, size_t index);
+	static Il2CppClass* FromTypeNameParseInfo (const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase);
+	static Il2CppClass* ClassFromName (const Il2CppImage* image, const char* namespaze, const char *name);
 	static void GetTypes (const Il2CppImage* image, bool exportedOnly, TypeVector* target);
 
 	struct EmbeddedResourceData

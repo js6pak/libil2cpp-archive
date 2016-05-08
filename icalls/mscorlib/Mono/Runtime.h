@@ -1,4 +1,5 @@
 #pragma once
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 
@@ -11,7 +12,7 @@ namespace mscorlib
 namespace Mono
 {
 
-class Runtime
+class LIBIL2CPP_CODEGEN_API Runtime
 {
 public:
 	static void mono_runtime_install_handlers ();

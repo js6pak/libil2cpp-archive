@@ -2,17 +2,18 @@
 
 #include <stdint.h>
 #include <string>
+#include "il2cpp-config.h"
 
 struct Il2CppException;
 struct Il2CppImage;
-struct TypeInfo;
+struct Il2CppClass;
 
 namespace il2cpp
 {
 namespace vm
 {
 
-class Exception
+class LIBIL2CPP_CODEGEN_API Exception
 {
 // exported
 public:
@@ -36,7 +37,7 @@ public:
 	}
 
 	////TODO: rename to NewFromClassNameAndMessage
-	static Il2CppException* FromNameMsg (Il2CppImage* image, const char *name_space, const char *name, const char *msg);
+	static Il2CppException* FromNameMsg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg);
 
 public:
 	////TODO: rename all of these to NewXXX
@@ -72,7 +73,7 @@ public:
 
 	static std::string FormatException(const Il2CppException* ex);
 	static std::string FormatStackTrace(const Il2CppException* ex);
-	static std::string FormatInvalidCastException(const TypeInfo* fromType, const TypeInfo* toType);
+	static std::string FormatInvalidCastException(const Il2CppClass* fromType, const Il2CppClass* toType);
 };
 
 } /* namespace vm */

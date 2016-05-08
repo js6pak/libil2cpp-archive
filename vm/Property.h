@@ -1,17 +1,18 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct MethodInfo;
 struct PropertyInfo;
-struct TypeInfo;
+struct Il2CppClass;
 
 namespace il2cpp
 {
 namespace vm
 {
 
-class Property
+class LIBIL2CPP_CODEGEN_API Property
 {
 public:
 	// exported
@@ -19,7 +20,7 @@ public:
 	static const MethodInfo* GetGetMethod (const PropertyInfo* prop);
 	static const MethodInfo* GetSetMethod (const PropertyInfo* prop);
 	static const char* GetName (const PropertyInfo* prop);
-	static TypeInfo* GetParent (const PropertyInfo* prop);
+	static Il2CppClass* GetParent (const PropertyInfo* prop);
 	static uint32_t GetToken (const PropertyInfo* prop);
 };
 

@@ -20,7 +20,7 @@ const Il2CppType* Method::GetReturnType (const MethodInfo* method)
 	return method->return_type;
 }
 
-TypeInfo *Method::GetDeclaringType (const MethodInfo* method)
+Il2CppClass *Method::GetDeclaringType (const MethodInfo* method)
 {
 	return method->declaring_type;
 }
@@ -68,12 +68,12 @@ const char* Method::GetParamName (const MethodInfo *method, uint32_t index)
 	return method->parameters[index].name;
 }
 
-TypeInfo* Method::GetClass (const MethodInfo *method)
+Il2CppClass* Method::GetClass (const MethodInfo *method)
 {
 	return method->declaring_type;
 }
 
-bool Method::HasAttribute (const MethodInfo *method, TypeInfo *attr_class)
+bool Method::HasAttribute (const MethodInfo *method, Il2CppClass *attr_class)
 {
 	return Reflection::HasAttribute(method, attr_class);
 }

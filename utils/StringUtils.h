@@ -3,13 +3,14 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 namespace il2cpp
 {
 namespace utils
 {
 
-class StringUtils
+class LIBIL2CPP_CODEGEN_API StringUtils
 {
 public:
 	static size_t Hash (const char *str);

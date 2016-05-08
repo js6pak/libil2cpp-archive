@@ -198,7 +198,7 @@ static os::SocketFlags convert_socket_flags (SocketFlags flags)
 
 static Il2CppSocketAddress* end_point_info_to_socket_address (const os::EndPointInfo &info)
 {
-	static TypeInfo *System_Net_SocketAddress = NULL;
+	static Il2CppClass *System_Net_SocketAddress = NULL;
 	
 	Il2CppSocketAddress *socket_address = NULL;
 	
@@ -600,7 +600,7 @@ void Socket::GetSocketOptionObj (Il2CppIntPtr socket, SocketOptionLevel level, S
 	{
 		case kSocketOptionNameLinger:
 			{
-				static TypeInfo *System_Net_Sockets_LingerOption = NULL;
+				static Il2CppClass *System_Net_Sockets_LingerOption = NULL;
 				
 				if (!System_Net_Sockets_LingerOption)
 				{
@@ -669,7 +669,7 @@ bool Socket::Poll (Il2CppIntPtr socket, SelectMode mode, int32_t timeout, int32_
 	AUTO_ACQUIRE_SOCKET;
 	RETURN_IF_SOCKET_IS_INVALID (false);
 
-	request.socket = socketHandle.GetSocket ();
+	request.fd = socketHandle.GetSocket()->GetDescriptor();
 	request.events = select_mode_to_poll_flags (mode);
 	request.revents = os::kPollFlagsNone;
 	
@@ -921,7 +921,8 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 		socketHandle.Acquire (os::PointerToSocketHandle (intPtr.m_value));
 
 		os::PollRequest request;
-		request.socket = socketHandle.GetSocket (); // May add a NULL; we want the error from Poll() in that case.
+		// May 'invalid socket' (-1); we want the error from Poll() in that case.
+		request.fd = socketHandle.GetSocket() == NULL ? -1 : socketHandle.GetSocket()->GetDescriptor();
 		request.events = (mode == 0 ? os::kPollFlagsIn : (mode == 1 ? os::kPollFlagsOut : os::kPollFlagsErr));
 		request.revents = os::kPollFlagsNone;
 		
@@ -952,6 +953,7 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 		// Layout: READ, null, WRITE, null, ERROR, null
 		// We need to iterate each request and iterate the sockets array, skipping
 		// the null entries. We try to avoid an infinite loop here as well.
+		uint32_t add_index = 0;
 		while (request_index < requests.size())
 		{
 			const uint32_t input_sockets_index = (request_index + mode);
@@ -974,17 +976,26 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 				{
 				case 0:
 					if (request.revents & (os::kPollFlagsIn | os::kPollFlagsErr))
-						il2cpp_array_setref(new_sockets, (request_index + mode), obj);
+					{
+						il2cpp_array_setref (new_sockets, (add_index + mode), obj);
+						add_index++;
+					}
 					break;
 
 				case 1:
 					if (request.revents & (os::kPollFlagsOut | os::kPollFlagsErr))
-						il2cpp_array_setref(new_sockets, (request_index + mode), obj);
+					{
+						il2cpp_array_setref (new_sockets, (add_index + mode), obj);
+						add_index++;
+					}
 					break;
 
 				default:
 					if (request.revents & os::kPollFlagsErr)
-						il2cpp_array_setref(new_sockets, (request_index + mode), obj);
+					{
+						il2cpp_array_setref (new_sockets, (add_index + mode), obj);
+						add_index++;
+					}
 					break;
 				}
 			}

@@ -8,7 +8,6 @@
 #include "vm/Environment.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
-#include "vm/GC.h"
 #include "vm/Image.h"
 #include "vm/InternalCalls.h"
 #include "vm/Liveness.h"
@@ -33,6 +32,7 @@
 	#include "vm/Debug.h"
 #endif
 
+#include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 
 #include <cassert>
@@ -135,17 +135,17 @@ void il2cpp_set_memory_callbacks (Il2CppMemoryCallbacks* callbacks)
 	Memory::SetMemoryCallbacks (callbacks);
 }
 
-Il2CppImage* il2cpp_get_corlib ()
+const Il2CppImage* il2cpp_get_corlib ()
 {
 	return Image::GetCorlib ();
 }
 
-void il2cpp_add_internal_call(const char* name, methodPointerType method)
+void il2cpp_add_internal_call(const char* name, Il2CppMethodPointer method)
 {
 	return InternalCalls::Add (name, method);
 }
 
-methodPointerType il2cpp_resolve_icall(const char* name)
+Il2CppMethodPointer il2cpp_resolve_icall(const char* name)
 {
 	return InternalCalls::Resolve (name);
 }
@@ -162,7 +162,7 @@ void il2cpp_free(void* ptr)
 
 // array
 
-TypeInfo *il2cpp_array_class_get (TypeInfo *element_class, uint32_t rank)
+Il2CppClass *il2cpp_array_class_get (Il2CppClass *element_class, uint32_t rank)
 {
 	return Class::GetArrayClass (element_class, rank);
 }
@@ -177,236 +177,236 @@ uint32_t il2cpp_array_get_byte_length (Il2CppArray *array)
 	return Array::GetByteLength (array);
 }
 
-Il2CppArray* il2cpp_array_new (TypeInfo *elementTypeInfo, il2cpp_array_size_t length)
+Il2CppArray* il2cpp_array_new (Il2CppClass *elementTypeInfo, il2cpp_array_size_t length)
 {
 	return Array::New (elementTypeInfo, length);
 }
 
-Il2CppArray* il2cpp_array_new_specific (TypeInfo *arrayTypeInfo, il2cpp_array_size_t length)
+Il2CppArray* il2cpp_array_new_specific (Il2CppClass *arrayTypeInfo, il2cpp_array_size_t length)
 {
 	return Array::NewSpecific (arrayTypeInfo, length);
 }
 
-Il2CppArray* il2cpp_array_new_full (TypeInfo *array_class, il2cpp_array_size_t *lengths, il2cpp_array_size_t *lower_bounds)
+Il2CppArray* il2cpp_array_new_full (Il2CppClass *array_class, il2cpp_array_size_t *lengths, il2cpp_array_size_t *lower_bounds)
 {
 	return Array::NewFull (array_class, lengths, lower_bounds);
 }
 
-TypeInfo* il2cpp_bounded_array_class_get (TypeInfo *element_class, uint32_t rank, bool bounded)
+Il2CppClass* il2cpp_bounded_array_class_get (Il2CppClass *element_class, uint32_t rank, bool bounded)
 {
 	return Class::GetBoundedArrayClass (element_class, rank, bounded);
 }
 
-int il2cpp_array_element_size (const TypeInfo* klass)
+int il2cpp_array_element_size (const Il2CppClass* klass)
 {
 	return Array::GetElementSize (klass);
 }
 
 // assembly
-Il2CppImage* il2cpp_assembly_get_image (const Il2CppAssembly *assembly)
+const Il2CppImage* il2cpp_assembly_get_image (const Il2CppAssembly *assembly)
 {
 	return Assembly::GetImage (assembly);
 }
 
 // class
 
-const Il2CppType* il2cpp_class_enum_basetype (TypeInfo *klass)
+const Il2CppType* il2cpp_class_enum_basetype (Il2CppClass *klass)
 {
 	return Class::GetEnumBaseType (klass);
 }
 
-TypeInfo* il2cpp_class_from_system_type (Il2CppReflectionType *type)
+Il2CppClass* il2cpp_class_from_system_type (Il2CppReflectionType *type)
 {
 	return Class::FromSystemType (type);
 }
 
-bool il2cpp_class_is_generic (const TypeInfo *klass)
+bool il2cpp_class_is_generic (const Il2CppClass *klass)
 {
 	return Class::IsGeneric(klass);
 }
 
-bool il2cpp_class_is_inflated(const TypeInfo *klass)
+bool il2cpp_class_is_inflated(const Il2CppClass *klass)
 {
 	return Class::IsInflated(klass);
 }
 
-bool il2cpp_class_is_assignable_from (TypeInfo *klass, TypeInfo *oklass)
+bool il2cpp_class_is_assignable_from (Il2CppClass *klass, Il2CppClass *oklass)
 {
 	return Class::IsAssignableFrom (klass, oklass);
 }
 
-bool il2cpp_class_is_subclass_of (TypeInfo *klass, TypeInfo *klassc, bool check_interfaces)
+bool il2cpp_class_is_subclass_of (Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces)
 {
 	return Class::IsSubclassOf (klass, klassc, check_interfaces);
 }
 
-bool il2cpp_class_has_parent (TypeInfo *klass, TypeInfo *klassc)
+bool il2cpp_class_has_parent (Il2CppClass *klass, Il2CppClass *klassc)
 {
 	return Class::HasParent (klass, klassc);
 }
 
-TypeInfo* il2cpp_class_from_il2cpp_type(const Il2CppType* type)
+Il2CppClass* il2cpp_class_from_il2cpp_type(const Il2CppType* type)
 {
 	return Class::FromIl2CppType (type);
 }
 
-TypeInfo* il2cpp_class_from_name (Il2CppImage* image, const char* namespaze, const char *name)
+Il2CppClass* il2cpp_class_from_name (const Il2CppImage* image, const char* namespaze, const char *name)
 {
 	return Class::FromName (image, namespaze, name);
 }
 
-TypeInfo* il2cpp_class_get_element_class (TypeInfo *klass)
+Il2CppClass* il2cpp_class_get_element_class (Il2CppClass *klass)
 {
 	return Class::GetElementClass (klass);
 }
 
-const EventInfo* il2cpp_class_get_events (TypeInfo *klass, void* *iter)
+const EventInfo* il2cpp_class_get_events (Il2CppClass *klass, void* *iter)
 {
 	return Class::GetEvents (klass, iter);
 }
 
-FieldInfo* il2cpp_class_get_fields (TypeInfo *klass, void* *iter)
+FieldInfo* il2cpp_class_get_fields (Il2CppClass *klass, void* *iter)
 {
 	return Class::GetFields (klass, iter);
 }
 
-TypeInfo* il2cpp_class_get_nested_types (TypeInfo *klass, void* *iter)
+Il2CppClass* il2cpp_class_get_nested_types (Il2CppClass *klass, void* *iter)
 {
 	return Class::GetNestedTypes (klass, iter);
 }
 
-TypeInfo* il2cpp_class_get_interfaces (TypeInfo *klass, void* *iter)
+Il2CppClass* il2cpp_class_get_interfaces (Il2CppClass *klass, void* *iter)
 {
 	return Class::GetInterfaces (klass, iter);
 }
 
-const PropertyInfo* il2cpp_class_get_properties (TypeInfo *klass, void* *iter)
+const PropertyInfo* il2cpp_class_get_properties (Il2CppClass *klass, void* *iter)
 {
 	return Class::GetProperties (klass, iter);
 }
 
-const PropertyInfo* il2cpp_class_get_property_from_name (TypeInfo *klass, const char *name)
+const PropertyInfo* il2cpp_class_get_property_from_name (Il2CppClass *klass, const char *name)
 {
 	return Class::GetPropertyFromName (klass, name);
 }
 
-FieldInfo* il2cpp_class_get_field_from_name (TypeInfo* klass, const char *name)
+FieldInfo* il2cpp_class_get_field_from_name (Il2CppClass* klass, const char *name)
 {
 	return Class::GetFieldFromName (klass, name);
 }
 
-const MethodInfo* il2cpp_class_get_methods (TypeInfo *klass, void* *iter)
+const MethodInfo* il2cpp_class_get_methods (Il2CppClass *klass, void* *iter)
 {
 	return Class::GetMethods (klass, iter);
 }
 
-const MethodInfo* il2cpp_class_get_method_from_name (TypeInfo *klass, const char* name, int argsCount)
+const MethodInfo* il2cpp_class_get_method_from_name (Il2CppClass *klass, const char* name, int argsCount)
 {
 	return Class::GetMethodFromName (klass, name, argsCount);
 }
 
-const char* il2cpp_class_get_name (TypeInfo *klass)
+const char* il2cpp_class_get_name (Il2CppClass *klass)
 {
 	return Class::GetName (klass);
 }
 
-const char* il2cpp_class_get_namespace (TypeInfo *klass)
+const char* il2cpp_class_get_namespace (Il2CppClass *klass)
 {
 	return Class::GetNamespace (klass);
 }
 
-TypeInfo* il2cpp_class_get_parent (TypeInfo *klass)
+Il2CppClass* il2cpp_class_get_parent (Il2CppClass *klass)
 {
 	return Class::GetParent (klass);
 }
 
-TypeInfo* il2cpp_class_get_declaring_type (TypeInfo* klass)
+Il2CppClass* il2cpp_class_get_declaring_type (Il2CppClass* klass)
 {
 	return Class::GetDeclaringType (klass);
 }
 
-int32_t il2cpp_class_instance_size (TypeInfo *klass)
+int32_t il2cpp_class_instance_size (Il2CppClass *klass)
 {
 	return Class::GetInstanceSize (klass);
 }
 
-size_t il2cpp_class_num_fields(const TypeInfo* klass)
+size_t il2cpp_class_num_fields(const Il2CppClass* klass)
 {
 	return Class::GetNumFields (klass);
 }
 
-bool il2cpp_class_is_valuetype(const TypeInfo* klass)
+bool il2cpp_class_is_valuetype(const Il2CppClass* klass)
 {
 	return Class::IsValuetype (klass);
 }
 
-int32_t il2cpp_class_value_size (TypeInfo *klass, uint32_t *align)
+int32_t il2cpp_class_value_size (Il2CppClass *klass, uint32_t *align)
 {
 	return Class::GetValueSize (klass, align);
 }
 
-int il2cpp_class_get_flags (const TypeInfo *klass)
+int il2cpp_class_get_flags (const Il2CppClass *klass)
 {
 	return Class::GetFlags (klass);
 }
 
-bool il2cpp_class_is_abstract (const TypeInfo *klass)
+bool il2cpp_class_is_abstract (const Il2CppClass *klass)
 {
 	return Class::IsAbstract (klass);
 }
 
-bool il2cpp_class_is_interface (const TypeInfo *klass)
+bool il2cpp_class_is_interface (const Il2CppClass *klass)
 {
 	return Class::IsInterface (klass);
 }
 
-int il2cpp_class_array_element_size (const TypeInfo *klass)
+int il2cpp_class_array_element_size (const Il2CppClass *klass)
 {
 	return Class::GetArrayElementSize (klass);
 }
 
-TypeInfo* il2cpp_class_from_type (Il2CppType *type)
+Il2CppClass* il2cpp_class_from_type (const Il2CppType *type)
 {
 	return Class::FromIl2CppType (type);
 }
 
-const Il2CppType* il2cpp_class_get_type (TypeInfo *klass)
+const Il2CppType* il2cpp_class_get_type (Il2CppClass *klass)
 {
 	return Class::GetType (klass);
 }
 
-bool il2cpp_class_has_attribute (TypeInfo *klass, TypeInfo *attr_class)
+bool il2cpp_class_has_attribute (Il2CppClass *klass, Il2CppClass *attr_class)
 {
 	return Class::HasAttribute (klass, attr_class);
 }
 
-bool il2cpp_class_has_references (TypeInfo *klass)
+bool il2cpp_class_has_references (Il2CppClass *klass)
 {
 	return Class::HasReferences (klass);
 }
 
-bool il2cpp_class_is_enum (const TypeInfo *klass)
+bool il2cpp_class_is_enum (const Il2CppClass *klass)
 {
 	return Class::IsEnum (klass);
 }
 
-const Il2CppImage* il2cpp_class_get_image (TypeInfo* klass)
+const Il2CppImage* il2cpp_class_get_image (Il2CppClass* klass)
 {
 	return Class::GetImage (klass);
 }
 
-const char *il2cpp_class_get_assemblyname (const TypeInfo *klass)
+const char *il2cpp_class_get_assemblyname (const Il2CppClass *klass)
 {
 	return Class::GetAssemblyName (klass);
 }
 
 // testing only
-size_t il2cpp_class_get_bitmap_size (const TypeInfo *klass)
+size_t il2cpp_class_get_bitmap_size (const Il2CppClass *klass)
 {
 	return Class::GetBitmapSize (klass);
 }
 
-void il2cpp_class_get_bitmap (TypeInfo *klass, size_t* bitmap)
+void il2cpp_class_get_bitmap (Il2CppClass *klass, size_t* bitmap)
 {
 	size_t dummy = 0;
 	Class::GetBitmap (klass, bitmap, dummy);
@@ -517,7 +517,7 @@ void il2cpp_raise_exception(Il2CppException* exc)
 	Exception::Raise (exc);
 }
 
-Il2CppException* il2cpp_exception_from_name_msg (Il2CppImage* image, const char *name_space, const char *name, const char *msg)
+Il2CppException* il2cpp_exception_from_name_msg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg)
 {
 	return Exception::FromNameMsg (image, name_space, name, msg);
 }
@@ -539,7 +539,7 @@ void il2cpp_format_stack_trace(const Il2CppException* ex, char* output, int outp
 
 void il2cpp_unhandled_exception(Il2CppException* exc)
 {
-	Runtime::UnhandledException((Il2CppObject*)exc);
+	Runtime::UnhandledException(exc);
 }
 
 // field
@@ -554,7 +554,7 @@ int il2cpp_field_get_flags (FieldInfo *field)
 	return Field::GetFlags (field);
 }
 
-TypeInfo* il2cpp_field_get_parent (FieldInfo *field)
+Il2CppClass* il2cpp_field_get_parent (FieldInfo *field)
 {
 	return Field::GetParent (field);
 }
@@ -579,7 +579,7 @@ Il2CppObject* il2cpp_field_get_value_object (FieldInfo *field, Il2CppObject *obj
 	return Field::GetValueObject (field, obj);
 }
 
-bool il2cpp_field_has_attribute (FieldInfo *field, TypeInfo *attr_class)
+bool il2cpp_field_has_attribute (FieldInfo *field, Il2CppClass *attr_class)
 {
 	return Field::HasAttribute (field, attr_class);
 }
@@ -600,19 +600,34 @@ void il2cpp_field_static_set_value (FieldInfo *field, void *value)
 }
 
 // gc
-void il2cpp_gc_collect(int maxGenerations)
+void il2cpp_gc_collect (int maxGenerations)
 {
-	GC::Collect(maxGenerations);
+	GarbageCollector::Collect (maxGenerations);
+}
+
+int32_t il2cpp_gc_collect_a_little ()
+{
+	return GarbageCollector::CollectALittle ();
+}
+
+void il2cpp_gc_enable ()
+{
+	GarbageCollector::Enable ();
+}
+
+void il2cpp_gc_disable ()
+{
+	GarbageCollector::Disable ();
 }
 
 int64_t il2cpp_gc_get_used_size ()
 {
-	return GC::GetUsedHeapSize();
+	return GarbageCollector::GetUsedHeapSize();
 }
 
 int64_t il2cpp_gc_get_heap_size ()
 {
-	return GC::GetAllocatedHeapSize();
+	return GarbageCollector::GetAllocatedHeapSize();
 }
 
 
@@ -640,7 +655,7 @@ void il2cpp_gchandle_free (uint32_t gchandle)
 
 // liveness
 
-void* il2cpp_unity_liveness_calculation_begin (TypeInfo* filter, int max_object_count, register_object_callback callback, void* userdata, WorldChangedCallback onWorldStarted, WorldChangedCallback onWorldStopped)
+void* il2cpp_unity_liveness_calculation_begin (Il2CppClass* filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_WorldChangedCallback onWorldStarted, il2cpp_WorldChangedCallback onWorldStopped)
 {
 	return Liveness::Begin (filter, max_object_count, callback, userdata, onWorldStarted, onWorldStopped);
 }
@@ -667,7 +682,7 @@ const Il2CppType* il2cpp_method_get_return_type (const MethodInfo* method)
 	return Method::GetReturnType (method);
 }
 
-Il2CppReflectionMethod* il2cpp_method_get_object (const MethodInfo *method, TypeInfo *refclass)
+Il2CppReflectionMethod* il2cpp_method_get_object (const MethodInfo *method, Il2CppClass *refclass)
 {
 	return Reflection::GetMethodObject (method, refclass);
 }
@@ -702,17 +717,17 @@ const Il2CppType* il2cpp_method_get_param (const MethodInfo *method, uint32_t in
 	return Method::GetParam (method, index);
 }
 
-TypeInfo* il2cpp_method_get_class (const MethodInfo *method)
+Il2CppClass* il2cpp_method_get_class (const MethodInfo *method)
 {
 	return Method::GetClass (method);
 }
 
-bool il2cpp_method_has_attribute (const MethodInfo *method, TypeInfo *attr_class)
+bool il2cpp_method_has_attribute (const MethodInfo *method, Il2CppClass *attr_class)
 {
 	return Method::HasAttribute (method, attr_class);
 }
 
-TypeInfo* il2cpp_method_get_declaring_type (const MethodInfo* method)
+Il2CppClass* il2cpp_method_get_declaring_type (const MethodInfo* method)
 {
 	return Method::GetDeclaringType (method);
 }
@@ -779,7 +794,7 @@ const MethodInfo* il2cpp_property_get_set_method (PropertyInfo *prop)
 	return Property::GetSetMethod (prop);
 }
 
-TypeInfo* il2cpp_property_get_parent (PropertyInfo *prop)
+Il2CppClass* il2cpp_property_get_parent (PropertyInfo *prop)
 {
 	return Property::GetParent (prop);
 }
@@ -792,7 +807,7 @@ uint32_t il2cpp_property_get_flags (PropertyInfo *prop)
 
 // object
 
-TypeInfo* il2cpp_object_get_class(Il2CppObject* obj)
+Il2CppClass* il2cpp_object_get_class(Il2CppObject* obj)
 {
 	return Object::GetClass (obj);
 }
@@ -807,11 +822,11 @@ const MethodInfo* il2cpp_object_get_virtual_method (Il2CppObject *obj, const Met
 	return Object::GetVirtualMethod (obj, method);
 }
 
-Il2CppObject* il2cpp_object_new (const TypeInfo *klass)
+Il2CppObject* il2cpp_object_new (const Il2CppClass *klass)
 {
 	try
 	{
-		return Object::New(const_cast<TypeInfo*>(klass));
+		return Object::New(const_cast<Il2CppClass*>(klass));
 	}
 	catch (const Il2CppExceptionWrapper&)
 	{
@@ -826,7 +841,7 @@ void* il2cpp_object_unbox(Il2CppObject* obj)
 	return Object::Unbox (obj);
 }
 
-Il2CppObject* il2cpp_value_box (TypeInfo *klass, void* data)
+Il2CppObject* il2cpp_value_box (Il2CppClass *klass, void* data)
 {
 	return Object::Box (klass, data);
 }
@@ -869,18 +884,18 @@ bool il2cpp_monitor_try_wait (Il2CppObject* obj, uint32_t timeout)
 
 // runtime
 
-Il2CppObject* il2cpp_runtime_invoke_convert_args (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppObject **exc)
+Il2CppObject* il2cpp_runtime_invoke_convert_args (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppException **exc)
 {
 	return Runtime::InvokeConvertArgs (method, obj, params, paramCount, exc);
 }
 
 Il2CppObject* il2cpp_runtime_invoke (const MethodInfo *method,
-	void *obj, void **params, Il2CppObject **exc)
+	void *obj, void **params, Il2CppException **exc)
 {
 	return Runtime::Invoke (method, obj, params, exc);
 }
 
-void il2cpp_runtime_class_init(TypeInfo* klass)
+void il2cpp_runtime_class_init(Il2CppClass* klass)
 {
 	return Runtime::ClassInit (klass);
 }
@@ -890,7 +905,7 @@ void il2cpp_runtime_object_init (Il2CppObject *obj)
 	Runtime::ObjectInit (obj);
 }
 
-void il2cpp_runtime_object_init_exception (Il2CppObject *obj, Il2CppObject **exc)
+void il2cpp_runtime_object_init_exception (Il2CppObject *obj, Il2CppException **exc)
 {
 	Runtime::ObjectInitException (obj, exc);
 }
@@ -1042,7 +1057,7 @@ int il2cpp_type_get_type (const Il2CppType *type)
 	return Type::GetType (type);
 }
 
-TypeInfo* il2cpp_type_get_class_or_element_class (const Il2CppType *type)
+Il2CppClass* il2cpp_type_get_class_or_element_class (const Il2CppType *type)
 {
 	return Type::GetClassOrElementClass (type);
 }
@@ -1095,7 +1110,7 @@ void il2cpp_set_find_plugin_callback(Il2CppSetFindPlugInCallback method)
 
 #if IL2CPP_DEBUGGER_ENABLED
 // debug
-const Il2CppDebugTypeInfo* il2cpp_debug_get_class_info (const TypeInfo *klass)
+const Il2CppDebugTypeInfo* il2cpp_debug_get_class_info (const Il2CppClass *klass)
 {
 	return Class::GetDebugInfo (klass);
 }
@@ -1145,7 +1160,7 @@ const Il2CppDebugLocalsInfo **il2cpp_debug_method_get_locals_info (const Il2CppD
 	return Debug::GetLocalsInfo (info);
 }
 
-const TypeInfo *il2cpp_debug_local_get_type (const Il2CppDebugLocalsInfo *info)
+const Il2CppClass *il2cpp_debug_local_get_type (const Il2CppDebugLocalsInfo *info)
 {
 	return Debug::GetType (info);
 }

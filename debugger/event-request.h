@@ -7,7 +7,7 @@
 
 #include "protocol/globals.h"
 
-struct TypeInfo;
+struct Il2CppClass;
 
 namespace il2cpp
 {
@@ -94,7 +94,7 @@ public:
 
 	struct FilterInfo
 	{
-		TypeInfo *klass;
+		Il2CppClass *klass;
 		Il2CppObject *exception;
 
 		FilterInfo() :

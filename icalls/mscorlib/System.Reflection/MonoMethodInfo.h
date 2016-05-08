@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 namespace il2cpp
@@ -14,7 +15,7 @@ namespace System
 namespace Reflection
 {
 
-class MonoMethodInfo
+class LIBIL2CPP_CODEGEN_API MonoMethodInfo
 {
 public:
 	static void get_method_info (Il2CppIntPtr methodPtr, Il2CppMethodInfo* info);

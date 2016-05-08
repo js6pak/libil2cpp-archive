@@ -35,7 +35,7 @@ void* LibraryLoader::LoadDynamicLibrary(const std::string& nativeDynamicLibrary)
 	return module;
 }
 
-methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
+Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
 {
 	if (dynamicLibrary == NULL)
 		return NULL;
@@ -44,7 +44,7 @@ methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const 
 
 	// If there's 'no mangle' flag set, just return directly what GetProcAddress returns
 	if (pinvokeArgs.isNoMangle)
-		return reinterpret_cast<methodPointerType>(GetProcAddress(module, pinvokeArgs.entryPoint));
+		return reinterpret_cast<Il2CppMethodPointer>(GetProcAddress(module, pinvokeArgs.entryPoint));
 
 	const size_t kBufferOverhead = 10;
 	FARPROC functionPtr = NULL;
@@ -61,7 +61,7 @@ methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const 
 		functionName[originalFuncNameLength] = 'W';
 		functionPtr = GetProcAddress(module, functionName.c_str() + 1);
 		if (functionPtr != NULL)
-			return reinterpret_cast<methodPointerType>(functionPtr);
+			return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
 
 		// If charset specific function lookup failed, try with original name
 		functionPtr = GetProcAddress(module, pinvokeArgs.entryPoint);
@@ -70,7 +70,7 @@ methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const 
 	{
 		functionPtr = GetProcAddress(module, pinvokeArgs.entryPoint);
 		if (functionPtr != NULL)
-			return reinterpret_cast<methodPointerType>(functionPtr);
+			return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
 
 		// If original name function lookup failed, try with mangled name
 		functionName[originalFuncNameLength] = 'A';
@@ -78,7 +78,7 @@ methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const 
 	}
 
 	if (functionPtr != NULL)
-		return reinterpret_cast<methodPointerType>(functionPtr);
+		return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
 
 	// If it's not cdecl, try mangling the name
 	// THIS ONLY APPLIES TO 32-bit x86!
@@ -92,7 +92,7 @@ methodPointerType LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const 
 	}
 #endif
 
-	return reinterpret_cast<methodPointerType>(functionPtr);
+	return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
 }
 
 void LibraryLoader::CleanupLoadedLibraries()

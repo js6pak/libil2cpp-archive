@@ -70,7 +70,7 @@ void Profiler::InstallGC (Il2CppProfileGCFunc callback, Il2CppProfileGCResizeFun
 
 #if IL2CPP_ENABLE_PROFILER
 
-void Profiler::Allocation (Il2CppObject *obj, TypeInfo *klass)
+void Profiler::Allocation (Il2CppObject *obj, Il2CppClass *klass)
 {
 	for (ProfilersVec::const_iterator iter = s_profilers.begin (); iter != s_profilers.end (); iter++)
 	{

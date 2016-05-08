@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-typedef std::map<std::string, methodPointerType> ICallMap;
+typedef std::map<std::string, Il2CppMethodPointer> ICallMap;
 static ICallMap s_InternalCalls;
 
 namespace il2cpp
@@ -14,7 +14,7 @@ namespace il2cpp
 namespace vm
 {
 
-void InternalCalls::Add (const char* name, methodPointerType method)
+void InternalCalls::Add (const char* name, Il2CppMethodPointer method)
 {
 	//ICallMap::iterator res = s_InternalCalls.find(name);
 
@@ -27,7 +27,7 @@ void InternalCalls::Add (const char* name, methodPointerType method)
 	s_InternalCalls[name] = method;
 }
 
-methodPointerType InternalCalls::Resolve (const char* name)
+Il2CppMethodPointer InternalCalls::Resolve (const char* name)
 {
 	// Try to find the whole name first, then search using just type::method
 	// if parameters were passed
@@ -49,8 +49,6 @@ methodPointerType InternalCalls::Resolve (const char* name)
 		if (res != s_InternalCalls.end())
 			return res->second;
 	}
-	
-	assert(0);
 
 	return NULL;
 }

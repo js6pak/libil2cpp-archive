@@ -25,7 +25,7 @@ const Reply *Agent::Process(const TypeGetInfoCommand *command)
 {
 	TypeGetInfoCommand::Reply *get_info_reply = command->reply();
 
-	TypeInfo *klass = command->type();
+	Il2CppClass *klass = command->type();
 	const Il2CppImage *image = il2cpp_class_get_image(klass);
 	const Il2CppType *type = il2cpp_class_get_type(klass);
 	char *fullname = il2cpp_type_get_name(type);
@@ -72,7 +72,7 @@ const Reply *Agent::Process(const TypeGetSourceFilesCommand *command)
 {
 	TypeGetSourceFilesCommand::Reply *get_source_files_reply = command->reply();
 
-	const TypeInfo *type = command->type();
+	const Il2CppClass *type = command->type();
 	const Il2CppDebugTypeInfo *debug_info = il2cpp_debug_get_class_info(type);
 	
 	if(!debug_info)
@@ -96,7 +96,7 @@ const Reply *Agent::Process(const TypeGetSourceFiles2Command *command)
 {
 	TypeGetSourceFiles2Command::Reply *get_source_files_reply = command->reply();
 
-	const TypeInfo *type = command->type();
+	const Il2CppClass *type = command->type();
 	const Il2CppDebugTypeInfo *debug_info = il2cpp_debug_get_class_info(type);
 	
 	if(!debug_info)
@@ -202,7 +202,7 @@ const Reply *Agent::Process(const TypeGetValuesCommand *command)
 
 		bool found = false;
 
-		for(TypeInfo *t = command->type(); t != 0; t = t->parent)
+		for(Il2CppClass *t = command->type(); t != 0; t = t->parent)
 		{
 			if(t == field->parent)
 			{

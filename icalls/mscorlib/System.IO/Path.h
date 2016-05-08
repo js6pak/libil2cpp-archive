@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 #include "object-internals.h"
 
 struct Il2CppObject;
@@ -26,7 +27,7 @@ namespace System
 namespace IO
 {
 
-class Path
+class LIBIL2CPP_CODEGEN_API Path
 {
 public:
 	static Il2CppString* get_temp_path ();

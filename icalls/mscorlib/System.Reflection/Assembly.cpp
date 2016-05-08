@@ -9,6 +9,7 @@
 #include "os/File.h"
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
+#include "os/Path.h"
 #include "utils/Memory.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
@@ -26,6 +27,8 @@
 #include "vm/Array.h"
 #include "class-internals.h"
 #include <cassert>
+#include <limits>
+
 
 using namespace il2cpp::vm;
 
@@ -89,7 +92,7 @@ Il2CppReflectionType* Assembly::InternalGetType(Il2CppReflectionAssembly *assemb
 
 	CHECK_IF_NULL (image);
 
-	TypeInfo *klass = Image::FromTypeNameParseInfo (image, info, ignoreCase);
+	Il2CppClass *klass = Image::FromTypeNameParseInfo (image, info, ignoreCase);
 
 	CHECK_IF_NULL (klass);
 
@@ -114,7 +117,7 @@ Il2CppReflectionAssembly* Assembly::load_with_partial_name(Il2CppString* name, m
 void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflection_AssemblyName * aname)
 {
 	Il2CppObject* assemblyNameObject = reinterpret_cast<Il2CppObject*>(aname);
-	TypeInfo* assemblyNameType = assemblyNameObject->klass;
+	Il2CppClass* assemblyNameType = assemblyNameObject->klass;
 	const Il2CppAssemblyName* assemblyName = &ass->assembly->aname;
 
 	// System.Reflection.AssemblyName is not protected from stripping. Since this call will be used
@@ -127,7 +130,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 		Field::SetValue(assemblyNameObject, assemblyNameField, String::New(MetadataCache::GetStringFromIndex (assemblyName->nameIndex)));
 
 	if (codebaseField != NULL)
-		Field::SetValue(assemblyNameObject, codebaseField, String::New(utils::StringUtils::Printf("%s.dll", MetadataCache::GetStringFromIndex(assemblyName->nameIndex)).c_str()));
+		Field::SetValue(assemblyNameObject, codebaseField, get_code_base(ass, false));
 
 	FieldInfo* field = Class::GetFieldFromName(assemblyNameType, "major");
 	if (field != NULL)
@@ -160,7 +163,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 	field = Class::GetFieldFromName(assemblyNameType, "cultureinfo");
 	if (field != NULL)
 	{
-		TypeInfo* cultureInfoType = Class::FromIl2CppType(field->type);
+		Il2CppClass* cultureInfoType = Class::FromIl2CppType(field->type);
 		FieldInfo* invariantCultureField = Class::GetFieldFromName(cultureInfoType, "invariant_culture_info");
 		Il2CppObject* invariantCulture = NULL;
 
@@ -215,7 +218,7 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 	field = Class::GetFieldFromName(assemblyNameType, "version");
 	if (field != NULL)
 	{
-		TypeInfo* versionType = Class::FromIl2CppType(field->type);
+		Il2CppClass* versionType = Class::FromIl2CppType(field->type);
 		Il2CppObject* version = Object::New(versionType);
 
 		FieldInfo* versionField = Class::GetFieldFromName(versionType, "_Major");
@@ -276,7 +279,9 @@ Il2CppReflectionAssembly* Assembly::GetCallingAssembly()
 
 Il2CppString* Assembly::get_code_base(Il2CppReflectionAssembly * assembly, bool escaped)
 {
-	return vm::String::New(MetadataCache::GetStringFromIndex (assembly->assembly->aname.nameIndex));
+	std::string executableDirectory = utils::PathUtils::DirectoryName(os::Path::GetExecutablePath());
+	std::replace(executableDirectory.begin(), executableDirectory.end(), '\\', '/');
+	return vm::String::New(utils::StringUtils::Printf("file:///%s/%s.dll", executableDirectory.c_str(), MetadataCache::GetStringFromIndex(assembly->assembly->aname.nameIndex)).c_str());
 }
 
 Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* __this, bool exportedOnly)
@@ -292,9 +297,9 @@ Il2CppString* Assembly::InternalImageRuntimeVersion (Il2CppAssembly* self)
 	return 0;
 }
 
-Il2CppReflectionMethod* Assembly::get_EntryPoint (Il2CppAssembly* self)
+Il2CppReflectionMethod* Assembly::get_EntryPoint (Il2CppReflectionAssembly* self)
 {
-	const MethodInfo* method = Image::GetEntryPoint (MetadataCache::GetImageFromIndex (self->imageIndex));
+	const MethodInfo* method = Image::GetEntryPoint (MetadataCache::GetImageFromIndex (self->assembly->imageIndex));
 	if (method == NULL)
 		return NULL;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "il2cpp-config.h"
 
 struct Il2CppString;
 struct Il2CppReflectionAssemblyName;
@@ -16,7 +17,7 @@ namespace System
 namespace Reflection
 {
 
-class AssemblyName
+class LIBIL2CPP_CODEGEN_API AssemblyName
 {
 public:
 	static bool ParseName (Il2CppReflectionAssemblyName* aname, Il2CppString* assemblyName);
