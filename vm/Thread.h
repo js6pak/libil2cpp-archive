@@ -5,8 +5,6 @@
 #include "il2cpp-config.h"
 #include "utils/NonCopyable.h"
 
-#include "../il2cpp-api-types.h"
-
 struct MethodInfo;
 
 struct Il2CppArray;
