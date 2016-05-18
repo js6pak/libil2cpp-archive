@@ -852,6 +852,7 @@
     <ClInclude Include="external\zlib\zconf.h" />
     <ClInclude Include="external\zlib\zlib.h" />
     <ClInclude Include="external\zlib\zutil.h" />
+    <ClInclude Include="os\WindowsRuntime.h" />
     <ClInclude Include="os\WinRT\SynchronousOperation.h" />
     <ClInclude Include="os\WinRT\WinRTImpl.h" />
     <ClInclude Include="tabledefs.h" />
@@ -863,6 +864,7 @@
     <ClInclude Include="utils\dynamic_array.h" />
     <ClInclude Include="utils\Functional.h" />
     <ClInclude Include="utils\HashUtils.h" />
+    <ClInclude Include="utils\Il2CppHStringReference.h" />
     <ClInclude Include="utils\MathUtils.h" />
     <ClInclude Include="utils\Memory.h" />
     <ClInclude Include="utils\MemoryPool.h" />
@@ -872,6 +874,8 @@
     <ClInclude Include="utils\StdUnorderedSet.h" />
     <ClInclude Include="utils\StringUtils.h" />
     <ClInclude Include="utils\PathUtils.h" />
+    <ClInclude Include="utils\StringView.h" />
+    <ClInclude Include="utils\StringViewStream.h" />
     <ClInclude Include="utils\ThreadSafeFreeList.h" />
     <ClInclude Include="utils\MemoryRead.h" />
     <ClInclude Include="utils\utf8-cpp\source\utf8\core.h" />
@@ -921,8 +925,10 @@
     <ClInclude Include="vm\ThreadPool.h" />
     <ClInclude Include="vm\Type.h" />
     <ClInclude Include="vm\WaitHandle.h" />
+    <ClInclude Include="vm\WindowsRuntime.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="char-conversions.cpp" />
     <ClCompile Include="class-internals.cpp" />
     <ClCompile Include="debugger\agent.cpp" />
     <ClCompile Include="debugger\command-line-parser.cpp" />
@@ -1106,6 +1112,7 @@
     <ClCompile Include="os\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Generic\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Generic\SocketImpl.cpp" />
+    <ClCompile Include="os\Generic\WindowsRuntime.cpp" />
     <ClCompile Include="os\Messages.cpp" />
     <ClCompile Include="os\OSX\Image.cpp" />
     <ClCompile Include="os\Path.cpp" />
@@ -1179,6 +1186,7 @@
     <ClCompile Include="external\zlib\trees.c" />
     <ClCompile Include="external\zlib\uncompr.c" />
     <ClCompile Include="external\zlib\zutil.c" />
+    <ClCompile Include="os\Win32\WindowsRuntime.cpp" />
     <ClCompile Include="os\WinRT\Cryptography.cpp" />
     <ClCompile Include="os\WinRT\Environment.cpp" />
     <ClCompile Include="os\WinRT\Initialize.cpp" />
@@ -1234,6 +1242,7 @@
     <ClCompile Include="vm\ThreadPool.cpp" />
     <ClCompile Include="vm\Type.cpp" />
     <ClCompile Include="vm\WaitHandle.cpp" />
+    <ClCompile Include="vm\WindowsRuntime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="libil2cpp.def" />

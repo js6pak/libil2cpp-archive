@@ -105,7 +105,7 @@ bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2C
 			if (s1len != s2len)
 				return false;
 
-			if (memcmp (String::GetChars (s1), String::GetChars (s2), s1len * sizeof (uint16_t)) != 0)
+			if (memcmp (String::GetChars (s1), String::GetChars (s2), s1len * sizeof (Il2CppChar)) != 0)
 				return false;
 			break;
 		default:

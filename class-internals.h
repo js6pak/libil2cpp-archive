@@ -360,7 +360,7 @@ struct Il2CppClass
 	uint8_t has_finalize : 1;
 	uint8_t has_cctor : 1;
 	uint8_t is_blittable : 1;
-	uint8_t is_import : 1;
+	uint8_t is_import_or_windows_runtime : 1;
 };
 
 // compiler calcualted values
