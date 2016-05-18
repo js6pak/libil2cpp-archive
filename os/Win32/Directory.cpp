@@ -108,7 +108,7 @@ std::set<std::string> Directory::GetFileSystemEntries (const std::string& path, 
 
 	do
 	{
-		const std::string fileName (il2cpp::utils::StringUtils::Utf16ToUtf8 ((uint16_t*)ffd.cFileName));
+		const std::string fileName(il2cpp::utils::StringUtils::Utf16ToUtf8(ffd.cFileName));
 
 		if ((fileName.length () == 1 && fileName.at (0) == '.') ||
 			(fileName.length () == 2 && fileName.at (0) == '.' && fileName.at (1) == '.'))
