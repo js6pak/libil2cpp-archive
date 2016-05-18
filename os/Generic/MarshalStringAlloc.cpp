@@ -9,7 +9,7 @@ namespace il2cpp
 namespace os
 {
 
-il2cpp_hresult_t MarshalStringAlloc::AllocateBStringLength(const uint16_t* text, int32_t length, uint16_t** bstr)
+il2cpp_hresult_t MarshalStringAlloc::AllocateBStringLength(const Il2CppChar* text, int32_t length, Il2CppChar** bstr)
 {
 	NO_UNUSED_WARNING(text);
 	NO_UNUSED_WARNING(length);
@@ -18,7 +18,7 @@ il2cpp_hresult_t MarshalStringAlloc::AllocateBStringLength(const uint16_t* text,
 	return IL2CPP_E_NOTIMPL;
 }
 
-il2cpp_hresult_t MarshalStringAlloc::GetBStringLength(uint16_t* bstr, int32_t* length)
+il2cpp_hresult_t MarshalStringAlloc::GetBStringLength(const Il2CppChar* bstr, int32_t* length)
 {
 	NO_UNUSED_WARNING(bstr);
 	assert(length);
@@ -26,7 +26,7 @@ il2cpp_hresult_t MarshalStringAlloc::GetBStringLength(uint16_t* bstr, int32_t* l
 	return IL2CPP_E_NOTIMPL;
 }
 
-il2cpp_hresult_t MarshalStringAlloc::FreeBString(uint16_t* bstr)
+il2cpp_hresult_t MarshalStringAlloc::FreeBString(Il2CppChar* bstr)
 {
 	NO_UNUSED_WARNING(bstr);
 	return IL2CPP_E_NOTIMPL;

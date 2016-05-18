@@ -697,6 +697,16 @@
     <ClCompile Include="gc\GarbageCollector.cpp">
       <Filter>gc</Filter>
     </ClCompile>
+    <ClCompile Include="char-conversions.cpp" />
+    <ClCompile Include="vm\WindowsRuntime.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Win32\WindowsRuntime.cpp">
+      <Filter>os\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Generic\WindowsRuntime.cpp">
+      <Filter>os\Generic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1309,6 +1319,12 @@
     <ClInclude Include="os\COM.h">
       <Filter>os</Filter>
     </ClInclude>
+    <ClInclude Include="os\WindowsRuntime.h">
+      <Filter>os</Filter>
+    </ClInclude>
+    <ClInclude Include="os\WindowsRuntime.h">
+      <Filter>os</Filter>
+    </ClInclude>
     <ClInclude Include="vm\RCW.h">
       <Filter>vm</Filter>
     </ClInclude>
@@ -1321,6 +1337,12 @@
     <ClInclude Include="vm\COM.h">
       <Filter>vm</Filter>
     </ClInclude>
+    <ClInclude Include="vm\WindowsRuntime.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\WindowsRuntime.h">
+      <Filter>vm</Filter>
+    </ClInclude>
     <ClInclude Include="il2cpp-api-functions.h" />
     <ClInclude Include="gc\GarbageCollector.h">
       <Filter>gc</Filter>
@@ -1329,6 +1351,12 @@
       <Filter>gc</Filter>
     </ClInclude>
     <ClInclude Include="vm\GC.h" />
+    <ClInclude Include="utils\StringView.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\StringViewStream.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1380,6 +1408,9 @@
       <Filter>os</Filter>
     </ClInclude>
     <ClInclude Include="utils\Functional.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Il2CppHStringReference.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\StringUtils.h">

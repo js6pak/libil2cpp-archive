@@ -15,7 +15,7 @@ il2cpp_hresult_t COM::CreateInstance(const Il2CppGuid& clsid, Il2CppIUnknown** o
 	NO_UNUSED_WARNING(clsid);
 	assert(object);
 	*object = NULL;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_REGDB_E_CLASSNOTREG;
 }
 
 il2cpp_hresult_t COM::CreateFreeThreadedMarshaler(Il2CppIUnknown* outer, Il2CppIUnknown** marshal)

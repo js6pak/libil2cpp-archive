@@ -25,15 +25,15 @@ Il2CppArray* Convert::InternalFromBase64String (Il2CppString* str, bool allowWhi
 
 Il2CppArray* Convert::InternalFromBase64CharArray (Il2CppArray* chars, int32_t offset, int32_t length)
 {
-	return Base64ToByteArray(il2cpp_array_addr(chars, uint16_t, offset), length, false);
+	return Base64ToByteArray(il2cpp_array_addr(chars, Il2CppChar, offset), length, false);
 }
 
-Il2CppArray* Convert::Base64ToByteArray (uint16_t* start, int length, bool allowWhitespaceOnly)
+Il2CppArray* Convert::Base64ToByteArray (Il2CppChar* start, int length, bool allowWhitespaceOnly)
 {
 	int ignored;
 	int i;
-	uint16_t c;
-	uint16_t last, prev_last, prev2_last;
+	Il2CppChar c;
+	Il2CppChar last, prev_last, prev2_last;
 	int olength;
 	Il2CppArray *result;
 	unsigned char *res_ptr;

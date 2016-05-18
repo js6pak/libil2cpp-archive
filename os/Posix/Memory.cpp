@@ -29,7 +29,7 @@ void* AlignedReAlloc(void* memory, size_t newSize, size_t alignment)
 	void* newMemory = realloc(memory, newSize);
 	
 	// Fast path: realloc returned aligned memory
-	if ((reinterpret_cast<uintptr_t>(newMemory) & (alignment - 1)) != 0)
+	if ((reinterpret_cast<uintptr_t>(newMemory) & (alignment - 1)) == 0)
 		return newMemory;
 	
 	// Slow path: realloc returned non-aligned memory

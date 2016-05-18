@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <vector>
 #include "il2cpp-config.h"
-#include "il2cpp-api-types.h"
 
 namespace il2cpp
 {
