@@ -23,6 +23,8 @@ int BlobReader::GetConstantValueFromBlob(Il2CppTypeEnum type, const char *blob, 
 		*(uint8_t *)value = *p;
 		break;
 	case IL2CPP_TYPE_CHAR:
+		*(Il2CppChar*)value = ReadChar(p);
+		break;
 	case IL2CPP_TYPE_U2:
 	case IL2CPP_TYPE_I2:
 		*(uint16_t *)value = Read16(p);

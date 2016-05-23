@@ -96,13 +96,3 @@ enum Il2CppCharSet
 	CHARSET_ANSI,
 	CHARSET_UNICODE
 };
-
-struct PInvokeArguments
-{
-	const char* moduleName;
-	const char* entryPoint;
-	Il2CppCallConvention callingConvention;
-	Il2CppCharSet charSet;
-	int parameterSize;
-	bool isNoMangle;	// Says whether P/Invoke should append to function name 'A'/'W' according to charSet.
-};

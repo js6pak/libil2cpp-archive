@@ -100,7 +100,7 @@ static inline std::string GetAppFolder(T appDataToStorageFolder)
 	Exception::RaiseIfFailed(hr);
 
 	unsigned int dummy;
-	return utils::StringUtils::Utf16ToUtf8(reinterpret_cast<const uint16_t*>(appDataPath.GetRawBuffer(&dummy)));		
+	return utils::StringUtils::Utf16ToUtf8(appDataPath.GetRawBuffer(&dummy));		
 }
 
 static inline std::string GetLocalAppDataFolder()

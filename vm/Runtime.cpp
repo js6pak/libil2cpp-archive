@@ -147,7 +147,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT_TYPE(uint64_class, "System", "UInt64", uint64_t);
 	DEFAULTS_INIT_TYPE(single_class, "System", "Single", float);
 	DEFAULTS_INIT_TYPE(double_class, "System", "Double", double);
-	DEFAULTS_INIT_TYPE(char_class, "System", "Char", uint16_t);
+	DEFAULTS_INIT_TYPE(char_class, "System", "Char", Il2CppChar);
 	DEFAULTS_INIT(string_class, "System", "String");
 	DEFAULTS_INIT(enum_class, "System", "Enum");
 	DEFAULTS_INIT(array_class, "System", "Array");

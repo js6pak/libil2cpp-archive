@@ -22,7 +22,7 @@ namespace System
 namespace IO
 {
 
-uint16_t MonoIO::get_AltDirectorySeparatorChar (void)
+Il2CppChar MonoIO::get_AltDirectorySeparatorChar (void)
 {
 #if IL2CPP_COMPILER_MSVC
 	return '/';	/* forward slash */
@@ -77,7 +77,7 @@ bool MonoIO::DeleteFile (Il2CppString *path, int *error)
 	return il2cpp::os::File::DeleteFile (il2cpp::utils::StringUtils::Utf16ToUtf8 (path->chars), error);
 }
 
-uint16_t MonoIO::get_DirectorySeparatorChar (void)
+Il2CppChar MonoIO::get_DirectorySeparatorChar (void)
 {
 	return IL2CPP_DIR_SEPARATOR;
 }
@@ -130,7 +130,7 @@ Il2CppIntPtr MonoIO::Open (Il2CppString *filename, int mode, int access_mode, in
 	return ret;
 }
 
-uint16_t MonoIO::get_PathSeparator (void)
+Il2CppChar MonoIO::get_PathSeparator (void)
 {
 #if IL2CPP_COMPILER_MSVC
 	return ';';	/* semicolon */
@@ -187,7 +187,7 @@ int MonoIO::Write (Il2CppIntPtr handle, Il2CppArray * src, int src_offset, int c
 	return il2cpp::os::File::Write (h, buffer, count, error);
 }
 
-uint16_t MonoIO::get_VolumeSeparatorChar (void)
+Il2CppChar MonoIO::get_VolumeSeparatorChar (void)
 {
 #if IL2CPP_COMPILER_MSVC
 	return ':';	/* colon */
