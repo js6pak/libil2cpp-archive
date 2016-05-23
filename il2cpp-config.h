@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "il2cpp-api-types.h"
 
 /* first setup platform defines*/
 #if defined(SN_TARGET_PSP2)
@@ -313,13 +312,6 @@
 	#define IL2CPP_ZERO_LEN_ARRAY 0
 #endif
 
-#if !defined (IL2CPP_TARGET_PSP2) // __SNC__ has limited support for this
-/* clang specific __has_feature check */
-#ifndef __has_feature
-  #define __has_feature(x) 0 // Compatibility with non-clang compilers.
-#endif
-#endif
-
 #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
 #define IL2CPP_HAS_UNORDERED_CONTAINER (!defined(__ARMCC_VERSION))	// could be made platform specific rather than toolchain specific
 
@@ -431,6 +423,7 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define IL2CPP_USE_GENERIC_COM	(!IL2CPP_PLATFORM_WIN32)
 #define IL2CPP_USE_GENERIC_COM_SAFEARRAYS	(!IL2CPP_TARGET_WINDOWS)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_PLATFORM_WIN32)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
@@ -487,6 +480,10 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_DISP_E_PARAMNOTFOUND ((il2cpp_hresult_t)0x80020004)
 #define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
 #define IL2CPP_E_INVALIDARG ((il2cpp_hresult_t)0x80070057)
+#define IL2CPP_E_UNEXPECTED ((il2cpp_hresult_t)0x8000FFFF)
+#define IL2CPP_REGDB_E_CLASSNOTREG ((il2cpp_hresult_t)0x80040154)
 
 #define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
 #define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)
+
+#include "il2cpp-api-types.h"
