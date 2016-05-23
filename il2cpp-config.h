@@ -17,6 +17,10 @@
 	#define IL2CPP_TARGET_PS4 1
 	#define _UNICODE 1
 	#define UNICODE 1
+#elif defined(_XBOX)
+	#define IL2CPP_TARGET_XBOX360 1
+	#define _UNICODE 1
+	#define UNICODE 1
 #elif defined(_XBOX_ONE)
 	#define IL2CPP_TARGET_XBOXONE 1
 	#define _UNICODE 1
@@ -78,6 +82,10 @@
 
 #ifndef IL2CPP_TARGET_LINUX
 #define IL2CPP_TARGET_LINUX 0
+#endif
+
+#ifndef IL2CPP_TARGET_XBOX360
+#define IL2CPP_TARGET_XBOX360 0
 #endif
 
 #ifndef IL2CPP_TARGET_XBOXONE
@@ -149,7 +157,7 @@
 #if defined(_MSC_VER)
 	#if defined(_M_X64)
 		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(_M_IX86) || defined(_M_ARM)
+	#elif defined(_M_IX86) || defined(_M_ARM) || defined(_XBOX)
 		#define IL2CPP_SIZEOF_VOID_P 4
 	#else
 		#error invalid windows architecture
@@ -216,23 +224,16 @@
 
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
 
-// We currently use ALIGN_TYPE just for types decorated with IL2CPPStructAlignment, as it's needed for WebGL to properly align UnityEngine.Color.
-// On MSVC, it causes build issues on x86 since you cannot pass aligned type by value as an argument to a function:
-// error C2719: 'value': formal parameter with requested alignment of 16 won't be aligned
-// Since this isn't actually needed for Windows, and it's not a standard .NET feature but just IL2CPP extension, let's just turn it off on Windows
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
 	#define ALIGN_OF(T) __alignof__(T)
 	#define ALIGN_TYPE(val) __attribute__((aligned(val)))
-	#define ALIGN_FIELD(val) ALIGN_TYPE(val)
 	#define FORCE_INLINE inline __attribute__ ((always_inline))
 #elif defined(_MSC_VER)
 	#define ALIGN_OF(T) __alignof(T)
-	#define ALIGN_TYPE(val)
-	#define ALIGN_FIELD(val) __declspec(align(val))
+	#define ALIGN_TYPE(val) __declspec(align(val))
 	#define FORCE_INLINE __forceinline
 #else
 	#define ALIGN_TYPE(size)
-	#define ALIGN_FIELD(size)
 	#define FORCE_INLINE inline
 #endif
 
@@ -295,9 +296,7 @@
 #define IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS IL2CPP_TARGET_IOS
 
 /* Profiler */
-#ifndef IL2CPP_ENABLE_PROFILER
 #define IL2CPP_ENABLE_PROFILER 1
-#endif
 
 /* GC defines*/
 #define IL2CPP_GC_BOEHM 1

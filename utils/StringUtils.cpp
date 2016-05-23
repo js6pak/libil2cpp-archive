@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 #include "../char-conversions.h"
-#include "../object-internals.h"
-#include "utils/Functional.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "utils/utf8-cpp/source/utf8/unchecked.h"
@@ -12,6 +10,19 @@ namespace il2cpp
 {
 namespace utils
 {
+
+size_t StringUtils::Hash (const char *str)
+{
+	unsigned char *ustr = (unsigned char *)str;
+	size_t hash = 5381;
+	int c;
+
+	while ((c = *ustr++))
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+	return hash;
+}
+
 std::string StringUtils::Printf(const char* format, ...)
 {
 	va_list argsToCheckSize;
@@ -268,31 +279,6 @@ bool StringUtils::EndsWith(const std::string& string, const std::string& suffix)
 	return string.rfind(suffix.c_str(), stringLength - suffixLength, suffixLength) != std::string::npos;
 }
 
-bool StringUtils::CaseSensitiveEquals(Il2CppString* left, const char* right)
-{
-	std::string leftString = Utf16ToUtf8(left->chars);
-	functional::Filter<const char*, StringUtils::CaseSensitiveComparer> equalsLeft(leftString.c_str());
-	return equalsLeft(right);
-}
-
-bool StringUtils::CaseSensitiveEquals(const char* left, const char* right)
-{
-	functional::Filter<const char*, StringUtils::CaseSensitiveComparer> equalsLeft(left);
-	return equalsLeft(right);
-}
-
-bool StringUtils::CaseInsensitiveEquals(Il2CppString* left, const char* right)
-{
-	std::string leftString = Utf16ToUtf8(left->chars);
-	functional::Filter<const char*, StringUtils::CaseInsensitiveComparer> equalsLeft(leftString.c_str());
-	return equalsLeft(right);
-}
-
-bool StringUtils::CaseInsensitiveEquals(const char* left, const char* right)
-{
-	functional::Filter<const char*, StringUtils::CaseInsensitiveComparer> equalsLeft(left);
-	return equalsLeft(right);
-}
 
 } /* utils */
 } /* il2cpp */

@@ -229,8 +229,7 @@ static Il2CppSocketAddress* end_point_info_to_socket_address (const os::EndPoint
 		il2cpp_array_set (socket_address->data, uint8_t, 5, (address >> 16) & 0xFF);
 		il2cpp_array_set (socket_address->data, uint8_t, 6, (address >>  8) & 0xFF);
 		il2cpp_array_set (socket_address->data, uint8_t, 7, (address >>  0) & 0xFF);
-	}
-	else if (info.family == os::kAddressFamilyUnix)
+	} else if (info.family == os::kAddressFamilyUnix)
 	{
 		const int32_t path_len = (int32_t) strlen (info.data.path);
 		
@@ -243,21 +242,7 @@ static Il2CppSocketAddress* end_point_info_to_socket_address (const os::EndPoint
 			il2cpp_array_set (socket_address->data, uint8_t, i + 2, info.data.path[i]);
 		
 		il2cpp_array_set (socket_address->data, uint8_t, 2 + path_len, 0);
-	}
-	else if (info.family == os::kAddressFamilyInterNetworkV6)
-	{
-		socket_address->data = vm::Array::New (il2cpp_defaults.byte_class, 28);
-
-		il2cpp_array_set (socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
-		il2cpp_array_set (socket_address->data, uint8_t, 1, (family >> 8) & 0xFF);
-		
-		// Note that we start at the 3rd byte in both the managed array, where the first
-		// two bytes are the family, set just above this. We also start at the third byte
-		// in the info.data.raw array, as the first two bytes are unused and garbage data.
-		for (int i = 2; i < 28; ++i)
-			il2cpp_array_set (socket_address->data, uint8_t, i, info.data.raw[i]);
-	}
-	else
+	} else
 	{
 		// Not supported
 		return NULL;

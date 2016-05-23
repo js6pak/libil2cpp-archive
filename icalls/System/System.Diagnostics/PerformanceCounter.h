@@ -27,15 +27,16 @@ namespace System
 namespace Diagnostics
 {
 
-struct Il2CppCounterSample;
+struct CounterSample;
+struct PerformanceCounterType;
 
 class LIBIL2CPP_CODEGEN_API PerformanceCounter
 {
 public:
 	static void FreeData (Il2CppIntPtr impl);
-	static bool GetSample (Il2CppIntPtr impl, bool only_value, Il2CppCounterSample* sample);
+	static bool GetSample (Il2CppIntPtr impl, bool only_value, CounterSample* sample);
 	static int64_t UpdateValue (Il2CppIntPtr impl, bool do_incr, int64_t value);
-	static Il2CppIntPtr GetImpl (Il2CppString* category, Il2CppString* counter, Il2CppString* instance, Il2CppString* machine, int* type, bool* custom);
+	static Il2CppIntPtr GetImpl (Il2CppString* category, Il2CppString* counter, Il2CppString* instance, Il2CppString* machine, PerformanceCounterType* ctype, bool* custom);
 };
 
 } /* namespace Diagnostics */

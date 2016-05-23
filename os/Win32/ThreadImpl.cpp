@@ -111,7 +111,7 @@ ErrorCode ThreadImpl::Run (Thread::StartFunc func, void* arg)
 
 	// Create thread.
 	DWORD threadId;
-	HANDLE threadHandle = ::CreateThread (NULL, m_StackSize, &ThreadStartWrapper, startData, STACK_SIZE_PARAM_IS_A_RESERVATION, &threadId);
+	HANDLE threadHandle = ::CreateThread (NULL, m_StackSize, &ThreadStartWrapper, startData, 0, &threadId);
 
 	if (!threadHandle)
 		return kErrorCodeGenFailure;

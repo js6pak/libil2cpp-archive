@@ -181,8 +181,6 @@ Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, I
 	Il2CppClass *klass;
 	Il2CppReflectionMethod *ret;
 
-	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
-
 	if (method->is_inflated)
 	{
 		refclass = method->declaring_type;
@@ -218,6 +216,8 @@ Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, I
 
 	if (!refclass)
 		refclass = method->declaring_type;
+
+	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
 	MethodMap::key_type key (method, refclass);
 	MethodMap::iterator iter = s_MethodMap->find (key);

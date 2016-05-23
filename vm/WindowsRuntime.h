@@ -11,7 +11,7 @@ namespace vm
 class LIBIL2CPP_CODEGEN_API WindowsRuntime
 {
 public:
-	static Il2CppIActivationFactory* GetActivationFactory(const utils::StringView<Il2CppNativeChar>& runtimeClassName);
+	static Il2CppIActivationFactory* GetActivationFactory(const utils::StringView<Il2CppChar>& runtimeClassName);
 };
 
 }

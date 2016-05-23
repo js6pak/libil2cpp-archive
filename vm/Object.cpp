@@ -181,16 +181,19 @@ uint32_t Object::GetSize (Il2CppObject* obj)
 
 const MethodInfo* Object::GetVirtualMethod (Il2CppObject *obj, const MethodInfo *method)
 {
+	Il2CppClass* typeInfo = obj->klass;
+	const MethodInfo **vtable = typeInfo->vtable;
+	const MethodInfo *res = NULL;
+
 	if ((method->flags & METHOD_ATTRIBUTE_FINAL) || !(method->flags & METHOD_ATTRIBUTE_VIRTUAL))
 		return method;
-
-	Il2CppClass* typeInfo = obj->klass;
-	VirtualInvokeData* vtable = typeInfo->vtable;
 	
 	if (Class::IsInterface (method->declaring_type))
-		return vtable[Class::GetInterfaceOffset (typeInfo, method->declaring_type) + method->slot].method;
-	
-	return vtable[method->slot].method;
+		res = vtable [Class::GetInterfaceOffset (typeInfo, method->declaring_type) + method->slot];
+	else
+		res = vtable [method->slot];
+
+	return res;
 }
 
 Il2CppObject* Object::IsInst (Il2CppObject *obj, Il2CppClass *klass)
@@ -202,7 +205,7 @@ Il2CppObject* Object::IsInst (Il2CppObject *obj, Il2CppClass *klass)
 		return obj;
 
 	// check if klass is a com interface and obj is a rcw object
-	if (Class::IsInterface (klass) && klass->is_import_or_windows_runtime && obj->klass->is_import_or_windows_runtime)
+	if (Class::IsInterface (klass) && klass->is_import_or_windows_runtime && Class::HasParent (obj->klass, il2cpp_defaults.il2cpp_com_object_class))
 	{
 		const Il2CppGuid* iid = MetadataCache::GetGuid (klass->typeDefinition->guidIndex);
 		if (iid)

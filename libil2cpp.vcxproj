@@ -745,10 +745,8 @@
     <ClInclude Include="icalls\System\System.Configuration\InternalConfigurationHost.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\DefaultTraceListener.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\FileVersionInfo.h" />
-    <ClInclude Include="icalls\System\System.Diagnostics\perfcounters-def.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounter.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounterCategory.h" />
-    <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\Process.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\Stopwatch.h" />
     <ClInclude Include="icalls\System\System.IO\FAMWatcher.h" />
@@ -765,7 +763,6 @@
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="il2cpp-debugger.h" />
     <ClInclude Include="il2cpp-metadata.h" />
-    <ClInclude Include="il2cpp-string-types.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="metadata\ArrayMetadata.h" />
     <ClInclude Include="metadata\FieldLayout.h" />
@@ -859,6 +856,7 @@
     <ClInclude Include="os\WinRT\SynchronousOperation.h" />
     <ClInclude Include="os\WinRT\WinRTImpl.h" />
     <ClInclude Include="tabledefs.h" />
+    <ClInclude Include="types.h" />
     <ClInclude Include="utils\BlobReader.h" />
     <ClInclude Include="utils\CallOnce.h" />
     <ClInclude Include="utils\Collections.h" />
@@ -1071,7 +1069,6 @@
     <ClCompile Include="icalls\System\System.Diagnostics\FileVersionInfo.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounter.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounterCategory.cpp" />
-    <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\Process.cpp" />
     <ClCompile Include="icalls\System\System.Diagnostics\Stopwatch.cpp" />
     <ClCompile Include="icalls\System\System.IO\FAMWatcher.cpp" />
@@ -1118,7 +1115,6 @@
     <ClCompile Include="os\Generic\WindowsRuntime.cpp" />
     <ClCompile Include="os\Messages.cpp" />
     <ClCompile Include="os\OSX\Image.cpp" />
-    <ClCompile Include="os\OSX\Process.cpp" />
     <ClCompile Include="os\Path.cpp" />
     <ClCompile Include="os\Posix\Console.cpp" />
     <ClCompile Include="os\Posix\Cryptography.cpp" />

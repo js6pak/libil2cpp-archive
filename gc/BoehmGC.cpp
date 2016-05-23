@@ -8,10 +8,11 @@
 #include "vm/Profiler.h"
 #include <cassert>
 
+using il2cpp::vm::Profiler;
+
 static bool s_GCInitialized = false;
 
 #if IL2CPP_ENABLE_PROFILER
-using il2cpp::vm::Profiler;
 static void on_gc_event (GCEventType eventType);
 static void on_heap_resize (GC_word newSize);
 #endif
@@ -59,6 +60,7 @@ il2cpp::gc::GarbageCollector::GetMaxGeneration ()
 void
 il2cpp::gc::GarbageCollector::Collect (int maxGeneration)
 {
+	assert(maxGeneration == 0); //Consumers should know this won't work.
 	GC_gcollect ();
 }
 

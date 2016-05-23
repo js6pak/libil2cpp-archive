@@ -475,7 +475,7 @@ WaitStatus SocketImpl::SetBlocking (bool blocking)
 	* block == TRUE/FALSE means we will block/not block.
 	* But the ioctlsocket call takes TRUE/FALSE for non-block/block
 	*/
-	u_long ioctl_socket_blocking = (u_long)!blocking;
+	blocking = !blocking;
 
 	SOCKET fd = (SOCKET)_fd;
 	if (fd == -1)
@@ -488,7 +488,7 @@ WaitStatus SocketImpl::SetBlocking (bool blocking)
 
 	__try
 	{
-		ret = ioctlsocket(fd, FIONBIO, &ioctl_socket_blocking);
+		ret = ioctlsocket(fd, FIONBIO, (u_long*)&blocking);
 	}
 	__except (SocketExceptionFilter(GetExceptionCode()))
 	{
