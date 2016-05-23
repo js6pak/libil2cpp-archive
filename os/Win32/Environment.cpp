@@ -107,51 +107,16 @@ std::string Environment::GetEnvironmentVariable(const std::string& name)
 void Environment::SetEnvironmentVariable(const std::string& name, const std::string& value)
 {
 	const UTF16String varName = utils::StringUtils::Utf8ToUtf16(name.c_str());
+	const UTF16String varValue = utils::StringUtils::Utf8ToUtf16(value.c_str());
 
-	if (value.empty())
-		SetEnvironmentVariableW((LPWSTR)varName.c_str(), NULL);
-	else
-	{
-		const UTF16String varValue = utils::StringUtils::Utf8ToUtf16(value.c_str());
-		SetEnvironmentVariableW((LPWSTR)varName.c_str(), (LPWSTR)varValue.c_str());
-	}
+	SetEnvironmentVariableW((LPWSTR)varName.c_str(), (LPWSTR)varValue.c_str());
 }
-
-#if !IL2CPP_TARGET_XBOXONE
 
 std::vector<std::string> Environment::GetEnvironmentVariableNames ()
 {
-	WCHAR* env_strings;
-	WCHAR* env_string;
-	WCHAR* equal_str;
-
-	std::vector<std::string> result;
-
-	env_strings = GetEnvironmentStringsW();
-
-	if (env_strings)
-	{
-		env_string = env_strings;
-		while (*env_string != '\0')
-		{
-			// Skip over environment variables starting with '='
-			if (*env_string != '=')
-			{
-				equal_str = wcschr(env_string, '=');
-				result.push_back(utils::StringUtils::Utf16ToUtf8(env_string, (int)(equal_str - env_string)));
-			}
-			while (*env_string != '\0')
-				env_string++;
-			env_string++;
-		}
-
-		FreeEnvironmentStringsW(env_strings);
-	}
-
-	return result;
+	NOT_IMPLEMENTED_ICALL (Environment::GetEnvironmentVariableNames);
+	return std::vector<std::string>();
 }
-
-#endif
 
 std::string Environment::GetHomeDirectory ()
 {

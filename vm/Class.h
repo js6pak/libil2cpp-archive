@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include "il2cpp-config.h"
 #include "blob.h"
-#include "class-internals.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "utils/dynamic_array.h"
 #include "class-internals.h"
@@ -83,21 +82,7 @@ public:
 
 public:
 	//internal
-	static inline int32_t GetInterfaceOffset(Il2CppClass *klass, Il2CppClass *itf)
-	{
-		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
-		{
-			if (klass->interfaceOffsets[i].interfaceType == itf)
-			{
-				int32_t offset = klass->interfaceOffsets[i].offset;
-				assert(offset != -1);
-				return offset;
-			}
-		}
-
-		return -1;
-	}
-
+	static int32_t GetInterfaceOffset (Il2CppClass *klass, Il2CppClass *itf);
 	static bool Init (Il2CppClass *klass);
 
 	static Il2CppClass* GetArrayClass (Il2CppClass *element_class, uint32_t rank);

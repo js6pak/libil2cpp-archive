@@ -203,7 +203,7 @@ Il2CppObject* Marshal::PtrToStructure (Il2CppIntPtr ptr, Il2CppReflectionType* s
 		if (typeType == IL2CPP_TYPE_CLASS)
 		{
 			typedef void (*Constructor)(Il2CppObject*);
-			Constructor ctor = reinterpret_cast<Constructor>(Class::GetMethodFromName(type, ".ctor", 0)->methodPointer);
+			Constructor ctor = reinterpret_cast<Constructor>(Class::GetMethodFromName(type, ".ctor", 0)->method);
 			ctor(result);
 			vm::PlatformInvoke::MarshalStructFromNative(ptr.m_value, result, type);
 		}

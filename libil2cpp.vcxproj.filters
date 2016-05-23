@@ -697,9 +697,6 @@
     <ClCompile Include="gc\GarbageCollector.cpp">
       <Filter>gc</Filter>
     </ClCompile>
-    <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.cpp">
-      <Filter>icalls\System\System.Diagnostics</Filter>
-    </ClCompile>
     <ClCompile Include="char-conversions.cpp" />
     <ClCompile Include="vm\WindowsRuntime.cpp">
       <Filter>vm</Filter>
@@ -709,9 +706,6 @@
     </ClCompile>
     <ClCompile Include="os\Generic\WindowsRuntime.cpp">
       <Filter>os\Generic</Filter>
-    </ClCompile>
-    <ClCompile Include="os\OSX\Process.cpp">
-      <Filter>os\OSX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1076,6 +1070,7 @@
     <ClInclude Include="icalls\System\System.Threading\Semaphore.h">
       <Filter>icalls\System\System.Threading</Filter>
     </ClInclude>
+    <ClInclude Include="types.h" />
     <ClInclude Include="os\Console.h">
       <Filter>os</Filter>
     </ClInclude>
@@ -1356,7 +1351,12 @@
       <Filter>gc</Filter>
     </ClInclude>
     <ClInclude Include="vm\GC.h" />
-    <ClInclude Include="il2cpp-string-types.h" />
+    <ClInclude Include="utils\StringView.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\StringViewStream.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />

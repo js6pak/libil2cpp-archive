@@ -44,9 +44,6 @@ Il2CppIntPtr GCHandle::GetAddrOfPinnedObject (int32_t handle)
 		return MakeIntPtr(reinterpret_cast<uint8_t*>(-2));	// mscorlib on managed land expects us to return "-2" as IntPtr if this condition occurs
 
 	Il2CppObject* obj = gc::GCHandle::GetTarget(handle);
-	if (obj == NULL)
-		return MakeIntPtr(NULL);
-
 	ptrdiff_t offset;
 
 	if (obj->klass->rank > 0)
@@ -75,9 +72,6 @@ Il2CppObject* GCHandle::GetTarget (int32_t handle)
 
 static inline bool IsObjectPinnable(Il2CppObject* obj)
 {
-	if (obj == NULL)
-		return true;
-
 	Il2CppClass* klass = obj->klass;
 	if (klass->byval_arg->type == IL2CPP_TYPE_ARRAY || klass->byval_arg->type == IL2CPP_TYPE_SZARRAY)
 		return klass->element_class->is_blittable;

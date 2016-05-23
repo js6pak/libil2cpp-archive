@@ -50,10 +50,6 @@ const MethodInfo* GenericMethod::GetMethod (const Il2CppGenericMethod* gmethod)
 {
 	FastAutoLock lock (&il2cpp::vm::g_MetadataLock);
 
-	// This can be NULL only when we have hit the generic recursion depth limit.
-	if (gmethod == NULL)
-		return NULL;
-
 	Il2CppGenericMethodMap::const_iterator iter = s_GenericMethodMap.find (gmethod);
 	if (iter != s_GenericMethodMap.end ())
 		return iter->second;
@@ -114,7 +110,7 @@ const MethodInfo* GenericMethod::GetMethod (const Il2CppGenericMethod* gmethod)
 	}
 
 	newMethod->invoker_method = MetadataCache::GetInvokerMethodPointer (methodDefinition, &gmethod->context);
-	newMethod->methodPointer = MetadataCache::GetMethodPointer (methodDefinition, &gmethod->context);
+	newMethod->method = MetadataCache::GetMethodPointer (methodDefinition, &gmethod->context);
 
 	++il2cpp_runtime_stats.inflated_method_count;
 
