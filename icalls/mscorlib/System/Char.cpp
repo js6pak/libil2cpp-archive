@@ -12,21 +12,22 @@ namespace mscorlib
 namespace System
 {
 
-void Char::GetDataTablePointers (unsigned char * *category_data,
-	unsigned char * *numeric_data,
-	double * *numeric_data_values,
-	unsigned short * *to_lower_data_low,
-	unsigned short * *to_lower_data_high,
-	unsigned short * *to_upper_data_low,
-	unsigned short * *to_upper_data_high)
+void Char::GetDataTablePointers (
+	const unsigned char** category_data,
+	const unsigned char** numeric_data,
+	const double** numeric_data_values,
+	const Il2CppChar** to_lower_data_low,
+	const Il2CppChar** to_lower_data_high,
+	const Il2CppChar** to_upper_data_low,
+	const Il2CppChar** to_upper_data_high)
 {
-	*category_data = const_cast<uint8_t*> (CategoryData_v4);
-	*numeric_data = const_cast<uint8_t*> (NumericData);
-	*numeric_data_values = const_cast<double*> (NumericDataValues);
-	*to_lower_data_low = const_cast<uint16_t*> (ToLowerDataLow);
-	*to_lower_data_high = const_cast<uint16_t*> (ToLowerDataHigh);
-	*to_upper_data_low = const_cast<uint16_t*> (ToUpperDataLow);
-	*to_upper_data_high = const_cast<uint16_t*> (ToUpperDataHigh);
+	*category_data = CategoryData_v4;
+	*numeric_data = NumericData;
+	*numeric_data_values = NumericDataValues;
+	*to_lower_data_low = ToLowerDataLow;
+	*to_lower_data_high = ToLowerDataHigh;
+	*to_upper_data_low = ToUpperDataLow;
+	*to_upper_data_high = ToUpperDataHigh;
 }
 
 } /* namespace System */

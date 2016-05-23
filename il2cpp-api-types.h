@@ -125,6 +125,28 @@ typedef struct {
 	void* (*aligned_realloc_func)(void *ptr, size_t size, size_t alignment);
 } Il2CppMemoryCallbacks;
 
+#if !__SNC__ // SNC doesn't like the following define: "warning 1576: predefined meaning of __has_feature discarded"
+#ifndef __has_feature // clang specific __has_feature check
+#define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
+#endif
+
+#if _MSC_VER
+typedef wchar_t Il2CppChar;
+#elif __has_feature(cxx_unicode_literals)
+typedef char16_t Il2CppChar;
+#else
+typedef uint16_t Il2CppChar;
+#endif
+
+#if _MSC_VER
+typedef wchar_t Il2CppNativeChar;
+#define IL2CPP_NATIVE_STRING(str) L##str
+#else
+typedef char Il2CppNativeChar;
+#define IL2CPP_NATIVE_STRING(str) str
+#endif
+
 typedef void (*il2cpp_register_object_callback)(Il2CppObject** arr, int size, void* userdata);
 typedef void (*il2cpp_WorldChangedCallback)();
 
@@ -135,7 +157,7 @@ typedef void (*Il2CppProfileAllocFunc) (Il2CppProfiler* prof, Il2CppObject *obj,
 typedef void (*Il2CppProfileGCFunc) (Il2CppProfiler* prof, Il2CppGCEvent event, int generation);
 typedef void (*Il2CppProfileGCResizeFunc) (Il2CppProfiler* prof, int64_t new_size);
 
-typedef const char* (*Il2CppSetFindPlugInCallback)(const char*);
+typedef const Il2CppNativeChar* (*Il2CppSetFindPlugInCallback)(const Il2CppNativeChar*);
 
 struct Il2CppManagedMemorySnapshot;
 

@@ -78,7 +78,7 @@ struct Il2CppString
 {
 	Il2CppObject object;
 	int32_t length;								///< Length of string *excluding* the trailing null (which is included in 'chars').
-	uint16_t chars [IL2CPP_ZERO_LEN_ARRAY];
+	Il2CppChar chars [IL2CPP_ZERO_LEN_ARRAY];
 };
 
 #if IL2CPP_COMPILER_MSVC
@@ -293,7 +293,7 @@ struct Il2CppThread {
 	Il2CppArray  *cached_culture_info;
 	void*    unused1;
 	bool threadpool_thread;//bool threadpool_thread;
-	uint16_t* name;
+	Il2CppChar* name;
 	uint32_t name_len;
 	uint32_t	    state;
 	Il2CppObject* abort_exc;//MonoException *abort_exc;
@@ -798,7 +798,7 @@ struct Il2CppVariant
 				int32_t scode;
 				int64_t cyVal;
 				double date;
-				uint16_t* bstrVal;
+				Il2CppChar* bstrVal;
 				Il2CppIUnknown* punkVal;
 				void* pdispVal;
 				Il2CppSafeArray* parray;
@@ -812,7 +812,7 @@ struct Il2CppVariant
 				int32_t* pscode;
 				int64_t* pcyVal;
 				double* pdate;
-				uint16_t* pbstrVal;
+				Il2CppChar* pbstrVal;
 				Il2CppIUnknown** ppunkVal;
 				void** ppdispVal;
 				Il2CppSafeArray** pparray;
@@ -850,7 +850,7 @@ struct Il2CppFileTime
 
 struct Il2CppStatStg
 {
-	uint16_t* name;
+	Il2CppChar* name;
 	uint32_t type;
 	uint64_t size;
 	Il2CppFileTime mtime;
@@ -862,6 +862,27 @@ struct Il2CppStatStg
 	uint32_t state;
 	uint32_t reserved;
 };
+
+struct Il2CppHString__
+{
+	int unused;
+};
+
+typedef Il2CppHString__* Il2CppHString;
+
+struct Il2CppHStringHeader
+{
+	union
+	{
+		void* Reserved1;
+#if IL2CPP_SIZEOF_VOID_P == 8
+		char Reserved2[24];
+#else
+		char Reserved2[20];
+#endif
+	} Reserved;
+};
+
 
 struct NOVTABLE Il2CppIUnknown
 {
@@ -906,6 +927,20 @@ struct NOVTABLE Il2CppIMarshal : Il2CppIUnknown
 struct NOVTABLE Il2CppIManagedObject : Il2CppIUnknown
 {
 	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
-	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(uint16_t** bstr) = 0;
-	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(uint16_t** bstr_guid, int32_t* app_domain_id, intptr_t* ccw) = 0;
+	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(Il2CppChar** bstr) = 0;
+	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(Il2CppChar** bstr_guid, int32_t* app_domain_id, intptr_t* ccw) = 0;
+};
+
+struct NOVTABLE Il2CppIInspectable : Il2CppIUnknown
+{
+	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+	virtual il2cpp_hresult_t STDCALL GetIids(uint32_t* iidCount, Il2CppGuid** iids) = 0;
+	virtual il2cpp_hresult_t STDCALL GetRuntimeClassName(Il2CppHString* className) = 0;
+	virtual il2cpp_hresult_t STDCALL GetTrustLevel(int32_t* trustLevel) = 0;
+};
+
+struct NOVTABLE Il2CppIActivationFactory : Il2CppIInspectable
+{
+	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+	virtual il2cpp_hresult_t STDCALL ActivateInstance(Il2CppIInspectable** instance) = 0;
 };

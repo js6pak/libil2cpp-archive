@@ -157,12 +157,12 @@ Il2CppString* Marshal::PtrToStringAnsi_mscorlib_System_String_mscorlib_System_In
 
 Il2CppString* Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr (Il2CppIntPtr ptr)
 {
-	uint16_t* value = (uint16_t*)ptr.m_value;
+	Il2CppChar* value = static_cast<Il2CppChar*>(ptr.m_value);
 	if (value == NULL)
 		return NULL;
 
 	int32_t len = 0;
-	uint16_t* t = value;
+	Il2CppChar* t = value;
 
 	while (*t++)
 		len++;
@@ -172,7 +172,7 @@ Il2CppString* Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_Int
 
 Il2CppString* Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr_mscorlib_System_Int32 (Il2CppIntPtr ptr, int32_t len)
 {
-	uint16_t* value = (uint16_t*)ptr.m_value;
+	Il2CppChar* value = static_cast<Il2CppChar*>(ptr.m_value);
 	if (value == NULL)
 		Exception::Raise(Exception::GetArgumentNullException("ptr"));
 
@@ -355,9 +355,9 @@ Il2CppIntPtr Marshal::StringToHGlobalUni (Il2CppString* s)
 		return Il2CppIntPtr::Zero;
 
 	int32_t size = String::GetLength(s);
-	const uint16_t* utf16 = String::GetChars(s);
+	const Il2CppChar* utf16 = String::GetChars(s);
 	size_t bytes = (size + 1) * 2;
-	uint16_t *cstr = (uint16_t*)MarshalAlloc::AllocateHGlobal(bytes);
+	Il2CppChar* cstr = static_cast<Il2CppChar*>(MarshalAlloc::AllocateHGlobal(bytes));
 	memcpy (cstr, utf16, bytes);
 	Il2CppIntPtr result;
 	result.m_value = cstr;
@@ -369,7 +369,7 @@ Il2CppIntPtr Marshal::StringToHGlobalAnsi (Il2CppString* s)
 	if (s == NULL)
 		return Il2CppIntPtr::Zero;
 
-	const uint16_t *utf16 = String::GetChars(s);
+	const Il2CppChar* utf16 = String::GetChars(s);
 	std::string str = il2cpp::utils::StringUtils::Utf16ToUtf8 (utf16);
 	char *cstr = (char*)MarshalAlloc::AllocateHGlobal(str.size()+1);
 	strcpy (cstr, str.c_str());

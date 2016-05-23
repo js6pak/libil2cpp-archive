@@ -15,7 +15,9 @@
 
 #include "metadata.h"
 #include "os/LibraryLoader.h"
+#include "utils/StringUtils.h"
 #include "vm/Exception.h"
+#include "vm/PlatformInvoke.h"
 
 namespace il2cpp
 {
@@ -52,12 +54,12 @@ static LibraryNamePrefixAndSuffix LibraryNamePrefixAndSuffixVariations[8] = {
 // the values it returns, and we don't call dlcose from the C# level. See the
 // comments in the integration test code for more details.
 
-static void* LoadLibraryWithName(const std::string& name)
+static void* LoadLibraryWithName(const char* name)
 {
 #ifdef VERBOSE_OUTPUT
 	printf("Trying name: %s\n", name.c_str());
 #endif
-	void* handle = dlopen(name.c_str(), RTLD_LAZY);
+	void* handle = dlopen(name, RTLD_LAZY);
 	if (handle != NULL)
 		return handle;
 
@@ -68,13 +70,13 @@ static void* LoadLibraryWithName(const std::string& name)
 	return NULL;
 }
 
-static void* CheckLibraryVariations(const std::string& name)
+static void* CheckLibraryVariations(const char* name)
 {
 	int numberOfVariations = sizeof(LibraryNamePrefixAndSuffixVariations) / sizeof(LibraryNamePrefixAndSuffixVariations[0]);
 	for (int i = 0; i < numberOfVariations; ++i)
 	{
 		std::string libraryName = LibraryNamePrefixAndSuffixVariations[i].prefix + name + LibraryNamePrefixAndSuffixVariations[i].suffix;
-		void* handle = LoadLibraryWithName(libraryName);
+		void* handle = LoadLibraryWithName(libraryName.c_str());
 		if (handle != NULL)
 			return handle;
 	}
@@ -82,22 +84,29 @@ static void* CheckLibraryVariations(const std::string& name)
 	return NULL;
 }
 
-void* LibraryLoader::LoadDynamicLibrary(const std::string& nativeDynamicLibrary)
+void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
 {
 #ifdef VERBOSE_OUTPUT
 	printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.c_str());
 #endif
 
-	void* handle = LoadLibraryWithName(nativeDynamicLibrary);
+	StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
+	void* handle = LoadLibraryWithName(libraryName);
 
 	if (handle == NULL)
-		handle = CheckLibraryVariations(nativeDynamicLibrary);
+		handle = CheckLibraryVariations(libraryName);
 
 	if (handle == NULL)
 	{
-		size_t lengthWithoutDotDll = nativeDynamicLibrary.length() - 4;
-		if (nativeDynamicLibrary.compare(lengthWithoutDotDll, 4, ".dll") == 0)
-			handle = CheckLibraryVariations(nativeDynamicLibrary.substr(0, lengthWithoutDotDll));
+		size_t lengthWithoutDotDll = nativeDynamicLibrary.Length() - 4;
+		if (strncmp(libraryName + lengthWithoutDotDll, ".dll", 4) == 0)
+		{
+			char* nativeDynamicLibraryWithoutExtension = static_cast<char*>(alloca((lengthWithoutDotDll + 1) * sizeof(char)));
+			memcpy(nativeDynamicLibraryWithoutExtension, libraryName, lengthWithoutDotDll);
+			nativeDynamicLibraryWithoutExtension[lengthWithoutDotDll] = 0;
+
+			handle = CheckLibraryVariations(nativeDynamicLibraryWithoutExtension);
+		}
 	}
 
 	if (handle != NULL)
@@ -108,17 +117,24 @@ void* LibraryLoader::LoadDynamicLibrary(const std::string& nativeDynamicLibrary)
 
 Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
 {
+	StringViewAsNullTerminatedStringOf(char, pinvokeArgs.entryPoint, entryPoint);
+	return GetFunctionPointer(dynamicLibrary, entryPoint);
+}
+
+Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const char* functionName)
+{
 #ifdef VERBOSE_OUTPUT
 	printf("Attempting to load method at entry point: %s\n", pinvokeArgs.entryPoint);
 #endif
-	void* method = dlsym(dynamicLibrary, pinvokeArgs.entryPoint);
-	
+
+	Il2CppMethodPointer method = reinterpret_cast<Il2CppMethodPointer>(dlsym(dynamicLibrary, functionName));
+
 #ifdef VERBOSE_OUTPUT
 	if (method == NULL)
 		printf("Error: %s\n", dlerror());
 #endif
 
-	return (Il2CppMethodPointer)method;
+	return method;
 }
 
 void LibraryLoader::CleanupLoadedLibraries()
