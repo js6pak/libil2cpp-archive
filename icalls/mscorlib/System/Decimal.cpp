@@ -823,8 +823,8 @@ int Decimal::decimalSetExponent(il2cpp_decimal_repr* pA, int texp)
 
 int Decimal::string2decimal(il2cpp_decimal_repr *pA, Il2CppString *str, unsigned int decrDecimal, int sign)
 {
-	uint16_t *buf = vm::String::GetChars(str);
-	uint16_t *p;
+	Il2CppChar* buf = vm::String::GetChars(str);
+	Il2CppChar* p;
 	uint64_t alo, ahi;
 	alo = ahi = 0;
 	int n, rc, i, len, sigLen = -1, firstNonZero;

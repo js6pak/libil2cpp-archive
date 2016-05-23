@@ -215,7 +215,7 @@ static bool InternalCopyFile(int srcFd, int destFd, const struct stat& srcStat, 
 				if(errno == EINTR)
 					continue;
 
-				delete buffer;
+				delete[] buffer;
 
 				*error = FileErrnoToErrorCode (errno);
 				return false;
@@ -226,7 +226,7 @@ static bool InternalCopyFile(int srcFd, int destFd, const struct stat& srcStat, 
 		}
 	}
 
-	delete buffer;
+	delete[] buffer;
 
 	if(readBytes < 0)
 	{

@@ -4,7 +4,6 @@
 #include <vector>
 #include <string>
 #include "il2cpp-config.h"
-#include "il2cpp-api-types.h"
 #include "il2cpp-metadata.h"
 
 struct Il2CppArray;

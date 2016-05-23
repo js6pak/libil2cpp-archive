@@ -31,8 +31,8 @@ void CompareInfo::free_internal_collator (mscorlib_System_Globalization_CompareI
 static int string_invariant_indexof (Il2CppString *source, int sindex, int count, Il2CppString *value, bool first)
 {
 	int lencmpstr = il2cpp::vm::String::GetLength(value);
-	uint16_t *src = il2cpp::vm::String::GetChars(source);
-	uint16_t *cmpstr = il2cpp::vm::String::GetChars(value);
+	Il2CppChar* src = il2cpp::vm::String::GetChars(source);
+	Il2CppChar* cmpstr = il2cpp::vm::String::GetChars(value);
 
 	if (first)
 	{
@@ -52,7 +52,7 @@ static int string_invariant_indexof (Il2CppString *source, int sindex, int count
 	{
 		for (int pos = sindex-lencmpstr+1; pos > sindex-count; pos--)
 		{
-			if (memcmp(src+pos, cmpstr, lencmpstr*sizeof(uint16_t)) == 0)
+			if (memcmp(src+pos, cmpstr, lencmpstr*sizeof(Il2CppChar)) == 0)
 				return (pos);
 		}
 		
@@ -65,7 +65,7 @@ int CompareInfo::internal_index (mscorlib_System_Globalization_CompareInfo *__th
 	return (string_invariant_indexof(source, sindex, count, value, first));
 }
 
-static int string_invariant_compare_char (uint16_t c1, uint16_t c2, int options)
+static int string_invariant_compare_char (Il2CppChar c1, Il2CppChar c2, int options)
 {
 	int result = 0;
 
@@ -104,8 +104,8 @@ static int string_invariant_compare (Il2CppString *str1, int off1, int len1, Il2
 	else
 		length = len2;
 
-	uint16_t *ustr1 = il2cpp::vm::String::GetChars(str1) + off1;
-	uint16_t *ustr2 = il2cpp::vm::String::GetChars(str2) + off2;
+	Il2CppChar* ustr1 = il2cpp::vm::String::GetChars(str1) + off1;
+	Il2CppChar* ustr2 = il2cpp::vm::String::GetChars(str2) + off2;
 
 	int pos = 0;
 	for (pos = 0; pos != length; pos++)
