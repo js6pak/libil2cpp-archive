@@ -39,7 +39,7 @@
 #elif defined(__APPLE__)
 	#define IL2CPP_TARGET_DARWIN 1
 	#include "TargetConditionals.h"
-	#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR || TARGET_TVOS_SIMULATOR
+	#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 		#define IL2CPP_TARGET_IOS 1
 	#endif
 #elif defined(__ANDROID__)
@@ -177,13 +177,15 @@
 #define CDECL
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
+#elif IL2CPP_TARGET_DARWIN
+#define NORETURN __attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
