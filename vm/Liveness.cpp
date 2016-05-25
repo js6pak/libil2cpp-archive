@@ -331,7 +331,7 @@ void LivenessState::AddProcessObject (Il2CppObject* object, LivenessState* state
 bool LivenessState::ShouldProcessValue (Il2CppObject* val, TypeInfo* filter)
 {
 	TypeInfo* val_class = GET_CLASS(val);
-	if (filter && !Class::HasParent (val_class, filter))
+	if (filter && !Class::HasParentUnsafe (val_class, filter))
 		return false;
 
 	return true;
@@ -369,6 +369,8 @@ void LivenessState::SafeGrowArray (custom_growable_array* array)
 	
 void* Liveness::Begin (TypeInfo* filter, int max_object_count, register_object_callback callback, void* userdata, WorldChangedCallback onWorldStarted, WorldChangedCallback onWorldStopped)
 {
+	// ensure filter is initialized so we can do fast (and lock free) check HasParentUnsafe
+	Class::SetupTypeHierarchy (filter);
 	LivenessState* state = new LivenessState (filter, max_object_count, callback, userdata, onWorldStarted, onWorldStopped);
 	StopWorld (onWorldStopped);
 	// no allocations can happen beyond this point

@@ -560,6 +560,50 @@ static int32_t convert_address_family (AddressFamily family)
 	return -1;
 }
 
+static AddressFamily convert_define_to_address_family (int32_t family)
+{
+	switch(family)
+	{
+		case AF_UNSPEC:
+			return kAddressFamilyUnspecified;
+
+		case AF_UNIX:
+			return kAddressFamilyUnix;
+
+		case AF_INET:
+			return kAddressFamilyInterNetwork;
+#ifdef AF_IPX
+		case AF_IPX:
+			return kAddressFamilyIpx;
+#endif
+#ifdef AF_SNA
+		case AF_SNA:
+			return kAddressFamilySna;
+#endif
+#ifdef AF_DECnet
+		case AF_DECnet:
+			return kAddressFamilyDecNet;
+#endif
+#ifdef AF_APPLETALK
+		case AF_APPLETALK:
+			return kAddressFamilyAppleTalk;
+#endif
+#ifdef AF_INET6
+		case AF_INET6:
+			return kAddressFamilyInterNetworkV6;
+#endif
+#ifdef AF_IRDA
+		case AF_IRDA:
+			return kAddressFamilyIrda;
+#endif
+
+		default:
+			break;
+	}
+
+	return kAddressFamilyError;
+}
+
 static int32_t convert_socket_type (SocketType type)
 {
 	switch(type)
@@ -814,7 +858,7 @@ static void sockaddr_from_address(uint32_t address, uint16_t port, struct sockad
 
 static bool socketaddr_to_endpoint_info(const struct sockaddr *address, socklen_t address_len, EndPointInfo &info)
 {
-	info.family = (os::AddressFamily) address->sa_family;
+	info.family = convert_define_to_address_family(address->sa_family);
 
 	if (info.family == os::kAddressFamilyInterNetwork)
 	{
