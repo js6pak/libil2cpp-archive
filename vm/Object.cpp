@@ -205,7 +205,7 @@ Il2CppObject* Object::IsInst (Il2CppObject *obj, Il2CppClass *klass)
 		return obj;
 
 	// check if klass is a com interface and obj is a rcw object
-	if (Class::IsInterface (klass) && klass->is_import && Class::HasParent (obj->klass, il2cpp_defaults.il2cpp_com_object_class))
+	if (Class::IsInterface (klass) && klass->is_import_or_windows_runtime && Class::HasParent (obj->klass, il2cpp_defaults.il2cpp_com_object_class))
 	{
 		const Il2CppGuid* iid = MetadataCache::GetGuid (klass->typeDefinition->guidIndex);
 		if (iid)

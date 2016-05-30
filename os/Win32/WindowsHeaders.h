@@ -6,8 +6,11 @@
 #define INC_OLE2 1
 #include <Windows.h>
 
-#if IL2CPP_TARGET_WINRT
+#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOX
 #include <roapi.h>
+#include <winstring.h>
 #endif
+
+#define LINK_TO_WINDOWSRUNTIME_LIBS (IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOX)
 
 #endif

@@ -934,7 +934,7 @@ int32_t il2cpp_string_length (Il2CppString* str)
 	return String::GetLength (str);
 }
 
-uint16_t* il2cpp_string_chars (Il2CppString* str)
+Il2CppChar* il2cpp_string_chars (Il2CppString* str)
 {
 	return String::GetChars (str);
 }
@@ -950,7 +950,7 @@ Il2CppString* il2cpp_string_new_wrapper(const char* str)
 	return String::NewWrapper (str);
 }
 
-Il2CppString* il2cpp_string_new_utf16 (const uint16_t *text, int32_t len)
+Il2CppString* il2cpp_string_new_utf16 (const Il2CppChar *text, int32_t len)
 {
 	return String::NewUtf16 (text, len);
 }
