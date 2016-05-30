@@ -212,9 +212,15 @@ handle_enum:
 	}
 	case IL2CPP_TYPE_I2:
 	case IL2CPP_TYPE_U2:
-	case IL2CPP_TYPE_CHAR: {
+	{
 		uint16_t *p = (uint16_t*)dest;
 		*p = value ? *(uint16_t*)value : 0;
+		return;
+	}
+	case IL2CPP_TYPE_CHAR:
+	{
+		Il2CppChar* p = (Il2CppChar*)dest;
+		*p = value ? *(Il2CppChar*)value : 0;
 		return;
 	}
 #if SIZEOF_VOID_P == 4

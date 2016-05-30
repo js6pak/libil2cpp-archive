@@ -183,10 +183,10 @@ DO_API( Il2CppObject*, il2cpp_delegate_end_invoke, (Il2CppAsyncResult* asyncResu
 
 // string
 DO_API( int32_t, il2cpp_string_length, (Il2CppString* str) );
-DO_API( uint16_t*, il2cpp_string_chars, (Il2CppString* str) );
+DO_API( Il2CppChar*, il2cpp_string_chars, (Il2CppString* str) );
 DO_API( Il2CppString*, il2cpp_string_new, (const char* str) );
 DO_API( Il2CppString*, il2cpp_string_new_len, (const char* str, uint32_t length) );
-DO_API( Il2CppString*, il2cpp_string_new_utf16, (const uint16_t *text, int32_t len) );
+DO_API( Il2CppString*, il2cpp_string_new_utf16, (const Il2CppChar *text, int32_t len) );
 DO_API( Il2CppString*, il2cpp_string_new_wrapper, (const char* str) );
 DO_API( Il2CppString*, il2cpp_string_intern, (Il2CppString* str) );
 DO_API( Il2CppString*, il2cpp_string_is_interned, (Il2CppString* str) );

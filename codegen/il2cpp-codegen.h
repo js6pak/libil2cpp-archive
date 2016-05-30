@@ -41,6 +41,7 @@
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/Type.h"
+#include "vm/WindowsRuntime.h"
 
 #ifdef _MSC_VER
 #define IL2CPP_DEBUG_BREAK() __debugbreak()
@@ -182,6 +183,11 @@ inline Il2CppCodeGenException* il2cpp_codegen_get_array_type_mismatch_exception(
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetArrayTypeMismatchException();
 }
 
+inline Il2CppCodeGenException* il2cpp_codegen_get_invalid_operation_exception(const char* msg)
+{
+	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetInvalidOperationException(msg);
+}
+
 inline Il2CppCodeGenException* il2cpp_codegen_get_marshal_directive_exception(const char* msg)
 {
 	return (Il2CppCodeGenException*)il2cpp::vm::Exception::GetMarshalDirectiveException(msg);
@@ -283,7 +289,7 @@ inline void* UnBox(Il2CppCodeGenObject* obj)
 {
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
-		IL2CPP_UNREACHABLE;
+		il2cpp_codegen_no_return();
 	}
 
 	return il2cpp::vm::Object::Unbox((Il2CppObject*)obj);
@@ -293,7 +299,7 @@ inline void* UnBox(Il2CppCodeGenObject* obj, Il2CppClass* klass)
 {
 	if (!obj){
 		il2cpp::vm::Exception::RaiseNullReferenceException ();
-		IL2CPP_UNREACHABLE;
+		il2cpp_codegen_no_return();
 	}
 
 	Il2CppObject* obj2 = (Il2CppObject*)obj;
@@ -315,6 +321,16 @@ inline void* il2cpp_codegen_get_delegate_this(Il2CppCodeGenMulticastDelegate* co
 		return il2cpp::vm::Object::Unbox(delegate->target);
 
 	return delegate->target;
+}
+
+inline uint32_t il2cpp_codegen_sizeof (Il2CppClass* klass)
+{
+	if (!klass->valuetype)
+	{
+		return sizeof (void*);
+	}
+
+	return il2cpp::vm::Class::GetInstanceSize (klass) - sizeof(Il2CppObject);
 }
 
 #include "GeneratedVirtualInvokers.h"
@@ -462,13 +478,14 @@ inline Il2CppMethodPointer il2cpp_codegen_resolve_icall (const char* name)
 	return method;
 }
 
-template <typename FunctionPointerType>
-inline FunctionPointerType il2cpp_codegen_resolve_pinvoke(const char* nativeDynamicLibrary, const char* entryPoint, Il2CppCallConvention callingConvention, Il2CppCharSet charSet, int parameterSize, bool isNoMangle)
+template <typename FunctionPointerType, size_t dynamicLibraryLength, size_t entryPointLength>
+inline FunctionPointerType il2cpp_codegen_resolve_pinvoke(const Il2CppNativeChar (&nativeDynamicLibrary)[dynamicLibraryLength], const char (&entryPoint)[entryPointLength], 
+	Il2CppCallConvention callingConvention, Il2CppCharSet charSet, int parameterSize, bool isNoMangle)
 {
 	const PInvokeArguments pinvokeArgs =
 	{
-		nativeDynamicLibrary,
-		entryPoint,
+		il2cpp::utils::StringView<Il2CppNativeChar>(nativeDynamicLibrary),
+		il2cpp::utils::StringView<char>(entryPoint),
 		callingConvention,
 		charSet,
 		parameterSize,
@@ -505,17 +522,17 @@ inline void il2cpp_codegen_marshal_string_fixed(Il2CppCodeGenString* il2CppStrin
 	return il2cpp::vm::PlatformInvoke::MarshalCSharpStringToCppStringFixed((Il2CppString*)il2CppString, buffer, numberOfCharacters);
 }
 
-inline uint16_t* il2cpp_codegen_marshal_wstring(Il2CppCodeGenString* il2CppString)
+inline Il2CppChar* il2cpp_codegen_marshal_wstring(Il2CppCodeGenString* il2CppString)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalCSharpStringToCppWString((Il2CppString*)il2CppString);
 }
 
-inline void il2cpp_codegen_marshal_wstring_fixed(Il2CppCodeGenString* il2CppString, uint16_t* buffer, int numberOfCharacters)
+inline void il2cpp_codegen_marshal_wstring_fixed(Il2CppCodeGenString* il2CppString, Il2CppChar* buffer, int numberOfCharacters)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalCSharpStringToCppWStringFixed((Il2CppString*)il2CppString, buffer, numberOfCharacters);
 }
 
-inline uint16_t* il2cpp_codegen_marshal_bstring(Il2CppCodeGenString* il2CppString)
+inline Il2CppChar* il2cpp_codegen_marshal_bstring(Il2CppCodeGenString* il2CppString)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalCSharpStringToCppBString((Il2CppString*)il2CppString);
 }
@@ -525,17 +542,17 @@ inline Il2CppCodeGenString* il2cpp_codegen_marshal_string_result(const char* val
 	return (Il2CppCodeGenString*)il2cpp::vm::PlatformInvoke::MarshalCppStringToCSharpStringResult(value);
 }
 
-inline Il2CppCodeGenString* il2cpp_codegen_marshal_wstring_result(const uint16_t* value)
+inline Il2CppCodeGenString* il2cpp_codegen_marshal_wstring_result(const Il2CppChar* value)
 {
-	return (Il2CppCodeGenString*)il2cpp::vm::PlatformInvoke::MarshalCppWStringToCSharpStringResult((uint16_t*)value);
+	return (Il2CppCodeGenString*)il2cpp::vm::PlatformInvoke::MarshalCppWStringToCSharpStringResult(value);
 }
 
-inline Il2CppCodeGenString* il2cpp_codegen_marshal_bstring_result(const uint16_t* value)
+inline Il2CppCodeGenString* il2cpp_codegen_marshal_bstring_result(const Il2CppChar* value)
 {
 	return (Il2CppCodeGenString*)il2cpp::vm::PlatformInvoke::MarshalCppBStringToCSharpStringResult(value);
 }
 
-inline void il2cpp_codegen_marshal_free_bstring(const uint16_t* value)
+inline void il2cpp_codegen_marshal_free_bstring(Il2CppChar* value)
 {
 	il2cpp::vm::PlatformInvoke::MarshalFreeBString(value);
 }
@@ -545,7 +562,7 @@ inline char* il2cpp_codegen_marshal_string_builder(Il2CppCodeGenStringBuilder* s
 	return il2cpp::vm::PlatformInvoke::MarshalStringBuilder((Il2CppStringBuilder*)stringBuilder);
 }
 
-inline uint16_t* il2cpp_codegen_marshal_wstring_builder(Il2CppCodeGenStringBuilder* stringBuilder)
+inline Il2CppChar* il2cpp_codegen_marshal_wstring_builder(Il2CppCodeGenStringBuilder* stringBuilder)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalWStringBuilder((Il2CppStringBuilder*)stringBuilder);
 }
@@ -555,7 +572,7 @@ inline void il2cpp_codegen_marshal_string_builder_result(Il2CppCodeGenStringBuil
 	il2cpp::vm::PlatformInvoke::MarshalStringBuilderResult((Il2CppStringBuilder*)stringBuilder, buffer);
 }
 
-inline void il2cpp_codegen_marshal_wstring_builder_result(Il2CppCodeGenStringBuilder* stringBuilder, uint16_t* buffer)
+inline void il2cpp_codegen_marshal_wstring_builder_result(Il2CppCodeGenStringBuilder* stringBuilder, Il2CppChar* buffer)
 {
 	il2cpp::vm::PlatformInvoke::MarshalWStringBuilderResult((Il2CppStringBuilder*)stringBuilder, buffer);
 }
@@ -583,12 +600,12 @@ inline char** il2cpp_codegen_marshal_allocate_native_string_array(size_t size)
 	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeStringArray(size);
 }
 
-inline uint16_t** il2cpp_codegen_marshal_allocate_native_wstring_array(size_t size)
+inline Il2CppChar** il2cpp_codegen_marshal_allocate_native_wstring_array(size_t size)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeWStringArray(size);
 }
 
-inline uint16_t** il2cpp_codegen_marshal_allocate_native_bstring_array(size_t size)
+inline Il2CppChar** il2cpp_codegen_marshal_allocate_native_bstring_array(size_t size)
 {
 	return il2cpp::vm::PlatformInvoke::MarshalAllocateNativeBStringArray(size);
 }
@@ -604,24 +621,24 @@ inline char** il2cpp_codegen_marshal_string_array(Il2CppCodeGenArray* a)
 	return nativeArray;
 }
 
-inline uint16_t** il2cpp_codegen_marshal_wstring_array(Il2CppCodeGenArray* a)
+inline Il2CppChar** il2cpp_codegen_marshal_wstring_array(Il2CppCodeGenArray* a)
 {
 	if (a == NULL)
 		return NULL;
 
 	// Mono adds a null terminator on the a string array, so we will do the same.
-	uint16_t** nativeArray = il2cpp_codegen_marshal_allocate_array<uint16_t*>(a->max_length + 1);
+	Il2CppChar** nativeArray = il2cpp_codegen_marshal_allocate_array<Il2CppChar*>(a->max_length + 1);
 	il2cpp::vm::PlatformInvoke::MarshalWStringArray((Il2CppArray*)a, nativeArray);
 	return nativeArray;
 }
 
-inline uint16_t** il2cpp_codegen_marshal_bstring_array(Il2CppCodeGenArray* a)
+inline Il2CppChar** il2cpp_codegen_marshal_bstring_array(Il2CppCodeGenArray* a)
 {
 	if (a == NULL)
 		return NULL;
 
 	// Mono adds a null terminator on the a string array, so we will do the same.
-	uint16_t** nativeArray = il2cpp_codegen_marshal_allocate_array<uint16_t*>(a->max_length + 1);
+	Il2CppChar** nativeArray = il2cpp_codegen_marshal_allocate_array<Il2CppChar*>(a->max_length + 1);
 	il2cpp::vm::PlatformInvoke::MarshalBStringArray((Il2CppArray*)a, nativeArray);
 	return nativeArray;
 }
@@ -636,22 +653,22 @@ inline void il2cpp_codegen_marshal_string_array_out(char** nativeArray, Il2CppCo
 	il2cpp::vm::PlatformInvoke::MarshalStringArrayOut(nativeArray, (Il2CppArray*)managedArray);
 }
 
-inline Il2CppCodeGenArray* il2cpp_codegen_marshal_wstring_array_result(uint16_t** a, size_t size)
+inline Il2CppCodeGenArray* il2cpp_codegen_marshal_wstring_array_result(Il2CppChar** a, size_t size)
 {
 	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalWStringArrayResult(a, size);
 }
 
-inline Il2CppCodeGenArray* il2cpp_codegen_marshal_bstring_array_result(uint16_t** a, size_t size)
+inline Il2CppCodeGenArray* il2cpp_codegen_marshal_bstring_array_result(Il2CppChar** a, size_t size)
 {
 	return (Il2CppCodeGenArray*)il2cpp::vm::PlatformInvoke::MarshalBStringArrayResult(a, size);
 }
 
-inline void il2cpp_codegen_marshal_wstring_array_out(uint16_t** nativeArray, Il2CppCodeGenArray* managedArray)
+inline void il2cpp_codegen_marshal_wstring_array_out(Il2CppChar** nativeArray, Il2CppCodeGenArray* managedArray)
 {
 	il2cpp::vm::PlatformInvoke::MarshalWStringArrayOut(nativeArray, (Il2CppArray*)managedArray);
 }
 
-inline void il2cpp_codegen_marshal_bstring_array_out(uint16_t** nativeArray, Il2CppCodeGenArray* managedArray)
+inline void il2cpp_codegen_marshal_bstring_array_out(Il2CppChar** nativeArray, Il2CppCodeGenArray* managedArray)
 {
 	il2cpp::vm::PlatformInvoke::MarshalBStringArrayOut(nativeArray, (Il2CppArray*)managedArray);
 }
@@ -666,7 +683,7 @@ inline void il2cpp_codegen_marshal_free_string_array(void** a, size_t arrayLengt
 	il2cpp::vm::PlatformInvoke::MarshalFreeStringArray(a, arrayLength);
 }
 
-inline void il2cpp_codegen_marshal_free_bstring_array(uint16_t** a, size_t arrayLength)
+inline void il2cpp_codegen_marshal_free_bstring_array(Il2CppChar** a, size_t arrayLength)
 {
 	il2cpp::vm::PlatformInvoke::MarshalFreeBStringArray(a, arrayLength);
 }
@@ -738,7 +755,7 @@ inline void NullCheck (void* this_ptr)
 		return;
 
 	il2cpp::vm::Exception::RaiseNullReferenceException ();
-	IL2CPP_UNREACHABLE;
+	il2cpp_codegen_no_return();
 }
 
 inline void DivideByZeroCheck(int64_t denominator)
@@ -747,7 +764,7 @@ inline void DivideByZeroCheck(int64_t denominator)
 		return;
 
 	il2cpp::vm::Exception::RaiseDivideByZeroException();
-	IL2CPP_UNREACHABLE;
+	il2cpp_codegen_no_return();
 }
 
 inline void Initobj (Il2CppClass* type, void* data)
@@ -773,6 +790,7 @@ inline bool MethodHasParameters(const MethodInfo* method)
 
 // generic sharing
 #define IL2CPP_RGCTX_DATA(rgctxVar,index) (InitializedTypeInfo(rgctxVar[index].klass))
+#define IL2CPP_RGCTX_SIZEOF(rgctxVar,index) (il2cpp_codegen_sizeof(IL2CPP_RGCTX_DATA(rgctxVar, index)))
 #define IL2CPP_RGCTX_TYPE(rgctxVar,index) (rgctxVar[index].type)
 #define IL2CPP_RGCTX_METHOD_INFO(rgctxVar,index) (rgctxVar[index].method)
 #define IL2CPP_RGCTX_FIELD_INFO(Il2CppClass,index) ((Il2CppClass)->fields+index)
@@ -959,12 +977,12 @@ inline void il2cpp_codegen_com_destroy_variant(Il2CppVariant* variant)
 	il2cpp::vm::COM::DestroyVariant(variant);
 }
 
-inline Il2CppSafeArray* il2cpp_codegen_com_marshal_safe_array(uint16_t type, Il2CppArray* managedArray)
+inline Il2CppSafeArray* il2cpp_codegen_com_marshal_safe_array(Il2CppChar type, Il2CppArray* managedArray)
 {
 	return il2cpp::vm::COM::MarshalSafeArray(type, managedArray);
 }
 
-inline Il2CppArray* il2cpp_codegen_com_marshal_safe_array_result(uint16_t variantType, Il2CppClass* type, Il2CppSafeArray* safeArray)
+inline Il2CppArray* il2cpp_codegen_com_marshal_safe_array_result(Il2CppChar variantType, Il2CppClass* type, Il2CppSafeArray* safeArray)
 {
 	return il2cpp::vm::COM::MarshalSafeArrayResult(variantType, type, safeArray);
 }
@@ -1019,6 +1037,11 @@ inline void il2cpp_codegen_com_raise_exception(il2cpp_hresult_t hr)
 inline void il2cpp_codegen_com_raise_exception_if_failed(il2cpp_hresult_t hr)
 {
 	il2cpp::vm::Exception::RaiseIfFailed(hr);
+}
+
+inline Il2CppIActivationFactory* il2cpp_codegen_windows_runtime_get_activation_factory(const il2cpp::utils::StringView<Il2CppChar>& runtimeClassName)
+{
+	return il2cpp::vm::WindowsRuntime::GetActivationFactory(runtimeClassName);
 }
 
 // Exception support macros

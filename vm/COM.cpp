@@ -245,7 +245,7 @@ Il2CppSafeArray* COM::MarshalSafeArrayBString(Il2CppArray* managedArray)
 	if (!safeArray)
 		Exception::Raise(IL2CPP_E_OUTOFMEMORY);
 
-	uint16_t** data;
+	Il2CppChar** data;
 	il2cpp_hresult_t hr = os::COM::SafeArrayAccessData(safeArray, reinterpret_cast<void**>(&data));
 	if (IL2CPP_HR_FAILED(hr))
 	{
@@ -301,7 +301,7 @@ Il2CppArray* COM::MarshalSafeArrayBStringResult(Il2CppClass* type, Il2CppSafeArr
 	const il2cpp_array_size_t size = static_cast<il2cpp_array_size_t>(upperBound - lowerBound + 1);
 	Il2CppArray* managedArray = Array::New(il2cpp_defaults.string_class, size);
 
-	uint16_t** data;
+	Il2CppChar** data;
 	hr = os::COM::SafeArrayAccessData(safeArray, reinterpret_cast<void**>(&data));
 	Exception::RaiseIfFailed(hr);
 

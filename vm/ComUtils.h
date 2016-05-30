@@ -206,7 +206,7 @@ public:
 		return __marshal->DisconnectObject(reserved);
 	}
 
-	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(uint16_t** bstr)
+	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(Il2CppChar** bstr)
 	{
 		if (!bstr)
 			return IL2CPP_E_POINTER;
@@ -214,7 +214,7 @@ public:
 		return IL2CPP_E_NOTIMPL;
 	}
 
-	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(uint16_t** bstr_guid, int32_t* app_domain_id, intptr_t* ccw)
+	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(Il2CppChar** bstr_guid, int32_t* app_domain_id, intptr_t* ccw)
 	{
 		if (!bstr_guid || !app_domain_id || !ccw)
 			return IL2CPP_E_POINTER;

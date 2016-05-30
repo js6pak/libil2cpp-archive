@@ -331,6 +331,8 @@ WidenedValueUnion ExtractWidenedValue (Il2CppTypeEnum type, void* value)
 			extractedValue.u64 = *(uint8_t *)value;
 			break;
 		case IL2CPP_TYPE_CHAR:
+			extractedValue.u64 = *(Il2CppChar*)value;
+			break;
 		case IL2CPP_TYPE_U2:
 			extractedValue.u64 = *(uint16_t *)value;
 			break;
@@ -539,6 +541,8 @@ void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 		AssignUnsigned<uint8_t> (widenedValue, elementAddress, valueType, elementSize, valueSize);
 		break;
 	case IL2CPP_TYPE_CHAR:
+		AssignUnsigned<Il2CppChar>(widenedValue, elementAddress, valueType, elementSize, valueSize);
+		break;
 	case IL2CPP_TYPE_U2:
 		AssignUnsigned<uint16_t> (widenedValue, elementAddress, valueType, elementSize, valueSize);
 		break;

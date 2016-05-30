@@ -1030,7 +1030,7 @@ bool Socket::SendFile (Il2CppIntPtr socket, Il2CppString *filename, Il2CppArray 
 	if (!socketHandle.IsValid ())
 		return false;
 	
-	const uint16_t *ustr = vm::String::GetChars (filename);
+	const Il2CppChar* ustr = vm::String::GetChars (filename);
 	const std::string str = utils::StringUtils::Utf16ToUtf8 (ustr);
 	
 	// Note: for now they map 1-1

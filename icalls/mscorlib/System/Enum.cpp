@@ -68,6 +68,7 @@ int Enum::compare_value_to(Il2CppObject * __this, Il2CppObject * other)
 		case IL2CPP_TYPE_I1:
 			COMPARE_ENUM_VALUES (int8_t);
 		case IL2CPP_TYPE_CHAR:
+			COMPARE_ENUM_VALUES_RANGE (Il2CppChar);
 		case IL2CPP_TYPE_U2:
 			COMPARE_ENUM_VALUES_RANGE (uint16_t);
 		case IL2CPP_TYPE_I2:
@@ -99,7 +100,9 @@ int32_t Enum::get_hashcode(Il2CppObject * __this)
 		return *((int8_t*)data);
 	if (basetype == il2cpp_defaults.byte_class)
 		return *((uint8_t*)data);
-	if (basetype == il2cpp_defaults.char_class || basetype == il2cpp_defaults.uint16_class)
+	if (basetype == il2cpp_defaults.char_class)
+		return *((Il2CppChar*)data);
+	if (basetype == il2cpp_defaults.uint16_class)
 		return *((uint16_t*)data);
 	if (basetype == il2cpp_defaults.int16_class)
 		return *((uint16_t*)data);

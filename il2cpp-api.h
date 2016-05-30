@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include "il2cpp-config.h"
-#include "il2cpp-api-types.h"
 
 #if IL2CPP_API_DYNAMIC_NO_DLSYM
 extern "C"
