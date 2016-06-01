@@ -177,10 +177,18 @@
 #define CDECL
 #endif
 
-#if IL2CPP_COMPILER_MSVC || IL2CPP_TARGET_DARWIN || defined(__ARMCC_VERSION)
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define NORETURN __declspec(noreturn)
+#elif IL2CPP_TARGET_DARWIN
+#define NORETURN __attribute__ ((noreturn))
 #else
 #define NORETURN
+#endif
+
+#if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
+#define IL2CPP_NO_INLINE __declspec(noinline)
+#else
+#define IL2CPP_NO_INLINE __attribute__ ((noinline))
 #endif
 
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
@@ -228,6 +236,10 @@
 #error "No thread implementation defined"
 #endif
 
+#if !defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE) && IL2CPP_TARGET_IOS
+#define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
+#endif
+
 #define IL2CPP_ENABLE_STACKTRACES 1
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
@@ -244,6 +256,8 @@
 #if (IL2CPP_ENABLE_NATIVE_STACKTRACES + IL2CPP_ENABLE_STACKTRACE_SENTRIES) > 1
 #error "Only one type of stacktraces are allowed"
 #endif
+
+#define IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS IL2CPP_TARGET_IOS
 
 /* Profiler */
 #define IL2CPP_ENABLE_PROFILER 1
@@ -387,6 +401,11 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 1
 #else
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 0
+#endif
+
+
+#ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PSP2 )
 #endif
 
 #define Assert(x) do { (void)(x); assert(x); } while (false)
