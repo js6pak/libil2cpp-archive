@@ -8,11 +8,10 @@
 #include "vm/Profiler.h"
 #include <cassert>
 
-using il2cpp::vm::Profiler;
-
 static bool s_GCInitialized = false;
 
 #if IL2CPP_ENABLE_PROFILER
+using il2cpp::vm::Profiler;
 static void on_gc_event (GCEventType eventType);
 static void on_heap_resize (GC_word newSize);
 #endif

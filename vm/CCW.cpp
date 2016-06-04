@@ -34,8 +34,7 @@ Il2CppIUnknown* CCW::Create(Il2CppObject* obj, const Il2CppGuid& iid)
 	Il2CppIUnknown* result;
 
 	// check for rcw object. com interface can be extracted from it and there's no need to create ccw
-
-	if (Class::HasParent(obj->klass, il2cpp_defaults.il2cpp_com_object_class))
+	if (obj->klass->is_import_or_windows_runtime)
 	{
 		hr = static_cast<Il2CppComObject*>(obj)->identity->QueryInterface(iid, reinterpret_cast<void**>(&result));
 		Exception::RaiseIfFailed(hr);
