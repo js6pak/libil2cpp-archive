@@ -110,7 +110,7 @@ const MethodInfo* GenericMethod::GetMethod (const Il2CppGenericMethod* gmethod)
 	}
 
 	newMethod->invoker_method = MetadataCache::GetInvokerMethodPointer (methodDefinition, &gmethod->context);
-	newMethod->method = MetadataCache::GetMethodPointer (methodDefinition, &gmethod->context);
+	newMethod->methodPointer = MetadataCache::GetMethodPointer (methodDefinition, &gmethod->context);
 
 	++il2cpp_runtime_stats.inflated_method_count;
 
