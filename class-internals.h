@@ -15,6 +15,7 @@ struct Il2CppAppDomain;
 struct Il2CppDelegate;
 struct Il2CppAppContext;
 struct Il2CppNameToTypeDefinitionIndexHashTable;
+struct VirtualInvokeData;
 
 enum Il2CppTypeNameFormat {
 	IL2CPP_TYPE_NAME_FORMAT_IL,
@@ -243,7 +244,7 @@ union Il2CppRGCTXData
 
 struct MethodInfo
 {
-	Il2CppMethodPointer method;
+	Il2CppMethodPointer methodPointer;
 	InvokerMethod invoker_method;
 	const char* name;
 	Il2CppClass *declaring_type;
@@ -307,7 +308,7 @@ struct Il2CppClass
 	const MethodInfo** methods; // Initialized in SetupMethods
 	Il2CppClass** nestedTypes; // Initialized in SetupNestedTypes
 	Il2CppClass** implementedInterfaces; // Initialized in SetupInterfaces
-	const MethodInfo** vtable; // Initialized in Init
+	VirtualInvokeData* vtable; // Initialized in Init
 	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets; // Initialized in Init
 	void* static_fields; // Initialized in Init
 	const Il2CppRGCTXData* rgctx_data; // Initialized in Init
@@ -412,8 +413,8 @@ struct Il2CppCodeRegistration
 {
 	uint32_t methodPointersCount;
 	const Il2CppMethodPointer* methodPointers;
-	uint32_t delegateWrappersFromNativeToManagedCount;
-	const Il2CppMethodPointer** delegateWrappersFromNativeToManaged; // note the double indirection to handle different calling conventions
+	uint32_t reversePInvokeWrapperCount;
+	const Il2CppMethodPointer* reversePInvokeWrappers;
 	uint32_t delegateWrappersFromManagedToNativeCount;
 	const Il2CppMethodPointer* delegateWrappersFromManagedToNative;
 	uint32_t marshalingFunctionsCount;
@@ -474,3 +475,86 @@ struct Il2CppRuntimeStats
 };
 
 extern Il2CppRuntimeStats il2cpp_runtime_stats;
+
+/*
+* new structure to hold performance counters values that are exported
+* to managed code.
+* Note: never remove fields from this structure and only add them to the end.
+* Size of fields and type should not be changed as well.
+*/
+struct Il2CppPerfCounters
+{
+	/* JIT category */
+	uint32_t jit_methods;
+	uint32_t jit_bytes;
+	uint32_t jit_time;
+	uint32_t jit_failures;
+	/* Exceptions category */
+	uint32_t exceptions_thrown;
+	uint32_t exceptions_filters;
+	uint32_t exceptions_finallys;
+	uint32_t exceptions_depth;
+	uint32_t aspnet_requests_queued;
+	uint32_t aspnet_requests;
+	/* Memory category */
+	uint32_t gc_collections0;
+	uint32_t gc_collections1;
+	uint32_t gc_collections2;
+	uint32_t gc_promotions0;
+	uint32_t gc_promotions1;
+	uint32_t gc_promotion_finalizers;
+	uint32_t gc_gen0size;
+	uint32_t gc_gen1size;
+	uint32_t gc_gen2size;
+	uint32_t gc_lossize;
+	uint32_t gc_fin_survivors;
+	uint32_t gc_num_handles;
+	uint32_t gc_allocated;
+	uint32_t gc_induced;
+	uint32_t gc_time;
+	uint32_t gc_total_bytes;
+	uint32_t gc_committed_bytes;
+	uint32_t gc_reserved_bytes;
+	uint32_t gc_num_pinned;
+	uint32_t gc_sync_blocks;
+	/* Remoting category */
+	uint32_t remoting_calls;
+	uint32_t remoting_channels;
+	uint32_t remoting_proxies;
+	uint32_t remoting_classes;
+	uint32_t remoting_objects;
+	uint32_t remoting_contexts;
+	/* Loader category */
+	uint32_t loader_classes;
+	uint32_t loader_total_classes;
+	uint32_t loader_appdomains;
+	uint32_t loader_total_appdomains;
+	uint32_t loader_assemblies;
+	uint32_t loader_total_assemblies;
+	uint32_t loader_failures;
+	uint32_t loader_bytes;
+	uint32_t loader_appdomains_uloaded;
+	/* Threads and Locks category  */
+	uint32_t thread_contentions;
+	uint32_t thread_queue_len;
+	uint32_t thread_queue_max;
+	uint32_t thread_num_logical;
+	uint32_t thread_num_physical;
+	uint32_t thread_cur_recognized;
+	uint32_t thread_num_recognized;
+	/* Interop category */
+	uint32_t interop_num_ccw;
+	uint32_t interop_num_stubs;
+	uint32_t interop_num_marshals;
+	/* Security category */
+	uint32_t security_num_checks;
+	uint32_t security_num_link_checks;
+	uint32_t security_time;
+	uint32_t security_depth;
+	uint32_t unused;
+	/* Threadpool */
+	uint64_t threadpool_workitems;
+	uint64_t threadpool_ioworkitems;
+	unsigned int threadpool_threads;
+	unsigned int threadpool_iothreads;
+};
