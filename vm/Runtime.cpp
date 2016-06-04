@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include "metadata/GenericMethod.h"
 #include "os/Environment.h"
 #include "os/File.h"
 #include "os/Image.h"
@@ -321,20 +320,9 @@ Il2CppObject* Runtime::DelegateInvoke (Il2CppDelegate *delegate, void **params, 
 	return Invoke (invoke, delegate, params, exc);
 }
 
-void RaiseExecutionEngineException(const char* methodFullName)
-{
-	Exception::Raise(Exception::GetExecutionEngineException(StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
-}
-
-void RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod)
-{
-	if (method->method == NULL)
-		RaiseExecutionEngineException(GenericMethod::GetFullName(genericMethod).c_str());
-}
-
 void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
 {
-	if (method->method == NULL)
+	if (method->methodPointer == NULL)
 	{
 		if (Method::GetClass(method))
 			RaiseExecutionEngineException(Method::GetFullName(method).c_str());
@@ -450,31 +438,6 @@ static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* t
 {
 	Il2CppClass* thisType = method->declaring_type;
 
-	if ((method->flags & METHOD_ATTRIBUTE_STATIC) == 0 && Class::IsNullable(thisType))
-	{
-		// If method takes Nullable<T> as this, 'thisArg' parameter will be a pointer to T
-		// So we need to allocate a temporary variable to store Nullable<T> struct
-
-		// ensure instance_size has been initialized
-		Class::SetupFields (thisType);
-
-		uint32_t nullableSize = thisType->instance_size - sizeof(Il2CppObject);
-		void* nullableStorage = alloca(nullableSize);
-		uint32_t valueSize = Class::GetNullableArgument(thisType)->instance_size - sizeof(Il2CppObject);
-
-		if (thisArg == NULL)
-		{
-			*(static_cast<uint8_t*>(nullableStorage) + valueSize) = false;
-		}
-		else
-		{
-			memcpy(nullableStorage, thisArg, valueSize);
-			*(static_cast<uint8_t*>(nullableStorage) + valueSize) = true;
-		}
-
-		thisArg = nullableStorage;
-	}
-
 	// If it's not a constructor, just invoke directly
 	if (strcmp(method->name, ".ctor") != 0 || method->declaring_type == il2cpp_defaults.string_class)
 		return Runtime::Invoke(method, thisArg, convertedParameters, exception);
@@ -484,8 +447,7 @@ static inline Il2CppObject* InvokeConvertThis (const MethodInfo* method, void* t
 
 	if (thisArg == NULL)
 	{
-		instance = Object::New(thisType);	// Note: no need to check for nullable, as if it is nullable, we have already
-		thisArg = (thisType->valuetype) ? Object::Unbox(instance) : instance;	// allocated it at the top of this method
+		thisArg = instance = Object::New(thisType);
 		Runtime::Invoke(method, thisArg, convertedParameters, exception);
 	}
 	else
@@ -587,137 +549,6 @@ Il2CppObject* Runtime::InvokeConvertArgs(const MethodInfo *method, void* thisArg
 	}
 
 	return result;
-}
-
-VirtualInvokeData Runtime::GetVirtualInvokeData (Il2CppMethodSlot slot, void* obj)
-{
-	Assert(slot != 65535 && "GetVirtualInvokeData got called on a non-virtual method");
-
-	const Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
-	const MethodInfo* targetMethodInfo = typeInfo->vtable[slot];
-#if IL2CPP_DEBUG
-	assert(targetMethodInfo);
-#endif
-
-	if (!targetMethodInfo->method)
-		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
-	
-	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
-	if (targetMethodType->valuetype && !targetMethodType->enumtype)
-		obj = (void*)((char*)obj + sizeof(Il2CppObject));
-
-	VirtualInvokeData data = { obj, targetMethodInfo };
-	return data;
-}
-
-VirtualInvokeData Runtime::GetInterfaceInvokeData (Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj)
-{
-	Assert(slot != 65535 && "GetInterfaceInvokeData got called on a non-virtual method");
-
-	Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
-	int32_t itf_offset = Class::GetInterfaceOffset(typeInfo, declaringInterface);
-	assert(itf_offset != -1);
-	slot += itf_offset;
-	const MethodInfo* targetMethodInfo = typeInfo->vtable[slot];
-#if IL2CPP_DEBUG
-	assert(targetMethodInfo);
-#endif
-
-	if (!targetMethodInfo->method)
-		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
-
-	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
-	if (targetMethodType->valuetype && !targetMethodType->enumtype)
-		obj = (void*)((char*)obj + sizeof(Il2CppObject));
-
-	VirtualInvokeData data = { obj, targetMethodInfo };
-	return data;
-}
-
-VirtualInvokeData Runtime::GetComInterfaceInvokeData(Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj)
-{
-	// check for regular managed object that implements com interface
-	if (!Class::HasParent(static_cast<Il2CppObject*>(obj)->klass, il2cpp_defaults.il2cpp_com_object_class))
-		return GetInterfaceInvokeData(slot, declaringInterface, obj);
-
-	// it's an rcw. invoke com interface method directly
-
-	// declaringInterface vtable starts at the very end (after imlemeted interfaces' vtables)
-	int32_t itf_offset = 0;
-	if (declaringInterface->interface_offsets_count)
-	{
-		const Il2CppRuntimeInterfaceOffsetPair* pair = declaringInterface->interfaceOffsets + declaringInterface->interface_offsets_count - 1;
-		itf_offset = pair->offset + pair->interfaceType->vtable_count;
-	}
-	assert(itf_offset != -1);
-	slot += itf_offset;
-
-	const MethodInfo* targetMethodInfo = declaringInterface->vtable[slot];
-#if IL2CPP_DEBUG
-	assert(targetMethodInfo);
-#endif
-
-	if (!targetMethodInfo->method)
-		RaiseExecutionEngineExceptionIfMethodIsNotFound(targetMethodInfo);
-
-	VirtualInvokeData data = { obj, targetMethodInfo };
-	return data;
-}
-
-static const MethodInfo* GetGenericVirtualMethod (const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
-{
-	NOT_IMPLEMENTED_NO_ASSERT (GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
-
-	const Il2CppGenericInst* classInst = NULL;
-	if (methodDefinition->is_inflated)
-	{
-		classInst = methodDefinition->genericMethod->context.class_inst;
-		methodDefinition = methodDefinition->genericMethod->methodDefinition;
-	}
-
-	const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod (const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
-	const MethodInfo* method = GenericMethod::GetMethod (gmethod);
-
-	RaiseExecutionEngineExceptionIfMethodIsNotFound(method, gmethod);
-
-	return method;
-}
-
-VirtualInvokeData Runtime::GetGenericVirtualInvokeData (const MethodInfo* method, void* obj)
-{
-	const Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
-	uint16_t slot = method->slot;
-	const MethodInfo* methodDefinition = typeInfo->vtable[slot];
-	const MethodInfo* targetMethodInfo = GetGenericVirtualMethod (methodDefinition, method);
-#if IL2CPP_DEBUG
-	assert(targetMethodInfo);
-#endif
-	VirtualInvokeData data = { obj, targetMethodInfo };
-	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
-	if (targetMethodType->valuetype && !targetMethodType->enumtype)
-		data.target = Object::Unbox ((Il2CppObject *)obj);
-
-	return data;
-}
-
-VirtualInvokeData Runtime::GetGenericInterfaceInvokeData (const MethodInfo* method, void* obj)
-{
-	Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
-	uint16_t slot = method->slot;
-	int32_t itf_offset = Class::GetInterfaceOffset (typeInfo, method->declaring_type);
-	assert (itf_offset != -1);
-	slot += itf_offset;
-	const MethodInfo* methodDefinition = typeInfo->vtable[slot];
-	const MethodInfo* targetMethodInfo = GetGenericVirtualMethod (methodDefinition, method);
-#if IL2CPP_DEBUG
-	assert(targetMethodInfo);
-#endif
-	VirtualInvokeData data = { obj, targetMethodInfo };
-	Il2CppClass* targetMethodType = targetMethodInfo->declaring_type;
-	if (targetMethodType->valuetype && !targetMethodType->enumtype)
-		data.target = Object::Unbox ((Il2CppObject *)obj);
-
-	return data;
 }
 
 void Runtime::CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppException* exc)

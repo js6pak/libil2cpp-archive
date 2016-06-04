@@ -24,6 +24,10 @@ public:
 	static Il2CppChar* StringDuplicate (const Il2CppChar* strSource, size_t length);
 	static bool EndsWith(const std::string& string, const std::string& suffix);
 	static Il2CppChar Utf16ToLower(Il2CppChar c);
+	static bool CaseSensitiveEquals(Il2CppString* left, const char* right);
+	static bool CaseSensitiveEquals(const char* left, const char* right);
+	static bool CaseInsensitiveEquals(Il2CppString* left, const char* right);
+	static bool CaseInsensitiveEquals(const char* left, const char* right);
 
 #if IL2CPP_PLATFORM_WIN32
 	static inline std::string NativeStringToUtf8(const Il2CppNativeString& nativeStr)

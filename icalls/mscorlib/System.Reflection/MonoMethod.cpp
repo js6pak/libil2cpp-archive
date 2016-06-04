@@ -62,7 +62,7 @@ Il2CppReflectionMethod* MonoMethod::get_base_definition(Il2CppReflectionMethod *
 
 	il2cpp::vm::Class::Init(klass);
 
-	const MethodInfo *result = klass->vtable[method->slot];
+	const MethodInfo *result = klass->vtable[method->slot].method;
 
 	if(result == NULL)
 	{
@@ -188,9 +188,6 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 			}
 
 			m = Object::GetVirtualMethod(__this, m);
-			/* must pass the pointer to the value for valuetype methods */
-			if (m->declaring_type->valuetype)
-				obj = Object::Unbox(__this);
 		}
 		else
 #if IL2CPP_ENABLE_MONO_BUG_EMULATION	// Mono doesn't throw on null 'this' if it's an instance constructor, and class libs depend on this behaviour
