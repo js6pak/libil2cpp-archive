@@ -117,13 +117,9 @@ enum memory_order_seq_cst_t	{ memory_order_seq_cst = 5 };
 
 #	include "ExtendedAtomicOps-arm.h"
 
-#elif UNITY_PS3 || UNITY_WIIU
+#elif UNITY_WIIU
 
 #	include "ExtendedAtomicOps-ppc.h"
-
-#elif UNITY_XENON
-
-#	include "PlatformDependent/Xbox360/Source/Threads/ExtendedAtomicOps-xenon.h"
 
 #elif UNITY_PSP2
 

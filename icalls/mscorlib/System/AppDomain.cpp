@@ -2,6 +2,8 @@
 
 #include "icalls/mscorlib/System/AppDomain.h"
 
+#include "gc/Allocator.h"
+#include "os/Mutex.h"
 #include "utils/StringUtils.h"
 
 #include "vm/Array.h"
@@ -16,6 +18,7 @@
 #include "vm/Type.h"
 
 #include "tabledefs.h"
+#include "types.h"
 #include "class-internals.h"
 #include "object-internals.h"
 #include "il2cpp-api.h"
@@ -23,6 +26,7 @@
 #include <cassert>
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace il2cpp::vm;
 
@@ -169,13 +173,6 @@ int32_t AppDomain::ExecuteAssembly (Il2CppAppDomain* self, Il2CppAssembly* a, Il
 	return 0;
 }
 
-Il2CppObject* AppDomain::GetData (Il2CppAppDomain* self, Il2CppString* name)
-{
-	NOT_SUPPORTED_IL2CPP (AppDomain::GetData, "This icall is not supported by il2cpp.");
-	
-	return 0;
-}
-
 Il2CppAssembly* AppDomain::LoadAssemblyRaw (Il2CppAppDomain* self, Il2CppArray* rawAssembly, Il2CppArray* rawSymbolStore, void* /* System.Security.Policy.Evidence */ securityEvidence, bool refonly)
 {
 	NOT_SUPPORTED_IL2CPP (AppDomain::LoadAssemblyRaw, "This icall is not supported by il2cpp.");
@@ -195,9 +192,49 @@ void AppDomain::InternalUnload (int32_t domain_id)
 	NOT_SUPPORTED_IL2CPP (AppDomain::InternalUnload, "This icall is not supported by il2cpp.");
 }
 
-void AppDomain::SetData (Il2CppAppDomain* self, Il2CppString* name, Il2CppObject* data)
+os::FastMutex s_DomainDataMutex;
+typedef std::vector<std::pair<UTF16String, Il2CppObject*>, il2cpp::gc::Allocator<std::pair<UTF16String, Il2CppObject*> > > DomainDataStorage;
+DomainDataStorage* s_DomainData;
+
+static inline void InitializeDomainData()
 {
-	NOT_SUPPORTED_IL2CPP (AppDomain::SetData, "This icall is not supported by il2cpp.");
+	void* memory = utils::Memory::Malloc(sizeof(DomainDataStorage));
+	s_DomainData = new(memory) DomainDataStorage;
+}
+
+Il2CppObject* AppDomain::GetData(Il2CppAppDomain* self, Il2CppString* name)
+{
+	os::FastAutoLock lock(&s_DomainDataMutex);
+
+	if (s_DomainData == NULL)
+		InitializeDomainData();
+
+	for (DomainDataStorage::iterator it = s_DomainData->begin(); it != s_DomainData->end(); it++)
+	{
+		if (it->first.compare(name->chars) == 0)
+			return it->second;
+	}
+	
+	return NULL;
+}
+
+void AppDomain::SetData(Il2CppAppDomain* self, Il2CppString* name, Il2CppObject* data)
+{
+	os::FastAutoLock lock(&s_DomainDataMutex);
+
+	if (s_DomainData == NULL)
+		InitializeDomainData();
+
+	for (DomainDataStorage::iterator it = s_DomainData->begin(); it != s_DomainData->end(); it++)
+	{
+		if (it->first.compare(0, it->first.size(), name->chars, name->length) == 0)
+		{
+			it->second = data;
+			return;
+		}
+	}
+
+	s_DomainData->push_back(std::make_pair(UTF16String(name->chars, name->length), data));
 }
 
 } /* namespace System */

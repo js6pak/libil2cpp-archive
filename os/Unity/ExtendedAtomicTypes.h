@@ -83,30 +83,6 @@ UNITY_PLATFORM_BEGIN_NAMESPACE;
 #		define ATOMIC_HAS_LDR
 #	endif
 
-#elif UNITY_PS3
-
-	typedef int atomic_word;
-	struct atomic_word2
-	{
-		atomic_word	lo;
-		atomic_word	hi;
-	};
-	//#define ATOMIC_HAS_DCAS
-#	define ATOMIC_HAS_LDR
-
-#elif UNITY_XENON
-	typedef int atomic_word;
-	union atomic_word2
-	{
-		__int64 v;
-		struct
-		{
-			atomic_word	lo;
-			atomic_word	hi;
-		};
-	};
-	//#define ATOMIC_HAS_DCAS
-
 #elif UNITY_PSP2
 
 	typedef int32_t atomic_word;

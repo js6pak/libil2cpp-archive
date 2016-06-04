@@ -17,10 +17,6 @@
 	#define IL2CPP_TARGET_PS4 1
 	#define _UNICODE 1
 	#define UNICODE 1
-#elif defined(_XBOX)
-	#define IL2CPP_TARGET_XBOX360 1
-	#define _UNICODE 1
-	#define UNICODE 1
 #elif defined(_XBOX_ONE)
 	#define IL2CPP_TARGET_XBOXONE 1
 	#define _UNICODE 1
@@ -82,10 +78,6 @@
 
 #ifndef IL2CPP_TARGET_LINUX
 #define IL2CPP_TARGET_LINUX 0
-#endif
-
-#ifndef IL2CPP_TARGET_XBOX360
-#define IL2CPP_TARGET_XBOX360 0
 #endif
 
 #ifndef IL2CPP_TARGET_XBOXONE
@@ -157,7 +149,7 @@
 #if defined(_MSC_VER)
 	#if defined(_M_X64)
 		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(_M_IX86) || defined(_M_ARM) || defined(_XBOX)
+	#elif defined(_M_IX86) || defined(_M_ARM)
 		#define IL2CPP_SIZEOF_VOID_P 4
 	#else
 		#error invalid windows architecture
@@ -296,7 +288,9 @@
 #define IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS IL2CPP_TARGET_IOS
 
 /* Profiler */
+#ifndef IL2CPP_ENABLE_PROFILER
 #define IL2CPP_ENABLE_PROFILER 1
+#endif
 
 /* GC defines*/
 #define IL2CPP_GC_BOEHM 1

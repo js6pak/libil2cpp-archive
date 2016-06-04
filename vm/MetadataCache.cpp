@@ -580,14 +580,13 @@ InvokerMethod MetadataCache::GetMethodInvokerFromIndex (MethodIndex index)
 	return s_Il2CppCodeRegistration->invokerPointers[index];
 }
 
-Il2CppMethodPointer MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetReversePInvokeWrapperFromIndex(MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
 
-
-	assert (index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->delegateWrappersFromNativeToManagedCount);
-	return *(s_Il2CppCodeRegistration->delegateWrappersFromNativeToManaged[index]);
+	assert (index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->reversePInvokeWrapperCount);
+	return s_Il2CppCodeRegistration->reversePInvokeWrappers[index];
 }
 
 Il2CppMethodPointer MetadataCache::GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index)
@@ -912,7 +911,10 @@ const Il2CppFieldDefaultValue* MetadataCache::GetFieldDefaultValueForField (cons
 {
 	Il2CppClass* parent = field->parent;
 	size_t fieldIndex = (field - parent->fields);
-	fieldIndex += parent->typeDefinition->fieldStart;
+	if (Type::IsGenericInstance(parent->byval_arg))
+		fieldIndex += GenericClass::GetTypeDefinition(parent->generic_class)->typeDefinition->fieldStart;
+	else
+		fieldIndex += parent->typeDefinition->fieldStart;
 	const Il2CppFieldDefaultValue *start = (const Il2CppFieldDefaultValue *)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->fieldDefaultValuesOffset);
 	const Il2CppFieldDefaultValue *entry = start;
 	while (entry < start + s_GlobalMetadataHeader->fieldDefaultValuesCount)
