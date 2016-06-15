@@ -47,8 +47,12 @@
 
 #ifdef _MSC_VER
 #define IL2CPP_DEBUG_BREAK() __debugbreak()
+#define IL2CPP_DISABLE_OPTIMIZATIONS __pragma(optimize("", off))
+#define IL2CPP_ENABLE_OPTIMIZATIONS __pragma(optimize("", on))
 #else
 #define IL2CPP_DEBUG_BREAK()
+#define IL2CPP_DISABLE_OPTIMIZATIONS
+#define IL2CPP_ENABLE_OPTIMIZATIONS
 #endif
 
 struct ProfilerMethodSentry
