@@ -15,6 +15,7 @@
 #include "vm/GenericClass.h"
 #include "vm/MetadataCache.h"
 #include "vm/Object.h"
+#include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Type.h"
 #include "vm/Thread.h"
@@ -395,6 +396,7 @@ void Type::GetInterfaceMapData (Il2CppReflectionType* type, Il2CppReflectionType
 	*methods = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfMethods);
 
 	void* unused = NULL;
+	Class::Init(klass);
 	int32_t ioffset = Class::GetInterfaceOffset(klass, iklass);
 
 	for (int i = 0; i < numberOfMethods; ++i)
@@ -402,7 +404,7 @@ void Type::GetInterfaceMapData (Il2CppReflectionType* type, Il2CppReflectionType
 		const MethodInfo *method = il2cpp_class_get_methods (iklass, &unused);
 		Il2CppReflectionMethod* member = il2cpp_method_get_object(method, iklass);
 		il2cpp_array_setref(*methods, i, member);
-		member = il2cpp_method_get_object(klass->vtable[i + ioffset], klass);
+		member = il2cpp_method_get_object(klass->vtable[i + ioffset].method, klass);
 		il2cpp_array_setref(*targets, i, member);
 	}
 }

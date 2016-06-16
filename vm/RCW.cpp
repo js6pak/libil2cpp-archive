@@ -39,35 +39,15 @@ void RCW::Initialize(Il2CppComObject* rcw, const Il2CppGuid& clsid)
 	{
 		FastAutoLock lock(&g_CacheMutex);
 		const bool inserted = g_Cache.insert(std::make_pair(rcw->identity, rcw)).second;
-		NO_UNUSED_WARNING(inserted);
-		assert(inserted);
+		Assert(inserted);
 	}
-
-	il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (rcw, &RCW::Cleanup);
 }
 
-void RCW::Cleanup(void* obj, void* data)
+void RCW::Cleanup(Il2CppComObject* rcw)
 {
-	Il2CppComObject* rcw = static_cast<Il2CppComObject*>(obj);
-
-	// RCW is removed from the cache before finalizer is run.
-	// In case finalizer somehow resurrects RCW, duplicate RCW object will be created.
-	// That's not desired but it's better than corrupted cache.
-	{
-		FastAutoLock lock(&g_CacheMutex);
-		const size_t erased = g_Cache.erase(rcw->identity);
-		NO_UNUSED_WARNING(erased);
-		assert(1 == erased);
-	}
-
-	if (rcw->klass->has_finalize)
-		il2cpp::gc::GarbageCollector::RunFinalizer (obj, data);
-
-	if (rcw->identity)
-	{
-		rcw->identity->Release();
-		rcw->identity = NULL;
-	}
+	FastAutoLock lock(&g_CacheMutex);
+	const size_t erased = g_Cache.erase(rcw->identity);
+	Assert(1 == erased);
 }
 
 Il2CppIUnknown* RCW::QueryInterface(Il2CppComObject* rcw, const Il2CppGuid& iid, bool throwOnError)
@@ -144,11 +124,8 @@ Il2CppObject* RCW::Create(Il2CppIUnknown* unknown)
 		rcw->identity = identity;
 
 		const bool inserted = g_Cache.insert(std::make_pair(rcw->identity, rcw)).second;
-		NO_UNUSED_WARNING(inserted);
-		assert(inserted);
+		Assert(inserted);
 	}
-
-	il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (rcw, &RCW::Cleanup);
 
 	return rcw;
 }
