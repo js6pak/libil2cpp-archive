@@ -7,6 +7,7 @@
 #include "LibraryLoader.h"
 #include "MetadataCache.h"
 #include "Object.h"
+#include "Method.h"
 #include "Type.h"
 #include "os/LibraryLoader.h"
 #include "os/MarshalStringAlloc.h"
@@ -374,20 +375,38 @@ Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
 	if (d == NULL)
 		return Il2CppIntPtr::Zero;
 	
-	assert (!d->method->is_inflated);
+	if (d->method->is_inflated)
+		vm::Exception::Raise(vm::Exception::GetNotSupportedException("IL2CPP does not support marshaling delegates that point to generic methods."));
+
 	assert (d->method->methodDefinition);
 
-	Il2CppMethodPointer nativeDelegateWrapper = MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (d->method->methodDefinition->delegateWrapperIndex);
-	if (nativeDelegateWrapper == NULL)
-		vm::Exception::Raise(vm::Exception::GetNotSupportedException("To marshal a manged method, please add an attribute named 'MonoPInvokeCallback' to the method definition."));
+	Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapperFromIndex(d->method->methodDefinition->reversePInvokeWrapperIndex);
+	if (reversePInvokeWrapper == NULL)
+	{
+		// Okay, we cannot marshal it for some reason. Figure out why.
+		if (Method::IsInstance(d->method))
+			vm::Exception::Raise(vm::Exception::GetNotSupportedException("IL2CPP does not support marshaling delegates that point to instance methods to native code."));
+
+		vm::Exception::Raise(vm::Exception::GetNotSupportedException("To marshal a managed method, please add an attribute named 'MonoPInvokeCallback' to the method definition."));
+	}
 
 	Il2CppIntPtr functionPointer;
-	functionPointer.m_value = (void*)nativeDelegateWrapper;
+	functionPointer.m_value = (void*)reversePInvokeWrapper;
 	return functionPointer;
 }
 
 Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)
 {
+	if (!Class::HasParent(delegateType, il2cpp_defaults.delegate_class))
+		Exception::Raise(Exception::GetArgumentException("t", "Type must derive from Delegate."));
+
+	if (Class::IsGeneric(delegateType) || Class::IsInflated(delegateType))
+		Exception::Raise(Exception::GetArgumentException("t", "The specified Type must not be a generic type definition."));
+
+	Il2CppMethodPointer managedToNativeWrapperMethodPointer = MetadataCache::GetDelegateWrapperManagedToNativeFromIndex(delegateType->typeDefinition->reversePInvokeWrapperIndex);
+	if (managedToNativeWrapperMethodPointer == NULL)
+		Exception::Raise(Exception::GetMarshalDirectiveException(utils::StringUtils::Printf("Cannot marshal P/Invoke call through delegate of type '%s.%s'", Class::GetNamespace(delegateType), Class::GetName(delegateType)).c_str()));
+
 	Il2CppObject* delegate = il2cpp::vm::Object::New(delegateType);
 	Il2CppMethodPointer nativeFunctionPointer = (Il2CppMethodPointer)functionPtr;
 
@@ -395,13 +414,13 @@ Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionP
 	if (method == NULL)
 	{
 		MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC (1, sizeof (MethodInfo));
-		newMethod->method = nativeFunctionPointer;
+		newMethod->methodPointer = nativeFunctionPointer;
 		newMethod->invoker_method = NULL;
 		MetadataCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
 		method = newMethod;
 	}
 
-	Type::ConstructDelegate((Il2CppDelegate*)delegate, delegate, MetadataCache::GetDelegateWrapperManagedToNativeFromIndex (delegateType->typeDefinition->delegateWrapperFromManagedToNativeIndex), method);
+	Type::ConstructDelegate((Il2CppDelegate*)delegate, delegate, managedToNativeWrapperMethodPointer, method);
 
 	return (Il2CppDelegate*)delegate;
 }

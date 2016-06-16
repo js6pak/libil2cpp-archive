@@ -697,6 +697,9 @@
     <ClCompile Include="gc\GarbageCollector.cpp">
       <Filter>gc</Filter>
     </ClCompile>
+    <ClCompile Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.cpp">
+      <Filter>icalls\System\System.Diagnostics</Filter>
+    </ClCompile>
     <ClCompile Include="char-conversions.cpp" />
     <ClCompile Include="vm\WindowsRuntime.cpp">
       <Filter>vm</Filter>
@@ -1351,12 +1354,6 @@
       <Filter>gc</Filter>
     </ClInclude>
     <ClInclude Include="vm\GC.h" />
-    <ClInclude Include="utils\StringView.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\StringViewStream.h">
-      <Filter>utils</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />

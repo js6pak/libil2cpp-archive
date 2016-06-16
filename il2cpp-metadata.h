@@ -134,7 +134,7 @@ struct Il2CppTypeDefinition
 
 	GenericContainerIndex genericContainerIndex;
 
-	MethodIndex delegateWrapperFromManagedToNativeIndex;
+	MethodIndex reversePInvokeWrapperIndex;
 	int32_t marshalingFunctionsIndex;
 	int32_t ccwFunctionIndex;
 	GuidIndex guidIndex;
@@ -224,7 +224,7 @@ struct Il2CppMethodDefinition
 	GenericContainerIndex genericContainerIndex;
 	MethodIndex methodIndex;
 	MethodIndex invokerIndex;
-	MethodIndex delegateWrapperIndex;
+	MethodIndex reversePInvokeWrapperIndex;
 	RGCTXIndex rgctxStartIndex;
 	int32_t rgctxCount;
 	uint32_t token;
