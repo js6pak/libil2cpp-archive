@@ -17,6 +17,7 @@
 #include "metadata/Il2CppTypeLess.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
+#include "vm/Runtime.h"
 #include "utils/Memory.h"
 #include "utils/StdUnorderedMap.h"
 #include "utils/StringUtils.h"
@@ -247,7 +248,7 @@ static MethodInfo* ConstructGenericArrayMethod (const GenericArrayMethod& generi
 	inflatedMethod->parameters = methodToCopyDataFrom->parameters;
 	inflatedMethod->return_type = methodToCopyDataFrom->return_type;
 
-	inflatedMethod->method = methodToCopyDataFrom->method;
+	inflatedMethod->methodPointer = methodToCopyDataFrom->methodPointer;
 	inflatedMethod->invoker_method = methodToCopyDataFrom->invoker_method;
 
 	return inflatedMethod;
@@ -275,7 +276,10 @@ static void PopulateArrayGenericMethods (Il2CppClass* klass, uint16_t offset, co
 
 			MethodInfo* arrayMethod = ConstructGenericArrayMethod (*iter, klass, &context);
 			klass->methods[offset++] = arrayMethod;
-			klass->vtable[klass->interfaceOffsets[i].offset + iter->interfaceMethodDefinition->slot] = arrayMethod;
+
+			size_t vtableIndex = klass->interfaceOffsets[i].offset + iter->interfaceMethodDefinition->slot;
+			klass->vtable[vtableIndex].method = arrayMethod;
+			klass->vtable[vtableIndex].methodPtr = arrayMethod->methodPointer;
 		}
 	}
 }
@@ -297,8 +301,8 @@ static void SetupArrayVTableAndInterfaceOffsets (Il2CppClass* klass)
 
 	int32_t arrayVTableSlot = arrayClass->vtable_count;
 	size_t slots = arrayVTableSlot + interfaces.size () * (il2cpp_defaults.generic_ilist_class->method_count + il2cpp_defaults.generic_icollection_class->method_count + il2cpp_defaults.generic_ienumerable_class->method_count);
-	const MethodInfo** arrayVTable = (const MethodInfo**)MetadataCalloc (slots, sizeof (MethodInfo*));
-	memcpy (arrayVTable, arrayClass->vtable, arrayVTableSlot * sizeof (MethodInfo*));
+	klass->vtable = (VirtualInvokeData*)MetadataCalloc (slots, sizeof (VirtualInvokeData));
+	memcpy (klass->vtable, arrayClass->vtable, arrayVTableSlot * sizeof (VirtualInvokeData));
 
 	size_t index = arrayInterfacesCount;
 	int32_t vtableSlot = arrayVTableSlot;
@@ -320,7 +324,6 @@ static void SetupArrayVTableAndInterfaceOffsets (Il2CppClass* klass)
 		vtableSlot += newInterfaceOffsets[index + 2].interfaceType->method_count;
 	}
 
-	klass->vtable = arrayVTable;
 	size_t interfaceOffsetsCount = arrayInterfacesCount + 3 * interfaces.size();
 	assert(interfaceOffsetsCount <= std::numeric_limits<uint16_t>::max());
 	klass->interface_offsets_count = static_cast<uint16_t>(interfaceOffsetsCount);
@@ -384,7 +387,6 @@ void ArrayMetadata::SetupArrayVTable (Il2CppClass* klass, const FastAutoLock& lo
 {
 	// we assume we are being called as part of Class::Init and that the element class has already been initialized
 	assert (klass->element_class->initialized);
-
 
 	// use vtable to indicate if we've already initialized before
 	if (klass->vtable)
