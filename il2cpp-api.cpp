@@ -752,6 +752,8 @@ const char *il2cpp_method_get_param_name (const MethodInfo *method, uint32_t ind
 
 // profiler
 
+#if IL2CPP_ENABLE_PROFILER
+
 void il2cpp_profiler_install (Il2CppProfiler *prof, Il2CppProfileFunc shutdown_callback)
 {
 	Profiler::Install (prof, shutdown_callback);
@@ -776,6 +778,8 @@ void il2cpp_profiler_install_gc (Il2CppProfileGCFunc callback, Il2CppProfileGCRe
 {
 	Profiler::InstallGC (callback, heap_resize_callback);
 }
+
+#endif
 
 // property
 
@@ -886,12 +890,26 @@ bool il2cpp_monitor_try_wait (Il2CppObject* obj, uint32_t timeout)
 
 Il2CppObject* il2cpp_runtime_invoke_convert_args (const MethodInfo *method, void *obj, Il2CppObject **params, int paramCount, Il2CppException **exc)
 {
+	// Our embedding API has historically taken pointers to unboxed value types, rather than Il2CppObjects.
+	// However, with the introduction of adjustor thunks, our invokees expect us to pass them Il2CppObject*, or at least something that
+	// ressembles boxed value type. Since it's not going to access any of the Il2CppObject* fields,
+	// it's fine to just subtract sizeof(Il2CppObject) from obj pointer
+	if (method->declaring_type->valuetype)
+		obj = static_cast<Il2CppObject*>(obj) - 1;
+
 	return Runtime::InvokeConvertArgs (method, obj, params, paramCount, exc);
 }
 
 Il2CppObject* il2cpp_runtime_invoke (const MethodInfo *method,
 	void *obj, void **params, Il2CppException **exc)
 {
+	// Our embedding API has historically taken pointers to unboxed value types, rather than Il2CppObjects.
+	// However, with the introduction of adjustor thunks, our invokees expect us to pass them Il2CppObject*, or at least something that
+	// ressembles boxed value type. Since it's not going to access any of the Il2CppObject* fields,
+	// it's fine to just subtract sizeof(Il2CppObject) from obj pointer
+	if (method->declaring_type->valuetype)
+		obj = static_cast<Il2CppObject*>(obj) - 1;
+
 	return Runtime::Invoke (method, obj, params, exc);
 }
 

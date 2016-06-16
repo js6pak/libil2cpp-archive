@@ -17,9 +17,7 @@ public:
 	static void Initialize(Il2CppComObject* rcw, const Il2CppGuid& clsid);
 	static Il2CppIUnknown* QueryInterface(Il2CppComObject* rcw, const Il2CppGuid& iid, bool throwOnError);
 	static Il2CppObject* Create(Il2CppIUnknown* unknown);
-
-private:
-	static void Cleanup(void* obj, void* data);
+	static void Cleanup(Il2CppComObject* rcw);
 };
 
 } /* namespace vm */
