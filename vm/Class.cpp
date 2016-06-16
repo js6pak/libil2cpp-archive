@@ -351,7 +351,7 @@ const MethodInfo* Class::GetFinalizer (Il2CppClass *klass)
 	if (!klass->has_finalize)
 		return NULL;
 
-	return klass->vtable [s_FinalizerSlot];
+	return klass->vtable[s_FinalizerSlot].method;
 }
 
 int32_t Class::GetInstanceSize (const Il2CppClass *klass)
@@ -703,26 +703,6 @@ bool Class::IsValuetype (const Il2CppClass *klass)
 	return klass->valuetype;
 }
 
-
-int32_t Class::GetInterfaceOffset (Il2CppClass *klass, Il2CppClass *itf)
-{
-	// TODO: this should only be needed in reflection case.
-	// In codegen case we are operating on instance that must have
-	// been initialized before we allocated it
-	Class::Init (klass);
-	for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
-	{
-		if (klass->interfaceOffsets[i].interfaceType == itf)
-		{
-			int32_t offset = klass->interfaceOffsets[i].offset;
-			assert (offset != -1);
-			return offset;
-		}
-	}
-	
-	return -1;
-}
-
 enum FieldLayoutKind
 {
 	FIELD_LAYOUT_INSTANCE,
@@ -1042,7 +1022,7 @@ void SetupMethodsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 			const Il2CppMethodDefinition* methodDefinition = MetadataCache::GetMethodDefinitionFromIndex (index);
 
 			newMethod->name = MetadataCache::GetStringFromIndex (methodDefinition->nameIndex);
-			newMethod->method = MetadataCache::GetMethodPointerFromIndex (methodDefinition->methodIndex);
+			newMethod->methodPointer = MetadataCache::GetMethodPointerFromIndex (methodDefinition->methodIndex);
 			newMethod->invoker_method = MetadataCache::GetMethodInvokerFromIndex (methodDefinition->invokerIndex);
 			newMethod->declaring_type = klass;
 			newMethod->return_type = MetadataCache::GetIl2CppTypeFromIndex (methodDefinition->returnType);
@@ -1136,7 +1116,7 @@ static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 		if (genericTypeDefinition->vtable_count > 0)
 		{
 			klass->vtable_count = genericTypeDefinition->vtable_count;
-			klass->vtable = (const MethodInfo**)MetadataCalloc (genericTypeDefinition->vtable_count, sizeof (MethodInfo*));
+			klass->vtable = (VirtualInvokeData*)MetadataCalloc(genericTypeDefinition->vtable_count, sizeof(VirtualInvokeData));
 			for (uint16_t i = 0; i < genericTypeDefinition->vtable_count; i++)
 			{
 				EncodedMethodIndex vtableMethodIndex = MetadataCache::GetVTableMethodFromIndex (genericTypeDefinition->typeDefinition->vtableStart + i);
@@ -1144,17 +1124,17 @@ static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 				if (GetEncodedIndexType (vtableMethodIndex) == kIl2CppMetadataUsageMethodRef)
 				{
 					const Il2CppGenericMethod* genericMethod = GenericMetadata::Inflate (method->genericMethod, context);
-					klass->vtable[i] = GenericMethod::GetMethod (genericMethod);
+					method = GenericMethod::GetMethod (genericMethod);
 				}
-				else
+				else if (method && Class::IsGeneric (method->declaring_type))
 				{
-					if (method && Class::IsGeneric (method->declaring_type))
-					{
-						const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod (method, context->class_inst, NULL);
-						method = GenericMethod::GetMethod (gmethod);
-					}
-					klass->vtable[i] = method;
+					const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod (method, context->class_inst, NULL);
+					method = GenericMethod::GetMethod (gmethod);
 				}
+
+				klass->vtable[i].method = method;
+				if (method != NULL)
+					klass->vtable[i].methodPtr = method->methodPointer;
 			}
 		}
 	}
@@ -1178,10 +1158,15 @@ static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 
 		if (klass->vtable_count > 0)
 		{
-			klass->vtable = (const MethodInfo**)MetadataCalloc (klass->vtable_count, sizeof (MethodInfo*));
+			klass->vtable = (VirtualInvokeData*)MetadataCalloc(klass->vtable_count, sizeof(VirtualInvokeData));
+
 			for (uint16_t i = 0; i < klass->vtable_count; i++)
 			{
-				klass->vtable[i] = MetadataCache::GetMethodInfoFromIndex (MetadataCache::GetVTableMethodFromIndex (klass->typeDefinition->vtableStart + i));
+				const MethodInfo* method = MetadataCache::GetMethodInfoFromIndex(MetadataCache::GetVTableMethodFromIndex(klass->typeDefinition->vtableStart + i));
+				klass->vtable[i].method = method;
+
+				if (method != NULL)
+					klass->vtable[i].methodPtr = method->methodPointer;
 			}
 		}
 	}
@@ -1372,7 +1357,7 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 	{
 		for (uint16_t slot = 0; slot < klass->vtable_count; slot++)
 		{
-			const MethodInfo* vmethod = klass->vtable[slot];
+			const MethodInfo* vmethod = klass->vtable[slot].method;
 			if (!strcmp (vmethod->name, "GetHashCode"))
 				s_GetHashCodeSlot = slot;
 			else if (!strcmp (vmethod->name, "Finalize"))

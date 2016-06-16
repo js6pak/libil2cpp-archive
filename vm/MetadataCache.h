@@ -59,10 +59,10 @@ public:
 	static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index);
 	static void InitializeMethodMetadata (uint32_t index);
 
-	static Il2CppMethodPointer GetMethodPointerFromIndex (MethodIndex index);
-	static InvokerMethod GetMethodInvokerFromIndex (MethodIndex index);
-	static Il2CppMethodPointer GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index);
-	static Il2CppMethodPointer GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetMethodPointerFromIndex(MethodIndex index);
+	static InvokerMethod GetMethodInvokerFromIndex(MethodIndex index);
+	static Il2CppMethodPointer GetReversePInvokeWrapperFromIndex(MethodIndex index);
+	static Il2CppMethodPointer GetDelegateWrapperManagedToNativeFromIndex(MethodIndex index);
 	
 	static Il2CppMethodPointer GetMarshalToNativeFuncFromIndex (MethodIndex index);
 	static Il2CppMethodPointer GetMarshalFromNativeFuncFromIndex (MethodIndex index);

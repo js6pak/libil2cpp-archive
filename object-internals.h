@@ -19,6 +19,7 @@ struct Il2CppReflectionMethod;
 struct Il2CppAsyncCall;
 struct Il2CppIUnknown;
 struct MonitorData;
+struct VirtualInvokeData;
 
 namespace il2cpp
 {
@@ -402,8 +403,9 @@ struct Il2CppMarshalByRefObject {
 };
 
 // System.__Il2CppComObject (dummy type that replaces System.__ComObject)
-struct Il2CppComObject : Il2CppObject {
-	Il2CppIUnknown *identity;
+struct Il2CppComObject : Il2CppObject
+{
+	Il2CppIUnknown* identity;
 };
 
 // System.AppDomain

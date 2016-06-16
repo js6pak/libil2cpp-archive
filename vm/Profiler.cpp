@@ -3,6 +3,8 @@
 #include "vm/Profiler.h"
 #include <cassert>
 
+#if IL2CPP_ENABLE_PROFILER
+
 namespace il2cpp
 {
 namespace vm
@@ -119,3 +121,5 @@ void Profiler::GCHeapResize (int64_t newSize)
 
 } /* namespace vm */
 } /* namespace il2cpp */
+
+#endif // IL2CPP_ENABLE_PROFILER
