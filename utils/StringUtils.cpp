@@ -1,5 +1,7 @@
 #include "il2cpp-config.h"
 #include "../char-conversions.h"
+#include "../object-internals.h"
+#include "utils/Functional.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "utils/utf8-cpp/source/utf8/unchecked.h"
@@ -279,6 +281,31 @@ bool StringUtils::EndsWith(const std::string& string, const std::string& suffix)
 	return string.rfind(suffix.c_str(), stringLength - suffixLength, suffixLength) != std::string::npos;
 }
 
+bool StringUtils::CaseSensitiveEquals(Il2CppString* left, const char* right)
+{
+	std::string leftString = Utf16ToUtf8(left->chars);
+	functional::Filter<const char*, StringUtils::CaseSensitiveComparer> equalsLeft(leftString.c_str());
+	return equalsLeft(right);
+}
+
+bool StringUtils::CaseSensitiveEquals(const char* left, const char* right)
+{
+	functional::Filter<const char*, StringUtils::CaseSensitiveComparer> equalsLeft(left);
+	return equalsLeft(right);
+}
+
+bool StringUtils::CaseInsensitiveEquals(Il2CppString* left, const char* right)
+{
+	std::string leftString = Utf16ToUtf8(left->chars);
+	functional::Filter<const char*, StringUtils::CaseInsensitiveComparer> equalsLeft(leftString.c_str());
+	return equalsLeft(right);
+}
+
+bool StringUtils::CaseInsensitiveEquals(const char* left, const char* right)
+{
+	functional::Filter<const char*, StringUtils::CaseInsensitiveComparer> equalsLeft(left);
+	return equalsLeft(right);
+}
 
 } /* utils */
 } /* il2cpp */
