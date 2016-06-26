@@ -35,6 +35,12 @@ void Process::FreeProcess(ProcessHandle* handle)
 	// We have nothing to do here.
 }
 
+std::string Process::GetProcessName(ProcessHandle* handle)
+{
+	NOT_SUPPORTED_IL2CPP(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
+	return std::string();
+}
+
 }
 }
 #endif

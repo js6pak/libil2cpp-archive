@@ -710,6 +710,9 @@
     <ClCompile Include="os\Generic\WindowsRuntime.cpp">
       <Filter>os\Generic</Filter>
     </ClCompile>
+    <ClCompile Include="os\OSX\Process.cpp">
+      <Filter>os\OSX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
