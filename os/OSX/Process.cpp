@@ -1,9 +1,13 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_DARWIN
+#if IL2CPP_TARGET_DARWIN
 
 #include <sys/types.h>
+#if !IL2CPP_TARGET_IOS
+#include <libproc.h>
+#endif
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "os/Process.h"
 #include "vm/Exception.h"
@@ -39,8 +43,19 @@ void Process::FreeProcess(ProcessHandle* handle)
 
 std::string Process::GetProcessName(ProcessHandle* handle)
 {
+#if !IL2CPP_TARGET_IOS
+	const size_t bufferLength = 256;
+	char buf[bufferLength];
+	int length = proc_name((int)((intptr_t)handle), buf, bufferLength);
+	
+	if (length <= 0)
+		return std::string();
+	
+	return std::string(buf, length);
+#else
 	NOT_SUPPORTED_IL2CPP(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
 	return std::string();
+#endif
 }
 
 }
