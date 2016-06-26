@@ -1118,6 +1118,7 @@
     <ClCompile Include="os\Generic\WindowsRuntime.cpp" />
     <ClCompile Include="os\Messages.cpp" />
     <ClCompile Include="os\OSX\Image.cpp" />
+    <ClCompile Include="os\OSX\Process.cpp" />
     <ClCompile Include="os\Path.cpp" />
     <ClCompile Include="os\Posix\Console.cpp" />
     <ClCompile Include="os\Posix\Cryptography.cpp" />
