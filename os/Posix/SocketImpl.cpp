@@ -2206,11 +2206,10 @@ WaitStatus SocketImpl::SetSocketOptionMembership (SocketOptionLevel level, Socke
 WaitStatus SocketImpl::SetSocketOptionInternal (int32_t level, int32_t name, const void *value, int32_t len)
 {
 	const void *real_val = value;
+	struct timeval tv;
 
 	if (level == SOL_SOCKET && (name == SO_RCVTIMEO || name == SO_SNDTIMEO))
 	{
-		struct timeval tv;
-
 		const int32_t ms = *((int32_t *) value);
 
 		tv.tv_sec = ms / 1000;
