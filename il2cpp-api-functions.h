@@ -136,11 +136,15 @@ DO_API( uint32_t, il2cpp_method_get_token, (const MethodInfo *method) );
 DO_API( const char*, il2cpp_method_get_param_name, (const MethodInfo *method, uint32_t index) );
 
 // profiler
+#if IL2CPP_ENABLE_PROFILER
+
 DO_API( void, il2cpp_profiler_install, (Il2CppProfiler *prof, Il2CppProfileFunc shutdown_callback) );
 DO_API( void, il2cpp_profiler_set_events, (Il2CppProfileFlags events) );
 DO_API( void, il2cpp_profiler_install_enter_leave, (Il2CppProfileMethodFunc enter, Il2CppProfileMethodFunc fleave) );
 DO_API( void, il2cpp_profiler_install_allocation, (Il2CppProfileAllocFunc callback) );
 DO_API( void, il2cpp_profiler_install_gc, (Il2CppProfileGCFunc callback, Il2CppProfileGCResizeFunc heap_resize_callback) );
+
+#endif
 
 // property
 DO_API( uint32_t, il2cpp_property_get_flags, (PropertyInfo *prop) );
@@ -183,10 +187,10 @@ DO_API( Il2CppObject*, il2cpp_delegate_end_invoke, (Il2CppAsyncResult* asyncResu
 
 // string
 DO_API( int32_t, il2cpp_string_length, (Il2CppString* str) );
-DO_API( uint16_t*, il2cpp_string_chars, (Il2CppString* str) );
+DO_API( Il2CppChar*, il2cpp_string_chars, (Il2CppString* str) );
 DO_API( Il2CppString*, il2cpp_string_new, (const char* str) );
 DO_API( Il2CppString*, il2cpp_string_new_len, (const char* str, uint32_t length) );
-DO_API( Il2CppString*, il2cpp_string_new_utf16, (const uint16_t *text, int32_t len) );
+DO_API( Il2CppString*, il2cpp_string_new_utf16, (const Il2CppChar *text, int32_t len) );
 DO_API( Il2CppString*, il2cpp_string_new_wrapper, (const char* str) );
 DO_API( Il2CppString*, il2cpp_string_intern, (Il2CppString* str) );
 DO_API( Il2CppString*, il2cpp_string_is_interned, (Il2CppString* str) );

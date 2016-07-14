@@ -134,7 +134,7 @@ struct Il2CppTypeDefinition
 
 	GenericContainerIndex genericContainerIndex;
 
-	MethodIndex delegateWrapperFromManagedToNativeIndex;
+	MethodIndex reversePInvokeWrapperIndex;
 	int32_t marshalingFunctionsIndex;
 	int32_t ccwFunctionIndex;
 	GuidIndex guidIndex;
@@ -165,7 +165,7 @@ struct Il2CppTypeDefinition
 	// 03 - has_finalize;
 	// 04 - has_cctor;
 	// 05 - is_blittable;
-	// 06 - is_import;
+	// 06 - is_import_or_windows_runtime;
 	// 07-10 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
 	uint32_t bitfield;
 	uint32_t token;
@@ -224,7 +224,7 @@ struct Il2CppMethodDefinition
 	GenericContainerIndex genericContainerIndex;
 	MethodIndex methodIndex;
 	MethodIndex invokerIndex;
-	MethodIndex delegateWrapperIndex;
+	MethodIndex reversePInvokeWrapperIndex;
 	RGCTXIndex rgctxStartIndex;
 	int32_t rgctxCount;
 	uint32_t token;

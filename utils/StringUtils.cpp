@@ -1,5 +1,7 @@
 #include "il2cpp-config.h"
 #include "../char-conversions.h"
+#include "../object-internals.h"
+#include "utils/Functional.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "utils/utf8-cpp/source/utf8/unchecked.h"
@@ -21,18 +23,6 @@ size_t StringUtils::Hash (const char *str)
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
 	return hash;
-}
-
-size_t StringUtils::StrLenUtf16 (const uint16_t* str)
-{
-	size_t length = 0;
-	while (*str)
-	{
-		str++;
-		length++;
-	}
-
-	return length;
 }
 
 std::string StringUtils::Printf(const char* format, ...)
@@ -109,14 +99,14 @@ std::string StringUtils::NPrintf(const char* format, size_t max_n, ...)
 	return ret;
 }
 
-std::string StringUtils::Utf16ToUtf8(const uint16_t* utf16String)
+std::string StringUtils::Utf16ToUtf8(const Il2CppChar* utf16String)
 {
 	return Utf16ToUtf8(utf16String, -1);
 }
 
-std::string StringUtils::Utf16ToUtf8(const uint16_t* utf16String, int maximumSize)
+std::string StringUtils::Utf16ToUtf8(const Il2CppChar* utf16String, int maximumSize)
 {
-	const uint16_t* ptr = utf16String;
+	const Il2CppChar* ptr = utf16String;
 	size_t length = 0;
 	while (*ptr)
 	{
@@ -201,27 +191,27 @@ bool StringUtils::CaseSensitiveComparer::operator()(const char* left, const char
 	return strcmp(left, right) == 0;
 }
 
-static inline void Utf32CharToSurrogatePair(uint32_t c, uint16_t (&surrogatePair)[2])
+static inline void Utf32CharToSurrogatePair(uint32_t c, Il2CppChar (&surrogatePair)[2])
 {
-	const uint16_t kLeadOffset = 55232;
-	const uint16_t kTrailSurrogateMin = 56320;
+	const Il2CppChar kLeadOffset = 55232;
+	const Il2CppChar kTrailSurrogateMin = 56320;
 
 	if (c > 0xffff)
 	{
-		surrogatePair[0] = static_cast<uint16_t>((c >> 10) + kLeadOffset);
-		surrogatePair[1] = static_cast<uint16_t>((c & 0x3ff) + kTrailSurrogateMin);
+		surrogatePair[0] = static_cast<Il2CppChar>((c >> 10) + kLeadOffset);
+		surrogatePair[1] = static_cast<Il2CppChar>((c & 0x3ff) + kTrailSurrogateMin);
 	}
 	else
 	{
-		surrogatePair[0] = static_cast<uint16_t>(c);
+		surrogatePair[0] = static_cast<Il2CppChar>(c);
 		surrogatePair[1] = 0;
 	}
 }
 
-uint16_t StringUtils::Utf16ToLower(uint16_t c)
+Il2CppChar StringUtils::Utf16ToLower(Il2CppChar c)
 {
-	const uint16_t kDataLowThreshold = 9423;
-	const uint16_t kDataHighThreshold = 65313;
+	const Il2CppChar kDataLowThreshold = 9423;
+	const Il2CppChar kDataHighThreshold = 65313;
 
 	if (c <= kDataLowThreshold)
 	{
@@ -235,7 +225,7 @@ uint16_t StringUtils::Utf16ToLower(uint16_t c)
 	return c;
 }
 
-static inline bool Utf16CharEqualsIgnoreCase(uint16_t left, uint16_t right)
+static inline bool Utf16CharEqualsIgnoreCase(Il2CppChar left, Il2CppChar right)
 {
 	return StringUtils::Utf16ToLower(left) == StringUtils::Utf16ToLower(right);
 }
@@ -262,8 +252,8 @@ bool StringUtils::CaseInsensitiveComparer::operator()(const char* left, const ch
 	assert(utf8::is_valid(right, right + strlen(right)));
 #endif
 
-	uint16_t utf16Left[2];
-	uint16_t utf16Right[2];
+	Il2CppChar utf16Left[2];
+	Il2CppChar utf16Right[2];
 
 	while (*left && *right)
 	{
@@ -291,6 +281,31 @@ bool StringUtils::EndsWith(const std::string& string, const std::string& suffix)
 	return string.rfind(suffix.c_str(), stringLength - suffixLength, suffixLength) != std::string::npos;
 }
 
+bool StringUtils::CaseSensitiveEquals(Il2CppString* left, const char* right)
+{
+	std::string leftString = Utf16ToUtf8(left->chars);
+	functional::Filter<const char*, StringUtils::CaseSensitiveComparer> equalsLeft(leftString.c_str());
+	return equalsLeft(right);
+}
+
+bool StringUtils::CaseSensitiveEquals(const char* left, const char* right)
+{
+	functional::Filter<const char*, StringUtils::CaseSensitiveComparer> equalsLeft(left);
+	return equalsLeft(right);
+}
+
+bool StringUtils::CaseInsensitiveEquals(Il2CppString* left, const char* right)
+{
+	std::string leftString = Utf16ToUtf8(left->chars);
+	functional::Filter<const char*, StringUtils::CaseInsensitiveComparer> equalsLeft(leftString.c_str());
+	return equalsLeft(right);
+}
+
+bool StringUtils::CaseInsensitiveEquals(const char* left, const char* right)
+{
+	functional::Filter<const char*, StringUtils::CaseInsensitiveComparer> equalsLeft(left);
+	return equalsLeft(right);
+}
 
 } /* utils */
 } /* il2cpp */

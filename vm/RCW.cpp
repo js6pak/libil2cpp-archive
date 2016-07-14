@@ -15,6 +15,8 @@ const Il2CppGuid Il2CppISequentialStream::IID = { 0x0c733a30, 0x2a1c, 0x11ce, 0x
 const Il2CppGuid Il2CppIStream::IID = { 0x0000000c, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 const Il2CppGuid Il2CppIMarshal::IID = { 0x00000003, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 const Il2CppGuid Il2CppIManagedObject::IID = { 0xc3fcc19e, 0xa970, 0x11d2, 0x8b, 0x5a, 0x00, 0xa0, 0xc9, 0xb7, 0xc9, 0xc4 };
+const Il2CppGuid Il2CppIInspectable::IID = { 0xaF86e2e0, 0xb12d, 0x4c6a, 0x9c, 0x5a, 0xd7, 0xaa, 0x65, 0x10, 0x1E, 0x90 };
+const Il2CppGuid Il2CppIActivationFactory::IID = { 0x00000035, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 
 namespace il2cpp
 {
@@ -37,35 +39,15 @@ void RCW::Initialize(Il2CppComObject* rcw, const Il2CppGuid& clsid)
 	{
 		FastAutoLock lock(&g_CacheMutex);
 		const bool inserted = g_Cache.insert(std::make_pair(rcw->identity, rcw)).second;
-		NO_UNUSED_WARNING(inserted);
-		assert(inserted);
+		Assert(inserted);
 	}
-
-	il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (rcw, &RCW::Cleanup);
 }
 
-void RCW::Cleanup(void* obj, void* data)
+void RCW::Cleanup(Il2CppComObject* rcw)
 {
-	Il2CppComObject* rcw = static_cast<Il2CppComObject*>(obj);
-
-	// RCW is removed from the cache before finalizer is run.
-	// In case finalizer somehow resurrects RCW, duplicate RCW object will be created.
-	// That's not desired but it's better than corrupted cache.
-	{
-		FastAutoLock lock(&g_CacheMutex);
-		const size_t erased = g_Cache.erase(rcw->identity);
-		NO_UNUSED_WARNING(erased);
-		assert(1 == erased);
-	}
-
-	if (rcw->klass->has_finalize)
-		il2cpp::gc::GarbageCollector::RunFinalizer (obj, data);
-
-	if (rcw->identity)
-	{
-		rcw->identity->Release();
-		rcw->identity = NULL;
-	}
+	FastAutoLock lock(&g_CacheMutex);
+	const size_t erased = g_Cache.erase(rcw->identity);
+	Assert(1 == erased);
 }
 
 Il2CppIUnknown* RCW::QueryInterface(Il2CppComObject* rcw, const Il2CppGuid& iid, bool throwOnError)
@@ -99,7 +81,7 @@ Il2CppObject* RCW::Create(Il2CppIUnknown* unknown)
 	{
 		assert(managed);
 
-		uint16_t* bstr_guid;
+		Il2CppChar* bstr_guid;
 		int32_t app_domain_id;
 		intptr_t ccw;
 		hr = managed->GetObjectIdentity(&bstr_guid, &app_domain_id, &ccw);
@@ -142,11 +124,8 @@ Il2CppObject* RCW::Create(Il2CppIUnknown* unknown)
 		rcw->identity = identity;
 
 		const bool inserted = g_Cache.insert(std::make_pair(rcw->identity, rcw)).second;
-		NO_UNUSED_WARNING(inserted);
-		assert(inserted);
+		Assert(inserted);
 	}
-
-	il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (rcw, &RCW::Cleanup);
 
 	return rcw;
 }

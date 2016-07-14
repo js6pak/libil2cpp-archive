@@ -580,14 +580,13 @@ InvokerMethod MetadataCache::GetMethodInvokerFromIndex (MethodIndex index)
 	return s_Il2CppCodeRegistration->invokerPointers[index];
 }
 
-Il2CppMethodPointer MetadataCache::GetDelegateWrapperNativeToManagedFromIndex (MethodIndex index)
+Il2CppMethodPointer MetadataCache::GetReversePInvokeWrapperFromIndex(MethodIndex index)
 {
 	if (index == kMethodIndexInvalid)
 		return NULL;
 
-
-	assert (index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->delegateWrappersFromNativeToManagedCount);
-	return *(s_Il2CppCodeRegistration->delegateWrappersFromNativeToManaged[index]);
+	assert (index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->reversePInvokeWrapperCount);
+	return s_Il2CppCodeRegistration->reversePInvokeWrappers[index];
 }
 
 Il2CppMethodPointer MetadataCache::GetDelegateWrapperManagedToNativeFromIndex (MethodIndex index)
@@ -708,7 +707,7 @@ static const int kBitIsEnum = 2;
 static const int kBitHasFinalizer = 3;
 static const int kBitHasStaticConstructor = 4;
 static const int kBitIsBlittable = 5;
-static const int kBitIsImport = 6;
+static const int kBitIsImportOrWindowsRuntime = 6;
 static const int kPackingSize = 7; // This uses 4 bits from bit 7 to bit 10
 
 static Il2CppClass* FromTypeDefinition (TypeDefinitionIndex index)
@@ -739,7 +738,7 @@ static Il2CppClass* FromTypeDefinition (TypeDefinitionIndex index)
 	typeInfo->has_finalize = (typeDefinition->bitfield >> (kBitHasFinalizer - 1)) & 0x1;
 	typeInfo->has_cctor = (typeDefinition->bitfield >> (kBitHasStaticConstructor - 1)) & 0x1;
 	typeInfo->is_blittable = (typeDefinition->bitfield >> (kBitIsBlittable - 1)) & 0x1;
-	typeInfo->is_import = (typeDefinition->bitfield >> (kBitIsImport - 1)) & 0x1;
+	typeInfo->is_import_or_windows_runtime = (typeDefinition->bitfield >> (kBitIsImportOrWindowsRuntime - 1)) & 0x1;
 	typeInfo->packingSize = ConvertPackingSizeEnumToValue(static_cast<PackingSize>((typeDefinition->bitfield >> (kPackingSize - 1)) & 0xF));
 	typeInfo->method_count = typeDefinition->method_count;
 	typeInfo->property_count = typeDefinition->property_count;
@@ -912,7 +911,10 @@ const Il2CppFieldDefaultValue* MetadataCache::GetFieldDefaultValueForField (cons
 {
 	Il2CppClass* parent = field->parent;
 	size_t fieldIndex = (field - parent->fields);
-	fieldIndex += parent->typeDefinition->fieldStart;
+	if (Type::IsGenericInstance(parent->byval_arg))
+		fieldIndex += GenericClass::GetTypeDefinition(parent->generic_class)->typeDefinition->fieldStart;
+	else
+		fieldIndex += parent->typeDefinition->fieldStart;
 	const Il2CppFieldDefaultValue *start = (const Il2CppFieldDefaultValue *)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->fieldDefaultValuesOffset);
 	const Il2CppFieldDefaultValue *entry = start;
 	while (entry < start + s_GlobalMetadataHeader->fieldDefaultValuesCount)

@@ -1,20 +1,28 @@
 #pragma once
 
 #include "il2cpp-config.h"
-#include "il2cpp-api-types.h"
-#include "metadata.h"
 #include "blob.h"
-#include "PlatformInvoke.h"
-#include "String.h"
-#include "MarshalAlloc.h"
-#include "Array.h"
-#include "Class.h"
-#include "Object.h"
-
-#include <string>
+#include "metadata.h"
+#include "object-internals.h"
+#include "vm/Array.h"
+#include "vm/Class.h"
+#include "vm/MarshalAlloc.h"
+#include "vm/Object.h"
+#include "vm/String.h"
+#include "utils/StringView.h"
 
 struct Il2CppString;
 struct Il2CppStringBuilder;
+
+struct PInvokeArguments
+{
+	const il2cpp::utils::StringView<Il2CppNativeChar> moduleName;
+	const il2cpp::utils::StringView<char> entryPoint;
+	Il2CppCallConvention callingConvention;
+	Il2CppCharSet charSet;
+	int parameterSize;
+	bool isNoMangle;	// Says whether P/Invoke should append to function name 'A'/'W' according to charSet.
+};
 
 namespace il2cpp
 {
@@ -24,7 +32,6 @@ namespace vm
 class LIBIL2CPP_CODEGEN_API PlatformInvoke
 {
 public:
-	static int SumParameterSize(Il2CppTypeEnum parameterTypes[]);
 	static void SetFindPluginCallback(Il2CppSetFindPlugInCallback method);
 	static Il2CppMethodPointer Resolve(const PInvokeArguments& pinvokeArgs);
 
@@ -32,41 +39,41 @@ public:
 
 	static char* MarshalCSharpStringToCppString(Il2CppString* managedString);
 	static void MarshalCSharpStringToCppStringFixed(Il2CppString* managedString, char* buffer, int numberOfCharacters);
-	static uint16_t* MarshalCSharpStringToCppWString(Il2CppString* managedString);
-	static void MarshalCSharpStringToCppWStringFixed(Il2CppString* managedString, uint16_t* buffer, int numberOfCharacters);
-	static il2cpp_hresult_t MarshalCSharpStringToCppBStringNoThrow(Il2CppString* managedString, uint16_t** bstr);
-	static uint16_t* MarshalCSharpStringToCppBString(Il2CppString* managedString);
+	static Il2CppChar* MarshalCSharpStringToCppWString(Il2CppString* managedString);
+	static void MarshalCSharpStringToCppWStringFixed(Il2CppString* managedString, Il2CppChar* buffer, int numberOfCharacters);
+	static il2cpp_hresult_t MarshalCSharpStringToCppBStringNoThrow(Il2CppString* managedString, Il2CppChar** bstr);
+	static Il2CppChar* MarshalCSharpStringToCppBString(Il2CppString* managedString);
 
 	static Il2CppString* MarshalCppStringToCSharpStringResult(const char* value);
-	static Il2CppString* MarshalCppWStringToCSharpStringResult(const uint16_t* value);
-	static Il2CppString* MarshalCppBStringToCSharpStringResult(const uint16_t* value);
+	static Il2CppString* MarshalCppWStringToCSharpStringResult(const Il2CppChar* value);
+	static Il2CppString* MarshalCppBStringToCSharpStringResult(const Il2CppChar* value);
 
-	static void MarshalFreeBString(const uint16_t* value);
+	static void MarshalFreeBString(Il2CppChar* value);
 
 	static char** MarshalAllocateNativeStringArray(size_t size);
-	static uint16_t** MarshalAllocateNativeWStringArray(size_t size);
-	static uint16_t** MarshalAllocateNativeBStringArray(size_t size);
+	static Il2CppChar** MarshalAllocateNativeWStringArray(size_t size);
+	static Il2CppChar** MarshalAllocateNativeBStringArray(size_t size);
 
 	static void MarshalStringArrayOut(char** nativeArray, Il2CppArray* managedArray);
-	static void MarshalWStringArrayOut(uint16_t** nativeArray, Il2CppArray* managedArray);
-	static void MarshalBStringArrayOut(uint16_t** nativeArray, Il2CppArray* managedArray);
+	static void MarshalWStringArrayOut(Il2CppChar** nativeArray, Il2CppArray* managedArray);
+	static void MarshalBStringArrayOut(Il2CppChar** nativeArray, Il2CppArray* managedArray);
 
 	static void MarshalStringArray(Il2CppArray* managedArray, char** nativeArray);
-	static void MarshalWStringArray(Il2CppArray* managedArray, uint16_t** nativeArray);
-	static void MarshalBStringArray(Il2CppArray* managedArray, uint16_t** nativeArray);
+	static void MarshalWStringArray(Il2CppArray* managedArray, Il2CppChar** nativeArray);
+	static void MarshalBStringArray(Il2CppArray* managedArray, Il2CppChar** nativeArray);
 
 	static Il2CppArray* MarshalStringArrayResult(char** nativeArray, size_t size);
-	static Il2CppArray* MarshalWStringArrayResult(uint16_t** nativeArray, size_t size);
-	static Il2CppArray* MarshalBStringArrayResult(uint16_t** nativeArray, size_t size);
+	static Il2CppArray* MarshalWStringArrayResult(Il2CppChar** nativeArray, size_t size);
+	static Il2CppArray* MarshalBStringArrayResult(Il2CppChar** nativeArray, size_t size);
 
 	static char* MarshalStringBuilder(Il2CppStringBuilder* stringBuilder);
-	static uint16_t* MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder);
+	static Il2CppChar* MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder);
 
 	static void MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer);
-	static void MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, uint16_t* buffer);
+	static void MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, Il2CppChar* buffer);
 
 	static void MarshalFreeStringArray(void** nativeArray, size_t size);
-	static void MarshalFreeBStringArray(uint16_t** nativeArray, size_t size);
+	static void MarshalFreeBStringArray(Il2CppChar** nativeArray, size_t size);
 
 	static Il2CppIntPtr MarshalDelegate(Il2CppDelegate* d);
 	static Il2CppDelegate* MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType);

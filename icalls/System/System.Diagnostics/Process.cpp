@@ -5,6 +5,7 @@
 #include "icalls/System/System.Diagnostics/Process.h"
 #include "os/Process.h"
 #include "vm/Exception.h"
+#include "vm/String.h"
 
 namespace il2cpp
 {
@@ -83,9 +84,9 @@ int64_t Process::Times (Il2CppIntPtr handle, int32_t type)
 
 Il2CppString* Process::ProcessName_internal (Il2CppIntPtr handle)
 {
-	NOT_IMPLEMENTED_ICALL (Process::ProcessName_internal);
-	
-	return 0;
+	os::ProcessHandle *pHandle = (os::ProcessHandle*)handle.m_value;
+	std::string name = os::Process::GetProcessName(pHandle);
+	return il2cpp::vm::String::New(name.c_str());
 }
 
 int64_t Process::StartTime_internal (Il2CppIntPtr handle)

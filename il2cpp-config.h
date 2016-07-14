@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "il2cpp-api-types.h"
 
 /* first setup platform defines*/
 #if defined(SN_TARGET_PSP2)
@@ -16,10 +15,6 @@
 	#include "il2cpp-config-psp2.h"
 #elif defined(SN_TARGET_ORBIS)
 	#define IL2CPP_TARGET_PS4 1
-	#define _UNICODE 1
-	#define UNICODE 1
-#elif defined(_XBOX)
-	#define IL2CPP_TARGET_XBOX360 1
 	#define _UNICODE 1
 	#define UNICODE 1
 #elif defined(_XBOX_ONE)
@@ -83,10 +78,6 @@
 
 #ifndef IL2CPP_TARGET_LINUX
 #define IL2CPP_TARGET_LINUX 0
-#endif
-
-#ifndef IL2CPP_TARGET_XBOX360
-#define IL2CPP_TARGET_XBOX360 0
 #endif
 
 #ifndef IL2CPP_TARGET_XBOXONE
@@ -158,7 +149,7 @@
 #if defined(_MSC_VER)
 	#if defined(_M_X64)
 		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(_M_IX86) || defined(_M_ARM) || defined(_XBOX)
+	#elif defined(_M_IX86) || defined(_M_ARM)
 		#define IL2CPP_SIZEOF_VOID_P 4
 	#else
 		#error invalid windows architecture
@@ -225,16 +216,23 @@
 
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
 
+// We currently use ALIGN_TYPE just for types decorated with IL2CPPStructAlignment, as it's needed for WebGL to properly align UnityEngine.Color.
+// On MSVC, it causes build issues on x86 since you cannot pass aligned type by value as an argument to a function:
+// error C2719: 'value': formal parameter with requested alignment of 16 won't be aligned
+// Since this isn't actually needed for Windows, and it's not a standard .NET feature but just IL2CPP extension, let's just turn it off on Windows
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
 	#define ALIGN_OF(T) __alignof__(T)
 	#define ALIGN_TYPE(val) __attribute__((aligned(val)))
+	#define ALIGN_FIELD(val) ALIGN_TYPE(val)
 	#define FORCE_INLINE inline __attribute__ ((always_inline))
 #elif defined(_MSC_VER)
 	#define ALIGN_OF(T) __alignof(T)
-	#define ALIGN_TYPE(val) __declspec(align(val))
+	#define ALIGN_TYPE(val)
+	#define ALIGN_FIELD(val) __declspec(align(val))
 	#define FORCE_INLINE __forceinline
 #else
 	#define ALIGN_TYPE(size)
+	#define ALIGN_FIELD(size)
 	#define FORCE_INLINE inline
 #endif
 
@@ -297,7 +295,9 @@
 #define IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS IL2CPP_TARGET_IOS
 
 /* Profiler */
+#ifndef IL2CPP_ENABLE_PROFILER
 #define IL2CPP_ENABLE_PROFILER 1
+#endif
 
 /* GC defines*/
 #define IL2CPP_GC_BOEHM 1
@@ -311,13 +311,6 @@
 	#define IL2CPP_ZERO_LEN_ARRAY 0
 #else
 	#define IL2CPP_ZERO_LEN_ARRAY 0
-#endif
-
-#if !defined (IL2CPP_TARGET_PSP2) // __SNC__ has limited support for this
-/* clang specific __has_feature check */
-#ifndef __has_feature
-  #define __has_feature(x) 0 // Compatibility with non-clang compilers.
-#endif
 #endif
 
 #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
@@ -431,6 +424,7 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define IL2CPP_USE_GENERIC_COM	(!IL2CPP_PLATFORM_WIN32)
 #define IL2CPP_USE_GENERIC_COM_SAFEARRAYS	(!IL2CPP_TARGET_WINDOWS)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_PLATFORM_WIN32)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
@@ -487,6 +481,10 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_DISP_E_PARAMNOTFOUND ((il2cpp_hresult_t)0x80020004)
 #define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
 #define IL2CPP_E_INVALIDARG ((il2cpp_hresult_t)0x80070057)
+#define IL2CPP_E_UNEXPECTED ((il2cpp_hresult_t)0x8000FFFF)
+#define IL2CPP_REGDB_E_CLASSNOTREG ((il2cpp_hresult_t)0x80040154)
 
 #define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
 #define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)
+
+#include "il2cpp-api-types.h"
