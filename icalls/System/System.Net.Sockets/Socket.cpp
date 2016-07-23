@@ -246,14 +246,16 @@ static Il2CppSocketAddress* end_point_info_to_socket_address (const os::EndPoint
 	}
 	else if (info.family == os::kAddressFamilyInterNetworkV6)
 	{
-		// Allocate a 30 byte array, 2 bytes for the family, and 28 bytes for the IPv6 address and port
-		socket_address->data = vm::Array::New (il2cpp_defaults.byte_class, 30);
+		socket_address->data = vm::Array::New (il2cpp_defaults.byte_class, 28);
 
 		il2cpp_array_set (socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
 		il2cpp_array_set (socket_address->data, uint8_t, 1, (family >> 8) & 0xFF);
 		
-		for (int i = 0; i < 28; ++i)
-			il2cpp_array_set (socket_address->data, uint8_t, i + 2, info.data.raw[i]);
+		// Note that we start at the 3rd byte in both the managed array, where the first
+		// two bytes are the family, set just above this. We also start at the third byte
+		// in the info.data.raw array, as the first two bytes are unused and garbage data.
+		for (int i = 2; i < 28; ++i)
+			il2cpp_array_set (socket_address->data, uint8_t, i, info.data.raw[i]);
 	}
 	else
 	{
