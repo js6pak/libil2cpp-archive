@@ -298,6 +298,12 @@ const MethodInfo* MetadataCache::GetGenericMethodDefinition(const MethodInfo* me
 
 const Il2CppGenericContainer* MetadataCache::GetMethodGenericContainer(const MethodInfo* method)
 {
+	if (!method->is_generic)
+	{
+		NOT_IMPLEMENTED (Image::GetMethodGenericContainer);
+		return NULL;
+	}
+
 	return method->genericContainer;
 }
 
@@ -709,7 +715,7 @@ static Il2CppClass* FromTypeDefinition (TypeDefinitionIndex index)
 	assert (index >= 0 && static_cast<uint32_t>(index) < s_GlobalMetadataHeader->typeDefinitionsCount / sizeof (Il2CppTypeDefinition));
 	const Il2CppTypeDefinition* typeDefinitions = (const Il2CppTypeDefinition*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->typeDefinitionsOffset);
 	const Il2CppTypeDefinition* typeDefinition = typeDefinitions + index;
-	const Il2CppTypeDefinitionSizes* typeDefinitionSizes = s_Il2CppMetadataRegistration->typeDefinitionsSizes[index];
+	const Il2CppTypeDefinitionSizes* typeDefinitionSizes = s_Il2CppMetadataRegistration->typeDefinitionsSizes + index;
 	Il2CppClass* typeInfo = (Il2CppClass*)IL2CPP_CALLOC (1, sizeof(Il2CppClass));
 	typeInfo->image = GetImageForTypeDefinitionIndex (index);
 	typeInfo->name = MetadataCache::GetStringFromIndex (typeDefinition->nameIndex);
@@ -1001,10 +1007,10 @@ const Il2CppParameterDefinition* MetadataCache::GetParameterDefinitionFromIndex 
 	return parameters + index;
 }
 
-int32_t MetadataCache::GetFieldOffsetFromIndex (TypeIndex typeIndex, int32_t fieldIndexInType)
+int32_t MetadataCache::GetFieldOffsetFromIndex (FieldIndex index)
 {
-	assert (typeIndex <= s_Il2CppMetadataRegistration->typeDefinitionsSizesCount);
-	return s_Il2CppMetadataRegistration->fieldOffsets [typeIndex][fieldIndexInType];
+	assert (index <= s_Il2CppMetadataRegistration->fieldOffsetsCount);
+	return s_Il2CppMetadataRegistration->fieldOffsets [index];
 }
 
 

@@ -108,7 +108,7 @@ class InternedStringHash
 public:
 	size_t operator( )( const InternedString& ea ) const
 	{
-		return utils::StringUtils::Hash (ea.chars, ea.length);
+		return ea.length;
 	}
 };
 
