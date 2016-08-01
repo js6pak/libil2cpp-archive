@@ -445,10 +445,10 @@ struct Il2CppMetadataRegistration
 	const Il2CppMethodSpec* methodSpecs;
 
 	FieldIndex fieldOffsetsCount;
-	const int32_t* fieldOffsets;
+	const int32_t** fieldOffsets;
 
 	TypeDefinitionIndex typeDefinitionsSizesCount;
-	const Il2CppTypeDefinitionSizes* typeDefinitionsSizes;
+	const Il2CppTypeDefinitionSizes** typeDefinitionsSizes;
 	const size_t metadataUsagesCount;
 	void** const* metadataUsages;
 };
