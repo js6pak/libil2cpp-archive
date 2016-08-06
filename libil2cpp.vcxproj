@@ -765,6 +765,7 @@
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="il2cpp-debugger.h" />
     <ClInclude Include="il2cpp-metadata.h" />
+    <ClInclude Include="il2cpp-string-types.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="metadata\ArrayMetadata.h" />
     <ClInclude Include="metadata\FieldLayout.h" />
@@ -858,7 +859,6 @@
     <ClInclude Include="os\WinRT\SynchronousOperation.h" />
     <ClInclude Include="os\WinRT\WinRTImpl.h" />
     <ClInclude Include="tabledefs.h" />
-    <ClInclude Include="types.h" />
     <ClInclude Include="utils\BlobReader.h" />
     <ClInclude Include="utils\CallOnce.h" />
     <ClInclude Include="utils\Collections.h" />
