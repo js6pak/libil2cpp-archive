@@ -939,7 +939,7 @@ static void SetupFieldsFromDefinition (Il2CppClass* klass)
 		newField->type = MetadataCache::GetIl2CppTypeFromIndex (fieldDefinition->typeIndex);
 		newField->name = MetadataCache::GetStringFromIndex (fieldDefinition->nameIndex);
 		newField->parent = klass;
-		newField->offset = MetadataCache::GetFieldOffsetFromIndex (fieldIndex);
+		newField->offset = MetadataCache::GetFieldOffsetFromIndex (MetadataCache::GetIndexForTypeDefinition(klass), fieldIndex - start);
 		newField->customAttributeIndex = fieldDefinition->customAttributeIndex;
 		newField->token = fieldDefinition->token;
 
