@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "il2cpp-string-types.h"
 #include <string>
 #include <vector>
 #include <stdint.h>
