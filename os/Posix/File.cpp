@@ -294,12 +294,21 @@ FileHandle* File::GetStdOutput ()
 
 bool File::CreatePipe (FileHandle** read_handle, FileHandle** write_handle)
 {
+	int error;
+	return File::CreatePipe (read_handle, write_handle, &error);
+}
+
+bool File::CreatePipe (FileHandle** read_handle, FileHandle** write_handle, int* error)
+{
 	int fds[2];
 
 	const int ret = pipe (fds);
 
 	if(ret == -1)
+	{
+		*error = FileErrnoToErrorCode (errno);
 		return false;
+	}
 
 	FileHandle *input = new FileHandle();
 	input->fd = fds[0];
@@ -1105,6 +1114,13 @@ void File::Unlock (FileHandle* handle, int64_t position, int64_t length, int* er
 
 	*error = kErrorCodeSuccess;
 	return;
+}
+
+bool File::DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
+	FileHandle** target_handle, int access, int inherit, int options, int* error)
+{
+	NOT_IMPLEMENTED_ICALL(File::DuplicateHandle);
+	return false;
 }
 
 }

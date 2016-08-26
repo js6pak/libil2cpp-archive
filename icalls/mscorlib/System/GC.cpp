@@ -2,9 +2,12 @@
 
 #include <cassert>
 
+#include "class-internals.h"
 #include "icalls/mscorlib/System/GC.h"
 #include "gc/GarbageCollector.h"
 #include "vm/Exception.h"
+#include "vm/Object.h"
+#include "vm/Array.h"
 
 namespace il2cpp
 {
@@ -73,6 +76,19 @@ int32_t GC::CollectionCount (int32_t generation)
 {
 	return il2cpp::gc::GarbageCollector::GetCollectionCount (generation);
 }
+
+#if NET_4_0
+Il2CppObject* GC::get_ephemeron_tombstone()
+{
+	return vm::Object::New(il2cpp_defaults.object_class);
+}
+
+void GC::register_ephemeron_array(Il2CppArray* array)
+{
+	// Mono only does something in this icall when SGEN is in use.  We don't have SGEN,
+	// so there is nothing to do here.
+}
+#endif
 
 } /* namespace System */
 } /* namespace mscorlib */

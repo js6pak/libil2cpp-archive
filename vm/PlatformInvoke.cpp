@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <sstream>
 #include <cassert>
+#include <algorithm>
 
 namespace il2cpp
 {
@@ -186,116 +187,12 @@ void PlatformInvoke::MarshalFreeBString(Il2CppChar* value)
 	Exception::RaiseIfFailed(hr);
 }
 
-char** PlatformInvoke::MarshalAllocateNativeStringArray(size_t size)
-{
-	return (char**)MarshalAlloc::Allocate(size * sizeof(char*));
-}
-
-Il2CppChar** PlatformInvoke::MarshalAllocateNativeWStringArray(size_t size)
-{
-	return static_cast<Il2CppChar**>(MarshalAlloc::Allocate(size * sizeof(Il2CppChar*)));
-}
-
-Il2CppChar** PlatformInvoke::MarshalAllocateNativeBStringArray(size_t size)
-{
-	return static_cast<Il2CppChar**>(MarshalAlloc::Allocate(size * sizeof(Il2CppChar*)));
-}
-
-void PlatformInvoke::MarshalStringArrayOut(char** nativeArray, Il2CppArray* managedArray)
-{
-	for (il2cpp_array_size_t i = 0; i < managedArray->max_length; ++i)
-		il2cpp_array_setref(managedArray, i, MarshalCppStringToCSharpStringResult(nativeArray[i]));
-}
-
-void PlatformInvoke::MarshalWStringArrayOut(Il2CppChar** nativeArray, Il2CppArray* managedArray)
-{
-	for (il2cpp_array_size_t i = 0; i < managedArray->max_length; ++i)
-		il2cpp_array_setref(managedArray, i, MarshalCppWStringToCSharpStringResult(nativeArray[i]));
-}
-
-void PlatformInvoke::MarshalBStringArrayOut(Il2CppChar** nativeArray, Il2CppArray* managedArray)
-{
-	for (il2cpp_array_size_t i = 0; i < managedArray->max_length; ++i)
-		il2cpp_array_setref(managedArray, i, MarshalCppBStringToCSharpStringResult(nativeArray[i]));
-}
-
-void PlatformInvoke::MarshalStringArray(Il2CppArray* managedArray, char** nativeArray)
-{
-	const uint32_t arraySize = Array::GetLength(managedArray);
-
-	for (uint32_t i = 0; i < arraySize; ++i)
-	{
-		Il2CppString* managedString = il2cpp_array_get(managedArray, Il2CppString*, i);
-		nativeArray[i] = MarshalCSharpStringToCppString(managedString);
-	}
-
-	nativeArray[arraySize] = NULL;
-}
-
-void PlatformInvoke::MarshalWStringArray(Il2CppArray* managedArray, Il2CppChar** nativeArray)
-{
-	const uint32_t arraySize = Array::GetLength(managedArray);
-
-	for (uint32_t i = 0; i < arraySize; ++i)
-	{
-		Il2CppString* managedString = il2cpp_array_get(managedArray, Il2CppString*, i);
-		nativeArray[i] = MarshalCSharpStringToCppWString(managedString);
-	}
-
-	nativeArray[arraySize] = NULL;
-}
-
-void PlatformInvoke::MarshalBStringArray(Il2CppArray* managedArray, Il2CppChar** nativeArray)
-{
-	const uint32_t arraySize = Array::GetLength(managedArray);
-
-	for (uint32_t i = 0; i < arraySize; ++i)
-	{
-		Il2CppString* managedString = il2cpp_array_get(managedArray, Il2CppString*, i);
-		nativeArray[i] = MarshalCSharpStringToCppBString(managedString);
-	}
-
-	nativeArray[arraySize] = NULL;
-}
-
-Il2CppArray* PlatformInvoke::MarshalStringArrayResult(char** nativeArray, size_t size)
-{
-	if (nativeArray == NULL)
-		return NULL;
-
-	Il2CppArray* managedArray = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
-	MarshalStringArrayOut(nativeArray, managedArray);
-
-	return managedArray;
-}
-
-Il2CppArray* PlatformInvoke::MarshalWStringArrayResult(Il2CppChar** nativeArray, size_t size)
-{
-	if (nativeArray == NULL)
-		return NULL;
-
-	Il2CppArray* managedArray = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
-	MarshalWStringArrayOut(nativeArray, managedArray);
-
-	return managedArray;
-}
-
-Il2CppArray* PlatformInvoke::MarshalBStringArrayResult(Il2CppChar** nativeArray, size_t size)
-{
-	if (nativeArray == NULL)
-		return NULL;
-
-	Il2CppArray* managedArray = Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)size);
-	MarshalBStringArrayOut(nativeArray, managedArray);
-
-	return managedArray;
-}
-
 char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
 {
 	if (stringBuilder == NULL)
 		return NULL;
 
+#if !NET_4_0
 	size_t stringLength = String::GetLength(stringBuilder->str);
 
 	// not sure if this is necessary but it's better to be safe than sorry
@@ -304,6 +201,7 @@ char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
 		stringLength = stringBuilder->length;
 
 	std::string utf8String = utils::StringUtils::Utf16ToUtf8(stringBuilder->str->chars, stringBuilder->length);
+
 	if (stringLength < utf8String.length())
 		stringLength = utf8String.length();
 
@@ -311,6 +209,57 @@ char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
 	strcpy(nativeString, utf8String.c_str());
 
 	return nativeString;
+
+#else
+	size_t stringLength = 0;
+	Il2CppStringBuilder* currentBuilder = stringBuilder;
+
+	std::vector<std::string> utf8Chunks;
+	std::vector<Il2CppStringBuilder*> builders;
+
+	while (true)
+	{
+		if (currentBuilder == NULL)
+			break;
+
+		const Il2CppChar *str = (Il2CppChar*)il2cpp::vm::Array::GetFirstElementAddress(currentBuilder->chunkChars);
+		std::string utf8String = utils::StringUtils::Utf16ToUtf8(str, (int)currentBuilder->chunkChars->max_length);
+
+		utf8Chunks.push_back(utf8String);
+		builders.push_back(currentBuilder);
+
+		size_t lenToCount = std::max((size_t)currentBuilder->chunkChars->max_length, utf8String.size());
+
+		stringLength += lenToCount;
+
+		currentBuilder = currentBuilder->chunkPrevious;
+	}
+
+	char* nativeString = MarshalAllocateStringBuffer<char>(stringLength + 1);
+
+	// We need to zero out the memory because the chunkChar array lengh may have been larger than the chunkLength
+	// and when this happens we'll have a utf8String that is smaller than the the nativeString we allocated.  When we go to copy the
+	// chunk utf8String into the nativeString it won't fill everything and we can end up with w/e junk value was in that memory before
+	memset(nativeString, 0, sizeof(char) * (stringLength + 1));
+
+	if (stringLength > 0)
+	{
+		int offsetAdjustment = 0;
+		for (int i = (int)utf8Chunks.size() - 1; i >= 0; i--)
+		{
+			std::string utf8String = utf8Chunks[i];
+
+			const char* utf8CString = utf8String.c_str();
+
+			memcpy(nativeString + builders[i]->chunkOffset + offsetAdjustment, utf8CString, (int)utf8String.size());
+
+			offsetAdjustment += (int)utf8String.size() - builders[i]->chunkLength;
+		}
+	}
+
+	return nativeString;
+#endif
+
 }
 
 Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder)
@@ -318,6 +267,7 @@ Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBui
 	if (stringBuilder == NULL)
 		return NULL;
 
+#if !NET_4_0
 	int32_t stringLength = String::GetLength(stringBuilder->str);
 
 	// not sure if this is necessary but it's better to be safe than sorry
@@ -332,6 +282,41 @@ Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBui
 	nativeString[stringBuilder->length] = '\0';
 
 	return nativeString;
+#else
+	size_t stringLength = 0;
+	Il2CppStringBuilder* currentBuilder = stringBuilder;
+	while (true)
+	{
+		if (currentBuilder == NULL)
+			break;
+
+		stringLength += (size_t)currentBuilder->chunkChars->max_length;
+
+		currentBuilder = currentBuilder->chunkPrevious;
+	}
+
+	Il2CppChar* nativeString = MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
+
+	if (stringLength > 0)
+	{
+		currentBuilder = stringBuilder;
+		while (true)
+		{
+			if (currentBuilder == NULL)
+				break;
+
+			const Il2CppChar *str = (Il2CppChar*)il2cpp::vm::Array::GetFirstElementAddress(currentBuilder->chunkChars);
+
+			memcpy(nativeString + currentBuilder->chunkOffset, str, (int)currentBuilder->chunkChars->max_length * sizeof(Il2CppChar));
+
+			currentBuilder = currentBuilder->chunkPrevious;
+		}
+	}
+
+	nativeString[stringLength] = '\0';
+
+	return nativeString;
+#endif
 }
 
 void PlatformInvoke::MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer)
@@ -339,9 +324,24 @@ void PlatformInvoke::MarshalStringBuilderResult(Il2CppStringBuilder* stringBuild
 	if (stringBuilder == NULL || buffer == NULL)
 		return;
 
+#if !NET_4_0
 	Il2CppString* managedString = MarshalCppStringToCSharpStringResult(buffer);
 	stringBuilder->str = managedString;
 	stringBuilder->length = String::GetLength(managedString);
+#else
+	UTF16String utf16String = utils::StringUtils::Utf8ToUtf16(buffer);
+
+	IL2CPP_OBJECT_SETREF(stringBuilder, chunkChars, il2cpp::vm::Array::New(il2cpp_defaults.char_class, (int)utf16String.size() + 1));
+
+	for (int i = 0; i < (int)utf16String.size(); i++)
+		il2cpp_array_set(stringBuilder->chunkChars, Il2CppChar, i, utf16String[i]);
+
+	il2cpp_array_set(stringBuilder->chunkChars, Il2CppChar, (int)utf16String.size(),'\0');
+
+	stringBuilder->chunkLength = (int)utf16String.size();
+	stringBuilder->chunkOffset = 0;
+	IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
+#endif
 }
 
 void PlatformInvoke::MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, Il2CppChar* buffer)
@@ -349,25 +349,24 @@ void PlatformInvoke::MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuil
 	if (stringBuilder == NULL || buffer == NULL)
 		return;
 
+#if !NET_4_0
 	Il2CppString* managedString = MarshalCppWStringToCSharpStringResult(buffer);
 	stringBuilder->str = managedString;
 	stringBuilder->length = String::GetLength(managedString);
-}
+#else
+	int len = (int)utils::StringUtils::StrLen(buffer);
 
-void PlatformInvoke::MarshalFreeStringArray(void** nativeArray, size_t size)
-{
-	for (size_t i = 0; i < size; ++i)
-		MarshalAlloc::Free(nativeArray[i]);
+	IL2CPP_OBJECT_SETREF(stringBuilder, chunkChars, il2cpp::vm::Array::New(il2cpp_defaults.char_class, len + 1));
 
-	MarshalAlloc::Free(nativeArray);
-}
+	for (int i = 0; i < len; i++)
+		il2cpp_array_set(stringBuilder->chunkChars, Il2CppChar, i, buffer[i]);
 
-void PlatformInvoke::MarshalFreeBStringArray(Il2CppChar** nativeArray, size_t size)
-{
-	for (size_t i = 0; i < size; ++i)
-		os::MarshalStringAlloc::FreeBString(nativeArray[i]);
+	il2cpp_array_set(stringBuilder->chunkChars, Il2CppChar, len, '\0');
 
-	MarshalAlloc::Free(nativeArray);
+	stringBuilder->chunkLength = len;
+	stringBuilder->chunkOffset = 0;
+	IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
+#endif
 }
 
 Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)

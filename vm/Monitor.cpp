@@ -325,33 +325,11 @@ bool Monitor::TryEnter (Il2CppObject* obj, uint32_t timeOutMilliseconds)
 			}
 		}
 
-		// Object was locked previously. See if we already have the lock.
+		// Object was locked. See if it us already having a lock.
 		if (os::Atomic::Read64 (&installedMonitor->owningThreadId) == currentThreadId)
 		{
 			// Yes, recursive lock. Just increase count.
 			++installedMonitor->recursiveLockingCount;
-			return true;
-		}
-
-		// Attempt to acquire lock if it's free
-		if (installedMonitor->TryAcquire (currentThreadId))
-		{
-
-			// There is no locking around the sections of this logic to speed
-			// things up, there is potential for race condition to reset the objects
-			// monitor.  If it has been reset prior to successfully coming out of
-			// TryAquire, dont return, unaquire the installedMonitor, go back through the logic again to grab a
-			// a valid monitor.
-
-			if (!obj->monitor)
-			{
-				installedMonitor->Unacquire();
-				continue;
-			}
-
-			// Ownership of monitor passed from previously locking thread to us.
-			assert(installedMonitor->recursiveLockingCount == 1);
-			assert(obj->monitor == installedMonitor);
 			return true;
 		}
 
@@ -495,19 +473,6 @@ void Monitor::Exit (Il2CppObject* obj)
 		// pulse, *some* thread will get around to looking at this monitor again so all
 		// we do here is relinquish ownership.
 		monitor->Unacquire ();
-
-		// there is a race as follows: T1 is our thread and we own monitor lock
-		// T1 - checks numThreadsWaitingForSemaphore and sees 0
-		// T2 - sees T1 has lock. Increments numThreadsWaitingForSemaphore
-		// T2 - tries to acquire monitor, but we hold it
-		// T2 - waits on semaphore
-		// T1 - we unacquire and wait to be pulsed (if Exit is called from Wait)
-		// Result: deadlock as semaphore is never posted
-		// Fix: double check 'numThreadsWaitingForSemaphore' after we've unacquired
-		// Worst case might be an extra post, which will just incur an additional
-		// pass through the loop with an extra attempt to acquire the monitor with a CAS
-		if (os::Atomic::Add (&monitor->numThreadsWaitingForSemaphore, 0) != 0)
-			monitor->semaphore.Post ();
 	}
 	else
 	{

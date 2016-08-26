@@ -7,7 +7,7 @@
 #include "icalls/mscorlib/System/MonoType.h"
 #include "utils/Functional.h"
 #include "utils/StringUtils.h"
-#include "utils/StdUnorderedMap.h"
+#include "utils/Il2CppHashMap.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Field.h"
@@ -19,7 +19,6 @@
 #include "vm/String.h"
 #include "vm/Type.h"
 #include "vm/Exception.h"
-
 
 #include <vector>
 #include <set>
@@ -65,19 +64,15 @@ struct Il2CppEventInfoHash
 
 struct Il2CppEventInfoCompare
 {
-	bool operator()(const EventInfo* event1, const EventInfo* event2) const
+	bool operator()(const KeyWrapper<const EventInfo*>& event1, const KeyWrapper<const EventInfo*>& event2) const
 	{
-		// You can't overload events
-		return strcmp(event1->name, event2->name) == 0;
-	}
-};
+		if (event1.type != event2.type)
+			return false;
+		else if (!event1.isNormal())
+			return true;
 
-struct Il2CppEventInfoLess
-{
-	bool operator()(const EventInfo* event1, const EventInfo* event2) const
-	{
 		// You can't overload events
-		return strcmp(event1->name, event2->name) < 0;
+		return strcmp(event1.key->name, event2.key->name) == 0;
 	}
 };
 
@@ -93,16 +88,7 @@ struct PropertyPair
 
 typedef std::vector<PropertyPair> PropertyPairVector;
 
-typedef unordered_map<
-	const EventInfo*,
-	Il2CppClass*,
-#if IL2CPP_HAS_UNORDERED_CONTAINER
-	Il2CppEventInfoHash,
-	Il2CppEventInfoCompare
-#else
-	Il2CppEventInfoLess
-#endif
-	> EventMap;
+typedef Il2CppHashMap<const EventInfo*, Il2CppClass*, Il2CppEventInfoHash, Il2CppEventInfoCompare> EventMap;
 
 static bool PropertyEqual(const PropertyInfo* prop1, const PropertyInfo* prop2)
 {
@@ -286,25 +272,9 @@ int MonoType::GetArrayRank(Il2CppReflectionType *type)
 	return klass->rank;
 }
 
-Il2CppReflectionType *  MonoType::get_DeclaringType(Il2CppReflectionMonoType *monoType)
+Il2CppReflectionType* MonoType::get_DeclaringType(Il2CppReflectionMonoType *monoType)
 {
-	const Il2CppType* type = monoType->type.type;
-	Il2CppClass *typeInfo = NULL;
-
-	if (type->byref)
-		return NULL;
-	if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
-	{
-		const Il2CppGenericParameter* genericParameter = Type::GetGenericParameter (type);
-		const Il2CppGenericContainer* container = MetadataCache::GetGenericContainerFromIndex (genericParameter->ownerIndex);
-		typeInfo = GenericContainer::GetDeclaringType (container);
-	}
-	else
-	{
-		typeInfo = Class::GetDeclaringType(Class::FromIl2CppType(type));
-	}
-
-	return typeInfo ? Reflection::GetTypeObject (typeInfo->byval_arg) : NULL;
+	return vm::Type::GetDeclaringType(monoType->GetIl2CppType());
 }
 
 static inline bool
@@ -495,27 +465,30 @@ Il2CppReflectionField* MonoType::GetField(Il2CppReflectionType* _this, Il2CppStr
 	return GetFieldImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
 }
 
-static inline void CollectTypeFields(Il2CppClass* type, const Il2CppClass* const originalType, int32_t bindingFlags, std::vector<FieldInfo*>& fields)
+
+template <typename NameFilter>
+static inline void CollectTypeFields(Il2CppClass* type, const Il2CppClass* const originalType, int32_t bindingFlags, std::vector<FieldInfo*>& fields, const NameFilter& nameFilter)
 {
 	void* iterator = NULL;
 	FieldInfo* field = NULL;
 	while ((field = Class::GetFields(type, &iterator)) != NULL)
 	{
-		if (CheckMemberMatch(field, type, originalType, bindingFlags, utils::functional::TrueFilter()))
+		if (CheckMemberMatch(field, type, originalType, bindingFlags, nameFilter))
 			fields.push_back(field);
 	}
 }
 
-Il2CppArray* MonoType::GetFields_internal(Il2CppReflectionType* _this, int bindingFlags, Il2CppReflectionType* reflectedType)
+template <typename NameFilter>
+static inline Il2CppArray* GetFieldsImpl(Il2CppReflectionType* _this, int bindingFlags, Il2CppReflectionType* reflectedType, const NameFilter& nameFilter)
 {
 	if (reflectedType->type->byref || !ValidBindingFlagsForGetMember(bindingFlags))
-		return Array::New (il2cpp_defaults.field_info_class, 0);
+		return Array::New(il2cpp_defaults.field_info_class, 0);
 
 	std::vector<FieldInfo*> fields;
 	Il2CppClass* typeInfo = Class::FromIl2CppType(reflectedType->type);
 	Il2CppClass* const originalType = typeInfo;
 
-	CollectTypeFields(typeInfo, typeInfo, bindingFlags, fields);
+	CollectTypeFields(typeInfo, typeInfo, bindingFlags, fields, nameFilter);
 
 	if ((bindingFlags & BFLAGS_DeclaredOnly) == 0)
 	{
@@ -523,13 +496,13 @@ Il2CppArray* MonoType::GetFields_internal(Il2CppReflectionType* _this, int bindi
 
 		while (typeInfo != NULL)
 		{
-			CollectTypeFields(typeInfo, originalType, bindingFlags, fields);
+			CollectTypeFields(typeInfo, originalType, bindingFlags, fields, nameFilter);
 			typeInfo = typeInfo->parent;
 		}
 	}
 
 	size_t fieldCount = fields.size();
-	Il2CppArray* result = Array::NewCached(il2cpp_defaults.field_info_class, (il2cpp_array_size_t) fieldCount);
+	Il2CppArray* result = Array::NewCached(il2cpp_defaults.field_info_class, (il2cpp_array_size_t)fieldCount);
 
 	for (size_t i = 0; i < fieldCount; i++)
 	{
@@ -537,6 +510,27 @@ Il2CppArray* MonoType::GetFields_internal(Il2CppReflectionType* _this, int bindi
 	}
 
 	return result;
+}
+
+Il2CppArray* MonoType::GetFields_internal(Il2CppReflectionType* _this, int bindingFlags, Il2CppReflectionType* reflectedType)
+{
+	return GetFieldsImpl(_this, bindingFlags, reflectedType, utils::functional::TrueFilter());
+}
+
+Il2CppArray* MonoType::GetFieldsByName(Il2CppReflectionType* _this, Il2CppString* name, int bindingFlags, Il2CppReflectionType* reflectedType)
+{
+	using namespace utils;
+	using namespace utils::functional;
+
+	if (name == NULL)
+		return GetFieldsImpl(_this, bindingFlags, reflectedType, utils::functional::TrueFilter());
+
+	if (bindingFlags & BFLAGS_IgnoreCase)
+	{
+		return GetFieldsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+	}
+
+	return GetFieldsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
 }
 
 Il2CppString * MonoType::getFullName(Il2CppReflectionType * type,bool full_name, bool assembly_qualified)
@@ -564,33 +558,7 @@ Il2CppString * MonoType::getFullName(Il2CppReflectionType * type,bool full_name,
 
 Il2CppArray * MonoType::GetGenericArguments (Il2CppReflectionType* type)
 {
-	Il2CppArray *res;
-	Il2CppClass *klass, *pklass;
-
-	klass = Class::FromIl2CppType (type->type);
-
-	if (Class::IsGeneric (klass))
-	{
-		const Il2CppGenericContainer *container = MetadataCache::GetGenericContainerFromIndex (klass->genericContainerIndex);
-		res = Array::New (il2cpp_defaults.systemtype_class, container->type_argc);
-		for (int32_t i = 0; i < container->type_argc; ++i)
-		{
-			pklass = Class::FromGenericParameter (GenericContainer::GetGenericParameter (container, i));
-			il2cpp_array_setref (res, i, Reflection::GetTypeObject (pklass->byval_arg));
-		}
-	}
-	else if (klass->generic_class)
-	{
-		const Il2CppGenericInst *inst = klass->generic_class->context.class_inst;
-		res = Array::New (il2cpp_defaults.systemtype_class, inst->type_argc);
-		for (uint32_t i = 0; i < inst->type_argc; ++i)
-			il2cpp_array_setref (res, i, Reflection::GetTypeObject (inst->type_argv [i]));
-	}
-	else
-	{
-		res = Array::New (il2cpp_defaults.systemtype_class, 0);
-	}
-	return res;
+	return vm::Type::GetGenericArgumentsInternal(type, false);
 }
 
 Il2CppArray* MonoType::GetInterfaces(Il2CppReflectionType* type)
@@ -866,12 +834,13 @@ Il2CppReflectionEvent* MonoType::InternalGetEvent(Il2CppReflectionType* _this, I
 	return GetEventImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
 }
 
-static inline void CollectTypeEvents(Il2CppClass* type, Il2CppClass* const originalType, int32_t bindingFlags, EventMap& events)
+template <typename NameFilter>
+static inline void CollectTypeEvents(Il2CppClass* type, Il2CppClass* const originalType, int32_t bindingFlags, EventMap& events, const NameFilter& nameFilter)
 {
 	void* iter = NULL;
 	while (const EventInfo* event = Class::GetEvents (type, &iter))
 	{
-		if (CheckMemberMatch(event, type, originalType, bindingFlags, utils::functional::TrueFilter()))
+		if (CheckMemberMatch(event, type, originalType, bindingFlags, nameFilter))
 		{
 			if (events.find(event) != events.end())
 				continue;
@@ -881,7 +850,8 @@ static inline void CollectTypeEvents(Il2CppClass* type, Il2CppClass* const origi
 	}
 }
 
-Il2CppArray* MonoType::GetEvents_internal(Il2CppReflectionType* _this, int32_t bindingFlags, Il2CppReflectionType* type)
+template <typename NameFilter>
+static inline Il2CppArray* GetEventsImpl(Il2CppReflectionType* type, int bindingFlags, Il2CppReflectionType* reflectedType, const NameFilter& nameFilter)
 {
 	if (type->type->byref || !ValidBindingFlagsForGetMember(bindingFlags))
 		return Array::New(il2cpp_defaults.event_info_class, 0);
@@ -889,16 +859,16 @@ Il2CppArray* MonoType::GetEvents_internal(Il2CppReflectionType* _this, int32_t b
 	EventMap events;
 	Il2CppClass* typeInfo = Class::FromIl2CppType(type->type);
 
-	CollectTypeEvents(typeInfo, typeInfo, bindingFlags, events);
+	CollectTypeEvents(typeInfo, typeInfo, bindingFlags, events, nameFilter);
 
 	if ((bindingFlags & BFLAGS_DeclaredOnly) == 0)
 	{
 		Il2CppClass* const originalType = typeInfo;
 		typeInfo = Class::GetParent(typeInfo);
-		
+
 		while (typeInfo != NULL)
 		{
-			CollectTypeEvents(typeInfo, originalType, bindingFlags, events);
+			CollectTypeEvents(typeInfo, originalType, bindingFlags, events, nameFilter);
 			typeInfo = Class::GetParent(typeInfo);
 		}
 	}
@@ -908,11 +878,32 @@ Il2CppArray* MonoType::GetEvents_internal(Il2CppReflectionType* _this, int32_t b
 
 	for (EventMap::const_iterator iter = events.begin(); iter != events.end(); iter++)
 	{
-		il2cpp_array_setref(result, i, Reflection::GetEventObject(iter->second, iter->first));
+		il2cpp_array_setref(result, i, Reflection::GetEventObject(iter->second, iter->first.key));
 		i++;
 	}
 
 	return result;
+}
+
+Il2CppArray* MonoType::GetEvents_internal(Il2CppReflectionType* _this, int32_t bindingFlags, Il2CppReflectionType* type)
+{
+	return GetEventsImpl(_this, bindingFlags, type, utils::functional::TrueFilter());
+}
+
+Il2CppArray* MonoType::GetEventsByName(Il2CppReflectionType* _this, Il2CppString* name, int bindingFlags, Il2CppReflectionType* reflectedType)
+{
+	using namespace utils;
+	using namespace utils::functional;
+
+	if (name == NULL)
+		return GetEventsImpl(_this, bindingFlags, reflectedType, utils::functional::TrueFilter());
+
+	if (bindingFlags & BFLAGS_IgnoreCase)
+	{
+		return GetEventsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+	}
+
+	return GetEventsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
 }
 
 void MonoType::type_from_obj(void* /* System.MonoType */ type, Il2CppObject* obj)
@@ -970,7 +961,8 @@ Il2CppReflectionType* MonoType::GetNestedType(Il2CppReflectionType* type, Il2Cpp
 	return GetNestedTypeImpl(typeInfo, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
 }
 
-Il2CppArray* MonoType::GetNestedTypes(Il2CppReflectionType* type, int32_t bindingFlags)
+template <typename NameFilter>
+static Il2CppArray* GetNestedTypesImpl(Il2CppReflectionType* type, int32_t bindingFlags, const NameFilter& nameFilter)
 {
 	bool validBindingFlags = (bindingFlags & BFLAGS_NonPublic) != 0 || (bindingFlags & BFLAGS_Public) != 0;
 
@@ -982,14 +974,14 @@ Il2CppArray* MonoType::GetNestedTypes(Il2CppReflectionType* type, int32_t bindin
 	// nested types are always generic type definitions, even for inflated types. As such we only store/retrieve them on
 	// type definitions and generic type definitions. If we are a generic instance, use our generic type definition instead.
 	if (typeInfo->generic_class)
-		typeInfo = GenericClass::GetTypeDefinition (typeInfo->generic_class);
+		typeInfo = GenericClass::GetTypeDefinition(typeInfo->generic_class);
 
 	std::vector<Il2CppClass*> nestedTypes;
-	
+
 	void* iter = NULL;
-	while (Il2CppClass* nestedType = Class::GetNestedTypes (typeInfo, &iter))
+	while (Il2CppClass* nestedType = Class::GetNestedTypes(typeInfo, &iter))
 	{
-		if (CheckNestedTypeMatch(nestedType, bindingFlags))
+		if (CheckNestedTypeMatch(nestedType, bindingFlags) && nameFilter(nestedType->name))
 			nestedTypes.push_back(nestedType);
 	}
 
@@ -1002,6 +994,25 @@ Il2CppArray* MonoType::GetNestedTypes(Il2CppReflectionType* type, int32_t bindin
 	}
 
 	return result;
+}
+
+Il2CppArray* MonoType::GetNestedTypesByName(Il2CppReflectionType* type, Il2CppString* name, int32_t bindingFlags)
+{
+	using namespace utils;
+	using namespace utils::functional;
+
+	if (name == NULL)
+		return GetNestedTypesImpl(type, bindingFlags, utils::functional::TrueFilter());
+
+	if (bindingFlags & BFLAGS_IgnoreCase)
+		return GetNestedTypesImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+
+	return GetNestedTypesImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+}
+
+Il2CppArray* MonoType::GetNestedTypes(Il2CppReflectionType* type, int32_t bindingFlags)
+{
+	return GetNestedTypesImpl(type, bindingFlags, utils::functional::TrueFilter());
 }
 
 void* /* System.Reflection.MethodBase */ MonoType::get_DeclaringMethod (void* /* System.MonoType */ self)

@@ -7,6 +7,7 @@
 #include "vm/Object.h"
 #include "vm/Exception.h"
 #include "vm/Reflection.h"
+#include "vm/Enum.h"
 
 using namespace il2cpp::vm;
 
@@ -19,31 +20,31 @@ namespace mscorlib
 namespace System
 {
 
-Il2CppObject * Enum::get_value(Il2CppObject *__this)
+Il2CppObject * Enum::get_value(Il2CppObject *thisPtr)
 {
-	if (!__this)
+	if (!thisPtr)
 		return NULL;
 
-	assert (__this->klass->enumtype);
+	assert (thisPtr->klass->enumtype);
 	
-	Il2CppClass* enumClass = Class::FromIl2CppType (Class::GetEnumBaseType (__this->klass));
+	Il2CppClass* enumClass = Class::FromIl2CppType (Class::GetEnumBaseType (thisPtr->klass));
 	Il2CppObject* res = Object::New (enumClass);
 	void* dst = (char *)res + sizeof (Il2CppObject);
-	void* src = (char *)__this + sizeof (Il2CppObject);
+	void* src = (char *)thisPtr + sizeof (Il2CppObject);
 	int32_t size = Class::GetValueSize (enumClass, NULL);
 
 	memcpy (dst, src, size);
 
 	return res;
 
-	return il2cpp::vm::Object::Box (__this->klass->element_class, (char *)__this + sizeof (Il2CppObject));
+	return il2cpp::vm::Object::Box (thisPtr->klass->element_class, (char *)thisPtr + sizeof (Il2CppObject));
 }
 
-int Enum::compare_value_to(Il2CppObject * __this, Il2CppObject * other)
+int Enum::compare_value_to(Il2CppObject * thisPtr, Il2CppObject * other)
 {	
-	void* tdata = (char *)__this + sizeof (Il2CppObject);
+	void* tdata = (char *)thisPtr + sizeof (Il2CppObject);
 	void* odata = (char *)other + sizeof (Il2CppObject);
-	const Il2CppType *basetype = Class::GetEnumBaseType (Object::GetClass (__this));
+	const Il2CppType *basetype = Class::GetEnumBaseType (Object::GetClass (thisPtr));
 	assert (basetype);
 
 #define COMPARE_ENUM_VALUES(ENUM_TYPE) do { \
@@ -90,10 +91,10 @@ int Enum::compare_value_to(Il2CppObject * __this, Il2CppObject * other)
 	return 0;
 }
 
-int32_t Enum::get_hashcode(Il2CppObject * __this)
+int32_t Enum::get_hashcode(Il2CppObject * thisPtr)
 {
-	void* data = (char *)__this + sizeof (Il2CppObject);
-	Il2CppClass *basetype = __this->klass->element_class;
+	void* data = (char *)thisPtr + sizeof (Il2CppObject);
+	Il2CppClass *basetype = thisPtr->klass->element_class;
 	assert (basetype);
 
 	if (basetype == il2cpp_defaults.sbyte_class)
@@ -220,6 +221,41 @@ Il2CppReflectionType * Enum::get_underlying_type(Il2CppReflectionType *type)
 
 	return il2cpp::vm::Reflection::GetTypeObject (etype);
 }
+
+#if NET_4_0
+bool Enum::GetEnumValuesAndNames(Il2CppReflectionRuntimeType* enumType, Il2CppArray** values, Il2CppArray** names)
+{
+	return vm::Enum::GetEnumValuesAndNames(Class::FromIl2CppType(enumType->type.type), values, names);
+}
+
+bool Enum::InternalHasFlag(Il2CppObject* thisPtr, Il2CppObject* flags)
+{
+	Il2CppClass* enumClass = Class::FromIl2CppType(Class::GetEnumBaseType(thisPtr->klass));
+	int32_t size = Class::GetValueSize(enumClass, NULL);
+	uint64_t a_val = 0, b_val = 0;
+
+	memcpy(&a_val, Object::Unbox(thisPtr), size);
+	memcpy(&b_val, Object::Unbox(flags), size);
+
+	return (a_val & b_val) == b_val;
+}
+
+int32_t Enum::InternalCompareTo(Il2CppObject* o1, Il2CppObject* o2)
+{
+	return compare_value_to(o1, o2);
+}
+
+Il2CppObject* Enum::InternalBoxEnum(Il2CppReflectionRuntimeType* enumType, int64_t value)
+{
+	return Object::Box(Class::FromIl2CppType(enumType->type.type), &value);
+}
+
+Il2CppReflectionRuntimeType* Enum::InternalGetUnderlyingType(Il2CppReflectionRuntimeType* enumType)
+{
+	return reinterpret_cast<Il2CppReflectionRuntimeType*>(get_underlying_type(&enumType->type));
+}
+
+#endif
 
 } /* namespace System */
 } /* namespace mscorlib */

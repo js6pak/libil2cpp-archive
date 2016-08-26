@@ -397,7 +397,7 @@ void Type::GetInterfaceMapData (Il2CppReflectionType* type, Il2CppReflectionType
 
 	void* unused = NULL;
 	Class::Init(klass);
-	int32_t ioffset = Class::GetInterfaceOffset(klass, iklass);
+	int32_t ioffset = Class::GetInterfaceOffset(klass, iklass, true);
 
 	for (int i = 0; i < numberOfMethods; ++i)
 {

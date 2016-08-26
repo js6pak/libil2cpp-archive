@@ -36,13 +36,13 @@ Il2CppArray* Module::InternalGetTypes (Il2CppReflectionModule * self)
 	return result;
 }
 
-Il2CppString* Module::GetGuidInternal (mscorlib_System_Reflection_Module * __this)
+Il2CppString* Module::GetGuidInternal (mscorlib_System_Reflection_Module * thisPtr)
 {
 	NOT_IMPLEMENTED_ICALL (Module::GetGuidInternal);
 	return 0;
 }
 
-Il2CppIntPtr Module::GetHINSTANCE (mscorlib_System_Reflection_Module * __this)
+Il2CppIntPtr Module::GetHINSTANCE (mscorlib_System_Reflection_Module * thisPtr)
 {
 	NOT_IMPLEMENTED_ICALL (Module::GetHINSTANCE);
 	return Il2CppIntPtr();

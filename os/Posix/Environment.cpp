@@ -137,11 +137,32 @@ void Environment::Exit (int result)
 	exit (result);
 }
 
+NORETURN void Environment::Abort()
+{
+	abort();
+}
+
 std::string Environment::GetWindowsFolderPath(int folder)
 {
 	// This should only be called on Windows.
 	return std::string();
 }
+
+#if NET_4_0
+
+bool Environment::Is64BitOs()
+{
+	struct utsname name;
+
+	if (uname(&name) >= 0)
+	{
+		return strcmp(name.machine, "x86_64") == 0 || strncmp(name.machine, "aarch64", 7) == 0 || strncmp(name.machine, "ppc64", 5) == 0;
+	}
+
+	return false;
+}
+
+#endif
 
 }
 }

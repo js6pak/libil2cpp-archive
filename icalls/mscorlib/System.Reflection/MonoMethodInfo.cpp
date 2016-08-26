@@ -62,6 +62,13 @@ void* /* System.Reflection.Emit.UnmanagedMarshal */ MonoMethodInfo::get_retval_m
 	return NULL;
 }
 
+#if NET_4_0
+int32_t MonoMethodInfo::get_method_attributes(const MethodInfo* method)
+{
+	return method->flags;
+}
+#endif
+
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

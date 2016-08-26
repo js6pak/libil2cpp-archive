@@ -144,7 +144,7 @@ Il2CppArray* MonoMethod::GetGenericArguments (Il2CppReflectionMethod* method)
 
 	const Il2CppGenericContainer *container = MetadataCache::GetMethodGenericContainer (methodInfo);
 
-	count = container != NULL ? container->type_argc : 0;
+	count = container->type_argc;
 	res = Array::New (il2cpp_defaults.systemtype_class, count);
 
 	for (uint32_t i = 0; i < count; i++)
@@ -157,7 +157,7 @@ Il2CppArray* MonoMethod::GetGenericArguments (Il2CppReflectionMethod* method)
 	return res;
 }
 
-Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2CppObject * __this, Il2CppArray * params, Il2CppObject * * exc)
+Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2CppObject * thisPtr, Il2CppArray * params, Il2CppObject * * exc)
 {
 	NOT_IMPLEMENTED_ICALL_NO_ASSERT (MonoMethod::InternalInvoke, "Audit and look over commented code. Work in progress.");
 /*
@@ -167,27 +167,27 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 	 */
 	const MethodInfo *m = method->method;
 	int pcount;
-	void *obj = __this;
+	void *obj = thisPtr;
 
 	*exc = NULL;
 
 	if (!(m->flags & METHOD_ATTRIBUTE_STATIC))
 	{
-		if (__this)
+		if (thisPtr)
 		{
 			//if (!mono_class_vtable_full (mono_object_domain (method), m->klass, FALSE)) {
 			//	mono_gc_wbarrier_generic_store (exc, (MonoObject*) mono_class_get_exception_for_failure (m->klass));
 			//	return NULL;
 			//}
 
-			if (!Object::IsInst(__this, m->declaring_type))
+			if (!Object::IsInst(thisPtr, m->declaring_type))
 			{
 				assert(0);
 				//mono_gc_wbarrier_generic_store (exc, (MonoObject*) mono_exception_from_name_msg (mono_defaults.corlib, "System.Reflection", "TargetException", "Object does not match target type."));
 				return NULL;
 			}
 
-			m = Object::GetVirtualMethod(__this, m);
+			m = Object::GetVirtualMethod(thisPtr, m);
 		}
 		else
 #if IL2CPP_ENABLE_MONO_BUG_EMULATION	// Mono doesn't throw on null 'this' if it's an instance constructor, and class libs depend on this behaviour
@@ -324,6 +324,84 @@ Il2CppReflectionMethod* MonoMethod::GetGenericMethodDefinition_impl (Il2CppRefle
 
 	return il2cpp::vm::Reflection::GetMethodObject (const_cast<MethodInfo*> (methodDefinition), NULL);
 }
+
+#if NET_4_0
+int32_t MonoMethod::get_core_clr_security_level(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL(MonoMethod::get_core_clr_security_level);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppReflectionMethod* MonoMethod::get_base_method(Il2CppReflectionMethod* method, bool definition)
+{
+	// On the C# side, MonoMethod.GetBaseDefinition is the only caller of this icall that passes definition=true,
+	// so we can do the equivalent call that net20 would do, which would be to call get_base_definition.
+	//
+	// When definition=false.  This is called by MonoMethod.GetBaseMethod, which is internal, and seems to
+	// only be called by some GetCustomAttributes(true) calls.  There is only a small difference in the behavior of this method
+	// when definition is false.
+	const MethodInfo *method2 = method->method;
+	Il2CppClass *klass = method2->declaring_type;
+
+	if (klass == NULL)
+		return method;
+
+	if (!(method2->flags & METHOD_ATTRIBUTE_VIRTUAL) || Class::IsInterface(klass) || method2->flags & METHOD_ATTRIBUTE_NEW_SLOT)
+		return method;
+
+	/*if(klass->generic_class)
+	klass = klass->generic_class->container_class;*/
+
+	if (definition)
+	{
+
+		for (Il2CppClass* parent = klass->parent; parent != NULL; parent = parent->parent)
+		{
+			if (parent->vtable_count <= method2->slot)
+				break;
+			klass = parent;
+		}
+	}
+	else
+	{
+		if (!klass->parent)
+		{
+			assert(klass == il2cpp_defaults.object_class);
+			return method;
+		}
+
+		klass = klass->parent;
+	}
+
+	if (klass == method2->declaring_type)
+		return method;
+
+	il2cpp::vm::Class::Init(klass);
+
+	const MethodInfo *result = klass->vtable[method2->slot].method;
+
+	if (result == NULL)
+	{
+		void *iterator = NULL;
+
+		for (result = Class::GetMethods(klass, &iterator); result != NULL; result = Class::GetMethods(klass, &iterator))
+			if (result->slot == method2->slot)
+				break;
+	}
+
+	if (result == NULL)
+		return method;
+
+	return il2cpp::vm::Reflection::GetMethodObject(result, klass);
+}
+
+void MonoMethod::GetPInvoke(Il2CppReflectionMethod* _this, int32_t* flags, Il2CppString** entryPoint, Il2CppString** dllName)
+{
+	NOT_IMPLEMENTED_ICALL(MonoMethod::GetPInvoke);
+	IL2CPP_UNREACHABLE;
+}
+#endif
 
 } /* namespace Reflection */
 } /* namespace System */

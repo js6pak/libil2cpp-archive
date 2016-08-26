@@ -2004,10 +2004,10 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 	return kWaitStatusSuccess;
 }
 
-WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error)
+WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error)
 {
-	const int32_t n_fd = (int32_t)requests.size ();
-	pollfd *p_fd = (pollfd*)calloc (n_fd, sizeof (pollfd));
+	const int32_t n_fd = count;
+	pollfd *p_fd = (pollfd*)calloc(n_fd, sizeof(pollfd));
 
 	for (int32_t i = 0; i < n_fd; ++i)
 	{
@@ -2020,38 +2020,50 @@ WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout
 		else
 		{
 			p_fd[i].fd = requests[i].fd;
-			p_fd[i].events = posix::PollFlagsToPollEvents (requests[i].events);
+			p_fd[i].events = posix::PollFlagsToPollEvents(requests[i].events);
 			p_fd[i].revents = kPollFlagsNone;
 		}
 	}
 
-	int32_t ret = os::posix::Poll (p_fd, n_fd, timeout);
+	int32_t ret = os::posix::Poll(p_fd, n_fd, timeout);
 	*result = ret;
 
 	if (ret == -1)
 	{
-		free (p_fd);
+		free(p_fd);
 
-		*error = SocketErrnoToErrorCode (errno);
+		*error = SocketErrnoToErrorCode(errno);
 
 		return kWaitStatusFailure;
 	}
 
 	if (ret == 0)
 	{
-		free (p_fd);
+		free(p_fd);
 
 		return kWaitStatusSuccess;
 	}
 
 	for (int32_t i = 0; i < n_fd; ++i)
 	{
-		requests[i].revents = posix::PollEventsToPollFlags (p_fd[i].revents);
+		requests[i].revents = posix::PollEventsToPollFlags(p_fd[i].revents);
 	}
 
-	free (p_fd);
+	free(p_fd);
 
 	return kWaitStatusSuccess;
+}
+
+WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error)
+{
+	return Poll(requests, (int32_t)requests.size(), timeout, result, error);
+}
+
+WaitStatus SocketImpl::Poll (PollRequest& request, int32_t timeout, int32_t *result, int32_t *error)
+{
+	std::vector<PollRequest> requests;
+	requests.push_back(request);
+	return Poll(requests, 1, timeout, result, error);
 }
 
 WaitStatus SocketImpl::SetSocketOption (SocketOptionLevel level, SocketOptionName name, int32_t value)

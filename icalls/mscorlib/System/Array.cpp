@@ -176,18 +176,18 @@ bool Array::FastCopy (Il2CppArray *source, int32_t source_idx, Il2CppArray *dest
 	return true;
 }
 
-int32_t Array::GetLength (Il2CppArray * __this,int dimension)
+int32_t Array::GetLength (Il2CppArray * thisPtr,int dimension)
 {
-	int32_t rank = __this->klass->rank;
+	int32_t rank = thisPtr->klass->rank;
 	il2cpp_array_size_t length;
 
 	if ((dimension < 0) || (dimension >= rank))
 		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException ());
 	
-	if (__this->bounds == NULL)
-		length = __this->max_length;
+	if (thisPtr->bounds == NULL)
+		length = thisPtr->max_length;
 	else
-		length = __this->bounds [dimension].length;
+		length = thisPtr->bounds [dimension].length;
 
 #ifdef IL2CPP_BIG_ARRAYS
 	if (length > G_MAXINT32)
@@ -196,17 +196,17 @@ int32_t Array::GetLength (Il2CppArray * __this,int dimension)
 	return length;
 }
 
-int32_t Array::GetLowerBound (Il2CppArray * __this, int32_t dimension)
+int32_t Array::GetLowerBound (Il2CppArray * thisPtr, int32_t dimension)
 {
-	int32_t rank = __this->klass->rank;
+	int32_t rank = thisPtr->klass->rank;
 
 	if ((dimension < 0) || (dimension >= rank))
 		Exception::Raise (Exception::GetIndexOutOfRangeException ());
 	
-	if (__this->bounds == NULL)
+	if (thisPtr->bounds == NULL)
 	return false;
 	
-	return __this->bounds [dimension].lower_bound;
+	return thisPtr->bounds [dimension].lower_bound;
 }
 
 int Array::GetRank (Il2CppArray * arr)
@@ -214,7 +214,7 @@ int Array::GetRank (Il2CppArray * arr)
 	return arr->klass->rank;
 }
 
-Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
+Il2CppObject * Array::GetValue (Il2CppArray * thisPtr, Il2CppArray* indices)
 {
 	Il2CppClass *ac, *ic;
 	Il2CppArray *ao, *io;
@@ -225,7 +225,7 @@ Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
 	io = (Il2CppArray *)indices;
 	ic = (Il2CppClass *)io->klass;
 	
-	ao = (Il2CppArray *)__this;
+	ao = (Il2CppArray *)thisPtr;
 	ac = (Il2CppClass *)ao->klass;
 
 	assert (ic->rank == 1);
@@ -239,7 +239,7 @@ Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
 		if (*ind < 0 || *ind >= ao->max_length)
 			Exception::Raise (Exception::GetIndexOutOfRangeException ());
 
-		return GetValueImpl (__this, *ind);
+		return GetValueImpl (thisPtr, *ind);
 	}
 	
 	for (i = 0; i < ac->rank; i++)
@@ -251,15 +251,15 @@ Il2CppObject * Array::GetValue (Il2CppArray * __this, Il2CppArray* indices)
 	for (i = 1; i < ac->rank; i++)
 		pos = pos*ao->bounds [i].length + ind [i] - ao->bounds [i].lower_bound;
 
-	return GetValueImpl (__this, pos);
+	return GetValueImpl (thisPtr, pos);
 }
 
-Il2CppObject * Array::GetValueImpl (Il2CppArray * __this, int32_t pos)
+Il2CppObject * Array::GetValueImpl (Il2CppArray * thisPtr, int32_t pos)
 {
-	Il2CppClass* typeInfo = __this->klass;
+	Il2CppClass* typeInfo = thisPtr->klass;
 	void **ea;
 
-	ea = (void**)load_array_elema(__this, pos, typeInfo->element_size);
+	ea = (void**)load_array_elema(thisPtr, pos, typeInfo->element_size);
 
 	if (typeInfo->element_class->valuetype)
 		return il2cpp::vm::Object::Box (typeInfo->element_class, ea);
@@ -267,7 +267,7 @@ Il2CppObject * Array::GetValueImpl (Il2CppArray * __this, int32_t pos)
 	return (Il2CppObject*)*ea;
 }
 
-void Array::SetValue (Il2CppArray * __this, Il2CppObject* value, Il2CppArray* idxs)
+void Array::SetValue (Il2CppArray * thisPtr, Il2CppObject* value, Il2CppArray* idxs)
 {
 	Il2CppClass *ac, *ic;
 	int32_t i, pos, *ind;
@@ -275,7 +275,7 @@ void Array::SetValue (Il2CppArray * __this, Il2CppObject* value, Il2CppArray* id
 	IL2CPP_CHECK_ARG_NULL (idxs);
 
 	ic = idxs->klass;
-	ac = __this->klass;
+	ac = thisPtr->klass;
 
 	assert (ic->rank == 1);
 	if (idxs->bounds != NULL || idxs->max_length != ac->rank)
@@ -283,26 +283,26 @@ void Array::SetValue (Il2CppArray * __this, Il2CppObject* value, Il2CppArray* id
 
 	ind = (int32_t *)il2cpp::vm::Array::GetFirstElementAddress (idxs);
 
-	if (__this->bounds == NULL)
+	if (thisPtr->bounds == NULL)
 	{
-		if (*ind < 0 || *ind >= __this->max_length)
+		if (*ind < 0 || *ind >= thisPtr->max_length)
 			Exception::Raise (Exception::GetIndexOutOfRangeException ());
 
-		SetValueImpl (__this, value, *ind);
+		SetValueImpl (thisPtr, value, *ind);
 		return;
 	}
 	
 	for (i = 0; i < ac->rank; i++)
-		if ((ind [i] < __this->bounds [i].lower_bound) ||
-			(ind [i] >= (il2cpp_array_lower_bound_t)__this->bounds [i].length + __this->bounds [i].lower_bound))
+		if ((ind [i] < thisPtr->bounds [i].lower_bound) ||
+			(ind [i] >= (il2cpp_array_lower_bound_t)thisPtr->bounds [i].length + thisPtr->bounds [i].lower_bound))
 			Exception::Raise (Exception::GetIndexOutOfRangeException ());
 
-	pos = ind [0] - __this->bounds [0].lower_bound;
+	pos = ind [0] - thisPtr->bounds [0].lower_bound;
 	for (i = 1; i < ac->rank; i++)
-		pos = pos * __this->bounds [i].length + ind [i] -
-			__this->bounds [i].lower_bound;
+		pos = pos * thisPtr->bounds [i].length + ind [i] -
+			thisPtr->bounds [i].lower_bound;
 
-	SetValueImpl (__this, value, pos);
+	SetValueImpl (thisPtr, value, pos);
 }
 
 static void ThrowNoWidening ()
@@ -466,33 +466,17 @@ static void AssignReal (WidenedValueUnion value, void* elementAddress, Il2CppTyp
 	}
 }
 
-static void NullableInit(uint8_t* buf, Il2CppObject* value, Il2CppClass* klass)
+void Array::SetValueImpl (Il2CppArray * thisPtr,Il2CppObject * value, int index)
 {
-	Il2CppClass *parameterClass = klass->castClass;
-
-	assert(Class::FromIl2CppType(klass->fields[0].type) == parameterClass);
-	assert(Class::FromIl2CppType(klass->fields[1].type) == il2cpp_defaults.boolean_class);
-
-	*(uint8_t*)(buf + klass->fields[1].offset - sizeof(Il2CppObject)) = value ? 1 : 0;
-	if (value)
-		memcpy(buf + klass->fields[0].offset - sizeof(Il2CppObject), Object::Unbox(value), Class::GetValueSize(parameterClass, NULL));
-	else
-		memset(buf + klass->fields[0].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
-}
-
-
-void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
-{
-	Il2CppClass* typeInfo = __this->klass;
+	Il2CppClass* typeInfo = thisPtr->klass;
 	Il2CppClass* elementClass = Class::GetElementClass (typeInfo);
 
 	int elementSize = Class::GetArrayElementSize (elementClass);
-	void* elementAddress = il2cpp_array_addr_with_size (__this, elementSize, index);
+	void* elementAddress = il2cpp_array_addr_with_size (thisPtr, elementSize, index);
 
 	if (Class::IsNullable (elementClass))
 	{
-		NullableInit((uint8_t*)elementAddress, value, elementClass);
-		return;
+		NOT_IMPLEMENTED_ICALL (Array::SetValueImpl);
 	}
 
 	if (value == NULL)
@@ -504,8 +488,8 @@ void Array::SetValueImpl (Il2CppArray * __this,Il2CppObject * value, int index)
 	if (!Class::IsValuetype (elementClass))
 	{
 		if (!Object::IsInst (value, elementClass))
-			Exception::Raise (Exception::GetInvalidCastException (Exception::FormatInvalidCastException (__this->klass->element_class, value->klass).c_str ()));
-		il2cpp_array_setref (__this, index, value);
+			Exception::Raise (Exception::GetInvalidCastException (Exception::FormatInvalidCastException (thisPtr->klass->element_class, value->klass).c_str ()));
+		il2cpp_array_setref (thisPtr, index, value);
 		return;
 	}
 

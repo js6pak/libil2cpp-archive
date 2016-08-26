@@ -29,8 +29,9 @@
 #include "object-internals.h"
 #include "tabledefs.h"
 #include "gc/GarbageCollector.h"
-#include "utils/StdUnorderedMap.h"
+#include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
+#include "utils/HashUtils.h"
 #include <cassert>
 #include <string>
 #include <memory.h>
@@ -47,6 +48,7 @@ using il2cpp::metadata::GenericMetadata;
 using il2cpp::metadata::GenericMethod;
 using il2cpp::metadata::Il2CppTypeVector;
 using il2cpp::os::FastAutoLock;
+using il2cpp::utils::PointerHash;
 
 namespace il2cpp
 {
@@ -61,6 +63,7 @@ static void SetupGCDescriptor (Il2CppClass* klass);
 static void GetBitmapNoInit (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset);
 static Il2CppClass* ResolveGenericInstanceType (Il2CppClass*, const il2cpp::vm::TypeNameParseInfo&, bool, bool);
 static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock);
+static void SetupVTable(Il2CppClass *klass, const FastAutoLock& lock);
 
 Il2CppClass* Class::FromIl2CppType (const Il2CppType* type)
 {
@@ -209,7 +212,7 @@ static void SetupInterfacesLocked (Il2CppClass* klass, const FastAutoLock& lock)
 	}
 }
 
-typedef unordered_map<const Il2CppGenericParameter*, Il2CppClass*> GenericParameterMap;
+typedef Il2CppHashMap<const Il2CppGenericParameter*, Il2CppClass*, PointerHash<const Il2CppGenericParameter> > GenericParameterMap;
 static GenericParameterMap s_GenericParameterMap;
 
 Il2CppClass* Class::FromGenericParameter (const Il2CppGenericParameter *param)
@@ -702,7 +705,6 @@ bool Class::IsValuetype (const Il2CppClass *klass)
 {
 	return klass->valuetype;
 }
-
 enum FieldLayoutKind
 {
 	FIELD_LAYOUT_INSTANCE,
@@ -999,7 +1001,7 @@ void SetupMethodsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 	else if (klass->rank)
 	{
 		InitLocked (klass->element_class, lock);
-		ArrayMetadata::SetupArrayVTable (klass, lock);
+		SetupVTable (klass, lock);
 	}
 	else
 	{
@@ -1097,6 +1099,9 @@ void Class::SetupNestedTypes (Il2CppClass *klass)
 
 static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 {
+	if (klass->is_vtable_initialized)
+		return;
+
 	if (klass->generic_class)
 	{
 		Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition (klass->generic_class);
@@ -1116,7 +1121,6 @@ static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 		if (genericTypeDefinition->vtable_count > 0)
 		{
 			klass->vtable_count = genericTypeDefinition->vtable_count;
-			klass->vtable = (VirtualInvokeData*)MetadataCalloc(genericTypeDefinition->vtable_count, sizeof(VirtualInvokeData));
 			for (uint16_t i = 0; i < genericTypeDefinition->vtable_count; i++)
 			{
 				EncodedMethodIndex vtableMethodIndex = MetadataCache::GetVTableMethodFromIndex (genericTypeDefinition->typeDefinition->vtableStart + i);
@@ -1134,7 +1138,12 @@ static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 
 				klass->vtable[i].method = method;
 				if (method != NULL)
-					klass->vtable[i].methodPtr = method->methodPointer;
+				{
+					if (method->methodPointer)
+						klass->vtable[i].methodPtr = method->methodPointer;
+					else if (method->is_inflated && !method->is_generic && !method->genericMethod->context.method_inst)
+						klass->vtable[i].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(method);
+				}
 			}
 		}
 	}
@@ -1158,8 +1167,6 @@ static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 
 		if (klass->vtable_count > 0)
 		{
-			klass->vtable = (VirtualInvokeData*)MetadataCalloc(klass->vtable_count, sizeof(VirtualInvokeData));
-
 			for (uint16_t i = 0; i < klass->vtable_count; i++)
 			{
 				const MethodInfo* method = MetadataCache::GetMethodInfoFromIndex(MetadataCache::GetVTableMethodFromIndex(klass->typeDefinition->vtableStart + i));
@@ -1170,6 +1177,8 @@ static void SetupVTable (Il2CppClass *klass, const FastAutoLock& lock)
 			}
 		}
 	}
+
+	klass->is_vtable_initialized = 1;
 }
 
 static void SetupEventsLocked (Il2CppClass *klass, const FastAutoLock& lock)
@@ -1328,8 +1337,6 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 
 	klass->init_pending = true;
 
-	klass->genericRecursionDepth++;
-
 	if (klass->generic_class)
 		InitLocked (GenericClass::GetTypeDefinition (klass->generic_class), lock);
 
@@ -1381,8 +1388,7 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 	if (klass->generic_class)
 	{
 		const Il2CppTypeDefinition* typeDefinition = GenericClass::GetTypeDefinition (klass->generic_class)->typeDefinition;
-		if (klass->genericRecursionDepth < GenericMetadata::MaximumRuntimeGenericDepth)
-			klass->rgctx_data = GenericMetadata::InflateRGCTX (typeDefinition->rgctxStartIndex, typeDefinition->rgctxCount, &klass->generic_class->context);
+		klass->rgctx_data = GenericMetadata::InflateRGCTX (typeDefinition->rgctxStartIndex, typeDefinition->rgctxCount, &klass->generic_class->context);
 	}
 
 	klass->initialized = true;
@@ -1395,6 +1401,8 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 
 bool Class::Init (Il2CppClass *klass)
 {
+	assert(klass);
+
 	if (!klass->initialized)
 	{
 		FastAutoLock lock (&g_MetadataLock);

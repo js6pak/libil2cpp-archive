@@ -19,10 +19,10 @@ class LIBIL2CPP_CODEGEN_API ArgIterator
 {
 public:
 	static void* /* System.TypedReference */ IntGetNextArg (ArgIterator self);
-	static Il2CppTypedRef IntGetNextArg_mscorlib_System_TypedReference (mscorlib_System_ArgIterator * __this);
-	static Il2CppTypedRef IntGetNextArg_mscorlib_System_TypedReference_mscorlib_System_IntPtr (mscorlib_System_ArgIterator * __this, Il2CppIntPtr rth);
-	static void Setup (mscorlib_System_ArgIterator * __this, Il2CppIntPtr argsp, Il2CppIntPtr start);
-	static Il2CppIntPtr IntGetNextArgType (mscorlib_System_ArgIterator * __this);
+	static Il2CppTypedRef IntGetNextArg_mscorlib_System_TypedReference (mscorlib_System_ArgIterator * thisPtr);
+	static Il2CppTypedRef IntGetNextArg_mscorlib_System_TypedReference_mscorlib_System_IntPtr (mscorlib_System_ArgIterator * thisPtr, Il2CppIntPtr rth);
+	static void Setup (mscorlib_System_ArgIterator * thisPtr, Il2CppIntPtr argsp, Il2CppIntPtr start);
+	static Il2CppIntPtr IntGetNextArgType (mscorlib_System_ArgIterator * thisPtr);
 };
 
 } /* namespace System */

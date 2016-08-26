@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_USE_GENERIC_ENVIRONMENT && (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_WINDOWS
 #include "WindowsHelpers.h"
 #if !IL2CPP_TARGET_XBOXONE
 #include <Shlobj.h>
@@ -117,8 +117,6 @@ void Environment::SetEnvironmentVariable(const std::string& name, const std::str
 	}
 }
 
-#if !IL2CPP_TARGET_XBOXONE
-
 std::vector<std::string> Environment::GetEnvironmentVariableNames ()
 {
 	WCHAR* env_strings;
@@ -151,8 +149,6 @@ std::vector<std::string> Environment::GetEnvironmentVariableNames ()
 	return result;
 }
 
-#endif
-
 std::string Environment::GetHomeDirectory ()
 {
 	NOT_IMPLEMENTED_ICALL (Environment::GetHomeDirectory);
@@ -170,7 +166,17 @@ void Environment::Exit (int result)
 	NOT_IMPLEMENTED_ICALL (Environment::Exit);
 }
 
-#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
+NORETURN void Environment::Abort()
+{
+	// __fastfail() is available since VS2012
+#if _MSC_VER >= 1700
+	__fastfail(FAST_FAIL_FATAL_APP_EXIT);
+#else
+	abort();
+#endif
+}
+
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
 
 std::string Environment::GetWindowsFolderPath(int32_t folder)
 {
@@ -180,6 +186,36 @@ std::string Environment::GetWindowsFolderPath(int32_t folder)
 
 	return std::string();
 }
+
+#if NET_4_0
+
+typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
+bool Environment::Is64BitOs()
+{
+	bool isWow64Process = false;
+
+	// Supported on XP SP2 and higher
+
+	//IsWow64Process is not available on all supported versions of Windows.
+	//Use GetModuleHandle to get a handle to the DLL that contains the function
+	//and GetProcAddress to get a pointer to the function if available.
+
+	LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+		GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+	if (NULL != fnIsWow64Process)
+	{
+		if (fnIsWow64Process(GetCurrentProcess(), (PBOOL)&isWow64Process))
+		{
+			return isWow64Process;
+		}
+	}
+
+	return false;
+}
+
+#endif
 
 #endif
 

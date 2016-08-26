@@ -337,6 +337,12 @@ struct Il2CppCustomAttributeTypeRange
 	int32_t count;
 };
 
+struct Il2CppRange
+{
+	int32_t start;
+	int32_t length;
+};
+
 #pragma pack(push, p1,4)
 struct Il2CppGlobalMetadataHeader
 {
@@ -400,5 +406,10 @@ struct Il2CppGlobalMetadataHeader
 	int32_t attributesInfoCount;
 	int32_t attributeTypesOffset; // TypeIndex
 	int32_t attributeTypesCount;
+	int32_t unresolvedVirtualCallParameterTypesOffset; // TypeIndex
+	int32_t unresolvedVirtualCallParameterTypesCount;
+	int32_t unresolvedVirtualCallParameterRangesOffset; // Il2CppRange
+	int32_t unresolvedVirtualCallParameterRangesCount;
+
 };
 #pragma pack(pop, p1)

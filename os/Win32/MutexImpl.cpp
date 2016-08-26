@@ -1,4 +1,4 @@
-﻿#include "il2cpp-config.h"
+#include "il2cpp-config.h"
 
 #if IL2CPP_THREADS_WIN32
 
@@ -15,11 +15,7 @@ namespace os
 
 MutexImpl::MutexImpl ()
 {
-#if IL2CPP_THREADS_ALL_ACCESS
-	m_MutexHandle = ::CreateMutexEx(NULL, NULL, 0, MUTEX_ALL_ACCESS);
-#else
 	m_MutexHandle = ::CreateMutex (NULL, FALSE, NULL);
-#endif
 	assert (m_MutexHandle);
 }
 

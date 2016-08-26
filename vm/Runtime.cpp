@@ -43,6 +43,8 @@
 #include "utils/RegisterRuntimeInitializeAndCleanup.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
+#include "mono/metadata/threadpool-ms.h"
+#include "mono/metadata/threadpool-ms-io.h"
 
 #if IL2CPP_DEBUGGER_ENABLED
 	#include "il2cpp-debugger.h"
@@ -54,6 +56,8 @@ using il2cpp::utils::StringUtils;
 Il2CppIntPtr Il2CppIntPtr::Zero;
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
+static bool shutting_down = false;
+
 namespace il2cpp
 {
 namespace vm
@@ -96,6 +100,15 @@ static void SanityChecks ()
 	assert (ALIGN_OF (int64_t) == 8);
 #endif
 }
+
+#if NET_4_0
+static inline void InitializeStringEmpty()
+{
+	Class::Init(il2cpp_defaults.string_class);
+	FieldInfo* stringEmptyField = Class::GetFieldFromName(il2cpp_defaults.string_class, "Empty");
+	Field::StaticSetValue(stringEmptyField, String::Empty());
+}
+#endif
 
 void Runtime::Init(const char* filename, const char *runtime_version)
 {
@@ -151,7 +164,11 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT(enum_class, "System", "Enum");
 	DEFAULTS_INIT(array_class, "System", "Array");
 	DEFAULTS_INIT_TYPE(delegate_class, "System", "Delegate", Il2CppDelegate);
+#if !NET_4_0
 	DEFAULTS_INIT(multicastdelegate_class, "System", "MulticastDelegate");
+#else
+	DEFAULTS_INIT_TYPE(multicastdelegate_class, "System", "MulticastDelegate", Il2CppMulticastDelegate);
+#endif
 	DEFAULTS_INIT(asyncresult_class, "System.Runtime.Remoting.Messaging", "AsyncResult");
 	DEFAULTS_INIT_TYPE(async_call_class, "System", "MonoAsyncCall", Il2CppAsyncCall);
 	DEFAULTS_INIT(manualresetevent_class, "System.Threading", "ManualResetEvent");
@@ -162,7 +179,11 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT_TYPE(monotype_class, "System", "MonoType", Il2CppReflectionMonoType);
 	//DEFAULTS_INIT(exception_class, "System", "Exception");
 	//DEFAULTS_INIT(threadabortexcepXtion_class, "System.Threading", "ThreadAbortException");
-	DEFAULTS_INIT(thread_class, "System.Threading", "Thread");
+	DEFAULTS_INIT_TYPE(thread_class, "System.Threading", "Thread", Il2CppThread);
+#if NET_4_0
+	DEFAULTS_INIT_TYPE(internal_thread_class, "System.Threading", "InternalThread", Il2CppInternalThread);
+	DEFAULTS_INIT_TYPE(runtimetype_class, "System", "RuntimeType", Il2CppReflectionRuntimeType);
+#endif
 	DEFAULTS_INIT(appdomain_class, "System", "AppDomain");
 	DEFAULTS_INIT(appdomain_setup_class, "System", "AppDomainSetup");
 	DEFAULTS_INIT(field_info_class, "System.Reflection", "FieldInfo");
@@ -177,17 +198,28 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT(generic_ilist_class, "System.Collections.Generic", "IList`1");
 	DEFAULTS_INIT(generic_icollection_class, "System.Collections.Generic", "ICollection`1");
 	DEFAULTS_INIT(generic_ienumerable_class, "System.Collections.Generic", "IEnumerable`1");
+#if NET_4_0
+	DEFAULTS_INIT(generic_ireadonlylist_class, "System.Collections.Generic", "IReadOnlyList`1");
+#endif
 	DEFAULTS_INIT(generic_nullable_class, "System", "Nullable`1");
 	DEFAULTS_INIT(version, "System", "Version");
 	DEFAULTS_INIT(culture_info, "System.Globalization", "CultureInfo");
 	DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "Assembly", Il2CppReflectionAssembly);
 	DEFAULTS_INIT_TYPE(assembly_name_class, "System.Reflection", "AssemblyName", Il2CppReflectionAssemblyName);
+#if NET_4_0
+	DEFAULTS_INIT_TYPE(mono_assembly_class, "System.Reflection", "MonoAssembly", Il2CppReflectionAssembly);
+#endif
+#if !NET_4_0
 	DEFAULTS_INIT_TYPE(enum_info_class, "System", "MonoEnumInfo", Il2CppEnumInfo);
+#endif
 	DEFAULTS_INIT_TYPE(mono_field_class, "System.Reflection", "MonoField", Il2CppReflectionField);
 	DEFAULTS_INIT_TYPE(mono_method_class, "System.Reflection", "MonoMethod", Il2CppReflectionMethod);
 	DEFAULTS_INIT_TYPE(mono_method_info_class, "System.Reflection", "MonoMethodInfo", Il2CppMethodInfo);
 	DEFAULTS_INIT_TYPE(mono_property_info_class, "System.Reflection", "MonoPropertyInfo", Il2CppPropertyInfo);
 	DEFAULTS_INIT_TYPE(parameter_info_class, "System.Reflection", "ParameterInfo", Il2CppReflectionParameter);
+#if NET_4_0
+	DEFAULTS_INIT_TYPE(mono_parameter_info_class, "System.Reflection", "MonoParameterInfo", Il2CppReflectionParameter);
+#endif
 	DEFAULTS_INIT_TYPE(module_class, "System.Reflection", "Module", Il2CppReflectionModule);
 	DEFAULTS_INIT_TYPE(marshal_class, "System.Reflection.Emit", "UnmanagedMarshal", Il2CppReflectionMarshal);
 	DEFAULTS_INIT_TYPE(pointer_class, "System.Reflection", "Pointer", Il2CppReflectionPointer);
@@ -196,7 +228,6 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT_TYPE(argument_exception_class, "System", "ArgumentException", Il2CppArgumentException);
 	DEFAULTS_INIT_TYPE(marshalbyrefobject_class, "System", "MarshalByRefObject", Il2CppMarshalByRefObject);
 	DEFAULTS_INIT_TYPE(il2cpp_com_object_class, "System", "__Il2CppComObject", Il2CppComObject);
-	DEFAULTS_INIT_TYPE(wait_handle_class, "System.Threading", "WaitHandle", Il2CppWaitHandle);
 	DEFAULTS_INIT_TYPE(safe_handle_class, "System.Runtime.InteropServices", "SafeHandle", Il2CppSafeHandle);
 	DEFAULTS_INIT_TYPE(sort_key_class, "System.Globalization", "SortKey", Il2CppSortKey);
 	DEFAULTS_INIT(dbnull_class, "System", "DBNull");
@@ -204,6 +235,13 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
 	DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
 	DEFAULTS_INIT(value_type_class, "System", "ValueType");
+
+#if NET_4_0
+	DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
+
+	il2cpp_defaults.threadpool_perform_wait_callback_method = (MethodInfo*)vm::Class::GetMethodFromName(
+		il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
+#endif
 
 	Class::Init (il2cpp_defaults.string_class);
 
@@ -233,8 +271,12 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	MetadataCache::InitializeGCSafe ();
 	ThreadPool::Initialize ();
 
-	os::Socket::Startup ();
+	String::InitializeEmptyString(il2cpp_defaults.string_class);
+#if NET_4_0 // .NET 2.0 mscorlib does it with a static constructor
+	InitializeStringEmpty();
+#endif
 
+	os::Socket::Startup();
 	g_il2cpp_is_fully_initialized = true;
 
 	// Force binary serialization in Mono to use reflection instead of code generation.
@@ -244,17 +286,26 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 
 	Domain::ContextInit(domain);
 	Domain::ContextSet(domain->default_context);
+
+	VerifyApiVersion();
 }
 
 void Runtime::Shutdown ()
 {
+	shutting_down = true;
+
 	ThreadPool::Shutdown ();
+
+#if NET_4_0
+	threadpool_ms_cleanup();
+#endif
 	
 	// Foreground threads will make us wait here. Background threads
 	// will get terminated abruptly.
 	Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads ();
 
 	os::Socket::Cleanup ();
+	String::CleanupEmptyString();
 
 	os::LibraryLoader::CleanupLoadedLibraries();
 	il2cpp::gc::GarbageCollector::Uninitialize ();
@@ -269,6 +320,16 @@ void Runtime::Shutdown ()
 
 	os::Locale::UnInitialize();
 	os::Uninitialize();
+}
+
+NORETURN void Runtime::Abort()
+{
+	os::Environment::Abort();
+}
+
+bool Runtime::IsShuttingDown()
+{
+	return shutting_down;
 }
 
 void Runtime::SetConfigDir (const char *path)
@@ -306,19 +367,43 @@ std::string Runtime::GetDataDir()
 
 	if (s_DataDirFallback.size () == 0 && Environment::GetNumMainArgs () > 0)
 	{
-		const char* main = Environment::GetMainArgs ()[0];
-		s_DataDirFallback = utils::PathUtils::DirectoryName (main);
+		std::string main = utils::StringUtils::Utf16ToUtf8(Environment::GetMainArgs()[0]);
+		s_DataDirFallback = utils::PathUtils::DirectoryName(main);
 	}
 
 	return s_DataDirFallback;
 }
 
+const MethodInfo* Runtime::GetDelegateInvoke(Il2CppClass* klass)
+{
+	const MethodInfo* invoke = Class::GetMethodFromName(klass, "Invoke", -1);
+	assert(invoke);
+	return invoke;
+}
+
 Il2CppObject* Runtime::DelegateInvoke (Il2CppDelegate *delegate, void **params, Il2CppException **exc)
 {
-	const MethodInfo* invoke = Class::GetMethodFromName (delegate->object.klass, "Invoke", -1);
-	assert (invoke);
-
+	const MethodInfo* invoke = GetDelegateInvoke(delegate->object.klass);
 	return Invoke (invoke, delegate, params, exc);
+}
+
+const MethodInfo* Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
+{
+	NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
+
+	const Il2CppGenericInst* classInst = NULL;
+	if (methodDefinition->is_inflated)
+	{
+		classInst = methodDefinition->genericMethod->context.class_inst;
+		methodDefinition = methodDefinition->genericMethod->methodDefinition;
+	}
+
+	const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
+	const MethodInfo* method = metadata::GenericMethod::GetMethod(gmethod);
+
+	RaiseExecutionEngineExceptionIfMethodIsNotFound(method, gmethod);
+
+	return method;
 }
 
 void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
@@ -330,6 +415,14 @@ void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* 
 		else
 			RaiseExecutionEngineException(Method::GetName(method));
 	}
+}
+
+void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
+{
+	if (Method::GetClass(method))
+		RaiseExecutionEngineException(Method::GetFullName(method).c_str());
+	else
+		RaiseExecutionEngineException(Method::GetName(method));
 }
 
 Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
@@ -349,6 +442,12 @@ Il2CppObject* Runtime::Invoke (const MethodInfo *method, void *obj, void **param
 			*exc = ex.ex;
 		return NULL;
 	}
+}
+
+Il2CppObject* Runtime::InvokeWithThrow(const MethodInfo *method, void *obj, void **params)
+{
+	RaiseExecutionEngineExceptionIfMethodIsNotFound(method);
+	return (Il2CppObject*)method->invoker_method(method, obj, params);
 }
 
 Il2CppObject* Runtime::InvokeArray (const MethodInfo *method, void *obj, Il2CppArray *params, Il2CppException **exc)
@@ -651,7 +750,13 @@ struct MethodInfoToMethodPointerConverter
 {
 	Il2CppMethodPointer operator()(const Runtime::MethodDefinitionKey& methodInfo) const
 	{
-		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~IL2CPP_POINTER_SPARE_BITS);
+		// On ARMv7 with Thumb instructions the lowest bit is always set.
+		// With Thumb2 the second-to-lowest bit is also set. Mask both of
+		// them off so that we can do a comparison properly based on the data
+		// from the linker map file. On other architectures this operation should
+		// not matter, as we assume these two bits are always zero because the pointer
+		// will be aligned.
+		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~3);
 	}
 };
 
@@ -695,22 +800,14 @@ static void* LoadSymbolInfoFileFrom(const std::string& path)
 
 static void* LoadSymbolInfoFile ()
 {
-#if IL2CPP_TARGET_ANDROID
-	#if defined(__i386__)
-		std::string symbolMapFileName = "SymbolMap-x86";
-	#else
-		std::string symbolMapFileName = "SymbolMap-ARMv7";
-	#endif
-#else 
-	#if !IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS
-		std::string symbolMapFileName = "SymbolMap";
-	#elif IL2CPP_SIZEOF_VOID_P == 4
-		std::string symbolMapFileName = "SymbolMap-32";
-	#elif IL2CPP_SIZEOF_VOID_P == 8
-		std::string symbolMapFileName = "SymbolMap-64";
-	#else
-		#error Unknown symbol map file name
-	#endif
+#if !IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS
+	std::string symbolMapFileName = "SymbolMap";
+#elif IL2CPP_SIZEOF_VOID_P == 4
+	std::string symbolMapFileName = "SymbolMap-32";
+#elif IL2CPP_SIZEOF_VOID_P == 8
+	std::string symbolMapFileName = "SymbolMap-64";
+#else
+#error Unknown symbol map file name
 #endif
 
 	void* result = LoadSymbolInfoFileFrom(utils::PathUtils::Combine(utils::PathUtils::DirectoryName(os::Path::GetExecutablePath()), symbolMapFileName));
@@ -722,12 +819,11 @@ static void* LoadSymbolInfoFile ()
 
 static void InitializeSymbolInfos ()
 {
-	s_ImageBase = os::Image::GetImageBase();
-
 	void* fileBuffer = LoadSymbolInfoFile();
 	if (fileBuffer == NULL)
 		return;
 
+	s_ImageBase = os::Image::GetImageBase();
 	s_SymbolCount = *((int32_t *)fileBuffer);
 	s_SymbolInfos = (SymbolInfo*)((uint8_t*)fileBuffer + sizeof(s_SymbolCount));
 }
@@ -739,11 +835,6 @@ static bool CompareEndOfSymbols (const SymbolInfo &a, const SymbolInfo &b)
 
 static bool s_TriedToInitializeSymbolInfo = false;
 
-static uint64_t AbsoluteDifference(uint64_t a, uint64_t b)
-{
-	return a > b ? a - b : b - a;
-}
-
 const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer nativeMethod)
 {
 	if (!s_TriedToInitializeSymbolInfo)
@@ -754,13 +845,11 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		InitializeSymbolInfos();
 	}
 
-	// address has to be above our base address
-	if ((void*)nativeMethod < (void*)s_ImageBase)
-		return NULL;
-
-
-	if (s_SymbolCount > 0)
+	if (s_SymbolCount > 0 && s_ImageBase != NULL)
 	{
+		// address has to be above our base address
+		if ((void*)nativeMethod < (void*)s_ImageBase)
+			return NULL;
 
 		SymbolInfo* end = s_SymbolInfos + s_SymbolCount;
 
@@ -771,12 +860,6 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		SymbolInfo* containingSymbol = std::upper_bound (s_SymbolInfos, end, interiorSymbol, &CompareEndOfSymbols);
 
 		if (containingSymbol == end)
-			return NULL;
-
-		// We only include managed methods in the symbol data. A lookup for a native method might find the
-		// next managed method in the data. This will be incorrect, so check the size, to make sure the
-		// interior symbol is really within the method found in the containing symbol.
-		if (AbsoluteDifference(containingSymbol->address, interiorSymbol.address) > containingSymbol->length)
 			return NULL;
 
 		nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
@@ -841,6 +924,23 @@ const char *Runtime::GetBundledMachineConfig ()
 void Runtime::RegisterBundledMachineConfig (const char *config_xml)
 {
 	s_BundledMachineConfig = config_xml;
+}
+
+void Runtime::VerifyApiVersion()
+{
+#if IL2CPP_DEBUG
+	Il2CppClass *klass = Class::FromName(il2cpp_defaults.corlib, "System", "Environment");
+	Class::Init(klass);
+	FieldInfo *field = Class::GetFieldFromName(klass, "mono_corlib_version");
+	int32_t value;
+	Field::StaticGetValue(field, &value);
+
+#if !NET_4_0
+	assert(value == 82);
+#else
+	assert(value == 150);
+#endif
+#endif
 }
 
 } /* namespace vm */

@@ -162,6 +162,22 @@ Il2CppObject* MonoField::GetRawConstantValue (Il2CppReflectionField* field)
 	return NULL;
 }
 
+#if NET_4_0
+int32_t MonoField::get_core_clr_security_level(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL(MonoField::get_core_clr_security_level);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppObject* MonoField::ResolveType(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL(MonoField::ResolveType);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
+
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

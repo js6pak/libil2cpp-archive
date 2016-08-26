@@ -59,6 +59,11 @@ public:
 		pthread_mutex_unlock (&m_Mutex);
 	}
 
+	pthread_mutex_t* GetOSHandle()
+	{
+		return &m_Mutex;
+	}
+
 private:
 	pthread_mutex_t m_Mutex;
 };

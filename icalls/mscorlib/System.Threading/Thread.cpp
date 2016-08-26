@@ -20,6 +20,7 @@
 #include "vm/StackTrace.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
+#include "vm/Atomic.h"
 
 using namespace il2cpp::vm;
 using il2cpp::gc::GarbageCollector;
@@ -39,13 +40,13 @@ namespace Threading
 #define CULTURES_START_IDX 0
 #define UICULTURES_START_IDX NUM_CACHED_CULTURES
 
-static Il2CppObject* lookup_cached_culture (Il2CppThread *__this, int32_t start_idx);
-static void cache_culture (Il2CppThread *__this, Il2CppObject *culture, int start_idx);
+static Il2CppObject* lookup_cached_culture (Il2CppThread *thisPtr, int32_t start_idx);
+static void cache_culture (Il2CppThread *thisPtr, Il2CppObject *culture, int start_idx);
 
 
-void Thread::ClrState (Il2CppThread* __this, il2cpp::vm::ThreadState state)
+void Thread::ClrState (Il2CppThread* thisPtr, il2cpp::vm::ThreadState state)
 {
-	il2cpp::vm::Thread::ClrState (__this, state);
+	il2cpp::vm::Thread::ClrState (thisPtr, state);
 }
 
 Il2CppThread * Thread::CurrentThread_internal(void)
@@ -58,16 +59,16 @@ int32_t Thread::GetDomainID ()
 	return il2cpp::vm::Domain::GetCurrent ()->domain_id;
 }
 
-il2cpp::vm::ThreadState Thread::GetState (Il2CppThread * __this)
+il2cpp::vm::ThreadState Thread::GetState (Il2CppThread * thisPtr)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
-	return (il2cpp::vm::ThreadState)__this->state;
+	il2cpp::os::FastAutoLock lock (thisPtr->GetInternalThread()->synch_cs);
+	return (il2cpp::vm::ThreadState)thisPtr->GetInternalThread()->state;
 }
 
-bool Thread::Join_internal (Il2CppThread * __this, int32_t ms, void* thread)
+bool Thread::Join_internal (Il2CppThread * thisPtr, int32_t ms, void* thread)
 {
 	// Throw ThreadStateException if thread has not been started yet.
-	if (il2cpp::vm::Thread::GetState (__this) & kThreadStateUnstarted)
+	if (il2cpp::vm::Thread::GetState (thisPtr) & kThreadStateUnstarted)
 		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetThreadStateException ("Thread has not been started."));
 
 	// Mark current thread as blocked.
@@ -75,7 +76,7 @@ bool Thread::Join_internal (Il2CppThread * __this, int32_t ms, void* thread)
 	SetState (currentThread, kThreadStateWaitSleepJoin);
 
 	// Join with other thread.
-	il2cpp::os::Thread* osThread = (il2cpp::os::Thread*)__this->handle;
+	il2cpp::os::Thread* osThread = (il2cpp::os::Thread*)thisPtr->GetInternalThread()->handle;
 	assert (osThread != NULL);
 	il2cpp::os::WaitStatus status = osThread->Join(ms);
 
@@ -93,40 +94,25 @@ void Thread::ResetAbort_internal ()
 	il2cpp::vm::Thread::ResetAbort(il2cpp::vm::Thread::Current());
 }
 
-Il2CppString* Thread::GetName_internal (Il2CppThread* __this)
+Il2CppString* Thread::GetName_internal (Il2CppThread* thisPtr)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
+	il2cpp::os::FastAutoLock lock (thisPtr->GetInternalThread()->synch_cs);
 
-	if (__this->name_len == 0)
+	if (thisPtr->GetInternalThread()->name_len == 0)
 		return NULL;
 
-	return il2cpp::vm::String::NewUtf16 (__this->name, __this->name_len);
+	return il2cpp::vm::String::NewUtf16 (thisPtr->GetInternalThread()->name, thisPtr->GetInternalThread()->name_len);
 }
 
-void Thread::SetName_internal (Il2CppThread* __this, Il2CppString* name)
+void Thread::SetName_internal (Il2CppThread* thisPtr, Il2CppString* name)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
-
-	// Throw if already set.
-	if (__this->name_len != 0)
-		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetInvalidOperationException ("Thread name can only be set once."));
-
-	// Store name.
-	__this->name_len = String::GetLength (name);
-	__this->name = il2cpp::utils::StringUtils::StringDuplicate (String::GetChars (name), __this->name_len);
-
-	// Hand over to OS layer, if thread has been started already.
-	if (__this->handle)
-	{
-		std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8 (__this->name);
-		__this->handle->SetName (utf8Name);
-	}
+	vm::Thread::SetName(thisPtr, name);
 }
 
-void Thread::SetState (Il2CppThread* __this, il2cpp::vm::ThreadState state)
+void Thread::SetState (Il2CppThread* thisPtr, il2cpp::vm::ThreadState state)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
-	il2cpp::vm::Thread::SetState (__this, state);
+	il2cpp::os::FastAutoLock lock (thisPtr->GetInternalThread()->synch_cs);
+	il2cpp::vm::Thread::SetState (thisPtr, state);
 }
 
 void Thread::Sleep_internal (int32_t milliseconds)
@@ -137,9 +123,9 @@ void Thread::Sleep_internal (int32_t milliseconds)
 	ClrState (thread, kThreadStateWaitSleepJoin);
 }
 
-void Thread::Thread_init (Il2CppThread * __this)
+void Thread::Thread_init (Il2CppThread * thisPtr)
 {
-	il2cpp::vm::Thread::Setup (__this);
+	il2cpp::vm::Thread::Setup (thisPtr);
 }
 
 struct StartData
@@ -193,28 +179,28 @@ static void ThreadStart (void* arg)
 	GarbageCollector::FreeFixed (startData);
 }
 
-Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * start)
+Il2CppIntPtr Thread::Thread_internal (Il2CppThread * thisPtr, Il2CppDelegate * start)
 {
-	assert (__this->synch_cs != NULL);
-	il2cpp::os::FastAutoLock lock(__this->synch_cs);
+	assert (thisPtr->GetInternalThread()->synch_cs != NULL);
+	il2cpp::os::FastAutoLock lock(thisPtr->GetInternalThread()->synch_cs);
 
-	if (il2cpp::vm::Thread::GetState(__this) & kThreadStateAborted)
+	if (il2cpp::vm::Thread::GetState(thisPtr) & kThreadStateAborted)
 	{
-		Il2CppIntPtr ret = { __this->handle };
+		Il2CppIntPtr ret = { thisPtr->GetInternalThread()->handle };
 		return ret;
 	}
 
 	// use fixed GC memory since we are storing managed object pointers
 	StartData* startData = (StartData*)GarbageCollector::AllocateFixed (sizeof(StartData), NULL);
-	startData->m_Thread = __this;
+	startData->m_Thread = thisPtr;
 	startData->m_Domain = Domain::GetCurrent ();
 	startData->m_Delegate = start;
-	startData->m_StartArg = __this->start_obj;
+	startData->m_StartArg = thisPtr->start_obj;
 	startData->m_Semaphore = new il2cpp::os::Semaphore (0);
 
 	il2cpp::os::Thread* thread = new il2cpp::os::Thread();
-	thread->SetStackSize (__this->stack_size);
-	thread->SetExplicitApartment (static_cast<il2cpp::os::ApartmentState>(__this->apartment_state));
+	thread->SetStackSize (thisPtr->GetInternalThread()->stack_size);
+	thread->SetExplicitApartment (static_cast<il2cpp::os::ApartmentState>(thisPtr->GetInternalThread()->apartment_state));
 	il2cpp::os::ErrorCode status = thread->Run(&ThreadStart, startData);
 	if (status != il2cpp::os::kErrorCodeSuccess)
 	{
@@ -222,42 +208,52 @@ Il2CppIntPtr Thread::Thread_internal (Il2CppThread * __this, Il2CppDelegate * st
 		return Il2CppIntPtr::Zero;
 	}
 
-	__this->handle = thread;
-	__this->state &= ~kThreadStateUnstarted;
-	__this->tid = thread->Id();
+#if NET_4_0
+	uint32_t existingPriority = il2cpp::vm::Thread::GetPriority(thisPtr);
+#endif
+
+	thisPtr->GetInternalThread()->handle = thread;
+	thisPtr->GetInternalThread()->state &= ~kThreadStateUnstarted;
+	thisPtr->GetInternalThread()->tid = thread->Id();
 
 	startData->m_Semaphore->Post (1, NULL);
 
+#if NET_4_0
+	il2cpp::vm::Thread::SetPriority(thisPtr, existingPriority);
+#endif
+
 	// this is just checked against 0 in the calling code
-	Il2CppIntPtr ret = { __this->handle };
+	Il2CppIntPtr ret = { thisPtr->GetInternalThread()->handle };
 	return ret;
 }
 
-void Thread::Thread_free_internal (Il2CppThread * __this, Il2CppIntPtr handle)
+#if !NET_4_0
+void Thread::Thread_free_internal (Il2CppThread * thisPtr, Il2CppIntPtr handle)
 {
-	delete __this->synch_cs;
-	__this->synch_cs = NULL;
+	delete thisPtr->GetInternalThread()->synch_cs;
+	thisPtr->GetInternalThread()->synch_cs = NULL;
 
-	IL2CPP_FREE (__this->name);
+	IL2CPP_FREE (thisPtr->GetInternalThread()->name);
 
 	delete static_cast<il2cpp::os::Thread*>(handle.m_value);
 	handle.m_value = NULL;
 }
+#endif
 
-static void cache_culture (Il2CppThread *__this, Il2CppObject *culture, int start_idx)
+static void cache_culture (Il2CppThread *thisPtr, Il2CppObject *culture, int start_idx)
 {
 	int i;
 	Il2CppObject *obj;
 	int free_slot = -1;
 	int same_domain_slot = -1;
 
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
+	il2cpp::os::FastAutoLock lock (thisPtr->GetInternalThread()->synch_cs);
 	
-	if (!__this->cached_culture_info)
-		IL2CPP_OBJECT_SETREF (__this, cached_culture_info, il2cpp::vm::Array::NewCached (il2cpp_defaults.object_class, NUM_CACHED_CULTURES * 2));
+	if (!thisPtr->GetInternalThread()->cached_culture_info)
+		IL2CPP_OBJECT_SETREF (thisPtr->GetInternalThread(), cached_culture_info, il2cpp::vm::Array::NewCached (il2cpp_defaults.object_class, NUM_CACHED_CULTURES * 2));
 
 	for (i = start_idx; i < start_idx + NUM_CACHED_CULTURES; ++i) {
-		obj = il2cpp_array_get (__this->cached_culture_info, Il2CppObject*, i);
+		obj = il2cpp_array_get (thisPtr->GetInternalThread()->cached_culture_info, Il2CppObject*, i);
 		/* Free entry */
 		if (!obj) {
 			free_slot = i;
@@ -269,20 +265,20 @@ static void cache_culture (Il2CppThread *__this, Il2CppObject *culture, int star
 		break;
 	}
 	if (same_domain_slot >= 0)
-		il2cpp_array_setref (__this->cached_culture_info, same_domain_slot, culture);
+		il2cpp_array_setref (thisPtr->GetInternalThread()->cached_culture_info, same_domain_slot, culture);
 	else if (free_slot >= 0)
-		il2cpp_array_setref (__this->cached_culture_info, free_slot, culture);
+		il2cpp_array_setref (thisPtr->GetInternalThread()->cached_culture_info, free_slot, culture);
 	/* we may want to replace an existing entry here, even when no suitable slot is found */
 }
 
-static Il2CppObject* lookup_cached_culture (Il2CppThread *__this, int32_t start_idx)
+static Il2CppObject* lookup_cached_culture (Il2CppThread *thisPtr, int32_t start_idx)
 {
 	Il2CppObject *res;
 	int i;
 
-	if (__this->cached_culture_info) {
+	if (thisPtr->GetInternalThread()->cached_culture_info) {
 		for (i = start_idx; i < start_idx + NUM_CACHED_CULTURES; ++i) {
-			res = il2cpp_array_get (__this->cached_culture_info, Il2CppObject*, i);
+			res = il2cpp_array_get (thisPtr->GetInternalThread()->cached_culture_info, Il2CppObject*, i);
 			if (res)
 				return res;
 		}
@@ -296,24 +292,24 @@ void Thread::FreeLocalSlotValues (int32_t slot, bool use_thread_local)
 	NOT_IMPLEMENTED_ICALL (Thread::FreeLocalSlotValues);
 }
 
-mscorlib_System_Globalization_CultureInfo* Thread::GetCachedCurrentCulture (Il2CppThread* __this)
+mscorlib_System_Globalization_CultureInfo* Thread::GetCachedCurrentCulture (Il2CppThread* thisPtr)
 {
-	return (mscorlib_System_Globalization_CultureInfo*) lookup_cached_culture (__this, CULTURES_START_IDX);
+	return (mscorlib_System_Globalization_CultureInfo*) lookup_cached_culture (thisPtr, CULTURES_START_IDX);
 }
 
-void Thread::SetCachedCurrentCulture (Il2CppThread* __this, Il2CppObject* culture)
+void Thread::SetCachedCurrentCulture (Il2CppThread* thisPtr, Il2CppObject* culture)
 {
-	cache_culture (__this, culture, CULTURES_START_IDX);
+	cache_culture (thisPtr, culture, CULTURES_START_IDX);
 }
 
-mscorlib_System_Globalization_CultureInfo* Thread::GetCachedCurrentUICulture (Il2CppThread* __this)
+mscorlib_System_Globalization_CultureInfo* Thread::GetCachedCurrentUICulture (Il2CppThread* thisPtr)
 {
-	return (mscorlib_System_Globalization_CultureInfo*) lookup_cached_culture (__this, UICULTURES_START_IDX);
+	return (mscorlib_System_Globalization_CultureInfo*) lookup_cached_culture (thisPtr, UICULTURES_START_IDX);
 }
 
-void Thread::SetCachedCurrentUICulture (Il2CppThread* __this, Il2CppObject* culture)
+void Thread::SetCachedCurrentUICulture (Il2CppThread* thisPtr, Il2CppObject* culture)
 {
-	cache_culture (__this, culture, UICULTURES_START_IDX);
+	cache_culture (thisPtr, culture, UICULTURES_START_IDX);
 }
 
 static Il2CppArray* GetSerializedCulture (uint8_t*& data, uint32_t& length)
@@ -338,29 +334,31 @@ static void SetSerializedCulture (uint8_t*& data, uint32_t& length, Il2CppArray*
 	memcpy (data, il2cpp_array_addr (culture, uint8_t, 0), arrayLength);
 }
 
-Il2CppArray* Thread::GetSerializedCurrentCulture (Il2CppThread* __this)
+#if !NET_4_0
+Il2CppArray* Thread::GetSerializedCurrentCulture (Il2CppThread* thisPtr)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
-	return GetSerializedCulture (__this->serialized_culture_info, __this->serialized_culture_info_len);
+	il2cpp::os::FastAutoLock lock (thisPtr->synch_cs);
+	return GetSerializedCulture (thisPtr->serialized_culture_info, thisPtr->serialized_culture_info_len);
 }
 
-void Thread::SetSerializedCurrentCulture (Il2CppThread* __this, Il2CppArray* culture)
+void Thread::SetSerializedCurrentCulture (Il2CppThread* thisPtr, Il2CppArray* culture)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
-	SetSerializedCulture (__this->serialized_culture_info, __this->serialized_culture_info_len, culture);
+	il2cpp::os::FastAutoLock lock (thisPtr->synch_cs);
+	SetSerializedCulture (thisPtr->serialized_culture_info, thisPtr->serialized_culture_info_len, culture);
 }
 
-Il2CppArray* Thread::GetSerializedCurrentUICulture (Il2CppThread* __this)
+Il2CppArray* Thread::GetSerializedCurrentUICulture (Il2CppThread* thisPtr)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
-	return GetSerializedCulture (__this->serialized_ui_culture_info, __this->serialized_ui_culture_info_len);
+	il2cpp::os::FastAutoLock lock (thisPtr->synch_cs);
+	return GetSerializedCulture (thisPtr->serialized_ui_culture_info, thisPtr->serialized_ui_culture_info_len);
 }
 
-void Thread::SetSerializedCurrentUICulture (Il2CppThread* __this, Il2CppArray* culture)
+void Thread::SetSerializedCurrentUICulture (Il2CppThread* thisPtr, Il2CppArray* culture)
 {
-	il2cpp::os::FastAutoLock lock (__this->synch_cs);
-	SetSerializedCulture (__this->serialized_ui_culture_info, __this->serialized_ui_culture_info_len, culture);
+	il2cpp::os::FastAutoLock lock (thisPtr->synch_cs);
+	SetSerializedCulture (thisPtr->serialized_ui_culture_info, thisPtr->serialized_ui_culture_info_len, culture);
 }
+#endif
 
 static volatile int32_t s_NextManagedThreadId = 0;
 
@@ -369,9 +367,9 @@ int32_t Thread::GetNewManagedId_internal()
 	return os::Atomic::Increment(&s_NextManagedThreadId);
 }
 
-void Thread::Abort_internal (Il2CppThread* __this, Il2CppObject* stateInfo)
+void Thread::Abort_internal (Il2CppThread* thisPtr, Il2CppObject* stateInfo)
 {
-	il2cpp::vm::Thread::RequestAbort(__this);
+	il2cpp::vm::Thread::RequestAbort(thisPtr);
 }
 
 Il2CppObject* Thread::GetAbortExceptionState (void* /* System.Threading.Thread */ self)
@@ -380,9 +378,9 @@ Il2CppObject* Thread::GetAbortExceptionState (void* /* System.Threading.Thread *
 	return 0;
 }
 
-void Thread::Interrupt_internal (Il2CppThread* __this)
+void Thread::Interrupt_internal (Il2CppThread* thisPtr)
 {
-	il2cpp::vm::Thread::RequestInterrupt (__this);
+	il2cpp::vm::Thread::RequestInterrupt (thisPtr);
 }
 
 void Thread::MemoryBarrier_ ()
@@ -505,6 +503,153 @@ void Thread::VolatileWriteIntPtr (volatile void* address, Il2CppIntPtr value)
 {
 	VolatileWritePtr(address, value.m_value);
 }
+
+#if NET_4_0
+
+Il2CppArray* Thread::ByteArrayToCurrentDomain(Il2CppArray* arr)
+{
+	NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToCurrentDomain);
+	IL2CPP_UNREACHABLE;
+}
+
+Il2CppArray* Thread::ByteArrayToRootDomain(Il2CppArray* arr)
+{
+	NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToRootDomain);
+	IL2CPP_UNREACHABLE;
+}
+
+bool Thread::YieldInternal()
+{
+	NOT_IMPLEMENTED_ICALL(Thread::YieldInternal);
+	IL2CPP_UNREACHABLE;
+}
+
+bool Thread::JoinInternal(Il2CppThread* _this, int32_t millisecondsTimeout)
+{
+	return Join_internal(_this, millisecondsTimeout, NULL);
+}
+
+int32_t Thread::GetPriorityNative(Il2CppThread* _this)
+{
+	return il2cpp::vm::Thread::GetPriority(_this);
+}
+
+int32_t Thread::SystemMaxStackStize()
+{
+	NOT_IMPLEMENTED_ICALL(Thread::SystemMaxStackStize);
+	IL2CPP_UNREACHABLE;
+}
+
+Il2CppString* Thread::GetName_internal40(Il2CppInternalThread* thread)
+{
+	il2cpp::os::FastAutoLock lock(thread->synch_cs);
+
+	if (thread->name_len == 0)
+		return NULL;
+
+	return il2cpp::vm::String::NewUtf16(thread->name, thread->name_len);
+}
+
+Il2CppInternalThread* Thread::CurrentInternalThread_internal()
+{
+	return CurrentThread_internal()->GetInternalThread();
+}
+
+int32_t Thread::GetState40(Il2CppInternalThread* thread)
+{
+	il2cpp::os::FastAutoLock lock(thread->synch_cs);
+	return (il2cpp::vm::ThreadState)thread->state;
+}
+
+void Thread::Abort_internal40(Il2CppInternalThread* thread, Il2CppObject* stateInfo)
+{
+	il2cpp::vm::Thread::RequestAbort(thread);
+}
+
+void Thread::ClrState40(Il2CppInternalThread* thread, il2cpp::vm::ThreadState clr)
+{
+	il2cpp::vm::Thread::ClrState(thread, clr);
+}
+
+void Thread::ConstructInternalThread(Il2CppThread* _this)
+{
+	os::Thread* osThread = new os::Thread();
+
+	// Create managed object representing the current thread.
+
+	Il2CppInternalThread* internal = (Il2CppInternalThread*)Object::New(il2cpp_defaults.internal_thread_class);
+	internal->state = kThreadStateUnstarted;
+	internal->handle = osThread;
+	internal->tid = osThread->Id();
+	internal->synch_cs = new il2cpp::os::FastMutex();
+	internal->apartment_state = il2cpp::os::kApartmentStateUnknown;
+	internal->managed_id = GetNewManagedId_internal();
+	vm::Atomic::CompareExchangePointer<Il2CppInternalThread>(&_this->internal_thread, internal, NULL);
+}
+
+void Thread::GetStackTraces(Il2CppArray** threads, Il2CppArray** stack_frames)
+{
+	NOT_IMPLEMENTED_ICALL(Thread::GetStackTraces);
+	IL2CPP_UNREACHABLE;
+}
+
+void Thread::InterruptInternal(Il2CppThread* _this)
+{
+	Interrupt_internal(_this);
+}
+
+void Thread::ResetAbortNative(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL(Thread::ResetAbortNative);
+	IL2CPP_UNREACHABLE;
+}
+
+void Thread::ResumeInternal(Il2CppObject* _this)
+{
+	NOT_SUPPORTED_IL2CPP(Thread::Resume_internal, "Thread suspension is obsolete and not supported on IL2CPP.");
+}
+
+void Thread::SetName_internal40(Il2CppInternalThread* thread, Il2CppString* name)
+{
+	il2cpp::os::FastAutoLock lock(thread->synch_cs);
+
+	// Throw if already set.
+	if (thread->name_len != 0)
+		il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Thread name can only be set once."));
+
+	// Store name.
+	thread->name_len = String::GetLength(name);
+	thread->name = il2cpp::utils::StringUtils::StringDuplicate(String::GetChars(name), thread->name_len);
+
+	// Hand over to OS layer, if thread has been started already.
+	if (thread->handle)
+	{
+		std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->name);
+		thread->handle->SetName(utf8Name);
+	}
+}
+
+void Thread::SetPriorityNative(Il2CppThread* _this, int32_t priority)
+{
+	vm::Thread::SetPriority(_this, priority);
+}
+
+void Thread::SetState40(Il2CppInternalThread* thread, il2cpp::vm::ThreadState state)
+{
+	vm::Thread::SetState(thread, state);
+}
+
+void Thread::SleepInternal(int32_t millisecondsTimeout)
+{
+	Sleep_internal(millisecondsTimeout);
+}
+
+void Thread::SuspendInternal(Il2CppObject* _this)
+{
+	NOT_SUPPORTED_IL2CPP(Thread::SuspendInternal, "Thread suspension is obsolete and not supported on IL2CPP.");
+}
+
+#endif
 
 } /* namespace Threading */
 } /* namespace System */
