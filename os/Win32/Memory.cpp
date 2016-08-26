@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include "os/Memory.h"
 
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINDOWS
 
 namespace il2cpp
 {

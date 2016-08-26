@@ -279,10 +279,24 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 	return kWaitStatusFailure;
 }
 
+WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error)
+{
+	SOCKET_NOT_IMPLEMENTED
+
+	return kWaitStatusFailure;
+}
+
 WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error)
 {
 	SOCKET_NOT_IMPLEMENTED
 	
+	return kWaitStatusFailure;
+}
+
+WaitStatus SocketImpl::Poll (PollRequest& request, int32_t timeout, int32_t *result, int32_t *error)
+{
+	SOCKET_NOT_IMPLEMENTED
+
 	return kWaitStatusFailure;
 }
 

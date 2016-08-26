@@ -1,6 +1,8 @@
 #pragma once
 #include "il2cpp-config.h"
 
+#if !NET_4_0
+
 struct Il2CppReflectionType;
 struct Il2CppEnumInfo;
 
@@ -23,3 +25,5 @@ public:
 } /* namespace mscorlib */
 } /* namespace icalls */
 } /* namespace il2cpp */
+
+#endif

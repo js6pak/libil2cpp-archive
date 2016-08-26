@@ -26,7 +26,13 @@ void MonoPropertyInfo::get_property_info (Il2CppReflectionProperty *property, Il
 	if ((req_info & PInfo_ReflectedType) != 0)
 		IL2CPP_STRUCT_SETREF (info, parent, vm::Reflection::GetTypeObject (property->klass->byval_arg));
 	else if ((req_info & PInfo_DeclaringType) != 0)
-		IL2CPP_STRUCT_SETREF (info, parent, vm::Reflection::GetTypeObject (property->property->parent->byval_arg));
+	{
+#if !NET_4_0
+		IL2CPP_STRUCT_SETREF(info, parent, vm::Reflection::GetTypeObject(property->property->parent->byval_arg));
+#else
+		IL2CPP_STRUCT_SETREF(info, declaringType, vm::Reflection::GetTypeObject(property->property->parent->byval_arg));
+#endif
+	}
 
 	if ((req_info & PInfo_Name) != 0)
 		IL2CPP_STRUCT_SETREF (info, name, vm::String::New (property->property->name));
@@ -53,6 +59,15 @@ Il2CppArray* MonoPropertyInfo::GetTypeModifiers (void* /* System.Reflection.Mono
 	
 	return 0;
 }
+
+#if NET_4_0
+Il2CppObject* MonoPropertyInfo::get_default_value(Il2CppReflectionProperty* prop)
+{
+	NOT_IMPLEMENTED_ICALL(MonoPropertyInfo::get_default_value);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
 
 } /* namespace Reflection */
 } /* namespace System */

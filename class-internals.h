@@ -15,7 +15,12 @@ struct Il2CppAppDomain;
 struct Il2CppDelegate;
 struct Il2CppAppContext;
 struct Il2CppNameToTypeDefinitionIndexHashTable;
-struct VirtualInvokeData;
+
+struct VirtualInvokeData
+{
+	Il2CppMethodPointer methodPtr;
+	const MethodInfo* method;
+};
 
 enum Il2CppTypeNameFormat {
 	IL2CPP_TYPE_NAME_FORMAT_IL,
@@ -59,6 +64,9 @@ typedef struct {
 	Il2CppClass *exception_class;
 	Il2CppClass *threadabortexception_class;
 	Il2CppClass *thread_class;
+#if NET_4_0
+	Il2CppClass *internal_thread_class;
+#endif
 	/*Il2CppClass *transparent_proxy_class;
 	Il2CppClass *real_proxy_class;
 	Il2CppClass *mono_method_message_class;*/
@@ -88,6 +96,10 @@ typedef struct {
 	Il2CppClass *generic_ilist_class;
 	Il2CppClass *generic_icollection_class;
 	Il2CppClass *generic_ienumerable_class;
+#if NET_4_0
+	Il2CppClass *generic_ireadonlylist_class;
+	Il2CppClass *runtimetype_class;
+#endif
 	Il2CppClass *generic_nullable_class;
 	/*Il2CppClass *variant_class;
 	Il2CppClass *com_object_class;*/
@@ -104,13 +116,21 @@ typedef struct {
 	Il2CppClass *culture_info;
 	Il2CppClass *async_call_class;
 	Il2CppClass *assembly_class;
+#if NET_4_0
+	Il2CppClass *mono_assembly_class;
+#endif
 	Il2CppClass *assembly_name_class;
+#if !NET_4_0
 	Il2CppClass *enum_info_class;
+#endif
 	Il2CppClass *mono_field_class;
 	Il2CppClass *mono_method_class;
 	Il2CppClass *mono_method_info_class;
 	Il2CppClass *mono_property_info_class;
 	Il2CppClass *parameter_info_class;
+#if NET_4_0
+	Il2CppClass *mono_parameter_info_class;
+#endif
 	Il2CppClass *module_class;
 	Il2CppClass *pointer_class;
 	Il2CppClass *system_exception_class;
@@ -122,9 +142,15 @@ typedef struct {
 	Il2CppClass *error_wrapper_class;
 	Il2CppClass *missing_class;
 	Il2CppClass *value_type_class;
+
+#if NET_4_0
+	// Stuff used by the mono code
+	Il2CppClass *threadpool_wait_callback_class;
+	MethodInfo *threadpool_perform_wait_callback_method;
+#endif
 } Il2CppDefaults;
 
-extern Il2CppDefaults il2cpp_defaults;
+extern LIBIL2CPP_CODEGEN_API Il2CppDefaults il2cpp_defaults;
 
 struct Il2CppClass;
 struct MethodInfo;
@@ -284,6 +310,14 @@ struct Il2CppRuntimeInterfaceOffsetPair
 	int32_t offset;
 };
 
+#if IL2CPP_COMPILER_MSVC
+#pragma warning( push )
+#pragma warning( disable : 4200 )
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#endif
+
 struct Il2CppClass
 {
 	// The following fields are always valid for a Il2CppClass structure
@@ -308,7 +342,6 @@ struct Il2CppClass
 	const MethodInfo** methods; // Initialized in SetupMethods
 	Il2CppClass** nestedTypes; // Initialized in SetupNestedTypes
 	Il2CppClass** implementedInterfaces; // Initialized in SetupInterfaces
-	VirtualInvokeData* vtable; // Initialized in Init
 	Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets; // Initialized in Init
 	void* static_fields; // Initialized in Init
 	const Il2CppRGCTXData* rgctx_data; // Initialized in Init
@@ -347,7 +380,6 @@ struct Il2CppClass
 	uint16_t interface_offsets_count; // lazily calculated for arrays, i.e. when rank > 0
 
 	uint8_t typeHierarchyDepth; // Initialized in SetupTypeHierachy
-	uint8_t genericRecursionDepth;
 	uint8_t rank;
 	uint8_t minimumAlignment;
 	uint8_t packingSize;
@@ -363,7 +395,15 @@ struct Il2CppClass
 	uint8_t has_cctor : 1;
 	uint8_t is_blittable : 1;
 	uint8_t is_import_or_windows_runtime : 1;
+	uint8_t is_vtable_initialized : 1;
+	VirtualInvokeData vtable[IL2CPP_ZERO_LEN_ARRAY];
 };
+
+#if IL2CPP_COMPILER_MSVC
+#pragma warning( pop )
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 // compiler calcualted values
 struct Il2CppTypeDefinitionSizes
@@ -430,6 +470,8 @@ struct Il2CppCodeRegistration
 	const CustomAttributesCacheGenerator* customAttributeGenerators;
 	GuidIndex guidCount;
 	const Il2CppGuid** guids;
+	uint32_t unresolvedVirtualCallCount;
+	const Il2CppMethodPointer* unresolvedVirtualCallPointers;
 };
 
 struct Il2CppMetadataRegistration

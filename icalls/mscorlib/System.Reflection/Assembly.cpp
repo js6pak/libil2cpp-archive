@@ -260,10 +260,11 @@ void Assembly::FillName(Il2CppReflectionAssembly * ass, mscorlib_System_Reflecti
 	}
 }
 
-Il2CppArray* Assembly::GetModulesInternal (mscorlib_System_Reflection_Assembly * __this)
+Il2CppArray* Assembly::GetModulesInternal (Il2CppReflectionAssembly * thisPtr)
 {
-	NOT_IMPLEMENTED_ICALL (Assembly::GetModulesInternal);
-	return 0;
+	Il2CppArray* arr = vm::Array::New(il2cpp_defaults.module_class, 1);
+	il2cpp_array_setref(arr, 0, vm::Reflection::GetModuleObject(vm::Assembly::GetImage(thisPtr->assembly)));
+	return arr;
 }
 
 bool Assembly::LoadPermissions (mscorlib_System_Reflection_Assembly * a, Il2CppIntPtr* minimum, int32_t* minLength, Il2CppIntPtr* optional, int32_t* optLength, Il2CppIntPtr* refused, int32_t* refLength)
@@ -281,12 +282,12 @@ Il2CppString* Assembly::get_code_base(Il2CppReflectionAssembly * assembly, bool 
 {
 	std::string executableDirectory = utils::PathUtils::DirectoryName(os::Path::GetExecutablePath());
 	std::replace(executableDirectory.begin(), executableDirectory.end(), '\\', '/');
-	return vm::String::New(utils::StringUtils::Printf("file:///%s/%s.dll", executableDirectory.c_str(), MetadataCache::GetStringFromIndex(assembly->assembly->aname.nameIndex)).c_str());
+	return vm::String::New(utils::StringUtils::Printf("file://%s/%s.dll", executableDirectory.c_str(), MetadataCache::GetStringFromIndex(assembly->assembly->aname.nameIndex)).c_str());
 }
 
-Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* __this, bool exportedOnly)
+Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* thisPtr, bool exportedOnly)
 {
-	const Il2CppImage* image = MetadataCache::GetImageFromIndex (__this->assembly->imageIndex);
+	const Il2CppImage* image = MetadataCache::GetImageFromIndex (thisPtr->assembly->imageIndex);
 	return Module::InternalGetTypes (vm::Reflection::GetModuleObject (image));
 }
 
@@ -323,11 +324,23 @@ void Assembly::InternalGetAssemblyName (Il2CppString* assemblyFile, Il2CppAssemb
 	NOT_SUPPORTED_IL2CPP (Assembly::InternalGetAssemblyName, "This icall is not supported by il2cpp.");
 }
 
-Il2CppAssembly* Assembly::LoadFrom (Il2CppString* assemblyFile, bool refonly)
+Il2CppReflectionAssembly* Assembly::LoadFrom (Il2CppString* assemblyFile, bool refonly)
 {
-	NOT_SUPPORTED_IL2CPP (Assembly::LoadFrom, "This icall is not supported by il2cpp.");
-	
-	return 0;
+	// Our implementation is going to behave a bit different.  We can't actually load any assembly.  If we didn't know about the assembly at conversion time,
+	// then we won't be able to do anything.
+	// On the other hand, if the name of the assembly matches the name of an assembly that we converted, then lets return the assembly that we know about.
+	std::string utf8Path = utils::StringUtils::Utf16ToUtf8(vm::String::GetChars(assemblyFile));
+	std::string fileName = utils::PathUtils::BasenameNoExtension(utf8Path);
+
+	const Il2CppAssembly* foundAssembly = MetadataCache::GetAssemblyByName(fileName);
+
+	if (!foundAssembly)
+	{
+		vm::Exception::Raise(vm::Exception::GetFileLoadException(fileName.c_str()));
+		IL2CPP_UNREACHABLE;
+	}
+
+	return vm::Reflection::GetAssemblyObject(foundAssembly);
 }
 
 Il2CppArray* Assembly::GetNamespaces (Il2CppAssembly* self)

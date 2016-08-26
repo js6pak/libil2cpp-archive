@@ -41,8 +41,11 @@ public:
 	static Il2CppString* internalGetEnvironmentVariable (Il2CppString *);
 	static void set_ExitCode (int32_t value);
 	static void InternalSetEnvironmentVariable (Il2CppString* variable, Il2CppString* value);
-
-
+#if NET_4_0
+	static bool GetIs64BitOperatingSystem();
+	static int32_t GetPageSize();
+	static Il2CppString* GetNewLine();
+#endif
 };
 
 } /* namespace System */

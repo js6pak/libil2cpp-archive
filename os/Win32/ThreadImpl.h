@@ -26,6 +26,7 @@ public:
 	ErrorCode Run (Thread::StartFunc func, void* arg);
 	void SetName (const std::string& name);
 	void SetPriority (ThreadPriority priority);
+	ThreadPriority GetPriority();
 	
 	void SetStackSize(size_t newsize)
 	{
@@ -55,6 +56,7 @@ private:
 	volatile DWORD m_ThreadId;
 	SIZE_T m_StackSize;
 	ApartmentState m_ApartmentState;
+	ThreadPriority m_Priority;
 };
 
 }

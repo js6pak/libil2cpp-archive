@@ -3,6 +3,8 @@
 #if IL2CPP_USE_GENERIC_ENVIRONMENT
 #include "os/Environment.h"
 
+#include <cstdlib>
+
 namespace il2cpp
 {
 namespace os
@@ -59,6 +61,20 @@ void Environment::Exit (int result)
 {
 	NOT_IMPLEMENTED_ICALL (Environment::Exit);
 }
+
+NORETURN void Environment::Abort()
+{
+	abort();
+}
+
+#if NET_4_0
+
+bool Environment::Is64BitOs()
+{
+	return false;
+}
+
+#endif
 
 }
 }

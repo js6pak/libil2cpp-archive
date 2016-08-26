@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_PLATFORM_WIN32
+#if IL2CPP_TARGET_WINDOWS
 
 #include <cassert>
 #include "os/FileSystemWatcher.h"

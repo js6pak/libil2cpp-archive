@@ -51,6 +51,14 @@ Il2CppReflectionField* FieldInfo::internal_from_handle_type (Il2CppIntPtr field_
 	return NULL;
 }
 
+#if NET_4_0
+Il2CppObject* FieldInfo::get_marshal_info(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL_NO_ASSERT(FieldInfo::get_marshal_info, "We currently don't store marshal information in metadata");
+	return NULL;
+}
+#endif
+
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

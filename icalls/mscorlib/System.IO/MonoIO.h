@@ -23,7 +23,9 @@ namespace IO
 
 struct FileStat
 {
+#if !NET_4_0
 	Il2CppString *name;
+#endif
 	int32_t attributes;
 	int64_t length;
 	int64_t creation_time;
@@ -68,6 +70,15 @@ public:
 	static Il2CppChar get_DirectorySeparatorChar (void);
 	static Il2CppChar get_PathSeparator (void);
 	static Il2CppChar get_VolumeSeparatorChar (void);
+	static bool CreatePipe40(Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle, MonoIOError* error);
+	static bool DuplicateHandle40(Il2CppIntPtr source_process_handle, Il2CppIntPtr source_handle, Il2CppIntPtr target_process_handle, Il2CppIntPtr* target_handle, int32_t access, int32_t inherit, int32_t options, MonoIOError* error);
+
+#if NET_4_0
+	static int32_t FindClose(Il2CppIntPtr handle);
+	static Il2CppString* FindFirst(Il2CppString* path, Il2CppString* pattern, int32_t* result_attr, MonoIOError* error, Il2CppIntPtr* handle);
+	static Il2CppString* FindNext(Il2CppIntPtr handle, int32_t* result_attr, MonoIOError* error);
+	static void DumpHandles();
+#endif
 };
 
 } /* namespace IO */

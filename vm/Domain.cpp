@@ -47,12 +47,12 @@ void Domain::ContextInit (Il2CppDomain *domain)
 
 void Domain::ContextSet (Il2CppAppContext* context)
 {
-	IL2CPP_OBJECT_SETREF(il2cpp::vm::Thread::Current (), current_appcontext, (Il2CppObject*)context);
+	IL2CPP_OBJECT_SETREF(il2cpp::vm::Thread::Current()->GetInternalThread(), current_appcontext, (Il2CppObject*)context);
 }
 
 Il2CppAppContext* Domain::ContextGet ()
 {
-	return (Il2CppAppContext*)il2cpp::vm::Thread::Current ()->current_appcontext;
+	return (Il2CppAppContext*)il2cpp::vm::Thread::Current()->GetInternalThread()->current_appcontext;
 }
 
 } /* namespace vm */

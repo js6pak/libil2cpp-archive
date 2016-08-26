@@ -104,6 +104,7 @@ public:
 	static FileHandle* GetStdOutput ();
 	static FileHandle* GetStdError ();
 	static bool CreatePipe (FileHandle** read_handle, FileHandle** write_handle);
+	static bool CreatePipe (FileHandle** read_handle, FileHandle** write_handle, int* error);
 	static FileType GetFileType (FileHandle* handle);
 	static FileAttributes GetFileAttributes (const std::string& path, int* error);
 	static bool SetFileAttributes (const std::string& path, FileAttributes attributes, int* error);
@@ -123,6 +124,9 @@ public:
 	static bool Flush (FileHandle* handle, int* error);
 	static void Lock (FileHandle* handle,  int64_t position, int64_t length, int* error);
 	static void Unlock (FileHandle* handle,  int64_t position, int64_t length, int* error);
+
+	static bool DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
+		FileHandle** target_handle, int access, int inherit, int options, int* error);
 
 };
 

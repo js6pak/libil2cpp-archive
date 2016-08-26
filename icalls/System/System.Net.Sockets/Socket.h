@@ -232,6 +232,17 @@ public:
 	static void Shutdown (Il2CppIntPtr, SocketShutdown, int32_t*);
 	static Il2CppIntPtr Socket_internal (Il2CppObject *self, AddressFamily, SocketType, ProtocolType, int32_t*);
 	static int32_t WSAIoctl (Il2CppIntPtr, int32_t, Il2CppArray*, Il2CppArray*, int32_t*);
+#if NET_4_0
+	static bool SendFile_internal(Il2CppIntPtr sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags);
+	static bool SupportsPortReuse(ProtocolType proto);
+	static int32_t IOControl_internal(Il2CppIntPtr sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error);
+	static int32_t ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject** sockaddr, int32_t* error);
+	static int32_t SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject* sa, int32_t* error);
+	static Il2CppObject* LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error);
+	static Il2CppObject* RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error);
+	static void cancel_blocking_socket_operation(Il2CppObject* thread);
+	static void Connect_internal(Il2CppIntPtr sock, Il2CppSocketAddress* sa, int32_t* error);
+#endif
 };
 
 } /* namespace Sockets */
