@@ -32,7 +32,7 @@ static DWORD WINAPI ThreadStartWrapper(LPVOID arg)
 }
 
 ThreadImpl::ThreadImpl ()
- : m_ThreadHandle (0), m_ThreadId(0), m_StackSize(IL2CPP_DEFAULT_STACK_SIZE), m_ApartmentState(kApartmentStateUnknown)
+ : m_ThreadHandle (0), m_ThreadId(0), m_StackSize(IL2CPP_DEFAULT_STACK_SIZE), m_ApartmentState(kApartmentStateUnknown), m_Priority(kThreadPriorityNormal)
 {
 }
 
@@ -80,23 +80,22 @@ void ThreadImpl::SetName (const std::string& name)
 
 void ThreadImpl::SetPriority (ThreadPriority priority)
 {
-	int threadPriority;
-	switch (priority)
+	if (m_ThreadHandle == NULL)
+		m_Priority = priority;
+	else
 	{
-		case kThreadPriorityNormal:
-			threadPriority = THREAD_PRIORITY_NORMAL;
-			break;
-
-		case kThreadPriorityLow:
-			threadPriority = THREAD_PRIORITY_BELOW_NORMAL;
-			break;
-
-		case kThreadPriorityHigh:
-			threadPriority = THREAD_PRIORITY_ABOVE_NORMAL;
-			break;
+		int ret = ::SetThreadPriority(m_ThreadHandle, priority - 2);
+		assert(ret);
 	}
+}
 
-	::SetThreadPriority (m_ThreadHandle, threadPriority);
+ThreadPriority ThreadImpl::GetPriority()
+{
+	if (m_ThreadHandle == NULL)
+		return m_Priority;
+	int ret = ::GetThreadPriority(m_ThreadHandle) + 2;
+	assert(ret != THREAD_PRIORITY_ERROR_RETURN);
+	return (ThreadPriority)ret;
 }
 
 ErrorCode ThreadImpl::Run (Thread::StartFunc func, void* arg)
@@ -327,6 +326,15 @@ ApartmentState ThreadImpl::SetApartment(ApartmentState state)
 		Assert(state == currentState);
 		return currentState;
 	}
+
+#if IL2CPP_TARGET_XBOXONE
+	if (state == kApartmentStateInSTA)
+	{
+		// Only assert in debug.. we wouldn't want to bring down the application in Release config
+		assert(false && "STA apartment state is not supported on Xbox One");
+		state = kApartmentStateInMTA;
+	}
+#endif
 
 	HRESULT hr = CoInitializeEx(nullptr, (kApartmentStateInSTA == state) ? COINIT_APARTMENTTHREADED : COINIT_MULTITHREADED);
 	if (SUCCEEDED(hr))

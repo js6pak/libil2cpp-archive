@@ -150,6 +150,12 @@ void ThreadImpl::SetPriority (ThreadPriority priority)
 	////TODO
 }
 
+ThreadPriority ThreadImpl::GetPriority()
+{
+	/// TODO
+	return kThreadPriorityNormal;
+}
+
 void ThreadImpl::QueueUserAPC (Thread::APCFunc function, void* context)
 {
 	assert (function != NULL);

@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINRT
+#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
 
 #include "os\Environment.h"
 #include "os\Win32\WindowsHelpers.h"
@@ -108,17 +108,21 @@ static inline std::string GetLocalAppDataFolder()
 	return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_LocalFolder(folder); });
 }
 
+#if !IL2CPP_TARGET_XBOXONE
 static inline std::string GetRoamingAppDataFolder()
 {
 	return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_RoamingFolder(folder); });
 }
+#endif
 
 std::string Environment::GetWindowsFolderPath(int32_t folder)
 {
 	switch (folder)
 	{
+#if !IL2CPP_TARGET_XBOXONE
 	case CSIDL_APPDATA:
 		return GetRoamingAppDataFolder();
+#endif
 
 	case CSIDL_LOCAL_APPDATA:
 		return GetLocalAppDataFolder();
@@ -127,6 +131,18 @@ std::string Environment::GetWindowsFolderPath(int32_t folder)
 		Exception::Raise(Exception::GetUnauthorizedAccessException("Failed getting the path of a special folder: Access Denied."));
 	}	
 }
+
+#if NET_4_0
+
+bool Environment::Is64BitOs()
+{
+#if IL2CPP_TARGET_WINRT
+	vm::Exception::Raise(vm::Exception::GetPlatformNotSupportedException("It is not possible to check if the OS is a 64bit OS on the current platform."));
+#endif
+	return true;
+}
+
+#endif
 
 }
 

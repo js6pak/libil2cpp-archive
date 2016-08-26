@@ -71,6 +71,7 @@ bool MonoCustomAttrs::IsDefinedInternal(Il2CppObject *obj, Il2CppReflectionType 
 	return il2cpp::vm::Reflection::HasAttribute(obj, Class::FromIl2CppType(attr_type->type));
 }
 
+#if !NET_4_0
 static Il2CppObject* CreateCustomAttributeData(Il2CppObject* attribute)
 {
 	static const MethodInfo* customAttributeDataConstructor;
@@ -90,6 +91,30 @@ static Il2CppObject* CreateCustomAttributeData(Il2CppObject* attribute)
 	vm::Runtime::Invoke(customAttributeDataConstructor, customAttributeData, params, NULL);
 	return customAttributeData;
 }
+#else
+static Il2CppObject* CreateCustomAttributeData(Il2CppObject* attribute)
+{
+	static const MethodInfo* customAttributeDataConstructor;
+	void *params[4];
+
+	if (!customAttributeDataConstructor)
+		customAttributeDataConstructor = vm::Class::GetMethodFromName(il2cpp_defaults.customattribute_data_class, ".ctor", 4);
+
+	const MethodInfo* attributeConstructor = vm::Class::GetMethodFromName(attribute->klass, ".ctor", 0);
+
+	if (attributeConstructor == NULL)
+		NOT_IMPLEMENTED_ICALL(MonoCustomAttrs::GetCustomAttributesDataInternal);
+
+	Il2CppObject* customAttributeData = vm::Object::New(il2cpp_defaults.customattribute_data_class);
+	int argCount = 0;
+	params[0] = vm::Reflection::GetMethodObject(attributeConstructor, NULL);
+	params[1] = vm::Reflection::GetAssemblyObject(MetadataCache::GetAssemblyFromIndex(attribute->klass->image->assemblyIndex));
+	params[2] = &Il2CppIntPtr::Zero;
+	params[3] = &argCount;
+	vm::Runtime::Invoke(customAttributeDataConstructor, customAttributeData, params, NULL);
+	return customAttributeData;
+}
+#endif
 
 Il2CppArray* MonoCustomAttrs::GetCustomAttributesDataInternal (Il2CppObject* obj)
 {

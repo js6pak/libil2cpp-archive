@@ -24,6 +24,15 @@ Il2CppObject* MonoCMethod::InternalInvoke (void* /* System.Reflection.MonoCMetho
 	return 0;
 }
 
+#if NET_4_0
+int32_t MonoCMethod::get_core_clr_security_level(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL(MonoCMethod::get_core_clr_security_level);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
+
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

@@ -39,8 +39,6 @@ public:
 
 	typedef void(*GenericClassWalkCallback)(Il2CppClass* type, void* context);
 	static void WalkAllGenericClasses(GenericClassWalkCallback callback, void* context);
-
-	static const int MaximumRuntimeGenericDepth = 7;
 };
 
 } /* namespace vm */

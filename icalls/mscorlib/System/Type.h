@@ -32,7 +32,7 @@ public:
 	static bool IsArrayImpl (Il2CppReflectionType* t);
 	static bool IsInstanceOfType (Il2CppReflectionType* type,Il2CppObject* obj);
 	static Il2CppReflectionType* MakeGenericType (Il2CppReflectionType* ,Il2CppArray* );
-	static Il2CppReflectionType* MakePointerType (Il2CppReflectionType* __this);
+	static Il2CppReflectionType* MakePointerType (Il2CppReflectionType* thisPtr);
 	static bool get_IsGenericType (Il2CppReflectionType* );
 	static bool get_IsGenericTypeDefinition (Il2CppReflectionType* type);
 	static Il2CppReflectionType* internal_from_handle (Il2CppIntPtr ptr);

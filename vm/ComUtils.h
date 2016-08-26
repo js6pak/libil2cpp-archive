@@ -1,10 +1,14 @@
 #pragma once
 
 #include "gc/GCHandle.h"
-#include "utils/Memory.h"
+#include "il2cpp-string-types.h"
+#include "os/WindowsRuntime.h"
 #include "vm/Atomic.h"
 #include "vm/COM.h"
 #include "vm/Exception.h"
+#include "vm/MarshalAlloc.h"
+#include "utils/Memory.h"
+#include "utils/StringUtils.h"
 
 struct Il2CppObject;
 struct Il2CppIUnknown;
@@ -44,6 +48,11 @@ struct ComInterface<ComChainLast> : ComChainLast::Current
 {
 };
 
+template <typename Interface>
+struct HiddenInterface : Interface
+{
+};
+
 template <typename T, typename Chain>
 struct QueryInterfaceHelper
 {
@@ -71,139 +80,283 @@ struct QueryInterfaceHelper<T, ComChainLast>
 	}
 };
 
-} /* namespace details */
-
-template <typename T>
-struct ComObject : T
+template<typename T, typename U>
+struct IsSame
 {
-public:
-	inline static ComObject* __CreateInstance(Il2CppObject* obj)
-	{
-		void* memory = utils::Memory::Malloc(sizeof(ComObject));
-		if (!memory)
-			Exception::Raise(IL2CPP_E_OUTOFMEMORY);
-		ComObject* instance = new(memory) ComObject(obj);
-		instance->__Construct();
-		return instance;
-	}
-
-	inline void __DestroyInstance()
-	{
-		this->~ComObject();
-		utils::Memory::Free(this);
-	}
-
-private:
-	inline ComObject(Il2CppObject* obj) : T(obj) {}
-	ComObject(const ComObject&);
-	ComObject& operator=(const ComObject&);
+	static const bool value = false;
 };
 
-template <typename T, typename I0 = details::ComNil, typename I1 = details::ComNil, typename I2 = details::ComNil, typename I3 = details::ComNil, typename I4 = details::ComNil, typename I5 = details::ComNil, typename I6 = details::ComNil, typename I7 = details::ComNil, typename I8 = details::ComNil, typename I9 = details::ComNil>
-struct NOVTABLE ComObjectBase : details::ComInterface<details::ComChain<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9> >
+template<typename T>
+struct IsSame<T, T>
+{
+	static const bool value = true;
+};
+
+template <typename B, typename D>
+struct IsBaseOf
 {
 private:
-	volatile uint32_t __ref_count;
+	template <typename BT, typename DT>
+	struct Converter
+	{
+		operator BT*() const;
+		operator DT*();
+	};
 
-protected:
-	uint32_t __handle;
+	typedef int16_t Derived;
+	typedef int8_t NotDerived;
+
+	template <typename T>
+	static Derived IsDerived(D*, T);
+	static NotDerived IsDerived(B*, int);
 
 public:
-	inline ComObjectBase(Il2CppObject* obj) : __ref_count(0)
+	static const bool value = IsSame<B, D>::value || sizeof(IsDerived(Converter<B, D>(), int())) == sizeof(Derived);
+};
+
+template <typename Base, typename Chain>
+struct IsBaseOfChained
+{
+	static const bool value = IsBaseOf<Base, typename Chain::Current>::value || IsBaseOfChained<Base, typename Chain::Next>::value;
+};
+
+template <typename Base>
+struct IsBaseOfChained<Base, ComChainLast>
+{
+	static const bool value = false;
+};
+
+template <typename TargetType, typename Chain, bool canCastCurrent = IsBaseOf<TargetType, typename Chain::Current>::value>
+struct CastHelper
+{
+	template <typename T>
+	inline static TargetType* Cast(T* value)
 	{
-		__handle = gc::GCHandle::New(obj, false);
+		return static_cast<typename Chain::Current*>(value);
+	}
+};
+
+template <typename TargetType, typename Chain>
+struct CastHelper<TargetType, Chain, false>
+{
+	template <typename T>
+	inline static TargetType* Cast(T* value)
+	{
+		return CastHelper<TargetType, typename Chain::Next>::Cast(value);
+	}
+};
+
+template <typename TargetType>
+struct CastHelper<TargetType, ComChainLast, false>
+{
+	template <typename T>
+	inline static TargetType* Cast(T* value)
+	{
+		return NULL;
+	}
+};
+
+template <typename Interface>
+struct IsHidden
+{
+	static const bool value = false;
+};
+
+template <typename Interface>
+struct IsHidden<HiddenInterface<Interface> >
+{
+	static const bool value = true;
+};
+
+template <typename Interface>
+struct ShouldCountInterface
+{
+	// From GetIids docs: The IUnknown and IInspectable interfaces are excluded.
+	static const bool value = !IsHidden<Interface>::value && !IsSame<Interface, Il2CppIUnknown>::value && !IsSame<Interface, Il2CppIInspectable>::value;
+};
+
+template <typename Chain>
+struct InterfaceCounter
+{
+	static const uint32_t value = ShouldCountInterface<typename Chain::Current>::value + InterfaceCounter<typename Chain::Next>::value;
+};
+
+template <>
+struct InterfaceCounter<ComChainLast>
+{
+	static const uint32_t value = 0;
+};
+
+template <typename Chain>
+struct InterfaceFiller
+{
+	inline static void Fill(Il2CppGuid* iids)
+	{
+		if (ShouldCountInterface<typename Chain::Current>::value)
+		{
+			*iids = Chain::Current::IID;
+			iids++;
+		}
+
+		InterfaceFiller<typename Chain::Next>::Fill(iids);
+	}
+};
+
+template <>
+struct InterfaceFiller<ComChainLast>
+{
+	inline static void Fill(Il2CppGuid* iids)
+	{
+	}
+};
+
+} /* namespace details */
+
+// Alright, so the lifetime of this guy is pretty weird
+// For a single managed object, the IUnknown of its COM Callable Wrapper must always be the same
+// That means that we have to keep the same COM Callable Wrapper alive for an object once we create it
+// They are cached in il2cpp::vm::g_CCWCache, which is managed by il2cpp::vm::CCW class
+//
+// Here comes the tricky part: when a native object has a reference to the COM Callable Wrapper,
+// the managed object is not supposed to be garbage collected. However, when no native objects are referencing
+// it, it should not prevent the GC from collecting the managed object. We implement this by keeping a GC handle
+// on the managed object if our reference count is 1 or more. We acquire it when it gets increased from 0 (this
+// is safe because such AddRef can only come when this object is retrieved from CCW Cache) and release the GC
+// handle when our reference count gets decreased to 0. Here's a kicker: we don't destroy the COM Callable Wrapper
+// when the reference count reaches 0; we instead rely on GC finalizer of the managed object to both remove it from
+// CCW cache and also destroy it.
+template <typename T, typename I0 = details::ComNil, typename I1 = details::ComNil, typename I2 = details::ComNil, typename I3 = details::ComNil, typename I4 = details::ComNil, typename I5 = details::ComNil, typename I6 = details::ComNil, typename I7 = details::ComNil>
+struct NOVTABLE ComObjectBase : details::ComInterface<details::ComChain<details::HiddenInterface<Il2CppIManagedObject>, details::HiddenInterface<Il2CppIManagedObjectHolder>, I0, I1, I2, I3, I4, I5, I6, I7> >
+{
+private:
+	volatile uint32_t m_RefCount;
+	Il2CppIUnknown* m_Marshal;
+	Il2CppObject* m_ManagedObject;
+	uint32_t m_GCHandle;
+
+	typedef details::ComChain<details::HiddenInterface<Il2CppIManagedObject>, details::HiddenInterface<Il2CppIManagedObjectHolder>, I0, I1, I2, I3, I4, I5, I6, I7> MyChain;
+
+public:
+	inline ComObjectBase(Il2CppObject* obj) : 
+		m_RefCount(0),
+		m_ManagedObject(obj),
+		m_GCHandle(0)
+	{
+		assert(obj != NULL);
+
+		il2cpp_hresult_t hr = COM::CreateFreeThreadedMarshaler(details::CastHelper<Il2CppIUnknown, MyChain>::Cast(this), &m_Marshal);
+		Exception::RaiseIfFailed(hr);
 	}
 
 	inline ~ComObjectBase()
 	{
-		gc::GCHandle::Free(__handle);
+		if (m_Marshal)
+			m_Marshal->Release();
+	}
+
+	inline static Il2CppIManagedObjectHolder* __CreateInstance(Il2CppObject* obj)
+	{
+		void* memory = utils::Memory::Malloc(sizeof(T));
+		if (!memory)
+			Exception::Raise(IL2CPP_E_OUTOFMEMORY);
+		return new(memory) T(obj);
+	}
+
+	virtual void STDCALL Destroy()
+	{
+		assert(m_RefCount == 0);
+
+		T* instance = static_cast<T*>(this);
+		instance->~T();
+		utils::Memory::Free(instance);
+	}
+
+	inline Il2CppIUnknown* GetIdentity()
+	{
+		return details::CastHelper<Il2CppIUnknown, MyChain>::Cast(this);
 	}
 
 	virtual il2cpp_hresult_t STDCALL QueryInterface(const Il2CppGuid& iid, void** object)
 	{
 		if (!object)
 			return IL2CPP_E_POINTER;
+		
 		if (!::memcmp(&iid, &Il2CppIUnknown::IID, sizeof(Il2CppGuid)))
 		{
-			*object = static_cast<typename details::ComChain<I0>::Current*>(this);
+			*object = GetIdentity();
 			AddRef();
 			return IL2CPP_S_OK;
 		}
-		return details::QueryInterfaceHelper<ComObjectBase, details::ComChain<I0, I1, I2, I3, I4, I5, I6, I7, I8, I9> >::QueryInterface(this, iid, object);
+
+		if (details::IsBaseOfChained<Il2CppIInspectable, MyChain>::value && !::memcmp(&iid, &Il2CppIInspectable::IID, sizeof(Il2CppGuid)))
+		{
+			*object = details::CastHelper<Il2CppIInspectable, MyChain>::Cast(this);
+			AddRef();
+			return IL2CPP_S_OK;
+		}
+
+		if (!::memcmp(&iid, &Il2CppIMarshal::IID, sizeof(Il2CppGuid)))
+			return m_Marshal->QueryInterface(iid, object);
+
+		return details::QueryInterfaceHelper<ComObjectBase, MyChain>::QueryInterface(this, iid, object);
 	}
 
 	virtual uint32_t STDCALL AddRef()
 	{
-		return Atomic::Increment(&__ref_count);
+		const uint32_t refCount = Atomic::Increment(&m_RefCount);
+
+		if (refCount == 1)
+		{
+			assert(m_GCHandle == 0);
+			m_GCHandle = gc::GCHandle::New(m_ManagedObject, false);
+		}
+
+		return refCount;
 	}
 
 	virtual uint32_t STDCALL Release()
 	{
-		const uint32_t count = Atomic::Decrement(&__ref_count);
-		if (!count)
-			static_cast<ComObject<T>*>(this)->__DestroyInstance();
+		const uint32_t count = Atomic::Decrement(&m_RefCount);
+		if (count == 0)
+		{
+			assert(m_GCHandle != 0);
+			gc::GCHandle::Free(m_GCHandle);
+			m_GCHandle = 0;
+		}
+
 		return count;
 	}
 
-protected:
-	inline void __Construct() {}
-};
-
-template <typename T, typename I0 = details::ComNil, typename I1 = details::ComNil, typename I2 = details::ComNil, typename I3 = details::ComNil, typename I4 = details::ComNil, typename I5 = details::ComNil, typename I6 = details::ComNil, typename I7 = details::ComNil, typename I8 = details::ComNil>
-struct NOVTABLE ManagedObjectBase : ComObjectBase<T, Il2CppIMarshal, Il2CppIManagedObject, I0, I1, I2, I3, I4, I5, I6, I7>
-{
-private:
-	Il2CppIMarshal* __marshal;
-
-public:
-	inline ManagedObjectBase(Il2CppObject* obj) : ComObjectBase<T, Il2CppIMarshal, Il2CppIManagedObject, I0, I1, I2, I3, I4, I5, I6, I7>(obj), __marshal(NULL) {}
-
-	inline ~ManagedObjectBase()
+	// !!! Note: IInspectable methods are not marked virtual so they don't add new slots if object does not implement IInspectable
+	il2cpp_hresult_t STDCALL GetIids(uint32_t* iidCount, Il2CppGuid** iids)
 	{
-		if (__marshal)
-			__marshal->Release();
+		Il2CppStaticAssert(details::IsBaseOfChained<Il2CppIInspectable, MyChain>::value);
+
+		uint32_t interfaceCount = details::InterfaceCounter<MyChain>::value;
+		Il2CppGuid* interfaceIids = static_cast<Il2CppGuid*>(vm::MarshalAlloc::Allocate(interfaceCount * sizeof(Il2CppGuid)));
+
+		details::InterfaceFiller<MyChain>::Fill(interfaceIids);
+
+		*iidCount = interfaceCount;
+		*iids = interfaceIids;
+		return IL2CPP_S_OK;
 	}
 
-	virtual il2cpp_hresult_t STDCALL GetUnmarshalClass(const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags, Il2CppGuid* clsid)
+	il2cpp_hresult_t STDCALL GetRuntimeClassName(Il2CppHString* className)
 	{
-		if (!__marshal)
-			return IL2CPP_E_OUTOFMEMORY;
-		return __marshal->GetUnmarshalClass(iid, object, context, reserved, flags, clsid);
+		Il2CppStaticAssert(details::IsBaseOfChained<Il2CppIInspectable, MyChain>::value);
+
+		Il2CppClass* objectClass = GetManagedObjectInline()->klass;
+		UTF16String name = utils::StringUtils::Utf8ToUtf16(Class::GetNamespace(objectClass)) + static_cast<Il2CppChar>('.') + utils::StringUtils::Utf8ToUtf16(Class::GetName(objectClass));
+		return os::WindowsRuntime::CreateHString(utils::StringView<Il2CppChar>(name.c_str(), name.length()), className);
 	}
 
-	virtual il2cpp_hresult_t STDCALL GetMarshalSizeMax(const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags, uint32_t* size)
+	il2cpp_hresult_t STDCALL GetTrustLevel(int32_t* trustLevel)
 	{
-		if (!__marshal)
-			return IL2CPP_E_OUTOFMEMORY;
-		return __marshal->GetMarshalSizeMax(iid, object, context, reserved, flags, size);
-	}
+		Il2CppStaticAssert(details::IsBaseOfChained<Il2CppIInspectable, MyChain>::value);
 
-	virtual il2cpp_hresult_t STDCALL MarshalInterface(Il2CppIStream* stream, const Il2CppGuid& iid, void* object, uint32_t context, void* reserved, uint32_t flags)
-	{
-		if (!__marshal)
-			return IL2CPP_E_OUTOFMEMORY;
-		return __marshal->MarshalInterface(stream, iid, object, context, reserved, flags);
-	}
-
-	virtual il2cpp_hresult_t STDCALL UnmarshalInterface(Il2CppIStream* stream, const Il2CppGuid& iid, void** object)
-	{
-		if (!__marshal)
-			return IL2CPP_E_OUTOFMEMORY;
-		return __marshal->UnmarshalInterface(stream, iid, object);
-	}
-
-	virtual il2cpp_hresult_t STDCALL ReleaseMarshalData(Il2CppIStream* stream)
-	{
-		if (!__marshal)
-			return IL2CPP_E_OUTOFMEMORY;
-		return __marshal->ReleaseMarshalData(stream);
-	}
-
-	virtual il2cpp_hresult_t STDCALL DisconnectObject(uint32_t reserved)
-	{
-		if (!__marshal)
-			return IL2CPP_E_OUTOFMEMORY;
-		return __marshal->DisconnectObject(reserved);
+		*trustLevel = 0;
+		return IL2CPP_S_OK;
 	}
 
 	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(Il2CppChar** bstr)
@@ -220,20 +373,23 @@ public:
 			return IL2CPP_E_POINTER;
 		*bstr_guid = NULL;
 		*app_domain_id = 0;
-		*ccw = reinterpret_cast<intptr_t>(gc::GCHandle::GetTarget(this->__handle));
+		*ccw = reinterpret_cast<intptr_t>(gc::GCHandle::GetTarget(this->m_GCHandle));
 		return IL2CPP_S_OK;
 	}
 
-protected:
-	inline void __Construct()
+	inline Il2CppObject* GetManagedObjectInline() const
 	{
-		Il2CppIUnknown* unknown;
-		if (IL2CPP_HR_SUCCEEDED(COM::CreateFreeThreadedMarshaler(NULL, &unknown)))
-		{
-			unknown->QueryInterface(Il2CppIMarshal::IID, reinterpret_cast<void**>(&__marshal));
-			unknown->Release();
-		}
+		return m_ManagedObject;
 	}
+
+	virtual Il2CppObject* STDCALL GetManagedObject()
+	{
+		return GetManagedObjectInline();
+	}
+
+private:
+	ComObjectBase(const ComObjectBase&);
+	ComObjectBase& operator=(const ComObjectBase&);
 };
 
 } /* namespace vm */

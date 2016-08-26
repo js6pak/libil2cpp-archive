@@ -31,6 +31,12 @@ public:
 	static double Sqrt (double val);
 	static double Tan (double val);
 	static double Tanh (double val);
+#if NET_4_0
+	static double Abs(double value);
+	static double Ceiling(double a);
+	static double SplitFractionDouble(double* value);
+	static float Abs(float value);
+#endif
 };
 
 } /* namespace System */

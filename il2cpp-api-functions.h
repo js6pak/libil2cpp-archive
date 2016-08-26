@@ -1,9 +1,11 @@
 
 DO_API( void, il2cpp_init, (const char* domain_name) );
+DO_API( void, il2cpp_init_utf16, (const Il2CppChar* domain_name) );
 DO_API( void, il2cpp_shutdown, () );
 DO_API( void, il2cpp_set_config_dir, (const char *config_path) );
 DO_API( void, il2cpp_set_data_dir, (const char *data_path) );
-DO_API( void, il2cpp_set_commandline_arguments, (int argc, const char* argv[], const char* basedir) );
+DO_API( void, il2cpp_set_commandline_arguments, (int argc, const char* const argv[], const char* basedir) );
+DO_API( void, il2cpp_set_commandline_arguments_utf16, (int argc, const Il2CppChar* const argv[], const char* basedir) );
 DO_API( void, il2cpp_set_memory_callbacks, (Il2CppMemoryCallbacks* callbacks) );
 DO_API( const Il2CppImage*, il2cpp_get_corlib, () );
 DO_API( void, il2cpp_add_internal_call, (const char* name, Il2CppMethodPointer method) );
@@ -180,10 +182,6 @@ DO_API( void, il2cpp_runtime_object_init, (Il2CppObject* obj) );
 DO_API( void, il2cpp_runtime_object_init_exception, (Il2CppObject* obj, Il2CppException** exc) );
 
 DO_API( void, il2cpp_runtime_unhandled_exception_policy_set, (Il2CppRuntimeUnhandledExceptionPolicy value) );
-
-// delegate
-DO_API( Il2CppAsyncResult*, il2cpp_delegate_begin_invoke, (Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state) );
-DO_API( Il2CppObject*, il2cpp_delegate_end_invoke, (Il2CppAsyncResult* asyncResult, void **out_args) );
 
 // string
 DO_API( int32_t, il2cpp_string_length, (Il2CppString* str) );

@@ -36,6 +36,14 @@ bool AssemblyName::ParseName (Il2CppReflectionAssemblyName* aname, Il2CppString*
 	return vm::AssemblyName::ParseName(aname, utils::StringUtils::Utf16ToUtf8(String::GetChars (assemblyName)));
 }
 
+#if NET_4_0
+void AssemblyName::get_public_token(uint8_t* token, uint8_t* pubkey, int32_t len)
+{
+	NOT_IMPLEMENTED_ICALL(AssemblyName::get_public_token);
+	IL2CPP_UNREACHABLE;
+}
+#endif
+
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

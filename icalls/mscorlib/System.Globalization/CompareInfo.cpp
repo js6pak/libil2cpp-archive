@@ -23,7 +23,7 @@ namespace System
 namespace Globalization
 {
 
-void CompareInfo::free_internal_collator (mscorlib_System_Globalization_CompareInfo * __this)
+void CompareInfo::free_internal_collator (mscorlib_System_Globalization_CompareInfo * thisPtr)
 {
 	// This method does not need any implementation.
 }
@@ -60,7 +60,7 @@ static int string_invariant_indexof (Il2CppString *source, int sindex, int count
 	}
 }
 
-int CompareInfo::internal_index (mscorlib_System_Globalization_CompareInfo *__this, Il2CppString *source, int sindex, int count, Il2CppString *value, int options, bool first)
+int CompareInfo::internal_index (mscorlib_System_Globalization_CompareInfo *thisPtr, Il2CppString *source, int sindex, int count, Il2CppString *value, int options, bool first)
 {
 	return (string_invariant_indexof(source, sindex, count, value, first));
 }
@@ -137,7 +137,7 @@ static int string_invariant_compare (Il2CppString *str1, int off1, int len1, Il2
 	return (string_invariant_compare_char(ustr1[pos], ustr2[pos], options));
 }
 
-int CompareInfo::internal_compare (mscorlib_System_Globalization_CompareInfo *__this, Il2CppString *str1, int off1, int len1, Il2CppString *str2, int off2, int len2, int options)
+int CompareInfo::internal_compare (mscorlib_System_Globalization_CompareInfo *thisPtr, Il2CppString *str1, int off1, int len1, Il2CppString *str2, int off2, int len2, int options)
 {
 	//MONO_ARCH_SAVE_REGS;
 

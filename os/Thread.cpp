@@ -4,7 +4,7 @@
 #include "os/ThreadLocalValue.h"
 #if IL2CPP_THREADS_STD
 #include "os/Std/ThreadImpl.h"
-#elif IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#elif IL2CPP_TARGET_WINDOWS
 #include "os/Win32/ThreadImpl.h"
 #elif IL2CPP_THREADS_PTHREAD
 #include "os/Posix/ThreadImpl.h"
@@ -62,6 +62,11 @@ void Thread::SetName (const std::string& name)
 void Thread::SetPriority (ThreadPriority priority)
 {
 	m_Thread->SetPriority (priority);
+}
+
+ThreadPriority Thread::GetPriority()
+{
+	return m_Thread->GetPriority();
 }
 
 void Thread::SetStackSize (size_t stackSize)

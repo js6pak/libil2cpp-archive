@@ -29,7 +29,8 @@ public:
 
 	static void Initialize ();
 	static void InitializeGCSafe ();
-
+	static void InitializeUnresolvedSignatureTable ();
+	
 	static Il2CppClass* GetGenericInstanceType (Il2CppClass* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
 	static const MethodInfo* GetGenericInstanceMethod (const MethodInfo* genericMethodDefinition, const Il2CppGenericContext* context);
 	static const MethodInfo* GetGenericInstanceMethod (const MethodInfo* genericMethodDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
@@ -41,6 +42,7 @@ public:
 	static void AddNativeDelegate (Il2CppMethodPointer nativeFunctionPointer, const MethodInfo* managedMethodInfo);
 
 	static Il2CppClass* GetPointerType(Il2CppClass* type);
+	static Il2CppClass* GetWindowsRuntimeClass(const std::string& fullName);
 	static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
 
 	static const Il2CppGenericInst* GetGenericInst (const il2cpp::metadata::Il2CppTypeVector& types);
@@ -67,11 +69,13 @@ public:
 	static Il2CppMethodPointer GetMarshalToNativeFuncFromIndex (MethodIndex index);
 	static Il2CppMethodPointer GetMarshalFromNativeFuncFromIndex (MethodIndex index);
 	static Il2CppMethodPointer GetMarshalCleanupFuncFromIndex (MethodIndex index);
+	static Il2CppMethodPointer GetUnresolvedVirtualCallStub(const MethodInfo* method);
 
 	static Il2CppMethodPointer GetCreateCcwFuncFromIndex (MethodIndex index);
 	static const Il2CppGuid* GetGuid (GuidIndex index);
 	
 	static const Il2CppAssembly* GetAssemblyFromIndex (AssemblyIndex index);
+	static const Il2CppAssembly* GetAssemblyByName(const std::string& name);
 	static Il2CppImage* GetImageFromIndex (ImageIndex index);
 	static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex (TypeDefinitionIndex index);
 	static const Il2CppTypeDefinition* GetTypeDefinitionFromIndex (TypeDefinitionIndex index);

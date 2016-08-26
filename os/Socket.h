@@ -169,6 +169,12 @@ enum PollFlags
 	kPollFlagsAny	= 0xffffffff
 };
 
+enum SocketError
+{
+	kInterrupted	= 4,	// EINTR on POSIX and WSAEINTR on Windows
+	kInvalidHandle	= 9		// EBADF on POSIX and WSAEBADF on Windows
+};
+
 inline void operator|=(PollFlags& left, PollFlags right)
 {
 	left = static_cast<PollFlags>(static_cast<int>(left) | static_cast<int>(right));
@@ -313,7 +319,9 @@ public:
 	
 	WaitStatus SendFile (const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options);
 	
+	static WaitStatus Poll(std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error);
 	static WaitStatus Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error);
+	static WaitStatus Poll (PollRequest &request, int32_t timeout, int32_t *result, int32_t *error);
 	
 	static WaitStatus GetHostName (std::string &name);
 	static WaitStatus GetHostByName (const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list);

@@ -8,15 +8,13 @@
 #include "metadata/GenericMethod.h"
 #include "metadata/Il2CppGenericClassHash.h"
 #include "metadata/Il2CppGenericClassCompare.h"
-#include "metadata/Il2CppGenericClassLess.h"
 #include "metadata/Il2CppGenericInstCompare.h"
 #include "metadata/Il2CppGenericInstHash.h"
-#include "metadata/Il2CppGenericInstLess.h"
 #include "metadata/Il2CppTypeCompare.h"
 #include "metadata/Il2CppTypeHash.h"
 #include "utils/Memory.h"
-#include "utils/StdUnorderedMap.h"
-#include "utils/StdUnorderedSet.h"
+#include "utils/Il2CppHashMap.h"
+#include "utils/Il2CppHashSet.h"
 #include "utils/StringUtils.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
@@ -146,14 +144,9 @@ const Il2CppType* GenericMetadata::InflateIfNeeded (const Il2CppType* type, cons
 
 
 static os::FastMutex s_GenericClassMutex;
-typedef unordered_set<Il2CppGenericClass*,
-#if IL2CPP_HAS_UNORDERED_CONTAINER
-	Il2CppGenericClassHash, Il2CppGenericClassCompare
-#else
-	Il2CppGenericClassLess
-#endif
-	> Il2CppGenericClassSet;
+typedef Il2CppHashSet<Il2CppGenericClass*, Il2CppGenericClassHash, Il2CppGenericClassCompare> Il2CppGenericClassSet;
 static Il2CppGenericClassSet s_GenericClassSet;
+
 
 Il2CppGenericClass* GenericMetadata::GetGenericClass (Il2CppClass* containerClass, const Il2CppGenericInst* inst)
 {
@@ -189,38 +182,6 @@ const MethodInfo* GenericMetadata::Inflate (const MethodInfo* methodDefinition, 
 	return GenericMethod::GetMethod (gmethod);
 }
 
-static void RecursiveGenericDepthFor(const Il2CppGenericInst* inst, int& depth)
-{
-	if (inst == NULL)
-		return;
-
-	int maximumDepth = depth;
-	for (size_t i = 0; i < inst->type_argc; i++)
-	{
-		if (inst->type_argv[i]->type == IL2CPP_TYPE_GENERICINST)
-		{
-			maximumDepth++;
-
-			int classInstDepth = 0;
-			RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.class_inst, classInstDepth);
-
-			int methodInstDepth = 0;
-			RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.method_inst, methodInstDepth);
-
-			maximumDepth += std::max(classInstDepth, methodInstDepth);
-		}
-	}
-
-	depth = maximumDepth;
-}
-
-static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst)
-{
-	int depth = 0;
-	RecursiveGenericDepthFor(inst, depth);
-	return depth;
-}
-
 const Il2CppGenericMethod* GenericMetadata::Inflate (const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context)
 {
 	const Il2CppGenericInst* classInst = genericMethod->context.class_inst;
@@ -240,12 +201,6 @@ const Il2CppGenericMethod* GenericMetadata::Inflate (const Il2CppGenericMethod* 
 			methodTypes.push_back (GenericMetadata::InflateIfNeeded (methodInst->type_argv[i], context, true));
 		methodInst = MetadataCache::GetGenericInst (methodTypes);
 	}
-
-	// We have cases where we could infinitely recurse, inflating generics at runtime. This will lead to a stack overflow.
-	// As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
-	// level, a crash will happen. We'll assume that this code won't actually be executed though.
-	if (RecursiveGenericDepthFor(classInst) > MaximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > MaximumRuntimeGenericDepth)
-		return NULL;
 
 	return MetadataCache::GetGenericMethod (genericMethod->methodDefinition, classInst, methodInst);
 }
@@ -291,8 +246,8 @@ void GenericMetadata::WalkAllGenericClasses(GenericClassWalkCallback callback, v
 
 	for (Il2CppGenericClassSet::iterator it = s_GenericClassSet.begin(); it != s_GenericClassSet.end(); it++)
 	{
-		if ((*it)->cached_class != NULL)
-			callback((*it)->cached_class, context);
+		if ((*it).key->cached_class != NULL)
+			callback((*it).key->cached_class, context);
 	}
 }
 

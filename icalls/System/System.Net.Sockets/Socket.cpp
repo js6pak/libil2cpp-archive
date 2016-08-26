@@ -287,7 +287,7 @@ static bool check_thread_status ()
 	if (state & vm::kThreadStateStopRequested)
 		return false;
 	
-	if (current_thread->interruption_requested)
+	if (current_thread->GetInternalThread()->interruption_requested)
 	{
 		assert (0 && "thread->interruption_requested not supported yet!");
 		return false;
@@ -927,8 +927,18 @@ void Socket::Select (Il2CppArray **sockets, int32_t timeout, int32_t *error)
 			continue;
 		}
 		
+#if !NET_4_0
+
 		const FieldInfo *field_info = vm::Class::GetFieldFromName (obj->klass, "socket");
 		Il2CppIntPtr& intPtr = *((Il2CppIntPtr*) ((char*) obj + field_info->offset));
+#else
+		FieldInfo *safe_handle_field_info = vm::Class::GetFieldFromName(obj->klass, "safe_handle");
+		const Il2CppObject* value = NULL;
+		vm::Field::GetValue(obj, safe_handle_field_info, &value);
+
+		const FieldInfo *handle_field_info = vm::Class::GetFieldFromName(value->klass, "handle");
+		Il2CppIntPtr& intPtr = *((Il2CppIntPtr*)((char*)value + handle_field_info->offset));
+#endif
 
 		// Acquire socket.
 		socketHandles.push_back (os::SocketHandleWrapper ());
@@ -1359,6 +1369,68 @@ int32_t Socket::WSAIoctl (Il2CppIntPtr socket, int32_t code, Il2CppArray *input,
 	
 	return output_bytes;
 }
+
+#if NET_4_0
+bool Socket::SendFile_internal(Il2CppIntPtr sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::SendFile_internal);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+bool Socket::SupportsPortReuse(ProtocolType proto)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::SupportsPortReuse);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+int32_t Socket::IOControl_internal(Il2CppIntPtr sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::IOControl_internal);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+int32_t Socket::ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject** sockaddr, int32_t* error)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::ReceiveFrom_internal);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+int32_t Socket::SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject* sa, int32_t* error)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::SendTo_internal);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppObject* Socket::LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::LocalEndPoint_internal);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppObject* Socket::RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::RemoteEndPoint_internal);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+void Socket::cancel_blocking_socket_operation(Il2CppObject* thread)
+{
+	NOT_IMPLEMENTED_ICALL(Socket::cancel_blocking_socket_operation);
+	IL2CPP_UNREACHABLE;
+}
+
+void Socket::Connect_internal(Il2CppIntPtr sock, Il2CppSocketAddress* sa, int32_t* error)
+{
+	Connect(sock, sa, error);
+}
+#endif
 
 } /* namespace Sockets */
 } /* namespace Net */

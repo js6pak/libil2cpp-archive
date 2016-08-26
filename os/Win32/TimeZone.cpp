@@ -1,12 +1,11 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_PLATFORM_WIN32
+#if IL2CPP_TARGET_WINDOWS
 
 #include "os/TimeZone.h"
+#include "os/Win32/WindowsHeaders.h"
 #include <cassert>
 
-#define WIN32_LEAN_AND_MEAN 1
-#include <Windows.h>
 /*
  * Magic number to convert FILETIME base Jan 1, 1601 to DateTime - base Jan, 1, 0001
  */
