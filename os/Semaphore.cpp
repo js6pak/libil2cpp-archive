@@ -2,7 +2,7 @@
 
 #include "os/Semaphore.h"
 #include "os/Atomic.h"
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINDOWS
 #include "os/Win32/SemaphoreImpl.h"
 #elif IL2CPP_TARGET_POSIX
 #include "os/Posix/SemaphoreImpl.h"

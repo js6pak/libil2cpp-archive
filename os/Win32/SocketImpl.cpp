@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_WINDOWS
 
 #include <cassert>
 
@@ -13,7 +13,7 @@
 #include "WindowsHelpers.h"
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#if IL2CPP_TARGET_WINDOWS
+#if !IL2CPP_TARGET_XBOXONE
 	#include <mswsock.h>
 #endif
 #include "os/Error.h"
@@ -1745,9 +1745,9 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 	return kWaitStatusSuccess;
 }
 
-WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout, int32_t *result, int32_t *error)
+WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error)
 {
-	const size_t nfds = requests.size ();
+	const size_t nfds = (size_t)count;
 	fd_set rfds, wfds, efds;
 
 	FD_ZERO(&rfds);
@@ -1755,7 +1755,7 @@ WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout,
 	FD_ZERO(&efds);
 
 	for (size_t i = 0; i < nfds; i++)
-	{		
+	{
 		SOCKET fd = static_cast<SOCKET>(requests[i].fd);
 		requests[i].revents = kPollFlagsNone;
 		if (fd == -1)
@@ -1792,10 +1792,17 @@ WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout,
 	if (affected == -1)
 	{
 		*error = WSAGetLastError();
+
+		// Mono does this as well and the threadpool-ms-io-poll code depends on this behavior
+		if (*error == WSAENOTSOCK)
+		{
+			*error = os::SocketError::kInvalidHandle;
+		}
+
 		return kWaitStatusFailure;
 	}
 
-	int32_t count = 0;
+	int32_t resultCount = 0;
 	for (size_t i = 0; i < nfds && affected > 0; i++)
 	{
 		SOCKET fd = static_cast<SOCKET>(requests[i].fd);
@@ -1821,11 +1828,23 @@ WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout,
 		}
 
 		if (requests[i].revents != kPollFlagsNone)
-			count++;
+			resultCount++;
 	}
 
-	*result = count;
+	*result = resultCount;
 	return kWaitStatusSuccess;
+}
+
+WaitStatus SocketImpl::Poll (std::vector<PollRequest>& requests, int32_t timeout, int32_t *result, int32_t *error)
+{
+	return Poll(requests, (int32_t)requests.size(), timeout, result, error);
+}
+
+WaitStatus SocketImpl::Poll (PollRequest& request, int32_t timeout, int32_t *result, int32_t *error)
+{
+	std::vector<PollRequest> requests;
+	requests.push_back(request);
+	return Poll(requests, 1, timeout, result, error);
 }
 
 WaitStatus SocketImpl::SetSocketOption (SocketOptionLevel level, SocketOptionName name, int32_t value)

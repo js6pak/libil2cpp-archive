@@ -129,7 +129,10 @@ Il2CppIntPtr Marshal::GetIUnknownForObjectInternal (Il2CppObject* o)
 
 Il2CppObject* Marshal::GetObjectForCCW (Il2CppIntPtr pUnk)
 {
-	return RCW::Create(static_cast<Il2CppIUnknown*>(pUnk.m_value));
+	if (pUnk.m_value == NULL)
+		return NULL;
+
+	return RCW::GetOrCreateFromIUnknown(static_cast<Il2CppIUnknown*>(pUnk.m_value), il2cpp_defaults.il2cpp_com_object_class);
 }
 
 Il2CppString* Marshal::PtrToStringBSTR (Il2CppIntPtr ptr)
@@ -477,10 +480,13 @@ void Marshal::DestroyStructure (Il2CppIntPtr ptr, Il2CppReflectionType* structur
 		Exception::Raise(Exception::GetArgumentException("structureType", "The specified type must not be an instance of a generic type."));
 	}
 
-
-	// Char and Boolean are not blittable, but they should not raise this exception, as we can call DestroyStructure on them without problems.
-	if (type->is_blittable || structureType->type->type == IL2CPP_TYPE_CHAR || structureType->type->type == IL2CPP_TYPE_BOOLEAN)
-		return;
+	// Enums are blittable, but they don't have layout information, therefore Marshal.DestroyStructure is supposed to throw
+	if (!type->enumtype)
+	{
+		// Char and Boolean are not blittable, but they should not raise this exception, as we can call DestroyStructure on them without problems.
+		if (type->is_blittable || structureType->type->type == IL2CPP_TYPE_CHAR || structureType->type->type == IL2CPP_TYPE_BOOLEAN)
+			return;
+	}
 
 	// If we got this far, throw an exception
 	Exception::Raise(Exception::GetArgumentException("structureType", "The specified type must be blittable or have layout information."));

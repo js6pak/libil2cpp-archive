@@ -21,6 +21,8 @@ public:
 	static NORETURN void RaiseOutOfMemoryException ();
 	static NORETURN void RaiseNullReferenceException ();
 	static NORETURN void RaiseDivideByZeroException ();
+	static NORETURN void RaiseOverflowException ();
+	static NORETURN void RaiseArgumentOutOfRangeException(const char* msg);
 
 	inline NORETURN static void RaiseCOMException (il2cpp_hresult_t hresult)
 	{
@@ -43,12 +45,14 @@ public:
 	////TODO: rename all of these to NewXXX
 	static Il2CppException* GetArgumentException (const char *arg, const char *msg);
 	static Il2CppException* GetArgumentNullException (const char *arg);
+	static Il2CppException* GetArgumentOutOfRangeException(const char *arg);
 	static Il2CppException* GetTypeInitializationException(const char *msg, Il2CppException* innerException);
 	static Il2CppException* GetIndexOutOfRangeException ();
 	static Il2CppException* GetNullReferenceException ();
 	static Il2CppException* GetInvalidCastException (const char* msg);
 	static Il2CppException* GetTypeLoadException ();
 	static Il2CppException* GetOutOfMemoryException ();
+	static Il2CppException* GetOverflowException();
 	static Il2CppException* GetOverflowException (const char* msg);
 	static Il2CppException* GetFormatException (const char* msg);
 	static Il2CppException* GetSystemException ();
@@ -68,6 +72,8 @@ public:
 	static Il2CppException* GetExecutionEngineException(const char* msg);
 	static Il2CppException* GetUnauthorizedAccessException(const char* msg);
 	static Il2CppException* GetDivideByZeroException();
+	static Il2CppException* GetPlatformNotSupportedException(const char* msg);
+	static Il2CppException* GetFileLoadException(const char* msg);
 
 	static Il2CppException* GetMaxmimumNestedGenericsException();
 

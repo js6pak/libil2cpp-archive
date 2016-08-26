@@ -59,6 +59,7 @@ il2cpp::gc::GarbageCollector::GetMaxGeneration ()
 void
 il2cpp::gc::GarbageCollector::Collect (int maxGeneration)
 {
+	assert(maxGeneration == 0); //Consumers should know this won't work.
 	GC_gcollect ();
 }
 
@@ -132,9 +133,13 @@ il2cpp::gc::GarbageCollector::UnregisterThread ()
 #endif
 }
 
-void il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback(Il2CppObject* obj, void(*callback)(void *, void *))
+il2cpp::gc::GarbageCollector::FinalizerCallback il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback(Il2CppObject* obj, FinalizerCallback callback)
 {
-	GC_REGISTER_FINALIZER_NO_ORDER((char*)obj, callback, NULL, NULL, NULL);
+	FinalizerCallback oldCallback;
+	void* oldData;
+	GC_REGISTER_FINALIZER_NO_ORDER((char*)obj, callback, NULL, &oldCallback, &oldData);
+	assert(oldData == NULL);
+	return oldCallback;
 }
 
 void

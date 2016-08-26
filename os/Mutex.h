@@ -61,6 +61,8 @@ public:
 	void Lock ();
 	void Unlock ();
 
+	FastMutexImpl* GetImpl();
+
 private:
 	FastMutexImpl* m_Impl;
 };

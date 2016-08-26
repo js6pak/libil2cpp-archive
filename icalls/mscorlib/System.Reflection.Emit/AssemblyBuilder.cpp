@@ -22,7 +22,7 @@ void AssemblyBuilder::basic_init(mscorlib_System_Reflection_Emit_AssemblyBuilder
 	NOT_SUPPORTED_SRE(AssemblyBuilder::basic_init);
 }
 
-mscorlib_System_Reflection_Module* AssemblyBuilder::InternalAddModule (mscorlib_System_Reflection_Emit_AssemblyBuilder * __this, Il2CppString* fileName)
+mscorlib_System_Reflection_Module* AssemblyBuilder::InternalAddModule (mscorlib_System_Reflection_Emit_AssemblyBuilder * thisPtr, Il2CppString* fileName)
 {
 	NOT_SUPPORTED_SRE(AssemblyBuilder::InternalAddModule);
 	return NULL;

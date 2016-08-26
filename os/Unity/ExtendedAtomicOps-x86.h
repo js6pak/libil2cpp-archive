@@ -1,6 +1,6 @@
 
 #if defined (_MSC_VER)
-#	include "Windows.h"
+#	include "os/Win32/WindowsHeaders.h"
 #	include <intrin.h>
 #endif
 

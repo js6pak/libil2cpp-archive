@@ -8,19 +8,23 @@ namespace il2cpp
 namespace metadata
 {
 
-bool Il2CppTypeCompare::operator() (const Il2CppType* t1,const Il2CppType* t2) const
+bool Il2CppTypeCompare::operator() (const KeyWrapper<const Il2CppType*>& t1, const KeyWrapper<const Il2CppType*>& t2) const
 {
 	return Compare (t1, t2);
 }
 
-bool Il2CppTypeCompare::Compare (const Il2CppType* t1,const Il2CppType* t2)
+bool Il2CppTypeCompare::Compare (const KeyWrapper<const Il2CppType*>& t1, const KeyWrapper<const Il2CppType*>& t2)
 {
-	
-	if ((t1->type != t2->type) ||
-		(t1->byref != t2->byref))
+	if (t1.type != t2.type)
+		return false;
+	else if (!t1.isNormal())
+		return true;
+
+	if ((t1.key->type != t2.key->type) ||
+		(t1.key->byref != t2.key->byref))
 		return false;
 
-	switch (t1->type) {
+	switch (t1.key->type) {
 	case IL2CPP_TYPE_VOID:
 	case IL2CPP_TYPE_BOOLEAN:
 	case IL2CPP_TYPE_CHAR:
@@ -42,20 +46,20 @@ bool Il2CppTypeCompare::Compare (const Il2CppType* t1,const Il2CppType* t2)
 		return true;
 	case IL2CPP_TYPE_VALUETYPE:
 	case IL2CPP_TYPE_CLASS:
-		return t1->data.klassIndex == t2->data.klassIndex;
+		return t1.key->data.klassIndex == t2.key->data.klassIndex;
 	case IL2CPP_TYPE_PTR:
 	case IL2CPP_TYPE_SZARRAY:
-		return Compare (t1->data.type, t2->data.type);
+		return Compare (t1.key->data.type, t2.key->data.type);
 	case IL2CPP_TYPE_ARRAY:
-		if (t1->data.array->rank != t2->data.array->rank)
+		if (t1.key->data.array->rank != t2.key->data.array->rank)
 			return false;
-		return Compare (t1->data.array->etype, t2->data.array->etype);
+		return Compare (t1.key->data.array->etype, t2.key->data.array->etype);
 	case IL2CPP_TYPE_GENERICINST: {
-		const Il2CppGenericInst *i1 = t1->data.generic_class->context.class_inst;
-		const Il2CppGenericInst *i2 = t2->data.generic_class->context.class_inst;
+		const Il2CppGenericInst *i1 = t1.key->data.generic_class->context.class_inst;
+		const Il2CppGenericInst *i2 = t2.key->data.generic_class->context.class_inst;
 		if (i1->type_argc != i2->type_argc)
 			return false;
-		if (t1->data.generic_class->typeDefinitionIndex != t2->data.generic_class->typeDefinitionIndex)
+		if (t1.key->data.generic_class->typeDefinitionIndex != t2.key->data.generic_class->typeDefinitionIndex)
 			return false;
 		/* FIXME: we should probably just compare the instance pointers directly.  */
 		for (uint32_t i = 0; i < i1->type_argc; ++i) {
@@ -66,7 +70,7 @@ bool Il2CppTypeCompare::Compare (const Il2CppType* t1,const Il2CppType* t2)
 	}
 	case IL2CPP_TYPE_VAR:
 	case IL2CPP_TYPE_MVAR:
-		return t1->data.genericParameterIndex == t2->data.genericParameterIndex;
+		return t1.key->data.genericParameterIndex == t2.key->data.genericParameterIndex;
 	default:
 		NOT_IMPLEMENTED (Il2CppTypeCompare::compare);
 		return false;

@@ -50,30 +50,11 @@ public:
 
 	static void MarshalFreeBString(Il2CppChar* value);
 
-	static char** MarshalAllocateNativeStringArray(size_t size);
-	static Il2CppChar** MarshalAllocateNativeWStringArray(size_t size);
-	static Il2CppChar** MarshalAllocateNativeBStringArray(size_t size);
-
-	static void MarshalStringArrayOut(char** nativeArray, Il2CppArray* managedArray);
-	static void MarshalWStringArrayOut(Il2CppChar** nativeArray, Il2CppArray* managedArray);
-	static void MarshalBStringArrayOut(Il2CppChar** nativeArray, Il2CppArray* managedArray);
-
-	static void MarshalStringArray(Il2CppArray* managedArray, char** nativeArray);
-	static void MarshalWStringArray(Il2CppArray* managedArray, Il2CppChar** nativeArray);
-	static void MarshalBStringArray(Il2CppArray* managedArray, Il2CppChar** nativeArray);
-
-	static Il2CppArray* MarshalStringArrayResult(char** nativeArray, size_t size);
-	static Il2CppArray* MarshalWStringArrayResult(Il2CppChar** nativeArray, size_t size);
-	static Il2CppArray* MarshalBStringArrayResult(Il2CppChar** nativeArray, size_t size);
-
 	static char* MarshalStringBuilder(Il2CppStringBuilder* stringBuilder);
 	static Il2CppChar* MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder);
 
 	static void MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer);
 	static void MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, Il2CppChar* buffer);
-
-	static void MarshalFreeStringArray(void** nativeArray, size_t size);
-	static void MarshalFreeBStringArray(Il2CppChar** nativeArray, size_t size);
 
 	static Il2CppIntPtr MarshalDelegate(Il2CppDelegate* d);
 	static Il2CppDelegate* MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType);
@@ -81,34 +62,6 @@ public:
 	static void MarshalStructToNative(void* managedStructure, void* marshaledStructure, Il2CppClass* type);
 	static void MarshalStructFromNative(void* marshaledStructure, void* managedStructure, Il2CppClass* type);
 	static bool MarshalFreeStruct(void* marshaledStructure, Il2CppClass* type);
-
-	template <typename ElementType>
-	static ElementType* MarshalArray(Il2CppArray* managedArray)
-	{
-		if (managedArray == NULL)
-			return NULL;
-
-		return (ElementType*)Array::GetFirstElementAddress(managedArray);
-	}
-
-	template <typename ElementType>
-	static Il2CppArray* MarshalArrayResult(Il2CppClass* type, ElementType* nativeArray, size_t size)
-	{
-		if (nativeArray == NULL)
-			return NULL;
-
-		Il2CppArray* managedArray = Array::New(type, (il2cpp_array_size_t)size);
-		MarshalArrayOut(nativeArray, managedArray);
-
-		return managedArray;
-	}
-
-	template <typename ElementType>
-	static void MarshalArrayOut(ElementType* nativeArray, Il2CppArray* managedArray)
-	{
-		for (il2cpp_array_size_t i = 0; i < managedArray->max_length; ++i)
-			il2cpp_array_setwithsize(managedArray, sizeof(ElementType), i, nativeArray[i]);
-	}
 
 	template <typename T>
 	static T* MarshalAllocateStringBuffer(size_t numberOfCharacters)

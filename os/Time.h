@@ -18,6 +18,9 @@ public:
 
 	/* Returns the number of 100ns ticks since 1/1/1, UTC timezone */
 	static int64_t GetTicks100NanosecondsDateTime ();
+	
+	// Retrieves the current system date and time. The information is in Coordinated Universal Time(UTC) format.
+	static int64_t GetSystemTimeAsFileTime();
 };
 
 }

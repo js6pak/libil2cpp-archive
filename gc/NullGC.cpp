@@ -75,9 +75,9 @@ il2cpp::gc::GarbageCollector::UnregisterThread()
 	return true;
 }
 
-void
-il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (Il2CppObject* obj, void(*callback)(void *, void *))
+il2cpp::gc::GarbageCollector::FinalizerCallback il2cpp::gc::GarbageCollector::RegisterFinalizerWithCallback (Il2CppObject* obj, FinalizerCallback callback)
 {
+	return NULL;
 }
 
 void

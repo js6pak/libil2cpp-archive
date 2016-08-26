@@ -44,6 +44,7 @@ public:
 	void QueueUserAPC (Thread::APCFunc func, void* context);
 	void SetName (const std::string& name);
 	void SetPriority (ThreadPriority priority);
+	ThreadPriority GetPriority();
 	void SetStackSize (size_t newsize);
 
 	/// Handle any pending APCs.

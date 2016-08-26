@@ -76,16 +76,13 @@ Il2CppArray* Environment::GetCommandLineArgs ()
 	Il2CppArray *res;
 	int i;
 	int num_main_args = vm::Environment::GetNumMainArgs();
-	char** main_args = vm::Environment::GetMainArgs();
-
-	if (!main_args)
-		return NULL;
+	const std::vector<UTF16String>& mainArgs = vm::Environment::GetMainArgs();
 
 	Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass (il2cpp_defaults.string_class, 1);
 	res = (Il2CppArray*)il2cpp::vm::Array::NewSpecific (klass, num_main_args);
 
 	for (i = 0; i < num_main_args; ++i)
-		il2cpp_array_setref (res, i, il2cpp::vm::String::New(main_args [i]));
+		il2cpp_array_setref (res, i, il2cpp::vm::String::NewUtf16(mainArgs[i].c_str(), static_cast<int>(mainArgs[i].length())));
 
 	return res;
 }
@@ -197,6 +194,25 @@ Il2CppString* Environment::internalGetGacPath ()
 
 	return 0;
 }
+
+#if NET_4_0
+bool Environment::GetIs64BitOperatingSystem()
+{
+	if (sizeof(void*) == 8)
+		return true;
+	return il2cpp::os::Environment::Is64BitOs();
+}
+
+int32_t Environment::GetPageSize()
+{
+	return IL2CPP_PAGE_SIZE;
+}
+
+Il2CppString* Environment::GetNewLine()
+{
+	return get_NewLine();
+}
+#endif
 
 } /* namespace System */
 } /* namespace mscorlib */

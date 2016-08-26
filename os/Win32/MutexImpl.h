@@ -49,6 +49,11 @@ public:
 		LeaveCriticalSection (&m_CritialSection);
 	}
 
+	CRITICAL_SECTION* GetOSHandle ()
+	{
+		return &m_CritialSection;
+	}
+
 private:
 	CRITICAL_SECTION m_CritialSection;
 };

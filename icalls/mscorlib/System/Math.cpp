@@ -155,6 +155,28 @@ double Math::Round2 (double value, int32_t digits, bool away_from_zero)
 #endif
 }
 
+#if NET_4_0
+double Math::Abs(double value)
+{
+	return fabs(value);
+}
+
+double Math::Ceiling(double a)
+{
+	return ceil(a);
+}
+
+double Math::SplitFractionDouble(double* value)
+{
+	return modf(*value, value);
+}
+
+float Math::Abs(float value)
+{
+	return fabsf(value);
+}
+#endif
+
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

@@ -19,6 +19,11 @@ struct OnceFlag : NonCopyable
 
 	friend void CallOnce (OnceFlag& flag, CallOnceFunc func, void* arg);
 
+	bool IsSet()
+	{
+		return il2cpp::os::Atomic::ReadPointer(&m_Flag) ? true : false;
+	}
+
 private:
 	void* m_Flag;
 	il2cpp::os::FastMutex m_Mutex;

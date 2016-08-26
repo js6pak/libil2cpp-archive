@@ -4,7 +4,6 @@
 #include "metadata/GenericSharing.h"
 #include "metadata/Il2CppGenericMethodCompare.h"
 #include "metadata/Il2CppGenericMethodHash.h"
-#include "metadata/Il2CppGenericMethodLess.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
 #include "vm/Class.h"
@@ -15,7 +14,7 @@
 #include "vm/Method.h"
 #include "vm/Runtime.h"
 #include "vm/Type.h"
-#include "utils/StdUnorderedMap.h"
+#include "utils/Il2CppHashMap.h"
 #include <cassert>
 #include "class-internals.h"
 #include "metadata.h"
@@ -37,22 +36,12 @@ namespace il2cpp
 namespace metadata
 {
 
-typedef unordered_map<const Il2CppGenericMethod*, MethodInfo*,
-#if IL2CPP_HAS_UNORDERED_CONTAINER
-		Il2CppGenericMethodHash, Il2CppGenericMethodCompare
-#else
-		Il2CppGenericMethodLess
-#endif
-	> Il2CppGenericMethodMap;
+typedef Il2CppHashMap<const Il2CppGenericMethod*, MethodInfo*, Il2CppGenericMethodHash, Il2CppGenericMethodCompare> Il2CppGenericMethodMap;
 static Il2CppGenericMethodMap s_GenericMethodMap;
 
 const MethodInfo* GenericMethod::GetMethod (const Il2CppGenericMethod* gmethod)
 {
 	FastAutoLock lock (&il2cpp::vm::g_MetadataLock);
-
-	// This can be NULL only when we have hit the generic recursion depth limit.
-	if (gmethod == NULL)
-		return NULL;
 
 	Il2CppGenericMethodMap::const_iterator iter = s_GenericMethodMap.find (gmethod);
 	if (iter != s_GenericMethodMap.end ())

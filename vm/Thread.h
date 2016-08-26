@@ -11,6 +11,8 @@ struct Il2CppArray;
 struct Il2CppDomain;
 struct Il2CppObject;
 struct Il2CppThread;
+struct Il2CppInternalThread;
+struct Il2CppString;
 
 namespace il2cpp
 {
@@ -46,6 +48,8 @@ class LIBIL2CPP_CODEGEN_API Thread
 {
 public:
 	static char *GetName (uint32_t *len);
+	static void SetName(Il2CppThread* thread, Il2CppString* name);
+	static void SetName(Il2CppInternalThread* thread, Il2CppString* name);
 	static Il2CppThread* Current ();
 	static Il2CppThread* Attach (Il2CppDomain *domain);
 	static void Detach (Il2CppThread *thread);
@@ -58,9 +62,14 @@ public:
 	static void RequestInterrupt (Il2CppThread* thread);
 	static void CheckCurrentThreadForInterruptAndThrowIfNecessary();
 
-	static void RequestAbort(Il2CppThread* thread);
+	static bool RequestAbort(Il2CppThread* thread);
 	static void CheckCurrentThreadForAbortAndThrowIfNecessary();
 	static void ResetAbort(Il2CppThread* thread);
+#if NET_4_0
+	static bool RequestAbort(Il2CppInternalThread* thread);
+	static void SetPriority(Il2CppThread* thread, int32_t priority);
+	static int32_t GetPriority(Il2CppThread* thread);
+#endif
 
 	struct NativeThreadAbortException {};
 
@@ -91,6 +100,22 @@ public:
 	static void ClrState (Il2CppThread* thread, ThreadState clr);
 
 	static void MemoryBarrier();
+
+#if NET_4_0
+	static Il2CppInternalThread* CurrentInternal();
+
+	static void ClrState(Il2CppInternalThread* thread, ThreadState clr);
+	static void SetState(Il2CppInternalThread *thread, ThreadState value);
+	static ThreadState GetState(Il2CppInternalThread *thread);
+	static bool TestState(Il2CppInternalThread* thread, ThreadState value);
+
+	static Il2CppInternalThread* CreateInternal(void(*func) (void*), void* arg, bool threadpool_thread, uint32_t stack_size);
+
+	static void Stop(Il2CppInternalThread* thread);
+
+	static void Sleep(uint32_t ms);
+
+#endif
 
 private:
 	static Il2CppThread* s_MainThread;
