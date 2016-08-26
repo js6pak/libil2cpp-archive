@@ -100,7 +100,9 @@ bool MonoIO::GetFileStat (Il2CppString* path, FileStat * stat, int32_t* error)
 
 	if(ret)
 	{
+#if !NET_4_0
 		stat->name = vm::String::New(fileStat.name.c_str());
+#endif
 		stat->attributes = fileStat.attributes;
 		stat->length = fileStat.length;
 		stat->creation_time = fileStat.creation_time;
@@ -267,17 +269,14 @@ void MonoIO::Unlock (Il2CppIntPtr handle, int64_t position, int64_t length, Mono
 
 bool MonoIO::CreatePipe (Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle)
 {
-	il2cpp::os::FileHandle* input = (il2cpp::os::FileHandle*)read_handle->m_value;
-	il2cpp::os::FileHandle* output = (il2cpp::os::FileHandle*)write_handle->m_value;
-
-	return il2cpp::os::File::CreatePipe(&input, &output);
+	MonoIOError error;
+	return CreatePipe40 (read_handle, write_handle, &error);
 }
 
 bool MonoIO::DuplicateHandle (Il2CppIntPtr source_process_handle, Il2CppIntPtr source_handle, Il2CppIntPtr target_process_handle, Il2CppIntPtr* target_handle, int32_t access, int32_t inherit, int32_t options)
 {
-	// Only used on Windows in Process.Start_noshell.
-	NOT_IMPLEMENTED_ICALL (MonoIO::DuplicateHandle);
-	return false;
+	MonoIOError error;
+	return DuplicateHandle40 (source_process_handle, source_handle, target_process_handle, target_handle, access, inherit, options, &error);
 }
 
 // This is never called from Mono.
@@ -287,6 +286,56 @@ int32_t MonoIO::GetTempPath (Il2CppString** path)
 	*path = vm::String::New (tempPath.c_str ());
 	return vm::String::GetLength(*path);
 }
+
+bool MonoIO::CreatePipe40(Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle, MonoIOError* error)
+{
+	il2cpp::os::FileHandle** input = (il2cpp::os::FileHandle**)&read_handle->m_value;
+	il2cpp::os::FileHandle** output = (il2cpp::os::FileHandle**)&write_handle->m_value;
+
+#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+	vm::Exception::Raise(vm::Exception::GetNotSupportedException("Pipes are not supported on WinRT based platforms."));
+#else
+	return il2cpp::os::File::CreatePipe (input, output, error);
+#endif
+}
+
+bool MonoIO::DuplicateHandle40(Il2CppIntPtr source_process_handle, Il2CppIntPtr source_handle, Il2CppIntPtr target_process_handle, Il2CppIntPtr* target_handle, int32_t access, int32_t inherit, int32_t options, MonoIOError* error)
+{
+	il2cpp::os::FileHandle* spHandle = (il2cpp::os::FileHandle*)source_process_handle.m_value;
+	il2cpp::os::FileHandle* sHandle = (il2cpp::os::FileHandle*)source_handle.m_value;
+	il2cpp::os::FileHandle* tpHandle = (il2cpp::os::FileHandle*)target_process_handle.m_value;
+	il2cpp::os::FileHandle** tHandle = (il2cpp::os::FileHandle**)&target_handle->m_value;
+	return il2cpp::os::File::DuplicateHandle(spHandle, sHandle, tpHandle, tHandle, access, inherit, options, error);
+}
+
+#if NET_4_0
+int32_t MonoIO::FindClose(Il2CppIntPtr handle)
+{
+	NOT_IMPLEMENTED_ICALL(MonoIO::FindClose);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppString* MonoIO::FindFirst(Il2CppString* path, Il2CppString* pattern, int32_t* result_attr, MonoIOError* error, Il2CppIntPtr* handle)
+{
+	NOT_IMPLEMENTED_ICALL(MonoIO::FindFirst);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppString* MonoIO::FindNext(Il2CppIntPtr handle, int32_t* result_attr, MonoIOError* error)
+{
+	NOT_IMPLEMENTED_ICALL(MonoIO::FindNext);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+void MonoIO::DumpHandles()
+{
+	NOT_IMPLEMENTED_ICALL(MonoIO::DumpHandles);
+	IL2CPP_UNREACHABLE;
+}
+#endif
 
 } /* namespace IO */
 } /* namespace System */

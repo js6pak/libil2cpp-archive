@@ -66,5 +66,10 @@ void FastMutex::Unlock ()
 	m_Impl->Unlock ();
 }
 
+FastMutexImpl* FastMutex::GetImpl()
+{
+	return m_Impl;
+}
+
 }
 }

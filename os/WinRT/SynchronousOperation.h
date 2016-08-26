@@ -1,5 +1,8 @@
 #pragma once
 
+#include "os/Win32/WindowsHeaders.h"
+#include <windows.foundation.collections.h>
+#include <wrl.h>
 
 namespace il2cpp
 {

@@ -206,6 +206,13 @@ Il2CppString* String::InternalIsInterned(Il2CppString* str)
 	return il2cpp_string_is_interned(str);
 }
 
+#if NET_4_0
+Il2CppString* String::FastAllocateString(int32_t length)
+{
+	return vm::String::NewSize(length);
+}
+#endif
+
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

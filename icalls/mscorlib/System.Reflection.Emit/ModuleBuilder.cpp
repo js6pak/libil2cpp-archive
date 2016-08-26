@@ -65,6 +65,29 @@ void ModuleBuilder::WriteToFile (Il2CppReflectionModuleBuilder*, Il2CppIntPtr)
 	NOT_SUPPORTED_SRE (ModuleBuilder::WriteToFile);
 }
 
+#if NET_4_0
+int32_t ModuleBuilder::getMethodToken40(Il2CppObject* mb, Il2CppObject* method, Il2CppArray* opt_param_types)
+{
+	NOT_IMPLEMENTED_ICALL(ModuleBuilder::getMethodToken40);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+int32_t ModuleBuilder::getToken40(Il2CppObject* mb, Il2CppObject* obj, bool create_open_instance)
+{
+	NOT_IMPLEMENTED_ICALL(ModuleBuilder::getToken40);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppObject* ModuleBuilder::GetRegisteredToken(Il2CppObject* _this, int32_t token)
+{
+	NOT_IMPLEMENTED_ICALL(ModuleBuilder::GetRegisteredToken);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
+
 } /* namespace Emit */
 } /* namespace Reflection */
 } /* namespace System */

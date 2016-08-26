@@ -33,10 +33,10 @@
 #if IL2CPP_TARGET_POSIX
 #include <unistd.h>
 #include "os/Posix/PosixHelpers.h"
-#elif IL2CPP_PLATFORM_WIN32
-#include <winsock2.h>
+#elif IL2CPP_TARGET_WINDOWS
 #include "os/Win32/WindowsHeaders.h"
 #include "os/Win32/ThreadImpl.h"
+#include <winsock2.h>
 #endif
 
 #if IL2CPP_USE_SOCKET_MULTIPLEX_IO
@@ -131,7 +131,7 @@ struct SocketPollingThread
     
 #if	IL2CPP_USE_SOCKET_MULTIPLEX_IO
 	Sockets::MultiplexIO multiplexIO;	// container class to allow access to multiplex io socket functions
-#elif IL2CPP_TARGET_POSIX || IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_POSIX || IL2CPP_TARGET_WINDOWS
 	/// On POSIX, we have no way to interrupt polls() with user APCs in a way that isn't prone
 	/// to race conditions so what we do instead is create a pipe that we include in the poll()
 	/// call and then write to that in order to interrupt an ongoing poll().
@@ -149,7 +149,7 @@ struct SocketPollingThread
 
 #if IL2CPP_TARGET_POSIX
 	typedef int PipeType;
-#elif IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_WINDOWS
 	typedef SOCKET PipeType;
 #endif
 
@@ -160,7 +160,7 @@ struct SocketPollingThread
 	{
 #if IL2CPP_TARGET_POSIX
 		write(pipe, &message, 1);
-#elif IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_WINDOWS
 		send(pipe, &message, 1, 0);
 #endif
 	}
@@ -169,7 +169,7 @@ struct SocketPollingThread
 	{
 #if IL2CPP_TARGET_POSIX
 		return read(pipe, message, length);
-#elif IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_WINDOWS
 		return recv(pipe, message, length, 0);
 #endif
 	}
@@ -179,7 +179,7 @@ struct SocketPollingThread
 	SocketPollingThread ()
 		: threadStartupAcknowledged (true)
 		, thread (NULL)
-#if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && (IL2CPP_TARGET_POSIX || IL2CPP_PLATFORM_WIN32)
+#if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && (IL2CPP_TARGET_POSIX || IL2CPP_TARGET_WINDOWS)
 		, readPipe (0)
 		, writePipe (0)
 #endif
@@ -197,7 +197,7 @@ struct SocketPollingThread
 		// Interrupt polling thread to pick up new request.
 #if	IL2CPP_USE_SOCKET_MULTIPLEX_IO
 		multiplexIO.InterruptPoll(); // causes the current blocking poll to abort and recheck the queue
-#elif IL2CPP_TARGET_POSIX || IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_POSIX || IL2CPP_TARGET_WINDOWS
 		char message = static_cast<char>(kMessageNewAsyncResult);
 		WritePipe(writePipe, message);
 #endif
@@ -359,14 +359,18 @@ static void InitPollRequest (NativePollRequest& request, Il2CppSocketAsyncResult
 	}
 #endif
 
+#if !NET_4_0
 	// Acquire socket.
 	socketHandle.Acquire (os::PointerToSocketHandle (socketAsyncResult->handle.m_value));
+#else
+	assert(false && "Todo .net 4");
+#endif
 	request.fd = socketHandle.IsValid() ? socketHandle.GetSocket()->GetDescriptor() : -1;
 }
 
 void SocketPollingThread::RunLoop ()
 {
-#if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && !IL2CPP_TARGET_POSIX && !IL2CPP_PLATFORM_WIN32
+#if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_WINDOWS
 	assert(false && "Platform has no SocketPollingThread mechanism. This function WILL deadlock.");
 #endif
 
@@ -387,7 +391,7 @@ void SocketPollingThread::RunLoop ()
 	// release all sockets.
 	std::vector<os::SocketHandleWrapper> socketHandles;
 
-#if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && (IL2CPP_TARGET_POSIX || IL2CPP_PLATFORM_WIN32)
+#if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && (IL2CPP_TARGET_POSIX || IL2CPP_TARGET_WINDOWS)
 	{
 		NativePollRequest pollRequest;
 		pollRequest.fd = readPipe;
@@ -434,7 +438,7 @@ void SocketPollingThread::RunLoop ()
 		int32_t errorCode = 0;
 		int32_t results = 0;
 		multiplexIO.Poll(pollRequests, -1, &results, &errorCode);
-#elif IL2CPP_TARGET_POSIX || IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_POSIX || IL2CPP_TARGET_WINDOWS
 #if IL2CPP_TARGET_POSIX
 		os::posix::Poll(pollRequests.data (), pollRequests.size (), -1);
 #else
@@ -451,7 +455,7 @@ void SocketPollingThread::RunLoop ()
 
 		// Go through our requests and see which ones we can forward, which ones are
 		// obsolete, and which ones still need to be waited on.
-#if IL2CPP_USE_SOCKET_MULTIPLEX_IO || (!IL2CPP_TARGET_POSIX && !IL2CPP_PLATFORM_WIN32)
+#if IL2CPP_USE_SOCKET_MULTIPLEX_IO || (!IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_WINDOWS)
 		const size_t startIndex = 0;
 #else
 		const size_t startIndex = 1;
@@ -487,7 +491,7 @@ static void FreeThreadHandle (void* data)
 	gc::GCHandle::Free (handle);
 }
 
-#if IL2CPP_PLATFORM_WIN32
+#if IL2CPP_TARGET_WINDOWS
 struct ConnectToSocketArgs
 {
 	SOCKET s;
@@ -521,15 +525,15 @@ static void SocketPollingThreadEntryPoint (void* data)
 	Il2CppThread* managedThread = vm::Thread::Attach (il2cpp_domain_get());
 	uint32_t handle = gc::GCHandle::New ((Il2CppObject*) managedThread, true);
 	vm::Thread::SetState (managedThread, kThreadStateBackground);
-	managedThread->handle->SetName ("Socket I/O Polling Thread");
-	managedThread->handle->SetPriority (os::kThreadPriorityLow);
-	managedThread->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
+	managedThread->GetInternalThread()->handle->SetName ("Socket I/O Polling Thread");
+	managedThread->GetInternalThread()->handle->SetPriority (os::kThreadPriorityLow);
+	managedThread->GetInternalThread()->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
 
 	// The socket polling thread is not technically a worker pool thread but for all
 	// intents and purposes it is part of the async I/O thread pool. It is important to
 	// mark it as a thread pool thread so that the queueing logic correctly detects
 	// when it is necessary to spin up a new thread to avoid deadlocks.
-	managedThread->threadpool_thread = true;
+	managedThread->GetInternalThread()->threadpool_thread = true;
 	
 #if IL2CPP_USE_SOCKET_MULTIPLEX_IO
 #elif IL2CPP_TARGET_POSIX
@@ -540,7 +544,7 @@ static void SocketPollingThreadEntryPoint (void* data)
 	}
 	pollingThread->readPipe = pipeHandles[0];
 	pollingThread->writePipe = pipeHandles[1];
-#elif IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_WINDOWS
 	{
 		SOCKET server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		assert(server != INVALID_SOCKET);
@@ -601,7 +605,7 @@ static void SocketPollingThreadEntryPoint (void* data)
 #elif IL2CPP_TARGET_POSIX
 		close(pollingThread->readPipe);
 		close(pollingThread->writePipe);
-#elif IL2CPP_PLATFORM_WIN32
+#elif IL2CPP_TARGET_WINDOWS
 		closesocket(pollingThread->readPipe);
 		closesocket(pollingThread->writePipe);
 #endif
@@ -651,7 +655,7 @@ void SocketPollingThread::Terminate ()
 static bool IsCurrentThreadAWorkerThread ()
 {
 	Il2CppThread* thread = vm::Thread::Current ();
-	return thread->threadpool_thread;
+	return thread->GetInternalThread()->threadpool_thread;
 }
 
 void ThreadPoolCompartment::QueueWorkItem (Il2CppAsyncResult* asyncResult)
@@ -714,6 +718,7 @@ static void HandleSocketAsyncOperation (Il2CppAsyncResult* asyncResult)
 	int32_t offset = socketAsyncResult->offset;
 	int32_t count = socketAsyncResult->size;
 
+#if !NET_4_0
 	// Perform send/receive.
 	switch (socketAsyncResult->operation)
 	{
@@ -727,6 +732,9 @@ static void HandleSocketAsyncOperation (Il2CppAsyncResult* asyncResult)
 				(socketAsyncResult->handle, buffer, offset, count, flags, &socketAsyncResult->error);
 			break;
 	}
+#else
+	assert(false && "TO DO .net 4");
+#endif
 }
 
 void ThreadPoolCompartment::WorkerThreadRunLoop ()
@@ -876,15 +884,15 @@ static void WorkerThreadEntryPoint (void* data)
 	Il2CppThread* managedThread = vm::Thread::Attach (il2cpp_domain_get());
 	uint32_t handle = gc::GCHandle::New ((Il2CppObject*) managedThread, true);
 	vm::Thread::SetState (managedThread, kThreadStateBackground);
-	managedThread->threadpool_thread = true;
+	managedThread->GetInternalThread()->threadpool_thread = true;
 	int threadCount = compartment->AttachThread (managedThread);
 
 	// Configure OS thread.
 	char name[2048];
 	sprintf (name, "%s Thread #%i", compartment->compartmentName, threadCount - 1);
-	managedThread->handle->SetName (name);
-	managedThread->handle->SetPriority (os::kThreadPriorityLow);
-	managedThread->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
+	managedThread->GetInternalThread()->handle->SetName (name);
+	managedThread->GetInternalThread()->handle->SetPriority (os::kThreadPriorityLow);
+	managedThread->GetInternalThread()->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
 
 	// Do work.
 	try
@@ -996,6 +1004,7 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 	}
 	else if (IsSocketAsyncCall (delegate))
 	{
+#if !NET_4_0
 		Il2CppSocketAsyncResult* socketAsyncResult = GetSocketAsyncResult (asyncResult);
 		socketAsyncResult->ares = asyncResult;
 
@@ -1014,6 +1023,10 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 			SpawnSocketPollingThreadIfNeeded ();
 			g_SocketPollingThread->QueueRequest (asyncResult);
 		}
+#else
+		assert(false && "The SocketAsyncCall delegate type does not exist in the net45 class libs so this if clause should never be reached");
+		IL2CPP_UNREACHABLE;
+#endif
 	}
 	else if (IsFileStreamAsyncCall (delegate))
 	{

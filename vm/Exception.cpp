@@ -56,6 +56,16 @@ NORETURN void Exception::RaiseDivideByZeroException ()
 	Raise (GetDivideByZeroException ());
 }
 
+NORETURN void Exception::RaiseOverflowException()
+{
+	Raise(GetOverflowException ());
+}
+
+NORETURN void Exception::RaiseArgumentOutOfRangeException(const char* msg)
+{
+	Raise(GetArgumentOutOfRangeException(msg));
+}
+
 NORETURN void Exception::RaiseCOMException(il2cpp_hresult_t hresult, const char* msg)
 {
 	Il2CppException* exception = Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", msg);
@@ -67,51 +77,54 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult)
 {
 	switch (hresult)
 	{
-	case (il2cpp_hresult_t)0x80004001: // E_NOTIMPL
+	case IL2CPP_E_NOTIMPL:
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "NotImplementedException", NULL));
 
-	case (il2cpp_hresult_t)0x80004002: // E_NOINTERFACE
+	case IL2CPP_E_NOINTERFACE:
 		Raise(GetInvalidCastException(NULL));
 
-	case (il2cpp_hresult_t)0x80004003: // E_POINTER
+	case IL2CPP_E_POINTER:
 		RaiseNullReferenceException();
 
-	case (il2cpp_hresult_t)0x80004004: // E_ABORT
-	case (il2cpp_hresult_t)0x8013153b: // COR_E_OPERATIONCANCELED
+	case IL2CPP_E_ABORT:
+	case IL2CPP_COR_E_OPERATIONCANCELED:
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", NULL));
 
-	case (il2cpp_hresult_t)0x80004005: // E_FAIL
+	case IL2CPP_E_FAIL:
 		RaiseCOMException(hresult, "Unspecified error");
 
-	case (il2cpp_hresult_t)0x80070005: // E_ACCESSDENIED
+	case IL2CPP_E_ACCESS_DENIED:
 		Raise(GetUnauthorizedAccessException(NULL));
 
-	case (il2cpp_hresult_t)0x8007000E: // E_OUTOFMEMORY
+	case IL2CPP_E_OUTOFMEMORY:
 		RaiseOutOfMemoryException();
 
-	case (il2cpp_hresult_t)0x80070057: // E_INVALIDARG
+	case IL2CPP_E_INVALIDARG:
 		Raise(GetArgumentException(NULL, NULL));
 
-	case (il2cpp_hresult_t)0x8000000B: // E_BOUNDS
+	case IL2CPP_E_BOUNDS:
 		Raise(GetIndexOutOfRangeException());
 
-	case (il2cpp_hresult_t)0x8000000C: // E_CHANGED_STATE
+	case IL2CPP_E_CHANGED_STATE:
 		RaiseCOMException(hresult, "A concurrent or interleaved operation changed the state of the object, invalidating this operation.");
 
-	case (il2cpp_hresult_t)0x80040154: // REGDB_E_CLASSNOTREG
+	case IL2CPP_REGDB_E_CLASSNOTREG:
 		RaiseCOMException(hresult, "Class not registered.");
 
-	case (il2cpp_hresult_t)0x8001010E: // RPC_E_WRONG_THREAD
+	case IL2CPP_RPC_E_WRONG_THREAD:
 		RaiseCOMException(hresult, "The application called an interface that was marshalled for a different thread.");
 
-	case (il2cpp_hresult_t)0x80010108: // RPC_E_DISCONNECTED
+	case IL2CPP_RPC_E_DISCONNECTED:
 		RaiseCOMException(hresult, "The object invoked has disconnected from its clients.");
 
-	case (il2cpp_hresult_t)0x80000013: // RO_E_CLOSED
+	case IL2CPP_RO_E_CLOSED:
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", NULL));
 
-	case (il2cpp_hresult_t)0x80131500: // COR_E_EXCEPTION
+	case IL2CPP_COR_E_EXCEPTION:
 		Raise(FromNameMsg(Image::GetCorlib(), "System", "Exception", NULL));
+
+	case IL2CPP_COR_E_PLATFORMNOTSUPPORTED:
+		Raise(GetPlatformNotSupportedException("Operation is not supported on this platform."));
 
 	default:
 		RaiseCOMException(hresult);
@@ -154,6 +167,18 @@ Il2CppException * Exception::GetArgumentNullException (const char *arg)
 	return ex;
 }
 
+Il2CppException * Exception::GetArgumentOutOfRangeException(const char *arg)
+{
+	Il2CppException* ex = FromNameMsg(Image::GetCorlib(), "System", "ArgumentOutOfRangeException", NULL);
+
+	if (arg) {
+		Il2CppArgumentException *argex = (Il2CppArgumentException *)ex;
+		IL2CPP_OBJECT_SETREF(argex, argName, String::New(arg));
+	}
+
+	return ex;
+}
+
 Il2CppException * Exception::GetTypeInitializationException(const char *msg, Il2CppException* innerException)
 {
 	Il2CppException* ex = FromNameMsg(Image::GetCorlib(), "System", "TypeInitializationException", msg);
@@ -187,6 +212,11 @@ Il2CppException* Exception::GetTypeLoadException ()
 Il2CppException* Exception::GetOutOfMemoryException ()
 {
 	return FromNameMsg (vm::Image::GetCorlib (), "System", "OutOfMemoryException", NULL);
+}
+
+Il2CppException* Exception::GetOverflowException()
+{
+	return FromNameMsg(vm::Image::GetCorlib(), "System", "OverflowException", NULL);
 }
 
 Il2CppException* Exception::GetOverflowException (const char* msg)
@@ -287,6 +317,16 @@ Il2CppException * Exception::GetMaxmimumNestedGenericsException()
 Il2CppException* Exception::GetDivideByZeroException()
 {
 	return FromNameMsg(vm::Image::GetCorlib(), "System", "DivideByZeroException", NULL);
+}
+
+Il2CppException* Exception::GetPlatformNotSupportedException(const char* msg)
+{
+	return FromNameMsg(Image::GetCorlib(), "System", "PlatformNotSupportedException", msg);
+}
+
+Il2CppException* Exception::GetFileLoadException(const char* msg)
+{
+	return FromNameMsg(Image::GetCorlib(), "System.IO", "FileLoadException", msg);
 }
 
 std::string Exception::FormatException(const Il2CppException* ex)

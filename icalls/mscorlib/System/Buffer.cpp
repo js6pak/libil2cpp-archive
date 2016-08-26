@@ -59,6 +59,28 @@ void Buffer::SetByteInternal (Il2CppArray* arr, int idx, int value)
 	il2cpp_array_set (arr, uint8_t, idx, value);
 }
 
+#if NET_4_0
+uint8_t Buffer::_GetByte(Il2CppArray* array, int32_t index)
+{
+	return GetByteInternal(array, index);
+}
+
+bool Buffer::InternalBlockCopy(Il2CppArray* src, int32_t srcOffsetBytes, Il2CppArray* dst, int32_t dstOffsetBytes, int32_t byteCount)
+{
+	return BlockCopyInternal(src, srcOffsetBytes, dst, dstOffsetBytes, byteCount);
+}
+
+int32_t Buffer::_ByteLength(Il2CppArray* array)
+{
+	return ByteLengthInternal(array);
+}
+
+void Buffer::_SetByte(Il2CppArray* array, int32_t index, uint8_t value)
+{
+	SetByteInternal(array, index, value);
+}
+#endif
+
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

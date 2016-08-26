@@ -15,5 +15,14 @@ public:
 	}
 };
 
+template<class T>
+struct PointerHash
+{
+	size_t operator()(T *value) const
+	{
+		return (size_t)value;
+	}
+};
+
 } /* namespace vm */
 } /* namespace il2cpp */

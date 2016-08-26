@@ -15,7 +15,7 @@ il2cpp_hresult_t MarshalStringAlloc::AllocateBStringLength(const Il2CppChar* tex
 	NO_UNUSED_WARNING(length);
 	assert(bstr);
 	*bstr = NULL;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 il2cpp_hresult_t MarshalStringAlloc::GetBStringLength(const Il2CppChar* bstr, int32_t* length)
@@ -23,13 +23,13 @@ il2cpp_hresult_t MarshalStringAlloc::GetBStringLength(const Il2CppChar* bstr, in
 	NO_UNUSED_WARNING(bstr);
 	assert(length);
 	*length = 0;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 il2cpp_hresult_t MarshalStringAlloc::FreeBString(Il2CppChar* bstr)
 {
 	NO_UNUSED_WARNING(bstr);
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 }

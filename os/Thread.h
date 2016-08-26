@@ -15,9 +15,11 @@ class ThreadImpl;
 
 enum ThreadPriority
 {
-	kThreadPriorityNormal,
-	kThreadPriorityLow,
-	kThreadPriorityHigh
+	kThreadPriorityLowest = 0,
+	kThreadPriorityLow = 1,
+	kThreadPriorityNormal = 2,
+	kThreadPriorityHigh = 3,
+	kThreadPriorityHighest = 4
 };
 
 enum ApartmentState
@@ -52,6 +54,7 @@ public:
 	void SetName (const std::string& name);
 
 	void SetPriority (ThreadPriority priority);
+	ThreadPriority GetPriority();
 
 	void SetStackSize (size_t stackSize);
 

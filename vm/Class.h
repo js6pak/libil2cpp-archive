@@ -1,12 +1,20 @@
 #pragma once
 
 #include <stdint.h>
+#include <sstream>
 #include "il2cpp-config.h"
 #include "blob.h"
 #include "class-internals.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "utils/dynamic_array.h"
 #include "class-internals.h"
+#include "Exception.h"
+#include "Type.h"
+
+#if NET_4_0
+#include "vm/MetadataCache.h"
+#include "tabledefs.h"
+#endif
 
 
 struct Il2CppClass;
@@ -83,7 +91,7 @@ public:
 
 public:
 	//internal
-	static inline int32_t GetInterfaceOffset(Il2CppClass *klass, Il2CppClass *itf)
+	static inline int32_t GetInterfaceOffset(Il2CppClass *klass, Il2CppClass *itf, bool throwIfNotFound)
 	{
 		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
 		{
@@ -95,8 +103,65 @@ public:
 			}
 		}
 
+		if (throwIfNotFound)
+			RaiseExecutionEngineException(klass, itf);
+
 		return -1;
 	}
+
+#if NET_4_0
+	static inline int32_t GetInterfaceOffsetGeneric(Il2CppClass *klass, Il2CppClass *itf)
+	{
+		TypeDefinitionIndex itfTypeDefinitionIndex = itf->generic_class->typeDefinitionIndex;
+		const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(itfTypeDefinitionIndex);
+		const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericInterface->genericContainerIndex);
+		const Il2CppGenericInst* interfaceGenericInst = itf->generic_class->context.class_inst;
+		int32_t genericParameterCount = genericContainer->type_argc;
+		assert(interfaceGenericInst->type_argc == genericParameterCount);
+
+		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
+		{
+			Il2CppClass* interfaceOnClass = klass->interfaceOffsets[i].interfaceType;
+
+			if (interfaceOnClass->generic_class == NULL || interfaceOnClass->generic_class->typeDefinitionIndex != itfTypeDefinitionIndex)
+				continue;
+
+			const Il2CppGenericInst* interfaceOnClassGenericInst = interfaceOnClass->generic_class->context.class_inst;
+			assert(interfaceOnClassGenericInst->type_argc == genericParameterCount);
+
+			for (int32_t j = 0; j < genericParameterCount; j++)
+			{
+				const Il2CppGenericParameter* genericParameter = MetadataCache::GetGenericParameterFromIndex(genericContainer->genericParameterStart + j);
+				const int32_t parameterVariance = genericParameter->flags & GENERIC_PARAMETER_ATTRIBUTE_VARIANCE_MASK;
+				Il2CppClass* interfaceOnClassGenericParameterType = Class::FromIl2CppType(interfaceOnClassGenericInst->type_argv[j]);
+				Il2CppClass* interfaceGenericParameterType = Class::FromIl2CppType(interfaceGenericInst->type_argv[j]);
+
+				if (parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT || Class::IsValuetype(interfaceOnClassGenericParameterType) || Class::IsValuetype(interfaceGenericParameterType))
+				{
+					if (interfaceGenericParameterType != interfaceOnClassGenericParameterType)
+						goto CONTINUE_OUTER;
+				}
+				else if (parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_COVARIANT)
+				{
+					if (!Class::IsAssignableFrom(interfaceGenericParameterType, interfaceOnClassGenericParameterType))
+						goto CONTINUE_OUTER;
+				}
+				else // Contravariant
+				{
+					if (!Class::IsAssignableFrom(interfaceOnClassGenericParameterType, interfaceGenericParameterType))
+						goto CONTINUE_OUTER;
+				}
+			}
+
+			return klass->interfaceOffsets[i].offset;
+
+		CONTINUE_OUTER:
+			continue;
+		}
+
+		return -1;
+	}
+#endif
 
 	static bool Init (Il2CppClass *klass);
 
@@ -135,6 +200,14 @@ public:
 
 	static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
 private:
+	static void RaiseExecutionEngineException(Il2CppClass* klass, Il2CppClass* itf)
+	{
+		std::stringstream message;
+		message << "Attempting to use interface '" << Type::GetName(itf->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) << "' on type '"
+			<< Type::GetName(klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL)
+			<< "' for which no ahead-of-time code was generated. This requires just-in-time execution, which is not supported by IL2CPP.";
+		Exception::Raise(il2cpp::vm::Exception::GetExecutionEngineException(message.str().c_str()));
+	}
 };
 
 } /* namespace vm */

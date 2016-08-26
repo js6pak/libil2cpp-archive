@@ -118,7 +118,42 @@ void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar
 Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
 {
 	StringViewAsNullTerminatedStringOf(char, pinvokeArgs.entryPoint, entryPoint);
-	return GetFunctionPointer(dynamicLibrary, entryPoint);
+
+	if (pinvokeArgs.isNoMangle)
+		return reinterpret_cast<Il2CppMethodPointer>(dlsym(dynamicLibrary, entryPoint));
+
+	const size_t kBufferOverhead = 10;
+	void* functionPtr = NULL;
+	size_t originalFuncNameLength = strlen(entryPoint) + 1;
+	std::string functionName;
+
+	functionName.resize(originalFuncNameLength + kBufferOverhead + 1);	// Let's index the string from '1', because we might have to prepend an underscore in case of stdcall mangling
+	memcpy(&functionName[1], entryPoint, originalFuncNameLength);
+	memset(&functionName[1] + originalFuncNameLength, 0, kBufferOverhead);
+
+	// If there's no 'dont mangle' flag set, 'W' function takes priority over original name, but 'A' function does not (yes, really)
+	if (pinvokeArgs.charSet == CHARSET_UNICODE)
+	{
+		functionName[originalFuncNameLength] = 'W';
+		functionPtr = dlsym(dynamicLibrary, functionName.c_str() + 1);
+		if (functionPtr != NULL)
+			return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
+
+		// If charset specific function lookup failed, try with original name
+		functionPtr = dlsym(dynamicLibrary, entryPoint);
+	}
+	else
+	{
+		functionPtr = dlsym(dynamicLibrary, entryPoint);
+		if (functionPtr != NULL)
+			return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
+
+		// If original name function lookup failed, try with mangled name
+		functionName[originalFuncNameLength] = 'A';
+		functionPtr = dlsym(dynamicLibrary, functionName.c_str() + 1);
+	}
+
+	return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
 }
 
 Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const char* functionName)

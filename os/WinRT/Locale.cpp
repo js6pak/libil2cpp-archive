@@ -1,9 +1,10 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINRT
+#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
 
 #include "os/Locale.h"
-#include <windows.h>
+#include "os/Win32/WindowsHeaders.h"
+
 #include <vector>
 
 namespace il2cpp

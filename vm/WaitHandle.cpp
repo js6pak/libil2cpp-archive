@@ -34,8 +34,13 @@ os::Handle* WaitHandle::GetPlatformHandle (Il2CppWaitHandle* waitHandle)
 
 	if (!s_osHandle && !s_safeHandle)
 	{
+#if !NET_4_0
 		s_osHandle = vm::Class::GetFieldFromName(il2cpp_defaults.manualresetevent_class, "os_handle");
 		s_safeHandle = vm::Class::GetFieldFromName(il2cpp_defaults.manualresetevent_class, "safe_wait_handle");
+#else
+		s_osHandle = vm::Class::GetFieldFromName(il2cpp_defaults.manualresetevent_class, "Handle");
+		s_safeHandle = vm::Class::GetFieldFromName(il2cpp_defaults.manualresetevent_class, "safeWaitHandle");
+#endif
 	}
 
 	Il2CppIntPtr retval;

@@ -193,6 +193,15 @@ int64_t Interlocked::Read (int64_t* location)
 #endif
 }
 
+#if NET_4_0
+int32_t Interlocked::CompareExchange(int32_t* location1, int32_t value, int32_t comparand, bool* succeeded)
+{
+	NOT_IMPLEMENTED_ICALL(Interlocked::CompareExchange);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
+
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

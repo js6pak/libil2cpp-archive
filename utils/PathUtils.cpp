@@ -24,6 +24,22 @@ std::string Basename (const std::string& path)
 	return path.substr(pos+1);
 }
 
+std::string BasenameNoExtension(const std::string& path)
+{
+	if (path.empty())
+		return ".";
+
+	std::string base = Basename(path);
+
+	const size_t pos = base.rfind('.');
+
+	// No extension.
+	if (pos == std::string::npos)
+		return base;
+
+	return base.substr(0, pos);
+}
+
 std::string DirectoryName (const std::string& path)
 {
 	if(path.empty())
