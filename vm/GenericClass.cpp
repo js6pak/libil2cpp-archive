@@ -168,7 +168,7 @@ Il2CppClass* GenericClass::GetClass (Il2CppGenericClass *gclass)
 
 	if (!gclass->cached_class)
 	{
-		Il2CppClass* klass = gclass->cached_class = (Il2CppClass*)MetadataCalloc (1, sizeof (Il2CppClass));
+		Il2CppClass* klass = gclass->cached_class = (Il2CppClass*)MetadataCalloc (1, sizeof (Il2CppClass) + (sizeof(VirtualInvokeData) * definition->vtable_count));
 
 		klass->name = definition->name;
 		klass->namespaze = definition->namespaze;

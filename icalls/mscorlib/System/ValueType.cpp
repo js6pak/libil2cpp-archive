@@ -25,7 +25,7 @@ namespace mscorlib
 namespace System
 {
 
-bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2CppArray** fields)
+bool ValueType::InternalEquals (Il2CppObject * thisPtr, Il2CppObject * that, Il2CppArray** fields)
 {
 	Il2CppClass *klass;
 	Il2CppObject **values = NULL;
@@ -36,13 +36,13 @@ bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2C
 
 	IL2CPP_CHECK_ARG_NULL (that);
 
-	if (__this->klass != that->klass)
+	if (thisPtr->klass != that->klass)
 		return false;
 
-	klass = Object::GetClass (__this);
+	klass = Object::GetClass (thisPtr);
 
 	if (klass->enumtype && Class::GetEnumBaseType (klass) && Class::GetEnumBaseType (klass)->type == IL2CPP_TYPE_I4)
-		return (*(int32_t*)((uint8_t*)__this + sizeof (Il2CppObject)) == *(int32_t*)((uint8_t*)that + sizeof (Il2CppObject)));
+		return (*(int32_t*)((uint8_t*)thisPtr + sizeof (Il2CppObject)) == *(int32_t*)((uint8_t*)that + sizeof (Il2CppObject)));
 
 	/*
 	 * Do the comparison for fields of primitive type and return a result if
@@ -64,37 +64,37 @@ bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2C
 		case IL2CPP_TYPE_I1:
 		case IL2CPP_TYPE_U1:
 		case IL2CPP_TYPE_BOOLEAN:
-			if (*((uint8_t*)__this + field->offset) != *((uint8_t*)that + field->offset))
+			if (*((uint8_t*)thisPtr + field->offset) != *((uint8_t*)that + field->offset))
 				return false;
 			break;
 		case IL2CPP_TYPE_I2:
 		case IL2CPP_TYPE_U2:
 		case IL2CPP_TYPE_CHAR:
-			if (*(int16_t*)((uint8_t*)__this + field->offset) != *(int16_t*)((uint8_t*)that + field->offset))
+			if (*(int16_t*)((uint8_t*)thisPtr + field->offset) != *(int16_t*)((uint8_t*)that + field->offset))
 				return false;
 			break;
 		case IL2CPP_TYPE_I4:
 		case IL2CPP_TYPE_U4:
-			if (*(int32_t*)((uint8_t*)__this + field->offset) != *(int32_t*)((uint8_t*)that + field->offset))
+			if (*(int32_t*)((uint8_t*)thisPtr + field->offset) != *(int32_t*)((uint8_t*)that + field->offset))
 				return false;
 			break;
 		case IL2CPP_TYPE_I8:
 		case IL2CPP_TYPE_U8:
-			if (*(int64_t*)((uint8_t*)__this + field->offset) != *(int64_t*)((uint8_t*)that + field->offset))
+			if (*(int64_t*)((uint8_t*)thisPtr + field->offset) != *(int64_t*)((uint8_t*)that + field->offset))
 				return false;
 			break;
 		case IL2CPP_TYPE_R4:
-			if (*(float*)((uint8_t*)__this + field->offset) != *(float*)((uint8_t*)that + field->offset))
+			if (*(float*)((uint8_t*)thisPtr + field->offset) != *(float*)((uint8_t*)that + field->offset))
 				return false;
 			break;
 		case IL2CPP_TYPE_R8:
-			if (*(double*)((uint8_t*)__this + field->offset) != *(double*)((uint8_t*)that + field->offset))
+			if (*(double*)((uint8_t*)thisPtr + field->offset) != *(double*)((uint8_t*)that + field->offset))
 				return false;
 			break;
 		case IL2CPP_TYPE_STRING:
 			Il2CppString *s1, *s2;
 			uint32_t s1len, s2len;
-			s1 = *(Il2CppString**)((uint8_t*)__this + field->offset);
+			s1 = *(Il2CppString**)((uint8_t*)thisPtr + field->offset);
 			s2 = *(Il2CppString**)((uint8_t*)that + field->offset);
 			if (s1 == s2)
 				break;
@@ -111,7 +111,7 @@ bool ValueType::InternalEquals (Il2CppObject * __this, Il2CppObject * that, Il2C
 		default:
 			if (!values)
 				values = (Il2CppObject**)alloca (sizeof (Il2CppObject*) * (Class::GetNumFields (klass) * 2));
-			o = Field::GetValueObject (field, __this);
+			o = Field::GetValueObject (field, thisPtr);
 			values [count++] = o;
 			o = Field::GetValueObject (field, that);
 			values [count++] = o;

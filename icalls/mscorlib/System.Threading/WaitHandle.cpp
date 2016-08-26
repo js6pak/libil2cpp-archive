@@ -112,6 +112,28 @@ bool WaitHandle::SignalAndWait_Internal (Il2CppIntPtr toSignal, Il2CppIntPtr toW
 	return WaitOne_internal(NULL, toWaitOn, ms, exitContext);
 }
 
+#if NET_4_0
+int32_t WaitHandle::SignalAndWait_Internal40(Il2CppIntPtr toSignal, Il2CppIntPtr toWaitOn, int32_t ms)
+{
+	return SignalAndWait_Internal(toSignal, toWaitOn, ms, false) ? 0 : 1;
+}
+
+int32_t WaitHandle::WaitAll_internal40(Il2CppArray* handles, int32_t ms)
+{
+	return WaitAll_internal(handles, ms, false) ? 0 : 258;
+}
+
+int32_t WaitHandle::WaitAny_internal40(Il2CppArray* handles, int32_t ms)
+{
+	return WaitAny_internal(handles, ms, false);
+}
+
+int32_t WaitHandle::WaitOne_internal40(Il2CppIntPtr handle, int32_t ms)
+{
+	return WaitOne_internal(NULL, handle, ms, false) ? 0 : 258;
+}
+#endif
+
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

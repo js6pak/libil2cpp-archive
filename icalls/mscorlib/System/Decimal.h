@@ -6,23 +6,6 @@
 struct Il2CppString;
 struct mscorlib_System_Decimal;
 
-typedef struct
-{
-	//Note that we are not taking care of endianess.
-	union {
-		uint32_t ss32;
-		struct signscale {
-			unsigned int reserved1 : 16;
-			unsigned int scale : 8;
-			unsigned int reserved2 : 7;
-			unsigned int sign : 1;
-		} signscale;
-	} u;
-	uint32_t hi32;
-	uint32_t lo32;
-	uint32_t mid32;
-} il2cpp_decimal_repr;
-
 namespace il2cpp
 {
 namespace icalls
@@ -35,6 +18,7 @@ namespace System
 class LIBIL2CPP_CODEGEN_API Decimal
 {
 public:
+#if !NET_4_0
 	static int32_t decimal2Int64 (il2cpp_decimal_repr* val, int64_t* result);
 	static int32_t decimal2UInt64 (il2cpp_decimal_repr* val, uint64_t* result);
 	static int32_t decimal2string (il2cpp_decimal_repr* val, int32_t digits, int32_t decimals, Il2CppArray* bufDigits, int32_t bufSize, int32_t* decPos, int32_t* sign);
@@ -47,6 +31,21 @@ public:
 	static int decimalSetExponent(il2cpp_decimal_repr*, int);
 	static int string2decimal(il2cpp_decimal_repr *pA, Il2CppString *str, unsigned int decrDecimal, int sign);
 	static double decimal2double (il2cpp_decimal_repr* val);
+#else
+	static double ToDouble(Il2CppDecimal d);
+	static int32_t FCallCompare(Il2CppDecimal* left, Il2CppDecimal* right);
+	static int32_t FCallToInt32(Il2CppDecimal d);
+	static int32_t GetHashCode(Il2CppDecimal* _this);
+	static float ToSingle(Il2CppDecimal d);
+	static void ConstructorDouble(Il2CppDecimal* _this, double value);
+	static void ConstructorFloat(Il2CppDecimal* _this, float value);
+	static void FCallAddSub(Il2CppDecimal* left, Il2CppDecimal* right, uint8_t sign);
+	static void FCallDivide(Il2CppDecimal* left, Il2CppDecimal* right);
+	static void FCallFloor(Il2CppDecimal* d);
+	static void FCallMultiply(Il2CppDecimal* d1, Il2CppDecimal* d2);
+	static void FCallRound(Il2CppDecimal* d, int32_t decimals);
+	static void FCallTruncate(Il2CppDecimal* d);
+#endif
 };
 
 } /* namespace System */

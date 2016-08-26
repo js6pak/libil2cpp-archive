@@ -12,16 +12,6 @@ namespace il2cpp
 namespace vm
 {
 
-il2cpp_hresult_t COM::CreateInstance(const Il2CppGuid& clsid, Il2CppIUnknown** object)
-{
-	return os::COM::CreateInstance(clsid, object);
-}
-
-il2cpp_hresult_t COM::CreateFreeThreadedMarshaler(Il2CppIUnknown* outer, Il2CppIUnknown** marshal)
-{
-	return os::COM::CreateFreeThreadedMarshaler(outer, marshal);
-}
-
 void COM::MarshalVariant(Il2CppObject* obj, Il2CppVariant* variant)
 {
 	assert(variant);
@@ -312,12 +302,6 @@ Il2CppArray* COM::MarshalSafeArrayBStringResult(Il2CppClass* type, Il2CppSafeArr
 	Exception::RaiseIfFailed(hr);
 
 	return managedArray;
-}
-
-void COM::DestroySafeArray(Il2CppSafeArray* safeArray)
-{
-	const il2cpp_hresult_t hr = os::COM::SafeArrayDestroy(safeArray);
-	Exception::RaiseIfFailed(hr);
 }
 
 } /* namespace vm */

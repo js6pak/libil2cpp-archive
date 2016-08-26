@@ -20,8 +20,8 @@ class LIBIL2CPP_CODEGEN_API __ComObject
 {
 public:
 	static mscorlib_System___ComObject * CreateRCW (Il2CppReflectionType * t);
-	static void ReleaseInterfaces (mscorlib_System___ComObject * __this);
-	static Il2CppIntPtr GetInterfaceInternal (mscorlib_System___ComObject * __this, Il2CppReflectionType * t, bool throwException);
+	static void ReleaseInterfaces (mscorlib_System___ComObject * thisPtr);
+	static Il2CppIntPtr GetInterfaceInternal (mscorlib_System___ComObject * thisPtr, Il2CppReflectionType * t, bool throwException);
 };
 
 } /* namespace System */

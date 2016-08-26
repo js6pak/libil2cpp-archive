@@ -14,11 +14,13 @@
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
 #include "vm/MetadataCache.h"
+#include "vm/Reflection.h"
 #include "vm/String.h"
 #include "vm/Type.h"
 #include "class-internals.h"
 #include "object-internals.h"
 #include "tabledefs.h"
+#include "vm/Array.h"
 
 static char* copy_name(const char* name)
 {
@@ -772,6 +774,63 @@ const Il2CppType* Type::GetUnderlyingType (const Il2CppType *type)
 bool Type::IsGenericInstance (const Il2CppType* type)
 {
 	return type->type == IL2CPP_TYPE_GENERICINST;
+}
+
+Il2CppReflectionType* Type::GetDeclaringType(const Il2CppType* type)
+{
+	Il2CppClass *typeInfo = NULL;
+
+	if (type->byref)
+		return NULL;
+	if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
+	{
+		const Il2CppGenericParameter* genericParameter = GetGenericParameter(type);
+		const Il2CppGenericContainer* container = MetadataCache::GetGenericContainerFromIndex(genericParameter->ownerIndex);
+		typeInfo = GenericContainer::GetDeclaringType(container);
+	}
+	else
+	{
+		typeInfo = Class::GetDeclaringType(Class::FromIl2CppType(type));
+	}
+
+	return typeInfo ? Reflection::GetTypeObject(typeInfo->byval_arg) : NULL;
+}
+
+Il2CppArray* Type::GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray)
+{
+	Il2CppArray *res;
+	Il2CppClass *klass, *pklass;
+
+	klass = Class::FromIl2CppType(type->type);
+
+#if NET_4_0
+	Il2CppClass *arrType = runtimeArray ? il2cpp_defaults.runtimetype_class : il2cpp_defaults.systemtype_class;
+#else
+	Il2CppClass *arrType = il2cpp_defaults.systemtype_class;
+#endif
+
+	if (Class::IsGeneric(klass))
+	{
+		const Il2CppGenericContainer *container = MetadataCache::GetGenericContainerFromIndex(klass->genericContainerIndex);
+		res = Array::New(arrType, container->type_argc);
+		for (int32_t i = 0; i < container->type_argc; ++i)
+		{
+			pklass = Class::FromGenericParameter(GenericContainer::GetGenericParameter(container, i));
+			il2cpp_array_setref(res, i, Reflection::GetTypeObject(pklass->byval_arg));
+		}
+	}
+	else if (klass->generic_class)
+	{
+		const Il2CppGenericInst *inst = klass->generic_class->context.class_inst;
+		res = Array::New(arrType, inst->type_argc);
+		for (uint32_t i = 0; i < inst->type_argc; ++i)
+			il2cpp_array_setref(res, i, Reflection::GetTypeObject(inst->type_argv[i]));
+	}
+	else
+	{
+		res = Array::New(arrType, 0);
+	}
+	return res;
 }
 
 uint32_t Type::GetToken (const Il2CppType *type)

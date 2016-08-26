@@ -11,7 +11,7 @@
 #include "vm/StackTrace.h"
 #include "vm/Type.h"
 #include "utils/HashUtils.h"
-#include "utils/StdUnorderedMap.h"
+#include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
 
 using il2cpp::utils::HashUtils;
@@ -28,9 +28,14 @@ struct NamespaceAndNamePairHash
 
 struct NamespaceAndNamePairEquals
 {
-	bool operator() (const std::pair<const char*, const char*>& p1, const std::pair<const char*, const char*>& p2) const
+	bool operator() (const KeyWrapper<std::pair<const char*, const char*> >& p1, const KeyWrapper<std::pair<const char*, const char*> >& p2) const
 	{
-		return !strcmp (p1.first, p2.first) && !strcmp (p1.second, p2.second);
+		if (p1.type != p2.type)
+			return false;
+		if (!p1.isNormal())
+			return true;
+
+		return !strcmp(p1.key.first, p2.key.first) && !strcmp(p1.key.second, p2.key.second);
 	}
 };
 
@@ -50,15 +55,12 @@ struct NamespaceAndNamePairLess
 	}
 };
 
-struct Il2CppNameToTypeDefinitionIndexHashTable : public unordered_map<std::pair<const char*, const char*>, TypeDefinitionIndex,
-#if IL2CPP_HAS_UNORDERED_CONTAINER
-	NamespaceAndNamePairHash, NamespaceAndNamePairEquals
-#else
-	NamespaceAndNamePairLess
-#endif
->
+struct Il2CppNameToTypeDefinitionIndexHashTable : public Il2CppHashMap<std::pair<const char*, const char*>, TypeDefinitionIndex, NamespaceAndNamePairHash, NamespaceAndNamePairEquals>
 {
-
+	typedef Il2CppHashMap<std::pair<const char*, const char*>, TypeDefinitionIndex, NamespaceAndNamePairHash, NamespaceAndNamePairEquals> Base;
+	Il2CppNameToTypeDefinitionIndexHashTable() : Base()
+	{
+	}
 };
 
 namespace il2cpp

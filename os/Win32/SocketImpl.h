@@ -1,6 +1,6 @@
 #pragma once
 
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINDOWS
 
 #include <string>
 #include <vector>
@@ -93,7 +93,9 @@ public:
 	
 	WaitStatus SendFile (const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options);
 	
+	static WaitStatus Poll (std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error);
 	static WaitStatus Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error);
+	static WaitStatus Poll (PollRequest& request, int32_t timeout, int32_t *result, int32_t *error);
 	
 	static WaitStatus GetHostName (std::string &name);
 	static WaitStatus GetHostByName (const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list);

@@ -4,6 +4,7 @@
 #include "os/Win32/WindowsHeaders.h"
 
 #include "os/Process.h"
+#include "utils/StringUtils.h"
 #include "vm/Exception.h"
 
 struct ProcessHandle
@@ -27,7 +28,7 @@ ProcessHandle* Process::GetProcess(int processId)
 	if (processId == GetCurrentProcessId())
 		return (ProcessHandle*)::GetCurrentProcess();
 
-	NOT_SUPPORTED_IL2CPP(Process::GetProcess, "It is not possible to interact with other system processes on WinRT.");
+	vm::Exception::Raise(vm::Exception::GetPlatformNotSupportedException("It is not possible to interact with other system processes on current platform."));
 }
 
 void Process::FreeProcess(ProcessHandle* handle)
@@ -37,8 +38,16 @@ void Process::FreeProcess(ProcessHandle* handle)
 
 std::string Process::GetProcessName(ProcessHandle* handle)
 {
-	NOT_SUPPORTED_IL2CPP(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
-	return std::string();
+	if (handle == ::GetCurrentProcess())
+	{
+		wchar_t path[MAX_PATH + 1];
+		SetLastError(ERROR_SUCCESS);
+
+		DWORD pathLength = GetModuleFileNameW(NULL, path, MAX_PATH + 1);
+		return utils::StringUtils::Utf16ToUtf8(path, static_cast<int>(pathLength));
+	}
+
+	vm::Exception::Raise(vm::Exception::GetPlatformNotSupportedException("It is not possible to interact with other system processes on current platform."));
 }
 
 }

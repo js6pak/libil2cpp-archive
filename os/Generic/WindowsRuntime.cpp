@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "os/WindowsRuntime.h"
+#include "vm/Exception.h"
 
 #if IL2CPP_USE_GENERIC_WINDOWSRUNTIME
 
@@ -25,7 +26,35 @@ il2cpp_hresult_t WindowsRuntime::CreateHStringReference(const utils::StringView<
 	NO_UNUSED_WARNING(hstring);
 	assert(header != NULL);
 	assert(hstring != NULL);
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
+}
+
+il2cpp_hresult_t WindowsRuntime::CreateHString(const utils::StringView<Il2CppChar>& str, Il2CppHString* hstring)
+{
+	NO_UNUSED_WARNING(str);
+	NO_UNUSED_WARNING(hstring);
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
+}
+
+il2cpp_hresult_t WindowsRuntime::DeleteHString(Il2CppHString hstring)
+{
+	NO_UNUSED_WARNING(hstring);
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
+}
+
+const Il2CppChar* WindowsRuntime::GetHStringBuffer(Il2CppHString hstring, uint32_t* length)
+{
+	NO_UNUSED_WARNING(hstring);
+	NO_UNUSED_WARNING(length);
+	vm::Exception::Raise(IL2CPP_COR_E_PLATFORMNOTSUPPORTED);
+	return NULL;
+}
+
+Il2CppString* WindowsRuntime::HStringToManagedString(Il2CppHString hstring)
+{
+	NO_UNUSED_WARNING(hstring);
+	vm::Exception::Raise(IL2CPP_COR_E_PLATFORMNOTSUPPORTED);
+	return NULL;
 }
 
 }

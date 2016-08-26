@@ -328,7 +328,7 @@ bool StackTrace::GetThreadStackFrameAt(Il2CppThread* thread, int32_t depth, Il2C
 	apcContext.depth = depth;
 	apcContext.frame = &frame;
 
-	thread->handle->QueueUserAPC(GetThreadFrameAtCallback, &apcContext);
+	thread->GetInternalThread()->handle->QueueUserAPC(GetThreadFrameAtCallback, &apcContext);
 	apcContext.apcDoneEvent.Wait();
 
 	return apcContext.hasResult;
@@ -353,7 +353,7 @@ void StackTrace::WalkThreadFrameStack(Il2CppThread* thread, Il2CppFrameWalkFunc 
 	apcContext.callback = callback;
 	apcContext.userContext = context;
 
-	thread->handle->QueueUserAPC(WalkThreadFrameStackCallback, &apcContext);
+	thread->GetInternalThread()->handle->QueueUserAPC(WalkThreadFrameStackCallback, &apcContext);
 	apcContext.apcDoneEvent.Wait();
 #endif
 }
@@ -371,7 +371,7 @@ int32_t StackTrace::GetThreadStackDepth(Il2CppThread* thread)
 #if IL2CPP_ENABLE_STACKTRACES
 	GetThreadStackDepthContext apcContext;
 
-	thread->handle->QueueUserAPC(GetThreadStackDepthCallback, &apcContext);
+	thread->GetInternalThread()->handle->QueueUserAPC(GetThreadStackDepthCallback, &apcContext);
 	apcContext.apcDoneEvent.Wait();
 
 	return apcContext.stackDepth;
@@ -394,7 +394,7 @@ bool StackTrace::GetThreadTopStackFrame(Il2CppThread* thread, Il2CppStackFrameIn
 	GetThreadTopFrameContext apcContext;
 	apcContext.frame = &frame;
 
-	thread->handle->QueueUserAPC(GetThreadTopFrameCallback, &apcContext);
+	thread->GetInternalThread()->handle->QueueUserAPC(GetThreadTopFrameCallback, &apcContext);
 	apcContext.apcDoneEvent.Wait();
 
 	return apcContext.hasResult;

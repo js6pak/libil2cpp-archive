@@ -58,6 +58,33 @@ bool Monitor::Monitor_try_enter (Il2CppObject* obj, int32_t ms)
 	return il2cpp::vm::Monitor::TryEnter (obj, ms);
 }
 
+#if NET_4_0
+bool Monitor::Monitor_test_owner(Il2CppObject* obj)
+{
+	NOT_IMPLEMENTED_ICALL(Monitor::Monitor_test_owner);
+	IL2CPP_UNREACHABLE;
+}
+
+void Monitor::enter_with_atomic_var(Il2CppObject* obj, bool* lockTaken)
+{
+	IL2CPP_CHECK_ARG_NULL(obj);
+	
+	if (*lockTaken)
+		vm::Exception::Raise(il2cpp::vm::Exception::GetArgumentException("lockTaken", "lockTaken must be false"));
+
+	il2cpp::vm::Monitor::Enter(obj);
+	*lockTaken = true;
+}
+
+void Monitor::try_enter_with_atomic_var(Il2CppObject* obj, int32_t millisecondsTimeout, bool* lockTaken)
+{
+	if (*lockTaken)
+		vm::Exception::Raise(il2cpp::vm::Exception::GetArgumentException("lockTaken", "lockTaken must be false"));
+
+	*lockTaken = Monitor_try_enter(obj, millisecondsTimeout);
+}
+#endif
+
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

@@ -12,6 +12,34 @@ namespace il2cpp
 {
 namespace utils
 {
+
+size_t StringUtils::Hash (const char *str)
+{
+	unsigned char *ustr = (unsigned char *)str;
+	size_t hash = 5381;
+	int c;
+
+	while ((c = *ustr++))
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+	return hash;
+}
+
+size_t StringUtils::Hash(const char *str, size_t length)
+{
+	unsigned char *ustr = (unsigned char *)str;
+	size_t hash = 5381;
+	int c;
+
+	for(size_t i = 0;i < length;++i)
+	{
+		c = *ustr++;
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
+
+	return hash;
+}
+
 std::string StringUtils::Printf(const char* format, ...)
 {
 	va_list argsToCheckSize;
@@ -108,6 +136,11 @@ std::string StringUtils::Utf16ToUtf8(const Il2CppChar* utf16String, int maximumS
 	utf8::unchecked::utf16to8(utf16String, ptr, std::back_inserter(utf8String));
 
 	return utf8String;
+}
+
+std::string StringUtils::Utf16ToUtf8(const UTF16String& utf16String)
+{
+	return Utf16ToUtf8(utf16String.c_str(), static_cast<int>(utf16String.length()));
 }
 
 UTF16String StringUtils::Utf8ToUtf16 (const char* utf8String)
