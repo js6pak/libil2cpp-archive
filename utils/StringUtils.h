@@ -24,6 +24,7 @@
 #include "il2cpp-string-types.h"
 #include <string>
 #include <vector>
+#include <limits>
 #include <stdint.h>
 #include "il2cpp-config.h"
 
