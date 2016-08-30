@@ -12,19 +12,6 @@ namespace il2cpp
 {
 namespace utils
 {
-
-size_t StringUtils::Hash (const char *str)
-{
-	unsigned char *ustr = (unsigned char *)str;
-	size_t hash = 5381;
-	int c;
-
-	while ((c = *ustr++))
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
-	return hash;
-}
-
 std::string StringUtils::Printf(const char* format, ...)
 {
 	va_list argsToCheckSize;
