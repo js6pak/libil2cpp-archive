@@ -18,7 +18,7 @@
 #include "vm/Type.h"
 
 #include "tabledefs.h"
-#include "types.h"
+#include "il2cpp-string-types.h"
 #include "class-internals.h"
 #include "object-internals.h"
 #include "il2cpp-api.h"
