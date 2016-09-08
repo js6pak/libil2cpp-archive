@@ -14,7 +14,7 @@ namespace vm
 
 void COM::MarshalVariant(Il2CppObject* obj, Il2CppVariant* variant)
 {
-	assert(variant);
+	IL2CPP_ASSERT(variant);
 	os::COM::VariantInit(variant);
 
 	if (!obj)
@@ -102,7 +102,7 @@ void COM::MarshalVariant(Il2CppObject* obj, Il2CppVariant* variant)
 
 Il2CppObject* COM::MarshalVariantResult(Il2CppVariant* variant)
 {
-	assert(variant);
+	IL2CPP_ASSERT(variant);
 	switch (variant->n1.n2.type)
 	{
 	case IL2CPP_VT_EMPTY:
@@ -133,7 +133,7 @@ Il2CppObject* COM::MarshalVariantResult(Il2CppVariant* variant)
 		return Object::Box(il2cpp_defaults.double_class, &variant->n1.n2.n3.dblVal);
 	case IL2CPP_VT_BOOL:
 	{
-		assert(variant->n1.n2.n3.boolVal == IL2CPP_VARIANT_FALSE || variant->n1.n2.n3.boolVal == IL2CPP_VARIANT_TRUE);
+		IL2CPP_ASSERT(variant->n1.n2.n3.boolVal == IL2CPP_VARIANT_FALSE || variant->n1.n2.n3.boolVal == IL2CPP_VARIANT_TRUE);
 		bool value = variant->n1.n2.n3.boolVal != IL2CPP_VARIANT_FALSE;
 		return Object::Box(il2cpp_defaults.boolean_class, &value);
 	}

@@ -57,7 +57,7 @@ void* MemoryPool::Malloc (size_t size)
 	if (region->free < size)
 		region = AddRegion (size);
 
-	assert (region->free >= size);
+	IL2CPP_ASSERT(region->free >= size);
 
 	void* value = region->current;
 	region->current += size;

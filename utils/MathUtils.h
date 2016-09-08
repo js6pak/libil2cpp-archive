@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include <assert.h>
 #include <cmath>
 #include <limits>
@@ -17,14 +18,14 @@ namespace MathUtils
 	// we might easily overflow during initial multiplication
 	inline int64_t A_Times_B_DividedBy_C(int64_t multiplicand, int64_t multiplier, int64_t divisor)
 	{
-		assert((llabs(divisor) & (1LL << 62)) == 0 && "Can't divide by numbers with absolute value larger than 2^62 - 1.");
+		IL2CPP_ASSERT((llabs(divisor) & (1LL << 62)) == 0 && "Can't divide by numbers with absolute value larger than 2^62 - 1.");
 		bool resultIsNegative = static_cast<uint64_t>(multiplicand ^ multiplier ^ divisor) >> 63;	// Result is negative if odd number of operands are negative
 
 		multiplicand = llabs(multiplicand);
-		assert(multiplicand > 0 && "Can't multiply by -2^63.");
+		IL2CPP_ASSERT(multiplicand > 0 && "Can't multiply by -2^63.");
 
 		multiplier = llabs(multiplier);
-		assert(multiplier > 0 && "Can't multiply by -2^63.");
+		IL2CPP_ASSERT(multiplier > 0 && "Can't multiply by -2^63.");
 
 		divisor = llabs(divisor);	// We already asserted on divisor size
 
@@ -97,7 +98,7 @@ namespace MathUtils
 			}
 			
 			// Shift work value to the left and append the next bit of our dividend
-			assert((workValue & (1LL << 63)) == 0 && "overflow!");
+			IL2CPP_ASSERT((workValue & (1LL << 63)) == 0 && "overflow!");
 
 			if (bitIndex > -1)
 			{

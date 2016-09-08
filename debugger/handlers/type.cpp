@@ -112,7 +112,7 @@ const Reply *Agent::Process(const TypeGetSourceFiles2Command *command)
 	// TODO: we need to iterate through all the methods and register the documents where the method is defined
 	LOG("warning: `TypeGetSourceFiles2Command` still doesn't deal with partial type definitions. Only one source file is always returned.");
 
-	assert((path.size() == 0 || (path.back() == '/' || path.back() == '\\')) && "Il2CppDebugDocument::directory is expected to end with a platform-specific trailing slash.");
+	IL2CPP_ASSERT((path.size() == 0 || (path.back() == '/' || path.back() == '\\')) && "Il2CppDebugDocument::directory is expected to end with a platform-specific trailing slash.");
 
 	get_source_files_reply->source_files().insert(path + basename);
 
@@ -160,7 +160,7 @@ const Reply *Agent::Process(const TypeIsAssignableFromCommand *command)
 {
 	LOG("warning: `TypeIsAssignableFromCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }
@@ -258,7 +258,7 @@ const Reply *Agent::Process(const TypeSetValuesCommand *command)
 {
 	LOG("warning: `TypeSetValuesCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

@@ -4,7 +4,6 @@
 #include "Il2CppGenericInstHash.h"
 #include "Il2CppTypeHash.h"
 #include "utils/HashUtils.h"
-#include <cassert>
 
 using il2cpp::utils::HashUtils;
 

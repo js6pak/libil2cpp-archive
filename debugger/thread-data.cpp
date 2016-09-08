@@ -113,7 +113,7 @@ void ThreadData::SetMethodToInvoke(const MethodInfo* method)
 {
 	os::AutoLock lock(_method_to_invoke_sync.get());
 
-	assert(_method_to_invoke_data.method_to_invoke == NULL && "ThreadData::SetMethodToInvoke called with a method to invoke, when one is already waiting to be invoked");
+	IL2CPP_ASSERT(_method_to_invoke_data.method_to_invoke == NULL && "ThreadData::SetMethodToInvoke called with a method to invoke, when one is already waiting to be invoked");
 
 	_method_to_invoke_data.method_to_invoke = method;
 }
@@ -184,7 +184,7 @@ void ThreadDataMap::NotifyThreadAttach(Il2CppThread *thread)
 {
 	os::AutoLock lock(_thread_to_data_sync);
 
-	assert(_thread_to_data.find(thread) == _thread_to_data.end() && "ThreadDataMap::NotifyThreadAttach is being called twice on the same thread");
+	IL2CPP_ASSERT(_thread_to_data.find(thread) == _thread_to_data.end() && "ThreadDataMap::NotifyThreadAttach is being called twice on the same thread");
 
 	_thread_to_data[thread] = new ThreadData(thread);
 }
@@ -195,7 +195,7 @@ void ThreadDataMap::NotifyThreadDetach(Il2CppThread *thread)
 
 	std::map<const Il2CppThread*, ThreadData*>::const_iterator it = _thread_to_data.find(thread);
 
-	assert(it != _thread_to_data.end() && "ThreadDataMap::NotifyThreadDetach is being called on a thread that was not attached");
+	IL2CPP_ASSERT(it != _thread_to_data.end() && "ThreadDataMap::NotifyThreadDetach is being called on a thread that was not attached");
 
 	delete it->second;
 

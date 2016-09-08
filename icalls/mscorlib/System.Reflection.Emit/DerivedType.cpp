@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include "icalls/mscorlib/System.Reflection.Emit/DerivedType.h"
-#include <cassert>
 #include "vm/Exception.h"
 
 namespace il2cpp

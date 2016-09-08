@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/System/System.Diagnostics/DefaultTraceListener.h"
 #include "vm/Exception.h"
 

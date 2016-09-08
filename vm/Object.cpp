@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include <memory>
-#include <cassert>
 #include "utils/StringUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
@@ -49,7 +48,7 @@ namespace vm
 
 Il2CppObject * Object::Allocate (size_t size, Il2CppClass *typeInfo)
 {
-	assert (typeInfo->initialized);
+	IL2CPP_ASSERT(typeInfo->initialized);
 	Il2CppObject *o;
 	ALLOC_OBJECT (o, typeInfo, size);
 
@@ -60,7 +59,7 @@ Il2CppObject * Object::Allocate (size_t size, Il2CppClass *typeInfo)
 
 Il2CppObject * Object::AllocatePtrFree (size_t size, Il2CppClass *typeInfo)
 {
-	assert (typeInfo->initialized);
+	IL2CPP_ASSERT(typeInfo->initialized);
 	Il2CppObject *o;
 	ALLOC_PTRFREE (o, typeInfo, size);
 
@@ -71,7 +70,7 @@ Il2CppObject * Object::AllocatePtrFree (size_t size, Il2CppClass *typeInfo)
 
 Il2CppObject * Object::AllocateSpec (size_t size, Il2CppClass *typeInfo)
 {
-	assert (typeInfo->initialized);
+	IL2CPP_ASSERT(typeInfo->initialized);
 	Il2CppObject *o;
 	ALLOC_TYPED (o, size, typeInfo);
 
@@ -272,8 +271,8 @@ Il2CppObject* Object::NewPtrFree (Il2CppClass *klass)
 {
 	Il2CppObject *obj = {0};
 
-	assert (klass->initialized);
-	assert (!klass->has_references);
+	IL2CPP_ASSERT(klass->initialized);
+	IL2CPP_ASSERT(!klass->has_references);
 
 	ALLOC_PTRFREE (obj, klass, klass->instance_size);
 #if NEED_TO_ZERO_PTRFREE

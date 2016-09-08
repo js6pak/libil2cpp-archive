@@ -90,12 +90,12 @@ std::string Environment::GetEnvironmentVariable(const std::string& name)
 		return utils::StringUtils::Utf16ToUtf8(buffer);
 
 	// Requires bigger buffer
-	assert(ret >= BUFFER_SIZE);
+	IL2CPP_ASSERT(ret >= BUFFER_SIZE);
 
 	Il2CppChar* bigbuffer = new Il2CppChar[ret+1];
 
 	ret = GetEnvironmentVariableW(varName.c_str(), bigbuffer, ret+1);
-	assert(ret != 0);
+	IL2CPP_ASSERT(ret != 0);
 
 	std::string variableValue(utils::StringUtils::Utf16ToUtf8(bigbuffer));
 
@@ -193,7 +193,7 @@ typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
 bool Environment::Is64BitOs()
 {
-	bool isWow64Process = false;
+	BOOL isWow64Process = false;
 
 	// Supported on XP SP2 and higher
 
@@ -206,9 +206,9 @@ bool Environment::Is64BitOs()
 
 	if (NULL != fnIsWow64Process)
 	{
-		if (fnIsWow64Process(GetCurrentProcess(), (PBOOL)&isWow64Process))
+		if (fnIsWow64Process(GetCurrentProcess(), &isWow64Process))
 		{
-			return isWow64Process;
+			return isWow64Process == TRUE;
 		}
 	}
 

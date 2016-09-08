@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/mscorlib/System.Diagnostics/Debugger.h"
 #include "os/Debug.h"
 

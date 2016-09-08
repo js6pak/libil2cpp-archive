@@ -2,7 +2,6 @@
 #include "class-internals.h"
 #include "Il2CppGenericClassCompare.h"
 #include "Il2CppGenericInstCompare.h"
-#include <cassert>
 
 namespace il2cpp
 {

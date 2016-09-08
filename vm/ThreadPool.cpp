@@ -25,7 +25,6 @@
 
 #include <queue>
 #include <vector>
-#include <cassert>
 #include <list>
 #include <limits>
 #include <algorithm>
@@ -354,7 +353,7 @@ static void InitPollRequest (NativePollRequest& request, Il2CppSocketAsyncResult
 			break;
 
 		default: // Should never happen
-			assert (false && "Unrecognized socket async I/O operation");
+			IL2CPP_ASSERT(false && "Unrecognized socket async I/O operation");
 			break;
 	}
 #endif
@@ -363,7 +362,7 @@ static void InitPollRequest (NativePollRequest& request, Il2CppSocketAsyncResult
 	// Acquire socket.
 	socketHandle.Acquire (os::PointerToSocketHandle (socketAsyncResult->handle.m_value));
 #else
-	assert(false && "Todo .net 4");
+	IL2CPP_ASSERT(false && "Todo .net 4");
 #endif
 	request.fd = socketHandle.IsValid() ? socketHandle.GetSocket()->GetDescriptor() : -1;
 }
@@ -371,7 +370,7 @@ static void InitPollRequest (NativePollRequest& request, Il2CppSocketAsyncResult
 void SocketPollingThread::RunLoop ()
 {
 #if !IL2CPP_USE_SOCKET_MULTIPLEX_IO && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_WINDOWS
-	assert(false && "Platform has no SocketPollingThread mechanism. This function WILL deadlock.");
+	IL2CPP_ASSERT(false && "Platform has no SocketPollingThread mechanism. This function WILL deadlock.");
 #endif
 
 #if IL2CPP_TARGET_POSIX && !IL2CPP_USE_SOCKET_MULTIPLEX_IO
@@ -513,7 +512,7 @@ static void ConnectToSocket(void* arg)
 		Sleep(100);
 	}
 
-	assert(false && "Failed to connect to socket");
+	IL2CPP_ASSERT(false && "Failed to connect to socket");
 }
 #endif
 
@@ -547,7 +546,7 @@ static void SocketPollingThreadEntryPoint (void* data)
 #elif IL2CPP_TARGET_WINDOWS
 	{
 		SOCKET server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		assert(server != INVALID_SOCKET);
+		IL2CPP_ASSERT(server != INVALID_SOCKET);
 
 		sockaddr_in serverAddress;
 		int serverAddressLength = sizeof(serverAddress);
@@ -557,16 +556,16 @@ static void SocketPollingThreadEntryPoint (void* data)
 		serverAddress.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
 
 		int bindResult = bind(server, reinterpret_cast<const sockaddr*>(&serverAddress), serverAddressLength);
-		assert(bindResult == 0);
+		IL2CPP_ASSERT(bindResult == 0);
 
 		int getsocknameResult = getsockname(server, reinterpret_cast<sockaddr*>(&serverAddress), &serverAddressLength);
-		assert(getsocknameResult == 0);
+		IL2CPP_ASSERT(getsocknameResult == 0);
 
 		int listenResult = listen(server, 1);
-		assert(listenResult == 0);
+		IL2CPP_ASSERT(listenResult == 0);
 
 		pollingThread->writePipe = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		assert(pollingThread->writePipe != INVALID_SOCKET);
+		IL2CPP_ASSERT(pollingThread->writePipe != INVALID_SOCKET);
 
 		os::Thread connectThread;
 		ConnectToSocketArgs args = { pollingThread->writePipe, &serverAddress };
@@ -583,7 +582,7 @@ static void SocketPollingThreadEntryPoint (void* data)
 			FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errorMessage, 256, NULL);
 			OutputDebugStringW(errorMessage);
 			OutputDebugStringW(L"\r\n");
-			assert(false && "Failed to accept poll interrupt socket connection");
+			IL2CPP_ASSERT(false && "Failed to accept poll interrupt socket connection");
 		}
 
 		connectThread.Join();
@@ -665,7 +664,7 @@ void ThreadPoolCompartment::QueueWorkItem (Il2CppAsyncResult* asyncResult)
 	{
 		os::FastAutoLock lock (&mutex);
 		queue.push (asyncResult);
-		assert(numIdleThreads >= 0);
+		IL2CPP_ASSERT(numIdleThreads >= 0);
 		if (queue.size() > static_cast<uint32_t>(numIdleThreads))
 			forceNewThread = true;
 	}
@@ -675,7 +674,7 @@ void ThreadPoolCompartment::QueueWorkItem (Il2CppAsyncResult* asyncResult)
 	// is currently being processed and we don't have idle threads, force a new
 	// thread to be spawned even if we are at max capacity. This prevents deadlocks
 	// if the code queuing the item then goes and waits on the item it just queued.
-	assert(maxThreads >= 0);
+	IL2CPP_ASSERT(maxThreads >= 0);
 	if (forceNewThread &&
 	    (threads.size () < static_cast<uint32_t>(maxThreads) || IsCurrentThreadAWorkerThread ()))
 	{
@@ -733,7 +732,7 @@ static void HandleSocketAsyncOperation (Il2CppAsyncResult* asyncResult)
 			break;
 	}
 #else
-	assert(false && "TO DO .net 4");
+	IL2CPP_ASSERT(false && "TO DO .net 4");
 #endif
 }
 
@@ -753,7 +752,7 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 			// If we've exceeded the normal number of threads for the pool (minThreads),
 			// wait around for a bit and then, if there is no work to do,
 			// terminate.
-			assert(minThreads >= 0);
+			IL2CPP_ASSERT(minThreads >= 0);
 			if (threads.size () > static_cast<uint32_t>(minThreads))
 			{
 				if (waitingToTerminate)
@@ -953,12 +952,12 @@ ThreadPool::Configuration ThreadPool::GetConfiguration ()
 
 void ThreadPool::SetConfiguration (const Configuration& configuration)
 {
-	assert (configuration.maxThreads >= configuration.minThreads && "Invalid configuration");
-	assert (configuration.maxAsyncIOThreads >= configuration.minAsyncIOThreads && "Invalid configuration");
-	assert (configuration.minThreads > 0 && "Invalid configuration");
-	assert (configuration.minAsyncIOThreads > 0 && "Invalid configuration");
-	assert (configuration.maxThreads > 0 && "Invalid configuration");
-	assert (configuration.maxAsyncIOThreads > 0 && "Invalid configuration");
+	IL2CPP_ASSERT(configuration.maxThreads >= configuration.minThreads && "Invalid configuration");
+	IL2CPP_ASSERT(configuration.maxAsyncIOThreads >= configuration.minAsyncIOThreads && "Invalid configuration");
+	IL2CPP_ASSERT(configuration.minThreads > 0 && "Invalid configuration");
+	IL2CPP_ASSERT(configuration.minAsyncIOThreads > 0 && "Invalid configuration");
+	IL2CPP_ASSERT(configuration.maxThreads > 0 && "Invalid configuration");
+	IL2CPP_ASSERT(configuration.maxAsyncIOThreads > 0 && "Invalid configuration");
 
 	g_ThreadPoolCompartments[kWorkerThreadPool]->minThreads = configuration.minThreads;
 	g_ThreadPoolCompartments[kWorkerThreadPool]->maxThreads = configuration.maxThreads;
@@ -981,7 +980,7 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 
 	// Copy arguments.
 	const uint8_t parametersCount = delegate->method->parameters_count;
-	assert (!params[parametersCount] && "Expecting NULL as last element of the params array!");
+	IL2CPP_ASSERT(!params[parametersCount] && "Expecting NULL as last element of the params array!");
 
 	Il2CppArray* args = vm::Array::New (il2cpp_defaults.object_class, parametersCount);
 	for (uint8_t i = 0; i < parametersCount; ++i)
@@ -1024,7 +1023,7 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 			g_SocketPollingThread->QueueRequest (asyncResult);
 		}
 #else
-		assert(false && "The SocketAsyncCall delegate type does not exist in the net45 class libs so this if clause should never be reached");
+		IL2CPP_ASSERT(false && "The SocketAsyncCall delegate type does not exist in the net45 class libs so this if clause should never be reached");
 		IL2CPP_UNREACHABLE;
 #endif
 	}
@@ -1094,7 +1093,7 @@ Il2CppObject* ThreadPool::Wait (Il2CppAsyncResult* asyncResult, void** outArgs)
 			const bool isValueType = il2cpp_class_is_valuetype (paramClass);
 			if (isValueType)
 			{
-				assert (paramClass->native_size > 0 && "EndInvoke: Invalid native_size found when trying to copy a value type in the out_args.");
+				IL2CPP_ASSERT(paramClass->native_size > 0 && "EndInvoke: Invalid native_size found when trying to copy a value type in the out_args.");
 
 				// NOTE(gab): in case of value types, we need to copy the data over.
 				memcpy (outArgs[index], outArgsPtr[index], paramClass->native_size);

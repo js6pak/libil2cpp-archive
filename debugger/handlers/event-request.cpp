@@ -53,7 +53,7 @@ const Reply *Agent::Process(const EventRequestSetCommand *command)
 
 		case kEventKindBreakpoint:
 			{
-				assert(command->method() != 0 && "kEventKindBreakpoint expects a method and a location to be set!");
+				IL2CPP_ASSERT(command->method() != 0 && "kEventKindBreakpoint expects a method and a location to be set!");
 
 				BreakpointData *data = new BreakpointData();
 				data->method = command->method();
@@ -73,7 +73,7 @@ const Reply *Agent::Process(const EventRequestSetCommand *command)
 
 		case kEventKindStep:
 			{
-				assert(command->thread() != 0 && "kEventKindStep expects a thread, size and depth to be set!");
+				IL2CPP_ASSERT(command->thread() != 0 && "kEventKindStep expects a thread, size and depth to be set!");
 
 				// TODO: we probably need to clear also the SingleStepData state, if any.
 				if(_ss_data != 0)
@@ -91,24 +91,24 @@ const Reply *Agent::Process(const EventRequestSetCommand *command)
 		case kEventKindMethodEntry:
 			/*req->info = set_breakpoint (NULL, METHOD_ENTRY_IL_OFFSET, req);*/
 
-			assert(0 && "Not implemented request kEventKindMethodEntry" );
+			IL2CPP_ASSERT(0 && "Not implemented request kEventKindMethodEntry" );
 			break;
 
 		case kEventKindMethodExit:
 			/*req->info = set_breakpoint (NULL, METHOD_EXIT_IL_OFFSET, req);*/
 
-			assert(0 && "Not implemented request kEventKindMethodExit" );
+			IL2CPP_ASSERT(0 && "Not implemented request kEventKindMethodExit" );
 			break;
 
 		case kEventKindKeepAlive:
 			// Was empty
 
-			assert(0 && "Not implemented request kEventKindKeepAlive" );
+			IL2CPP_ASSERT(0 && "Not implemented request kEventKindKeepAlive" );
 			break;
 
 		default:
 			LOG("Not implemented request ??(" << command->kind() << ") with modifiers");
-			assert(0 && "Not implemented request" );
+			IL2CPP_ASSERT(0 && "Not implemented request" );
 	}
 
 	EventRequestSetCommand::Reply *event_request_set_reply = command->reply();

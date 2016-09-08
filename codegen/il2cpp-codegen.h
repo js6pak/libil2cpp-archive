@@ -240,8 +240,8 @@ inline Il2CppCodeGenObject* IsInst(Il2CppCodeGenObject *obj, Il2CppClass* target
 inline Il2CppCodeGenObject* IsInstSealed(Il2CppCodeGenObject *obj, Il2CppClass* targetType)
 {
 #if IL2CPP_DEBUG
-	assert ((targetType->flags & TYPE_ATTRIBUTE_SEALED) != 0);
-	assert ((targetType->flags & TYPE_ATTRIBUTE_INTERFACE) == 0);
+	IL2CPP_ASSERT((targetType->flags & TYPE_ATTRIBUTE_SEALED) != 0);
+	IL2CPP_ASSERT((targetType->flags & TYPE_ATTRIBUTE_INTERFACE) == 0);
 #endif
 	if (!obj)
 		return NULL;
@@ -253,7 +253,7 @@ inline Il2CppCodeGenObject* IsInstSealed(Il2CppCodeGenObject *obj, Il2CppClass* 
 inline Il2CppCodeGenObject* IsInstClass(Il2CppCodeGenObject *obj, Il2CppClass* targetType)
 {
 #if IL2CPP_DEBUG
-	assert ((targetType->flags & TYPE_ATTRIBUTE_INTERFACE) == 0);
+	IL2CPP_ASSERT((targetType->flags & TYPE_ATTRIBUTE_INTERFACE) == 0);
 #endif
 	if (!obj)
 		return NULL;
@@ -381,7 +381,7 @@ inline void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInfo* met
 	const MethodInfo* methodDefinition = typeInfo->vtable[slot].method;
 	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
 #if IL2CPP_DEBUG
-	assert(targetMethodInfo);
+	IL2CPP_ASSERT(targetMethodInfo);
 #endif
 
 	invokeData->methodPtr = targetMethodInfo->methodPointer;
@@ -407,13 +407,13 @@ inline void il2cpp_codegen_get_com_interface_invoke_data(Il2CppMethodSlot slot, 
 		const Il2CppRuntimeInterfaceOffsetPair* pair = declaringInterface->interfaceOffsets + declaringInterface->interface_offsets_count - 1;
 		itf_offset = pair->offset + pair->interfaceType->vtable_count;
 	}
-	assert(itf_offset != -1);
+	IL2CPP_ASSERT(itf_offset != -1);
 	slot += itf_offset;
 
 	*invokeData = declaringInterface->vtable[slot];
 
 #if IL2CPP_DEBUG
-	assert(invokeData->method);
+	IL2CPP_ASSERT(invokeData->method);
 #endif
 
 	if (!invokeData->methodPtr)
@@ -429,7 +429,7 @@ inline void il2cpp_codegen_get_generic_interface_invoke_data(const MethodInfo* m
 	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
 
 #if IL2CPP_DEBUG
-	assert(targetMethodInfo);
+	IL2CPP_ASSERT(targetMethodInfo);
 #endif
 
 	invokeData->methodPtr = targetMethodInfo->methodPointer;
@@ -473,7 +473,7 @@ inline Il2CppCodeGenRuntimeArgumentHandle LoadArgList()
 	Il2CppCodeGenRuntimeArgumentHandle handle;
 	handle.set_args_0(intptr);
 
-	assert(false && "__arglist usage not supported.");
+	IL2CPP_ASSERT(false && "__arglist usage not supported.");
 	return handle;
 }
 

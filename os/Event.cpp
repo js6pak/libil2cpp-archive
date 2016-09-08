@@ -8,7 +8,6 @@
 #else
 #include "os/EventImpl.h"
 #endif
-#include <cassert>
 
 
 namespace il2cpp

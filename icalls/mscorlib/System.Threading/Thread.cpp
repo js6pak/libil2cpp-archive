@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <memory>
 #include "icalls/mscorlib/System.Threading/Thread.h"
 #include "class-internals.h"
@@ -77,7 +76,7 @@ bool Thread::Join_internal (Il2CppThread * thisPtr, int32_t ms, void* thread)
 
 	// Join with other thread.
 	il2cpp::os::Thread* osThread = (il2cpp::os::Thread*)thisPtr->GetInternalThread()->handle;
-	assert (osThread != NULL);
+	IL2CPP_ASSERT(osThread != NULL);
 	il2cpp::os::WaitStatus status = osThread->Join(ms);
 
 	// Unblock current thread.
@@ -146,7 +145,7 @@ static void ThreadStart (void* arg)
 	{
 		int temp = 0;
 		if (!GarbageCollector::RegisterThread (&temp))
-			assert (0 && "GarbageCollector::RegisterThread failed");
+			IL2CPP_ASSERT(0 && "GarbageCollector::RegisterThread failed");
 
 		il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
@@ -181,7 +180,7 @@ static void ThreadStart (void* arg)
 
 Il2CppIntPtr Thread::Thread_internal (Il2CppThread * thisPtr, Il2CppDelegate * start)
 {
-	assert (thisPtr->GetInternalThread()->synch_cs != NULL);
+	IL2CPP_ASSERT(thisPtr->GetInternalThread()->synch_cs != NULL);
 	il2cpp::os::FastAutoLock lock(thisPtr->GetInternalThread()->synch_cs);
 
 	if (il2cpp::vm::Thread::GetState(thisPtr) & kThreadStateAborted)
@@ -520,8 +519,7 @@ Il2CppArray* Thread::ByteArrayToRootDomain(Il2CppArray* arr)
 
 bool Thread::YieldInternal()
 {
-	NOT_IMPLEMENTED_ICALL(Thread::YieldInternal);
-	IL2CPP_UNREACHABLE;
+	return vm::Thread::YieldInternal();
 }
 
 bool Thread::JoinInternal(Il2CppThread* _this, int32_t millisecondsTimeout)

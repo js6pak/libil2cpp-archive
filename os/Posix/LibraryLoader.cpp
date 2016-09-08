@@ -11,7 +11,6 @@
 #include <dlfcn.h>
 #include <string>
 #include <set>
-#include <cassert>
 
 #include "metadata.h"
 #include "os/LibraryLoader.h"

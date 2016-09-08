@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/Module.h"
-#include <cassert>
 #include "vm/Exception.h"
 #include "vm/Module.h"
 #include "vm/Image.h"

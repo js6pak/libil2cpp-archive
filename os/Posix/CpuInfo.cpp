@@ -5,7 +5,6 @@
 #if IL2CPP_TARGET_POSIX
 
 #include "os/CpuInfo.h"
-#include <cassert>
 #include <stdlib.h>
 #include <stdio.h>
 #include "utils/Memory.h"

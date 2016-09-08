@@ -10,7 +10,6 @@
 #else
 #include "os/ThreadLocalValueImpl.h"
 #endif
-#include <cassert>
 
 namespace il2cpp
 {

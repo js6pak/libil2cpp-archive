@@ -14,7 +14,6 @@
 #include "vm/RCW.h"
 #include "vm/Runtime.h"
 #include "vm/Thread.h"
-#include <cassert>
 
 using namespace il2cpp::os;
 using namespace il2cpp::vm;
@@ -238,7 +237,7 @@ static void CleanupCCW(void* obj, void* data)
 	{
 		os::FastAutoLock lock(&s_CCWCacheMutex);
 		CCWCache::iterator it = s_CCWCache.find(static_cast<Il2CppObject*>(obj));
-		assert(it != s_CCWCache.end());
+		IL2CPP_ASSERT(it != s_CCWCache.end());
 
 		Il2CppIManagedObjectHolder* managedObjectHolder = it->second.managedObjectHolder;
 		hasFinalizer = it->second.hasFinalizer;

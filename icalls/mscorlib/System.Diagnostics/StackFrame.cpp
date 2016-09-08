@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "icalls/mscorlib/System.Diagnostics/StackFrame.h"
 #include "vm/Reflection.h"
 #include "vm/StackTrace.h"

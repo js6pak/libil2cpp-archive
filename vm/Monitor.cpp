@@ -13,7 +13,6 @@
 
 #include "utils/ThreadSafeFreeList.h"
 
-#include <cassert>
 #include <limits>
 
 
@@ -112,7 +111,7 @@ struct MonitorData : public utils::ThreadSafeFreeListNode
 		static PulseWaitingListNode* Allocate ()
 		{
 			PulseWaitingListNode* node = s_FreeList.Allocate ();
-			assert (node->state == kUnused);
+			IL2CPP_ASSERT(node->state == kUnused);
 			return node;
 		}
 	};
@@ -144,7 +143,7 @@ struct MonitorData : public utils::ThreadSafeFreeListNode
 
 	void Unacquire ()
 	{
-		assert (owningThreadId == os::Thread::CurrentThreadId ());
+		IL2CPP_ASSERT(owningThreadId == os::Thread::CurrentThreadId ());
 		os::Atomic::Exchange64 (&owningThreadId, kCanBeAcquiredByOtherThread);
 	}
 
@@ -193,7 +192,7 @@ struct MonitorData : public utils::ThreadSafeFreeListNode
 	/// NOTE: Calling thread *must* have the monitor locked.
 	PulseWaitingListNode* PopNextFromPulseWaitingList ()
 	{
-		assert (owningThreadId == os::Thread::CurrentThreadId ());
+		IL2CPP_ASSERT(owningThreadId == os::Thread::CurrentThreadId ());
 
 		PulseWaitingListNode* head = threadsWaitingForPulse;
 		if (!head)
@@ -214,7 +213,7 @@ struct MonitorData : public utils::ThreadSafeFreeListNode
 	/// NOTE: Calling thread *must* have the monitor locked.
 	bool RemoveFromPulseWaitingList (PulseWaitingListNode* node)
 	{
-		assert (owningThreadId == os::Thread::CurrentThreadId ());
+		IL2CPP_ASSERT(owningThreadId == os::Thread::CurrentThreadId ());
 
 		// This function works only because threads calling Wait() on the monitor will only
 		// ever *prepend* nodes to the list. This means that only the "threadsWaitingForPulse"
@@ -302,7 +301,7 @@ bool Monitor::TryEnter (Il2CppObject* obj, uint32_t timeOutMilliseconds)
 		{
 			// Set up a new monitor.
 			MonitorData* newlyAllocatedMonitorForThisThread = MonitorData::s_FreeList.Allocate ();
-			assert (os::Atomic::Read64 ((int64_t*) &newlyAllocatedMonitorForThisThread->owningThreadId) == MonitorData::kHasBeenReturnedToFreeList
+			IL2CPP_ASSERT(os::Atomic::Read64 ((int64_t*) &newlyAllocatedMonitorForThisThread->owningThreadId) == MonitorData::kHasBeenReturnedToFreeList
 					&& "Monitor on freelist cannot be owned by thread!");
 			os::Atomic::Exchange64 (&newlyAllocatedMonitorForThisThread->owningThreadId, currentThreadId);
 
@@ -311,9 +310,9 @@ bool Monitor::TryEnter (Il2CppObject* obj, uint32_t timeOutMilliseconds)
 			{
 				// Done. There was no contention on this object. This is
 				// the fast path.
-				assert (obj->monitor);
-				assert (obj->monitor->recursiveLockingCount == 1);
-				assert (obj->monitor->owningThreadId == currentThreadId);
+				IL2CPP_ASSERT(obj->monitor);
+				IL2CPP_ASSERT(obj->monitor->recursiveLockingCount == 1);
+				IL2CPP_ASSERT(obj->monitor->owningThreadId == currentThreadId);
 				return true;
 			}
 			else
@@ -369,8 +368,8 @@ bool Monitor::TryEnter (Il2CppObject* obj, uint32_t timeOutMilliseconds)
 			if (installedMonitor->TryAcquire (currentThreadId))
 			{
 				// Ownership of monitor passed from previously locking thread to us.
-				assert (installedMonitor->recursiveLockingCount == 1);
-				assert (obj->monitor == installedMonitor);
+				IL2CPP_ASSERT(installedMonitor->recursiveLockingCount == 1);
+				IL2CPP_ASSERT(obj->monitor == installedMonitor);
 				installedMonitor->RemoveCurrentThreadFromReadyList ();
 				return true;
 			}
@@ -420,8 +419,8 @@ bool Monitor::TryEnter (Il2CppObject* obj, uint32_t timeOutMilliseconds)
 					if (installedMonitor->TryAcquire (currentThreadId))
 					{
 						// We've successfully acquired a lock on the object.
-						assert (installedMonitor->recursiveLockingCount == 1);
-						assert (obj->monitor == installedMonitor);
+						IL2CPP_ASSERT(installedMonitor->recursiveLockingCount == 1);
+						IL2CPP_ASSERT(obj->monitor == installedMonitor);
 						return true;
 					}
 				}
@@ -507,7 +506,7 @@ void Monitor::Exit (Il2CppObject* obj)
 		//   realizing the mistake.
 
 		// Release monitor back to free list.
-		assert (monitor->owningThreadId == os::Thread::CurrentThreadId ());
+		IL2CPP_ASSERT(monitor->owningThreadId == os::Thread::CurrentThreadId ());
 		os::Atomic::Exchange64 (&monitor->owningThreadId, MonitorData::kHasBeenReturnedToFreeList);
 		MonitorData::s_FreeList.Release (monitor);
 	}

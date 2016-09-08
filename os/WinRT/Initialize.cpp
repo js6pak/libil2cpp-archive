@@ -7,10 +7,6 @@
 
 #include <io.h>
 
-void il2cpp::os::Initialize()
-{
-}
-
 void il2cpp::os::Uninitialize()
 {
 	HANDLE stdoutHandle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(stdout)));

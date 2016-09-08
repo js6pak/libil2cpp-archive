@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "object-internals.h"
 #include "class-internals.h"
 #include "vm/String.h"
@@ -46,8 +45,8 @@
 
 #ifdef _DEBUG
 #include <assert.h>
-#define PRECONDITION(flag) assert(flag)
-#define POSTCONDITION(flag) assert(flag)
+#define PRECONDITION(flag) IL2CPP_ASSERT(flag)
+#define POSTCONDITION(flag) IL2CPP_ASSERT(flag)
 #else
 #define PRECONDITION(flag)  
 #define POSTCONDITION(flag)  
@@ -279,8 +278,8 @@ static int incMultConstant128(uint64_t* palo, uint64_t* pahi, int idx, int facto
 {
 	uint64_t blo, bhi, h;
 
-	assert(idx >= 0 && idx <= DECIMAL_MAX_SCALE);
-	assert(factor > 0 && factor <= 9);
+	IL2CPP_ASSERT(idx >= 0 && idx <= DECIMAL_MAX_SCALE);
+	IL2CPP_ASSERT(factor > 0 && factor <= 9);
 
 	blo = dec128decadeFactors[idx].lo;
 	h = bhi = dec128decadeFactors[idx].hi;
@@ -509,7 +508,7 @@ static int decimalDivSub(il2cpp_decimal_repr* pA, il2cpp_decimal_repr* pB, uint6
 			bmi = 0;
 			blo = 0;
 
-			//g_assert (g_bit_nth_msf (bhi, 32) == my_g_bit_nth_msf (bhi));
+			//IL2CPP_ASSERT(g_bit_nth_msf (bhi, 32) == my_g_bit_nth_msf (bhi));
 
 			hi_shift = 31 - my_g_bit_nth_msf(bhi);
 			bhi <<= hi_shift;
@@ -720,8 +719,8 @@ static int rescale128(uint64_t* pclo, uint64_t* pchi, int* pScale, int texp,
 					*pchi >>= shift;
 					overhang >>= shift;
 
-					assert (texp > 0);
-					assert (overhang > (2 << DECIMAL_MAX_INTFACTORS));
+					IL2CPP_ASSERT(texp > 0);
+					IL2CPP_ASSERT(overhang > (2 << DECIMAL_MAX_INTFACTORS));
 				}
 			}
             while (texp > 0 && (overhang > (2<<DECIMAL_MAX_INTFACTORS) || (*pclo & 1) == 0)) {
@@ -942,7 +941,7 @@ static double
 fnDblPower10(int ix)
 {
 	const int maxIx = (sizeof(double_power10) / sizeof(double_power10[0]));
-	assert(ix >= 0);
+	IL2CPP_ASSERT(ix >= 0);
 	if (ix < maxIx)
 		return double_power10[ix];
 	return pow(10.0, ix);
@@ -1831,12 +1830,12 @@ il2cpp_decimal_from_double(double input_d, Il2CppDecimal *result)
 			power = 0; // didn't scale it
 	}
 
-	assert(dbl < 1E15);
+	IL2CPP_ASSERT(dbl < 1E15);
 	if (dbl < 1E14 && power < DECMAX)
 	{
 		dbl *= 10;
 		power++;
-		assert(dbl >= 1E14);
+		IL2CPP_ASSERT(dbl >= 1E14);
 	}
 
 	// Round to int64
@@ -1869,7 +1868,7 @@ il2cpp_decimal_from_double(double input_d, Il2CppDecimal *result)
 		{
 			// Have a big power of 10.
 			//
-			assert(power <= 14);
+			IL2CPP_ASSERT(power <= 14);
 			sdlLo.int64 = UInt64x64To128(sdlMant, sdl_power10[power - 10], &sdlMant.int64);
 
 			if (sdlMant.u.Hi != 0)
@@ -2473,12 +2472,12 @@ il2cpp_decimal_from_float(float input_f, Il2CppDecimal* result)
 			power = 0; // didn't scale it
 	}
 
-	assert(dbl < 1E7);
+	IL2CPP_ASSERT(dbl < 1E7);
 	if (dbl < 1E6 && power < DECMAX)
 	{
 		dbl *= 10;
 		power++;
-		assert(dbl >= 1E6);
+		IL2CPP_ASSERT(dbl >= 1E6);
 	}
 
 	// Round to integer
@@ -3184,7 +3183,7 @@ void Decimal::FCallAddSub(Il2CppDecimal* left, Il2CppDecimal* right, uint8_t sig
 	int         scale, hi_prod, cur;
 	SPLIT64     sdlTmp;
 
-	assert(sign == 0 || sign == DECIMAL_NEG);
+	IL2CPP_ASSERT(sign == 0 || sign == DECIMAL_NEG);
 
 	leftOriginal = left;
 

@@ -209,7 +209,7 @@ size_t Image::GetNumTypes(const Il2CppImage* image)
 const Il2CppClass* Image::GetType(const Il2CppImage* image, size_t index)
 {
 	size_t typeDefinitionIndex = image->typeStart + index;
-	assert(typeDefinitionIndex <= static_cast<size_t>(std::numeric_limits<TypeDefinitionIndex>::max()));
+	IL2CPP_ASSERT(typeDefinitionIndex <= static_cast<size_t>(std::numeric_limits<TypeDefinitionIndex>::max()));
 	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (static_cast<TypeDefinitionIndex>(typeDefinitionIndex));
 }
 

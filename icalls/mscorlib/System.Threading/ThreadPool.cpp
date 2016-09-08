@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/mscorlib/System.Threading/ThreadPool.h"
 #include "os/Environment.h"
 #include "vm/Exception.h"

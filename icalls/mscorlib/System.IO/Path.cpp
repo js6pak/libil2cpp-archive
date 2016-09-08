@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/mscorlib/System.IO/Path.h"
 #include "vm/String.h"
 #include "os/Path.h"

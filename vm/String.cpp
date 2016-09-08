@@ -7,11 +7,10 @@
 #include "vm/String.h"
 #include "vm/Object.h"
 #include "vm/Profiler.h"
-#include "utils/Il2CppHashMap.h"
+#include "gc/AppendOnlyGCHashMap.h"
 #include "utils/StringUtils.h"
 #include <string>
 #include <memory.h>
-#include <cassert>
 #include "class-internals.h"
 #include "object-internals.h"
 
@@ -24,7 +23,7 @@ static Il2CppString* s_EmptyString;
 
 void String::InitializeEmptyString(Il2CppClass* stringClass)
 {
-	assert(s_EmptyString == NULL && "Empty string was already initialized");
+	IL2CPP_ASSERT(s_EmptyString == NULL && "Empty string was already initialized");
 
 	// size for string and null terminator
 	s_EmptyString = static_cast<Il2CppString*>(gc::GarbageCollector::AllocateFixed(sizeof(Il2CppString) + 2, 0));
@@ -35,14 +34,14 @@ void String::InitializeEmptyString(Il2CppClass* stringClass)
 
 void String::CleanupEmptyString()
 {
-	assert(s_EmptyString && "Empty string was not yet initialized");
+	IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
 	gc::GarbageCollector::FreeFixed(s_EmptyString);
 	s_EmptyString = NULL;
 }
 
 Il2CppString* String::Empty()
 {
-	assert(s_EmptyString && "Empty string was not yet initialized");
+	IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
 	return s_EmptyString;
 }
 
@@ -92,7 +91,7 @@ Il2CppString* String::NewUtf16 (const Il2CppChar* text, int32_t len)
 	Il2CppString *s;
 	
 	s = NewSize (len);
-	assert (s != NULL);
+	IL2CPP_ASSERT(s != NULL);
 
 	memcpy (String::GetChars (s), text, len * 2);
 
@@ -105,7 +104,7 @@ Il2CppString* String::NewSize (int32_t len)
 		return Empty();
 
 	Il2CppString *s;
-	assert(len >= 0);
+	IL2CPP_ASSERT(len >= 0);
 	size_t size = (sizeof (Il2CppString) + ((len + 1) * 2));
 
 	/* overflow ? can't fit it, can't allocate it! */
@@ -138,7 +137,7 @@ class InternedStringHash
 public:
 	size_t operator( )( const InternedString& ea ) const
 	{
-		return ea.length;
+		return utils::StringUtils::Hash (ea.chars, ea.length);
 	}
 };
 
@@ -157,7 +156,8 @@ public:
 };
 
 
-typedef Il2CppHashMap<InternedString, Il2CppString*, InternedStringHash, InternedStringCompare, il2cpp::gc::Allocator<std::pair<const KeyWrapper<InternedString>, Il2CppString*> > > InternedStringMap;
+
+typedef il2cpp::gc::AppendOnlyGCHashMap<InternedString, Il2CppString*, InternedStringHash, InternedStringCompare> InternedStringMap;
 
 static os::FastMutex s_InternedStringMapMutex;
 static InternedStringMap* s_InternedStringMap;
@@ -171,12 +171,12 @@ Il2CppString* String::Intern (Il2CppString* str)
 		s_InternedStringMap = new InternedStringMap ();
 
 	InternedString internedString = { str->length, str->chars };
-	InternedStringMap::const_iterator iter = s_InternedStringMap->find (internedString);
-	if (iter != s_InternedStringMap->end ())
-		return iter->second;
+	Il2CppString* value = NULL;
+	if (s_InternedStringMap->TryGetValue (internedString, &value))
+		return value;
 
 	internedString.chars = String::GetChars (str);
-	s_InternedStringMap->insert (std::make_pair (internedString, str));
+	s_InternedStringMap->Add (internedString, str);
 
 	return str;
 }
@@ -190,10 +190,10 @@ Il2CppString* String::IsInterned(Il2CppString* str)
 		return NULL;
 
 	InternedString internedString = { str->length, str->chars };
-	InternedStringMap::const_iterator iter = s_InternedStringMap->find(internedString);
-	if (iter != s_InternedStringMap->end())
-		return iter->second;
-
+	Il2CppString* value = NULL;
+	if (s_InternedStringMap->TryGetValue (internedString, &value))
+		return value;
+		
 	return NULL;
 }
 

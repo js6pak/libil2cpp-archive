@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/MonoField.h"
-#include <cassert>
 #include "utils/StringUtils.h"
 #include "utils/BlobReader.h"
 #include "vm/Class.h"
@@ -75,7 +74,7 @@ void MonoField::SetValueInternal (Il2CppReflectionField* field, Il2CppObject* ob
 	}
 	else
 	{
-		assert(obj);
+		IL2CPP_ASSERT(obj);
 		fieldAddress = reinterpret_cast<uint8_t*>(obj) + fieldInfo->offset;
 	}
 
