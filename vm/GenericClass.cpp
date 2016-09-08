@@ -8,7 +8,6 @@
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
 #include "vm/MetadataLock.h"
-#include <cassert>
 #include "class-internals.h"
 #include "metadata.h"
 
@@ -24,7 +23,7 @@ void GenericClass::SetupMethods (Il2CppClass* genericInstanceType)
 {
 	Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition (genericInstanceType->generic_class);
 	uint16_t methodCount = genericTypeDefinition->method_count;
-	assert (genericTypeDefinition->method_count == genericInstanceType->method_count);
+	IL2CPP_ASSERT(genericTypeDefinition->method_count == genericInstanceType->method_count);
 
 	if (methodCount == 0)
 	{
@@ -63,7 +62,7 @@ void GenericClass::SetupProperties (Il2CppClass* genericInstanceType)
 {
 	Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition (genericInstanceType->generic_class);
 	uint16_t propertyCount = genericTypeDefinition->property_count;
-	assert (genericTypeDefinition->property_count == genericInstanceType->property_count);
+	IL2CPP_ASSERT(genericTypeDefinition->property_count == genericInstanceType->property_count);
 
 	if (propertyCount == 0)
 	{
@@ -103,7 +102,7 @@ void GenericClass::SetupEvents (Il2CppClass* genericInstanceType)
 {
 	Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition (genericInstanceType->generic_class);
 	uint16_t eventCount = genericTypeDefinition->event_count;
-	assert (genericTypeDefinition->event_count == genericInstanceType->event_count);
+	IL2CPP_ASSERT(genericTypeDefinition->event_count == genericInstanceType->event_count);
 
 	if (eventCount == 0)
 	{
@@ -139,7 +138,7 @@ void GenericClass::SetupFields (Il2CppClass* genericInstanceType)
 {
 	Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition (genericInstanceType->generic_class);
 	uint16_t fieldCount = genericTypeDefinition->field_count;
-	assert (genericTypeDefinition->field_count == genericInstanceType->field_count);
+	IL2CPP_ASSERT(genericTypeDefinition->field_count == genericInstanceType->field_count);
 
 	if (fieldCount == 0)
 	{

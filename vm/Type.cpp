@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 
 #include <string>
-#include <cassert>
 #include <cstring>
 #include <sstream>
 #include <algorithm>
@@ -879,7 +878,7 @@ bool Type::IsStruct (const Il2CppType* type)
 
 bool Type::GenericInstIsValuetype (const Il2CppType* type)
 {
-	assert (IsGenericInstance (type));
+	IL2CPP_ASSERT(IsGenericInstance (type));
 	return GenericClass::IsValueType (type->data.generic_class);
 }
 
@@ -922,13 +921,13 @@ bool Type::IsSystemDecimal (const Il2CppType *type)
 
 Il2CppClass* Type::GetClass (const Il2CppType *type)
 {
-	assert (type->type == IL2CPP_TYPE_CLASS || type->type == IL2CPP_TYPE_VALUETYPE);
+	IL2CPP_ASSERT(type->type == IL2CPP_TYPE_CLASS || type->type == IL2CPP_TYPE_VALUETYPE);
 	return MetadataCache::GetTypeInfoFromTypeDefinitionIndex (type->data.klassIndex);
 }
 
 const Il2CppGenericParameter* Type::GetGenericParameter (const Il2CppType *type)
 {
-	assert (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR);
+	IL2CPP_ASSERT(type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR);
 	return MetadataCache::GetGenericParameterFromIndex (type->data.genericParameterIndex);
 }
 
@@ -946,7 +945,7 @@ const Il2CppGenericParameter* Type::GetGenericParameter (const Il2CppType *type)
 */
 void Type::ConstructDelegate (Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
 {
-	assert(delegate);
+	IL2CPP_ASSERT(delegate);
 
 	if (method)
 		delegate->method = method;

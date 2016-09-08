@@ -61,7 +61,7 @@ const Reply *Agent::Process(const AppDomainGetEntryAssemblyCommand *command)
 {
 	LOG("warning: `AppDomainGetEntryAssemblyCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }
@@ -70,7 +70,7 @@ const Reply *Agent::Process(const AppDomainCreateBoxedValueCommand *command)
 {
 	LOG("warning: `AppDomainCreateBoxedValueCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

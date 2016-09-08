@@ -4,7 +4,6 @@
 
 #include "SemaphoreImpl.h"
 #include "WindowsHelpers.h"
-#include <cassert>
 
 namespace il2cpp
 {
@@ -15,12 +14,12 @@ SemaphoreImpl::SemaphoreImpl(int32_t initialValue, int32_t maximumValue)
 {
 	m_Handle = ::CreateSemaphore (NULL, initialValue, maximumValue, NULL);
 
-	assert (m_Handle);
+	IL2CPP_ASSERT(m_Handle);
 }
 
 SemaphoreImpl::~SemaphoreImpl ()
 {
-	assert (m_Handle);
+	IL2CPP_ASSERT(m_Handle);
 
 	::CloseHandle (m_Handle);
 }

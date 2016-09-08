@@ -20,7 +20,6 @@
 #include "vm/MetadataCache.h"
 #include "class-internals.h"
 #include "tabledefs.h"
-#include <cassert>
 #include <sstream>
 #include <vector>
 
@@ -65,8 +64,8 @@ const Il2CppType* GenericMetadata::InflateIfNeeded (const Il2CppType* type, cons
 	{
 		Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc (sizeof (Il2CppType));
 		const Il2CppGenericParameter* gp = Type::GetGenericParameter (type);
-		assert (context->class_inst);
-		assert (gp->num < context->class_inst->type_argc);
+		IL2CPP_ASSERT(context->class_inst);
+		IL2CPP_ASSERT(gp->num < context->class_inst->type_argc);
 
 		memcpy (inflatedType, context->class_inst->type_argv[gp->num], sizeof (Il2CppType));
 		inflatedType->byref = type->byref;
@@ -82,7 +81,7 @@ const Il2CppType* GenericMetadata::InflateIfNeeded (const Il2CppType* type, cons
 		{
 			Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc (sizeof (Il2CppType));
 			const Il2CppGenericParameter* gp = Type::GetGenericParameter (type);
-			assert (gp->num < context->method_inst->type_argc);
+			IL2CPP_ASSERT(gp->num < context->method_inst->type_argc);
 
 			memcpy (inflatedType, context->method_inst->type_argv[gp->num], sizeof (Il2CppType));
 			inflatedType->byref = type->byref;
@@ -226,7 +225,7 @@ Il2CppRGCTXData* GenericMetadata::InflateRGCTX (RGCTXIndex rgctxStartIndex, int1
 			dataValues[rgctxIndex].method = GenericMethod::GetMethod (Inflate (MetadataCache::GetGenericMethodFromIndex (definitionData->data.methodIndex), context));
 			break;
 		default:
-			assert (0);
+			IL2CPP_ASSERT(0);
 		}
 	}
 

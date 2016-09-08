@@ -11,7 +11,6 @@
 #else
 #include "os/ThreadImpl.h"
 #endif
-#include <cassert>
 #include <limits>
 
 namespace il2cpp
@@ -122,7 +121,7 @@ void Thread::RunWrapper (void* arg)
 
 ErrorCode Thread::Run (StartFunc func, void* arg)
 {
-	assert (m_State == kThreadCreated || m_State == kThreadExited);
+	IL2CPP_ASSERT(m_State == kThreadCreated || m_State == kThreadExited);
 
 	StartData* startData = new StartData;
 	startData->startFunction = func;
@@ -134,7 +133,7 @@ ErrorCode Thread::Run (StartFunc func, void* arg)
 
 WaitStatus Thread::Join ()
 {
-	assert (this != GetCurrentThread () && "Trying to join the current thread will deadlock");
+	IL2CPP_ASSERT(this != GetCurrentThread () && "Trying to join the current thread will deadlock");
 	return Join (std::numeric_limits<uint32_t>::max ());
 }
 
@@ -203,7 +202,7 @@ Thread* Thread::GetCurrentThread ()
 {
 	void* value;
 	s_CurrentThread.GetValue (&value);
-	assert (value != NULL);
+	IL2CPP_ASSERT(value != NULL);
 	return reinterpret_cast<Thread*> (value);
 }
 
@@ -225,11 +224,20 @@ void Thread::DetachCurrentThread ()
 #if IL2CPP_DEBUG
 		void* value;
 		s_CurrentThread.GetValue(&value);
-		assert(value != NULL);
+		IL2CPP_ASSERT(value != NULL);
 #endif
 
 	s_CurrentThread.SetValue (NULL);
 }
+
+#if NET_4_0
+
+bool Thread::YieldInternal()
+{
+	return ThreadImpl::YieldInternal();
+}
+
+#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 

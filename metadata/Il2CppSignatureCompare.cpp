@@ -3,7 +3,6 @@
 #include "Il2CppTypeCompare.h"
 #include "Il2CppSignatureCompare.h"
 #include "utils/KeyWrapper.h"
-#include <cassert>
 
 namespace il2cpp
 {

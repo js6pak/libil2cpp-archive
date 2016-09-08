@@ -115,6 +115,8 @@ public:
 
 	static void Sleep(uint32_t ms);
 
+	static bool YieldInternal();
+
 #endif
 
 private:

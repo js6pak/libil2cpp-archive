@@ -4,7 +4,6 @@
 
 #include "os/TimeZone.h"
 #include "os/Win32/WindowsHeaders.h"
-#include <cassert>
 
 /*
  * Magic number to convert FILETIME base Jan 1, 1601 to DateTime - base Jan, 1, 0001
@@ -85,7 +84,7 @@ bool TimeZone::GetTimeZoneData (int32_t year, int64_t data[4], std::string names
 		tz_info.StandardDate.wYear = year;
 		convert_to_absolute_date(&tz_info.StandardDate);
 		err = SystemTimeToFileTime (&tz_info.StandardDate, &ft);
-		//g_assert(err);
+		//g_IL2CPP_ASSERT(err);
 		if (err == 0)
 			return 0;
 		

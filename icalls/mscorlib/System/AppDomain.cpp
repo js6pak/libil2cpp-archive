@@ -23,7 +23,6 @@
 #include "object-internals.h"
 #include "il2cpp-api.h"
 
-#include <cassert>
 #include <map>
 #include <string>
 #include <vector>
@@ -91,8 +90,8 @@ Il2CppString *  AppDomain::getFriendlyName(Il2CppAppDomain* ad)
 
 Il2CppObject* AppDomain::getSetup (Il2CppAppDomain* domain)
 {
-	assert (domain != NULL);
-	assert (domain->data != NULL);
+	IL2CPP_ASSERT(domain != NULL);
+	IL2CPP_ASSERT(domain->data != NULL);
 
 	return domain->data->setup;
 }

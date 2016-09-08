@@ -26,7 +26,6 @@
 #include "vm/Type.h"
 #include "vm/Array.h"
 #include "class-internals.h"
-#include <cassert>
 #include <limits>
 
 
@@ -326,6 +325,8 @@ void Assembly::InternalGetAssemblyName (Il2CppString* assemblyFile, Il2CppAssemb
 
 Il2CppReflectionAssembly* Assembly::LoadFrom (Il2CppString* assemblyFile, bool refonly)
 {
+	assert(!refonly && "This icall is not supported by il2cpp when refonly=true");
+
 	// Our implementation is going to behave a bit different.  We can't actually load any assembly.  If we didn't know about the assembly at conversion time,
 	// then we won't be able to do anything.
 	// On the other hand, if the name of the assembly matches the name of an assembly that we converted, then lets return the assembly that we know about.
@@ -472,7 +473,7 @@ Il2CppArray* Assembly::GetManifestResourceNames (Il2CppReflectionAssembly* assem
 {
 	std::vector<EmbeddedResourceRecord> resourceRecords = GetResourceRecords(assembly);
 
-	assert(resourceRecords.size() <= static_cast<size_t>(std::numeric_limits<il2cpp_array_size_t>::max()));
+	IL2CPP_ASSERT(resourceRecords.size() <= static_cast<size_t>(std::numeric_limits<il2cpp_array_size_t>::max()));
 	Il2CppArray* resourceNameArray = vm::Array::New(il2cpp_defaults.string_class, static_cast<il2cpp_array_size_t>(resourceRecords.size()));
 	for (size_t i = 0; i < resourceRecords.size(); ++i)
 		il2cpp_array_setref(resourceNameArray, i, vm::String::New(resourceRecords[i].name.c_str()));
@@ -541,8 +542,7 @@ Il2CppReflectionModule* Assembly::GetManifestModuleInternal (Il2CppAssembly* sel
 
 bool Assembly::get_ReflectionOnly (Il2CppAssembly* self)
 {
-	NOT_SUPPORTED_IL2CPP (Assembly::get_ReflectionOnly, "This icall is not supported by il2cpp.");
-	
+	// It doesn't mean anything to have a reflection only assembly in il2cpp since we can't load a managed assembly that we didn't convert.  So let's always return false.
 	return false;
 }
 

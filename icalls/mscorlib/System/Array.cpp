@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <memory>
 #include "object-internals.h"
 #include "class-internals.h"
@@ -161,11 +160,11 @@ bool Array::FastCopy (Il2CppArray *source, int32_t source_idx, Il2CppArray *dest
 			return false;
 
 		// derivedtype[] -> basetype[]
-		assert(Type::IsReference(src_class->byval_arg));
-		assert(Type::IsReference(dest_class->byval_arg));
+		IL2CPP_ASSERT(Type::IsReference(src_class->byval_arg));
+		IL2CPP_ASSERT(Type::IsReference(dest_class->byval_arg));
 	}
 
-	assert(il2cpp_array_element_size(dest->klass) == il2cpp_array_element_size(source->klass));
+	IL2CPP_ASSERT(il2cpp_array_element_size(dest->klass) == il2cpp_array_element_size(source->klass));
 
 	NOT_IMPLEMENTED_ICALL_NO_ASSERT (Array::FastCopy, "Need GC write barrier");
 	memmove(
@@ -228,7 +227,7 @@ Il2CppObject * Array::GetValue (Il2CppArray * thisPtr, Il2CppArray* indices)
 	ao = (Il2CppArray *)thisPtr;
 	ac = (Il2CppClass *)ao->klass;
 
-	assert (ic->rank == 1);
+	IL2CPP_ASSERT(ic->rank == 1);
 	if (io->bounds != NULL || io->max_length !=  ac->rank)
 		Exception::Raise (Exception::GetArgumentException (NULL, NULL));
 
@@ -277,7 +276,7 @@ void Array::SetValue (Il2CppArray * thisPtr, Il2CppObject* value, Il2CppArray* i
 	ic = idxs->klass;
 	ac = thisPtr->klass;
 
-	assert (ic->rank == 1);
+	IL2CPP_ASSERT(ic->rank == 1);
 	if (idxs->bounds != NULL || idxs->max_length != ac->rank)
 		Exception::Raise (Exception::GetArgumentException (NULL, NULL));
 
@@ -361,7 +360,7 @@ WidenedValueUnion ExtractWidenedValue (Il2CppTypeEnum type, void* value)
 			extractedValue.r64 = *(double *)value;
 			break;
 		default:
-			assert (0);
+			IL2CPP_ASSERT(0);
 			break;
 	}
 
@@ -398,7 +397,7 @@ static void AssignUnsigned (WidenedValueUnion value, void* elementAddress, Il2Cp
 			ThrowNoWidening ();
 			break;
 		default:
-			assert (0);
+			IL2CPP_ASSERT(0);
 			break;
 	}
 }
@@ -431,7 +430,7 @@ static void AssignSigned (WidenedValueUnion value, void* elementAddress, Il2CppT
 			ThrowNoWidening ();
 			break;
 		default:
-			assert (0);
+			IL2CPP_ASSERT(0);
 			break;
 	}
 }
@@ -461,7 +460,7 @@ static void AssignReal (WidenedValueUnion value, void* elementAddress, Il2CppTyp
 			*(T*)elementAddress = (T)value.r64;
 			break;
 		default:
-			assert (0);
+			IL2CPP_ASSERT(0);
 			break;
 	}
 }

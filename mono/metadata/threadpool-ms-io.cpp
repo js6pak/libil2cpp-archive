@@ -18,7 +18,6 @@
 #include <fcntl.h>
 #endif
 
-#include <cassert>
 #include <mono/metadata/threadpool-ms.h>
 #include <mono/metadata/threadpool-ms-io.h>
 #include <mono/metadata/threadpool-ms-io-poll.h>
@@ -113,7 +112,7 @@ static il2cpp::vm::ThreadPool::ThreadPoolIOBackend backend_poll = { poll_init, p
 
 static Il2CppIOSelectorJob* get_job_for_event (ManagedList *list, int32_t event)
 {
-	assert (list);
+	IL2CPP_ASSERT(list);
 	Il2CppIOSelectorJob* foundJob = NULL;
 	int matchIndex = -1;
 	for (size_t i = 0; i < list->size(); i++)
@@ -194,7 +193,7 @@ static void filter_jobs_for_domain (void* key, void* value, void* user_data)
 	//MonoDomain *domain;
 	//MonoGHashTable *states;
 
-	//g_assert (user_data);
+	//IL2CPP_ASSERT(user_data);
 	//data = (FilterSockaresForDomainData *)user_data;
 	//domain = data->domain;
 	//states = data->states;
@@ -212,7 +211,7 @@ static void filter_jobs_for_domain (void* key, void* value, void* user_data)
 	//}
 
 	//if (list) {
-	//	g_assert (mono_mlist_get_data (list));
+	//	IL2CPP_ASSERT(mono_mlist_get_data (list));
 
 	//	/* we delete all the NULL elements after the first one */
 	//	for (element = list; element;) {
@@ -247,7 +246,7 @@ static void wait_callback (int fd, int events, void* user_data)
 		bool remove_fd = false;
 		int operations;
 
-		assert (user_data);
+		IL2CPP_ASSERT(user_data);
 		states = (ThreadPoolStateHash *)user_data;
 
 		/*mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_IO_THREADPOOL, "io threadpool: cal fd %3d, events = %2s | %2s | %3s",
@@ -257,7 +256,7 @@ static void wait_callback (int fd, int events, void* user_data)
 		bool exists = iter != states->end();
 
 		if (!exists)
-			assert("wait_callback: fd not found in states table");
+			IL2CPP_ASSERT("wait_callback: fd not found in states table");
 		else
 			list = iter->second;
 
@@ -332,10 +331,10 @@ static void selector_thread (void* data)
 				Il2CppIOSelectorJob *job;
 
 				fd = update->data.add.fd;
-				assert (fd >= 0);
+				IL2CPP_ASSERT(fd >= 0);
 
 				job = update->data.add.job;
-				assert (job);
+				IL2CPP_ASSERT(job);
 
 				ThreadPoolStateHash::iterator iter = states->find(fd);
 				exists = iter != states->end();
@@ -365,7 +364,7 @@ static void selector_thread (void* data)
 				ManagedList *list = NULL;
 
 				fd = update->data.remove_socket.fd;
-				assert (fd >= 0);
+				IL2CPP_ASSERT(fd >= 0);
 
 				ThreadPoolStateHash::iterator iter = states->find(fd);
 				bool exists = iter != states->end();
@@ -399,7 +398,7 @@ static void selector_thread (void* data)
 				Il2CppDomain *domain;
 
 				domain = update->data.remove_domain.domain;
-				assert (domain);
+				IL2CPP_ASSERT(domain);
 
 				FilterSockaresForDomainData user_data = { domain, states };
 				//mono_g_hash_table_foreach (states, filter_jobs_for_domain, &user_data);
@@ -413,7 +412,7 @@ static void selector_thread (void* data)
 				break;
 			}
 			default:
-				assert (0 && "Should not be reached");
+				IL2CPP_ASSERT(0 && "Should not be reached");
 			}
 		}
 
@@ -443,7 +442,7 @@ static void selector_thread (void* data)
 static ThreadPoolIOUpdate* update_get_new (void)
 {
 	ThreadPoolIOUpdate *update = NULL;
-	assert (threadpool_io->updates_size <= UPDATES_CAPACITY);
+	IL2CPP_ASSERT(threadpool_io->updates_size <= UPDATES_CAPACITY);
 
 	while (threadpool_io->updates_size == UPDATES_CAPACITY) {
 		/* we wait for updates to be applied in the selector_thread and we loop
@@ -452,7 +451,7 @@ static ThreadPoolIOUpdate* update_get_new (void)
 		threadpool_io->updates_cond.Wait(&threadpool_io->updates_lock);
 	}
 
-	assert (threadpool_io->updates_size < UPDATES_CAPACITY);
+	IL2CPP_ASSERT(threadpool_io->updates_size < UPDATES_CAPACITY);
 
 	update = &threadpool_io->updates [threadpool_io->updates_size ++];
 
@@ -467,12 +466,12 @@ static void wakeup_pipes_init(void)
 
 	threadpool_io->wakeup_pipes[1] = new il2cpp::os::Socket(NULL);
 	il2cpp::os::WaitStatus status = threadpool_io->wakeup_pipes[1]->Create(il2cpp::os::kAddressFamilyInterNetwork, il2cpp::os::kSocketTypeStream, il2cpp::os::kProtocolTypeTcp);
-	assert(status != il2cpp::os::kWaitStatusFailure);
+	IL2CPP_ASSERT(status != il2cpp::os::kWaitStatusFailure);
 
 	if (serverSock.Bind("127.0.0.1", 0) == il2cpp::os::kWaitStatusFailure)
 	{
 		serverSock.Close();
-		assert(0 && "wakeup_pipes_init: bind () failed");
+		IL2CPP_ASSERT(0 && "wakeup_pipes_init: bind () failed");
 	}
 
 	il2cpp::os::EndPointInfo info;
@@ -480,23 +479,23 @@ static void wakeup_pipes_init(void)
 	if (serverSock.GetLocalEndPointInfo(info) == il2cpp::os::kWaitStatusFailure)
 	{
 		serverSock.Close();
-		assert(0 && "wakeup_pipes_init: getsockname () failed");
+		IL2CPP_ASSERT(0 && "wakeup_pipes_init: getsockname () failed");
 	}
 
 	if (serverSock.Listen(1024) == il2cpp::os::kWaitStatusFailure)
 	{
 		serverSock.Close();
-		assert(0 && "wakeup_pipes_init: listen () failed");
+		IL2CPP_ASSERT(0 && "wakeup_pipes_init: listen () failed");
 	}
 
 	if (threadpool_io->wakeup_pipes[1]->Connect(info.data.inet.address, info.data.inet.port) == il2cpp::os::kWaitStatusFailure)
 	{
 		serverSock.Close();
-		assert(0 && "wakeup_pipes_init: connect () failed");
+		IL2CPP_ASSERT(0 && "wakeup_pipes_init: connect () failed");
 	}
 
 	status = serverSock.Accept(&threadpool_io->wakeup_pipes[0]);
-	assert(status != il2cpp::os::kWaitStatusFailure);
+	IL2CPP_ASSERT(status != il2cpp::os::kWaitStatusFailure);
 
 	status = threadpool_io->wakeup_pipes[0]->SetBlocking(false);
 
@@ -516,9 +515,9 @@ static bool lazy_is_initialized()
 
 static void initialize(void* args)
 {
-	assert (!threadpool_io);
+	IL2CPP_ASSERT(!threadpool_io);
 	threadpool_io = new ThreadPoolIO();
-	assert (threadpool_io);
+	IL2CPP_ASSERT(threadpool_io);
 
 	threadpool_io->updates = (ThreadPoolIOUpdate*)il2cpp::gc::GarbageCollector::AllocateFixed(sizeof(ThreadPoolIOUpdate) * UPDATES_CAPACITY, NULL);
 
@@ -536,10 +535,10 @@ static void initialize(void* args)
 	wakeup_pipes_init ();
 
 	if (!threadpool_io->backend.init ((int)threadpool_io->wakeup_pipes [0]->GetDescriptor()))
-		assert (0 && "initialize: backend->init () failed");
+		IL2CPP_ASSERT(0 && "initialize: backend->init () failed");
 
 	if (!il2cpp::vm::Thread::CreateInternal(selector_thread, NULL, true, SMALL_STACK))
-		assert(0 && "initialize: vm::Thread::CreateInternal () failed ");
+		IL2CPP_ASSERT(0 && "initialize: vm::Thread::CreateInternal () failed ");
 }
 
 static void lazy_initialize()
@@ -551,7 +550,7 @@ static void cleanup (void)
 {
 	/* we make the assumption along the code that we are
 	 * cleaning up only if the runtime is shutting down */
-	assert (il2cpp::vm::Runtime::IsShuttingDown ());
+	IL2CPP_ASSERT(il2cpp::vm::Runtime::IsShuttingDown ());
 
 	selector_thread_wakeup ();
 	while (io_selector_running)
@@ -568,10 +567,10 @@ void ves_icall_System_IOSelector_Add (Il2CppIntPtr handle, Il2CppIOSelectorJob *
 {
 	ThreadPoolIOUpdate *update;
 
-	assert (handle.m_value >= 0);
+	IL2CPP_ASSERT(handle.m_value >= 0);
 
-	assert ((job->operation == EVENT_IN) ^ (job->operation == EVENT_OUT));
-	assert (job->callback);
+	IL2CPP_ASSERT((job->operation == EVENT_IN) ^ (job->operation == EVENT_OUT));
+	IL2CPP_ASSERT(job->callback);
 
 	if (il2cpp::vm::Runtime::IsShuttingDown ())
 		return;
@@ -627,22 +626,22 @@ void threadpool_ms_io_remove_socket (int fd)
 
 void ves_icall_System_IOSelector_Add (Il2CppIntPtr handle, Il2CppIOSelectorJob *job)
 {
-	assert(0 && "Should not be called");
+	IL2CPP_ASSERT(0 && "Should not be called");
 }
 
 void ves_icall_System_IOSelector_Remove (Il2CppIntPtr handle)
 {
-	assert(0 && "Should not be called");
+	IL2CPP_ASSERT(0 && "Should not be called");
 }
 
 void threadpool_ms_io_cleanup (void)
 {
-	assert(0 && "Should not be called");
+	IL2CPP_ASSERT(0 && "Should not be called");
 }
 
 void threadpool_ms_io_remove_socket (int fd)
 {
-	assert(0 && "Should not be called");
+	IL2CPP_ASSERT(0 && "Should not be called");
 }
 
 #endif

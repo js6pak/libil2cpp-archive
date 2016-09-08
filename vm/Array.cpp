@@ -17,7 +17,7 @@ namespace vm
 
 int32_t Array::GetElementSize (const Il2CppClass *klass)
 {
-	assert (klass->rank);
+	IL2CPP_ASSERT(klass->rank);
 	return klass->element_size;
 }
 
@@ -62,9 +62,9 @@ Il2CppArray* Array::NewSpecific (Il2CppClass *klass, il2cpp_array_size_t n)
 	uint32_t byte_len, elem_size;
 
 	Class::Init (klass);
-	assert (klass->rank);
-	assert (klass->initialized);
-	assert (klass->element_class->initialized);
+	IL2CPP_ASSERT(klass->rank);
+	IL2CPP_ASSERT(klass->initialized);
+	IL2CPP_ASSERT(klass->element_class->initialized);
 
 	NOT_IMPLEMENTED_NO_ASSERT (Array::NewSpecific,"Not checking for overflow");
 	NOT_IMPLEMENTED_NO_ASSERT (Array::NewSpecific,"Handle allocations with a GC descriptor");
@@ -125,9 +125,9 @@ Il2CppArray* Array::NewFull (Il2CppClass *array_class, il2cpp_array_size_t *leng
 	int i;
 
 	Class::Init (array_class);
-	assert (array_class->rank);
-	assert (array_class->initialized);
-	assert (array_class->element_class->initialized);
+	IL2CPP_ASSERT(array_class->rank);
+	IL2CPP_ASSERT(array_class->initialized);
+	IL2CPP_ASSERT(array_class->element_class->initialized);
 
 	NOT_IMPLEMENTED_NO_ASSERT (Array::NewFull,"IGNORING non-zero based arrays!");
 	NOT_IMPLEMENTED_NO_ASSERT (Array::NewFull,"Handle allocations with a GC descriptor");

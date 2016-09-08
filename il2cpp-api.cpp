@@ -35,7 +35,6 @@
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 
-#include <cassert>
 #include <locale.h>
 #include <fstream>
 

@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "icalls/mscorlib/System/ArgIterator.h"
 #include "tabledefs.h"
 #include "vm/Exception.h"

@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <string>
 #include <algorithm>
 #include "il2cpp-api.h"
@@ -217,7 +216,7 @@ static Il2CppArray* create_group_sizes_array(const int *gs, int ml)
 #if !NET_4_0
 void CultureInfo::construct_datetime_format(Il2CppCultureInfo* cultureInfo)
 {
-	assert(cultureInfo->datetime_index >= 0);
+	IL2CPP_ASSERT(cultureInfo->datetime_index >= 0);
 
 	Il2CppDateTimeFormatInfo* datetime = cultureInfo->datetime_format;
 	const DateTimeFormatEntry* dfe = &datetime_format_entries[cultureInfo->datetime_index];
@@ -283,7 +282,7 @@ bool CultureInfo::construct_internal_locale_from_name(Il2CppCultureInfo* culture
 #if !NET_4_0
 void CultureInfo::construct_number_format(Il2CppCultureInfo* cultureInfo)
 {
-	assert(cultureInfo->number_format != 0);
+	IL2CPP_ASSERT(cultureInfo->number_format != 0);
 
 	if (cultureInfo->number_index < 0)
 		return;

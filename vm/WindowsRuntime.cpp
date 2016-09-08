@@ -28,7 +28,7 @@ Il2CppIActivationFactory* WindowsRuntime::GetActivationFactory(const utils::Stri
 	// that is named after the namespace of a part of it. 
 	// For example, MyNamespace.MySubNamespace.MyClass can be in either
 	// MyNamespace.MySubNamespace.dll or MyNamespace.dll
-	assert(runtimeClassName.Length() > 1);
+	IL2CPP_ASSERT(runtimeClassName.Length() > 1);
 	size_t namespaceEnd = runtimeClassName.Length() - 1;
 
 	do

@@ -20,7 +20,6 @@
 #include "utils/StringUtils.h"
 #include "class-internals.h"
 #include "object-internals.h"
-#include <cassert>
 #include <algorithm>
 #include <map>
 
@@ -43,6 +42,8 @@ typedef std::vector<Il2CppThread*, il2cpp::gc::Allocator<Il2CppThread*> > GCTrac
 
 // we need to allocate this ourselves so the CRT does not initialize it and try to allocate GC memory on startup before the GC is initialized
 static GCTrackedThreadVector* s_AttachedThreads;
+
+static bool s_BlockNewThreads = false;
 
 #define AUTO_LOCK_THREADS() \
 	il2cpp::os::FastAutoLock lock(&s_ThreadMutex)
@@ -84,7 +85,7 @@ Il2CppThread* Thread::Attach (Il2CppDomain *domain)
 
 	int temp = 0;
 	if (!GarbageCollector::RegisterThread (&temp))
-		assert (0 && "GarbageCollector::RegisterThread failed");
+		IL2CPP_ASSERT(0 && "GarbageCollector::RegisterThread failed");
 
 	StackTrace::InitializeStackTracesForCurrentThread();
 
@@ -117,8 +118,8 @@ void Thread::Setup (Il2CppThread* thread)
 
 void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
 {
-	assert (thread->GetInternalThread()->handle != NULL);
-	assert (thread->GetInternalThread()->synch_cs != NULL);
+	IL2CPP_ASSERT(thread->GetInternalThread()->handle != NULL);
+	IL2CPP_ASSERT(thread->GetInternalThread()->synch_cs != NULL);
 
 	s_CurrentThread.SetValue (thread);
 
@@ -160,7 +161,7 @@ void Thread::Uninitialize (Il2CppThread *thread)
 #endif
 
 	if (!GarbageCollector::UnregisterThread ())
-		assert(0 && "GarbageCollector::UnregisterThread failed");
+		IL2CPP_ASSERT(0 && "GarbageCollector::UnregisterThread failed");
 
 #if IL2CPP_DEBUGGER_ENABLED
 	il2cpp_debugger_notify_thread_detach(thread);
@@ -204,48 +205,73 @@ void Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads ()
 #if IL2CPP_SUPPORT_THREADS
 	Il2CppThread* gcFinalizerThread = NULL;
 	Il2CppThread* currentThread = Current ();
-	assert (currentThread != NULL && "No current thread!");
+	IL2CPP_ASSERT(currentThread != NULL && "No current thread!");
+
+	s_ThreadMutex.Lock();
+	s_BlockNewThreads = true;
+	GCTrackedThreadVector attachedThreadsCopy = *s_AttachedThreads;
+	s_ThreadMutex.Unlock();
+
+	std::vector<os::Thread*> backgroundThreads;
+	std::vector<os::Thread*> foregroundThreads;
 
 	// Kill all threads but the finalizer and current one. We temporarily flush out
 	// the entire list and then just put the two threads back.
-	while (s_AttachedThreads->size ())
+	while (attachedThreadsCopy.size ())
 	{
-		Il2CppThread* thread = s_AttachedThreads->back ();
+		Il2CppThread* thread = attachedThreadsCopy.back ();
 		os::Thread* osThread = thread->GetInternalThread()->handle;
 
 		if (GarbageCollector::IsFinalizerThread (thread))
 		{
-			assert (gcFinalizerThread == NULL && "There seems to be more than one finalizer thread!");
+			IL2CPP_ASSERT(gcFinalizerThread == NULL && "There seems to be more than one finalizer thread!");
 			gcFinalizerThread = thread;
 		}
 		else if (thread != currentThread)
 		{
-			////FIXME: While we don't have stable thread abortion in place yet, work around problems in
-			////	the current implementation by repeatedly requesting threads to terminate. This works around
-			////    race condition to some extent.
-			while (true)
+			// If it's a background thread, request it to kill itself.
+			if (GetState(thread) & kThreadStateBackground)
 			{
-				// If it's a background thread, request it to kill itself.
-				if (GetState (thread) & kThreadStateBackground)
-				{
-					////TODO: use Thread.Abort() instead
-					osThread->QueueUserAPC (TerminateBackgroundThread, NULL);
-				}
+				////TODO: use Thread.Abort() instead
+				osThread->QueueUserAPC(TerminateBackgroundThread, NULL);
 
-				// Wait for the thread.
-				if (osThread->Join (10) == kWaitStatusSuccess)
-					break;
+				backgroundThreads.push_back(osThread);
 			}
+			else
+				foregroundThreads.push_back(osThread);
 		}
 
-		// Remove the thread except it has already removed itself (will happen as
-		// part of Join).
-		if (s_AttachedThreads->back () == thread)
-			s_AttachedThreads->pop_back ();
+		attachedThreadsCopy.pop_back ();
 	}
 
+	////FIXME: While we don't have stable thread abortion in place yet, work around problems in
+	////	the current implementation by repeatedly requesting threads to terminate. This works around
+	////    race condition to some extent.
+	while (backgroundThreads.size())
+	{
+		os::Thread* osThread = backgroundThreads.back();
+
+		// Wait for the thread.
+		if (osThread->Join(10) == kWaitStatusSuccess)
+			backgroundThreads.pop_back();
+		else
+		{
+			////TODO: use Thread.Abort() instead
+			osThread->QueueUserAPC(TerminateBackgroundThread, NULL);
+		}
+	}
+
+	for (unsigned i = 0; i < foregroundThreads.size(); ++i)
+	{
+		foregroundThreads[i]->Join();
+	}
+
+
+	AUTO_LOCK_THREADS();
+	s_AttachedThreads->clear();
+
 	// Put finalizer and current thread back in list.
-	assert (gcFinalizerThread != NULL && "GC finalizer thread was not found in list of attached threads!");
+	IL2CPP_ASSERT(gcFinalizerThread != NULL && "GC finalizer thread was not found in list of attached threads!");
 	if (gcFinalizerThread)
 		s_AttachedThreads->push_back (gcFinalizerThread);
 	if (currentThread)
@@ -255,7 +281,7 @@ void Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads ()
 
 void Thread::Detach (Il2CppThread *thread)
 {
-	assert(thread != NULL && "Cannot detach a NULL thread");
+	IL2CPP_ASSERT(thread != NULL && "Cannot detach a NULL thread");
 
 	Uninitialize (thread);
 	il2cpp::vm::StackTrace::CleanupStackTracesForCurrentThread();
@@ -341,7 +367,7 @@ int32_t Thread::AllocThreadStaticData (int32_t size)
 {
 	AUTO_LOCK_THREADS ();
 	int32_t index = (int32_t)s_ThreadStaticSizes.size ();
-	assert (index < kMaxThreadStaticSlots);
+	IL2CPP_ASSERT(index < kMaxThreadStaticSlots);
 	s_ThreadStaticSizes.push_back (size);
 	for (GCTrackedThreadVector::const_iterator iter = s_AttachedThreads->begin (); iter != s_AttachedThreads->end (); ++iter)
 	{
@@ -372,21 +398,24 @@ void* Thread::GetThreadStaticData (int32_t offset)
 {
 	// No lock. We allocate static_data once with a fixed size so we can read it
 	// safely without a lock here.
-	assert(offset >= 0 && static_cast<uint32_t>(offset) < s_ThreadStaticSizes.size ());
+	IL2CPP_ASSERT(offset >= 0 && static_cast<uint32_t>(offset) < s_ThreadStaticSizes.size ());
 	return Current ()->GetInternalThread()->static_data [offset];
 }
 
 void Thread::Register (Il2CppThread *thread)
 {
 	AUTO_LOCK_THREADS ();
-	s_AttachedThreads->push_back(thread);
+	if (s_BlockNewThreads)
+		TerminateBackgroundThread(NULL);
+	else
+		s_AttachedThreads->push_back(thread);
 }
 
 void Thread::Unregister (Il2CppThread *thread)
 {
 	AUTO_LOCK_THREADS ();
 	GCTrackedThreadVector::iterator it = std::find(s_AttachedThreads->begin(), s_AttachedThreads->end(), thread);
-	assert(it != s_AttachedThreads->end() && "Vm thread not found in list of attached threads.");
+	IL2CPP_ASSERT(it != s_AttachedThreads->end() && "Vm thread not found in list of attached threads.");
 	s_AttachedThreads->erase(it);
 }
 
@@ -571,7 +600,7 @@ static void ThreadStart(void* arg)
 	{
 		int temp = 0;
 		if (!GarbageCollector::RegisterThread(&temp))
-			assert(0 && "GarbageCollector::RegisterThread failed");
+			IL2CPP_ASSERT(0 && "GarbageCollector::RegisterThread failed");
 
 		il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
@@ -648,7 +677,7 @@ Il2CppInternalThread* Thread::CreateInternal(void(*func) (void*), void* arg, boo
 
 void Thread::Stop(Il2CppInternalThread* thread)
 {
-	assert(thread != CurrentInternal());
+	IL2CPP_ASSERT(thread != CurrentInternal());
 	if (!RequestAbort(thread))
 		return;
 
@@ -676,6 +705,12 @@ void Thread::Sleep(uint32_t ms)
 {
 	CurrentInternal()->handle->Sleep(ms);
 }
+
+bool Thread::YieldInternal()
+{
+	return os::Thread::YieldInternal();
+}
+
 #endif
 
 void Thread::CheckCurrentThreadForAbortAndThrowIfNecessary()

@@ -3,7 +3,6 @@
 #include "Il2CppGenericMethodHash.h"
 #include "Il2CppGenericContextHash.h"
 #include "utils/HashUtils.h"
-#include <cassert>
 
 using il2cpp::utils::HashUtils;
 

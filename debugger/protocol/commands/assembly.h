@@ -41,7 +41,7 @@ struct AssemblyGetObjectCommand : public CustomCommand<AssemblyGetObjectCommand>
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented");
+			IL2CPP_ASSERT(0 && "Not implemented");
 		}
 	};
 
@@ -55,7 +55,7 @@ struct AssemblyGetEntryPointCommand : public CustomCommand<AssemblyGetEntryPoint
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented");
+			IL2CPP_ASSERT(0 && "Not implemented");
 		}
 	};
 

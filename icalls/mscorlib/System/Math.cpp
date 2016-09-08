@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <math.h>
 #include <limits>
 #include <float.h>

@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "icalls/mscorlib/System.Threading/NativeEventCalls.h"
 #include "os/Event.h"
 #include "vm/Exception.h"

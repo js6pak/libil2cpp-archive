@@ -210,56 +210,56 @@ Il2CppClass *TypeFromId(int32_t id)
 
 Il2CppClass *TypeFromId(Id &id)
 {
-	assert(id.type == kIdTypeType && "TypeFromId can only be used on kIdTypeType ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeType && "TypeFromId can only be used on kIdTypeType ids.");
 
 	return TypeFromId(id.id);
 }
 
 Il2CppObject *ObjectFromId(Id &id)
 {
-	assert(id.type == kIdTypeObject && "ObjectFromId can only be used on kIdTypeObject ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeObject && "ObjectFromId can only be used on kIdTypeObject ids.");
 
 	return get_object_from_id(id.id);
 }
 
 Il2CppDomain *DomainFromId(Id &id)
 {
-	assert(id.type == kIdTypeDomain && "DomainFromId can only be used on kIdTypeDomain ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeDomain && "DomainFromId can only be used on kIdTypeDomain ids.");
 
 	return (Il2CppDomain*)get_ptr_from_id(id.type, id.id);
 }
 
 Il2CppAssembly *AssemblyFromId(Id &id)
 {
-	assert(id.type == kIdTypeAssembly && "AssemblyFromId can only be used on kIdTypeAssembly ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeAssembly && "AssemblyFromId can only be used on kIdTypeAssembly ids.");
 
 	return (Il2CppAssembly*)get_ptr_from_id(id.type, id.id);
 }
 
 Il2CppImage *ModuleFromId(Id &id)
 {
-	assert(id.type == kIdTypeModule && "ModuleFromId can only be used on kIdTypeModule ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeModule && "ModuleFromId can only be used on kIdTypeModule ids.");
 
 	return (Il2CppImage*)get_ptr_from_id(id.type, id.id);
 }
 
 MethodInfo *MethodFromId(Id &id)
 {
-	assert(id.type == kIdTypeMethod && "MethodFromId can only be used on kIdTypeMethod ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeMethod && "MethodFromId can only be used on kIdTypeMethod ids.");
 
 	return (MethodInfo*)get_ptr_from_id(id.type, id.id);
 }
 
 FieldInfo *FieldFromId(Id &id)
 {
-	assert(id.type == kIdTypeField && "FieldFromId can only be used on kIdTypeField ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeField && "FieldFromId can only be used on kIdTypeField ids.");
 
 	return (FieldInfo*)get_ptr_from_id(id.type, id.id);
 }
 
 PropertyInfo *PropertyFromId(Id &id)
 {
-	assert(id.type == kIdTypeProperty && "PropertyFromId can only be used on kIdTypeProperty ids.");
+	IL2CPP_ASSERT(id.type == kIdTypeProperty && "PropertyFromId can only be used on kIdTypeProperty ids.");
 
 	return (PropertyInfo*)get_ptr_from_id(id.type, id.id);
 }

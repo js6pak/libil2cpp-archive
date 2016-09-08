@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "object-internals.h"
 #include "class-internals.h"
 #include "icalls/mscorlib/System/Enum.h"
@@ -25,7 +24,7 @@ Il2CppObject * Enum::get_value(Il2CppObject *thisPtr)
 	if (!thisPtr)
 		return NULL;
 
-	assert (thisPtr->klass->enumtype);
+	IL2CPP_ASSERT(thisPtr->klass->enumtype);
 	
 	Il2CppClass* enumClass = Class::FromIl2CppType (Class::GetEnumBaseType (thisPtr->klass));
 	Il2CppObject* res = Object::New (enumClass);
@@ -45,7 +44,7 @@ int Enum::compare_value_to(Il2CppObject * thisPtr, Il2CppObject * other)
 	void* tdata = (char *)thisPtr + sizeof (Il2CppObject);
 	void* odata = (char *)other + sizeof (Il2CppObject);
 	const Il2CppType *basetype = Class::GetEnumBaseType (Object::GetClass (thisPtr));
-	assert (basetype);
+	IL2CPP_ASSERT(basetype);
 
 #define COMPARE_ENUM_VALUES(ENUM_TYPE) do { \
 		ENUM_TYPE me = *((ENUM_TYPE*)tdata); \
@@ -83,7 +82,7 @@ int Enum::compare_value_to(Il2CppObject * thisPtr, Il2CppObject * other)
 		case IL2CPP_TYPE_I8:
 			COMPARE_ENUM_VALUES (int64_t);
 		default:
-			assert(false && "Implement type 0x%02x in compare_value_to");
+			IL2CPP_ASSERT(false && "Implement type 0x%02x in compare_value_to");
 	}
 
 #undef COMPARE_ENUM_VALUES_RANGE
@@ -95,7 +94,7 @@ int32_t Enum::get_hashcode(Il2CppObject * thisPtr)
 {
 	void* data = (char *)thisPtr + sizeof (Il2CppObject);
 	Il2CppClass *basetype = thisPtr->klass->element_class;
-	assert (basetype);
+	IL2CPP_ASSERT(basetype);
 
 	if (basetype == il2cpp_defaults.sbyte_class)
 		return *((int8_t*)data);
@@ -117,7 +116,7 @@ int32_t Enum::get_hashcode(Il2CppObject * thisPtr)
 		return (int32_t)(value & 0xffffffff) ^ (int32_t)(value >> 32);
 	}
 
-	assert(0 && "System_Enum_get_hashcode_icall");
+	IL2CPP_ASSERT(0 && "System_Enum_get_hashcode_icall");
 	return 0;
 }
 
@@ -141,7 +140,7 @@ read_enum_value (char *mem, Il2CppClass* type)
 	if (type == il2cpp_defaults.int64_class)
 		return *(int64_t*)mem;
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return 0;
 }
@@ -171,7 +170,7 @@ write_enum_value (char *mem, Il2CppClass* type, uint64_t value)
 	}
 	else
 	{
-		assert(0);
+		IL2CPP_ASSERT(0);
 	}
 
 	return;

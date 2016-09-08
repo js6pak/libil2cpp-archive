@@ -28,7 +28,6 @@
 
 #include "il2cpp-api.h"
 #include "object-internals.h"
-#include <cassert>
 #include <algorithm>
 #include <complex>
 #include "vm/String.h"
@@ -95,10 +94,10 @@ typedef union {
 	int64_t as_int64_t;
 } ThreadPoolCounter;
 
-//typedef struct {
-//	Il2CppDomain *domain;
-//	int32_t outstanding_request;
-//} ThreadPoolDomain;
+typedef struct {
+	Il2CppDomain *domain;
+	int32_t outstanding_request;
+} ThreadPoolDomain;
 
 typedef Il2CppInternalThread ThreadPoolWorkingThread;
 
@@ -138,12 +137,12 @@ typedef struct {
 typedef struct {
 	ThreadPoolCounter counters;
 
-	//GPtrArray *domains; // ThreadPoolDomain* []
-	//MonoCoopMutex domains_lock;
+	std::vector<ThreadPoolDomain*> domains;
+	il2cpp::os::FastMutex domains_lock;
 
 	std::vector<Il2CppInternalThread*> working_threads;
 	int32_t parked_threads_count;
-	//il2cpp::os::ConditionVariable parked_threads_cond;
+	il2cpp::os::ConditionVariable parked_threads_cond;
 	il2cpp::os::FastMutex active_threads_lock; /* protect access to working_threads and parked_threads */
 
 	uint32_t worker_creation_current_second;
@@ -196,9 +195,9 @@ static ThreadPool* threadpool;
 
 #define COUNTER_CHECK(counter) \
 	do { \
-		assert (counter._.max_working > 0); \
-		assert (counter._.working >= 0); \
-		assert (counter._.active >= 0); \
+		IL2CPP_ASSERT(counter._.max_working > 0); \
+		IL2CPP_ASSERT(counter._.working >= 0); \
+		IL2CPP_ASSERT(counter._.active >= 0); \
 	} while (0)
 
 #define COUNTER_READ() (il2cpp::vm::Atomic::Read64 (&threadpool->counters.as_int64_t))
@@ -207,7 +206,7 @@ static ThreadPool* threadpool;
 	do { \
 		ThreadPoolCounter __old; \
 		do { \
-			assert (threadpool); \
+			IL2CPP_ASSERT(threadpool); \
 			__old.as_int64_t = COUNTER_READ (); \
 			(var) = __old; \
 			{ block; } \
@@ -219,7 +218,7 @@ static ThreadPool* threadpool;
 	do { \
 		ThreadPoolCounter __old; \
 		do { \
-			assert (threadpool); \
+			IL2CPP_ASSERT(threadpool); \
 			__old.as_int64_t = COUNTER_READ (); \
 			(var) = __old; \
 			(res) = false; \
@@ -272,15 +271,11 @@ static void initialize(void* arg)
 	int threads_per_cpu;
 	int threads_count;
 
-	assert (!threadpool);
+	IL2CPP_ASSERT(!threadpool);
 	threadpool = new ThreadPool();
-	assert (threadpool);
-
-	/*threadpool->domains = g_ptr_array_new ();
-	mono_coop_mutex_init (&threadpool->domains_lock);*/
+	IL2CPP_ASSERT(threadpool);
 
 	threadpool->parked_threads_count = 0;
-	//threadpool->working_threads = g_ptr_array_new ();
 
 	threadpool->worker_creation_current_second = -1;
 
@@ -351,7 +346,7 @@ static void cleanup (void)
 
 	/* we make the assumption along the code that we are
 	 * cleaning up only if the runtime is shutting down */
-	assert (il2cpp::vm::Runtime::IsShuttingDown ());
+	IL2CPP_ASSERT(il2cpp::vm::Runtime::IsShuttingDown ());
 
 	while (monitor_status != MONITOR_STATUS_NOT_RUNNING)
 		il2cpp::vm::Thread::Sleep(1);
@@ -363,7 +358,7 @@ static void cleanup (void)
 		worker_kill (threadpool->working_threads[i]);
 
 	/* unpark all threadpool->parked_threads */
-	//threadpool->parked_threads_cond.Broadcast();
+	threadpool->parked_threads_cond.Broadcast();
 }
 
 bool threadpool_ms_enqueue_work_item (Il2CppDomain *domain, Il2CppObject *work_item)
@@ -374,14 +369,14 @@ bool threadpool_ms_enqueue_work_item (Il2CppDomain *domain, Il2CppObject *work_i
 	bool f;
 	void* args [2];
 
-	assert (work_item);
+	IL2CPP_ASSERT(work_item);
 
 	if (!threadpool_class)
 		threadpool_class = il2cpp::vm::Class::FromName(il2cpp_defaults.corlib, "System.Threading", "ThreadPool");
 
 	if (!unsafe_queue_custom_work_item_method)
 		unsafe_queue_custom_work_item_method = (MethodInfo*)il2cpp::vm::Class::GetMethodFromName(threadpool_class, "UnsafeQueueCustomWorkItem", 2);
-	assert (unsafe_queue_custom_work_item_method);
+	IL2CPP_ASSERT(unsafe_queue_custom_work_item_method);
 
 	f = false;
 
@@ -392,24 +387,122 @@ bool threadpool_ms_enqueue_work_item (Il2CppDomain *domain, Il2CppObject *work_i
 	return true;
 }
 
+/* LOCKING: threadpool->domains_lock must be held */
+static ThreadPoolDomain* domain_get(Il2CppDomain *domain, bool create)
+{
+	ThreadPoolDomain *tpdomain = NULL;
+	unsigned int i;
+
+	IL2CPP_ASSERT(domain);
+
+	for (i = 0; i < threadpool->domains.size(); ++i) {
+		tpdomain = (ThreadPoolDomain *)threadpool->domains[i];
+		if (tpdomain->domain == domain)
+			return tpdomain;
+	}
+
+	if (create) {
+		tpdomain = new ThreadPoolDomain();
+		tpdomain->domain = domain;
+		threadpool->domains.push_back(tpdomain);
+	}
+
+	return tpdomain;
+}
+
+/* LOCKING: threadpool->domains_lock must be held */
+static bool domain_any_has_request(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < threadpool->domains.size(); ++i) {
+		ThreadPoolDomain *tmp = (ThreadPoolDomain *)threadpool->domains[i];
+		if (tmp->outstanding_request > 0)
+			return true;
+	}
+
+	return false;
+}
+
+/* LOCKING: threadpool->domains_lock must be held */
+static ThreadPoolDomain* domain_get_next(ThreadPoolDomain *current)
+{
+	ThreadPoolDomain *tpdomain = NULL;
+	unsigned int len;
+
+	len = (unsigned int)threadpool->domains.size();
+	if (len > 0) {
+		unsigned int i, current_idx = -1;
+		if (current) {
+			for (i = 0; i < len; ++i) {
+				if (current == threadpool->domains[i]) {
+					current_idx = i;
+					break;
+				}
+			}
+			IL2CPP_ASSERT(current_idx >= 0);
+		}
+		for (i = current_idx + 1; i < len + current_idx + 1; ++i) {
+			ThreadPoolDomain *tmp = (ThreadPoolDomain *)threadpool->domains[i % len];
+			if (tmp->outstanding_request > 0) {
+				tpdomain = tmp;
+				break;
+			}
+		}
+	}
+
+	return tpdomain;
+}
+
 static void worker_wait_interrupt (void* data)
 {
-	/*threadpool->active_threads_lock.Lock();
+	threadpool->active_threads_lock.Lock();
 	threadpool->parked_threads_cond.Signal();
-	threadpool->active_threads_lock.Unlock();*/
-	NOT_IMPLEMENTED("Above is correct implementation, leaving assert here until this code path is needed");
+	threadpool->active_threads_lock.Unlock();
+}
+
+static void remove_working_thread(Il2CppInternalThread *thread)
+{
+	int index = 0;
+	for (unsigned i = 0; i < threadpool->working_threads.size(); ++i)
+	{
+		if (threadpool->working_threads[i] == thread)
+		{
+			index = i;
+			break;
+		}
+	}
+	threadpool->working_threads.erase(threadpool->working_threads.begin() + index);
+}
+
+/*
+* mono_thread_info_install_interrupt: install an interruption token for the current thread.
+*
+*  - @callback: must be able to be called from another thread and always cancel the wait
+*  - @data: passed to the callback
+*  - @interrupted: will be set to TRUE if a token is already installed, FALSE otherwise
+*     if set to TRUE, it must mean that the thread is in interrupted state
+*/
+static void thread_info_install_interrupt(void(*callback) (void* data), void* data, bool *interrupted)
+{
+	// We can get by without this for the time being.  Not needed until we have cooperative threading
+}
+
+static void thread_info_uninstall_interrupt(bool *interrupted)
+{
+	// We can get by without this for the time being.  Not needed until we have cooperative threading
 }
 
 /* return true if timeout, false otherwise (worker unpark or interrupt) */
 static bool worker_park (void)
 {
-	/*bool timeout = false;
+	bool timeout = false;
 
-	mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] current worker parking", mono_native_thread_id_get ());
+	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] current worker parking", mono_native_thread_id_get ());
 
 	il2cpp::gc::GarbageCollector::SetSkipThread (true);
 
-	mono_coop_mutex_lock (&threadpool->active_threads_lock);
+	threadpool->active_threads_lock.Lock();
 
 	if (!il2cpp::vm::Runtime::IsShuttingDown ()) {
 		static void* rand_handle = NULL;
@@ -418,59 +511,53 @@ static bool worker_park (void)
 
 		if (!rand_handle)
 			rand_handle = il2cpp::vm::Random::Create ();
-		assert (rand_handle);
+		IL2CPP_ASSERT(rand_handle);
 
 		thread_internal = il2cpp::vm::Thread::CurrentInternal();
-		assert (thread_internal);
+		IL2CPP_ASSERT(thread_internal);
 
 		threadpool->parked_threads_count += 1;
-		g_ptr_array_remove_fast (threadpool->working_threads, thread_internal);
+		remove_working_thread(thread_internal);
 
-		mono_thread_info_install_interrupt (worker_wait_interrupt, NULL, &interrupted);
+		thread_info_install_interrupt(worker_wait_interrupt, NULL, &interrupted);
 		if (interrupted)
 			goto done;
 
-		if (mono_coop_cond_timedwait (&threadpool->parked_threads_cond, &threadpool->active_threads_lock, il2cpp::vm::Random::Next (&rand_handle, 5 * 1000, 60 * 1000)) != 0)
+		if (threadpool->parked_threads_cond.TimedWait(&threadpool->active_threads_lock, il2cpp::vm::Random::Next (&rand_handle, 5 * 1000, 60 * 1000)) != 0)
 			timeout = true;
 
-		mono_thread_info_uninstall_interrupt (&interrupted);
+		thread_info_uninstall_interrupt(&interrupted);
 
-done:
-		g_ptr_array_add (threadpool->working_threads, thread_internal);
+	done:
+		threadpool->working_threads.push_back(thread_internal);
 		threadpool->parked_threads_count -= 1;
 	}
 
-	mono_coop_mutex_unlock (&threadpool->active_threads_lock);
+	threadpool->active_threads_lock.Unlock();
 
 	il2cpp::gc::GarbageCollector::SetSkipThread (false);
 
-	mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] current worker unparking, timeout? %s", mono_native_thread_id_get (), timeout ? "yes" : "no");
+	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] current worker unparking, timeout? %s", mono_native_thread_id_get (), timeout ? "yes" : "no");
 
-	return timeout;*/
-	
-	// For now just return true so the thread exits and is cleaned up
-	return true;
+	return timeout;
 }
 
 static bool worker_try_unpark (void)
 {
-	//bool res = false;
+	bool res = false;
 
 	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try unpark worker", mono_native_thread_id_get ());
 
-	//mono_coop_mutex_lock (&threadpool->active_threads_lock);
-	//if (threadpool->parked_threads_count > 0) {
-	//	mono_coop_cond_signal (&threadpool->parked_threads_cond);
-	//	res = true;
-	//}
-	//mono_coop_mutex_unlock (&threadpool->active_threads_lock);
+	threadpool->active_threads_lock.Lock();
+	if (threadpool->parked_threads_count > 0) {
+		threadpool->parked_threads_cond.Signal();
+		res = true;
+	}
+	threadpool->active_threads_lock.Unlock();
 
 	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try unpark worker, success? %s", mono_native_thread_id_get (), res ? "yes" : "no");
 
-	//return res;
-
-	// Not implementing this for now
-	return false;
+	return res;
 }
 
 static void worker_kill (ThreadPoolWorkingThread *thread)
@@ -485,16 +572,16 @@ static void worker_thread (void* data)
 {
 	//Il2CppError error;
 	Il2CppInternalThread *thread;
-	//ThreadPoolDomain *tpdomain, *previous_tpdomain;
+	ThreadPoolDomain *tpdomain, *previous_tpdomain;
 	ThreadPoolCounter counter;
 	bool retire = false;
 
 	//mono_trace (G_LOG_LEVEL_INFO, MONO_TRACE_THREADPOOL, "[%p] worker starting", mono_native_thread_id_get ());
 
-	assert (threadpool);
+	IL2CPP_ASSERT(threadpool);
 
 	thread = il2cpp::vm::Thread::CurrentInternal();
-	assert (thread);
+	IL2CPP_ASSERT(thread);
 
 	il2cpp::vm::Thread::SetName(thread, il2cpp::vm::String::New("Threadpool worker"));
 
@@ -502,12 +589,12 @@ static void worker_thread (void* data)
 	threadpool->working_threads.push_back(thread);
 	threadpool->active_threads_lock.Unlock();
 
-	//previous_tpdomain = NULL;
+	previous_tpdomain = NULL;
 
-	//mono_coop_mutex_lock (&threadpool->domains_lock);
+	threadpool->domains_lock.Lock();
 
 	while (!il2cpp::vm::Runtime::IsShuttingDown ()) {
-		//tpdomain = NULL;
+		tpdomain = NULL;
 
 		/*if ((thread->state & (il2cpp::vm::ThreadState::kThreadStateStopRequested | il2cpp::vm::ThreadState::kThreadStateSuspendRequested)) != 0) {
 			mono_coop_mutex_unlock (&threadpool->domains_lock);
@@ -515,7 +602,7 @@ static void worker_thread (void* data)
 			mono_coop_mutex_lock (&threadpool->domains_lock);
 		}*/
 
-		if (retire) {
+		if (retire || !(tpdomain = domain_get_next(previous_tpdomain))) {
 			bool timeout;
 
 			COUNTER_ATOMIC (counter, {
@@ -523,9 +610,9 @@ static void worker_thread (void* data)
 				counter._.parked ++;
 			});
 
-			//mono_coop_mutex_unlock (&threadpool->domains_lock);
+			threadpool->domains_lock.Unlock();
 			timeout = worker_park ();
-			//mono_coop_mutex_lock (&threadpool->domains_lock);
+			threadpool->domains_lock.Lock();
 
 			COUNTER_ATOMIC (counter, {
 				counter._.working ++;
@@ -541,17 +628,17 @@ static void worker_thread (void* data)
 			continue;
 		}
 
-		/*tpdomain->outstanding_request --;
-		assert (tpdomain->outstanding_request >= 0);*/
+		tpdomain->outstanding_request --;
+		IL2CPP_ASSERT(tpdomain->outstanding_request >= 0);
 
 		/*mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] worker running in domain %p",
 			mono_native_thread_id_get (), tpdomain->domain, tpdomain->outstanding_request);*/
 
-		/*assert (tpdomain->domain);
-		assert (tpdomain->domain->threadpool_jobs >= 0);
-		tpdomain->domain->threadpool_jobs ++;*/
+		IL2CPP_ASSERT(tpdomain->domain);
+		IL2CPP_ASSERT(tpdomain->domain->threadpool_jobs >= 0);
+		tpdomain->domain->threadpool_jobs ++;
 
-		//mono_coop_mutex_unlock (&threadpool->domains_lock);
+		threadpool->domains_lock.Unlock();
 
 		Il2CppObject *exc = NULL;
 
@@ -570,36 +657,27 @@ static void worker_thread (void* data)
 		if (!il2cpp::vm::Thread::TestState (thread , il2cpp::vm::kThreadStateBackground))
 			il2cpp::vm::Thread::SetState (thread, il2cpp::vm::kThreadStateBackground);
 
-		//mono_coop_mutex_lock (&threadpool->domains_lock);
+		threadpool->domains_lock.Lock();
 
-		//tpdomain->domain->threadpool_jobs --;
-		//assert (tpdomain->domain->threadpool_jobs >= 0);
+		tpdomain->domain->threadpool_jobs --;
+		IL2CPP_ASSERT(tpdomain->domain->threadpool_jobs >= 0);
 
 		//if (tpdomain->domain->threadpool_jobs == 0 && mono_domain_is_unloading (tpdomain->domain)) {
 		//	bool removed = domain_remove (tpdomain);
-		//	assert (removed);
+		//	IL2CPP_ASSERT(removed);
 		//	if (tpdomain->domain->cleanup_semaphore)
 		//		ReleaseSemaphore (tpdomain->domain->cleanup_semaphore, 1, NULL);
 		//	domain_free (tpdomain);
 		//	tpdomain = NULL;
 		//}
 
-		//previous_tpdomain = tpdomain;
+		previous_tpdomain = tpdomain;
 	}
 
-	//mono_coop_mutex_unlock (&threadpool->domains_lock);
+	threadpool->domains_lock.Unlock();
 
 	threadpool->active_threads_lock.Lock();
-	int index = 0;
-	for (unsigned i = 0; i < threadpool->working_threads.size(); ++i)
-	{
-		if (threadpool->working_threads[i] == thread)
-		{
-			index = i;
-			break;
-		}
-	}
-	threadpool->working_threads.erase(threadpool->working_threads.begin() + index);
+	remove_working_thread(thread);
 	threadpool->active_threads_lock.Unlock();
 
 	COUNTER_ATOMIC (counter, {
@@ -618,7 +696,6 @@ static bool worker_try_create (void)
 	int32_t now;
 
 	il2cpp::os::FastAutoLock lock(&threadpool->worker_creation_lock);
-	//mono_coop_mutex_lock (&threadpool->worker_creation_lock);
 
 	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try create worker", mono_native_thread_id_get ());
 	current_ticks = il2cpp::os::Time::GetTicks100NanosecondsMonotonic();
@@ -631,7 +708,7 @@ static bool worker_try_create (void)
 			threadpool->worker_creation_current_second = now;
 			threadpool->worker_creation_current_count = 0;
 		} else {
-			assert (threadpool->worker_creation_current_count <= WORKER_CREATION_MAX_PER_SEC);
+			IL2CPP_ASSERT(threadpool->worker_creation_current_count <= WORKER_CREATION_MAX_PER_SEC);
 			if (threadpool->worker_creation_current_count == WORKER_CREATION_MAX_PER_SEC) {
 				//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try create worker, failed: maximum number of worker created per second reached, current count = %d",
 					//mono_native_thread_id_get (), threadpool->worker_creation_current_count);
@@ -677,15 +754,15 @@ static void monitor_ensure_running (void);
 
 static bool worker_request (Il2CppDomain *domain)
 {
-	//ThreadPoolDomain *tpdomain;
+	ThreadPoolDomain *tpdomain;
 
-	assert (domain);
-	assert (threadpool);
+	IL2CPP_ASSERT(domain);
+	IL2CPP_ASSERT(threadpool);
 
 	if (il2cpp::vm::Runtime::IsShuttingDown ())
 		return false;
 
-	//mono_coop_mutex_lock (&threadpool->domains_lock);
+	threadpool->domains_lock.Lock();
 
 	/* synchronize check with worker_thread */
 	//if (mono_domain_is_unloading (domain)) {
@@ -693,14 +770,14 @@ static bool worker_request (Il2CppDomain *domain)
 		/*return false;
 	}*/
 
-	/*tpdomain = domain_get (domain, true);
-	assert (tpdomain);
-	tpdomain->outstanding_request ++;*/
+	tpdomain = domain_get (domain, true);
+	IL2CPP_ASSERT(tpdomain);
+	tpdomain->outstanding_request ++;
 
 	/*mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] request worker, domain = %p, outstanding_request = %d",
 		mono_native_thread_id_get (), tpdomain->domain, tpdomain->outstanding_request);*/
 
-	//mono_coop_mutex_unlock (&threadpool->domains_lock);
+	threadpool->domains_lock.Unlock();
 
 	if (threadpool->suspended)
 		return false;
@@ -725,7 +802,7 @@ static bool monitor_should_keep_running (void)
 {
 	static int64_t last_should_keep_running = -1;
 
-	assert (monitor_status == MONITOR_STATUS_WAITING_FOR_REQUEST || monitor_status == MONITOR_STATUS_REQUESTED);
+	IL2CPP_ASSERT(monitor_status == MONITOR_STATUS_WAITING_FOR_REQUEST || monitor_status == MONITOR_STATUS_REQUESTED);
 
 	if (il2cpp::vm::Atomic::Exchange(&monitor_status, MONITOR_STATUS_WAITING_FOR_REQUEST) == MONITOR_STATUS_WAITING_FOR_REQUEST) {
 		bool should_keep_running = true, force_should_keep_running = false;
@@ -733,10 +810,10 @@ static bool monitor_should_keep_running (void)
 		if (il2cpp::vm::Runtime::IsShuttingDown ()) {
 			should_keep_running = false;
 		} else {
-			/*mono_coop_mutex_lock (&threadpool->domains_lock);
+			threadpool->domains_lock.Lock();
 			if (!domain_any_has_request ())
 				should_keep_running = false;
-			mono_coop_mutex_unlock (&threadpool->domains_lock);*/
+			threadpool->domains_lock.Unlock();
 
 			if (!should_keep_running) {
 				if (last_should_keep_running == -1 || il2cpp::os::Time::GetTicks100NanosecondsMonotonic() - last_should_keep_running < MONITOR_MINIMAL_LIFETIME * 1000 * 10) {
@@ -755,7 +832,7 @@ static bool monitor_should_keep_running (void)
 		}
 	}
 
-	assert (monitor_status == MONITOR_STATUS_WAITING_FOR_REQUEST || monitor_status == MONITOR_STATUS_REQUESTED);
+	IL2CPP_ASSERT(monitor_status == MONITOR_STATUS_WAITING_FOR_REQUEST || monitor_status == MONITOR_STATUS_REQUESTED);
 
 	return true;
 }
@@ -764,7 +841,7 @@ static bool monitor_sufficient_delay_since_last_dequeue (void)
 {
 	int64_t threshold;
 
-	assert (threadpool);
+	IL2CPP_ASSERT(threadpool);
 
 	if (threadpool->cpu_usage < CPU_USAGE_LOW) {
 		threshold = MONITOR_INTERVAL;
@@ -794,7 +871,7 @@ static void monitor_thread (void* data)
 		int32_t interval_left = MONITOR_INTERVAL;
 		int32_t awake = 0; /* number of spurious awakes we tolerate before doing a round of rebalancing */
 
-		assert (monitor_status != MONITOR_STATUS_NOT_RUNNING);
+		IL2CPP_ASSERT(monitor_status != MONITOR_STATUS_NOT_RUNNING);
 
 		il2cpp::gc::GarbageCollector::SetSkipThread(true);
 
@@ -825,12 +902,13 @@ static void monitor_thread (void* data)
 		if (il2cpp::vm::Runtime::IsShuttingDown ())
 			continue;
 
-		//mono_coop_mutex_lock (&threadpool->domains_lock);
-		/*if (!domain_any_has_request ()) {
-			mono_coop_mutex_unlock (&threadpool->domains_lock);
+		threadpool->domains_lock.Lock();
+		if (!domain_any_has_request ())
+		{
+			threadpool->domains_lock.Unlock();
 			continue;
 		}
-		mono_coop_mutex_unlock (&threadpool->domains_lock);*/
+		threadpool->domains_lock.Unlock();
 
 		threadpool->cpu_usage = cpu_info_usage(threadpool->cpu_usage_state);
 
@@ -893,7 +971,7 @@ static void monitor_ensure_running (void)
 			}
 			break;
 		default:
-			assert(0 && "should not be reached");
+			IL2CPP_ASSERT(0 && "should not be reached");
 		}
 	}
 }
@@ -902,7 +980,7 @@ static void hill_climbing_change_thread_count (int16_t new_thread_count, ThreadP
 {
 	ThreadPoolHillClimbing *hc;
 
-	assert (threadpool);
+	IL2CPP_ASSERT(threadpool);
 
 	hc = &threadpool->heuristic_hill_climbing;
 
@@ -918,7 +996,7 @@ static void hill_climbing_force_change (int16_t new_thread_count, ThreadPoolHeur
 {
 	ThreadPoolHillClimbing *hc;
 
-	assert (threadpool);
+	IL2CPP_ASSERT(threadpool);
 
 	hc = &threadpool->heuristic_hill_climbing;
 
@@ -934,9 +1012,9 @@ static std::complex<double> hill_climbing_get_wave_component (double *samples, u
 	double w, cosine, sine, coeff, q0, q1, q2;
 	unsigned int i;
 
-	assert (threadpool);
-	assert (sample_count >= period);
-	assert (period >= 2);
+	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(sample_count >= period);
+	IL2CPP_ASSERT(period >= 2);
 
 	hc = &threadpool->heuristic_hill_climbing;
 
@@ -972,8 +1050,8 @@ static int16_t hill_climbing_update (int16_t current_thread_count, uint32_t samp
 	std::complex<double> throughput_wave_component;
 	std::complex<double> ratio;
 
-	assert (threadpool);
-	assert (adjustment_interval);
+	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(adjustment_interval);
 
 	hc = &threadpool->heuristic_hill_climbing;
 
@@ -1167,7 +1245,7 @@ static int16_t hill_climbing_update (int16_t current_thread_count, uint32_t samp
 
 static void heuristic_notify_work_completed (void)
 {
-	assert (threadpool);
+	IL2CPP_ASSERT(threadpool);
 
 	il2cpp::vm::Atomic::Increment(&threadpool->heuristic_completions);
 	threadpool->heuristic_last_dequeue = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
@@ -1175,7 +1253,7 @@ static void heuristic_notify_work_completed (void)
 
 static bool heuristic_should_adjust (void)
 {
-	assert (threadpool);
+	IL2CPP_ASSERT(threadpool);
 
 	if (threadpool->heuristic_last_dequeue > threadpool->heuristic_last_adjustment + threadpool->heuristic_adjustment_interval) {
 		ThreadPoolCounter counter;
@@ -1189,7 +1267,7 @@ static bool heuristic_should_adjust (void)
 
 static void heuristic_adjust (void)
 {
-	assert (threadpool);
+	IL2CPP_ASSERT(threadpool);
 	
 	if (threadpool->heuristic_lock.TryLock()) {
 		int32_t completions = il2cpp::vm::Atomic::Exchange (&threadpool->heuristic_completions, 0);
@@ -1266,8 +1344,8 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 	Il2CppAsyncCall *ac;
 
 	//mono_error_init (error);
-	assert (exc);
-	assert (out_args);
+	IL2CPP_ASSERT(exc);
+	IL2CPP_ASSERT(out_args);
 
 	*exc = NULL;
 	*out_args = NULL;
@@ -1305,7 +1383,7 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 	}
 
 	ac = (Il2CppAsyncCall*) ares->object_data;
-	assert (ac);
+	IL2CPP_ASSERT(ac);
 
 	*exc = ((Il2CppMethodMessage*)ac->msg)->exc; /* FIXME: GC add write barrier */
 	*out_args = ac->out_args;
