@@ -2,7 +2,6 @@
 
 #if IL2CPP_TARGET_WINDOWS
 
-#include <cassert>
 #include "os/Console.h"
 
 namespace il2cpp

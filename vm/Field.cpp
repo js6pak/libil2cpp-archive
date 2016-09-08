@@ -9,7 +9,6 @@
 #include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Type.h"
-#include <cassert>
 #include <memory>
 #include "class-internals.h"
 #include "object-internals.h"
@@ -50,9 +49,9 @@ void Field::GetValue (Il2CppObject *obj, FieldInfo *field, void *value)
 {
 	void *src;
 
-	assert (obj);
+	IL2CPP_ASSERT(obj);
 
-	assert (!(field->type->attrs & FIELD_ATTRIBUTE_STATIC));
+	IL2CPP_ASSERT(!(field->type->attrs & FIELD_ATTRIBUTE_STATIC));
 
 	src = (char*)obj + field->offset;
 	set_value (field->type, value, src, true);
@@ -97,7 +96,7 @@ Il2CppObject* Field::GetValueObject (FieldInfo *field, Il2CppObject *obj)
 	}
 	else
 	{
-		assert(obj);
+		IL2CPP_ASSERT(obj);
 		fieldAddress = reinterpret_cast<uint8_t*>(obj) + field->offset;
 	}
 
@@ -123,7 +122,7 @@ void Field::SetValue (Il2CppObject *obj, FieldInfo *field, void *value)
 {
 	void *dest;
 
-	assert (!(field->type->attrs & FIELD_ATTRIBUTE_STATIC));
+	IL2CPP_ASSERT(!(field->type->attrs & FIELD_ATTRIBUTE_STATIC));
 
 	dest = (char*)obj + field->offset;
 	set_value (field->type, dest, value, false);
@@ -142,7 +141,7 @@ void Field::StaticGetValue (FieldInfo *field, void *value)
 {
 	void *src = NULL;
 
-	assert (field->type->attrs & FIELD_ATTRIBUTE_STATIC);
+	IL2CPP_ASSERT(field->type->attrs & FIELD_ATTRIBUTE_STATIC);
 	
 	if (field->type->attrs & FIELD_ATTRIBUTE_LITERAL)
 	{
@@ -170,8 +169,8 @@ void Field::StaticSetValue (FieldInfo *field, void *value)
 {
 	void *dest = NULL;
 
-	assert(field->type->attrs & FIELD_ATTRIBUTE_STATIC);
-	assert(!(field->type->attrs & FIELD_ATTRIBUTE_LITERAL));
+	IL2CPP_ASSERT(field->type->attrs & FIELD_ATTRIBUTE_STATIC);
+	IL2CPP_ASSERT(!(field->type->attrs & FIELD_ATTRIBUTE_LITERAL));
 
 	// ensure parent is initialized so that static fields memory has been allocated
 	Class::Init(field->parent);
@@ -287,7 +286,7 @@ handle_enum:
 		t = GenericClass::GetTypeDefinition (type->data.generic_class)->byval_arg->type;
 		goto handle_enum;
 	default:
-		assert (0);
+		IL2CPP_ASSERT(0);
 	}
 }
 

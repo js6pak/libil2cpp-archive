@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <string>
 #include "icalls/mscorlib/System/CurrentSystemTimeZone.h"
 #include "class-internals.h"

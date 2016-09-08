@@ -21,13 +21,13 @@ void* GetImageBase()
 	std::vector<char> path;
 	uint32_t size = 0;
 	int error = _NSGetExecutablePath(NULL, &size);
-	assert(error == -1);
+	IL2CPP_ASSERT(error == -1);
 	if (error != -1)
 		return NULL;
 
 	path.reserve(size);
 	error = _NSGetExecutablePath(&path[0], &size);
-	assert(error == 0);
+	IL2CPP_ASSERT(error == 0);
 	if (error != 0)
 		return NULL;
 

@@ -421,6 +421,10 @@ struct Il2CppDomain
 	Il2CppAppContext* default_context;
 	const char* friendly_name;
 	uint32_t domain_id;
+
+#if NET_4_0
+	volatile int threadpool_jobs;
+#endif
 };
 
 struct Il2CppImage

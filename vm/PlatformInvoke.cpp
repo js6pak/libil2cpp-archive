@@ -17,7 +17,6 @@
 
 #include <stdint.h>
 #include <sstream>
-#include <cassert>
 #include <algorithm>
 
 namespace il2cpp
@@ -116,7 +115,7 @@ void PlatformInvoke::MarshalCSharpStringToCppWStringFixed(Il2CppString* managedS
 
 il2cpp_hresult_t PlatformInvoke::MarshalCSharpStringToCppBStringNoThrow(Il2CppString* managedString, Il2CppChar** bstr)
 {
-	assert(bstr);
+	IL2CPP_ASSERT(bstr);
 
 	if (managedString == NULL)
 	{
@@ -196,7 +195,7 @@ char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
 	size_t stringLength = String::GetLength(stringBuilder->str);
 
 	// not sure if this is necessary but it's better to be safe than sorry
-	assert(static_cast<int32_t>(stringLength) >= stringBuilder->length);
+	IL2CPP_ASSERT(static_cast<int32_t>(stringLength) >= stringBuilder->length);
 	if (static_cast<int32_t>(stringLength) < stringBuilder->length)
 		stringLength = stringBuilder->length;
 
@@ -271,7 +270,7 @@ Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBui
 	int32_t stringLength = String::GetLength(stringBuilder->str);
 
 	// not sure if this is necessary but it's better to be safe than sorry
-	assert(stringLength >= stringBuilder->length);
+	IL2CPP_ASSERT(stringLength >= stringBuilder->length);
 	if (stringLength < stringBuilder->length)
 		stringLength = stringBuilder->length;
 
@@ -377,7 +376,7 @@ Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
 	if (d->method->is_inflated)
 		vm::Exception::Raise(vm::Exception::GetNotSupportedException("IL2CPP does not support marshaling delegates that point to generic methods."));
 
-	assert (d->method->methodDefinition);
+	IL2CPP_ASSERT(d->method->methodDefinition);
 
 	Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapperFromIndex(d->method->methodDefinition->reversePInvokeWrapperIndex);
 	if (reversePInvokeWrapper == NULL)

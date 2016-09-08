@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "icalls/mscorlib/System.Threading/Mutex.h"
 #include "os/Mutex.h"
 #include "vm/Exception.h"

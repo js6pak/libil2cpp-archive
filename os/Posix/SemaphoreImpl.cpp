@@ -3,7 +3,6 @@
 #if IL2CPP_THREADS_PTHREAD
 
 #include <errno.h>
-#include <cassert>
 #include <limits>
 
 #include "SemaphoreImpl.h"

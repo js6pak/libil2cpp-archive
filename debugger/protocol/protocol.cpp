@@ -44,7 +44,7 @@ void Header::ReadHeader(Header &header, Buffer &in)
 	const HeaderType type = in.ReadEnum<HeaderType>();
 	const uint16_t data = (in.ReadByte() << 8) | in.ReadByte();
 
-	assert(header.type() == type && "Incompatible Header types: incoming header is not of the expected type");
+	IL2CPP_ASSERT(header.type() == type && "Incompatible Header types: incoming header is not of the expected type");
 
 	header.packet_size(length);
 	header.id(id);
@@ -199,7 +199,7 @@ Protocol::~Protocol()
 
 void Protocol::Setup(IDataTransport *transport)
 {
-	assert(transport != NULL && "Invalid data transport");
+	IL2CPP_ASSERT(transport != NULL && "Invalid data transport");
 
 	_transport = transport;
 
@@ -287,7 +287,7 @@ void Protocol::Setup(IDataTransport *transport)
 
 Command *Protocol::CreateCommand(Header &header, Buffer &in) const
 {
-	assert(header.is_command() && "CommandFactory::Create can only be used with `command` headers.");
+	IL2CPP_ASSERT(header.is_command() && "CommandFactory::Create can only be used with `command` headers.");
 
 	const CommandUId uid = CommandIdFor(header.set(), header.command());
 	std::map<CommandUId, CommandGenerator>::const_iterator it = _command_factories.find(uid);

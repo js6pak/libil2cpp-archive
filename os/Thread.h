@@ -90,6 +90,10 @@ public:
 	static Thread* GetOrCreateCurrentThread ();
 	static void DetachCurrentThread ();
 
+#if NET_4_0
+	static bool YieldInternal();
+#endif
+
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 	typedef void (*ThreadCleanupFunc) (void* arg);
 	static void SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction);

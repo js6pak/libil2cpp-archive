@@ -222,7 +222,7 @@ void Buffer::WriteVariant(const Variant &value)
 
 int32_t Buffer::ReadInt()
 {
-	assert(position() + 4 <= length() && "Cannot read past the end of the buffer!");
+	IL2CPP_ASSERT(position() + 4 <= length() && "Cannot read past the end of the buffer!");
 
 	uint8_t *c = _ptr;
 
@@ -239,7 +239,7 @@ int32_t Buffer::ReadInt()
 
 uint8_t Buffer::ReadByte()
 {
-	assert(position() + 1 <= length() && "Cannot read past the end of the buffer!");
+	IL2CPP_ASSERT(position() + 1 <= length() && "Cannot read past the end of the buffer!");
 
 	uint8_t *c = _ptr;
 
@@ -357,7 +357,7 @@ std::string Buffer::ReadString()
 
 void Buffer::MarkReadRaw(size_t size)
 {
-	assert(size <= buffer_size() && "A raw read was performed, but too many bytes were read. Memory overwrite!");
+	IL2CPP_ASSERT(size <= buffer_size() && "A raw read was performed, but too many bytes were read. Memory overwrite!");
 
 	_tail += size;
 }

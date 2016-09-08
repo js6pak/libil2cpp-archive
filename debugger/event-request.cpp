@@ -37,7 +37,7 @@ EventRequestList::~EventRequestList()
 
 void EventRequestList::ClearAllRequests()
 {
-	assert(_owns_requests && "EventRequestList::ClearAllRequests cannot be invoked on a list that does not own the requests");
+	IL2CPP_ASSERT(_owns_requests && "EventRequestList::ClearAllRequests cannot be invoked on a list that does not own the requests");
 
 	std::list<const EventRequest*>::const_iterator it = _requests.begin();
 	while(it != _requests.end())
@@ -92,11 +92,11 @@ int32_t EventRequestList::RequestIdsFor(std::vector<int32_t> &ids, const Event &
 						break;
 
 					case kModifierKindLocationOnly:
-						assert(0 && "kModifierKindLocationOnly modifier filter not supported!");
+						IL2CPP_ASSERT(0 && "kModifierKindLocationOnly modifier filter not supported!");
 						break;
 
 					case kModifierKindStep:
-						assert(0 && "kModifierKindStep modifier filter not supported!");
+						IL2CPP_ASSERT(0 && "kModifierKindStep modifier filter not supported!");
 						break;
 
 					case kModifierKindThreadOnly:
@@ -104,11 +104,11 @@ int32_t EventRequestList::RequestIdsFor(std::vector<int32_t> &ids, const Event &
 						break;
 
 					case kModifierKindExceptionOnly:
-						assert(0 && "kModifierKindExceptionOnly modifier filter not supported!");
+						IL2CPP_ASSERT(0 && "kModifierKindExceptionOnly modifier filter not supported!");
 						break;
 
 					case kModifierKindAssemblyOnly:
-						assert(0 && "kModifierKindAssemblyOnly modifier filter not supported!");
+						IL2CPP_ASSERT(0 && "kModifierKindAssemblyOnly modifier filter not supported!");
 //				int k;
 //				gboolean found = FALSE;
 //				MonoAssembly **assemblies = mod->data.assemblies;

@@ -6,7 +6,6 @@
 #include "gc_wrapper.h"
 #include "GarbageCollector.h"
 #include "vm/Profiler.h"
-#include <cassert>
 
 static bool s_GCInitialized = false;
 
@@ -59,7 +58,7 @@ il2cpp::gc::GarbageCollector::GetMaxGeneration ()
 void
 il2cpp::gc::GarbageCollector::Collect (int maxGeneration)
 {
-	assert(maxGeneration == 0); //Consumers should know this won't work.
+	IL2CPP_ASSERT(maxGeneration == 0); //Consumers should know this won't work.
 	GC_gcollect ();
 }
 
@@ -105,12 +104,12 @@ il2cpp::gc::GarbageCollector::RegisterThread (void *baseptr)
 		sb.mem_base = baseptr;
 #ifdef __ia64__
 		/* Can't determine the register stack bounds */
-		assert (false && "mono_gc_register_thread failed ().");
+		IL2CPP_ASSERT(false && "mono_gc_register_thread failed ().");
 #endif
 	}
 	res = GC_register_my_thread (&sb);
 	if ((res != GC_SUCCESS) && (res != GC_DUPLICATE)) {
-		assert (false && "GC_register_my_thread () failed.");
+		IL2CPP_ASSERT(false && "GC_register_my_thread () failed.");
 		return false;
 	}
 #endif
@@ -125,7 +124,7 @@ il2cpp::gc::GarbageCollector::UnregisterThread ()
 
 	res = GC_unregister_my_thread ();
 	if (res != GC_SUCCESS)
-		assert(false && "GC_unregister_my_thread () failed.");
+		IL2CPP_ASSERT(false && "GC_unregister_my_thread () failed.");
 
 	return res == GC_SUCCESS;
 #else
@@ -138,7 +137,7 @@ il2cpp::gc::GarbageCollector::FinalizerCallback il2cpp::gc::GarbageCollector::Re
 	FinalizerCallback oldCallback;
 	void* oldData;
 	GC_REGISTER_FINALIZER_NO_ORDER((char*)obj, callback, NULL, &oldCallback, &oldData);
-	assert(oldData == NULL);
+	IL2CPP_ASSERT(oldData == NULL);
 	return oldCallback;
 }
 
@@ -223,7 +222,7 @@ il2cpp::gc::GarbageCollector::AllocateFixed (size_t size, void *descr)
 	// It does not accept a descriptor, but there was only one
 	// or two places in mono that pass a descriptor to this routine
 	// and we can or will support those use cases in a different manner.
-	assert(!descr);
+	IL2CPP_ASSERT(!descr);
 
 	return GC_MALLOC_UNCOLLECTABLE(size);
 }

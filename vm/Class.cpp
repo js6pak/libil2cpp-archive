@@ -32,7 +32,6 @@
 #include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
 #include "utils/HashUtils.h"
-#include <cassert>
 #include <string>
 #include <memory.h>
 #include <algorithm>
@@ -191,7 +190,7 @@ static void SetupInterfacesLocked (Il2CppClass* klass, const FastAutoLock& lock)
 
 		if (genericTypeDefinition->interfaces_count > 0 && klass->implementedInterfaces == NULL)
 		{
-			assert (genericTypeDefinition->interfaces_count == klass->interfaces_count);
+			IL2CPP_ASSERT(genericTypeDefinition->interfaces_count == klass->interfaces_count);
 			klass->implementedInterfaces = (Il2CppClass**)MetadataCalloc (genericTypeDefinition->interfaces_count, sizeof (Il2CppClass*));
 			for (uint16_t i = 0; i < genericTypeDefinition->interfaces_count; i++)
 				klass->implementedInterfaces[i] = Class::FromIl2CppType (GenericMetadata::InflateIfNeeded (MetadataCache::GetInterfaceFromIndex (genericTypeDefinition->typeDefinition->interfacesStart + i), context, false));
@@ -217,7 +216,7 @@ static GenericParameterMap s_GenericParameterMap;
 
 Il2CppClass* Class::FromGenericParameter (const Il2CppGenericParameter *param)
 {
-	assert (param->ownerIndex != kGenericContainerIndexInvalid);
+	IL2CPP_ASSERT(param->ownerIndex != kGenericContainerIndexInvalid);
 
 	FastAutoLock lock (&g_MetadataLock);
 
@@ -359,7 +358,7 @@ const MethodInfo* Class::GetFinalizer (Il2CppClass *klass)
 
 int32_t Class::GetInstanceSize (const Il2CppClass *klass)
 {
-	assert(klass->size_inited);
+	IL2CPP_ASSERT(klass->size_inited);
 	return klass->instance_size;
 }
 
@@ -461,7 +460,7 @@ Il2CppClass* Class::GetNestedTypes (Il2CppClass *klass, void* *iter)
 
 	if (klass->generic_class)
 	{
-		assert (0 && "Class::GetNestedTypes should only be called on non-generic types and generic type definitions");
+		IL2CPP_ASSERT(0 && "Class::GetNestedTypes should only be called on non-generic types and generic type definitions");
 		return NULL;
 	}
 
@@ -558,7 +557,7 @@ int32_t Class::GetValueSize (Il2CppClass *klass, uint32_t *align)
 	if (!klass->init_pending)
 		Init (klass);
 
-	assert (klass->valuetype);
+	IL2CPP_ASSERT(klass->valuetype);
 
 	size = Class::GetInstanceSize (klass) - sizeof (Il2CppObject);
 	
@@ -715,7 +714,7 @@ enum FieldLayoutKind
 
 static void SetupFieldOffsets (FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets)
 {
-	assert(size < std::numeric_limits<uint32_t>::max());
+	IL2CPP_ASSERT(size < std::numeric_limits<uint32_t>::max());
 	if (fieldLayoutKind == FIELD_LAYOUT_INSTANCE)
 		klass->instance_size = static_cast<uint32_t>(size);
 	if (fieldLayoutKind == FIELD_LAYOUT_STATIC)
@@ -752,11 +751,11 @@ static void SetupFieldOffsets (FieldLayoutKind fieldLayoutKind, Il2CppClass* kla
 static void ValidateFieldOffsets (FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets)
 {
 	if (fieldLayoutKind == FIELD_LAYOUT_INSTANCE && klass->parent && !(klass->flags & TYPE_ATTRIBUTE_EXPLICIT_LAYOUT))
-		assert (klass->instance_size == size);
+		IL2CPP_ASSERT(klass->instance_size == size);
 	if (fieldLayoutKind == FIELD_LAYOUT_STATIC)
-		assert (klass->static_fields_size == size);
+		IL2CPP_ASSERT(klass->static_fields_size == size);
 	if (fieldLayoutKind == FIELD_LAYOUT_THREADSTATIC)
-	assert (klass->thread_static_fields_size == size);
+	IL2CPP_ASSERT(klass->thread_static_fields_size == size);
 
 	if (!(klass->flags & TYPE_ATTRIBUTE_EXPLICIT_LAYOUT))
 	{
@@ -773,12 +772,12 @@ static void ValidateFieldOffsets (FieldLayoutKind fieldLayoutKind, Il2CppClass* 
 
 			if (fieldLayoutKind == FIELD_LAYOUT_THREADSTATIC)
 			{
-				assert (fieldOffsets[fieldIndex] == -1);
+				IL2CPP_ASSERT(fieldOffsets[fieldIndex] == -1);
 				fieldIndex++;
 				continue;
 			}
 
-			assert (field->offset == fieldOffsets[fieldIndex]);
+			IL2CPP_ASSERT(field->offset == fieldOffsets[fieldIndex]);
 			fieldIndex++;
 		}
 	}
@@ -793,7 +792,7 @@ static void LayoutFieldsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 	size_t actualSize = 0;
 	if (klass->parent)
 	{
-		assert (klass->parent->size_inited);
+		IL2CPP_ASSERT(klass->parent->size_inited);
 		klass->has_references |= klass->parent->has_references;
 		instanceSize = klass->parent->instance_size;
 		actualSize = klass->parent->actualSize;
@@ -931,7 +930,7 @@ static void SetupFieldsFromDefinition (Il2CppClass* klass)
 	FieldInfo* newField = fields;
 
 	FieldIndex start = klass->typeDefinition->fieldStart;
-	assert (klass->typeDefinition->fieldStart != kFieldIndexInvalid);
+	IL2CPP_ASSERT(klass->typeDefinition->fieldStart != kFieldIndexInvalid);
 	FieldIndex end = start + klass->field_count;
 
 	for (FieldIndex fieldIndex = start; fieldIndex < end; ++fieldIndex)
@@ -1016,7 +1015,7 @@ void SetupMethodsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 		MethodInfo* newMethod = methods;
 
 		MethodIndex start = klass->typeDefinition->methodStart;
-		assert (start != kFieldIndexInvalid);
+		IL2CPP_ASSERT(start != kFieldIndexInvalid);
 		MethodIndex end = start + klass->method_count;
 
 		for (MethodIndex index = start; index < end; ++index)
@@ -1191,7 +1190,7 @@ static void SetupEventsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 	else if (klass->rank > 0)
 	{
 		// do nothing, arrays have no events
-		assert (klass->event_count == 0);
+		IL2CPP_ASSERT(klass->event_count == 0);
 	}
 	else if (klass->event_count != 0)
 	{
@@ -1202,7 +1201,7 @@ static void SetupEventsLocked (Il2CppClass *klass, const FastAutoLock& lock)
 		EventInfo* newEvent = events;
 
 		EventIndex start = klass->typeDefinition->eventStart;
-		assert (klass->typeDefinition->eventStart != kEventIndexInvalid);
+		IL2CPP_ASSERT(klass->typeDefinition->eventStart != kEventIndexInvalid);
 		EventIndex end = start + klass->event_count;
 
 		for (EventIndex eventIndex = start; eventIndex < end; ++eventIndex)
@@ -1258,7 +1257,7 @@ static void SetupPropertiesLocked (Il2CppClass *klass, const FastAutoLock& lock)
 		PropertyInfo* newProperty = properties;
 
 		PropertyIndex start = klass->typeDefinition->propertyStart;
-		assert (klass->typeDefinition->propertyStart != kPropertyIndexInvalid);
+		IL2CPP_ASSERT(klass->typeDefinition->propertyStart != kPropertyIndexInvalid);
 		PropertyIndex end = start + klass->property_count;
 
 		for (PropertyIndex propertyIndex = start; propertyIndex < end; ++propertyIndex)
@@ -1372,8 +1371,8 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 			else if (!strcmp (vmethod->name, "Finalize"))
 				s_FinalizerSlot = slot;
 		}
-		assert (s_FinalizerSlot > 0);
-		assert (s_GetHashCodeSlot > 0);
+		IL2CPP_ASSERT(s_FinalizerSlot > 0);
+		IL2CPP_ASSERT(s_GetHashCodeSlot > 0);
 	}
 
 	if (!Class::IsGeneric (klass))
@@ -1401,7 +1400,7 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 
 bool Class::Init (Il2CppClass *klass)
 {
-	assert(klass);
+	IL2CPP_ASSERT(klass);
 
 	if (!klass->initialized)
 	{
@@ -1429,7 +1428,7 @@ Il2CppClass* Class::GetBoundedArrayClass (Il2CppClass *eclass, uint32_t rank, bo
 
 Il2CppClass* Class::GetInflatedGenericInstanceClass (Il2CppClass* klass, const metadata::Il2CppTypeVector& types)
 {
-	assert (Class::IsGeneric (klass));
+	IL2CPP_ASSERT(Class::IsGeneric (klass));
 
 	const Il2CppGenericInst* inst = MetadataCache::GetGenericInst (types);
 	Il2CppGenericClass* gclass = GenericMetadata::GetGenericClass (klass, inst);
@@ -1653,7 +1652,7 @@ int Class::GetFieldMarshaledSize(const FieldInfo *field)
 		return 1;
 
 	size_t size = metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).size;
-	assert(size < static_cast<size_t>(std::numeric_limits<int>::max()));
+	IL2CPP_ASSERT(size < static_cast<size_t>(std::numeric_limits<int>::max()));
 	return static_cast<int>(size);
 }
 
@@ -1760,7 +1759,7 @@ void GetBitmapNoInit (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, siz
 			if (field->type->attrs & (FIELD_ATTRIBUTE_STATIC | FIELD_ATTRIBUTE_HAS_FIELD_RVA))
 				continue;
 
-			assert (!field->type->byref);
+			IL2CPP_ASSERT(!field->type->byref);
 
 			size_t offset = parentOffset + field->offset;
 
@@ -1792,14 +1791,14 @@ void GetBitmapNoInit (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, siz
 			case IL2CPP_TYPE_ARRAY:
 			case IL2CPP_TYPE_VAR:
 			case IL2CPP_TYPE_MVAR:
-				assert(0 == (field->offset % sizeof(void*)));
+				IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
 				set_bit (bitmap, offset / sizeof (void*));
 				maxSetBit = std::max (maxSetBit, offset / sizeof (void*));
 				break;
 			case IL2CPP_TYPE_GENERICINST:
 				if (!Type::GenericInstIsValuetype (type))
 				{
-					assert (0 == (field->offset % sizeof (void*)));
+					IL2CPP_ASSERT(0 == (field->offset % sizeof (void*)));
 					set_bit (bitmap, offset / sizeof (void*));
 					maxSetBit = std::max (maxSetBit, offset / sizeof (void*));
 					break;

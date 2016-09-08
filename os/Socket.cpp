@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
 #include <map>
 
 #include "os/Socket.h"

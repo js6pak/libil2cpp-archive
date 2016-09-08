@@ -5,7 +5,6 @@
 #include "MutexImpl.h"
 #include "ConditionVariableImpl.h"
 #include "WindowsHelpers.h"
-#include <cassert>
 
 namespace il2cpp
 {

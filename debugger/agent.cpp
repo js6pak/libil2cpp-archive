@@ -155,7 +155,7 @@ SingleStepData *Agent::PrepareSingleStepData(EventRequest *request, Il2CppThread
 	data->last_method = 0;
 	data->stack_depth = -1;
 
-	assert(size == kStepSizeKindLine && "Only kStepSizeKindLine is supported for single stepping for now.");
+	IL2CPP_ASSERT(size == kStepSizeKindLine && "Only kStepSizeKindLine is supported for single stepping for now.");
 
 	Il2CppStackFrameInfo top_frame;
 	
@@ -243,7 +243,7 @@ SingleStepData *Agent::PrepareSingleStepData(EventRequest *request, Il2CppThread
 
 	//	compute_frame_info (thread, tls);
 
-	//	g_assert (tls->frame_count);
+	//	IL2CPP_ASSERT(tls->frame_count);
 	//	frame = tls->frames [0];
 
 	//	if (frame->il_offset != -1) {
@@ -614,7 +614,7 @@ void Agent::NotifyEvent(const Event &evt, EventRequestList &event_reqs)
 		return;
 	}
 
-	assert(evt.thread() != 0 && "A debugger event is being sent with a NULL thread_id, which is not allowed (aka: something very bad happened).");
+	IL2CPP_ASSERT(evt.thread() != 0 && "A debugger event is being sent with a NULL thread_id, which is not allowed (aka: something very bad happened).");
 	
 	EventRequestList::FilterInfo filter_info;
 
@@ -646,7 +646,7 @@ void Agent::NotifyEvent(const Event &evt, EventRequestList &event_reqs)
 
 	if(evt.kind() == kEventKindVmStart)
 	{
-		assert(!IsDebuggerThread() && "Unexpected VmStart event sent from the debugger thread. Only VM threads are allowed to send it.");
+		IL2CPP_ASSERT(!IsDebuggerThread() && "Unexpected VmStart event sent from the debugger thread. Only VM threads are allowed to send it.");
 
 		// TODO: move this somewhere else, or split the NotifyEvent logic if needed
 		
@@ -744,12 +744,12 @@ void Agent::RequestResume()
 
 	il2cpp::os::Atomic::Decrement(&suspend_count);
 
-	assert(suspend_count >= 0 && "RequestResume has been invoked more times than RequestSuspend!");
+	IL2CPP_ASSERT(suspend_count >= 0 && "RequestResume has been invoked more times than RequestSuspend!");
 }
 
 void Agent::SuspendCurrentThreadIfNeeded()
 {
-	assert(!IsDebuggerThread() && "The debugger thread cannot be suspended!");
+	IL2CPP_ASSERT(!IsDebuggerThread() && "The debugger thread cannot be suspended!");
 
 	if(il2cpp::os::Atomic::CompareExchange(&suspend_count, suspend_count, 0) == 0)
 		return;
@@ -807,7 +807,7 @@ BreakpointData *Agent::BreakpointDataAt(int64_t uid, int32_t offset)
 	
 	if (!il2cpp_current_thread_get_top_frame(frame))
 	{
-		assert(0 && "Not implemented");
+		IL2CPP_ASSERT(0 && "Not implemented");
 	}
 
 	const Il2CppDebugMethodInfo *info = il2cpp_debug_get_method_info(frame.method);
@@ -894,7 +894,7 @@ bool Agent::ShouldProcessStepRequest(Il2CppThread *current_thread, const Il2CppS
 		if(stack_depth >= _ss_data->stack_depth)
 			return false;
 
-		assert((_ss_data->stack_depth - stack_depth) == 1 && "Stepping out jumped more than one stack frame: not supported yet (probably hitting a native stack frame)" );
+		IL2CPP_ASSERT((_ss_data->stack_depth - stack_depth) == 1 && "Stepping out jumped more than one stack frame: not supported yet (probably hitting a native stack frame)" );
 		break;
 	}
 
@@ -911,7 +911,7 @@ bool Agent::ProcessSingleStepIfNeeded(int64_t uid, int32_t offset)
 	if(_ss_data->thread != current_thread)
 		return false;
 
-	assert(_ss_data->size == kStepSizeKindLine && "Only line stepping is supported for now");
+	IL2CPP_ASSERT(_ss_data->size == kStepSizeKindLine && "Only line stepping is supported for now");
 
 	Il2CppStackFrameInfo top_frame;
 	
@@ -987,7 +987,7 @@ static void start_debugger_agent_thread(void *data)
 
 void Agent::StartListeningThread()
 {
-	assert(_thread == 0 && "Listening thread is already running!");
+	IL2CPP_ASSERT(_thread == 0 && "Listening thread is already running!");
 
 	_thread = new os::Thread();
 	_thread->Run(start_debugger_agent_thread, this);

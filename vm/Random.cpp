@@ -2,7 +2,6 @@
 #include "vm/Random.h"
 
 #include "os/Cryptography.h"
-#include <cassert>
 
 namespace il2cpp
 {
@@ -39,7 +38,7 @@ void Random::Free(void* handle)
 */
 bool Random::TryGetBytes(void* *handle, unsigned char *buffer, int buffer_size)
 {
-	assert(handle);
+	IL2CPP_ASSERT(handle);
 	void* provider = *handle;
 
 	if (!il2cpp::os::Cryptography::FillBufferWithRandomBytes(provider, buffer_size, buffer))
@@ -72,15 +71,15 @@ bool Random::TryGetBytes(void* *handle, unsigned char *buffer, int buffer_size)
 */
 bool Random::TryGetUnsignedInt32(void* *handle, uint32_t *val, uint32_t min, uint32_t max)
 {
-	assert(val);
+	IL2CPP_ASSERT(val);
 	if (!TryGetBytes(handle, (unsigned char*)val, sizeof(uint32_t)))
 		return false;
 
 	double randomDouble = ((double)*val) / (((double)UINT32_MAX) + 1); // Range is [0,1)
 	*val = (uint32_t)(randomDouble * (max - min + 1) + min);
 
-	assert(*val >= min);
-	assert(*val <= max);
+	IL2CPP_ASSERT(*val >= min);
+	IL2CPP_ASSERT(*val <= max);
 
 	return true;
 }
@@ -90,7 +89,7 @@ uint32_t Random::Next(void** handle, uint32_t min, uint32_t max)
 	uint32_t val;
 	bool ok = TryGetUnsignedInt32(handle, &val, min, max);
 
-	assert(ok);
+	IL2CPP_ASSERT(ok);
 
 	return val;
 }

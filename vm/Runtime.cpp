@@ -30,7 +30,6 @@
 #include "vm/Type.h"
 #include "vm/String.h"
 #include "vm/Object.h"
-#include <cassert>
 #include <string>
 #include <map>
 #include "class-internals.h"
@@ -73,10 +72,10 @@ static const char *s_BundledMachineConfig = 0;
 static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
 
 #define DEFAULTS_INIT(field,ns,n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n); \
-	assert(il2cpp_defaults.field); } while (0)
+	IL2CPP_ASSERT(il2cpp_defaults.field); } while (0)
 
 #define DEFAULTS_INIT_TYPE(field, ns, n, nativetype) do { DEFAULTS_INIT(field, ns, n); \
-	assert(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
+	IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
 
 char* basepath(const char* path)
 {
@@ -88,8 +87,8 @@ char* basepath(const char* path)
 
 static const char *framework_version_for (const char *runtime_version)
 {
-	assert (runtime_version && "Invalid runtime version");
-	assert ((strstr (runtime_version, "v2.0") == runtime_version) && "Invalid runtime version");
+	IL2CPP_ASSERT(runtime_version && "Invalid runtime version");
+	IL2CPP_ASSERT((strstr (runtime_version, "v2.0") == runtime_version) && "Invalid runtime version");
 
 	return "2.0";
 }
@@ -97,7 +96,7 @@ static const char *framework_version_for (const char *runtime_version)
 static void SanityChecks ()
 {
 #if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
-	assert (ALIGN_OF (int64_t) == 8);
+	IL2CPP_ASSERT(ALIGN_OF (int64_t) == 8);
 #endif
 }
 
@@ -377,7 +376,7 @@ std::string Runtime::GetDataDir()
 const MethodInfo* Runtime::GetDelegateInvoke(Il2CppClass* klass)
 {
 	const MethodInfo* invoke = Class::GetMethodFromName(klass, "Invoke", -1);
-	assert(invoke);
+	IL2CPP_ASSERT(invoke);
 	return invoke;
 }
 
@@ -470,7 +469,7 @@ void Runtime::ObjectInitException (Il2CppObject *object, Il2CppException **exc)
 	Il2CppClass *klass = object->klass;
 
 	method = Class::GetMethodFromName (klass, ".ctor", 0);
-	assert (method != NULL && "ObjectInit; no default constructor for object is found");
+	IL2CPP_ASSERT(method != NULL && "ObjectInit; no default constructor for object is found");
 
 	if (method->declaring_type->valuetype)
 		object = (Il2CppObject*)Object::Unbox (object);
@@ -496,7 +495,7 @@ void Runtime::UnhandledException (Il2CppException* exc)
 	Il2CppObject *root_appdomain_delegate = NULL;
 
 	field = Class::GetFieldFromName (il2cpp_defaults.appdomain_class, "UnhandledException");
-	assert (field);
+	IL2CPP_ASSERT(field);
 
 	Il2CppObject* excObject = (Il2CppObject*)exc;
 
@@ -660,7 +659,7 @@ void Runtime::CallUnhandledExceptionDelegate (Il2CppDomain* domain, Il2CppDelega
 	pa [1] = CreateUnhandledExceptionEventArgs (exc);
 	DelegateInvoke (delegate, pa, &e);
 
-	assert (!e);
+	IL2CPP_ASSERT(!e);
 }
 
 static il2cpp::os::FastMutex s_TypeInitializationLock;
@@ -792,7 +791,7 @@ static void* LoadSymbolInfoFileFrom(const std::string& path)
 	void* mappedFile = os::MemoryMappedFile::Map(handle);
 
 	os::File::Close(handle, &error);
-	assert(error == 0);
+	IL2CPP_ASSERT(error == 0);
 
 	return mappedFile;
 }
@@ -899,13 +898,13 @@ Il2CppObject* Runtime::CreateUnhandledExceptionEventArgs (Il2CppException *exc)
 	Il2CppObject *obj;
 
 	klass = Class::FromName (il2cpp_defaults.corlib, "System", "UnhandledExceptionEventArgs");
-	assert (klass);
+	IL2CPP_ASSERT(klass);
 
 	Class::Init (klass);
 
 	/* UnhandledExceptionEventArgs only has 1 public ctor with 2 args */
 	method = Class::GetMethodFromNameFlags (klass, ".ctor", 2, METHOD_ATTRIBUTE_PUBLIC);
-	assert (method);
+	IL2CPP_ASSERT(method);
 
 	args [0] = exc;
 	args [1] = &is_terminating;
@@ -936,9 +935,9 @@ void Runtime::VerifyApiVersion()
 	Field::StaticGetValue(field, &value);
 
 #if !NET_4_0
-	assert(value == 82);
+	IL2CPP_ASSERT(value == 82);
 #else
-	assert(value == 150);
+	IL2CPP_ASSERT(value == 150);
 #endif
 #endif
 }

@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "class-internals.h"
 #include "icalls/mscorlib/System.Runtime.InteropServices/GCHandle.h"
 #include "gc/GCHandle.h"

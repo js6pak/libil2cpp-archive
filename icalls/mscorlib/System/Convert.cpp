@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <ctype.h>
 #include "icalls/mscorlib/System/Convert.h"
 #include "il2cpp-api.h"

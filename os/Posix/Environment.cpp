@@ -5,7 +5,6 @@
 #include "os/Environment.h"
 #include "il2cpp-api.h"
 
-#include <cassert>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/utsname.h>

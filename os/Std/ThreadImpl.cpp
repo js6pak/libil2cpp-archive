@@ -4,7 +4,6 @@
 
 #include "os/Thread.h"
 #include "ThreadImpl.h"
-#include <cassert>
 
 #include <thread>
 

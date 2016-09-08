@@ -60,7 +60,7 @@ struct ObjectRefIsCollectedCommand : public CustomCommand<ObjectRefIsCollectedCo
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented!");
+			IL2CPP_ASSERT(0 && "Not implemented!");
 		}
 	};
 
@@ -81,7 +81,7 @@ struct ObjectRefSetValuesCommand : public CustomCommand<ObjectRefSetValuesComman
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented!");
+			IL2CPP_ASSERT(0 && "Not implemented!");
 		}
 	};
 
@@ -102,7 +102,7 @@ struct ObjectRefGetAddressCommand : public CustomCommand<ObjectRefGetAddressComm
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented!");
+			IL2CPP_ASSERT(0 && "Not implemented!");
 		}
 	};
 
@@ -123,7 +123,7 @@ struct ObjectRefGetValuesCommand : public CustomCommand<ObjectRefGetValuesComman
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented!");
+			IL2CPP_ASSERT(0 && "Not implemented!");
 		}
 	};
 

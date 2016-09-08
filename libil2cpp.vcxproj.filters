@@ -827,6 +827,9 @@
     <ClCompile Include="os\Posix\CpuInfo.cpp">
       <Filter>os\Posix</Filter>
     </ClCompile>
+    <ClCompile Include="os\Win32\Initialize.cpp">
+      <Filter>os\Win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1596,6 +1599,9 @@
       <Filter>os</Filter>
     </ClInclude>
     <ClInclude Include="il2cpp-string-types.h" />
+    <ClInclude Include="gc\AppendOnlyGCHashMap.h">
+      <Filter>gc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />

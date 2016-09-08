@@ -3,7 +3,6 @@
 #if IL2CPP_TARGET_POSIX
 
 #include "os/TimeZone.h"
-#include <cassert>
 
 #include <sys/time.h>
 #include <time.h>

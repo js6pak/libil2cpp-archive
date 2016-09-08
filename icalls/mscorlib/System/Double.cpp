@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include <stdlib.h>
-#include <cassert>
 #include "icalls/mscorlib/System/Double.h"
 #include "os/Locale.h"
 

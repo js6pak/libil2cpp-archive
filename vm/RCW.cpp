@@ -50,7 +50,7 @@ static inline Il2CppIUnknown* GetIdentity(Il2CppIUnknown* unknown)
 	Il2CppIUnknown* identity;
 	il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIUnknown::IID, reinterpret_cast<void**>(&identity));
 	Exception::RaiseIfFailed(hr);
-	assert(identity);
+	IL2CPP_ASSERT(identity);
 
 	return identity;
 }
@@ -89,7 +89,7 @@ static inline Il2CppClass* GetClassForRCW(Il2CppIUnknown* unknown, Il2CppClass* 
 template <typename T, bool isSealedClassInstance>
 static inline Il2CppObject* GetOrCreateRCW(T* comObject, Il2CppClass* objectClass)
 {
-	assert(comObject != NULL);
+	IL2CPP_ASSERT(comObject != NULL);
 
 	if (!isSealedClassInstance)
 	{
@@ -101,7 +101,7 @@ static inline Il2CppObject* GetOrCreateRCW(T* comObject, Il2CppClass* objectClas
 			Il2CppObject* instance = managedHolder->GetManagedObject();
 			managedHolder->Release();
 
-			assert(instance);
+			IL2CPP_ASSERT(instance);
 			return instance;
 		}
 	}
