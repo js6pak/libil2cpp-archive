@@ -47,7 +47,7 @@ size_t Debug::GetCodeSize (const Il2CppDebugMethodInfo* info)
 
 void Debug::UpdateFrameIlOffset(int32_t il_offset)
 {
-	assert(0 && "Not implemented");
+	IL2CPP_ASSERT(0 && "Not implemented");
 }
 
 const Il2CppDebugLocalsInfo **Debug::GetLocalsInfo (const Il2CppDebugMethodInfo* info)
@@ -77,8 +77,8 @@ uint32_t Debug::GetEndOffset (const Il2CppDebugLocalsInfo *info)
 
 Il2CppObject *Debug::GetParamValue (const Il2CppStackFrameInfo *info, uint32_t position)
 {
-	assert(info != 0 && "Debug::GetParamValue cannot be invoked on a null Il2CppDebugMethodInfo." );
-	assert(position < info->method->parameters_count && "Debug::GetParamValue was invoked with an outside of range position");
+	IL2CPP_ASSERT(info != 0 && "Debug::GetParamValue cannot be invoked on a null Il2CppDebugMethodInfo." );
+	IL2CPP_ASSERT(position < info->method->parameters_count && "Debug::GetParamValue was invoked with an outside of range position");
 
 	Il2CppClass *param_type = Type::GetClass (info->method->parameters[position].parameter_type);
 	void *param_addr = info->params[position];
@@ -91,8 +91,8 @@ Il2CppObject *Debug::GetParamValue (const Il2CppStackFrameInfo *info, uint32_t p
 
 Il2CppObject *Debug::GetLocalValue (const Il2CppStackFrameInfo *info, uint32_t position)
 {
-	assert(info != 0 && "Debug::GetLocalValue cannot be invoked on a null Il2CppDebugMethodInfo." );
-	assert(position < info->locals_count && "Debug::GetLocalValue was invoked with an outside of range position");
+	IL2CPP_ASSERT(info != 0 && "Debug::GetLocalValue cannot be invoked on a null Il2CppDebugMethodInfo." );
+	IL2CPP_ASSERT(position < info->locals_count && "Debug::GetLocalValue was invoked with an outside of range position");
 
 	Il2CppClass *local_type = info->method->debug_info->locals[position]->type;
 	void *local_addr = info->locals[position];
@@ -105,23 +105,23 @@ Il2CppObject *Debug::GetLocalValue (const Il2CppStackFrameInfo *info, uint32_t p
 
 void *Debug::GetBreakpointDataAt (const Il2CppDebugMethodInfo* info, int64_t uid, int32_t offset)
 {
-	assert(info != 0 && "Debug::GetBreakpointDataAt cannot be invoked on a null Il2CppDebugMethodInfo." );
-	assert(offset < info->code_size && "Debug::GetBreakpointDataAt invoked with an invalid offset." );
+	IL2CPP_ASSERT(info != 0 && "Debug::GetBreakpointDataAt cannot be invoked on a null Il2CppDebugMethodInfo." );
+	IL2CPP_ASSERT(offset < info->code_size && "Debug::GetBreakpointDataAt invoked with an invalid offset." );
 
 	if(uid < 0)
 		return NULL;
 
 	SequencePointRecord *record = &info->sequence_points[uid];
 
-	assert(record->start_offset <= offset && record->end_offset >= offset && "Debug::GetBreakpointDataAt invoked with an invalid offset (or sequnce point not matching)." );
+	IL2CPP_ASSERT(record->start_offset <= offset && record->end_offset >= offset && "Debug::GetBreakpointDataAt invoked with an invalid offset (or sequnce point not matching)." );
 	
 	return record->user_data;
 }
 
 void Debug::SetBreakpointDataAt (const Il2CppDebugMethodInfo* info, uint64_t location, void *data)
 {
-	assert(info != 0 && "Debug::SetBreakpointDataAt be invoked on a null Il2CppDebugMethodInfo." );
-	assert(location < info->code_size && "Debug::SetBreakpointDataAt invoked with an invalid location." );
+	IL2CPP_ASSERT(info != 0 && "Debug::SetBreakpointDataAt be invoked on a null Il2CppDebugMethodInfo." );
+	IL2CPP_ASSERT(location < info->code_size && "Debug::SetBreakpointDataAt invoked with an invalid location." );
 
 	SequencePointRecord *found = NULL;
 
@@ -139,14 +139,14 @@ void Debug::SetBreakpointDataAt (const Il2CppDebugMethodInfo* info, uint64_t loc
 		break;
 	}
 
-	assert(found && "Debug::SetBreakpointDataAt invoked with an invalid location.");
+	IL2CPP_ASSERT(found && "Debug::SetBreakpointDataAt invoked with an invalid location.");
 
 	found->user_data = data;
 }
 
 void Debug::ClearBreakpointData (const Il2CppDebugMethodInfo* info)
 {
-	assert(info != 0 && "Debug::ClearBreakpointData be invoked on a null Il2CppDebugMethodInfo." );
+	IL2CPP_ASSERT(info != 0 && "Debug::ClearBreakpointData be invoked on a null Il2CppDebugMethodInfo." );
 
 	for(int32_t i = 0; i < info->sequence_points_count; ++i)
 	{
@@ -158,7 +158,7 @@ void Debug::ClearBreakpointData (const Il2CppDebugMethodInfo* info)
 
 void Debug::ClearBreakpointDataAt (const Il2CppDebugMethodInfo* info, uint64_t location)
 {
-	assert(info != 0 && "Debug::ClearBreakpointDataAt be invoked on a null Il2CppDebugMethodInfo." );
+	IL2CPP_ASSERT(info != 0 && "Debug::ClearBreakpointDataAt be invoked on a null Il2CppDebugMethodInfo." );
 
 	SequencePointRecord *found = NULL;
 
@@ -176,7 +176,7 @@ void Debug::ClearBreakpointDataAt (const Il2CppDebugMethodInfo* info, uint64_t l
 		break;
 	}
 
-	assert(found && "Debug::ClearBreakpointDataAt invoked with an invalid location.");
+	IL2CPP_ASSERT(found && "Debug::ClearBreakpointDataAt invoked with an invalid location.");
 
 	found->user_data = NULL;
 }

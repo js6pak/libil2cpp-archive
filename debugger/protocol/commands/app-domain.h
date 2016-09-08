@@ -101,7 +101,7 @@ struct AppDomainGetEntryAssemblyCommand : public CustomCommand<AppDomainGetEntry
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented");
+			IL2CPP_ASSERT(0 && "Not implemented");
 		}
 	};
 
@@ -122,7 +122,7 @@ struct AppDomainCreateBoxedValueCommand : public CustomCommand<AppDomainCreateBo
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented");
+			IL2CPP_ASSERT(0 && "Not implemented");
 		}
 	};
 

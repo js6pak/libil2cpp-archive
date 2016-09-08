@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <memory>
 #include "icalls/mscorlib/System/MonoCustomAttrs.h"
 #include "class-internals.h"
@@ -24,7 +23,7 @@ namespace System
 
 Il2CppArray * MonoCustomAttrs::GetCustomAttributesInternal(Il2CppObject* obj, Il2CppReflectionType* type, bool pseudoAttrs)
 {
-	assert(pseudoAttrs == false && "System_MonoCustomAttrs_GetCustomAttributesInternal_icall with pseudoAttrs == true has not been implemented yet");
+	IL2CPP_ASSERT(pseudoAttrs == false && "System_MonoCustomAttrs_GetCustomAttributesInternal_icall with pseudoAttrs == true has not been implemented yet");
 
 	CustomAttributesCache *cinfo = il2cpp::vm::Reflection::GetCustomAttrsInfo (obj);
 

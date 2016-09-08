@@ -3,7 +3,6 @@
 #if IL2CPP_THREADS_PTHREAD
 
 #include "ThreadLocalValueImpl.h"
-#include <cassert>
 
 #include <pthread.h>
 
@@ -18,7 +17,7 @@ ThreadLocalValueImpl::ThreadLocalValueImpl ()
 {
 	pthread_key_t key;
 	int result = pthread_key_create (&key, NULL);
-	assert (!result);
+	IL2CPP_ASSERT(!result);
 	_unused(result);
 
 	m_Key = key;
@@ -26,7 +25,7 @@ ThreadLocalValueImpl::ThreadLocalValueImpl ()
 
 ThreadLocalValueImpl::~ThreadLocalValueImpl ()
 {
-	assert (!pthread_key_delete (m_Key));
+	IL2CPP_ASSERT(!pthread_key_delete (m_Key));
 }
 
 ErrorCode ThreadLocalValueImpl::SetValue (void* value)

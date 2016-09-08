@@ -9,8 +9,6 @@
 #else
 #include "os/SemaphoreImpl.h"
 #endif
-#include <cassert>
-
 
 namespace il2cpp
 {

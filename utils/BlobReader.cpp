@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include <stdint.h>
-#include <cassert>
 #include "BlobReader.h"
 #include "MemoryRead.h"
 #include "../vm/String.h"
@@ -58,12 +57,12 @@ int BlobReader::GetConstantValueFromBlob(Il2CppTypeEnum type, const char *blob, 
 	case IL2CPP_TYPE_OBJECT:
 	case IL2CPP_TYPE_GENERICINST:
 	case IL2CPP_TYPE_SZARRAY:
-		assert(p == NULL);
+		IL2CPP_ASSERT(p == NULL);
 		*(void**)value = NULL;
 		break;
 	default:
 		retval = -1;
-		assert(0);
+		IL2CPP_ASSERT(0);
 	}
 	return retval;
 }

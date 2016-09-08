@@ -1,8 +1,6 @@
 #include "il2cpp-config.h"
 #include "icalls/mscorlib/System.Reflection.Emit/SignatureHelper.h"
 #include "vm/Exception.h"
-#include <cassert>
-
 
 namespace il2cpp
 {

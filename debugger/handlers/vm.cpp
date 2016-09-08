@@ -102,7 +102,7 @@ const Reply *Agent::Process(const VmAbortInvokeCommand *command)
 {
 	LOG("warning: `VmAbortInvokeCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }
@@ -111,7 +111,7 @@ const Reply *Agent::Process(const VmExitCommand *command)
 {
 	LOG("warning: `VmExitCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

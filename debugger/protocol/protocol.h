@@ -76,42 +76,42 @@ public:
 
 	inline CommandSet set() const
 	{
-		assert(is_command() && "Header::set() can only be invoked on `Command` headers");
+		IL2CPP_ASSERT(is_command() && "Header::set() can only be invoked on `Command` headers");
 
 		return (CommandSet)((_data >> 8) & 0xFF);
 	}
 
 	inline void set(CommandSet v)
 	{
-		assert(is_command() && "Header::set(CommandSet) can only be invoked on `Command` headers");
+		IL2CPP_ASSERT(is_command() && "Header::set(CommandSet) can only be invoked on `Command` headers");
 
 		_data = (v << 8) | (_data & 0xFF);
 	}
 
 	inline int32_t command() const
 	{
-		assert(is_command() && "Header::command() can only be invoked on `Command` headers");
+		IL2CPP_ASSERT(is_command() && "Header::command() can only be invoked on `Command` headers");
 
 		return _data & 0xFF;
 	}
 
 	inline void command(int32_t v)
 	{
-		assert(is_command() && "Header::command(int32_t) can only be invoked on `Command` headers");
+		IL2CPP_ASSERT(is_command() && "Header::command(int32_t) can only be invoked on `Command` headers");
 
 		_data = (_data & 0xFF00) | (v & 0xFF);
 	}
 
 	inline ErrorCode error_code() const
 	{
-		assert(is_reply() && "Header::error_code() can only be invoked on `Reply` headers");
+		IL2CPP_ASSERT(is_reply() && "Header::error_code() can only be invoked on `Reply` headers");
 
 		return (ErrorCode)_data;
 	}
 
 	inline void error_code(ErrorCode v)
 	{
-		assert(is_reply() && "Header::error_code(ErrorCode) can only be invoked on `Command` headers");
+		IL2CPP_ASSERT(is_reply() && "Header::error_code(ErrorCode) can only be invoked on `Command` headers");
 
 		_data = v;
 	}

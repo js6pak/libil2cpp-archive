@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include "MarshalAlloc.h"
 #include "os/MarshalAlloc.h"
-#include <cassert>
 
 namespace il2cpp
 {
@@ -34,7 +33,7 @@ void* MarshalAlloc::ReAlloc(void* ptr, size_t size)
 	if (ptr != NULL && ptr != realloced)
 	{
 		std::map<void*, size_t>::iterator found = s_Allocations.find(ptr);
-		assert(found != s_Allocations.end() && "Invalid call to MarshalAlloc::ReAlloc. The pointer is not in the allocation list.");
+		IL2CPP_ASSERT(found != s_Allocations.end() && "Invalid call to MarshalAlloc::ReAlloc. The pointer is not in the allocation list.");
 		s_Allocations.erase(found);
 	}
 	s_Allocations[realloced] = size;

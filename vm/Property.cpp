@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include "vm/Property.h"
-#include <cassert>
 #include "class-internals.h"
 
 namespace il2cpp

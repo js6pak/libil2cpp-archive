@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/MethodBase.h"
-#include <cassert>
 #include "class-internals.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"

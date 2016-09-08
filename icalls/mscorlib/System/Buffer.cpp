@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <memory>
 #include "icalls/mscorlib/System/Buffer.h"
 #include "class-internals.h"

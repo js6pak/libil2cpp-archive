@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/MonoMethodInfo.h"
-#include <cassert>
 #include "class-internals.h"
 #include "vm/Class.h"
 #include "vm/Reflection.h"
@@ -29,7 +28,7 @@ void MonoMethodInfo::get_method_info (Il2CppIntPtr methodPtr, Il2CppMethodInfo *
 
 	//sig = mono_method_signature (method);
 	//if (!sig) {
-	//	g_assert (mono_loader_get_last_error ());
+	//	IL2CPP_ASSERT(mono_loader_get_last_error ());
 	//	mono_raise_exception (mono_loader_error_prepare_exception (mono_loader_get_last_error ()));
 	//}
 

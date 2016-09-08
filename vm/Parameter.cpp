@@ -26,7 +26,7 @@ Il2CppObject* Parameter::GetDefaultParameterValueObject(const MethodInfo* method
 	if (parameterType->valuetype)
 	{
 		Class::SetupFields(parameterType);
-		assert(parameterType->size_inited);
+		IL2CPP_ASSERT(parameterType->size_inited);
 		void* value = alloca(parameterType->instance_size - sizeof(Il2CppObject));
 		utils::BlobReader::GetConstantValueFromBlob(typeOfDefaultValue->type, data, value);
 		return Object::Box(parameterType, value);

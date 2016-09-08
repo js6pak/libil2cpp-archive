@@ -2,8 +2,6 @@
 
 #if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_WINDOWS
 
-#include <cassert>
-
 #include <time.h>
 #include <string.h>
 #include <errno.h>
@@ -363,9 +361,9 @@ WaitStatus SocketImpl::Create (AddressFamily family, SocketType type, ProtocolTy
 	_type = convert_socket_type (type);
 	_protocol = convert_socket_protocol (protocol);
 
-	assert (_type != -1 && "Unsupported socket type");
-	assert (_domain != -1 && "Unsupported address family");
-	assert (_protocol != -1 && "Unsupported protocol type");
+	IL2CPP_ASSERT(_type != -1 && "Unsupported socket type");
+	IL2CPP_ASSERT(_domain != -1 && "Unsupported address family");
+	IL2CPP_ASSERT(_protocol != -1 && "Unsupported protocol type");
 
 	_fd = socket (_domain, _type, _protocol);
 	if (_fd == -1 && _domain == AF_INET && _type == SOCK_RAW && _protocol == 0)
@@ -441,9 +439,9 @@ WaitStatus SocketImpl::Create (SocketDescriptor fd, int32_t family, int32_t type
 	_type = type;
 	_protocol = protocol;
 
-	assert (_type != -1 && "Unsupported socket type");
-	assert (_domain != -1 && "Unsupported address family");
-	assert (_protocol != -1 && "Unsupported protocol type");
+	IL2CPP_ASSERT(_type != -1 && "Unsupported socket type");
+	IL2CPP_ASSERT(_domain != -1 && "Unsupported address family");
+	IL2CPP_ASSERT(_protocol != -1 && "Unsupported protocol type");
 
 	return kWaitStatusSuccess;
 }
@@ -972,7 +970,7 @@ WaitStatus SocketImpl::Receive (const uint8_t *data, int32_t count, os::SocketFl
 WaitStatus SocketImpl::ReceiveFromInternal(const uint8_t *data, size_t count, int32_t flags, int32_t *len, struct sockaddr *from, int32_t *fromlen)
 {
 	int32_t ret = 0;
-	assert(count < static_cast<size_t>(std::numeric_limits<int>::max()));
+	IL2CPP_ASSERT(count < static_cast<size_t>(std::numeric_limits<int>::max()));
 
 	SOCKET fd = (SOCKET)_fd;
 	if (fd == -1)
@@ -1313,7 +1311,7 @@ WaitStatus SocketImpl::Available (int32_t *amount)
 
 WaitStatus SocketImpl::Ioctl (int32_t command, const uint8_t *in_data, int32_t in_len, uint8_t *out_data, int32_t out_len, int32_t *written)
 {
-	assert (command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
+	IL2CPP_ASSERT(command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
 
 	SOCKET fd = (SOCKET)_fd;
 	if (fd == -1)

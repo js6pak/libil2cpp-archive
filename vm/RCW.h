@@ -24,8 +24,8 @@ public:
 	template <bool throwOnError>
 	inline static Il2CppIUnknown* QueryInterface(Il2CppComObject* rcw, const Il2CppGuid& iid)
 	{
-		assert(rcw);
-		assert(rcw->identity);
+		IL2CPP_ASSERT(rcw);
+		IL2CPP_ASSERT(rcw->identity);
 
 		Il2CppIUnknown* result;
 		const il2cpp_hresult_t hr = rcw->identity->QueryInterface(iid, reinterpret_cast<void**>(&result));
@@ -37,7 +37,7 @@ public:
 			return NULL;
 		}
 
-		assert(result);
+		IL2CPP_ASSERT(result);
 		return result;
 	}
 };

@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/mscorlib/Mono.Globalization.Unicode/Normalization.h"
 #include "vm/Exception.h"
 #include "normalization-tables.h"

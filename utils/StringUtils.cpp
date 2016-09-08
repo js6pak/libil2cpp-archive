@@ -6,40 +6,11 @@
 #include "utils/StringUtils.h"
 #include "utils/utf8-cpp/source/utf8/unchecked.h"
 #include <stdarg.h>
-#include <cassert>
 
 namespace il2cpp
 {
 namespace utils
 {
-
-size_t StringUtils::Hash (const char *str)
-{
-	unsigned char *ustr = (unsigned char *)str;
-	size_t hash = 5381;
-	int c;
-
-	while ((c = *ustr++))
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
-	return hash;
-}
-
-size_t StringUtils::Hash(const char *str, size_t length)
-{
-	unsigned char *ustr = (unsigned char *)str;
-	size_t hash = 5381;
-	int c;
-
-	for(size_t i = 0;i < length;++i)
-	{
-		c = *ustr++;
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-	}
-
-	return hash;
-}
-
 std::string StringUtils::Printf(const char* format, ...)
 {
 	va_list argsToCheckSize;
@@ -68,7 +39,7 @@ std::string StringUtils::Printf(const char* format, ...)
 	n = vsnprintf (&ret[0], ret.size(), format, argsToFormat);
 	va_end(argsToFormat);
 
-	assert(n < (int)ret.size());
+	IL2CPP_ASSERT(n < (int)ret.size());
 
 	if (n == -1)
 		return NULL;
@@ -106,7 +77,7 @@ std::string StringUtils::NPrintf(const char* format, size_t max_n, ...)
 	n = vsnprintf (&ret[0], n, format, argsToFormat);
 	va_end (argsToFormat);
 
-	assert(n < ret.size());
+	IL2CPP_ASSERT(n < ret.size());
 
 	if (n == -1)
 		return NULL;
@@ -268,8 +239,8 @@ bool StringUtils::CaseInsensitiveComparer::operator()(const char* left, const st
 bool StringUtils::CaseInsensitiveComparer::operator()(const char* left, const char* right) const
 {
 #if IL2CPP_DEBUG	// Invalid UTF8 strings shouldn't be passed here, so let's assert in debug mode
-	assert(utf8::is_valid(left, left + strlen(left)));
-	assert(utf8::is_valid(right, right + strlen(right)));
+	IL2CPP_ASSERT(utf8::is_valid(left, left + strlen(left)));
+	IL2CPP_ASSERT(utf8::is_valid(right, right + strlen(right)));
 #endif
 
 	Il2CppChar utf16Left[2];

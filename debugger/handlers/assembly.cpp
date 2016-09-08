@@ -76,7 +76,7 @@ const Reply *Agent::Process(const AssemblyGetObjectCommand *command)
 {
 	LOG("warning: `AssemblyGetObjectCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }
@@ -85,7 +85,7 @@ const Reply *Agent::Process(const AssemblyGetEntryPointCommand *command)
 {
 	LOG("warning: `AssemblyGetEntryPointCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

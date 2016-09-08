@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "class-internals.h"
 #include "object-internals.h"
 #include "vm/Array.h"

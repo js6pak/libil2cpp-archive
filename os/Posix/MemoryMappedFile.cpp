@@ -3,7 +3,6 @@
 #if !IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE && IL2CPP_TARGET_POSIX
 
 #include <sys/mman.h>
-#include <cassert>
 #include <map>
 #include "os/File.h"
 #include "os/MemoryMappedFile.h"
@@ -51,7 +50,7 @@ void MemoryMappedFile::Unmap(void* address, size_t length)
 	}
 
 	int error = munmap(address, length);
-	assert(error == 0);
+	IL2CPP_ASSERT(error == 0);
 	(void)error; // Avoid an unused variable warning
 }
 

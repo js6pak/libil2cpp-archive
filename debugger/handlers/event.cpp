@@ -18,7 +18,7 @@ const Reply *Agent::Process(const EventCompositeCommand *command)
 {
 	LOG("warning: `EventCompositeCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

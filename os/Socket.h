@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <cassert>
 
 #include "il2cpp-config.h"
 

@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "object-internals.h"
 #include "class-internals.h"
 #include "icalls/mscorlib/System/Object.h"

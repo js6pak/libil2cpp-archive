@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "icalls/mscorlib/System.Threading/Interlocked.h"
 #include <ctype.h>
 #include "os/Atomic.h"
@@ -196,9 +195,9 @@ int64_t Interlocked::Read (int64_t* location)
 #if NET_4_0
 int32_t Interlocked::CompareExchange(int32_t* location1, int32_t value, int32_t comparand, bool* succeeded)
 {
-	NOT_IMPLEMENTED_ICALL(Interlocked::CompareExchange);
-	IL2CPP_UNREACHABLE;
-	return NULL;
+	int32_t result = CompareExchange(location1, value, comparand);
+	*succeeded = result == comparand;
+	return result;
 }
 #endif
 
