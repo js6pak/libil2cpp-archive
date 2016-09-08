@@ -22,7 +22,6 @@
 #include "utils/StringUtils.h"
 #include "class-internals.h"
 #include "tabledefs.h"
-#include <cassert>
 #include <sstream>
 #include <vector>
 #include <limits>
@@ -113,7 +112,7 @@ static void SetupArrayMethods (Il2CppClass* arrayClass)
 	CollectImplicitArrayInterfaces (arrayClass, interfaces);
 
 	size_t methodCount = 3 + (rank > 1 ? 2 : 1) + interfaces.size () * GetArrayGenericMethodsCount ();
-	assert(methodCount <= std::numeric_limits<uint16_t>::max());
+	IL2CPP_ASSERT(methodCount <= std::numeric_limits<uint16_t>::max());
 	arrayClass->method_count = static_cast<uint16_t>(methodCount);
 	arrayClass->methods = (const MethodInfo**)MetadataCalloc (methodCount, sizeof (MethodInfo*));
 
@@ -146,7 +145,7 @@ static void SetupArrayMethods (Il2CppClass* arrayClass)
 		parameters[i] = il2cpp_defaults.int32_class->byval_arg;
 	arrayClass->methods[methodIndex++] = ConstructArrayMethod (arrayClass, "Get", arrayClass->element_class->byval_arg, rank, parameters);
 
-	assert(methodIndex <= std::numeric_limits<uint16_t>::max());
+	IL2CPP_ASSERT(methodIndex <= std::numeric_limits<uint16_t>::max());
 	PopulateArrayGenericMethods (arrayClass, static_cast<uint16_t>(methodIndex), s_GenericArrayMethods);
 }
 
@@ -340,7 +339,7 @@ static void SetupArrayVTableAndInterfaceOffsets (Il2CppClass* klass)
 	}
 
 	size_t interfaceOffsetsCount = arrayInterfacesCount + 3 * interfaces.size();
-	assert(interfaceOffsetsCount <= std::numeric_limits<uint16_t>::max());
+	IL2CPP_ASSERT(interfaceOffsetsCount <= std::numeric_limits<uint16_t>::max());
 	klass->interface_offsets_count = static_cast<uint16_t>(interfaceOffsetsCount);
 	klass->interfaceOffsets = newInterfaceOffsets;
 }
@@ -382,21 +381,21 @@ void ArrayMetadata::SetupArrayInterfaces (Il2CppClass* klass, const FastAutoLock
 		Il2CppTypeVector genericArguments;
 		genericArguments.push_back (klass->element_class->byval_arg);
 
-		assert (klass->interfaces_count == 3);
+		IL2CPP_ASSERT(klass->interfaces_count == 3);
 		klass->implementedInterfaces = (Il2CppClass**)MetadataMalloc (klass->interfaces_count * sizeof (Il2CppClass*));
 		klass->implementedInterfaces[0] = Class::GetInflatedGenericInstanceClass (il2cpp_defaults.generic_ilist_class, genericArguments);
-		assert (klass->implementedInterfaces[0]);
+		IL2CPP_ASSERT(klass->implementedInterfaces[0]);
 		klass->implementedInterfaces[1] = Class::GetInflatedGenericInstanceClass (il2cpp_defaults.generic_icollection_class, genericArguments);
-		assert (klass->implementedInterfaces[1]);
+		IL2CPP_ASSERT(klass->implementedInterfaces[1]);
 		klass->implementedInterfaces[2] = Class::GetInflatedGenericInstanceClass (il2cpp_defaults.generic_ienumerable_class, genericArguments);
-		assert (klass->implementedInterfaces[2]);
+		IL2CPP_ASSERT(klass->implementedInterfaces[2]);
 	}
 }
 
 void ArrayMetadata::SetupArrayVTable (Il2CppClass* klass, const FastAutoLock& lock)
 {
 	// we assume we are being called as part of Class::Init and that the element class has already been initialized
-	assert (klass->element_class->initialized);
+	IL2CPP_ASSERT(klass->element_class->initialized);
 
 	SetupCastClass (klass);
 	SetupArrayVTableAndInterfaceOffsets (klass);
@@ -456,7 +455,7 @@ Il2CppClass* ArrayMetadata::GetBoundedArrayClass (Il2CppClass* elementClass, uin
 	FastAutoLock lock (&il2cpp::vm::g_MetadataLock);
 	NOT_IMPLEMENTED_NO_ASSERT (ArrayMetadata::GetBoundedArrayClass, "Use more granular lock for looking up arrays, but then handle race between lookup, construction, and caching");
 
-	assert (rank <= 255);
+	IL2CPP_ASSERT(rank <= 255);
 
 	if (rank > 1)
 		bounded = false;

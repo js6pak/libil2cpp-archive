@@ -2,12 +2,10 @@
 
 #if IL2CPP_USE_GENERIC_SOCKET_IMPL
 
-#include <cassert>
-
 #include "os/Generic/SocketImpl.h"
 
 #define SOCKET_NOT_IMPLEMENTED \
-	assert(0 && "The target platform does not support Sockets");
+	IL2CPP_ASSERT(0 && "The target platform does not support Sockets");
 
 namespace il2cpp
 {

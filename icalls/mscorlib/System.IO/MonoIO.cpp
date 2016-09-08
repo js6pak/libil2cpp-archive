@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "class-internals.h"
 #include "icalls/mscorlib/System.IO/MonoIO.h"
 #include "os/Directory.h"
@@ -143,7 +142,7 @@ Il2CppChar MonoIO::get_PathSeparator (void)
 
 int MonoIO::Read (Il2CppIntPtr handle, Il2CppArray *dest, int dest_offset, int count, int *error)
 {
-	assert(dest != NULL);
+	IL2CPP_ASSERT(dest != NULL);
 
 	*error = 0; // ERROR_SUCCESS
 
@@ -176,7 +175,7 @@ int64_t MonoIO::Seek (Il2CppIntPtr handle, int64_t offset, int origin, int *erro
 
 int MonoIO::Write (Il2CppIntPtr handle, Il2CppArray * src, int src_offset, int count, int * error)
 {
-	assert(src != NULL);
+	IL2CPP_ASSERT(src != NULL);
 
 	*error = 0; // ERROR_SUCCESS
 

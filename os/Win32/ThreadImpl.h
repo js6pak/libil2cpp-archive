@@ -31,7 +31,7 @@ public:
 	void SetStackSize(size_t newsize)
 	{
 		// only makes sense if it's called BEFORE the thread has been created
-		assert(m_ThreadHandle == NULL);
+		IL2CPP_ASSERT(m_ThreadHandle == NULL);
 		// if newsize is zero we use the per-platform default value for size of stack
 		if (newsize == 0)
 		{
@@ -50,6 +50,10 @@ public:
 	static void Sleep (uint32_t ms, bool interruptible);
 	static uint64_t CurrentThreadId ();
 	static ThreadImpl* CreateForCurrentThread ();
+
+#if NET_4_0
+	static bool YieldInternal();
+#endif
 
 private:
 	HANDLE m_ThreadHandle;

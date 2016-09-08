@@ -23,19 +23,25 @@ static uint64_t GetEnumFieldValue(Il2CppClass* enumType, FieldInfo* field)
 
 	switch (Class::GetEnumBaseType(enumType)->type)
 	{
+	case IL2CPP_TYPE_I1: // Sign extend
+		return static_cast<int64_t>(static_cast<int8_t>(*ptr));
+
 	case IL2CPP_TYPE_U1:
-	case IL2CPP_TYPE_I1:
 		return (uint8_t)*ptr;
 
 	case IL2CPP_TYPE_CHAR:
 		return utils::ReadChar(ptr);
 
+	case IL2CPP_TYPE_I2: // Sign extend
+		return static_cast<int64_t>(static_cast<int16_t>(utils::Read16(ptr)));
+
 	case IL2CPP_TYPE_U2:
-	case IL2CPP_TYPE_I2:
 		return utils::Read16(ptr);
 
+	case IL2CPP_TYPE_I4: // Sign extend
+		return static_cast<int64_t>(static_cast<int32_t>(utils::Read32(ptr)));
+
 	case IL2CPP_TYPE_U4:
-	case IL2CPP_TYPE_I4:
 		return utils::Read32(ptr);
 
 	case IL2CPP_TYPE_U8:
@@ -43,7 +49,7 @@ static uint64_t GetEnumFieldValue(Il2CppClass* enumType, FieldInfo* field)
 		return utils::Read64(ptr);
 
 	default:
-		assert(0);
+		IL2CPP_ASSERT(0);
 		return 0;
 	}
 }
@@ -106,7 +112,7 @@ bool Enum::GetEnumValuesAndNames(Il2CppClass* enumType, Il2CppArray** values, Il
 			il2cpp_array_set(*values, uint64_t, j, utils::Read64(p));
 			break;
 		default:
-			assert(0);
+			IL2CPP_ASSERT(0);
 		}
 #else
 		field_value = GetEnumFieldValue(enumType, field);

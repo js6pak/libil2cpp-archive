@@ -4,7 +4,6 @@
 #include "class-internals.h"
 #include "object-internals.h"
 #include "il2cpp-api.h"
-#include <cassert>
 #include <sstream>
 #include "tabledefs.h"
 #include "metadata/GenericMetadata.h"
@@ -312,7 +311,7 @@ Il2CppReflectionType * Type::MakeGenericType (Il2CppReflectionType* type,Il2CppA
 {
 	const Il2CppType* genericTypeDefinitionType = type->type;
 	Il2CppClass* genericTypeDefinitionClass = Class::FromIl2CppType (genericTypeDefinitionType);
-	assert (Class::IsGeneric (genericTypeDefinitionClass));
+	IL2CPP_ASSERT(Class::IsGeneric (genericTypeDefinitionClass));
 
 	uint32_t arrayLength = Array::GetLength (genericArgumentTypes);
 	Il2CppTypeVector genericArguments;
@@ -356,7 +355,7 @@ bool Type::type_is_subtype_of(Il2CppReflectionType *type,Il2CppReflectionType *c
 	Il2CppClass *klass;
 	Il2CppClass *klassc;
 
-	assert (type != NULL);
+	IL2CPP_ASSERT(type != NULL);
 
 	if (!c) /* FIXME: dont know what do do here */
 	return false;

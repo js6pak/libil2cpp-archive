@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include "icalls/mscorlib/Mono.Security.Cryptography/KeyPairPersistence.h"
-#include <cassert>
 
 namespace il2cpp
 {

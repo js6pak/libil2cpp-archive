@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/MonoPropertyInfo.h"
-#include <cassert>
 #include "class-internals.h"
 #include "object-internals.h"
 #include "vm/Reflection.h"

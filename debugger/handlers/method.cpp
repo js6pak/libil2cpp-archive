@@ -101,7 +101,7 @@ const Reply *Agent::Process(const MethodResolveTokenCommand *command)
 {
 	LOG("warning: `MethodResolveTokenCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

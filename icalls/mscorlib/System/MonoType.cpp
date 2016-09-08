@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include "class-internals.h"
 #include "object-internals.h"
-#include <cassert>
 #include "tabledefs.h"
 #include "gc/Allocator.h"
 #include "icalls/mscorlib/System/MonoType.h"
@@ -266,7 +265,7 @@ int MonoType::get_attributes (Il2CppReflectionType *type)
 int MonoType::GetArrayRank(Il2CppReflectionType *type)
 {
 	if (type->type->type != IL2CPP_TYPE_ARRAY && type->type->type != IL2CPP_TYPE_SZARRAY)
-		assert("Type must be an array type");
+		IL2CPP_ASSERT("Type must be an array type");
 
 	Il2CppClass* klass = Class::FromIl2CppType (type->type);
 	return klass->rank;

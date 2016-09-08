@@ -6,7 +6,6 @@
 #include "vm/Field.h"
 #include "vm/Liveness.h"
 #include "vm/Type.h"
-#include <cassert>
 #include "tabledefs.h"
 #include "class-internals.h"
 #include "object-internals.h"
@@ -183,7 +182,7 @@ void LivenessState::TraverseGCDescriptor (Il2CppObject* object, LivenessState* s
 	int i = 0;
 	size_t mask = (size_t)(GET_CLASS (object)->gc_desc);
 
-	assert (mask & (size_t)1);
+	IL2CPP_ASSERT(mask & (size_t)1);
 
 	for (i = 0; i < WORDSIZE - 2; i++)
 	{
@@ -201,11 +200,11 @@ void LivenessState::TraverseObjectInternal (Il2CppObject* object, bool isStruct,
 	FieldInfo *field;
 	Il2CppClass *p;
 
-	assert (object);
+	IL2CPP_ASSERT(object);
 
 	if (!klass->initialized)
 	{
-		assert (isStruct);
+		IL2CPP_ASSERT(isStruct);
 		return;
 	}
 	
@@ -230,7 +229,7 @@ void LivenessState::TraverseObjectInternal (Il2CppObject* object, bool isStruct,
 				offseted += field->offset;
 				if (Type::IsGenericInstance(field->type))
 				{
-					assert(field->type->data.generic_class->cached_class);
+					IL2CPP_ASSERT(field->type->data.generic_class->cached_class);
 					TraverseObjectInternal ((Il2CppObject*)offseted, true, field->type->data.generic_class->cached_class, state);
 				}
 				else
@@ -239,7 +238,7 @@ void LivenessState::TraverseObjectInternal (Il2CppObject* object, bool isStruct,
 			}
 
 			if (field->offset == THREAD_STATIC_FIELD_OFFSET) {
-				assert (0);
+				IL2CPP_ASSERT(0);
 			} else {
 				Il2CppObject* val = NULL;
 				Field::GetValue (object, field, &val);
@@ -258,11 +257,11 @@ void LivenessState::TraverseArray (Il2CppArray* array, LivenessState* state)
 	size_t elementClassSize;
 	size_t array_length;
 	
-	assert (object);
+	IL2CPP_ASSERT(object);
 	
 	element_class = GET_CLASS(object)->element_class;
 	has_references = !Class::IsValuetype (element_class);
-	assert(element_class->size_inited != 0);
+	IL2CPP_ASSERT(element_class->size_inited != 0);
 	
 	FieldInfo* field;
 	void* iter = NULL;
@@ -437,7 +436,7 @@ void Liveness::FromStatics (void* state)
 				offseted += field->offset;
 				if (Type::IsGenericInstance(field->type))
 				{
-					assert(field->type->data.generic_class->cached_class);
+					IL2CPP_ASSERT(field->type->data.generic_class->cached_class);
 					LivenessState::TraverseObjectInternal ((Il2CppObject*)offseted, true, field->type->data.generic_class->cached_class, liveness_state);
 				}
 				else

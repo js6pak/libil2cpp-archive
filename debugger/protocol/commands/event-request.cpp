@@ -24,14 +24,14 @@ void EventRequestSetCommand::ReadProperties(Buffer &in)
 			break;
 
 		case kModifierKindLocationOnly:
-			assert(method() == 0 && "Duplicated kModifierKindLocationOnly modifier!");
+			IL2CPP_ASSERT(method() == 0 && "Duplicated kModifierKindLocationOnly modifier!");
 
 			method.ReadFrom(in);
 			location.ReadFrom(in);
 			break;
 
 		case kModifierKindStep:
-			assert(thread() == 0 && "Duplicated kModifierKindStep modifier!");
+			IL2CPP_ASSERT(thread() == 0 && "Duplicated kModifierKindStep modifier!");
 
 			thread.ReadFrom(in);
 			size.ReadFrom(in);
@@ -39,7 +39,7 @@ void EventRequestSetCommand::ReadProperties(Buffer &in)
 			break;
 
 		case kModifierKindThreadOnly:
-			assert(modifier->data.thread == 0 && "Duplicated kModifierKindThreadOnly modifier!");
+			IL2CPP_ASSERT(modifier->data.thread == 0 && "Duplicated kModifierKindThreadOnly modifier!");
 
 			modifier->data.thread = in.ReadThread();
 			break;

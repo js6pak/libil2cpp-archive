@@ -157,7 +157,7 @@ static void AllocateMemoryForSection(void* context, void* sectionStart, void* se
 	ptrdiff_t sectionSize = static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart);
 
 	if (sizeof(void*) > 4) // This assert is only valid on 64-bit
-		assert(sectionSize <= static_cast<ptrdiff_t>(std::numeric_limits<uint32_t>::max()));
+		IL2CPP_ASSERT(sectionSize <= static_cast<ptrdiff_t>(std::numeric_limits<uint32_t>::max()));
 
 	section.sectionSize = static_cast<uint32_t>(sectionSize);
 	section.sectionBytes = static_cast<uint8_t*>(IL2CPP_MALLOC(section.sectionSize));
@@ -170,8 +170,8 @@ static void CopyHeapSection(void* context, void* sectionStart, void* sectionEnd)
 	SectionIterationContext* ctx = static_cast<SectionIterationContext*>(context);
 	Il2CppManagedMemorySection& section = *ctx->currentSection;
 
-	assert(section.sectionStartAddress == reinterpret_cast<uint64_t>(sectionStart));
-	assert(section.sectionSize == static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart));
+	IL2CPP_ASSERT(section.sectionStartAddress == reinterpret_cast<uint64_t>(sectionStart));
+	IL2CPP_ASSERT(section.sectionSize == static_cast<uint8_t*>(sectionEnd) - static_cast<uint8_t*>(sectionStart));
 	memcpy(section.sectionBytes, sectionStart, section.sectionSize);
 
 	ctx->currentSection++;

@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include "class-internals.h"
 #include "Il2CppTypeCompare.h"
-#include <cassert>
 
 namespace il2cpp
 {

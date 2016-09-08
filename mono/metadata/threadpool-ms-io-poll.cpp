@@ -1,6 +1,5 @@
 #if NET_4_0
 #include <mono/metadata/threadpool-ms-io-poll.h>
-#include <cassert>
 #include "vm/Thread.h"
 #include "vm/ThreadPool.h"
 #include "os/Socket.h"
@@ -22,7 +21,7 @@ POLL_INIT_FD (il2cpp::os::PollRequest *poll_fd, int fd, il2cpp::os::PollFlags ev
 
 bool poll_init (int wakeup_pipe_fd)
 {
-	assert (wakeup_pipe_fd >= 0);
+	IL2CPP_ASSERT(wakeup_pipe_fd >= 0);
 
 	poll_fds_size = 1;
 	poll_fds_capacity = 64;
@@ -39,10 +38,10 @@ void poll_register_fd (int fd, int events, bool is_new)
 	unsigned int i;
 	il2cpp::os::PollFlags poll_event;
 
-	assert (fd >= 0);
-	assert (poll_fds_size <= poll_fds_capacity);
+	IL2CPP_ASSERT(fd >= 0);
+	IL2CPP_ASSERT(poll_fds_size <= poll_fds_capacity);
 
-	assert ((events & ~(EVENT_IN | EVENT_OUT)) == 0);
+	IL2CPP_ASSERT((events & ~(EVENT_IN | EVENT_OUT)) == 0);
 
 	poll_event = il2cpp::os::kPollFlagsNone;
 	if (events & EVENT_IN)
@@ -52,13 +51,13 @@ void poll_register_fd (int fd, int events, bool is_new)
 
 	for (i = 0; i < poll_fds_size; ++i) {
 		if ((*poll_fds) [i].fd == fd) {
-			assert (!is_new);
+			IL2CPP_ASSERT(!is_new);
 			POLL_INIT_FD (&(*poll_fds) [i], fd, poll_event);
 			return;
 		}
 	}
 
-	assert (is_new);
+	IL2CPP_ASSERT(is_new);
 
 	for (i = 0; i < poll_fds_size; ++i) {
 		if ((*poll_fds) [i].fd == -1) {
@@ -71,7 +70,7 @@ void poll_register_fd (int fd, int events, bool is_new)
 
 	if (poll_fds_size > poll_fds_capacity) {
 		poll_fds_capacity *= 2;
-		assert (poll_fds_size <= poll_fds_capacity);
+		IL2CPP_ASSERT(poll_fds_size <= poll_fds_capacity);
 
 		poll_fds->reserve(poll_fds_capacity);
 	}
@@ -83,7 +82,7 @@ void poll_remove_fd (int fd)
 {
 	unsigned int i;
 
-	assert (fd >= 0);
+	IL2CPP_ASSERT(fd >= 0);
 
 	for (i = 0; i < poll_fds_size; ++i) {
 		if ((*poll_fds) [i].fd == fd) {
@@ -94,12 +93,12 @@ void poll_remove_fd (int fd)
 
 	/* if we don't find the fd in poll_fds,
 	 * it means we try to delete it twice */
-	assert (i < poll_fds_size);
+	IL2CPP_ASSERT(i < poll_fds_size);
 
 	/* if we find it again, it means we added
 	 * it twice */
 	for (; i < poll_fds_size; ++i)
-		assert ((*poll_fds) [i].fd != fd);
+		IL2CPP_ASSERT((*poll_fds) [i].fd != fd);
 
 	/* reduce the value of poll_fds_size so we
 	 * do not keep it too big */
@@ -180,7 +179,7 @@ int poll_event_wait (void (*callback) (int fd, int events, void* user_data), voi
 	if (ready == 0)
 		return 0;
 
-	assert (ready > 0);
+	IL2CPP_ASSERT(ready > 0);
 
 	for (i = 0; i < poll_fds_size; ++i) {
 		int fd, events = 0;

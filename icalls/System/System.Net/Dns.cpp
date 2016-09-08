@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/System/System.Net/Dns.h"
 
 #include "class-internals.h"

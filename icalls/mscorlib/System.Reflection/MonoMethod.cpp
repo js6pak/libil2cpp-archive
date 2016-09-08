@@ -1,10 +1,8 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
-#include <cassert>
 #include <string>
 #include <sstream>
 #include "icalls/mscorlib/System.Reflection/MonoMethod.h"
-#include <cassert>
 #include "tabledefs.h"
 #include "class-internals.h"
 #include "metadata/Il2CppTypeVector.h"
@@ -112,7 +110,7 @@ mscorlib_System_Runtime_InteropServices_DllImportAttribute * MonoMethod::GetDllI
 	//up calling this function. For now, we will just return an attribute, but not yet populate it with the correct data.
 
 	Il2CppClass* typeInfo = Class::FromName(il2cpp_defaults.corlib, "System.Runtime.InteropServices", "DllImportAttribute");
-	assert(typeInfo != NULL);
+	IL2CPP_ASSERT(typeInfo != NULL);
 
 	return (mscorlib_System_Runtime_InteropServices_DllImportAttribute*)il2cpp::vm::Object::New(typeInfo);
 }
@@ -138,7 +136,7 @@ Il2CppArray* MonoMethod::GetGenericArguments (Il2CppReflectionMethod* method)
 		}
 
 		// method is inflated because it's owner is a generic instance type, extract method definition out of the method
-		assert (methodInfo->is_generic);
+		IL2CPP_ASSERT(methodInfo->is_generic);
 		methodInfo = methodInfo->genericMethod->methodDefinition;
 	}
 
@@ -182,7 +180,7 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 
 			if (!Object::IsInst(thisPtr, m->declaring_type))
 			{
-				assert(0);
+				IL2CPP_ASSERT(0);
 				//mono_gc_wbarrier_generic_store (exc, (MonoObject*) mono_exception_from_name_msg (mono_defaults.corlib, "System.Reflection", "TargetException", "Object does not match target type."));
 				return NULL;
 			}
@@ -200,7 +198,7 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 
 	pcount = params? il2cpp::vm::Array::GetLength (params): 0;
 	if (pcount != m->parameters_count) {
-		assert (0);
+		IL2CPP_ASSERT(0);
 		//mono_gc_wbarrier_generic_store (exc, (MonoObject*) mono_exception_from_name (mono_defaults.corlib, "System.Reflection", "TargetParameterCountException"));
 		return NULL;
 	}
@@ -224,7 +222,7 @@ Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2Cp
 			/* Only lengths provided. */
 			lower_bounds = NULL;
 		} else {
-			assert (pcount == (m->declaring_type->rank * 2));
+			IL2CPP_ASSERT(pcount == (m->declaring_type->rank * 2));
 			/* lower bounds are first. */
 			lower_bounds = lengths;
 			lengths += m->declaring_type->rank;
@@ -308,14 +306,14 @@ Il2CppReflectionMethod* MonoMethod::GetGenericMethodDefinition_impl (Il2CppRefle
 		return NULL;
 
 	const MethodInfo* methodDefinition = MetadataCache::GetGenericMethodDefinition(method->method);
-	assert (methodDefinition);
+	IL2CPP_ASSERT(methodDefinition);
 
 	if (!methodDefinition->is_generic)
 		return NULL;
 
 
 	const Il2CppGenericContext* methodContext = MetadataCache::GetMethodGenericContext(method->method);
-	assert (methodContext);
+	IL2CPP_ASSERT(methodContext);
 
 	if (methodContext->class_inst)
 	{
@@ -367,7 +365,7 @@ Il2CppReflectionMethod* MonoMethod::get_base_method(Il2CppReflectionMethod* meth
 	{
 		if (!klass->parent)
 		{
-			assert(klass == il2cpp_defaults.object_class);
+			IL2CPP_ASSERT(klass == il2cpp_defaults.object_class);
 			return method;
 		}
 

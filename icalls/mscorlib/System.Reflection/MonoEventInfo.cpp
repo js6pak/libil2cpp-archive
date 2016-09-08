@@ -7,7 +7,6 @@
 #include "vm/Class.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
-#include <cassert>
 
 namespace il2cpp
 {

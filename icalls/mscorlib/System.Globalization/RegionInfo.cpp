@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/mscorlib/System.Globalization/RegionInfo.h"
 #include "vm/Exception.h"
 

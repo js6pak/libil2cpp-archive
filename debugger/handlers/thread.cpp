@@ -57,7 +57,7 @@ const Reply *Agent::Process(const ThreadGetFrameInfoCommand *command)
 	// complete.
 	// if(IsSuspending()) WaitForSuspend();
 
-	assert(IsSuspended() && "`ThreadGetFrameInfoCommand` can only be invoked with the VM suspended or suspending.");
+	IL2CPP_ASSERT(IsSuspended() && "`ThreadGetFrameInfoCommand` can only be invoked with the VM suspended or suspending.");
 
 	ThreadData *data = _thread_data.ThreadDataFor(command->thread());
 	data->UpdateFramesCacheIfNeeded();
@@ -86,7 +86,7 @@ const Reply *Agent::Process(const ThreadGetStateCommand *command)
 {
 	LOG("warning: `ThreadGetStateCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

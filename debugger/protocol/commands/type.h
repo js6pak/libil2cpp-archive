@@ -198,7 +198,7 @@ struct TypeIsAssignableFromCommand : public CustomCommand<TypeIsAssignableFromCo
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented!");
+			IL2CPP_ASSERT(0 && "Not implemented!");
 		}
 	};
 
@@ -330,7 +330,7 @@ struct TypeSetValuesCommand : public CustomCommand<TypeSetValuesCommand>
 	{
 		void WriteContentTo(Buffer &out) const
 		{
-			assert(0 && "Not implemented!");
+			IL2CPP_ASSERT(0 && "Not implemented!");
 		}
 	};
 

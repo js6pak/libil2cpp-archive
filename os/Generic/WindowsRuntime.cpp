@@ -14,8 +14,8 @@ il2cpp_hresult_t WindowsRuntime::GetActivationFactory(Il2CppHString className, I
 {
 	NO_UNUSED_WARNING(className);
 	NO_UNUSED_WARNING(activationFactory);
-	assert(className != NULL);
-	assert(activationFactory != NULL);
+	IL2CPP_ASSERT(className != NULL);
+	IL2CPP_ASSERT(activationFactory != NULL);
 	return IL2CPP_REGDB_E_CLASSNOTREG;
 }
 
@@ -24,8 +24,8 @@ il2cpp_hresult_t WindowsRuntime::CreateHStringReference(const utils::StringView<
 	NO_UNUSED_WARNING(str);
 	NO_UNUSED_WARNING(header);
 	NO_UNUSED_WARNING(hstring);
-	assert(header != NULL);
-	assert(hstring != NULL);
+	IL2CPP_ASSERT(header != NULL);
+	IL2CPP_ASSERT(hstring != NULL);
 	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 

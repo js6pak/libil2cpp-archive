@@ -5,7 +5,6 @@
 #include "EventImpl.h"
 #include "PosixHelpers.h"
 #include <errno.h>
-#include <cassert>
 
 namespace il2cpp
 {

@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/MonoGenericClass.h"
-#include <cassert>
 
 namespace il2cpp
 {

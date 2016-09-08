@@ -28,7 +28,7 @@ Il2CppIManagedObjectHolder* CCW::CreateCCW(Il2CppObject* obj)
 	if (index != kMethodIndexInvalid)
 	{
 		const CreateCCWFunc createCcw = reinterpret_cast<CreateCCWFunc>(MetadataCache::GetCreateCcwFuncFromIndex(index));
-		assert(createCcw);
+		IL2CPP_ASSERT(createCcw);
 		return createCcw(obj);
 	}
 

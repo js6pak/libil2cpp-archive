@@ -15,7 +15,6 @@
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "utils/Il2CppHashMap.h"
-#include <cassert>
 #include "class-internals.h"
 #include "metadata.h"
 #include <sstream>
@@ -51,7 +50,7 @@ const MethodInfo* GenericMethod::GetMethod (const Il2CppGenericMethod* gmethod)
 	Il2CppClass* declaringClass = methodDefinition->declaring_type;
 	if (gmethod->context.class_inst)
 	{
-		assert (!declaringClass->generic_class);
+		IL2CPP_ASSERT(!declaringClass->generic_class);
 		Il2CppGenericClass* genericClassDeclaringType = GenericMetadata::GetGenericClass (methodDefinition->declaring_type, gmethod->context.class_inst);
 		declaringClass = GenericClass::GetClass (genericClassDeclaringType);
 

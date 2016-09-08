@@ -2,7 +2,6 @@
 
 #if IL2CPP_TARGET_POSIX
 
-#include <cassert>
 #include <cerrno>
 #include <ctime>
 
@@ -212,7 +211,7 @@ WaitStatus PosixWaitObject::Wait (uint32_t timeoutMS, bool interruptible)
 	// the object.
 
 	// Object has been released. Acquire it for this thread.
-	assert (m_Count > 0);
+	IL2CPP_ASSERT(m_Count > 0);
 	switch (m_Type)
 	{
 		case kManualResetEvent:

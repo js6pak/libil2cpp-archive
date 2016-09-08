@@ -44,15 +44,15 @@ static void AddFileHandle (FileHandle *fileHandle)
 
 	if (s_fileHandleHead == NULL)
 	{
-		assert(s_fileHandleTail == NULL);
+		IL2CPP_ASSERT(s_fileHandleTail == NULL);
 
 		s_fileHandleHead = fileHandle;
 		s_fileHandleTail = fileHandle;
 	}
 	else
 	{
-		assert(s_fileHandleTail != NULL);
-		assert(s_fileHandleTail->next == NULL);
+		IL2CPP_ASSERT(s_fileHandleTail != NULL);
+		IL2CPP_ASSERT(s_fileHandleTail->next == NULL);
 
 		s_fileHandleTail->next = fileHandle;
 		fileHandle->prev = s_fileHandleTail;
@@ -234,7 +234,7 @@ static bool InternalCopyFile(int srcFd, int destFd, const struct stat& srcStat, 
 		return false;
 	}
 
-	assert(readBytes == 0);
+	IL2CPP_ASSERT(readBytes == 0);
 
 	return true;
 }

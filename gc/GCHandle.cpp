@@ -4,7 +4,6 @@
 #include "GarbageCollector.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
-#include <cassert>
 #include <memory>
 
 namespace il2cpp
@@ -276,7 +275,7 @@ int32_t GCHandle::GetTargetHandle (Il2CppObject * obj, int32_t handle, int32_t t
 	case HANDLE_PINNED:
 		return New (obj, true);
 	default:
-		assert (0);
+		IL2CPP_ASSERT(0);
 	}
 	return 0;
 }

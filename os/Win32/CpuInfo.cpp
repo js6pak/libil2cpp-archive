@@ -6,7 +6,6 @@
 
 #include "os/CpuInfo.h"
 #include "utils/Memory.h"
-#include <cassert>
 
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>

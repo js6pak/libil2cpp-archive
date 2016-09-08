@@ -17,7 +17,7 @@ Il2CppClass* GenericContainer::GetDeclaringType (const Il2CppGenericContainer* g
 
 const Il2CppGenericParameter* GenericContainer::GetGenericParameter (const Il2CppGenericContainer* genericContainer, uint16_t index)
 {
-	assert (index < genericContainer->type_argc);
+	IL2CPP_ASSERT(index < genericContainer->type_argc);
 	return MetadataCache::GetGenericParameterFromIndex (genericContainer->genericParameterStart + index);
 }
 

@@ -35,11 +35,11 @@ const Reply *Agent::Process(const StackFrameGetValuesCommand *command)
 {
 	ThreadData *data = _thread_data.ThreadDataFor(command->thread());
 	
-	assert(data->IsFramesCacheValid() && "ThreadData frames cache is invalid when invoking StackFrameGetValuesCommand");
+	IL2CPP_ASSERT(data->IsFramesCacheValid() && "ThreadData frames cache is invalid when invoking StackFrameGetValuesCommand");
 
 	const Il2CppStackFrameInfo *frame = data->FrameById(command->frame_id());
 
-	assert(frame != NULL && "Couldn't find a stack frame with the given ID.");
+	IL2CPP_ASSERT(frame != NULL && "Couldn't find a stack frame with the given ID.");
 
 	const MethodInfo *method = frame->method;
 
@@ -57,13 +57,13 @@ const Reply *Agent::Process(const StackFrameGetValuesCommand *command)
 		{
 			pos = - pos - 1;
 
-			assert(pos < frame->method->parameters_count && "StackFrameGetValuesCommand was invoked with an outside of range param position");
+			IL2CPP_ASSERT(pos < frame->method->parameters_count && "StackFrameGetValuesCommand was invoked with an outside of range param position");
 
 			type = frame->method->parameters[pos].parameter_type;
 			addr = frame->params[pos];
 		} else
 		{
-			assert(pos < (int32_t)frame->locals_count && "StackFrameGetValuesCommand was invoked with an outside of range local position");
+			IL2CPP_ASSERT(pos < (int32_t)frame->locals_count && "StackFrameGetValuesCommand was invoked with an outside of range local position");
 
 			type = frame->method->debug_info->locals[pos]->type->byval_arg;
 			addr = frame->locals[pos];
@@ -81,11 +81,11 @@ const Reply *Agent::Process(const StackFrameSetValuesCommand *command)
 {
 	ThreadData *data = _thread_data.ThreadDataFor(command->thread());
 	
-	assert(data->IsFramesCacheValid() && "ThreadData frames cache is invalid when invoking StackFrameSetValuesCommand");
+	IL2CPP_ASSERT(data->IsFramesCacheValid() && "ThreadData frames cache is invalid when invoking StackFrameSetValuesCommand");
 	
 	const Il2CppStackFrameInfo *frame = data->FrameById(command->frame_id());
 
-	assert(frame != NULL && "Couldn't find a stack frame with the given ID.");
+	IL2CPP_ASSERT(frame != NULL && "Couldn't find a stack frame with the given ID.");
 
 	const MethodInfo *method = frame->method;
 	const int32_t count = command->values_count();
@@ -104,13 +104,13 @@ const Reply *Agent::Process(const StackFrameSetValuesCommand *command)
 		{
 			pos = - pos - 1;
 
-			assert(pos < frame->method->parameters_count && "StackFrameSetValuesCommand was invoked with an outside of range param position");
+			IL2CPP_ASSERT(pos < frame->method->parameters_count && "StackFrameSetValuesCommand was invoked with an outside of range param position");
 
 			expected_type = frame->method->parameters[pos].parameter_type;
 			addr = frame->params[pos];
 		} else
 		{
-			assert(pos < (int32_t)frame->locals_count && "StackFrameSetValuesCommand was invoked with an outside of range local position");
+			IL2CPP_ASSERT(pos < (int32_t)frame->locals_count && "StackFrameSetValuesCommand was invoked with an outside of range local position");
 
 			expected_type = frame->method->debug_info->locals[pos]->type->byval_arg;
 			addr = frame->locals[pos];
@@ -126,11 +126,11 @@ const Reply *Agent::Process(const StackFrameGetThisCommand *command)
 {
 	ThreadData *data = _thread_data.ThreadDataFor(command->thread());
 	
-	assert(data->IsFramesCacheValid() && "ThreadData frames cache is invalid when invoking StackFrameGetThis");
+	IL2CPP_ASSERT(data->IsFramesCacheValid() && "ThreadData frames cache is invalid when invoking StackFrameGetThis");
 	
 	const Il2CppStackFrameInfo *frame = data->FrameById(command->frame_id());
 
-	assert(frame != NULL && "Couldn't find a stack frame with the given ID.");
+	IL2CPP_ASSERT(frame != NULL && "Couldn't find a stack frame with the given ID.");
 
 	const MethodInfo *method = frame->method;
 
