@@ -14,9 +14,6 @@
 #include "SocketImplPlatformConfig.h"
 #endif
 
-
-#include <cassert>
-
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -664,9 +661,9 @@ WaitStatus SocketImpl::Create (AddressFamily family, SocketType type, ProtocolTy
 	_type = convert_socket_type (type);
 	_protocol = convert_socket_protocol (protocol);
 
-	assert (_type != -1 && "Unsupported socket type");
-	assert (_domain != -1 && "Unsupported address family");
-	assert (_protocol != -1 && "Unsupported protocol type");
+	IL2CPP_ASSERT(_type != -1 && "Unsupported socket type");
+	IL2CPP_ASSERT(_domain != -1 && "Unsupported address family");
+	IL2CPP_ASSERT(_protocol != -1 && "Unsupported protocol type");
 
 	_fd = socket (_domain, _type, _protocol);
 	if (_fd == -1 && _domain == AF_INET && _type == SOCK_RAW && _protocol == 0)
@@ -742,9 +739,9 @@ WaitStatus SocketImpl::Create (SocketDescriptor fd, int32_t family, int32_t type
 	_type = type;
 	_protocol = protocol;
 
-	assert (_type != -1 && "Unsupported socket type");
-	assert (_domain != -1 && "Unsupported address family");
-	assert (_protocol != -1 && "Unsupported protocol type");
+	IL2CPP_ASSERT(_type != -1 && "Unsupported socket type");
+	IL2CPP_ASSERT(_domain != -1 && "Unsupported address family");
+	IL2CPP_ASSERT(_protocol != -1 && "Unsupported protocol type");
 
 	return kWaitStatusSuccess;
 }
@@ -1597,7 +1594,7 @@ WaitStatus SocketImpl::Available (int32_t *amount)
 
 WaitStatus SocketImpl::Ioctl (int32_t command, const uint8_t *in_data, int32_t in_len, uint8_t *out_data, int32_t out_len, int32_t *written)
 {
-	assert (command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
+	IL2CPP_ASSERT(command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
 
 	uint8_t *buffer = NULL;
 

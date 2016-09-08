@@ -68,7 +68,7 @@ const Reply *Agent::Process(const ArrayRefSetValuesCommand *command)
 {
 	LOG("warning: `ArrayRefSetValuesCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

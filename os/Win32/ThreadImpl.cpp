@@ -6,7 +6,6 @@
 #include "vm/Exception.h"
 #include "os/Time.h"
 #include "WindowsHelpers.h"
-#include <cassert>
 
 using namespace il2cpp::vm;
 
@@ -85,7 +84,7 @@ void ThreadImpl::SetPriority (ThreadPriority priority)
 	else
 	{
 		int ret = ::SetThreadPriority(m_ThreadHandle, priority - 2);
-		assert(ret);
+		IL2CPP_ASSERT(ret);
 	}
 }
 
@@ -94,7 +93,7 @@ ThreadPriority ThreadImpl::GetPriority()
 	if (m_ThreadHandle == NULL)
 		return m_Priority;
 	int ret = ::GetThreadPriority(m_ThreadHandle) + 2;
-	assert(ret != THREAD_PRIORITY_ERROR_RETURN);
+	IL2CPP_ASSERT(ret != THREAD_PRIORITY_ERROR_RETURN);
 	return (ThreadPriority)ret;
 }
 
@@ -165,7 +164,7 @@ namespace
 		const HRESULT hr = coGetApartmentType(&type, &qualifier);
 		if (FAILED(hr))
 		{
-			assert(CO_E_NOTINITIALIZED == hr);
+			IL2CPP_ASSERT(CO_E_NOTINITIALIZED == hr);
 			return kApartmentStateUnknown;
 		}
 
@@ -196,7 +195,7 @@ namespace
 			break;
 		}
 
-		assert(0 && "CoGetApartmentType returned unexpected value.");
+		IL2CPP_ASSERT(0 && "CoGetApartmentType returned unexpected value.");
 		return kApartmentStateUnknown;
 	}
 
@@ -331,7 +330,7 @@ ApartmentState ThreadImpl::SetApartment(ApartmentState state)
 	if (state == kApartmentStateInSTA)
 	{
 		// Only assert in debug.. we wouldn't want to bring down the application in Release config
-		assert(false && "STA apartment state is not supported on Xbox One");
+		IL2CPP_ASSERT(false && "STA apartment state is not supported on Xbox One");
 		state = kApartmentStateInMTA;
 	}
 #endif
@@ -377,6 +376,15 @@ ThreadImpl* ThreadImpl::CreateForCurrentThread ()
 	thread->m_ThreadId = ::GetCurrentThreadId();
 	return thread;
 }
+
+#if NET_4_0
+
+bool ThreadImpl::YieldInternal()
+{
+	return SwitchToThread();
+}
+
+#endif
 
 }
 }

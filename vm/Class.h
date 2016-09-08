@@ -90,34 +90,16 @@ public:
 	static const char *GetAssemblyName (const Il2CppClass *klass);
 
 public:
-	//internal
-	static inline int32_t GetInterfaceOffset(Il2CppClass *klass, Il2CppClass *itf, bool throwIfNotFound)
-	{
-		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
-		{
-			if (klass->interfaceOffsets[i].interfaceType == itf)
-			{
-				int32_t offset = klass->interfaceOffsets[i].offset;
-				assert(offset != -1);
-				return offset;
-			}
-		}
-
-		if (throwIfNotFound)
-			RaiseExecutionEngineException(klass, itf);
-
-		return -1;
-	}
 
 #if NET_4_0
-	static inline int32_t GetInterfaceOffsetGeneric(Il2CppClass *klass, Il2CppClass *itf)
+	static inline int32_t GetInterfaceOffsetGeneric(Il2CppClass *klass, Il2CppClass *itf, bool throwIfNotFound)
 	{
 		TypeDefinitionIndex itfTypeDefinitionIndex = itf->generic_class->typeDefinitionIndex;
 		const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(itfTypeDefinitionIndex);
 		const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericInterface->genericContainerIndex);
 		const Il2CppGenericInst* interfaceGenericInst = itf->generic_class->context.class_inst;
 		int32_t genericParameterCount = genericContainer->type_argc;
-		assert(interfaceGenericInst->type_argc == genericParameterCount);
+		IL2CPP_ASSERT(interfaceGenericInst->type_argc == genericParameterCount);
 
 		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
 		{
@@ -127,7 +109,7 @@ public:
 				continue;
 
 			const Il2CppGenericInst* interfaceOnClassGenericInst = interfaceOnClass->generic_class->context.class_inst;
-			assert(interfaceOnClassGenericInst->type_argc == genericParameterCount);
+			IL2CPP_ASSERT(interfaceOnClassGenericInst->type_argc == genericParameterCount);
 
 			for (int32_t j = 0; j < genericParameterCount; j++)
 			{
@@ -159,9 +141,39 @@ public:
 			continue;
 		}
 
+		if (throwIfNotFound)
+			RaiseExecutionEngineException(klass, itf);
+
 		return -1;
 	}
 #endif
+
+	//internal
+	static inline int32_t GetInterfaceOffset(Il2CppClass *klass, Il2CppClass *itf, bool throwIfNotFound)
+	{
+		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
+		{
+			if (klass->interfaceOffsets[i].interfaceType == itf)
+			{
+				int32_t offset = klass->interfaceOffsets[i].offset;
+				IL2CPP_ASSERT(offset != -1);
+				return offset;
+			}
+		}
+
+#if NET_4_0
+		// If we get here and it's not a generic_class, we're screwed anyway,
+		// so might as well not check it in release builds to let compiler generate better code
+		IL2CPP_ASSERT(itf->generic_class != NULL);
+		return GetInterfaceOffsetGeneric(klass, itf, throwIfNotFound);
+#else
+
+		if (throwIfNotFound)
+			RaiseExecutionEngineException(klass, itf);
+
+		return -1;
+#endif
+	}
 
 	static bool Init (Il2CppClass *klass);
 

@@ -26,7 +26,6 @@
 #include "utils/StringUtils.h"
 
 #include <algorithm>
-#include <cassert>
 
 #define NUMBER_MAXDIGITS 50
 
@@ -267,14 +266,14 @@ static void CheckTable(uint64_t val, int exp, const void* table, int size, const
 			}
 			break;
 		default:
-			assert(false);
+			IL2CPP_ASSERT(false);
 			break;
 		}
 
 		exp += mulexp;
 		val = Mul64Precise(val, multval, &exp);
 	}
-	assert(!fBad || !"NumberToDouble table not correct. Correct version dumped to stderr.");
+	IL2CPP_ASSERT(!fBad || !"NumberToDouble table not correct. Correct version dumped to stderr.");
 }
 
 void CheckTables()
@@ -320,7 +319,7 @@ static void DecShiftLeft(Il2CppDecimal* value)
 {
 	unsigned int c0 = DECIMAL_LO32(*value) & 0x80000000 ? 1 : 0;
 	unsigned int c1 = DECIMAL_MID32(*value) & 0x80000000 ? 1 : 0;
-	assert(value != NULL);
+	IL2CPP_ASSERT(value != NULL);
 
 	DECIMAL_LO32(*value) <<= 1;
 	DECIMAL_MID32(*value) = DECIMAL_MID32(*value) << 1 | c0;
@@ -337,7 +336,7 @@ static int D32AddCarry(uint32_t* value, uint32_t i)
 
 static void DecAdd(Il2CppDecimal *value, Il2CppDecimal* d)
 {
-	assert(value != NULL && d != NULL);
+	IL2CPP_ASSERT(value != NULL && d != NULL);
 
 	if (D32AddCarry(&DECIMAL_LO32(*value), DECIMAL_LO32(*d)))
 	{
@@ -356,7 +355,7 @@ static void DecAdd(Il2CppDecimal *value, Il2CppDecimal* d)
 static void DecMul10(Il2CppDecimal* value)
 {
 	Il2CppDecimal d = *value;
-	assert(value != NULL);
+	IL2CPP_ASSERT(value != NULL);
 
 	DecShiftLeft(value);
 	DecShiftLeft(value);
@@ -366,7 +365,7 @@ static void DecMul10(Il2CppDecimal* value)
 
 static void DecAddInt32(Il2CppDecimal* value, unsigned int i)
 {
-	assert(value != NULL);
+	IL2CPP_ASSERT(value != NULL);
 
 	if (D32AddCarry(&DECIMAL_LO32(*value), i))
 	{
@@ -379,8 +378,8 @@ static void DecAddInt32(Il2CppDecimal* value, unsigned int i)
 
 bool Number::NumberBufferToDecimal(uint8_t* number, Il2CppDecimal* value)
 {
-	assert(number != NULL);
-	assert(value != NULL);
+	IL2CPP_ASSERT(number != NULL);
+	IL2CPP_ASSERT(value != NULL);
 
 	NUMBER* numberStruct = (NUMBER*)number;
 	Il2CppChar* p = numberStruct->digits;
@@ -392,7 +391,7 @@ bool Number::NumberBufferToDecimal(uint8_t* number, Il2CppDecimal* value)
 	DECIMAL_HI32(d) = 0;
 	DECIMAL_LO32(d) = 0;
 	DECIMAL_MID32(d) = 0;
-	assert(p != NULL);
+	IL2CPP_ASSERT(p != NULL);
 	if (!*p)
 	{
 		// To avoid risking an app-compat issue with pre 4.5 (where some app was illegally using Reflection to examine the internal scale bits), we'll only force
@@ -470,7 +469,7 @@ bool Number::NumberBufferToDecimal(uint8_t* number, Il2CppDecimal* value)
 //
 static inline unsigned DigitsToInt(Il2CppChar* p, int count)
 {
-	assert(1 <= count && count <= 9);
+	IL2CPP_ASSERT(1 <= count && count <= 9);
 	Il2CppChar* end = p + count;
 	unsigned res = *p - '0';
 

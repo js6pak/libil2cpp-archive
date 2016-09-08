@@ -13,9 +13,9 @@ namespace System
 
 bool CLRConfig::CheckThrowUnobservedTaskExceptions()
 {
-	NOT_IMPLEMENTED_ICALL(CLRConfig::CheckThrowUnobservedTaskExceptions);
-	IL2CPP_UNREACHABLE;
-	return NULL;
+	// TODO : Properly support this icall at some point.  This requires knowning that the ThrowUnobservedTaskExceptions=true flag was
+	// set in the app.config and return true here if it was
+	return false;
 }
 
 

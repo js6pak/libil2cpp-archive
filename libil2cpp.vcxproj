@@ -1127,6 +1127,7 @@
     <ClInclude Include="external\google\sparsehash\dense_hash_set.h" />
     <ClInclude Include="external\google\sparsehash\type_traits.h" />
     <ClInclude Include="gc\Allocator.h" />
+    <ClInclude Include="gc\AppendOnlyGCHashMap.h" />
     <ClInclude Include="gc\GarbageCollector.h" />
     <ClInclude Include="gc\GarbageCollectorImpl.h" />
     <ClInclude Include="gc\GCHandle.h" />
@@ -1702,6 +1703,7 @@
     <ClCompile Include="os\Win32\File.cpp" />
     <ClCompile Include="os\Posix\Locale.cpp" />
     <ClCompile Include="os\Win32\Image.cpp" />
+    <ClCompile Include="os\Win32\Initialize.cpp" />
     <ClCompile Include="os\Win32\LastError.cpp" />
     <ClCompile Include="os\Win32\LibraryLoader.cpp" />
     <ClCompile Include="os\Win32\Locale.cpp" />

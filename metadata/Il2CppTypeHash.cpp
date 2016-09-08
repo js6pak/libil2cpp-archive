@@ -3,7 +3,6 @@
 #include "Il2CppTypeHash.h"
 #include "utils/StringUtils.h"
 #include "utils/HashUtils.h"
-#include <cassert>
 
 using il2cpp::utils::HashUtils;
 using il2cpp::utils::StringUtils;

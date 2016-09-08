@@ -11,7 +11,7 @@ static inline void WriteToHandle(il2cpp::os::FileHandle* handle, const char* mes
 {
 	int error = il2cpp::os::kErrorCodeSuccess;
 	il2cpp::os::File::Write(handle, message, static_cast<int>(strlen(message)), &error);
-	assert(error == il2cpp::os::kErrorCodeSuccess);
+	IL2CPP_ASSERT(error == il2cpp::os::kErrorCodeSuccess);
 }
 
 void Output::WriteToStdout(const char* message)

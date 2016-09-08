@@ -1,7 +1,6 @@
 #ifdef NET_4_0
 #include "il2cpp-config.h"
 #include "CultureData.h"
-#include <cassert>
 #include "CultureInfoInternals.h"
 #include "CultureInfoTables.h"
 #include "il2cpp-api.h"
@@ -63,7 +62,7 @@ void CultureData::fill_culture_data(Il2CppCultureData* _this, int32_t datetimeIn
 {
 	const DateTimeFormatEntry *dfe;
 
-	assert(datetimeIndex >= 0);
+	IL2CPP_ASSERT(datetimeIndex >= 0);
 
 	dfe = &datetime_format_entries[datetimeIndex];
 	IL2CPP_OBJECT_SETREF(_this, AMDesignator, il2cpp_string_new(idx2string(dfe->am_designator)));
@@ -81,7 +80,7 @@ void CultureData::fill_number_data(Il2CppNumberFormatInfo* number, int32_t numbe
 {
 	const NumberFormatEntry *nfe;
 
-	assert(numberIndex >= 0);
+	IL2CPP_ASSERT(numberIndex >= 0);
 
 	nfe = &number_format_entries[numberIndex];
 

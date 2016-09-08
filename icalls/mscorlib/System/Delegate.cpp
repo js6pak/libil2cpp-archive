@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "icalls/mscorlib/System/Delegate.h"
 #include "vm/Class.h"
 #include "vm/Method.h"
@@ -23,7 +22,7 @@ Il2CppDelegate * Delegate::CreateDelegate_internal (Il2CppReflectionType *__type
 	Il2CppClass *delegate_class = il2cpp::vm::Class::FromIl2CppType(__type->type);
 	const MethodInfo *method = info->method;
 
-	assert(delegate_class->parent == il2cpp_defaults.multicastdelegate_class);
+	IL2CPP_ASSERT(delegate_class->parent == il2cpp_defaults.multicastdelegate_class);
 
 	//if (mono_security_get_mode () == MONO_SECURITY_MODE_CORE_CLR) {
 	//	if (!mono_security_core_clr_ensure_delegate_creation (method, throwOnBindFailure))
@@ -47,7 +46,7 @@ void Delegate::SetMulticastInvoke (Il2CppDelegate * delegate)
 #if NET_4_0
 Il2CppMulticastDelegate* Delegate::AllocDelegateLike_internal(Il2CppDelegate* d)
 {
-	assert(d->object.klass->parent == il2cpp_defaults.multicastdelegate_class);
+	IL2CPP_ASSERT(d->object.klass->parent == il2cpp_defaults.multicastdelegate_class);
 
 	Il2CppMulticastDelegate *ret = (Il2CppMulticastDelegate*)il2cpp::vm::Object::New(d->object.klass);
 

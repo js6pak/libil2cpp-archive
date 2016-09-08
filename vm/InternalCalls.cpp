@@ -2,7 +2,6 @@
 #include "vm/InternalCalls.h"
 #include "vm/Runtime.h"
 
-#include <cassert>
 #include <map>
 #include <string>
 
@@ -20,9 +19,9 @@ void InternalCalls::Add (const char* name, Il2CppMethodPointer method)
 
 	// TODO: Don't assert right now because Unity adds some icalls multiple times.
 	//if (res != icalls.end())
-	//	assert(0 && "Adding internal call twice!");
+	//	IL2CPP_ASSERT(0 && "Adding internal call twice!");
 
-	assert(method);
+	IL2CPP_ASSERT(method);
 
 	s_InternalCalls[name] = method;
 }

@@ -242,7 +242,7 @@ public:
 		m_ManagedObject(obj),
 		m_GCHandle(0)
 	{
-		assert(obj != NULL);
+		IL2CPP_ASSERT(obj != NULL);
 
 		il2cpp_hresult_t hr = COM::CreateFreeThreadedMarshaler(details::CastHelper<Il2CppIUnknown, MyChain>::Cast(this), &m_Marshal);
 		Exception::RaiseIfFailed(hr);
@@ -264,7 +264,7 @@ public:
 
 	virtual void STDCALL Destroy()
 	{
-		assert(m_RefCount == 0);
+		IL2CPP_ASSERT(m_RefCount == 0);
 
 		T* instance = static_cast<T*>(this);
 		instance->~T();
@@ -307,7 +307,7 @@ public:
 
 		if (refCount == 1)
 		{
-			assert(m_GCHandle == 0);
+			IL2CPP_ASSERT(m_GCHandle == 0);
 			m_GCHandle = gc::GCHandle::New(m_ManagedObject, false);
 		}
 
@@ -319,7 +319,7 @@ public:
 		const uint32_t count = Atomic::Decrement(&m_RefCount);
 		if (count == 0)
 		{
-			assert(m_GCHandle != 0);
+			IL2CPP_ASSERT(m_GCHandle != 0);
 			gc::GCHandle::Free(m_GCHandle);
 			m_GCHandle = 0;
 		}

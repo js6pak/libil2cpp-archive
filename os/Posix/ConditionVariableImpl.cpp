@@ -4,7 +4,6 @@
 
 #include "MutexImpl.h"
 #include "ConditionVariableImpl.h"
-#include <cassert>
 #include <time.h>
 #include <sys/time.h>
 

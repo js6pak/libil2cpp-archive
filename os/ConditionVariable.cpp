@@ -8,7 +8,6 @@
 #else
 #include "os/Posix/ConditionVariableImpl.h"
 #endif
-#include <cassert>
 
 
 namespace il2cpp

@@ -3,7 +3,6 @@
 #include "Il2CppTypeHash.h"
 #include "Il2CppSignatureHash.h"
 #include "utils/HashUtils.h"
-#include <cassert>
 
 using il2cpp::utils::HashUtils;
 

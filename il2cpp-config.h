@@ -135,6 +135,15 @@
 # define LIBIL2CPP_CODEGEN_API
 #endif
 
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
+#include <crtdbg.h>
+#define IL2CPP_ASSERT(expr) \
+	_ASSERTE(expr)
+#else
+#define IL2CPP_ASSERT(expr) \
+	assert(expr)
+#endif
+
 #if defined(__ARMCC_VERSION)
 	#include <assert.h>
 	#include <wchar.h>
@@ -244,7 +253,7 @@
 
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \
-	assert ((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
+	IL2CPP_ASSERT((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
 
 // 64-bit types are aligned to 8 bytes on 64-bit platforms and always on Windows
 #define IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT ((IL2CPP_SIZEOF_VOID_P == 8) || (IL2CPP_TARGET_WINDOWS))
@@ -355,13 +364,13 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define NOT_IMPLEMENTED_ICALL(func) \
 	PRAGMA_MESSAGE(ICALLMESSAGE(#func)) \
-	assert(0 && #func)
+	IL2CPP_ASSERT(0 && #func)
 #define NOT_IMPLEMENTED_ICALL_NO_ASSERT(func,reason) \
 	PRAGMA_MESSAGE(ICALLMESSAGE(#func))
 
 #define NOT_IMPLEMENTED(func) \
 	PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func)) \
-	assert(0 && #func)
+	IL2CPP_ASSERT(0 && #func)
 #define NOT_IMPLEMENTED_NO_ASSERT(func,reason) \
 	PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func))
 
@@ -455,7 +464,7 @@ struct Il2CppStaticAssertHelper<true>
 {
 };
 
-#define Assert(x) do { (void)(x); assert(x); } while (false)
+#define Assert(x) do { (void)(x); IL2CPP_ASSERT(x); } while (false)
 #define Il2CppStaticAssert(...) do { Il2CppStaticAssertHelper<(__VA_ARGS__)>(); } while (false)
 
 const int32_t kIl2CppInt32Min = INT32_MIN;

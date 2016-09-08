@@ -22,7 +22,6 @@
 #include <sstream>
 #include <string>
 #include <sstream>
-#include <cassert>
 #include <deque>
 
 using namespace il2cpp::vm;

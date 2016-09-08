@@ -1,7 +1,6 @@
 #include "LibraryLoader.h"
 #include "os/LibraryLoader.h"
 #include "utils/StringUtils.h"
-#include <cassert>
 
 namespace il2cpp
 {
@@ -29,7 +28,7 @@ void* LibraryLoader::LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar> nat
 
 void LibraryLoader::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
 {
-	assert(method == NULL || s_FindPluginCallback == NULL);
+	IL2CPP_ASSERT(method == NULL || s_FindPluginCallback == NULL);
 	s_FindPluginCallback = method;
 }
 

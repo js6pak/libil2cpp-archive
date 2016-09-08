@@ -1,8 +1,6 @@
 #include "il2cpp-config.h"
 #include "object-internals.h"
 
-#include <cassert>
-
 #include "icalls/mscorlib/System.Reflection/AssemblyName.h"
 #include "vm/Array.h"
 #include "vm/Class.h"

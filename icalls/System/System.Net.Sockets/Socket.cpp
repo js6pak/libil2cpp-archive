@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/System/System.Net.Sockets/Socket.h"
 
 #include "class-internals.h"
@@ -280,7 +278,7 @@ static bool check_thread_status ()
 	
 	if (state & vm::kThreadStateSuspendRequested)
 	{
-		assert (0 && "kThreadStateSuspendRequested not supported yet!");
+		IL2CPP_ASSERT(0 && "kThreadStateSuspendRequested not supported yet!");
 		return true;
 	}
 	
@@ -289,7 +287,7 @@ static bool check_thread_status ()
 	
 	if (current_thread->GetInternalThread()->interruption_requested)
 	{
-		assert (0 && "thread->interruption_requested not supported yet!");
+		IL2CPP_ASSERT(0 && "thread->interruption_requested not supported yet!");
 		return false;
 	}
 	

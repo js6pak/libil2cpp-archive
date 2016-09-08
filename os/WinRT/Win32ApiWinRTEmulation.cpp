@@ -88,7 +88,7 @@ LPWCH WINAPI GetEnvironmentStringsW()
 	}
 
 	result[index++] = '\0';
-	assert(index == length);
+	IL2CPP_ASSERT(index == length);
 	return result;
 }
 

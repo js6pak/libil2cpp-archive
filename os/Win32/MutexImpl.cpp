@@ -4,7 +4,6 @@
 
 #include "MutexImpl.h"
 #include "WindowsHelpers.h"
-#include <cassert>
 
 // Can't use critical sections as they don't allow for interruption by APCs.
 
@@ -16,12 +15,12 @@ namespace os
 MutexImpl::MutexImpl ()
 {
 	m_MutexHandle = ::CreateMutex (NULL, FALSE, NULL);
-	assert (m_MutexHandle);
+	IL2CPP_ASSERT(m_MutexHandle);
 }
 
 MutexImpl::~MutexImpl ()
 {
-	assert (m_MutexHandle);
+	IL2CPP_ASSERT(m_MutexHandle);
 	::CloseHandle (m_MutexHandle);
 }
 

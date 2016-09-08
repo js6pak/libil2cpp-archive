@@ -27,8 +27,8 @@ FunctionType ResolveAPI(const wchar_t* moduleName, const char* functionName)
 
 il2cpp_hresult_t WindowsRuntime::GetActivationFactory(Il2CppHString className, Il2CppIActivationFactory** activationFactory)
 {
-	assert(className != NULL);
-	assert(activationFactory != NULL);
+	IL2CPP_ASSERT(className != NULL);
+	IL2CPP_ASSERT(activationFactory != NULL);
 
 #if LINK_TO_WINDOWSRUNTIME_LIBS
 	return RoGetActivationFactory(reinterpret_cast<HSTRING>(className), reinterpret_cast<const IID&>(Il2CppIActivationFactory::IID), reinterpret_cast<void**>(activationFactory));
@@ -50,8 +50,8 @@ il2cpp_hresult_t WindowsRuntime::GetActivationFactory(Il2CppHString className, I
 
 il2cpp_hresult_t WindowsRuntime::CreateHStringReference(const utils::StringView<Il2CppNativeChar>& str, Il2CppHStringHeader* header, Il2CppHString* hstring)
 {
-	assert(header != NULL);
-	assert(hstring != NULL);
+	IL2CPP_ASSERT(header != NULL);
+	IL2CPP_ASSERT(hstring != NULL);
 
 	if (str.Length() == 0)
 	{
@@ -79,7 +79,7 @@ il2cpp_hresult_t WindowsRuntime::CreateHStringReference(const utils::StringView<
 
 il2cpp_hresult_t WindowsRuntime::CreateHString(const utils::StringView<Il2CppChar>& str, Il2CppHString* hstring)
 {
-	assert(str.Str() != NULL || str.Length() == 0);
+	IL2CPP_ASSERT(str.Str() != NULL || str.Length() == 0);
 
 	if (str.Length() == 0)
 	{

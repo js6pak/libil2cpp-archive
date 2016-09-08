@@ -38,7 +38,7 @@ const Reply *Agent::Process(const ObjectRefIsCollectedCommand *command)
 {
 	LOG("warning: `ObjectRefIsCollectedCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }
@@ -47,7 +47,7 @@ const Reply *Agent::Process(const ObjectRefSetValuesCommand *command)
 {
 	LOG("warning: `ObjectRefSetValuesCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }
@@ -56,7 +56,7 @@ const Reply *Agent::Process(const ObjectRefGetAddressCommand *command)
 {
 	LOG("warning: `ObjectRefGetAddressCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }
@@ -65,7 +65,7 @@ const Reply *Agent::Process(const ObjectRefGetValuesCommand *command)
 {
 	LOG("warning: `ObjectRefGetValuesCommand` not implemented. Returning a `NotImplemented` reply!");
 
-	assert(0);
+	IL2CPP_ASSERT(0);
 
 	return new InternalErrorNotImplementedReply(command);
 }

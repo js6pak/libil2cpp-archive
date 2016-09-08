@@ -11,8 +11,6 @@
 #else
 #include "os/MutexImpl.h"
 #endif
-#include <cassert>
-
 
 namespace il2cpp
 {

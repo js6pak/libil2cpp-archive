@@ -2,7 +2,6 @@
 
 #if IL2CPP_THREADS_PTHREAD
 
-#include <cassert>
 #include "MutexImpl.h"
 #include "PosixHelpers.h"
 #include "os/Thread.h"
@@ -31,7 +30,7 @@ bool MutexImpl::TryLock (uint32_t milliseconds, bool interruptible)
 	Thread* currentThread = Thread::GetCurrentThread ();
 	if (m_OwningThread == currentThread)
 	{
-		assert (m_Count == 0);
+		IL2CPP_ASSERT(m_Count == 0);
 		++m_RecursionCount;
 		return true;
 	}
@@ -48,7 +47,7 @@ bool MutexImpl::TryLock (uint32_t milliseconds, bool interruptible)
 
 void MutexImpl::Unlock ()
 {
-	assert (m_OwningThread == Thread::GetCurrentThread ());
+	IL2CPP_ASSERT(m_OwningThread == Thread::GetCurrentThread ());
 
 	// Undo one locking level.
 	--m_RecursionCount;
@@ -62,7 +61,7 @@ void MutexImpl::Unlock ()
 	// need the lock as we are already owning the mutex here but play it safe.
 	posix::PosixAutoLock lock (&m_Mutex);
 
-	assert (m_Count == 0);
+	IL2CPP_ASSERT(m_Count == 0);
 	m_Count = 1; // Unintuitive but 1 means unlocked.
 	m_OwningThread = NULL;
 

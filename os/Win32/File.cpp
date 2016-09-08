@@ -17,7 +17,6 @@
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 
-#include <cassert>
 #include <stdint.h>
 
 static inline int Win32ErrorToErrorCode (DWORD win32ErrorCode)
