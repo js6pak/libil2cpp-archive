@@ -720,11 +720,12 @@ static void* LoadSymbolInfoFile ()
 
 static void InitializeSymbolInfos ()
 {
+	s_ImageBase = os::Image::GetImageBase();
+
 	void* fileBuffer = LoadSymbolInfoFile();
 	if (fileBuffer == NULL)
 		return;
 
-	s_ImageBase = os::Image::GetImageBase();
 	s_SymbolCount = *((int32_t *)fileBuffer);
 	s_SymbolInfos = (SymbolInfo*)((uint8_t*)fileBuffer + sizeof(s_SymbolCount));
 }
@@ -746,11 +747,13 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		InitializeSymbolInfos();
 	}
 
-	if (s_SymbolCount > 0 && s_ImageBase != NULL)
+	// address has to be above our base address
+	if ((void*)nativeMethod < (void*)s_ImageBase)
+		return NULL;
+
+
+	if (s_SymbolCount > 0)
 	{
-		// address has to be above our base address
-		if ((void*)nativeMethod < (void*)s_ImageBase)
-			return NULL;
 
 		SymbolInfo* end = s_SymbolInfos + s_SymbolCount;
 
