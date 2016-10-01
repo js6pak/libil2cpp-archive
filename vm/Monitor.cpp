@@ -325,11 +325,20 @@ bool Monitor::TryEnter (Il2CppObject* obj, uint32_t timeOutMilliseconds)
 			}
 		}
 
-		// Object was locked. See if it us already having a lock.
+		// Object was locked previously. See if we already have the lock.
 		if (os::Atomic::Read64 (&installedMonitor->owningThreadId) == currentThreadId)
 		{
 			// Yes, recursive lock. Just increase count.
 			++installedMonitor->recursiveLockingCount;
+			return true;
+		}
+
+		// Attempt to acquire lock if it's free
+		if (installedMonitor->TryAcquire (currentThreadId))
+		{
+			// Ownership of monitor passed from previously locking thread to us.
+			assert(installedMonitor->recursiveLockingCount == 1);
+			assert(obj->monitor == installedMonitor);
 			return true;
 		}
 
