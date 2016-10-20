@@ -100,7 +100,7 @@ void COM::MarshalVariant(Il2CppObject* obj, Il2CppVariant* variant)
 	}
 }
 
-Il2CppObject* COM::MarshalVariantResult(Il2CppVariant* variant)
+Il2CppObject* COM::MarshalVariantResult(const Il2CppVariant* variant)
 {
 	IL2CPP_ASSERT(variant);
 	switch (variant->n1.n2.type)
@@ -110,27 +110,60 @@ Il2CppObject* COM::MarshalVariantResult(Il2CppVariant* variant)
 	case IL2CPP_VT_NULL:
 		return Reflection::GetDBNullObject();
 	case IL2CPP_VT_ERROR:
-		return Object::Box(il2cpp_defaults.int32_class, &variant->n1.n2.n3.scode);
+	{
+		int32_t val = variant->n1.n2.n3.scode;
+		return Object::Box(il2cpp_defaults.int32_class, &val);
+	}
 	case IL2CPP_VT_I1:
-		return Object::Box(il2cpp_defaults.sbyte_class, &variant->n1.n2.n3.cVal);
+	{
+		char val = variant->n1.n2.n3.cVal;
+		return Object::Box(il2cpp_defaults.sbyte_class, &val);
+	}
 	case IL2CPP_VT_UI1:
-		return Object::Box(il2cpp_defaults.byte_class, &variant->n1.n2.n3.bVal);
+	{
+		uint8_t val = variant->n1.n2.n3.bVal;
+		return Object::Box(il2cpp_defaults.byte_class, &val);
+	}
 	case IL2CPP_VT_I2:
-		return Object::Box(il2cpp_defaults.int16_class, &variant->n1.n2.n3.iVal);
+	{
+		int16_t val = variant->n1.n2.n3.iVal;
+		return Object::Box(il2cpp_defaults.int16_class, &val);
+	}
 	case IL2CPP_VT_UI2:
-		return Object::Box(il2cpp_defaults.uint16_class, &variant->n1.n2.n3.uiVal);
+	{
+		uint16_t val = variant->n1.n2.n3.uiVal;
+		return Object::Box(il2cpp_defaults.uint16_class, &val);
+	}
 	case IL2CPP_VT_I4:
-		return Object::Box(il2cpp_defaults.int32_class, &variant->n1.n2.n3.lVal);
+	{
+		int32_t val = variant->n1.n2.n3.lVal;
+		return Object::Box(il2cpp_defaults.int32_class, &val);
+	}
 	case IL2CPP_VT_UI4:
-		return Object::Box(il2cpp_defaults.uint32_class, &variant->n1.n2.n3.ulVal);
+	{
+		uint32_t val = variant->n1.n2.n3.ulVal;
+		return Object::Box(il2cpp_defaults.uint32_class, &val);
+	}
 	case IL2CPP_VT_I8:
-		return Object::Box(il2cpp_defaults.int64_class, &variant->n1.n2.n3.llVal);
+	{
+		int64_t val = variant->n1.n2.n3.llVal;
+		return Object::Box(il2cpp_defaults.int64_class, &val);
+	}
 	case IL2CPP_VT_UI8:
-		return Object::Box(il2cpp_defaults.uint64_class, &variant->n1.n2.n3.ullVal);
+	{
+		uint64_t val = variant->n1.n2.n3.ullVal;
+		return Object::Box(il2cpp_defaults.uint64_class, &val);
+	}
 	case IL2CPP_VT_R4:
-		return Object::Box(il2cpp_defaults.single_class, &variant->n1.n2.n3.fltVal);
+	{
+		float val = variant->n1.n2.n3.fltVal;
+		return Object::Box(il2cpp_defaults.single_class, &val);
+	}
 	case IL2CPP_VT_R8:
-		return Object::Box(il2cpp_defaults.double_class, &variant->n1.n2.n3.dblVal);
+	{
+		double val = variant->n1.n2.n3.dblVal;
+		return Object::Box(il2cpp_defaults.double_class, &val);
+	}
 	case IL2CPP_VT_BOOL:
 	{
 		IL2CPP_ASSERT(variant->n1.n2.n3.boolVal == IL2CPP_VARIANT_FALSE || variant->n1.n2.n3.boolVal == IL2CPP_VARIANT_TRUE);

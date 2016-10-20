@@ -29,13 +29,13 @@ namespace il2cpp
 namespace os
 {
 
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
+
 bool File::Isatty(FileHandle* fileHandle)
 {
-	NOT_IMPLEMENTED_ICALL(File::IsAtty);
-	return false;
+	DWORD mode;
+	return GetConsoleMode((HANDLE)fileHandle, &mode) != 0;
 }
-
-#if IL2CPP_TARGET_WINDOWS_DESKTOP
 
 FileHandle* File::GetStdInput ()
 {

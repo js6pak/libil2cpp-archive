@@ -42,6 +42,12 @@ static FileHandle* GetOrCreateRedirectedHandle(FILE* stdFile, const wchar_t* fil
 	return reinterpret_cast<FileHandle*>(_get_osfhandle(_fileno(redirectedFile)));
 }
 
+bool File::Isatty(FileHandle* fileHandle)
+{
+	NOT_IMPLEMENTED_ICALL(File::IsAtty);
+	return false;
+}
+
 FileHandle* File::GetStdInput()
 {
 	return GetOrCreateRedirectedHandle(stdin, L"stdin.txt");
