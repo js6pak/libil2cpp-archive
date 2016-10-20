@@ -214,6 +214,7 @@ Il2CppIntPtr Thread::Thread_internal (Il2CppThread * thisPtr, Il2CppDelegate * s
 	thisPtr->GetInternalThread()->handle = thread;
 	thisPtr->GetInternalThread()->state &= ~kThreadStateUnstarted;
 	thisPtr->GetInternalThread()->tid = thread->Id();
+	thisPtr->GetInternalThread()->managed_id = il2cpp::vm::Thread::GetNewManagedId();
 
 	startData->m_Semaphore->Post (1, NULL);
 
@@ -359,11 +360,9 @@ void Thread::SetSerializedCurrentUICulture (Il2CppThread* thisPtr, Il2CppArray* 
 }
 #endif
 
-static volatile int32_t s_NextManagedThreadId = 0;
-
 int32_t Thread::GetNewManagedId_internal()
 {
-	return os::Atomic::Increment(&s_NextManagedThreadId);
+	return il2cpp::vm::Thread::GetNewManagedId();
 }
 
 void Thread::Abort_internal (Il2CppThread* thisPtr, Il2CppObject* stateInfo)

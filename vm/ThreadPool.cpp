@@ -848,8 +848,11 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 
 		// Store result.
 		asyncCall->res = result;
+#if !NET_4_0
 		asyncCall->msg = exception;
-
+#else
+		asyncCall->msg = (Il2CppMethodMessage*) exception;
+#endif
 		os::Atomic::MemoryBarrier ();
 		asyncResult->completed = true;
 
@@ -859,7 +862,11 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 		{
 			void* args[1] = { asyncResult };
 			il2cpp_runtime_invoke (asyncCallback->method, asyncCallback->target, args, &exception);
+#if !NET_4_0
 			asyncCall->msg = exception;
+#else
+			asyncCall->msg = (Il2CppMethodMessage*) exception;
+#endif
 		}
 
 		// Signal wait handle, if there's one.
@@ -877,25 +884,25 @@ void ThreadPoolCompartment::WorkerThreadRunLoop ()
 static void WorkerThreadEntryPoint (void* data)
 {
 	ThreadPoolCompartment* compartment = reinterpret_cast<ThreadPoolCompartment*> (data);
-
-	// Properly attach us to the VM and mark us as a background
-	// worker thread.
-	Il2CppThread* managedThread = vm::Thread::Attach (il2cpp_domain_get());
-	uint32_t handle = gc::GCHandle::New ((Il2CppObject*) managedThread, true);
-	vm::Thread::SetState (managedThread, kThreadStateBackground);
-	managedThread->GetInternalThread()->threadpool_thread = true;
-	int threadCount = compartment->AttachThread (managedThread);
-
-	// Configure OS thread.
-	char name[2048];
-	sprintf (name, "%s Thread #%i", compartment->compartmentName, threadCount - 1);
-	managedThread->GetInternalThread()->handle->SetName (name);
-	managedThread->GetInternalThread()->handle->SetPriority (os::kThreadPriorityLow);
-	managedThread->GetInternalThread()->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
+	Il2CppThread* managedThread = NULL;
 
 	// Do work.
 	try
 	{
+		// Properly attach us to the VM and mark us as a background
+		// worker thread.
+		managedThread = vm::Thread::Attach (il2cpp_domain_get());
+		uint32_t handle = gc::GCHandle::New ((Il2CppObject*) managedThread, true);
+		vm::Thread::SetState (managedThread, kThreadStateBackground);
+		managedThread->GetInternalThread()->threadpool_thread = true;
+		int threadCount = compartment->AttachThread (managedThread);
+
+		// Configure OS thread.
+		char name[2048];
+		sprintf (name, "%s Thread #%i", compartment->compartmentName, threadCount - 1);
+		managedThread->GetInternalThread()->handle->SetName (name);
+		managedThread->GetInternalThread()->handle->SetPriority (os::kThreadPriorityLow);
+		managedThread->GetInternalThread()->handle->SetCleanupFunction (&FreeThreadHandle, (void*) (uintptr_t)handle);
 		compartment->WorkerThreadRunLoop ();
 	}
 	catch (Thread::NativeThreadAbortException)
@@ -911,12 +918,18 @@ static void WorkerThreadEntryPoint (void* data)
 	}
 
 	// Clean up.
-	compartment->DetachThread (managedThread);
-	vm::Thread::Detach (managedThread);
+	if (managedThread)
+	{
+		compartment->DetachThread (managedThread);
+		vm::Thread::Detach (managedThread);
+	}
 }
 
 void ThreadPool::Initialize ()
 {
+#if NET_4_0
+	NOT_SUPPORTED_IL2CPP(ThreadPool::Initialize, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
+#else
 	g_SocketPollingThread = new SocketPollingThread ();
 	g_ThreadPoolCompartments[kWorkerThreadPool] = new ThreadPoolCompartment ();
 	g_ThreadPoolCompartments[kAsyncIOPool] = new ThreadPoolCompartment();
@@ -929,15 +942,25 @@ void ThreadPool::Initialize ()
 	g_ThreadPoolCompartments[kWorkerThreadPool]->maxThreads = 20 + THREADS_PER_CORE * numCores;
 	g_ThreadPoolCompartments[kAsyncIOPool]->minThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->minThreads;
 	g_ThreadPoolCompartments[kAsyncIOPool]->maxThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->maxThreads;
+#endif
 }
 
 void ThreadPool::Shutdown ()
 {
+#if NET_4_0
+	NOT_SUPPORTED_IL2CPP(ThreadPool::Shutdown, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
+#else
 	g_SocketPollingThread->Terminate ();
+#endif
 }
 
 ThreadPool::Configuration ThreadPool::GetConfiguration ()
 {
+#if NET_4_0
+	NOT_SUPPORTED_IL2CPP(ThreadPool::GetConfiguration, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
+	IL2CPP_UNREACHABLE;
+	return Configuration();
+#else
 	Configuration configuration;
 
 	configuration.availableThreads = g_ThreadPoolCompartments[kWorkerThreadPool]->numIdleThreads;
@@ -948,10 +971,14 @@ ThreadPool::Configuration ThreadPool::GetConfiguration ()
 	configuration.maxAsyncIOThreads = g_ThreadPoolCompartments[kAsyncIOPool]->maxThreads;
 
 	return configuration;
+#endif
 }
 
 void ThreadPool::SetConfiguration (const Configuration& configuration)
 {
+#if NET_4_0
+	NOT_SUPPORTED_IL2CPP(ThreadPool::SetConfiguration, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
+#else
 	IL2CPP_ASSERT(configuration.maxThreads >= configuration.minThreads && "Invalid configuration");
 	IL2CPP_ASSERT(configuration.maxAsyncIOThreads >= configuration.minAsyncIOThreads && "Invalid configuration");
 	IL2CPP_ASSERT(configuration.minThreads > 0 && "Invalid configuration");
@@ -969,10 +996,16 @@ void ThreadPool::SetConfiguration (const Configuration& configuration)
 	// threads will steal the signal from threads that are currently busy.
 	g_ThreadPoolCompartments[kWorkerThreadPool]->SignalAllThreads ();
 	g_ThreadPoolCompartments[kAsyncIOPool]->SignalAllThreads ();
+#endif
 }
 
 Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state)
 {
+#if NET_4_0
+	NOT_SUPPORTED_IL2CPP(ThreadPool::Queue, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
+	IL2CPP_UNREACHABLE;
+	return NULL;
+#else
 	// Create AsyncCall.
 	Il2CppAsyncCall* asyncCall = (Il2CppAsyncCall*) il2cpp::vm::Object::New (il2cpp_defaults.async_call_class);
 	asyncCall->cb_target = asyncCallback;
@@ -1003,7 +1036,6 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 	}
 	else if (IsSocketAsyncCall (delegate))
 	{
-#if !NET_4_0
 		Il2CppSocketAsyncResult* socketAsyncResult = GetSocketAsyncResult (asyncResult);
 		socketAsyncResult->ares = asyncResult;
 
@@ -1022,10 +1054,6 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 			SpawnSocketPollingThreadIfNeeded ();
 			g_SocketPollingThread->QueueRequest (asyncResult);
 		}
-#else
-		IL2CPP_ASSERT(false && "The SocketAsyncCall delegate type does not exist in the net45 class libs so this if clause should never be reached");
-		IL2CPP_UNREACHABLE;
-#endif
 	}
 	else if (IsFileStreamAsyncCall (delegate))
 	{
@@ -1037,10 +1065,16 @@ Il2CppAsyncResult* ThreadPool::Queue (Il2CppDelegate* delegate, void** params, I
 	}
 
 	return asyncResult;
+#endif
 }
 
 Il2CppObject* ThreadPool::Wait (Il2CppAsyncResult* asyncResult, void** outArgs)
 {
+#if NET_4_0
+	NOT_SUPPORTED_IL2CPP(ThreadPool::Wait, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
+	IL2CPP_UNREACHABLE;
+	return NULL;
+#else
 	// Need lock already here to ensure only a single call to EndInvoke() gets to be the first one.
 	il2cpp_monitor_enter (&asyncResult->base);
 
@@ -1108,6 +1142,7 @@ Il2CppObject* ThreadPool::Wait (Il2CppAsyncResult* asyncResult, void** outArgs)
 	}
 
 	return asyncResult->object_data->res;
+#endif
 }
 
 } /* namespace vm */

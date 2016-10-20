@@ -369,6 +369,14 @@ struct Il2CppIOSelectorJob {
 	Il2CppObject *state;
 };
 
+/* This is a copy of System.Runtime.Remoting.Messaging.CallType */
+typedef enum {
+	CallType_Sync = 0,
+	CallType_BeginInvoke = 1,
+	CallType_EndInvoke = 2,
+	CallType_OneWay = 3
+} Il2CppCallType;
+
 struct Il2CppMethodMessage {
 	Il2CppObject obj;
 	Il2CppReflectionMethod *method;
@@ -381,7 +389,38 @@ struct Il2CppMethodMessage {
 	Il2CppAsyncResult *async_result;
 	uint32_t	    call_type;
 };
+
 #endif
+
+/* This is a copy of System.AppDomainSetup */
+struct Il2CppAppDomainSetup {
+	Il2CppObject object;
+	Il2CppString* application_base;
+	Il2CppString* application_name;
+	Il2CppString* cache_path;
+	Il2CppString* configuration_file;
+	Il2CppString* dynamic_base;
+	Il2CppString* license_file;
+	Il2CppString* private_bin_path;
+	Il2CppString* private_bin_path_probe;
+	Il2CppString* shadow_copy_directories;
+	Il2CppString* shadow_copy_files;
+	uint8_t publisher_policy;
+	uint8_t path_changed;
+	int loader_optimization;
+	uint8_t disallow_binding_redirects;
+	uint8_t disallow_code_downloads;
+	Il2CppObject* activation_arguments; /* it is System.Object in 1.x, ActivationArguments in 2.0 */
+	Il2CppObject* domain_initializer;
+	Il2CppObject* application_trust; /* it is System.Object in 1.x, ApplicationTrust in 2.0 */
+	Il2CppArray* domain_initializer_args;
+	uint8_t disallow_appbase_probe;
+	Il2CppArray* configuration_bytes;
+#if NET_4_0
+	Il2CppArray* serialized_non_primitives;
+#endif
+};
+
 
 // System.Threading.Thread
 struct Il2CppThread
@@ -946,7 +985,13 @@ struct Il2CppAsyncResult
 struct Il2CppAsyncCall
 {
 	Il2CppObject base;
+
+#if !NET_4_0
 	void *msg; // We pass exceptions through here for now.
+#else
+	Il2CppMethodMessage *msg;
+#endif
+
 	MethodInfo *cb_method; // We don't set this.
 	Il2CppDelegate *cb_target; // We pass the actual delegate here.
 	Il2CppObject *state;

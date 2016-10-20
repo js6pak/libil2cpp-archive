@@ -12,6 +12,7 @@ struct Il2CppGuid;
 struct Il2CppImage;
 struct Il2CppAssembly;
 struct Il2CppAppDomain;
+struct Il2CppAppDomainSetup;
 struct Il2CppDelegate;
 struct Il2CppAppContext;
 struct Il2CppNameToTypeDefinitionIndexHashTable;
@@ -147,6 +148,7 @@ typedef struct {
 	// Stuff used by the mono code
 	Il2CppClass *threadpool_wait_callback_class;
 	MethodInfo *threadpool_perform_wait_callback_method;
+	Il2CppClass *mono_method_message_class;
 #endif
 } Il2CppDefaults;
 
@@ -417,7 +419,7 @@ struct Il2CppTypeDefinitionSizes
 struct Il2CppDomain
 {
 	Il2CppAppDomain* domain;
-	Il2CppObject* setup;	// We don't define setup class in native code because it depends on mscorlib profile and we never seen to access its internals anyway
+	Il2CppAppDomainSetup* setup;
 	Il2CppAppContext* default_context;
 	const char* friendly_name;
 	uint32_t domain_id;

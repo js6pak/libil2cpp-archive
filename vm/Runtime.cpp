@@ -44,6 +44,7 @@
 #include "utils/PathUtils.h"
 #include "mono/metadata/threadpool-ms.h"
 #include "mono/metadata/threadpool-ms-io.h"
+//#include "icalls/mscorlib/System.Reflection/Assembly.h"
 
 #if IL2CPP_DEBUGGER_ENABLED
 	#include "il2cpp-debugger.h"
@@ -88,9 +89,14 @@ char* basepath(const char* path)
 static const char *framework_version_for (const char *runtime_version)
 {
 	IL2CPP_ASSERT(runtime_version && "Invalid runtime version");
-	IL2CPP_ASSERT((strstr (runtime_version, "v2.0") == runtime_version) && "Invalid runtime version");
 
+#if NET_4_0
+	IL2CPP_ASSERT((strstr(runtime_version, "v4.0") == runtime_version) && "Invalid runtime version");
+	return "4.0";
+#else
+	IL2CPP_ASSERT((strstr (runtime_version, "v2.0") == runtime_version) && "Invalid runtime version");
 	return "2.0";
+#endif
 }
 
 static void SanityChecks ()
@@ -237,6 +243,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 
 #if NET_4_0
 	DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
+	DEFAULTS_INIT(mono_method_message_class, "System.Runtime.Remoting.Messaging", "MonoMethodMessage");
 
 	il2cpp_defaults.threadpool_perform_wait_callback_method = (MethodInfo*)vm::Class::GetMethodFromName(
 		il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
@@ -248,7 +255,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 
 	Thread::Attach (domain);
 
-	Il2CppObject* setup = Object::NewPinned (il2cpp_defaults.appdomain_setup_class);
+	Il2CppAppDomainSetup* setup = (Il2CppAppDomainSetup*) Object::NewPinned (il2cpp_defaults.appdomain_setup_class);
 
 	Il2CppAppDomain* ad = (Il2CppAppDomain *) Object::NewPinned (il2cpp_defaults.appdomain_class);
 	ad->data = domain;
@@ -268,7 +275,10 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	gc::GarbageCollector::InitializeFinalizer ();
 
 	MetadataCache::InitializeGCSafe ();
+
+#if !NET_4_0
 	ThreadPool::Initialize ();
+#endif
 
 	String::InitializeEmptyString(il2cpp_defaults.string_class);
 #if NET_4_0 // .NET 2.0 mscorlib does it with a static constructor
@@ -293,7 +303,9 @@ void Runtime::Shutdown ()
 {
 	shutting_down = true;
 
+#if !NET_4_0
 	ThreadPool::Shutdown ();
+#endif
 
 #if NET_4_0
 	threadpool_ms_cleanup();
@@ -306,13 +318,15 @@ void Runtime::Shutdown ()
 	os::Socket::Cleanup ();
 	String::CleanupEmptyString();
 
-	os::LibraryLoader::CleanupLoadedLibraries();
 	il2cpp::gc::GarbageCollector::Uninitialize ();
 
 	// after the gc cleanup so the finalizer thread can unregister itself
 	Thread::UnInitialize ();
 
 	os::Thread::Shutdown ();
+
+	// This needs to happen after no managed code can run anymore, including GC finalizers
+	os::LibraryLoader::CleanupLoadedLibraries();
 
 	vm::Image::ClearCachedResourceData();
 	MetadataAllocCleanup ();
@@ -339,6 +353,31 @@ void Runtime::SetConfigDir (const char *path)
 void Runtime::SetDataDir(const char *path)
 {
 	s_DataDir = path;
+}
+
+static void SetConfigStr(const std::string& executablePath)
+{
+	Il2CppDomain* domain = vm::Domain::GetCurrent();
+	std::string configFileName = utils::PathUtils::Basename(executablePath);
+	configFileName.append(".config");
+	std::string appBase = utils::PathUtils::DirectoryName(executablePath);
+	IL2CPP_OBJECT_SETREF(domain->setup, application_base, vm::String::New(appBase.c_str()));
+	IL2CPP_OBJECT_SETREF(domain->setup, configuration_file, vm::String::New(configFileName.c_str()));
+}
+
+void Runtime::SetConfigUtf16(const Il2CppChar* executablePath)
+{
+	IL2CPP_ASSERT(executablePath);
+
+	std::string exePathUtf8 = il2cpp::utils::StringUtils::Utf16ToUtf8(executablePath);
+	SetConfigStr(exePathUtf8);
+}
+
+void Runtime::SetConfig(const char* executablePath)
+{
+	IL2CPP_ASSERT(executablePath);
+	std::string executablePathStr(executablePath);
+	SetConfigStr(executablePathStr);
 }
 
 const char *Runtime::GetFrameworkVersion ()
@@ -818,11 +857,12 @@ static void* LoadSymbolInfoFile ()
 
 static void InitializeSymbolInfos ()
 {
+	s_ImageBase = os::Image::GetImageBase();
+
 	void* fileBuffer = LoadSymbolInfoFile();
 	if (fileBuffer == NULL)
 		return;
 
-	s_ImageBase = os::Image::GetImageBase();
 	s_SymbolCount = *((int32_t *)fileBuffer);
 	s_SymbolInfos = (SymbolInfo*)((uint8_t*)fileBuffer + sizeof(s_SymbolCount));
 }
@@ -844,11 +884,13 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		InitializeSymbolInfos();
 	}
 
-	if (s_SymbolCount > 0 && s_ImageBase != NULL)
+	// address has to be above our base address
+	if ((void*)nativeMethod < (void*)s_ImageBase)
+		return NULL;
+
+
+	if (s_SymbolCount > 0)
 	{
-		// address has to be above our base address
-		if ((void*)nativeMethod < (void*)s_ImageBase)
-			return NULL;
 
 		SymbolInfo* end = s_SymbolInfos + s_SymbolCount;
 

@@ -93,7 +93,11 @@ void il2cpp_init (const char* domain_name)
 	// will support multiple runtimes.
 	// For now we default to the one used by unity and don't
 	// allow the callers to change it.
+#if NET_4_0
+	Runtime::Init(domain_name, "v4.0.30319");
+#else
 	Runtime::Init(domain_name, "v2.0.50727");
+#endif
 
 #if IL2CPP_DEBUGGER_ENABLED
 	il2cpp_debugger_notify_vm_start ();
@@ -137,6 +141,15 @@ void il2cpp_set_commandline_arguments(int argc, const char* const argv[], const 
 void il2cpp_set_commandline_arguments_utf16(int argc, const Il2CppChar* const argv[], const char* basedir)
 {
 	il2cpp::vm::Environment::SetMainArgs(argv, argc);
+}
+
+void il2cpp_set_config_utf16(const Il2CppChar* executablePath)
+{
+	il2cpp::vm::Runtime::SetConfigUtf16(executablePath);
+}
+void il2cpp_set_config(const char* executablePath)
+{
+	il2cpp::vm::Runtime::SetConfig(executablePath);
 }
 
 void il2cpp_set_memory_callbacks (Il2CppMemoryCallbacks* callbacks)
