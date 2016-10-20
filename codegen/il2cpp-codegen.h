@@ -48,6 +48,7 @@
 #include "vm/ThreadPool.h"
 #include "vm/Type.h"
 #include "vm/WindowsRuntime.h"
+#include "vm/ThreadPoolMs.h"
 
 #ifdef _MSC_VER
 #define IL2CPP_DEBUG_BREAK() __debugbreak()
@@ -560,9 +561,9 @@ inline Il2CppCodeGenArray* GenArrayNew(Il2CppClass* arrayType, il2cpp_array_size
 // Performance optimization as detailed here: http://blogs.msdn.com/b/clrcodegeneration/archive/2009/08/13/array-bounds-check-elimination-in-the-clr.aspx
 // Since array size is a signed int32_t, a single unsigned check can be performed to determine if index is less than array size.
 // Negative indices will map to a unsigned number greater than or equal to 2^31 which is larger than allowed for a valid array.
-#define IL2CPP_ARRAY_BOUNDS_CHECK(a,index) \
+#define IL2CPP_ARRAY_BOUNDS_CHECK(index, length) \
 	do { \
-		if (((uint32_t)(index)) >= ((uint32_t)(a)->max_length)) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
+		if (((uint32_t)(index)) >= ((uint32_t)length)) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
 	} while (0)
 
 inline int32_t il2cpp_codegen_class_interface_offset (Il2CppClass *klass, Il2CppClass *itf)
@@ -969,7 +970,7 @@ inline void il2cpp_codegen_com_marshal_variant(Il2CppObject* obj, Il2CppVariant*
 	il2cpp::vm::COM::MarshalVariant(obj, variant);
 }
 
-inline Il2CppObject* il2cpp_codegen_com_marshal_variant_result(Il2CppVariant* variant)
+inline Il2CppObject* il2cpp_codegen_com_marshal_variant_result(const Il2CppVariant* variant)
 {
 	return il2cpp::vm::COM::MarshalVariantResult(variant);
 }
@@ -1075,12 +1076,20 @@ inline Il2CppObject* il2cpp_codegen_fake_box(T* ptrToValueType)
 
 inline Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state)
 {
+#if NET_4_0
+	return il2cpp::vm::ThreadPoolMs::DelegateBeginInvoke(delegate, params, asyncCallback, state);
+#else
 	return il2cpp::vm::ThreadPool::Queue(delegate, params, asyncCallback, state);
+#endif
 }
 
 inline Il2CppObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args)
 {
+#if NET_4_0
+	return il2cpp::vm::ThreadPoolMs::DelegateEndInvoke(asyncResult, out_args);
+#else
 	return il2cpp::vm::ThreadPool::Wait(asyncResult, out_args);
+#endif
 }
 
 inline void il2cpp_codegen_write_to_stdout(const char* str)

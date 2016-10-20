@@ -33,6 +33,8 @@ public:
 	static NORETURN void Abort();
 	static void SetConfigDir (const char *path);
 	static void SetDataDir(const char *path);
+	static void SetConfigUtf16(const Il2CppChar* executablePath);
+	static void SetConfig(const char* executablePath);
 	static std::string GetConfigDir();
 	static std::string GetDataDir();
 	static const char *GetFrameworkVersion();

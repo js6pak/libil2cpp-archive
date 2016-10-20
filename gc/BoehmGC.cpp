@@ -58,7 +58,6 @@ il2cpp::gc::GarbageCollector::GetMaxGeneration ()
 void
 il2cpp::gc::GarbageCollector::Collect (int maxGeneration)
 {
-	IL2CPP_ASSERT(maxGeneration == 0); //Consumers should know this won't work.
 	GC_gcollect ();
 }
 

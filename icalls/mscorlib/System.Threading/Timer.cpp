@@ -1,6 +1,7 @@
 #if NET_4_0
 #include "il2cpp-config.h"
 #include "Timer.h"
+#include "os/Time.h"
 
 namespace il2cpp
 {
@@ -15,8 +16,7 @@ namespace Threading
 
 int64_t Timer::GetTimeMonotonic()
 {
-	NOT_IMPLEMENTED_ICALL(Timer::GetTimeMonotonic);
-	IL2CPP_UNREACHABLE;
+	return os::Time::GetTicks100NanosecondsMonotonic();
 }
 
 

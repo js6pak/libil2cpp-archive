@@ -53,6 +53,8 @@ static std::vector<int32_t> s_ThreadStaticSizes;
 
 static ThreadLocalValue s_CurrentThread;
 
+static volatile int32_t s_NextManagedThreadId = 0;
+
 static void
 thread_cleanup_on_cancel (void* arg)
 {
@@ -103,6 +105,7 @@ Il2CppThread* Thread::Attach (Il2CppDomain *domain)
 	thread->GetInternalThread()->handle = osThread;
 	thread->GetInternalThread()->state = kThreadStateRunning;
 	thread->GetInternalThread()->tid = osThread->Id();
+	thread->GetInternalThread()->managed_id = GetNewManagedId();
 	Setup (thread);
 
 	Initialize(thread, domain);
@@ -669,6 +672,7 @@ Il2CppInternalThread* Thread::CreateInternal(void(*func) (void*), void* arg, boo
 
 	internal->state &= ~kThreadStateUnstarted;
 	internal->tid = osThread->Id();
+	internal->managed_id = GetNewManagedId();
 
 	startData->m_Semaphore->Post(1, NULL);
 
@@ -744,6 +748,11 @@ void Thread::ResetAbort(Il2CppThread* thread)
 void Thread::MemoryBarrier ()
 {
 	os::Atomic::MemoryBarrier ();
+}
+
+int32_t Thread::GetNewManagedId()
+{
+	return os::Atomic::Increment(&s_NextManagedThreadId);
 }
 
 } /* namespace vm */
