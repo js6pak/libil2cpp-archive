@@ -29,7 +29,7 @@ public:
 	}
 
 	static void MarshalVariant(Il2CppObject* obj, Il2CppVariant* variant);
-	static Il2CppObject* MarshalVariantResult(Il2CppVariant* variant);
+	static Il2CppObject* MarshalVariantResult(const Il2CppVariant* variant);
 	static void DestroyVariant(Il2CppVariant* variant);
 	static Il2CppSafeArray* MarshalSafeArray(uint16_t variantType, Il2CppArray* managedArray);
 	static Il2CppArray* MarshalSafeArrayResult(uint16_t variantType, Il2CppClass* type, Il2CppSafeArray* safeArray);

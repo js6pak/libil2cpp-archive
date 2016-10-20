@@ -6,6 +6,9 @@ DO_API( void, il2cpp_set_config_dir, (const char *config_path) );
 DO_API( void, il2cpp_set_data_dir, (const char *data_path) );
 DO_API( void, il2cpp_set_commandline_arguments, (int argc, const char* const argv[], const char* basedir) );
 DO_API( void, il2cpp_set_commandline_arguments_utf16, (int argc, const Il2CppChar* const argv[], const char* basedir) );
+DO_API( void, il2cpp_set_config_utf16, (const Il2CppChar* executablePath) );
+DO_API( void, il2cpp_set_config, (const char* executablePath));
+
 DO_API( void, il2cpp_set_memory_callbacks, (Il2CppMemoryCallbacks* callbacks) );
 DO_API( const Il2CppImage*, il2cpp_get_corlib, () );
 DO_API( void, il2cpp_add_internal_call, (const char* name, Il2CppMethodPointer method) );

@@ -1447,6 +1447,7 @@
     <ClInclude Include="vm\String.h" />
     <ClInclude Include="vm\Thread.h" />
     <ClInclude Include="vm\ThreadPool.h" />
+    <ClInclude Include="vm\ThreadPoolMs.h" />
     <ClInclude Include="vm\Type.h" />
     <ClInclude Include="vm\WaitHandle.h" />
     <ClInclude Include="vm\WindowsRuntime.h" />
@@ -1805,6 +1806,7 @@
     <ClCompile Include="vm\String.cpp" />
     <ClCompile Include="vm\Thread.cpp" />
     <ClCompile Include="vm\ThreadPool.cpp" />
+    <ClCompile Include="vm\ThreadPoolMs.cpp" />
     <ClCompile Include="vm\Type.cpp" />
     <ClCompile Include="vm\WaitHandle.cpp" />
     <ClCompile Include="vm\WindowsRuntime.cpp" />
