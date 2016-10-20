@@ -101,6 +101,8 @@ public:
 
 	static void MemoryBarrier();
 
+	static int32_t GetNewManagedId();
+
 #if NET_4_0
 	static Il2CppInternalThread* CurrentInternal();
 

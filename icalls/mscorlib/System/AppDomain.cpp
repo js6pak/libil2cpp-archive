@@ -88,7 +88,7 @@ Il2CppString *  AppDomain::getFriendlyName(Il2CppAppDomain* ad)
 	return il2cpp_string_new(ad->data->friendly_name);
 }
 
-Il2CppObject* AppDomain::getSetup (Il2CppAppDomain* domain)
+Il2CppAppDomainSetup* AppDomain::getSetup (Il2CppAppDomain* domain)
 {
 	IL2CPP_ASSERT(domain != NULL);
 	IL2CPP_ASSERT(domain->data != NULL);

@@ -291,11 +291,11 @@
 #define IL2CPP_ENABLE_STACKTRACES 1
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
-#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_TIZEN)
+#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_TIZEN || IL2CPP_TARGET_ANDROID)
 #endif
 
 /* Platforms which use stacktrace sentries */
-#define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS)
+#define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS)
 
 #if (IL2CPP_ENABLE_STACKTRACES && !IL2CPP_ENABLE_NATIVE_STACKTRACES && !IL2CPP_ENABLE_STACKTRACE_SENTRIES)
 #error "If stacktraces are supported, then either native stack traces must be supported, or usage of stacktrace sentries must be enabled!"
@@ -499,6 +499,7 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_S_OK                          ((il2cpp_hresult_t)0)
 #define IL2CPP_E_BOUNDS                      ((il2cpp_hresult_t)0x8000000B)
 #define IL2CPP_E_CHANGED_STATE               ((il2cpp_hresult_t)0x8000000C)
+#define IL2CPP_E_ILLEGAL_METHOD_CALL         ((il2cpp_hresult_t)0x8000000E)
 #define IL2CPP_RO_E_CLOSED                   ((il2cpp_hresult_t)0x80000013)
 #define IL2CPP_E_NOTIMPL                     ((il2cpp_hresult_t)0x80004001)
 #define IL2CPP_E_NOINTERFACE                 ((il2cpp_hresult_t)0x80004002)
@@ -526,3 +527,8 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_BIG_ENDIAN 2
 #define IL2CPP_BYTE_ORDER IL2CPP_LITTLE_ENDIAN
 
+#if (defined(_MSC_VER) && _MSC_VER > 1600) || (__has_feature(cxx_override_control))
+#define IL2CPP_OVERRIDE override
+#else
+#define IL2CPP_OVERRIDE
+#endif

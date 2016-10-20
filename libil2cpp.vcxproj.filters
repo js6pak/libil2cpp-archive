@@ -830,6 +830,9 @@
     <ClCompile Include="os\Win32\Initialize.cpp">
       <Filter>os\Win32</Filter>
     </ClCompile>
+    <ClCompile Include="vm\ThreadPoolMs.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1601,6 +1604,9 @@
     <ClInclude Include="il2cpp-string-types.h" />
     <ClInclude Include="gc\AppendOnlyGCHashMap.h">
       <Filter>gc</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\ThreadPoolMs.h">
+      <Filter>vm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
