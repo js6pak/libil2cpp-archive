@@ -39,6 +39,10 @@
 #include "vm/Object.h"
 #include "vm/Atomic.h"
 #include "vm/WaitHandle.h"
+#include "vm/Reflection.h"
+#include "vm/Array.h"
+#include "vm/Class.h"
+#include "vm/Exception.h"
 #include "os/Mutex.h"
 #include "os/Environment.h"
 #include "os/Time.h"
@@ -49,6 +53,7 @@
 #include "vm/Random.h"
 #include "os/CpuInfo.h"
 #include "icalls/mscorlib/System.Threading/ThreadPool.h"
+#include "icalls/mscorlib/System.Runtime.Remoting.Messaging/MonoMethodMessage.h"
 
 #ifndef CLAMP
 #define CLAMP(a,low,high) (((a) < (low)) ? (low) : (((a) > (high)) ? (high) : (a)))
@@ -232,8 +237,43 @@ static Il2CppMethodMessage *
 mono_method_call_message_new(MethodInfo *method, void* *params, MethodInfo *invoke,
 	Il2CppDelegate **cb, Il2CppObject **state)
 {
-	NOT_IMPLEMENTED(mono_method_call_message_new);
-	return NULL;
+	Il2CppDomain *domain = il2cpp::vm::Domain::GetCurrent();
+	Il2CppMethodMessage *msg;
+	int i, count;
+
+	msg = (Il2CppMethodMessage *)il2cpp::vm::Object::New(il2cpp_defaults.mono_method_message_class);
+
+	if (invoke) {
+		Il2CppReflectionMethod *rm = il2cpp::vm::Reflection::GetMethodObject(invoke, NULL);
+		il2cpp::icalls::mscorlib::System::Runtime::Remoting::Messaging::MonoMethodMessage::InitMessage(msg, rm, NULL);
+		count = method->parameters_count - 2;
+	}
+	else {
+		Il2CppReflectionMethod *rm = il2cpp::vm::Reflection::GetMethodObject(method, NULL);
+		il2cpp::icalls::mscorlib::System::Runtime::Remoting::Messaging::MonoMethodMessage::InitMessage(msg, rm, NULL);
+		count = method->parameters_count;
+	}
+
+	for (i = 0; i < count; i++) {
+		void* vpos;
+		Il2CppClass *klass;
+		Il2CppObject *arg;
+		
+			vpos = params[i];
+
+		klass = il2cpp_class_from_type(method->parameters[i].parameter_type);
+		arg = (Il2CppObject*)vpos;
+
+		il2cpp_array_setref(msg->args, i, arg);
+	}
+
+	if (cb != NULL && state != NULL) {
+		*cb = (Il2CppDelegate *)params[i];
+		i++;
+		*state = (Il2CppObject *)params[i];
+	}
+
+	return msg;
 }
 
 static Il2CppException* mono_thread_interruption_checkpoint(void)
@@ -351,11 +391,16 @@ static void cleanup (void)
 	while (monitor_status != MONITOR_STATUS_NOT_RUNNING)
 		il2cpp::vm::Thread::Sleep(1);
 
-	il2cpp::os::FastAutoLock lock(&threadpool->active_threads_lock);
 
+	std::vector<Il2CppInternalThread*> working_threads;
+
+	threadpool->active_threads_lock.Lock();
+	working_threads = threadpool->working_threads;
+	threadpool->active_threads_lock.Unlock();
+	
 	/* stop all threadpool->working_threads */
-	for (i = 0; i < threadpool->working_threads.size(); ++i)
-		worker_kill (threadpool->working_threads[i]);
+	for (i = 0; i < working_threads.size(); ++i)
+		worker_kill (working_threads[i]);
 
 	/* unpark all threadpool->parked_threads */
 	threadpool->parked_threads_cond.Broadcast();
@@ -1314,15 +1359,15 @@ Il2CppAsyncResult* threadpool_ms_begin_invoke (Il2CppDomain *domain, Il2CppObjec
 
 	lazy_initialize ();
 
-	//il2cpp_error_init (error);
-
-	message = mono_method_call_message_new (method, params, (MethodInfo*)il2cpp::vm::Runtime::GetDelegateInvoke(method->declaring_type), (params != NULL) ? (&async_callback) : NULL, (params != NULL) ? (&state) : NULL);
-	//return_val_if_nok (error, NULL);
+	MethodInfo *invoke = (MethodInfo*)il2cpp::vm::Class::GetMethodFromName(method->declaring_type, "Invoke", -1);
+	
+	message = mono_method_call_message_new (method, params, invoke, (params != NULL) ? (&async_callback) : NULL, (params != NULL) ? (&state) : NULL);
 
 	IL2CPP_OBJECT_SETREF (async_call, msg, message);
 	IL2CPP_OBJECT_SETREF (async_call, state, state);
 
-	if (async_callback) {
+	if (async_callback) 
+	{
 		IL2CPP_OBJECT_SETREF (async_call, cb_method, (MethodInfo*)il2cpp::vm::Runtime::GetDelegateInvoke(il2cpp::vm::Object::GetClass((Il2CppObject*)async_callback)));
 		IL2CPP_OBJECT_SETREF (async_call, cb_target, async_callback);
 	}
@@ -1343,7 +1388,6 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 {
 	Il2CppAsyncCall *ac;
 
-	//mono_error_init (error);
 	IL2CPP_ASSERT(exc);
 	IL2CPP_ASSERT(out_args);
 
@@ -1353,9 +1397,9 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 	/* check if already finished */
 	il2cpp_monitor_enter((Il2CppObject*) ares);
 
-	if (ares->endinvoke_called) {
-
-		//mono_error_set_invalid_operation(error, "Delegate EndInvoke method called more than once");
+	if (ares->endinvoke_called) 
+	{
+		il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Cannot call EndInvoke() repeatedly or concurrently on the same AsyncResult!"));
 		il2cpp_monitor_exit((Il2CppObject*) ares);
 		return NULL;
 	}
@@ -1363,9 +1407,12 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 	ares->endinvoke_called = 1;
 
 	/* wait until we are really finished */
-	if (ares->completed) {
+	if (ares->completed) 
+	{
 		il2cpp_monitor_exit((Il2CppObject *) ares);
-	} else {
+	} 
+	else 
+	{
 
 		if (!ares->handle)
 		{
@@ -1384,7 +1431,7 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 
 	ac = (Il2CppAsyncCall*) ares->object_data;
 	IL2CPP_ASSERT(ac);
-
+	
 	*exc = ((Il2CppMethodMessage*)ac->msg)->exc; /* FIXME: GC add write barrier */
 	*out_args = ac->out_args;
 	return ac->res;
@@ -1451,9 +1498,6 @@ bool ves_icall_System_Threading_ThreadPool_SetMinThreadsNative (int32_t worker_t
 	threadpool->limit_worker_min = worker_threads;
 	threadpool->limit_io_min = completion_port_threads;
 
-	// Keep our ThreadPool in sync since it is still used for a number of things (ex: delegate invoke)
-	il2cpp::icalls::mscorlib::System::Threading::ThreadPool::SetMinThreads(worker_threads, completion_port_threads);
-
 	return true;
 }
 
@@ -1470,9 +1514,6 @@ bool ves_icall_System_Threading_ThreadPool_SetMaxThreadsNative (int32_t worker_t
 
 	threadpool->limit_worker_max = worker_threads;
 	threadpool->limit_io_max = completion_port_threads;
-
-	// Keep our ThreadPool in sync since it is still used for a number of things (ex: delegate invoke)
-	il2cpp::icalls::mscorlib::System::Threading::ThreadPool::SetMaxThreads(worker_threads, completion_port_threads);
 
 	return true;
 }

@@ -172,7 +172,8 @@ template <typename Interface>
 struct ShouldCountInterface
 {
 	// From GetIids docs: The IUnknown and IInspectable interfaces are excluded.
-	static const bool value = !IsHidden<Interface>::value && !IsSame<Interface, Il2CppIUnknown>::value && !IsSame<Interface, Il2CppIInspectable>::value;
+	// From CoreCLR source code: only IInspectable interfaces are included.
+	static const bool value = !IsHidden<Interface>::value && !IsSame<Interface, Il2CppIUnknown>::value && !IsSame<Interface, Il2CppIInspectable>::value && IsBaseOf<Il2CppIInspectable, Interface>::value;
 };
 
 template <typename Chain>
@@ -262,7 +263,7 @@ public:
 		return new(memory) T(obj);
 	}
 
-	virtual void STDCALL Destroy()
+	virtual void STDCALL Destroy() IL2CPP_OVERRIDE
 	{
 		IL2CPP_ASSERT(m_RefCount == 0);
 
@@ -276,7 +277,7 @@ public:
 		return details::CastHelper<Il2CppIUnknown, MyChain>::Cast(this);
 	}
 
-	virtual il2cpp_hresult_t STDCALL QueryInterface(const Il2CppGuid& iid, void** object)
+	virtual il2cpp_hresult_t STDCALL QueryInterface(const Il2CppGuid& iid, void** object) IL2CPP_OVERRIDE
 	{
 		if (!object)
 			return IL2CPP_E_POINTER;
@@ -301,7 +302,7 @@ public:
 		return details::QueryInterfaceHelper<ComObjectBase, MyChain>::QueryInterface(this, iid, object);
 	}
 
-	virtual uint32_t STDCALL AddRef()
+	virtual uint32_t STDCALL AddRef() IL2CPP_OVERRIDE
 	{
 		const uint32_t refCount = Atomic::Increment(&m_RefCount);
 
@@ -314,7 +315,7 @@ public:
 		return refCount;
 	}
 
-	virtual uint32_t STDCALL Release()
+	virtual uint32_t STDCALL Release() IL2CPP_OVERRIDE
 	{
 		const uint32_t count = Atomic::Decrement(&m_RefCount);
 		if (count == 0)
@@ -327,22 +328,21 @@ public:
 		return count;
 	}
 
-	// !!! Note: IInspectable methods are not marked virtual so they don't add new slots if object does not implement IInspectable
-	il2cpp_hresult_t STDCALL GetIids(uint32_t* iidCount, Il2CppGuid** iids)
+	il2cpp_hresult_t STDCALL GetIids(uint32_t* iidCount, Il2CppGuid** iids) IL2CPP_OVERRIDE
 	{
 		Il2CppStaticAssert(details::IsBaseOfChained<Il2CppIInspectable, MyChain>::value);
 
 		uint32_t interfaceCount = details::InterfaceCounter<MyChain>::value;
-		Il2CppGuid* interfaceIids = static_cast<Il2CppGuid*>(vm::MarshalAlloc::Allocate(interfaceCount * sizeof(Il2CppGuid)));
+		Il2CppGuid* interfaceIds = static_cast<Il2CppGuid*>(vm::MarshalAlloc::Allocate(interfaceCount * sizeof(Il2CppGuid)));
 
-		details::InterfaceFiller<MyChain>::Fill(interfaceIids);
+		details::InterfaceFiller<MyChain>::Fill(interfaceIds);
 
 		*iidCount = interfaceCount;
-		*iids = interfaceIids;
+		*iids = interfaceIds;
 		return IL2CPP_S_OK;
 	}
 
-	il2cpp_hresult_t STDCALL GetRuntimeClassName(Il2CppHString* className)
+	il2cpp_hresult_t STDCALL GetRuntimeClassName(Il2CppHString* className) IL2CPP_OVERRIDE
 	{
 		Il2CppStaticAssert(details::IsBaseOfChained<Il2CppIInspectable, MyChain>::value);
 
@@ -351,7 +351,7 @@ public:
 		return os::WindowsRuntime::CreateHString(utils::StringView<Il2CppChar>(name.c_str(), name.length()), className);
 	}
 
-	il2cpp_hresult_t STDCALL GetTrustLevel(int32_t* trustLevel)
+	il2cpp_hresult_t STDCALL GetTrustLevel(int32_t* trustLevel) IL2CPP_OVERRIDE
 	{
 		Il2CppStaticAssert(details::IsBaseOfChained<Il2CppIInspectable, MyChain>::value);
 
@@ -359,7 +359,7 @@ public:
 		return IL2CPP_S_OK;
 	}
 
-	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(Il2CppChar** bstr)
+	virtual il2cpp_hresult_t STDCALL GetSerializedBuffer(Il2CppChar** bstr) IL2CPP_OVERRIDE
 	{
 		if (!bstr)
 			return IL2CPP_E_POINTER;
@@ -367,7 +367,7 @@ public:
 		return IL2CPP_E_NOTIMPL;
 	}
 
-	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(Il2CppChar** bstr_guid, int32_t* app_domain_id, intptr_t* ccw)
+	virtual il2cpp_hresult_t STDCALL GetObjectIdentity(Il2CppChar** bstr_guid, int32_t* app_domain_id, intptr_t* ccw) IL2CPP_OVERRIDE
 	{
 		if (!bstr_guid || !app_domain_id || !ccw)
 			return IL2CPP_E_POINTER;
@@ -382,7 +382,7 @@ public:
 		return m_ManagedObject;
 	}
 
-	virtual Il2CppObject* STDCALL GetManagedObject()
+	virtual Il2CppObject* STDCALL GetManagedObject() IL2CPP_OVERRIDE
 	{
 		return GetManagedObjectInline();
 	}
