@@ -144,7 +144,7 @@ Il2CppArray* MonoMethod::GetGenericArguments (Il2CppReflectionMethod* method)
 
 	const Il2CppGenericContainer *container = MetadataCache::GetMethodGenericContainer (methodInfo);
 
-	count = container->type_argc;
+	count = container != NULL ? container->type_argc : 0;
 	res = Array::New (il2cpp_defaults.systemtype_class, count);
 
 	for (uint32_t i = 0; i < count; i++)
