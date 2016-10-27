@@ -1076,7 +1076,6 @@
     <ClInclude Include="icalls\System\System.Threading\Semaphore.h">
       <Filter>icalls\System\System.Threading</Filter>
     </ClInclude>
-    <ClInclude Include="types.h" />
     <ClInclude Include="os\Console.h">
       <Filter>os</Filter>
     </ClInclude>
@@ -1357,6 +1356,7 @@
       <Filter>gc</Filter>
     </ClInclude>
     <ClInclude Include="vm\GC.h" />
+    <ClInclude Include="il2cpp-string-types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
