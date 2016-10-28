@@ -306,12 +306,6 @@ const MethodInfo* MetadataCache::GetGenericMethodDefinition(const MethodInfo* me
 
 const Il2CppGenericContainer* MetadataCache::GetMethodGenericContainer(const MethodInfo* method)
 {
-	if (!method->is_generic)
-	{
-		NOT_IMPLEMENTED (Image::GetMethodGenericContainer);
-		return NULL;
-	}
-
 	return method->genericContainer;
 }
 
