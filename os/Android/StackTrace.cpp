@@ -3,8 +3,12 @@
 #if IL2CPP_TARGET_ANDROID
 
 #include "os/StackTrace.h"
+#include "os/Image.h"
 
 #include <unwind.h>
+#include <dlfcn.h>
+#include <pthread.h>
+#include <string.h>
 
 namespace il2cpp
 {
@@ -15,6 +19,34 @@ const int kMaxStackFrames = 128;
 
 namespace
 {
+
+extern "C" char end;
+
+uintptr_t s_BaseAddress;
+uintptr_t s_EndAddress;
+pthread_once_t s_InitKnownSymbolInfoOnceFlag = PTHREAD_ONCE_INIT;
+
+static void InitKnownSymbolInfo()
+{
+	s_BaseAddress = reinterpret_cast<uintptr_t>(os::Image::GetImageBase());
+	s_EndAddress = reinterpret_cast<uintptr_t>(&end);
+}
+
+static bool KnownSymbol(const uintptr_t addr)
+{
+	pthread_once(&s_InitKnownSymbolInfoOnceFlag, &InitKnownSymbolInfo);
+
+	if (addr >= s_BaseAddress && addr <= s_EndAddress)
+		return true;
+
+	Dl_info info;
+	if (!dladdr(reinterpret_cast<void*>(addr), &info))
+		return false;
+
+	const char* const slash = strrchr(info.dli_fname, '/');
+	return slash && strcmp(slash + 1, "libunity.so") == 0;
+}
+
 struct AndroidStackTrace
 {
 	size_t size;
@@ -31,7 +63,13 @@ struct AndroidStackTrace
 
 	static _Unwind_Reason_Code Callback(struct _Unwind_Context* context, void* self)
 	{
-		if (static_cast<AndroidStackTrace*>(self)->PushStackFrameAddress(_Unwind_GetIP(context)))
+		const uintptr_t addr = _Unwind_GetIP(context);
+
+		// Workaround to avoid crash when generating stack trace in some third-party libraries
+		if (!KnownSymbol(addr))
+			return _URC_END_OF_STACK;
+
+		if (static_cast<AndroidStackTrace*>(self)->PushStackFrameAddress(addr))
 			return _URC_NO_REASON;
 		else
 			return _URC_END_OF_STACK;
