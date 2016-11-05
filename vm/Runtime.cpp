@@ -737,6 +737,11 @@ static bool CompareEndOfSymbols (const SymbolInfo &a, const SymbolInfo &b)
 
 static bool s_TriedToInitializeSymbolInfo = false;
 
+static uint64_t AbsoluteDifference(uint64_t a, uint64_t b)
+{
+	return a > b ? a - b : b - a;
+}
+
 const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer nativeMethod)
 {
 	if (!s_TriedToInitializeSymbolInfo)
@@ -764,6 +769,12 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		SymbolInfo* containingSymbol = std::upper_bound (s_SymbolInfos, end, interiorSymbol, &CompareEndOfSymbols);
 
 		if (containingSymbol == end)
+			return NULL;
+
+		// We only include managed methods in the symbol data. A lookup for a native method might find the
+		// next managed method in the data. This will be incorrect, so check the size, to make sure the
+		// interior symbol is really within the method found in the containing symbol.
+		if (AbsoluteDifference(containingSymbol->address, interiorSymbol.address) > containingSymbol->length)
 			return NULL;
 
 		nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
