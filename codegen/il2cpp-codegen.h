@@ -888,6 +888,8 @@ inline bool il2cpp_codegen_type_implements_virtual_method(Il2CppClass* type, int
 
 inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInfo* methodInfo)
 {
+	if (methodInfo->is_inflated)
+		methodInfo = il2cpp::vm::MetadataCache::GetGenericMethodDefinition(methodInfo);
 	return (Il2CppCodeGenMethodBase*)il2cpp::vm::Reflection::GetMethodObject(methodInfo, methodInfo->declaring_type);
 }
 
