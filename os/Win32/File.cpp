@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_PLATFORM_WIN32
+#if IL2CPP_TARGET_WINDOWS
 
 #include "WindowsHelpers.h"
 
@@ -13,10 +13,10 @@
 #undef CreatePipe
 
 #include "os/File.h"
+#include "vm/Exception.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 
-#include <cassert>
 #include <stdint.h>
 
 static inline int Win32ErrorToErrorCode (DWORD win32ErrorCode)
@@ -29,10 +29,12 @@ namespace il2cpp
 namespace os
 {
 
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
+
 bool File::Isatty(FileHandle* fileHandle)
 {
-	NOT_IMPLEMENTED_ICALL(File::IsAtty);
-	return false;
+	DWORD mode;
+	return GetConsoleMode((HANDLE)fileHandle, &mode) != 0;
 }
 
 FileHandle* File::GetStdInput ()
@@ -40,7 +42,6 @@ FileHandle* File::GetStdInput ()
 	return (FileHandle*)GetStdHandle (STD_INPUT_HANDLE);
 }
 
-#if !IL2CPP_TARGET_XBOXONE
 FileHandle* File::GetStdError ()
 {
 	return (FileHandle*)GetStdHandle (STD_ERROR_HANDLE);
@@ -50,13 +51,39 @@ FileHandle* File::GetStdOutput ()
 {
 	return (FileHandle*)GetStdHandle (STD_OUTPUT_HANDLE);
 }
+
 #endif
 
 bool File::CreatePipe (FileHandle** read_handle, FileHandle** write_handle)
 {
-	return false;
+	int error;
+	return CreatePipe(read_handle, write_handle, &error);
 }
 
+bool File::CreatePipe(FileHandle** read_handle, FileHandle** write_handle, int* error)
+{
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
+	SECURITY_ATTRIBUTES attr;
+
+	attr.nLength = sizeof(SECURITY_ATTRIBUTES);
+	attr.bInheritHandle = TRUE;
+	attr.lpSecurityDescriptor = NULL;
+
+	bool ret = ::CreatePipe((PHANDLE)read_handle, (PHANDLE)write_handle, &attr, 0);
+
+	if (ret == FALSE) {
+		*error = GetLastError();
+		/* FIXME: throw an exception? */
+		return false;
+	}
+
+	return true;
+#else
+	vm::Exception::Raise(vm::Exception::GetNotSupportedException("Pipes are not supported on WinRT based platforms."));
+#endif
+}
+
+#if !IL2CPP_TARGET_XBOXONE
 File::FileAttributes File::GetFileAttributes (const std::string& path, int *error)
 {
 	const UTF16String utf16Path (utils::StringUtils::Utf8ToUtf16 (path.c_str()));
@@ -72,6 +99,7 @@ File::FileAttributes File::GetFileAttributes (const std::string& path, int *erro
 	*error = kErrorCodeSuccess;
 	return static_cast<FileAttributes>(fileAttributes.dwFileAttributes);
 }
+#endif
 
 bool File::SetFileAttributes (const std::string& path, FileAttributes attributes, int* error)
 {
@@ -436,6 +464,24 @@ void File::Unlock (FileHandle* handle,  int64_t position, int64_t length, int* e
 
 	if (!::UnlockFileEx((HANDLE)handle, 0, lengthUnion.LowPart, lengthUnion.HighPart, &overlapped))
 		*error = Win32ErrorToErrorCode (::GetLastError ());
+}
+
+bool File::DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
+	FileHandle** target_handle, int access, int inherit, int options, int* error)
+{
+	/* This is only used on Windows */
+
+	//MONO_PREPARE_BLOCKING;
+	BOOL ret = ::DuplicateHandle((HANDLE)source_process_handle, (HANDLE)source_handle, (HANDLE)target_process_handle, (LPHANDLE)target_handle, access, inherit, options);
+	//MONO_FINISH_BLOCKING;
+
+	if (ret == FALSE) {
+		*error = GetLastError();
+		/* FIXME: throw an exception? */
+		return false;
+	}
+
+	return true;
 }
 
 }

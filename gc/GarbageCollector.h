@@ -1,5 +1,7 @@
 #pragma once
 
+struct Il2CppGuid;
+struct Il2CppIUnknown;
 struct Il2CppObject;
 struct Il2CppThread;
 
@@ -18,6 +20,7 @@ public:
 
 public:
 	// internal
+	typedef void (*FinalizerCallback)(void* object, void* client_data);
 
 	// functions implemented in a GC agnostic manner
 	static void InitializeFinalizer ();
@@ -26,18 +29,20 @@ public:
 	static void Uninitialize ();
 	static void NotifyFinalizers ();
 	static void RunFinalizer(void *obj, void *data);
+	static void RegisterFinalizerForNewObject(Il2CppObject* obj);
 	static void RegisterFinalizer(Il2CppObject* obj);
 	static void SuppressFinalizer(Il2CppObject* obj);
 	static void WaitForPendingFinalizers();
 	static int32_t GetMaxGeneration();
 	static void AddMemoryPressure(int64_t value);
+	static Il2CppIUnknown* GetOrCreateCCW(Il2CppObject* obj, const Il2CppGuid& iid);
 
 	// functions implemented in a GC specific manner
 	static void Initialize();
 	static void Enable ();
 	static void Disable ();
 
-	static void RegisterFinalizerWithCallback(Il2CppObject* obj, void(*callback)(void *, void *));
+	static FinalizerCallback RegisterFinalizerWithCallback(Il2CppObject* obj, FinalizerCallback callback);
 
 	static int64_t GetAllocatedHeapSize ();
 
@@ -68,6 +73,10 @@ public:
 
 	typedef void* (*GCCallWithAllocLockCallback)(void* user_data);
 	static void* CallWithAllocLockHeld (GCCallWithAllocLockCallback callback, void* user_data);
+
+#if NET_4_0
+	static void SetSkipThread(bool skip);
+#endif
 };
 
 } /* namespace vm */

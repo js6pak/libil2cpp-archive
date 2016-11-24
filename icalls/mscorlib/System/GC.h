@@ -27,6 +27,10 @@ public:
 	static void SuppressFinalize(Il2CppObject *);
 	static void RecordPressure (int64_t bytesAllocated);
 	static void WaitForPendingFinalizers();
+#if NET_4_0
+	static Il2CppObject* get_ephemeron_tombstone();
+	static void register_ephemeron_array(Il2CppArray* array);
+#endif
 };
 
 } /* namespace System */

@@ -112,11 +112,11 @@ void Variant::WriteTo(Buffer &out) const
 
 		case IL2CPP_TYPE_GENERICINST:
 			LOG("Encoding of generic instance types not supported yet.");
-			assert(0 && "Variant::WriteTo: encoding of generic instance types not supported yet");
+			IL2CPP_ASSERT(0 && "Variant::WriteTo: encoding of generic instance types not supported yet");
 			break;
 
 		default:
-			assert(0 && "Variant::WriteTo: unexpected type");
+			IL2CPP_ASSERT(0 && "Variant::WriteTo: unexpected type");
 			break;
 	}
 }
@@ -186,7 +186,7 @@ ErrorCode Variant::ReadInto(Buffer &in, const Il2CppType *expected_type, void *a
 		else
 			goto handle_ref;*/
 		LOG("Decoding of generic instance types not supported yet.");
-		assert(0 && "Variant::ReadFrom: encoding of generic instance types not supported yet");
+		IL2CPP_ASSERT(0 && "Variant::ReadFrom: encoding of generic instance types not supported yet");
 		break;
 		
 	// handle_vtype:
@@ -196,7 +196,7 @@ ErrorCode Variant::ReadInto(Buffer &in, const Il2CppType *expected_type, void *a
 		{
 			bool is_enum = in.ReadBool();
 			
-			assert(!is_enum && "Variant::ReadFrom: is_enum not implemented!");
+			IL2CPP_ASSERT(!is_enum && "Variant::ReadFrom: is_enum not implemented!");
 
 			Il2CppClass *klass = in.ReadType();
 
@@ -217,14 +217,14 @@ ErrorCode Variant::ReadInto(Buffer &in, const Il2CppType *expected_type, void *a
 				--fields_count;
 			}
 
-			assert(fields_count == 0 && "Variant::ReadFrom: some fields have not been decoded properly!");
+			IL2CPP_ASSERT(fields_count == 0 && "Variant::ReadFrom: some fields have not been decoded properly!");
 		}
 		break;
 
 	// handle_ref:
 	default:
 		{
-			assert(!vm::Type::IsValueType (expected_type) && "Variant::ReadFrom: expecting a reference type!");
+			IL2CPP_ASSERT(!vm::Type::IsValueType (expected_type) && "Variant::ReadFrom: expecting a reference type!");
 
 			switch(type_code)
 			{
@@ -244,7 +244,7 @@ ErrorCode Variant::ReadInto(Buffer &in, const Il2CppType *expected_type, void *a
 				break;
 
 			default:
-				assert(0 && "Variant::ReadFrom: unexpected type code!");
+				IL2CPP_ASSERT(0 && "Variant::ReadFrom: unexpected type code!");
 				break;
 			}
 		}

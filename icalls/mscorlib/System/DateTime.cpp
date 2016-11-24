@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include "icalls/mscorlib/System/DateTime.h"
 #include "os/Time.h"
 
@@ -23,6 +22,13 @@ int64_t DateTime::GetTimeMonotonic ()
 {
 	return Time::GetTicks100NanosecondsMonotonic ();
 }
+
+#if NET_4_0
+int64_t DateTime::GetSystemTimeAsFileTime()
+{
+	return Time::GetSystemTimeAsFileTime();
+}
+#endif
 
 } /* namespace System */
 } /* namespace mscorlib */

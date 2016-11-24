@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/mscorlib/System.IO/DriveInfo.h"
 #include "vm/Exception.h"
 
@@ -30,6 +28,15 @@ uint32_t DriveInfo::GetDriveTypeInternal (Il2CppString* rootPathName)
 	
 	return 0;
 }
+
+#if NET_4_0
+Il2CppString* DriveInfo::GetDriveFormat(Il2CppString* rootPathName)
+{
+	NOT_IMPLEMENTED_ICALL(DriveInfo::GetDriveFormat);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
 
 } /* namespace IO */
 } /* namespace System */

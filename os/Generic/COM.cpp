@@ -13,7 +13,7 @@ namespace os
 il2cpp_hresult_t COM::CreateInstance(const Il2CppGuid& clsid, Il2CppIUnknown** object)
 {
 	NO_UNUSED_WARNING(clsid);
-	assert(object);
+	IL2CPP_ASSERT(object);
 	*object = NULL;
 	return IL2CPP_REGDB_E_CLASSNOTREG;
 }
@@ -21,9 +21,9 @@ il2cpp_hresult_t COM::CreateInstance(const Il2CppGuid& clsid, Il2CppIUnknown** o
 il2cpp_hresult_t COM::CreateFreeThreadedMarshaler(Il2CppIUnknown* outer, Il2CppIUnknown** marshal)
 {
 	NO_UNUSED_WARNING(outer);
-	assert(marshal);
+	IL2CPP_ASSERT(marshal);
 	*marshal = NULL;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 }
@@ -52,7 +52,7 @@ void COM::VariantInit(Il2CppVariant* variant)
 il2cpp_hresult_t COM::VariantClear(Il2CppVariant* variant)
 {
 	NO_UNUSED_WARNING(variant);
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 // safe array
@@ -68,29 +68,29 @@ Il2CppSafeArray* COM::SafeArrayCreate(uint16_t type, uint32_t dimention_count, I
 il2cpp_hresult_t COM::SafeArrayDestroy(Il2CppSafeArray* safeArray)
 {
 	NO_UNUSED_WARNING(safeArray);
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 il2cpp_hresult_t COM::SafeArrayAccessData(Il2CppSafeArray* safeArray, void** data)
 {
 	NO_UNUSED_WARNING(safeArray);
-	assert(data);
+	IL2CPP_ASSERT(data);
 	*data = NULL;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 il2cpp_hresult_t COM::SafeArrayUnaccessData(Il2CppSafeArray* safeArray)
 {
 	NO_UNUSED_WARNING(safeArray);
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 il2cpp_hresult_t COM::SafeArrayGetVartype(Il2CppSafeArray* safeArray, uint16_t* type)
 {
 	NO_UNUSED_WARNING(safeArray);
-	assert(type);
+	IL2CPP_ASSERT(type);
 	*type = 0;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 uint32_t COM::SafeArrayGetDim(Il2CppSafeArray* safeArray)
@@ -103,18 +103,18 @@ il2cpp_hresult_t COM::SafeArrayGetLBound(Il2CppSafeArray* safeArray, uint32_t di
 {
 	NO_UNUSED_WARNING(safeArray);
 	NO_UNUSED_WARNING(dimention);
-	assert(bound);
+	IL2CPP_ASSERT(bound);
 	*bound = 0;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 il2cpp_hresult_t COM::SafeArrayGetUBound(Il2CppSafeArray* safeArray, uint32_t dimention, int32_t* bound)
 {
 	NO_UNUSED_WARNING(safeArray);
 	NO_UNUSED_WARNING(dimention);
-	assert(bound);
+	IL2CPP_ASSERT(bound);
 	*bound = 0;
-	return IL2CPP_E_NOTIMPL;
+	return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
 }
 
 }

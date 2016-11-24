@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/Module.h"
-#include <cassert>
 #include "vm/Exception.h"
 #include "vm/Module.h"
 #include "vm/Image.h"
@@ -36,13 +35,13 @@ Il2CppArray* Module::InternalGetTypes (Il2CppReflectionModule * self)
 	return result;
 }
 
-Il2CppString* Module::GetGuidInternal (mscorlib_System_Reflection_Module * __this)
+Il2CppString* Module::GetGuidInternal (mscorlib_System_Reflection_Module * thisPtr)
 {
 	NOT_IMPLEMENTED_ICALL (Module::GetGuidInternal);
 	return 0;
 }
 
-Il2CppIntPtr Module::GetHINSTANCE (mscorlib_System_Reflection_Module * __this)
+Il2CppIntPtr Module::GetHINSTANCE (mscorlib_System_Reflection_Module * thisPtr)
 {
 	NOT_IMPLEMENTED_ICALL (Module::GetHINSTANCE);
 	return Il2CppIntPtr();

@@ -1,8 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-
-#include <cassert>
+#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_WINDOWS
 
 #include <time.h>
 #include <string.h>
@@ -13,7 +11,7 @@
 #include "WindowsHelpers.h"
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#if IL2CPP_TARGET_WINDOWS
+#if !IL2CPP_TARGET_XBOXONE
 	#include <mswsock.h>
 #endif
 #include "os/Error.h"
@@ -363,9 +361,9 @@ WaitStatus SocketImpl::Create (AddressFamily family, SocketType type, ProtocolTy
 	_type = convert_socket_type (type);
 	_protocol = convert_socket_protocol (protocol);
 
-	assert (_type != -1 && "Unsupported socket type");
-	assert (_domain != -1 && "Unsupported address family");
-	assert (_protocol != -1 && "Unsupported protocol type");
+	IL2CPP_ASSERT(_type != -1 && "Unsupported socket type");
+	IL2CPP_ASSERT(_domain != -1 && "Unsupported address family");
+	IL2CPP_ASSERT(_protocol != -1 && "Unsupported protocol type");
 
 	_fd = socket (_domain, _type, _protocol);
 	if (_fd == -1 && _domain == AF_INET && _type == SOCK_RAW && _protocol == 0)
@@ -441,9 +439,9 @@ WaitStatus SocketImpl::Create (SocketDescriptor fd, int32_t family, int32_t type
 	_type = type;
 	_protocol = protocol;
 
-	assert (_type != -1 && "Unsupported socket type");
-	assert (_domain != -1 && "Unsupported address family");
-	assert (_protocol != -1 && "Unsupported protocol type");
+	IL2CPP_ASSERT(_type != -1 && "Unsupported socket type");
+	IL2CPP_ASSERT(_domain != -1 && "Unsupported address family");
+	IL2CPP_ASSERT(_protocol != -1 && "Unsupported protocol type");
 
 	return kWaitStatusSuccess;
 }
@@ -972,7 +970,7 @@ WaitStatus SocketImpl::Receive (const uint8_t *data, int32_t count, os::SocketFl
 WaitStatus SocketImpl::ReceiveFromInternal(const uint8_t *data, size_t count, int32_t flags, int32_t *len, struct sockaddr *from, int32_t *fromlen)
 {
 	int32_t ret = 0;
-	assert(count < static_cast<size_t>(std::numeric_limits<int>::max()));
+	IL2CPP_ASSERT(count < static_cast<size_t>(std::numeric_limits<int>::max()));
 
 	SOCKET fd = (SOCKET)_fd;
 	if (fd == -1)
@@ -1313,7 +1311,7 @@ WaitStatus SocketImpl::Available (int32_t *amount)
 
 WaitStatus SocketImpl::Ioctl (int32_t command, const uint8_t *in_data, int32_t in_len, uint8_t *out_data, int32_t out_len, int32_t *written)
 {
-	assert (command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
+	IL2CPP_ASSERT(command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
 
 	SOCKET fd = (SOCKET)_fd;
 	if (fd == -1)
@@ -1745,9 +1743,9 @@ WaitStatus SocketImpl::GetSocketOptionFull (SocketOptionLevel level, SocketOptio
 	return kWaitStatusSuccess;
 }
 
-WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout, int32_t *result, int32_t *error)
+WaitStatus SocketImpl::Poll (std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error)
 {
-	const size_t nfds = requests.size ();
+	const size_t nfds = (size_t)count;
 	fd_set rfds, wfds, efds;
 
 	FD_ZERO(&rfds);
@@ -1755,7 +1753,7 @@ WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout,
 	FD_ZERO(&efds);
 
 	for (size_t i = 0; i < nfds; i++)
-	{		
+	{
 		SOCKET fd = static_cast<SOCKET>(requests[i].fd);
 		requests[i].revents = kPollFlagsNone;
 		if (fd == -1)
@@ -1792,10 +1790,17 @@ WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout,
 	if (affected == -1)
 	{
 		*error = WSAGetLastError();
+
+		// Mono does this as well and the threadpool-ms-io-poll code depends on this behavior
+		if (*error == WSAENOTSOCK)
+		{
+			*error = os::SocketError::kInvalidHandle;
+		}
+
 		return kWaitStatusFailure;
 	}
 
-	int32_t count = 0;
+	int32_t resultCount = 0;
 	for (size_t i = 0; i < nfds && affected > 0; i++)
 	{
 		SOCKET fd = static_cast<SOCKET>(requests[i].fd);
@@ -1821,11 +1826,23 @@ WaitStatus SocketImpl::Poll(std::vector<PollRequest>& requests, int32_t timeout,
 		}
 
 		if (requests[i].revents != kPollFlagsNone)
-			count++;
+			resultCount++;
 	}
 
-	*result = count;
+	*result = resultCount;
 	return kWaitStatusSuccess;
+}
+
+WaitStatus SocketImpl::Poll (std::vector<PollRequest>& requests, int32_t timeout, int32_t *result, int32_t *error)
+{
+	return Poll(requests, (int32_t)requests.size(), timeout, result, error);
+}
+
+WaitStatus SocketImpl::Poll (PollRequest& request, int32_t timeout, int32_t *result, int32_t *error)
+{
+	std::vector<PollRequest> requests;
+	requests.push_back(request);
+	return Poll(requests, 1, timeout, result, error);
 }
 
 WaitStatus SocketImpl::SetSocketOption (SocketOptionLevel level, SocketOptionName name, int32_t value)

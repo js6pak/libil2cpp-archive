@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <memory>
 #include "object-internals.h"
 #include "class-internals.h"
@@ -88,6 +87,15 @@ void RuntimeHelpers::RunModuleConstructor (Il2CppIntPtr module)
 {
 	NOT_SUPPORTED_IL2CPP (RuntimeHelpers::RunModuleConstructor, "This icall is not supported by il2cpp.");
 }
+
+#if NET_4_0
+bool RuntimeHelpers::SufficientExecutionStack()
+{
+	NOT_IMPLEMENTED_ICALL(RuntimeHelpers::SufficientExecutionStack);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
 
 } /* namespace CompilerServices */
 } /* namespace Runtime */

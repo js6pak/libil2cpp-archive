@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <assert.h>
 #include <stddef.h>
@@ -17,24 +17,17 @@
 	#define IL2CPP_TARGET_PS4 1
 	#define _UNICODE 1
 	#define UNICODE 1
-#elif defined(_XBOX)
-	#define IL2CPP_TARGET_XBOX360 1
-	#define _UNICODE 1
-	#define UNICODE 1
-#elif defined(_XBOX_ONE)
-	#define IL2CPP_TARGET_XBOXONE 1
-	#define _UNICODE 1
-	#define UNICODE 1
 #elif defined(_MSC_VER)
 	#define IL2CPP_TARGET_WINDOWS 1
-	#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+	#if defined(_XBOX_ONE)
+		#define IL2CPP_TARGET_XBOXONE 1
+	#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
 		#define IL2CPP_TARGET_WINRT 1
 	#else
-		#define IL2CPP_TARGET_WINRT 0
+		#define IL2CPP_TARGET_WINDOWS_DESKTOP 1
 	#endif
 	#define _UNICODE 1
 	#define UNICODE 1
-	#define NOMINMAX 1
 	#define STRICT 1
 #elif defined(__APPLE__)
 	#define IL2CPP_TARGET_DARWIN 1
@@ -58,6 +51,18 @@
 
 #ifndef IL2CPP_TARGET_WINDOWS
 #define IL2CPP_TARGET_WINDOWS 0
+#endif
+
+#ifndef IL2CPP_TARGET_WINDOWS_DESKTOP
+#define IL2CPP_TARGET_WINDOWS_DESKTOP 0
+#endif
+
+#ifndef IL2CPP_TARGET_WINRT
+#define IL2CPP_TARGET_WINRT 0
+#endif
+
+#ifndef IL2CPP_TARGET_XBOXONE
+#define IL2CPP_TARGET_XBOXONE 0
 #endif
 
 #ifndef IL2CPP_TARGET_DARWIN
@@ -84,14 +89,6 @@
 #define IL2CPP_TARGET_LINUX 0
 #endif
 
-#ifndef IL2CPP_TARGET_XBOX360
-#define IL2CPP_TARGET_XBOX360 0
-#endif
-
-#ifndef IL2CPP_TARGET_XBOXONE
-#define IL2CPP_TARGET_XBOXONE 0
-#endif
-
 #ifndef IL2CPP_TARGET_N3DS
 #define IL2CPP_TARGET_N3DS 0
 #endif
@@ -106,7 +103,6 @@
 
 #define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_TIZEN)
 #define IL2CPP_COMPILER_MSVC (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-#define IL2CPP_PLATFORM_WIN32 (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 
 #ifndef IL2CPP_EXCEPTION_DISABLED
 #define IL2CPP_EXCEPTION_DISABLED 0
@@ -139,6 +135,15 @@
 # define LIBIL2CPP_CODEGEN_API
 #endif
 
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
+#include <crtdbg.h>
+#define IL2CPP_ASSERT(expr) \
+	_ASSERTE(expr)
+#else
+#define IL2CPP_ASSERT(expr) \
+	assert(expr)
+#endif
+
 #if defined(__ARMCC_VERSION)
 	#include <assert.h>
 	#include <wchar.h>
@@ -157,7 +162,7 @@
 #if defined(_MSC_VER)
 	#if defined(_M_X64)
 		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(_M_IX86) || defined(_M_ARM) || defined(_XBOX)
+	#elif defined(_M_IX86) || defined(_M_ARM)
 		#define IL2CPP_SIZEOF_VOID_P 4
 	#else
 		#error invalid windows architecture
@@ -248,7 +253,7 @@
 
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \
-	assert ((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
+	IL2CPP_ASSERT((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
 
 // 64-bit types are aligned to 8 bytes on 64-bit platforms and always on Windows
 #define IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT ((IL2CPP_SIZEOF_VOID_P == 8) || (IL2CPP_TARGET_WINDOWS))
@@ -265,12 +270,10 @@
 
 #define IL2CPP_THREADS_STD IL2CPP_USE_STD_THREAD
 #define IL2CPP_THREADS_PTHREAD (!IL2CPP_THREADS_STD && IL2CPP_TARGET_POSIX)
-#define IL2CPP_THREADS_WIN32 (!IL2CPP_THREADS_STD && (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE))
+#define IL2CPP_THREADS_WIN32 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_WINDOWS)
 #define IL2CPP_THREADS_N3DS (!IL2CPP_THREADS_STD && IL2CPP_TARGET_N3DS)
 #define IL2CPP_THREADS_PS4 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PS4)
 #define IL2CPP_THREADS_PSP2 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PSP2)
-
-#define IL2CPP_THREADS_ALL_ACCESS (!IL2CPP_THREADS_STD && IL2CPP_TARGET_XBOXONE)
 
 #if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS && !IL2CPP_THREADS_PS4 && !IL2CPP_THREADS_PSP2))
 #error "No thread implementation defined"
@@ -279,7 +282,7 @@
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
 #define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD)
 
-#define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS IL2CPP_TARGET_WINDOWS
 
 #if !defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE) && IL2CPP_TARGET_IOS
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
@@ -288,7 +291,7 @@
 #define IL2CPP_ENABLE_STACKTRACES 1
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
-#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_IOS || IL2CPP_TARGET_TIZEN)
+#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_TIZEN || IL2CPP_TARGET_ANDROID)
 #endif
 
 /* Platforms which use stacktrace sentries */
@@ -324,7 +327,6 @@
 #endif
 
 #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
-#define IL2CPP_HAS_UNORDERED_CONTAINER (!defined(__ARMCC_VERSION))	// could be made platform specific rather than toolchain specific
 
 /* clang specific __has_builtin check */
 #ifndef __has_builtin
@@ -362,13 +364,13 @@ typedef uint32_t Il2CppMethodSlot;
 
 #define NOT_IMPLEMENTED_ICALL(func) \
 	PRAGMA_MESSAGE(ICALLMESSAGE(#func)) \
-	assert(0 && #func)
+	IL2CPP_ASSERT(0 && #func)
 #define NOT_IMPLEMENTED_ICALL_NO_ASSERT(func,reason) \
 	PRAGMA_MESSAGE(ICALLMESSAGE(#func))
 
 #define NOT_IMPLEMENTED(func) \
 	PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func)) \
-	assert(0 && #func)
+	IL2CPP_ASSERT(0 && #func)
 #define NOT_IMPLEMENTED_NO_ASSERT(func,reason) \
 	PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func))
 
@@ -430,14 +432,14 @@ typedef uint32_t Il2CppMethodSlot;
 	#define IL2CPP_USE_GENERIC_SOCKET_IMPL	(!IL2CPP_TARGET_POSIX || IL2CPP_TARGET_JAVASCRIPT)
 #endif
 
-#define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 
-#define IL2CPP_USE_GENERIC_COM	(!IL2CPP_PLATFORM_WIN32)
-#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS	(!IL2CPP_TARGET_WINDOWS)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_PLATFORM_WIN32)
+#define IL2CPP_USE_GENERIC_COM	(!IL2CPP_TARGET_WINDOWS)
+#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS	(!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
-#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
+#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
 #endif
 
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
@@ -454,7 +456,16 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PSP2 )
 #endif
 
-#define Assert(x) do { (void)(x); assert(x); } while (false)
+template <bool value>
+struct Il2CppStaticAssertHelper;
+
+template <>
+struct Il2CppStaticAssertHelper<true>
+{
+};
+
+#define Assert(x) do { (void)(x); IL2CPP_ASSERT(x); } while (false)
+#define Il2CppStaticAssert(...) do { Il2CppStaticAssertHelper<(__VA_ARGS__)>(); } while (false)
 
 const int32_t kIl2CppInt32Min = INT32_MIN;
 const int32_t kIl2CppInt32Max = INT32_MAX;
@@ -473,22 +484,6 @@ const uint64_t kIl2CppUInt64Max = UINT64_MAX;
 	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
 
-
-#if IL2CPP_TARGET_ANDROID && defined(__i386__)
-// On Android with x86, function pointers are not aligned, so we
-// need to use all of the bits when comparing them. Hence we mask
-// nothing.
-#define IL2CPP_POINTER_SPARE_BITS 0
-#else
-// On ARMv7 with Thumb instructions the lowest bit is always set.
-// With Thumb2 the second-to-lowest bit is also set. Mask both of
-// them off so that we can do a comparison properly based on the data
-// from the linker map file. On other architectures this operation should
-// not matter, as we assume these two bits are always zero because the pointer
-// will be aligned.
-#define IL2CPP_POINTER_SPARE_BITS 3
-#endif
-
 const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
 
@@ -500,17 +495,40 @@ const int ipv6AddressSize = 16;
 
 typedef int32_t il2cpp_hresult_t;
 
-#define IL2CPP_S_OK ((il2cpp_hresult_t)0)
-#define IL2CPP_E_NOTIMPL ((il2cpp_hresult_t)0x80004001)
-#define IL2CPP_E_NOINTERFACE ((il2cpp_hresult_t)0x80004002)
-#define IL2CPP_E_POINTER ((il2cpp_hresult_t)0x80004003)
-#define IL2CPP_DISP_E_PARAMNOTFOUND ((il2cpp_hresult_t)0x80020004)
-#define IL2CPP_E_OUTOFMEMORY ((il2cpp_hresult_t)0x8007000E)
-#define IL2CPP_E_INVALIDARG ((il2cpp_hresult_t)0x80070057)
-#define IL2CPP_E_UNEXPECTED ((il2cpp_hresult_t)0x8000FFFF)
-#define IL2CPP_REGDB_E_CLASSNOTREG ((il2cpp_hresult_t)0x80040154)
+// Sorted numerically!
+#define IL2CPP_S_OK                          ((il2cpp_hresult_t)0)
+#define IL2CPP_E_BOUNDS                      ((il2cpp_hresult_t)0x8000000B)
+#define IL2CPP_E_CHANGED_STATE               ((il2cpp_hresult_t)0x8000000C)
+#define IL2CPP_E_ILLEGAL_METHOD_CALL         ((il2cpp_hresult_t)0x8000000E)
+#define IL2CPP_RO_E_CLOSED                   ((il2cpp_hresult_t)0x80000013)
+#define IL2CPP_E_NOTIMPL                     ((il2cpp_hresult_t)0x80004001)
+#define IL2CPP_E_NOINTERFACE                 ((il2cpp_hresult_t)0x80004002)
+#define IL2CPP_E_POINTER                     ((il2cpp_hresult_t)0x80004003)
+#define IL2CPP_E_ABORT                       ((il2cpp_hresult_t)0x80004004)
+#define IL2CPP_E_FAIL                        ((il2cpp_hresult_t)0x80004005)
+#define IL2CPP_E_UNEXPECTED                  ((il2cpp_hresult_t)0x8000FFFF)
+#define IL2CPP_RPC_E_DISCONNECTED            ((il2cpp_hresult_t)0x80010108)
+#define IL2CPP_RPC_E_WRONG_THREAD            ((il2cpp_hresult_t)0x8001010E)
+#define IL2CPP_DISP_E_PARAMNOTFOUND          ((il2cpp_hresult_t)0x80020004)
+#define IL2CPP_REGDB_E_CLASSNOTREG           ((il2cpp_hresult_t)0x80040154)
+#define IL2CPP_E_ACCESS_DENIED               ((il2cpp_hresult_t)0x80070005)
+#define IL2CPP_E_OUTOFMEMORY                 ((il2cpp_hresult_t)0x8007000E)
+#define IL2CPP_E_INVALIDARG                  ((il2cpp_hresult_t)0x80070057)
+#define IL2CPP_COR_E_EXCEPTION               ((il2cpp_hresult_t)0x80131500)
+#define IL2CPP_COR_E_PLATFORMNOTSUPPORTED    ((il2cpp_hresult_t)0x80131539)
+#define IL2CPP_COR_E_OPERATIONCANCELED       ((il2cpp_hresult_t)0x8013153B)
 
 #define IL2CPP_HR_SUCCEEDED(hr) (((il2cpp_hresult_t)(hr)) >= 0)
 #define IL2CPP_HR_FAILED(hr) (((il2cpp_hresult_t)(hr)) < 0)
 
 #include "il2cpp-api-types.h"
+
+#define IL2CPP_LITTLE_ENDIAN 1
+#define IL2CPP_BIG_ENDIAN 2
+#define IL2CPP_BYTE_ORDER IL2CPP_LITTLE_ENDIAN
+
+#if (defined(_MSC_VER) && _MSC_VER > 1600) || (__has_feature(cxx_override_control))
+#define IL2CPP_OVERRIDE override
+#else
+#define IL2CPP_OVERRIDE
+#endif

@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/MonoField.h"
-#include <cassert>
 #include "utils/StringUtils.h"
 #include "utils/BlobReader.h"
 #include "vm/Class.h"
@@ -75,7 +74,7 @@ void MonoField::SetValueInternal (Il2CppReflectionField* field, Il2CppObject* ob
 	}
 	else
 	{
-		assert(obj);
+		IL2CPP_ASSERT(obj);
 		fieldAddress = reinterpret_cast<uint8_t*>(obj) + fieldInfo->offset;
 	}
 
@@ -161,6 +160,22 @@ Il2CppObject* MonoField::GetRawConstantValue (Il2CppReflectionField* field)
 
 	return NULL;
 }
+
+#if NET_4_0
+int32_t MonoField::get_core_clr_security_level(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL(MonoField::get_core_clr_security_level);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+
+Il2CppObject* MonoField::ResolveType(Il2CppObject* _this)
+{
+	NOT_IMPLEMENTED_ICALL(MonoField::ResolveType);
+	IL2CPP_UNREACHABLE;
+	return NULL;
+}
+#endif
 
 } /* namespace Reflection */
 } /* namespace System */

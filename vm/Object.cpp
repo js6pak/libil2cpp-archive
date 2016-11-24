@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include <memory>
-#include <cassert>
 #include "utils/StringUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
@@ -49,7 +48,7 @@ namespace vm
 
 Il2CppObject * Object::Allocate (size_t size, Il2CppClass *typeInfo)
 {
-	assert (typeInfo->initialized);
+	IL2CPP_ASSERT(typeInfo->initialized);
 	Il2CppObject *o;
 	ALLOC_OBJECT (o, typeInfo, size);
 
@@ -60,7 +59,7 @@ Il2CppObject * Object::Allocate (size_t size, Il2CppClass *typeInfo)
 
 Il2CppObject * Object::AllocatePtrFree (size_t size, Il2CppClass *typeInfo)
 {
-	assert (typeInfo->initialized);
+	IL2CPP_ASSERT(typeInfo->initialized);
 	Il2CppObject *o;
 	ALLOC_PTRFREE (o, typeInfo, size);
 
@@ -71,7 +70,7 @@ Il2CppObject * Object::AllocatePtrFree (size_t size, Il2CppClass *typeInfo)
 
 Il2CppObject * Object::AllocateSpec (size_t size, Il2CppClass *typeInfo)
 {
-	assert (typeInfo->initialized);
+	IL2CPP_ASSERT(typeInfo->initialized);
 	Il2CppObject *o;
 	ALLOC_TYPED (o, size, typeInfo);
 
@@ -131,7 +130,7 @@ Il2CppObject* Object::Clone (Il2CppObject *obj)
 //#endif
 
 	if (obj->klass->has_finalize)
-		il2cpp::gc::GarbageCollector::RegisterFinalizer (o);
+		il2cpp::gc::GarbageCollector::RegisterFinalizerForNewObject (o);
 
 #if IL2CPP_ENABLE_PROFILER
 	if (Profiler::ProfileAllocations ())
@@ -188,7 +187,7 @@ const MethodInfo* Object::GetVirtualMethod (Il2CppObject *obj, const MethodInfo 
 	VirtualInvokeData* vtable = typeInfo->vtable;
 	
 	if (Class::IsInterface (method->declaring_type))
-		return vtable[Class::GetInterfaceOffset (typeInfo, method->declaring_type) + method->slot].method;
+		return vtable[Class::GetInterfaceOffset (typeInfo, method->declaring_type, true) + method->slot].method;
 	
 	return vtable[method->slot].method;
 }
@@ -207,7 +206,7 @@ Il2CppObject* Object::IsInst (Il2CppObject *obj, Il2CppClass *klass)
 		const Il2CppGuid* iid = MetadataCache::GetGuid (klass->typeDefinition->guidIndex);
 		if (iid)
 		{
-			Il2CppIUnknown* unknown = RCW::QueryInterface (static_cast<Il2CppComObject*> (obj), *iid, false);
+			Il2CppIUnknown* unknown = RCW::QueryInterface<false>(static_cast<Il2CppComObject*> (obj), *iid);
 			if (unknown)
 			{
 				unknown->Release ();
@@ -241,6 +240,9 @@ Il2CppObject * Object::NewAllocSpecific (Il2CppClass *klass)
 	NOT_IMPLEMENTED_NO_ASSERT (Object::NewAllocSpecific, "We really shouldn't need this initialization");
 	Class::Init (klass);
 
+	if (Class::IsNullable(klass))
+		klass = il2cpp::vm::Class::GetNullableArgument(klass);
+
 	if (!klass->has_references) {
 		o = NewPtrFree (klass);
 	}
@@ -253,7 +255,7 @@ Il2CppObject * Object::NewAllocSpecific (Il2CppClass *klass)
 		o = Allocate (klass->instance_size, klass);
 	}
 	if (klass->has_finalize)
-		il2cpp::gc::GarbageCollector::RegisterFinalizer (o);
+		il2cpp::gc::GarbageCollector::RegisterFinalizerForNewObject (o);
 	
 #if IL2CPP_ENABLE_PROFILER
 	if (Profiler::ProfileAllocations ())
@@ -269,8 +271,8 @@ Il2CppObject* Object::NewPtrFree (Il2CppClass *klass)
 {
 	Il2CppObject *obj = {0};
 
-	assert (klass->initialized);
-	assert (!klass->has_references);
+	IL2CPP_ASSERT(klass->initialized);
+	IL2CPP_ASSERT(!klass->has_references);
 
 	ALLOC_PTRFREE (obj, klass, klass->instance_size);
 #if NEED_TO_ZERO_PTRFREE

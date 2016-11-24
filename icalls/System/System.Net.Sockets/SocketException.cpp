@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/System/System.Net.Sockets/SocketException.h"
 
 #include "os/Error.h"

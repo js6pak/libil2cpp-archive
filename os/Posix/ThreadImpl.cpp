@@ -2,7 +2,6 @@
 
 #if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD
 
-#include <cassert>
 #include <limits>
 #include <unistd.h>
 #include <map>
@@ -29,7 +28,7 @@ static Event s_ThreadSleepObject;
 
 
 #define ASSERT_CALLED_ON_CURRENT_THREAD \
-	assert (pthread_equal (pthread_self (), m_Handle) && "Must be called on current thread!");
+	IL2CPP_ASSERT(pthread_equal (pthread_self (), m_Handle) && "Must be called on current thread!");
 
 
 ThreadImpl::ThreadImpl ()
@@ -99,7 +98,7 @@ void* ThreadImpl::ThreadStartWrapper (void* arg)
 	// if necessary. Detaching it also prevents use from running out of thread
 	// handles for background threads that are never joined.
 	int returnValue = pthread_detach (thread->m_Handle);
-	assert (returnValue == 0);
+	IL2CPP_ASSERT(returnValue == 0);
 	(void)returnValue;
 
 	// Run user code.
@@ -132,7 +131,7 @@ void ThreadImpl::SetName (const std::string& name)
 void ThreadImpl::SetStackSize(size_t newsize)
 {
 	// only makes sense if it's called BEFORE the thread has been created
-	assert(m_Handle == NULL);
+	IL2CPP_ASSERT(m_Handle == NULL);
 
 	// if newsize is zero we use the per-platform default value for size of stack
 	if (newsize == 0)
@@ -150,9 +149,15 @@ void ThreadImpl::SetPriority (ThreadPriority priority)
 	////TODO
 }
 
+ThreadPriority ThreadImpl::GetPriority()
+{
+	/// TODO
+	return kThreadPriorityNormal;
+}
+
 void ThreadImpl::QueueUserAPC (Thread::APCFunc function, void* context)
 {
-	assert (function != NULL);
+	IL2CPP_ASSERT(function != NULL);
 
 	// Put on queue.
 	{
@@ -228,6 +233,15 @@ ThreadImpl* ThreadImpl::CreateForCurrentThread ()
 	return thread;
 }
 
+#if NET_4_0
+
+bool ThreadImpl::YieldInternal()
+{
+	return sched_yield() == 0;
+}
+
+#endif
+
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 
 static pthread_key_t s_CleanupKey;
@@ -243,17 +257,17 @@ void ThreadImpl::SetNativeThreadCleanup (Thread::ThreadCleanupFunc cleanupFuncti
 {
 	if (cleanupFunction)
 	{
-		assert (!s_CleanupFunc);
+		IL2CPP_ASSERT(!s_CleanupFunc);
 		s_CleanupFunc = cleanupFunction;
 		int result = pthread_key_create(&s_CleanupKey, &CleanupThreadIfCanceled);
-		assert (!result);
+		IL2CPP_ASSERT(!result);
 		NO_UNUSED_WARNING(result);
 	}
 	else
 	{
-		assert (s_CleanupFunc);
+		IL2CPP_ASSERT(s_CleanupFunc);
 		int result = pthread_key_delete (s_CleanupKey);
-		assert (!result);
+		IL2CPP_ASSERT(!result);
 		NO_UNUSED_WARNING(result);
 		s_CleanupFunc = NULL;
 	}
@@ -261,13 +275,13 @@ void ThreadImpl::SetNativeThreadCleanup (Thread::ThreadCleanupFunc cleanupFuncti
 
 void ThreadImpl::RegisterCurrentThreadForCleanup (void* arg)
 {
-	assert (s_CleanupFunc);
+	IL2CPP_ASSERT(s_CleanupFunc);
 	pthread_setspecific (s_CleanupKey, arg);
 }
 
 void ThreadImpl::UnregisterCurrentThreadForCleanup ()
 {
-	assert (s_CleanupFunc);
+	IL2CPP_ASSERT(s_CleanupFunc);
 	void* data = pthread_getspecific(s_CleanupKey);
 	if (data != NULL)
 		pthread_setspecific (s_CleanupKey, NULL);

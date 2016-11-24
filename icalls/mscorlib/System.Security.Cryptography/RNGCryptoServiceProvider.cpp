@@ -4,7 +4,6 @@
 #include "os/Cryptography.h"
 #include "utils/Memory.h"
 #include "icalls/mscorlib/System.Security.Cryptography/RNGCryptoServiceProvider.h"
-#include <cassert>
 
 namespace il2cpp
 {

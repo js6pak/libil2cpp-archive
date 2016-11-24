@@ -1,6 +1,5 @@
 ﻿#include "RegisterRuntimeInitializeAndCleanup.h"
 #include <set>
-#include <cassert>
 #include <cstddef>
 
 namespace il2cpp
@@ -32,7 +31,7 @@ void RegisterRuntimeInitializeAndCleanup::ExecuteInitializations()
 
 void RegisterRuntimeInitializeAndCleanup::ExecuteCleanup()
 {
-	assert(0);
+	IL2CPP_ASSERT(0);
 }
 
 } /* namespace vm */

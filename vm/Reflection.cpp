@@ -2,11 +2,9 @@
 #include "class-internals.h"
 #include "object-internals.h"
 #include "tabledefs.h"
-#include <cassert>
 #include "gc/GCHandle.h"
 #include "metadata/Il2CppTypeCompare.h"
 #include "metadata/Il2CppTypeHash.h"
-#include "metadata/Il2CppTypeLess.h"
 #include "os/Mutex.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
@@ -18,15 +16,15 @@
 #include "vm/Reflection.h"
 #include "vm/String.h"
 #include "vm/AssemblyName.h"
-#include "utils/StdUnorderedMap.h"
+#include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
+#include "gc/AppendOnlyGCHashMap.h"
 
 
 #include "gc/Allocator.h"
 
 using il2cpp::metadata::Il2CppTypeCompare;
 using il2cpp::metadata::Il2CppTypeHash;
-using il2cpp::metadata::Il2CppTypeLess;
 
 template<typename T>
 struct ReflectionMapHash
@@ -40,9 +38,14 @@ struct ReflectionMapHash
 template<typename T>
 struct ReflectionMapEquals
 {
-	bool operator()(const T& ea, const T& eb) const
+	bool operator()(const KeyWrapper<T>& ea, const KeyWrapper<T>& eb) const
 	{
-		return (ea.first == eb.first) && (ea.second == eb.second);
+		if (ea.type != eb.type)
+			return false;
+		else if (!ea.isNormal())
+			return true;
+
+		return (ea.key.first == eb.key.first) && (ea.key.second == eb.key.second);
 	}
 };
 
@@ -59,17 +62,9 @@ struct ReflectionMapLess
 	}
 };
 
+
 template <typename Key, typename Value>
-struct ReflectionMap : unordered_map<
-	Key,
-	Value,
-#if IL2CPP_HAS_UNORDERED_CONTAINER
-	ReflectionMapHash<Key>,
-	ReflectionMapEquals<Key>,
-#else
-	ReflectionMapLess<Key>,
-#endif
-	il2cpp::gc::Allocator<std::pair<const Key, Value> > >
+struct ReflectionMap : public il2cpp::gc::AppendOnlyGCHashMap<Key, Value, ReflectionMapHash<Key>, ReflectionMapEquals<Key> >
 {
 };
 
@@ -81,16 +76,7 @@ typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppReflecti
 typedef ReflectionMap<std::pair<const Il2CppImage*, Il2CppClass*>, Il2CppReflectionModule*> ModuleMap;
 typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppArray*> ParametersMap;
 
-typedef const Il2CppType* TypeMapKey;
-typedef Il2CppReflectionType* TypeMapValue;
-typedef unordered_map<TypeMapKey,TypeMapValue,
-#if IL2CPP_HAS_UNORDERED_CONTAINER
-	Il2CppTypeHash,
-	Il2CppTypeCompare,
-#else
-	Il2CppTypeLess,
-#endif
-	il2cpp::gc::Allocator<std::pair<const TypeMapKey, TypeMapValue> > > TypeMap;
+typedef il2cpp::gc::AppendOnlyGCHashMap<const Il2CppType*, Il2CppReflectionType*, Il2CppTypeHash, Il2CppTypeCompare> TypeMap;
 
 // these needs to be pointers and allocated after GC is initialized since it uses GC Allocator
 static AssemblyMap* s_AssemblyMap;
@@ -116,18 +102,21 @@ Il2CppReflectionAssembly* Reflection::GetAssemblyObject (const Il2CppAssembly *a
 	
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	AssemblyMap::key_type key (assembly, (Il2CppClass*)NULL);
-	AssemblyMap::iterator iter = s_AssemblyMap->find (key);
-	if (iter != s_AssemblyMap->end ())
-		return iter->second;
+	AssemblyMap::key_type::wrapped_type key (assembly, (Il2CppClass*)NULL);
+	AssemblyMap::data_type value = NULL;
+	if (s_AssemblyMap->TryGetValue (key, &value))
+		return value;
 
 	if (!System_Reflection_Assembly)
-		System_Reflection_Assembly = Class::FromName (
-			il2cpp_defaults.corlib, "System.Reflection", "Assembly");
+#if !NET_4_0
+		System_Reflection_Assembly = il2cpp_defaults.assembly_class;
+#else
+		System_Reflection_Assembly = il2cpp_defaults.mono_assembly_class;
+#endif
 	res = (Il2CppReflectionAssembly *)Object::New (System_Reflection_Assembly);
 	res->assembly = assembly;
 
-	s_AssemblyMap->insert (AssemblyMap::value_type (key, res));
+	s_AssemblyMap->Add (key, res);
 
 	return res;
 }
@@ -147,10 +136,10 @@ Il2CppReflectionField* Reflection::GetFieldObject (Il2CppClass *klass, FieldInfo
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	FieldMap::key_type key (field, klass);
-	FieldMap::iterator iter = s_FieldMap->find (key);
-	if (iter != s_FieldMap->end ())
-		return iter->second;
+	FieldMap::key_type::wrapped_type key (field, klass);
+	FieldMap::data_type value = NULL;
+	if (s_FieldMap->TryGetValue (key, &value))
+		return value;
 
 	if (!monofield_klass)
 		monofield_klass = Class::FromName (il2cpp_defaults.corlib, "System.Reflection", "MonoField");
@@ -161,7 +150,7 @@ Il2CppReflectionField* Reflection::GetFieldObject (Il2CppClass *klass, FieldInfo
 	res->attrs = field->type->attrs;
 	IL2CPP_OBJECT_SETREF (res, type, GetTypeObject (field->type));
 
-	s_FieldMap->insert (FieldMap::value_type (key, res));
+	s_FieldMap->Add (key, res);
 
 	return res;
 }
@@ -187,10 +176,10 @@ Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, I
 	{
 		refclass = method->declaring_type;
 
-		MethodMap::key_type key (method, refclass);
-		MethodMap::iterator iter = s_MethodMap->find (key);
-		if (iter != s_MethodMap->end ())
-			return iter->second;
+		MethodMap::key_type::wrapped_type key (method, refclass);
+		MethodMap::data_type value = NULL;
+		if (s_MethodMap->TryGetValue (key, &value))
+			return value;
 
 		if ((*method->name == '.') && (!strcmp (method->name, ".ctor") || !strcmp (method->name, ".cctor")))
 		{
@@ -211,7 +200,7 @@ Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, I
 
 		ret = &gret->base;
 
-		s_MethodMap->insert (MethodMap::value_type (key, ret));
+		s_MethodMap->Add (key, ret);
 
 		return ret;
 	}
@@ -219,10 +208,10 @@ Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, I
 	if (!refclass)
 		refclass = method->declaring_type;
 
-	MethodMap::key_type key (method, refclass);
-	MethodMap::iterator iter = s_MethodMap->find (key);
-	if (iter != s_MethodMap->end ())
-		return iter->second;
+	MethodMap::key_type::wrapped_type key (method, refclass);
+	MethodMap::data_type value = NULL;
+	if (s_MethodMap->TryGetValue (key, &value))
+		return value;
 
 	if (*method->name == '.' && (strcmp (method->name, ".ctor") == 0 || strcmp (method->name, ".cctor") == 0)) {
 		if (!System_Reflection_MonoCMethod)
@@ -238,7 +227,7 @@ Il2CppReflectionMethod* Reflection::GetMethodObject (const MethodInfo *method, I
 	ret->method = method;
 	IL2CPP_OBJECT_SETREF (ret, reftype, GetTypeObject (refclass->byval_arg));
 
-	s_MethodMap->insert (MethodMap::value_type (key, ret));
+	s_MethodMap->Add (key, ret);
 
 	return ret;
 }
@@ -251,13 +240,19 @@ Il2CppReflectionModule* Reflection::GetModuleObject (const Il2CppImage *image)
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	ModuleMap::key_type key (image, (Il2CppClass*)NULL);
-	ModuleMap::iterator iter = s_ModuleMap->find (key);
-	if (iter != s_ModuleMap->end ())
-		return iter->second;
+	ModuleMap::key_type::wrapped_type key (image, (Il2CppClass*)NULL);
+	ModuleMap::data_type value = NULL;
+	if (s_ModuleMap->TryGetValue (key, &value))
+		return value;
 
 	if (!System_Reflection_Module)
-		System_Reflection_Module = Class::FromName (il2cpp_defaults.corlib, "System.Reflection", "Module");
+	{
+#if !NET_4_0
+		System_Reflection_Module = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Module");
+#else
+		System_Reflection_Module = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "MonoModule");
+#endif
+	}
 	res = (Il2CppReflectionModule *)Object::New (System_Reflection_Module);
 
 	res->image = image;
@@ -282,11 +277,11 @@ Il2CppReflectionModule* Reflection::GetModuleObject (const Il2CppImage *image)
 				if (image->assembly->image->modules [i] == image)
 					res->token = mono_metadata_make_token (MONO_TABLE_MODULEREF, i + 1);
 			}
-			g_assert (res->token);
+			IL2CPP_ASSERT(res->token);
 		}
 	}*/
 
-	s_ModuleMap->insert (ModuleMap::value_type (key, res));
+	s_ModuleMap->Add (key, res);
 	return res;
 }
 
@@ -297,10 +292,10 @@ Il2CppReflectionProperty* Reflection::GetPropertyObject (Il2CppClass *klass, con
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	PropertyMap::key_type key (property, klass);
-	PropertyMap::iterator iter = s_PropertyMap->find (key);
-	if (iter != s_PropertyMap->end ())
-		return iter->second;
+	PropertyMap::key_type::wrapped_type key (property, klass);
+	PropertyMap::data_type value = NULL;
+	if (s_PropertyMap->TryGetValue (key, &value))
+		return value;
 
 	if (!monoproperty_klass)
 		monoproperty_klass = Class::FromName (il2cpp_defaults.corlib, "System.Reflection", "MonoProperty");
@@ -308,7 +303,7 @@ Il2CppReflectionProperty* Reflection::GetPropertyObject (Il2CppClass *klass, con
 	res->klass = klass;
 	res->property = property;
 
-	s_PropertyMap->insert (PropertyMap::value_type (key, res));
+	s_PropertyMap->Add (key, res);
 
 	return res;
 }
@@ -320,17 +315,17 @@ Il2CppReflectionEvent* Reflection::GetEventObject(Il2CppClass* klass, const Even
 
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	EventMap::key_type key (event, klass);
-	EventMap::iterator iter = s_EventMap->find (key);
-	if (iter != s_EventMap->end ())
-		return iter->second;
+	EventMap::key_type::wrapped_type key (event, klass);
+	EventMap::data_type value = NULL;
+	if (s_EventMap->TryGetValue (key, &value))
+		return value;
 
 	Il2CppReflectionMonoEvent* monoEvent = reinterpret_cast<Il2CppReflectionMonoEvent*>(Object::New(monoproperty_klass));
 	monoEvent->eventInfo = event;
 	monoEvent->reflectedType = Reflection::GetTypeObject(klass->byval_arg);
 	result = reinterpret_cast<Il2CppReflectionEvent*>(monoEvent);
 
-	s_EventMap->insert (EventMap::value_type (key, result));
+	s_EventMap->Add (key, result);
 
 	return result;
 }
@@ -339,14 +334,14 @@ Il2CppReflectionType* Reflection::GetTypeObject (const Il2CppType *type)
 {
 	il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-	TypeMap::iterator iter = s_TypeMap->find (type);
-	if (iter != s_TypeMap->end ())
-		return iter->second;
+	Il2CppReflectionType* object = NULL;
+	if (s_TypeMap->TryGetValue (type, &object))
+		return object;
 
 	Il2CppReflectionType* typeObject = (Il2CppReflectionType*)Object::New (il2cpp_defaults.monotype_class);
 	typeObject->type = type;
 
-	s_TypeMap->insert (TypeMap::value_type (type, typeObject));
+	s_TypeMap->Add(type, typeObject);
 
 	return typeObject;
 }
@@ -359,11 +354,11 @@ Il2CppObject* Reflection::GetDBNullObject ()
 	if (!dbNullValueField)
 	{
 		dbNullValueField = Class::GetFieldFromName(il2cpp_defaults.dbnull_class, "Value");
-		assert(dbNullValueField);
+		IL2CPP_ASSERT(dbNullValueField);
 	}
 
 	valueFieldValue = Field::GetValueObject(dbNullValueField, NULL);
-	assert(valueFieldValue);
+	IL2CPP_ASSERT(valueFieldValue);
 	return valueFieldValue;
 }
 
@@ -377,11 +372,11 @@ static Il2CppObject* GetReflectionMissingObject()
 		Il2CppClass* klass = Image::ClassFromName(il2cpp_defaults.corlib, "System.Reflection", "Missing");
 		Class::Init(klass);
 		reflectionMissingField = Class::GetFieldFromName(klass, "Value");
-		assert(reflectionMissingField);
+		IL2CPP_ASSERT(reflectionMissingField);
 	}
 
 	valueFieldValue = Field::GetValueObject(reflectionMissingField, NULL);
-	assert(valueFieldValue);
+	IL2CPP_ASSERT(valueFieldValue);
 	return valueFieldValue;
 }
 
@@ -407,7 +402,11 @@ Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, Il2CppClass 
 	if (!System_Reflection_ParameterInfo_array) {
 		Il2CppClass *klass;
 
-		klass = Class::FromName (il2cpp_defaults.corlib, "System.Reflection", "ParameterInfo");
+#if !NET_4_0
+		klass = il2cpp_defaults.parameter_info_class;
+#else
+		klass = il2cpp_defaults.mono_parameter_info_class;
+#endif
 		//mono_memory_barrier ();
 		System_Reflection_ParameterInfo = klass;
 	
@@ -423,10 +422,10 @@ Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, Il2CppClass 
 	// since they put everything in one cache and the MethodInfo is already used as key for GetMethodObject caching
 	// However, since we have distinct maps for the different types we can use MethodInfo as the key again
 
-	ParametersMap::key_type key (method, refclass);
-	ParametersMap::iterator iter = s_ParametersMap->find (key);
-	if (iter != s_ParametersMap->end ())
-		return iter->second;
+	ParametersMap::key_type::wrapped_type key (method, refclass);
+	ParametersMap::data_type value;
+	if (s_ParametersMap->TryGetValue (key, &value))
+		return value;
 	
 	member = GetMethodObject (method, refclass);
 	res = Array::NewSpecific (System_Reflection_ParameterInfo_array, method->parameters_count);
@@ -456,7 +455,7 @@ Il2CppArray* Reflection::GetParamObjects (const MethodInfo *method, Il2CppClass 
 		il2cpp_array_setref(res, i, param);
 	}
 
-	s_ParametersMap->insert (ParametersMap::value_type (key, res));
+	s_ParametersMap->Add (key, res);
 
 	return res;
 }
@@ -526,14 +525,22 @@ bool Reflection::IsEvent(Il2CppObject *obj)
 static bool IsParameter(Il2CppObject *obj)
 {
 	if (obj->klass->image == il2cpp_defaults.corlib)
-		return strcmp(obj->klass->name, "ParameterInfo") == 0 && strcmp(obj->klass->namespaze, "System.Reflection") == 0;
+#if !NET_4_0
+		return obj->klass == il2cpp_defaults.parameter_info_class;
+#else
+		return obj->klass == il2cpp_defaults.mono_parameter_info_class;
+#endif
 	return false;
 }
 
 static bool IsAssembly(Il2CppObject *obj)
 {
 	if (obj->klass->image == il2cpp_defaults.corlib)
-		return strcmp(obj->klass->name, "Assembly") == 0 && strcmp(obj->klass->namespaze, "System.Reflection") == 0;
+#if !NET_4_0
+		return obj->klass == il2cpp_defaults.assembly_class;
+#else
+		return obj->klass == il2cpp_defaults.mono_assembly_class;
+#endif
 	return false;
 }
 
@@ -667,8 +674,8 @@ void Reflection::Initialize ()
 
 bool Reflection::CustomAttrsHasAttr (CustomAttributeTypeCache *ainfo, Il2CppClass *attr_klass)
 {
-	assert (ainfo);
-	assert (attr_klass);
+	IL2CPP_ASSERT(ainfo);
+	IL2CPP_ASSERT(attr_klass);
 
 	int i;
 	Il2CppClass *klass;

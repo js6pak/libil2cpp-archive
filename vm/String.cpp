@@ -1,16 +1,16 @@
 #include "il2cpp-config.h"
 #include "gc/Allocator.h"
+#include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 #include "os/Mutex.h"
 #include "vm/Exception.h"
 #include "vm/String.h"
 #include "vm/Object.h"
 #include "vm/Profiler.h"
-#include "utils/StdUnorderedMap.h"
+#include "gc/AppendOnlyGCHashMap.h"
 #include "utils/StringUtils.h"
 #include <string>
 #include <memory.h>
-#include <cassert>
 #include "class-internals.h"
 #include "object-internals.h"
 
@@ -18,6 +18,32 @@ namespace il2cpp
 {
 namespace vm
 {
+
+static Il2CppString* s_EmptyString;
+
+void String::InitializeEmptyString(Il2CppClass* stringClass)
+{
+	IL2CPP_ASSERT(s_EmptyString == NULL && "Empty string was already initialized");
+
+	// size for string and null terminator
+	s_EmptyString = static_cast<Il2CppString*>(gc::GarbageCollector::AllocateFixed(sizeof(Il2CppString) + 2, 0));
+	s_EmptyString->object.klass = stringClass;
+	s_EmptyString->length = 0;
+	s_EmptyString->chars[0] = 0;
+}
+
+void String::CleanupEmptyString()
+{
+	IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
+	gc::GarbageCollector::FreeFixed(s_EmptyString);
+	s_EmptyString = NULL;
+}
+
+Il2CppString* String::Empty()
+{
+	IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
+	return s_EmptyString;
+}
 
 int32_t String::GetLength (Il2CppString* str)
 {
@@ -65,7 +91,7 @@ Il2CppString* String::NewUtf16 (const Il2CppChar* text, int32_t len)
 	Il2CppString *s;
 	
 	s = NewSize (len);
-	assert (s != NULL);
+	IL2CPP_ASSERT(s != NULL);
 
 	memcpy (String::GetChars (s), text, len * 2);
 
@@ -74,8 +100,11 @@ Il2CppString* String::NewUtf16 (const Il2CppChar* text, int32_t len)
 
 Il2CppString* String::NewSize (int32_t len)
 {
+	if (len == 0)
+		return Empty();
+
 	Il2CppString *s;
-	assert(len >= 0);
+	IL2CPP_ASSERT(len >= 0);
 	size_t size = (sizeof (Il2CppString) + ((len + 1) * 2));
 
 	/* overflow ? can't fit it, can't allocate it! */
@@ -115,33 +144,20 @@ public:
 class InternedStringCompare
 {
 public:
-	bool operator()(const InternedString& ea, const InternedString& eb) const
+	bool operator()(const KeyWrapper<InternedString>& ea, const KeyWrapper<InternedString>& eb) const
 	{
-		return (ea.length == eb.length) && (0 == memcmp (ea.chars, eb.chars, sizeof(Il2CppChar)*ea.length));
-	}
-};
-
-class InternedStringLess
-{
-public:
-	bool operator()(const InternedString& ea, const InternedString& eb) const
-	{
-		if (ea.length < eb.length)
+		if (ea.type != eb.type)
+			return false;
+		else if (!ea.isNormal())
 			return true;
-		return memcmp (ea.chars, eb.chars, sizeof(Il2CppChar)*eb.length) < 0;
+
+		return (ea.key.length == eb.key.length) && (0 == memcmp (ea.key.chars, eb.key.chars, sizeof(Il2CppChar)*ea.key.length));
 	}
 };
 
-typedef unordered_map<
-	InternedString,
-	Il2CppString*,
-#if IL2CPP_HAS_UNORDERED_CONTAINER
-	InternedStringHash,
-	InternedStringCompare,
-#else
-	InternedStringLess,
-#endif
-	il2cpp::gc::Allocator<std::pair<const InternedString, Il2CppString*> > > InternedStringMap;
+
+
+typedef il2cpp::gc::AppendOnlyGCHashMap<InternedString, Il2CppString*, InternedStringHash, InternedStringCompare> InternedStringMap;
 
 static os::FastMutex s_InternedStringMapMutex;
 static InternedStringMap* s_InternedStringMap;
@@ -155,12 +171,12 @@ Il2CppString* String::Intern (Il2CppString* str)
 		s_InternedStringMap = new InternedStringMap ();
 
 	InternedString internedString = { str->length, str->chars };
-	InternedStringMap::const_iterator iter = s_InternedStringMap->find (internedString);
-	if (iter != s_InternedStringMap->end ())
-		return iter->second;
+	Il2CppString* value = NULL;
+	if (s_InternedStringMap->TryGetValue (internedString, &value))
+		return value;
 
 	internedString.chars = String::GetChars (str);
-	s_InternedStringMap->insert (std::make_pair (internedString, str));
+	s_InternedStringMap->Add (internedString, str);
 
 	return str;
 }
@@ -174,10 +190,10 @@ Il2CppString* String::IsInterned(Il2CppString* str)
 		return NULL;
 
 	InternedString internedString = { str->length, str->chars };
-	InternedStringMap::const_iterator iter = s_InternedStringMap->find(internedString);
-	if (iter != s_InternedStringMap->end())
-		return iter->second;
-
+	Il2CppString* value = NULL;
+	if (s_InternedStringMap->TryGetValue (internedString, &value))
+		return value;
+		
 	return NULL;
 }
 

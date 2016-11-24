@@ -44,6 +44,7 @@ public:
 	void QueueUserAPC (Thread::APCFunc func, void* context);
 	void SetName (const std::string& name);
 	void SetPriority (ThreadPriority priority);
+	ThreadPriority GetPriority();
 	void SetStackSize (size_t newsize);
 
 	/// Handle any pending APCs.
@@ -54,6 +55,10 @@ public:
 	static uint64_t CurrentThreadId ();
 	static ThreadImpl* GetCurrentThread ();
 	static ThreadImpl* CreateForCurrentThread ();
+
+#if NET_4_0
+	static bool YieldInternal();
+#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 	static void SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction);

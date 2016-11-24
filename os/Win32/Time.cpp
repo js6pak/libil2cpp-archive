@@ -1,13 +1,10 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_PLATFORM_WIN32
+#if IL2CPP_TARGET_WINDOWS
 
 #include "os/Time.h"
+#include "os/Win32/WindowsHeaders.h"
 #include "utils/MathUtils.h"
-#include <cassert>
-
-#define WIN32_LEAN_AND_MEAN 1
-#include <Windows.h>
 
 #define MTICKS_PER_SEC 10000000LL
 
@@ -26,7 +23,7 @@ static inline void InitializePerformanceCounterFrequency()
 		// so I'll just assume we never run on older than XP
 
 		BOOL qpfResult = QueryPerformanceFrequency(&s_PerformanceCounterFrequency);
-		assert(qpfResult != FALSE);
+		IL2CPP_ASSERT(qpfResult != FALSE);
 	}
 }
 
@@ -57,10 +54,17 @@ int64_t Time::GetTicks100NanosecondsDateTime ()
 {
 	ULARGE_INTEGER ft;
 
-	assert (sizeof(ft) == sizeof(FILETIME));
+	IL2CPP_ASSERT(sizeof(ft) == sizeof(FILETIME));
 
-	GetSystemTimeAsFileTime ((FILETIME*) &ft);
+	::GetSystemTimeAsFileTime ((FILETIME*) &ft);
 	return FILETIME_ADJUST + ft.QuadPart;
+}
+
+int64_t Time::GetSystemTimeAsFileTime()
+{
+	int64_t fileTime;
+	::GetSystemTimeAsFileTime(reinterpret_cast<FILETIME*>(&fileTime));
+	return fileTime;
 }
 
 }

@@ -23,7 +23,6 @@
 #include "object-internals.h"
 #include "il2cpp-api.h"
 
-#include <cassert>
 #include <map>
 #include <string>
 #include <vector>
@@ -66,8 +65,13 @@ Il2CppArray* AppDomain::GetAssemblies(Il2CppAppDomain* ad, bool refonly)
 	static Il2CppClass *System_Reflection_Assembly;
 
 	if (!System_Reflection_Assembly)
-		System_Reflection_Assembly = Class::FromName (
-			il2cpp_defaults.corlib, "System.Reflection", "Assembly");
+	{
+#if !NET_4_0
+		System_Reflection_Assembly = il2cpp_defaults.assembly_class;
+#else
+		System_Reflection_Assembly = il2cpp_defaults.mono_assembly_class;
+#endif
+	}
 
 	vm::AssemblyVector* assemblies = Assembly::GetAllAssemblies();
 	
@@ -84,10 +88,10 @@ Il2CppString *  AppDomain::getFriendlyName(Il2CppAppDomain* ad)
 	return il2cpp_string_new(ad->data->friendly_name);
 }
 
-Il2CppObject* AppDomain::getSetup (Il2CppAppDomain* domain)
+Il2CppAppDomainSetup* AppDomain::getSetup (Il2CppAppDomain* domain)
 {
-	assert (domain != NULL);
-	assert (domain->data != NULL);
+	IL2CPP_ASSERT(domain != NULL);
+	IL2CPP_ASSERT(domain->data != NULL);
 
 	return domain->data->setup;
 }
@@ -236,6 +240,14 @@ void AppDomain::SetData(Il2CppAppDomain* self, Il2CppString* name, Il2CppObject*
 
 	s_DomainData->push_back(std::make_pair(UTF16String(name->chars, name->length), data));
 }
+
+#if NET_4_0
+void AppDomain::DoUnhandledException(Il2CppObject* _this, Il2CppException* e)
+{
+	NOT_IMPLEMENTED_ICALL(AppDomain::DoUnhandledException);
+	IL2CPP_UNREACHABLE;
+}
+#endif
 
 } /* namespace System */
 } /* namespace mscorlib */

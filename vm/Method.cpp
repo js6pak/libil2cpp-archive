@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include "vm/Method.h"
-#include <cassert>
 #include <sstream>
 #include "tabledefs.h"
 #include "class-internals.h"
@@ -60,7 +59,7 @@ const Il2CppType* Method::GetParam (const MethodInfo *method, uint32_t index)
 
 const char* Method::GetParamName (const MethodInfo *method, uint32_t index)
 {
-	assert(method != NULL && "Method::GetParamName cannot be invoked with a NULL MethodInfo.");
+	IL2CPP_ASSERT(method != NULL && "Method::GetParamName cannot be invoked with a NULL MethodInfo.");
 
 	if(index >= method->parameters_count)
 		return NULL;

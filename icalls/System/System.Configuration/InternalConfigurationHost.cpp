@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
-
 #include "icalls/System/System.Configuration/InternalConfigurationHost.h"
 #include "vm/String.h"
 #include "vm/Exception.h"

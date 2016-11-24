@@ -3,7 +3,6 @@
 #if IL2CPP_TARGET_POSIX
 
 #include "os/Time.h"
-#include <cassert>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -110,6 +109,18 @@ int64_t Time::GetTicks100NanosecondsDateTime ()
 	if (gettimeofday (&tv, NULL) == 0)
 		return (((int64_t)tv.tv_sec + EPOCH_ADJUST) * 1000000 + tv.tv_usec) * 10;
 	return 0;
+}
+
+static const int64_t kSecondsBetween1601And1970 = 11644473600LL;
+static const int64_t kSecondsTo100NanoSeconds = 10000000;
+
+int64_t Time::GetSystemTimeAsFileTime()
+{
+	timeval currentTime;
+	int getTimeOfDayResult = gettimeofday(&currentTime, NULL);
+	IL2CPP_ASSERT(getTimeOfDayResult == 0 && "gettimeofday() failed");
+
+	return kSecondsTo100NanoSeconds * (static_cast<int64_t>(currentTime.tv_sec) + kSecondsBetween1601And1970) + 10 * currentTime.tv_usec;
 }
 
 }

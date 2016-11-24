@@ -1,10 +1,9 @@
-﻿#include "il2cpp-config.h"
+#include "il2cpp-config.h"
 
 #if IL2CPP_THREADS_WIN32
 
 #include "MutexImpl.h"
 #include "WindowsHelpers.h"
-#include <cassert>
 
 // Can't use critical sections as they don't allow for interruption by APCs.
 
@@ -15,17 +14,13 @@ namespace os
 
 MutexImpl::MutexImpl ()
 {
-#if IL2CPP_THREADS_ALL_ACCESS
-	m_MutexHandle = ::CreateMutexEx(NULL, NULL, 0, MUTEX_ALL_ACCESS);
-#else
 	m_MutexHandle = ::CreateMutex (NULL, FALSE, NULL);
-#endif
-	assert (m_MutexHandle);
+	IL2CPP_ASSERT(m_MutexHandle);
 }
 
 MutexImpl::~MutexImpl ()
 {
-	assert (m_MutexHandle);
+	IL2CPP_ASSERT(m_MutexHandle);
 	::CloseHandle (m_MutexHandle);
 }
 

@@ -6,7 +6,6 @@
 #include "utils/StringUtils.h"
 #include "utils/utf8-cpp/source/utf8/unchecked.h"
 #include <stdarg.h>
-#include <cassert>
 
 namespace il2cpp
 {
@@ -40,7 +39,7 @@ std::string StringUtils::Printf(const char* format, ...)
 	n = vsnprintf (&ret[0], ret.size(), format, argsToFormat);
 	va_end(argsToFormat);
 
-	assert(n < (int)ret.size());
+	IL2CPP_ASSERT(n < (int)ret.size());
 
 	if (n == -1)
 		return NULL;
@@ -78,7 +77,7 @@ std::string StringUtils::NPrintf(const char* format, size_t max_n, ...)
 	n = vsnprintf (&ret[0], n, format, argsToFormat);
 	va_end (argsToFormat);
 
-	assert(n < ret.size());
+	IL2CPP_ASSERT(n < ret.size());
 
 	if (n == -1)
 		return NULL;
@@ -108,6 +107,11 @@ std::string StringUtils::Utf16ToUtf8(const Il2CppChar* utf16String, int maximumS
 	utf8::unchecked::utf16to8(utf16String, ptr, std::back_inserter(utf8String));
 
 	return utf8String;
+}
+
+std::string StringUtils::Utf16ToUtf8(const UTF16String& utf16String)
+{
+	return Utf16ToUtf8(utf16String.c_str(), static_cast<int>(utf16String.length()));
 }
 
 UTF16String StringUtils::Utf8ToUtf16 (const char* utf8String)
@@ -235,8 +239,8 @@ bool StringUtils::CaseInsensitiveComparer::operator()(const char* left, const st
 bool StringUtils::CaseInsensitiveComparer::operator()(const char* left, const char* right) const
 {
 #if IL2CPP_DEBUG	// Invalid UTF8 strings shouldn't be passed here, so let's assert in debug mode
-	assert(utf8::is_valid(left, left + strlen(left)));
-	assert(utf8::is_valid(right, right + strlen(right)));
+	IL2CPP_ASSERT(utf8::is_valid(left, left + strlen(left)));
+	IL2CPP_ASSERT(utf8::is_valid(right, right + strlen(right)));
 #endif
 
 	Il2CppChar utf16Left[2];

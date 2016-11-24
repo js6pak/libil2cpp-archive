@@ -11,8 +11,6 @@
 #else
 #include "os/MutexImpl.h"
 #endif
-#include <cassert>
-
 
 namespace il2cpp
 {
@@ -64,6 +62,11 @@ void FastMutex::Lock ()
 void FastMutex::Unlock ()
 {
 	m_Impl->Unlock ();
+}
+
+FastMutexImpl* FastMutex::GetImpl()
+{
+	return m_Impl;
 }
 
 }

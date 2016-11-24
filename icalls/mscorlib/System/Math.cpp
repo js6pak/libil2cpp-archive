@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include <cassert>
 #include <math.h>
 #include <limits>
 #include <float.h>
@@ -154,6 +153,28 @@ double Math::Round2 (double value, int32_t digits, bool away_from_zero)
 		return (value >= 0.0) ? ceil (value * p - 0.5) / p : floor (value * p + 0.5) / p;
 #endif
 }
+
+#if NET_4_0
+double Math::Abs(double value)
+{
+	return fabs(value);
+}
+
+double Math::Ceiling(double a)
+{
+	return ceil(a);
+}
+
+double Math::SplitFractionDouble(double* value)
+{
+	return modf(*value, value);
+}
+
+float Math::Abs(float value)
+{
+	return fabsf(value);
+}
+#endif
 
 } /* namespace System */
 } /* namespace mscorlib */

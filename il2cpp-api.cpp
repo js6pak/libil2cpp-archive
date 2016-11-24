@@ -35,7 +35,6 @@
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 
-#include <cassert>
 #include <locale.h>
 #include <fstream>
 
@@ -94,11 +93,20 @@ void il2cpp_init (const char* domain_name)
 	// will support multiple runtimes.
 	// For now we default to the one used by unity and don't
 	// allow the callers to change it.
+#if NET_4_0
+	Runtime::Init(domain_name, "v4.0.30319");
+#else
 	Runtime::Init(domain_name, "v2.0.50727");
+#endif
 
 #if IL2CPP_DEBUGGER_ENABLED
 	il2cpp_debugger_notify_vm_start ();
 #endif
+}
+
+void il2cpp_init_utf16(const Il2CppChar* domain_name)
+{
+	return il2cpp_init(il2cpp::utils::StringUtils::Utf16ToUtf8(domain_name).c_str());
 }
 
 void il2cpp_shutdown ()
@@ -125,9 +133,23 @@ void il2cpp_set_data_dir(const char *data_path)
 	il2cpp::vm::Runtime::SetDataDir(data_path);
 }
 
-void il2cpp_set_commandline_arguments(int argc, const char* argv[], const char* basedir)
+void il2cpp_set_commandline_arguments(int argc, const char* const argv[], const char* basedir)
 {
-	il2cpp::vm::Environment::SetMainArgs((char**)argv, argc);
+	il2cpp::vm::Environment::SetMainArgs(argv, argc);
+}
+
+void il2cpp_set_commandline_arguments_utf16(int argc, const Il2CppChar* const argv[], const char* basedir)
+{
+	il2cpp::vm::Environment::SetMainArgs(argv, argc);
+}
+
+void il2cpp_set_config_utf16(const Il2CppChar* executablePath)
+{
+	il2cpp::vm::Runtime::SetConfigUtf16(executablePath);
+}
+void il2cpp_set_config(const char* executablePath)
+{
+	il2cpp::vm::Runtime::SetConfig(executablePath);
 }
 
 void il2cpp_set_memory_callbacks (Il2CppMemoryCallbacks* callbacks)
@@ -931,18 +953,6 @@ void il2cpp_runtime_object_init_exception (Il2CppObject *obj, Il2CppException **
 void il2cpp_runtime_unhandled_exception_policy_set (Il2CppRuntimeUnhandledExceptionPolicy value)
 {
 	Runtime::SetUnhandledExceptionPolicy (value);
-}
-
-// delegate
-
-Il2CppAsyncResult* il2cpp_delegate_begin_invoke (Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state)
-{
-	return ThreadPool::Queue (delegate, params, asyncCallback, state);
-}
-
-Il2CppObject* il2cpp_delegate_end_invoke (Il2CppAsyncResult* asyncResult, void **out_args)
-{
-	return ThreadPool::Wait (asyncResult, out_args);
 }
 
 // string

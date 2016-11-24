@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace il2cpp
 {
@@ -23,14 +24,20 @@ public:
 	inline StringView(const CharType* str, size_t length) :
 		m_String(str), m_Length(length)
 	{
-		assert(str != NULL);
+		IL2CPP_ASSERT(str != NULL);
 	}
 
 	inline StringView(const StringView<CharType>& str, size_t startIndex, size_t length) :
 		m_String(str.Str() + startIndex),
 		m_Length(length)
 	{
-		assert(startIndex + length <= str.Length());
+		IL2CPP_ASSERT(startIndex + length <= str.Length());
+	}
+
+	template <typename CharTraits, typename StringAlloc>
+	inline StringView(const std::basic_string<CharType, CharTraits, StringAlloc>& str) :
+		m_String(str.c_str()), m_Length(str.length())
+	{
 	}
 
 	inline const CharType* Str() const

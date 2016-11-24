@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 
-#include <cassert>
 #include <map>
 
 #include "os/Socket.h"
@@ -11,9 +10,7 @@
 // Note: sockets are not supported when targetting WebGL, even if it is considered a POSIX platform.
 # include "os/Posix/SocketImpl.h"
 #elif IL2CPP_TARGET_WINDOWS
-#include "os/Win32/SocketImpl.h"
-#elif IL2CPP_TARGET_XBOXONE
-#include "os/Win32/SocketImpl.h"
+# include "os/Win32/SocketImpl.h"
 #else
 # include "os/Generic/SocketImpl.h"
 #endif
@@ -318,9 +315,19 @@ WaitStatus Socket::GetSocketOptionFull (SocketOptionLevel level, SocketOptionNam
 	return m_Socket->GetSocketOptionFull (level, name, first, second);
 }
 
+WaitStatus Socket::Poll(std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error)
+{
+	return SocketImpl::Poll(requests, count, timeout, result, error);
+}
+
 WaitStatus Socket::Poll (std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error)
 {
 	return SocketImpl::Poll (requests, timeout, result, error);
+}
+
+WaitStatus Socket::Poll (PollRequest& request, int32_t timeout, int32_t *result, int32_t *error)
+{
+	return SocketImpl::Poll(request, timeout, result, error);
 }
 
 WaitStatus Socket::SetSocketOption (SocketOptionLevel level, SocketOptionName name, int32_t value)

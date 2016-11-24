@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINDOWS
 
 #include "metadata.h"
 #include "os/Mutex.h"
@@ -9,7 +9,6 @@
 #include "utils/StringUtils.h"
 
 #include <sstream>
-#include <unordered_map>
 
 #include "WindowsHelpers.h"
 

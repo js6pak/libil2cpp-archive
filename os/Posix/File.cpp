@@ -44,15 +44,15 @@ static void AddFileHandle (FileHandle *fileHandle)
 
 	if (s_fileHandleHead == NULL)
 	{
-		assert(s_fileHandleTail == NULL);
+		IL2CPP_ASSERT(s_fileHandleTail == NULL);
 
 		s_fileHandleHead = fileHandle;
 		s_fileHandleTail = fileHandle;
 	}
 	else
 	{
-		assert(s_fileHandleTail != NULL);
-		assert(s_fileHandleTail->next == NULL);
+		IL2CPP_ASSERT(s_fileHandleTail != NULL);
+		IL2CPP_ASSERT(s_fileHandleTail->next == NULL);
 
 		s_fileHandleTail->next = fileHandle;
 		fileHandle->prev = s_fileHandleTail;
@@ -234,7 +234,7 @@ static bool InternalCopyFile(int srcFd, int destFd, const struct stat& srcStat, 
 		return false;
 	}
 
-	assert(readBytes == 0);
+	IL2CPP_ASSERT(readBytes == 0);
 
 	return true;
 }
@@ -294,12 +294,21 @@ FileHandle* File::GetStdOutput ()
 
 bool File::CreatePipe (FileHandle** read_handle, FileHandle** write_handle)
 {
+	int error;
+	return File::CreatePipe (read_handle, write_handle, &error);
+}
+
+bool File::CreatePipe (FileHandle** read_handle, FileHandle** write_handle, int* error)
+{
 	int fds[2];
 
 	const int ret = pipe (fds);
 
 	if(ret == -1)
+	{
+		*error = FileErrnoToErrorCode (errno);
 		return false;
+	}
 
 	FileHandle *input = new FileHandle();
 	input->fd = fds[0];
@@ -1105,6 +1114,13 @@ void File::Unlock (FileHandle* handle, int64_t position, int64_t length, int* er
 
 	*error = kErrorCodeSuccess;
 	return;
+}
+
+bool File::DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
+	FileHandle** target_handle, int access, int inherit, int options, int* error)
+{
+	NOT_IMPLEMENTED_ICALL(File::DuplicateHandle);
+	return false;
 }
 
 }

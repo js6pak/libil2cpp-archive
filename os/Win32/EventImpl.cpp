@@ -4,7 +4,6 @@
 
 #include "EventImpl.h"
 #include "WindowsHelpers.h"
-#include <cassert>
 
 namespace il2cpp
 {
@@ -15,12 +14,12 @@ EventImpl::EventImpl (bool manualReset, bool signaled)
 {
 	m_Event = ::CreateEvent (NULL, manualReset ? TRUE : FALSE, signaled ? TRUE : FALSE, NULL);
 
-	assert (m_Event);
+	IL2CPP_ASSERT(m_Event);
 }
 
 EventImpl::~EventImpl ()
 {
-	assert (m_Event);
+	IL2CPP_ASSERT(m_Event);
 
 	::CloseHandle (m_Event);
 }

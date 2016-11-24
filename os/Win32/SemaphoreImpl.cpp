@@ -1,10 +1,9 @@
-﻿#include "il2cpp-config.h"
+#include "il2cpp-config.h"
 
 #if IL2CPP_THREADS_WIN32
 
 #include "SemaphoreImpl.h"
 #include "WindowsHelpers.h"
-#include <cassert>
 
 namespace il2cpp
 {
@@ -13,18 +12,14 @@ namespace os
 
 SemaphoreImpl::SemaphoreImpl(int32_t initialValue, int32_t maximumValue)
 {
-#if IL2CPP_THREADS_ALL_ACCESS
-	m_Handle = ::CreateSemaphoreEx(NULL, initialValue, maximumValue, NULL, 0, SEMAPHORE_ALL_ACCESS);
-#else
 	m_Handle = ::CreateSemaphore (NULL, initialValue, maximumValue, NULL);
-#endif
 
-	assert (m_Handle);
+	IL2CPP_ASSERT(m_Handle);
 }
 
 SemaphoreImpl::~SemaphoreImpl ()
 {
-	assert (m_Handle);
+	IL2CPP_ASSERT(m_Handle);
 
 	::CloseHandle (m_Handle);
 }
