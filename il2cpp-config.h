@@ -471,6 +471,22 @@ const uint64_t kIl2CppUInt64Max = UINT64_MAX;
 	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
 
+
+#if IL2CPP_TARGET_ANDROID && defined(__i386__)
+// On Android with x86, function pointers are not aligned, so we
+// need to use all of the bits when comparing them. Hence we mask
+// nothing.
+#define IL2CPP_POINTER_SPARE_BITS 0
+#else
+// On ARMv7 with Thumb instructions the lowest bit is always set.
+// With Thumb2 the second-to-lowest bit is also set. Mask both of
+// them off so that we can do a comparison properly based on the data
+// from the linker map file. On other architectures this operation should
+// not matter, as we assume these two bits are always zero because the pointer
+// will be aligned.
+#define IL2CPP_POINTER_SPARE_BITS 3
+#endif
+
 const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
 
