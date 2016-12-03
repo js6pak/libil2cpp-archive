@@ -465,6 +465,20 @@ static void AssignReal (WidenedValueUnion value, void* elementAddress, Il2CppTyp
 	}
 }
 
+static void NullableInit(uint8_t* buf, Il2CppObject* value, Il2CppClass* klass)
+{
+	Il2CppClass *parameterClass = klass->castClass;
+
+	IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[0].type) == parameterClass);
+	IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[1].type) == il2cpp_defaults.boolean_class);
+
+	*(uint8_t*)(buf + klass->fields[1].offset - sizeof(Il2CppObject)) = value ? 1 : 0;
+	if (value)
+		memcpy(buf + klass->fields[0].offset - sizeof(Il2CppObject), Object::Unbox(value), Class::GetValueSize(parameterClass, NULL));
+	else
+		memset(buf + klass->fields[0].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
+}
+
 void Array::SetValueImpl (Il2CppArray * thisPtr,Il2CppObject * value, int index)
 {
 	Il2CppClass* typeInfo = thisPtr->klass;
@@ -475,7 +489,8 @@ void Array::SetValueImpl (Il2CppArray * thisPtr,Il2CppObject * value, int index)
 
 	if (Class::IsNullable (elementClass))
 	{
-		NOT_IMPLEMENTED_ICALL (Array::SetValueImpl);
+		NullableInit((uint8_t*)elementAddress, value, elementClass);
+		return;
 	}
 
 	if (value == NULL)
