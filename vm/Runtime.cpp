@@ -788,13 +788,7 @@ struct MethodInfoToMethodPointerConverter
 {
 	Il2CppMethodPointer operator()(const Runtime::MethodDefinitionKey& methodInfo) const
 	{
-		// On ARMv7 with Thumb instructions the lowest bit is always set.
-		// With Thumb2 the second-to-lowest bit is also set. Mask both of
-		// them off so that we can do a comparison properly based on the data
-		// from the linker map file. On other architectures this operation should
-		// not matter, as we assume these two bits are always zero because the pointer
-		// will be aligned.
-		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~3);
+		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~IL2CPP_POINTER_SPARE_BITS);
 	}
 };
 
@@ -838,14 +832,22 @@ static void* LoadSymbolInfoFileFrom(const std::string& path)
 
 static void* LoadSymbolInfoFile ()
 {
-#if !IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS
-	std::string symbolMapFileName = "SymbolMap";
-#elif IL2CPP_SIZEOF_VOID_P == 4
-	std::string symbolMapFileName = "SymbolMap-32";
-#elif IL2CPP_SIZEOF_VOID_P == 8
-	std::string symbolMapFileName = "SymbolMap-64";
-#else
-#error Unknown symbol map file name
+#if IL2CPP_TARGET_ANDROID
+	#if defined(__i386__)
+		std::string symbolMapFileName = "SymbolMap-x86";
+	#else
+		std::string symbolMapFileName = "SymbolMap-ARMv7";
+	#endif
+#else 
+	#if !IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS
+		std::string symbolMapFileName = "SymbolMap";
+	#elif IL2CPP_SIZEOF_VOID_P == 4
+		std::string symbolMapFileName = "SymbolMap-32";
+	#elif IL2CPP_SIZEOF_VOID_P == 8
+		std::string symbolMapFileName = "SymbolMap-64";
+	#else
+		#error Unknown symbol map file name
+	#endif
 #endif
 
 	void* result = LoadSymbolInfoFileFrom(utils::PathUtils::Combine(utils::PathUtils::DirectoryName(os::Path::GetExecutablePath()), symbolMapFileName));
@@ -874,6 +876,11 @@ static bool CompareEndOfSymbols (const SymbolInfo &a, const SymbolInfo &b)
 
 static bool s_TriedToInitializeSymbolInfo = false;
 
+static uint64_t AbsoluteDifference(uint64_t a, uint64_t b)
+{
+	return a > b ? a - b : b - a;
+}
+
 const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer nativeMethod)
 {
 	if (!s_TriedToInitializeSymbolInfo)
@@ -901,6 +908,12 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		SymbolInfo* containingSymbol = std::upper_bound (s_SymbolInfos, end, interiorSymbol, &CompareEndOfSymbols);
 
 		if (containingSymbol == end)
+			return NULL;
+
+		// We only include managed methods in the symbol data. A lookup for a native method might find the
+		// next managed method in the data. This will be incorrect, so check the size, to make sure the
+		// interior symbol is really within the method found in the containing symbol.
+		if (AbsoluteDifference(containingSymbol->address, interiorSymbol.address) > containingSymbol->length)
 			return NULL;
 
 		nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
