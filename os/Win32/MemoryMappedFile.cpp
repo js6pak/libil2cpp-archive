@@ -12,52 +12,54 @@ namespace il2cpp
 {
 namespace os
 {
-    static FastMutex s_Mutex;
-    static std::map<void*, HANDLE> s_MappedAddressToMappedFileObject;
 
-    void* MemoryMappedFile::Map(FileHandle* file, size_t length, size_t offset)
-    {
-        os::FastAutoLock lock(&s_Mutex);
+static FastMutex s_Mutex;
+static std::map<void*, HANDLE> s_MappedAddressToMappedFileObject;
 
-        HANDLE mappedFile = CreateFileMapping((HANDLE)file, NULL, PAGE_READONLY, 0, 0, NULL);
-        if (mappedFile == NULL)
-            return NULL;
+void* MemoryMappedFile::Map(FileHandle* file, size_t length, size_t offset)
+{
+	os::FastAutoLock lock(&s_Mutex);
 
-        IL2CPP_ASSERT(offset <= std::numeric_limits<DWORD>::max());
-        IL2CPP_ASSERT(length <= std::numeric_limits<DWORD>::max());
+	HANDLE mappedFile = CreateFileMapping((HANDLE)file, NULL, PAGE_READONLY, 0, 0, NULL);
+	if (mappedFile == NULL)
+		return NULL;
 
-        void* address = MapViewOfFile(mappedFile, FILE_MAP_READ, 0, static_cast<DWORD>(offset), static_cast<DWORD>(length));
-        if (address == NULL)
-        {
-            DWORD error = GetLastError();
+	IL2CPP_ASSERT(offset <= std::numeric_limits<DWORD>::max());
+	IL2CPP_ASSERT(length <= std::numeric_limits<DWORD>::max());
 
-            CloseHandle(mappedFile);
-            return NULL;
-        }
+	void* address = MapViewOfFile(mappedFile, FILE_MAP_READ, 0, static_cast<DWORD>(offset), static_cast<DWORD>(length));
+	if (address == NULL)
+	{
+		DWORD error = GetLastError();
 
-        s_MappedAddressToMappedFileObject[address] = mappedFile;
+		CloseHandle(mappedFile);
+		return NULL;
+	}
 
-        return address;
-    }
+	s_MappedAddressToMappedFileObject[address] = mappedFile;
 
-    void MemoryMappedFile::Unmap(void* address, size_t length)
-    {
-        if (address != NULL)
-        {
-            os::FastAutoLock lock(&s_Mutex);
+	return address;
+}
 
-            BOOL error = UnmapViewOfFile(address);
-            IL2CPP_ASSERT(error != 0);
-            (void)error; // Avoid an unused variable warning
+void MemoryMappedFile::Unmap(void* address, size_t length)
+{
+	if (address != NULL)
+	{
+		os::FastAutoLock lock(&s_Mutex);
 
-            std::map<void*, HANDLE>::iterator entry = s_MappedAddressToMappedFileObject.find(address);
-            if (entry != s_MappedAddressToMappedFileObject.end())
-            {
-                error = CloseHandle(entry->second);
-                IL2CPP_ASSERT(error != 0);
-            }
-        }
-    }
+		BOOL error = UnmapViewOfFile(address);
+		IL2CPP_ASSERT(error != 0);
+		(void)error; // Avoid an unused variable warning
+
+		std::map<void*, HANDLE>::iterator entry = s_MappedAddressToMappedFileObject.find(address);
+		if (entry != s_MappedAddressToMappedFileObject.end())
+		{
+			error = CloseHandle(entry->second);
+			IL2CPP_ASSERT(error != 0);
+		}
+	}
+}
+
 }
 }
 #endif

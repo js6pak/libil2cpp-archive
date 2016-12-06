@@ -12,20 +12,22 @@ namespace il2cpp
 {
 namespace os
 {
-    class EventImpl : public il2cpp::utils::NonCopyable
-    {
-    public:
-        EventImpl(bool manualReset = false, bool signaled = false);
-        ~EventImpl();
 
-        ErrorCode Set();
-        ErrorCode Reset();
-        WaitStatus Wait(bool interruptible);
-        WaitStatus Wait(uint32_t ms, bool interruptible);
+class EventImpl : public il2cpp::utils::NonCopyable
+{
+public:
+	EventImpl (bool manualReset = false, bool signaled = false);
+	~EventImpl ();
 
-    private:
-        HANDLE m_Event;
-    };
+	ErrorCode Set ();
+	ErrorCode Reset ();
+	WaitStatus Wait (bool interruptible);
+	WaitStatus Wait (uint32_t ms, bool interruptible);
+	
+private:
+	HANDLE m_Event;
+};
+
 }
 }
 

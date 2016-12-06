@@ -79,6 +79,7 @@ il2cpp_field_has_attribute
 il2cpp_field_set_value
 il2cpp_field_static_get_value
 il2cpp_field_static_set_value
+il2cpp_field_set_value_object
 
 il2cpp_gc_collect
 il2cpp_gc_collect_a_little

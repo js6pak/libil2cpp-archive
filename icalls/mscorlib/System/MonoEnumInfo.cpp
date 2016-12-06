@@ -26,11 +26,13 @@ namespace mscorlib
 {
 namespace System
 {
-    void MonoEnumInfo::get_enum_info(Il2CppReflectionType* type, Il2CppEnumInfo* info)
-    {
-        IL2CPP_OBJECT_SETREF(info, utype, Reflection::GetTypeObject(Type::GetUnderlyingType(type->type)));
-        vm::Enum::GetEnumValuesAndNames(Class::FromIl2CppType(type->type), &info->values, &info->names);
-    }
+
+void MonoEnumInfo::get_enum_info(Il2CppReflectionType* type,Il2CppEnumInfo* info)
+{
+	IL2CPP_OBJECT_SETREF (info, utype, Reflection::GetTypeObject(Type::GetUnderlyingType(type->type)));
+	vm::Enum::GetEnumValuesAndNames(Class::FromIl2CppType(type->type), &info->values, &info->names);
+}
+
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

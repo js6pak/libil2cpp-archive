@@ -8,20 +8,22 @@ namespace il2cpp
 {
 namespace os
 {
-    void* MarshalAlloc::Allocate(size_t size)
-    {
-        return malloc(size);
-    }
 
-    void* MarshalAlloc::ReAlloc(void* ptr, size_t size)
-    {
-        return realloc(ptr, size);
-    }
+void* MarshalAlloc::Allocate(size_t size)
+{
+	return malloc(size);
+}
 
-    void MarshalAlloc::Free(void* ptr)
-    {
-        free(ptr);
-    }
+void* MarshalAlloc::ReAlloc(void* ptr, size_t size)
+{
+	return realloc(ptr, size);
+}
+
+void MarshalAlloc::Free(void* ptr)
+{
+	free(ptr);
+}
+
 } /* namespace os */
 } /* namespace il2cpp*/
 

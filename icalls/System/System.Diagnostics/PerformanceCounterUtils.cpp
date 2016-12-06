@@ -16,36 +16,38 @@ namespace System
 {
 namespace Diagnostics
 {
-    ImplVtable* create_vtable(void *arg, SampleFunc sample, UpdateFunc update)
-    {
-        ImplVtable* vtable = (ImplVtable*)IL2CPP_MALLOC_ZERO(sizeof(ImplVtable));
-        vtable->arg = arg;
-        vtable->sample = sample;
-        vtable->update = update;
-        return vtable;
-    }
 
-    const CategoryDesc* find_category(Il2CppString *category)
-    {
-        for (int i = 0; i < NUM_CATEGORIES; ++i)
-        {
-            if (utils::StringUtils::CaseInsensitiveEquals(category, predef_categories[i].name))
-                return &predef_categories[i];
-        }
-        return NULL;
-    }
+ImplVtable* create_vtable(void *arg, SampleFunc sample, UpdateFunc update)
+{
+	ImplVtable* vtable = (ImplVtable*)IL2CPP_MALLOC_ZERO(sizeof(ImplVtable));
+	vtable->arg = arg;
+	vtable->sample = sample;
+	vtable->update = update;
+	return vtable;
+}
 
-    const CounterDesc* get_counter_in_category(const CategoryDesc *desc, Il2CppString *counter)
-    {
-        const CounterDesc *cdesc = &predef_counters[desc->first_counter];
-        const CounterDesc *end = &predef_counters[desc[1].first_counter];
-        for (; cdesc < end; ++cdesc)
-        {
-            if (utils::StringUtils::CaseInsensitiveEquals(counter, cdesc->name))
-                return cdesc;
-        }
-        return NULL;
-    }
+const CategoryDesc* find_category(Il2CppString *category)
+{
+	for (int i = 0; i < NUM_CATEGORIES; ++i)
+	{
+		if (utils::StringUtils::CaseInsensitiveEquals(category, predef_categories[i].name))
+			return &predef_categories[i];
+	}
+	return NULL;
+}
+
+const CounterDesc* get_counter_in_category(const CategoryDesc *desc, Il2CppString *counter)
+{
+	const CounterDesc *cdesc = &predef_counters[desc->first_counter];
+	const CounterDesc *end = &predef_counters[desc[1].first_counter];
+	for (; cdesc < end; ++cdesc)
+	{
+		if (utils::StringUtils::CaseInsensitiveEquals(counter, cdesc->name))
+			return cdesc;
+	}
+	return NULL;
+}
+
 } /* namespace Diagnostics */
 } /* namespace System */
 } /* namespace System */

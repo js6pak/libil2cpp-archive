@@ -8,211 +8,223 @@ namespace il2cpp
 {
 namespace debugger
 {
-    class Buffer;
-    class Command;
 
-    class VmStartEvent : public Event
-    {
-    public:
+class Buffer;
+class Command;
 
-        VmStartEvent();
-        explicit VmStartEvent(Il2CppThread *thread);
+class VmStartEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindVmStart;
-        }
+public:
 
-    protected:
+	VmStartEvent();
+	explicit VmStartEvent(Il2CppThread *thread);
 
-        void WriteContentTo(Buffer &out) const;
+	inline EventKind kind() const
+	{
+		return kEventKindVmStart;
+	}
 
-        DISALLOW_COPY(VmStartEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
-    class VmDeathEvent : public Event
-    {
-    public:
+	DISALLOW_COPY(VmStartEvent);
+};
 
-        VmDeathEvent();
-        explicit VmDeathEvent(Il2CppThread *thread);
+class VmDeathEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindVmDeath;
-        }
+public:
 
-    protected:
+	VmDeathEvent();
+	explicit VmDeathEvent(Il2CppThread *thread);
 
-        void WriteContentTo(Buffer &out) const;
+	inline EventKind kind() const
+	{
+		return kEventKindVmDeath;
+	}
 
-        DISALLOW_COPY(VmDeathEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
-    class UserBreakEvent : public Event
-    {
-    public:
+	DISALLOW_COPY(VmDeathEvent);
+};
 
-        UserBreakEvent();
-        explicit UserBreakEvent(Il2CppThread *thread);
+class UserBreakEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindUserBreak;
-        }
+public:
 
-    protected:
+	UserBreakEvent();
+	explicit UserBreakEvent(Il2CppThread *thread);
 
-        void WriteContentTo(Buffer &out) const;
+	inline EventKind kind() const
+	{
+		return kEventKindUserBreak;
+	}
 
-        DISALLOW_COPY(UserBreakEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
-    class AppDomainCreateEvent : public Event
-    {
-    public:
+	DISALLOW_COPY(UserBreakEvent);
+};
 
-        AppDomainCreateEvent();
-        explicit AppDomainCreateEvent(Il2CppThread *thread);
+class AppDomainCreateEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindAppDomainCreate;
-        }
+public:
 
-        Property<Il2CppDomain*> domain;
+	AppDomainCreateEvent();
+	explicit AppDomainCreateEvent(Il2CppThread *thread);
 
-    protected:
+	inline EventKind kind() const
+	{
+		return kEventKindAppDomainCreate;
+	}
 
-        void WriteContentTo(Buffer &out) const;
+	Property<Il2CppDomain*> domain;
 
-        DISALLOW_COPY(AppDomainCreateEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
-    class AssemblyLoadEvent : public Event
-    {
-    public:
+	DISALLOW_COPY(AppDomainCreateEvent);
+};
 
-        AssemblyLoadEvent();
-        explicit AssemblyLoadEvent(Il2CppThread *thread);
+class AssemblyLoadEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindAssemblyLoad;
-        }
+public:
 
-        Property<Il2CppAssembly*> assembly;
+	AssemblyLoadEvent();
+	explicit AssemblyLoadEvent(Il2CppThread *thread);
 
-    protected:
+	inline EventKind kind() const
+	{
+		return kEventKindAssemblyLoad;
+	}
 
-        void WriteContentTo(Buffer &out) const;
+	Property<Il2CppAssembly*> assembly;
 
-        DISALLOW_COPY(AssemblyLoadEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
-    class TypeLoadEvent : public Event
-    {
-    public:
+	DISALLOW_COPY(AssemblyLoadEvent);
+};
 
-        TypeLoadEvent();
-        explicit TypeLoadEvent(Il2CppThread *thread);
+class TypeLoadEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindTypeLoad;
-        }
+public:
 
-        Property<Il2CppClass*> type;
+	TypeLoadEvent();
+	explicit TypeLoadEvent(Il2CppThread *thread);
 
-    protected:
+	inline EventKind kind() const
+	{
+		return kEventKindTypeLoad;
+	}
 
-        void WriteContentTo(Buffer &out) const;
+	Property<Il2CppClass*> type;
 
-        DISALLOW_COPY(TypeLoadEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
-    class BreakPointEvent : public Event
-    {
-    public:
+	DISALLOW_COPY(TypeLoadEvent);
+};
 
-        BreakPointEvent();
-        explicit BreakPointEvent(Il2CppThread *thread);
+class BreakPointEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindBreakpoint;
-        }
+public:
 
-        Property<const MethodInfo*> method;
-        Property<uint64_t> il_offset;
+	BreakPointEvent();
+	explicit BreakPointEvent(Il2CppThread *thread);
 
-    protected:
+	inline EventKind kind() const
+	{
+		return kEventKindBreakpoint;
+	}
 
-        void WriteContentTo(Buffer &out) const;
+	Property<const MethodInfo*> method;
+	Property<uint64_t> il_offset;
 
-        DISALLOW_COPY(BreakPointEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
-    class StepEvent : public Event
-    {
-    public:
+	DISALLOW_COPY(BreakPointEvent);
+};
 
-        StepEvent();
-        explicit StepEvent(Il2CppThread *thread);
+class StepEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindStep;
-        }
+public:
 
-        Property<const MethodInfo*> method;
-        Property<uint64_t> il_offset;
+	StepEvent();
+	explicit StepEvent(Il2CppThread *thread);
 
-    protected:
+	inline EventKind kind() const
+	{
+		return kEventKindStep;
+	}
 
-        void WriteContentTo(Buffer &out) const;
+	Property<const MethodInfo*> method;
+	Property<uint64_t> il_offset;
 
-        DISALLOW_COPY(StepEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
+	DISALLOW_COPY(StepEvent);
+};
 
-    class ThreadStartEvent : public Event
-    {
-    public:
 
-        ThreadStartEvent();
-        explicit ThreadStartEvent(Il2CppThread *thread);
+class ThreadStartEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindThreadStart;
-        }
+public:
 
-    protected:
+	ThreadStartEvent();
+	explicit ThreadStartEvent(Il2CppThread *thread);
 
-        void WriteContentTo(Buffer &out) const;
+	inline EventKind kind() const
+	{
+		return kEventKindThreadStart;
+	}
 
-        DISALLOW_COPY(ThreadStartEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
 
+	DISALLOW_COPY(ThreadStartEvent);
+};
 
-    class ThreadDeathEvent : public Event
-    {
-    public:
 
-        ThreadDeathEvent();
-        explicit ThreadDeathEvent(Il2CppThread *thread);
+class ThreadDeathEvent : public Event
+{
 
-        inline EventKind kind() const
-        {
-            return kEventKindThreadDeath;
-        }
+public:
 
-    protected:
+	ThreadDeathEvent();
+	explicit ThreadDeathEvent(Il2CppThread *thread);
 
-        void WriteContentTo(Buffer &out) const;
+	inline EventKind kind() const
+	{
+		return kEventKindThreadDeath;
+	}
 
-        DISALLOW_COPY(ThreadDeathEvent);
-    };
+protected:
+	
+	void WriteContentTo(Buffer &out) const;
+
+	DISALLOW_COPY(ThreadDeathEvent);
+};
+
 } /* namespace debugger */
 } /* namespace il2cpp */

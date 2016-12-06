@@ -7,25 +7,19 @@ namespace il2cpp
 {
 namespace metadata
 {
-    bool Il2CppGenericClassCompare::operator()(const KeyWrapper<Il2CppGenericClass*>& gc1, const KeyWrapper<Il2CppGenericClass*>& gc2) const
-    {
-        return Compare(gc1, gc2);
-    }
 
-    bool Il2CppGenericClassCompare::Compare(const KeyWrapper<Il2CppGenericClass*>& gc1, const KeyWrapper<Il2CppGenericClass*>& gc2)
-    {
-        if (gc1.type != gc2.type)
-            return false;
-        else if (!gc1.isNormal())
-            return true;
+bool Il2CppGenericClassCompare::operator()(const Il2CppGenericClass* gc1, const Il2CppGenericClass* gc2) const
+{
+	return Compare (gc1, gc2);
+}
 
-        const Il2CppGenericInst *i1 = gc1.key->context.class_inst;
-        const Il2CppGenericInst *i2 = gc2.key->context.class_inst;
+bool Il2CppGenericClassCompare::Compare(const Il2CppGenericClass* gc1, const Il2CppGenericClass* gc2)
+{
+	if (gc1->typeDefinitionIndex != gc2->typeDefinitionIndex)
+		return false;
 
-        if (gc1.key->typeDefinitionIndex != gc2.key->typeDefinitionIndex)
-            return false;
+	return Il2CppGenericInstCompare::Compare (gc1->context.class_inst, gc2->context.class_inst);
+}
 
-        return Il2CppGenericInstCompare::Compare(i1, i2);
-    }
 } /* namespace vm */
 } /* namespace il2cpp */

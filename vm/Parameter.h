@@ -8,11 +8,13 @@ namespace il2cpp
 {
 namespace vm
 {
-    class LIBIL2CPP_CODEGEN_API Parameter
-    {
-    public:
-        // internal
-        static Il2CppObject* GetDefaultParameterValueObject(const MethodInfo* method, const ParameterInfo* parameter, bool* isExplicitySetNullDefaultValue);
-    };
+
+class LIBIL2CPP_CODEGEN_API Parameter
+{
+public:
+	// internal
+	static Il2CppObject* GetDefaultParameterValueObject(const MethodInfo* method, const ParameterInfo* parameter, bool* isExplicitySetNullDefaultValue);
+};
+
 } /* namespace vm */
 } /* namespace il2cpp */

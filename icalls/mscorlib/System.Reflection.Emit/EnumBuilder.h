@@ -15,11 +15,13 @@ namespace Reflection
 {
 namespace Emit
 {
-    class LIBIL2CPP_CODEGEN_API EnumBuilder
-    {
-    public:
-        static void setup_enum_type(Il2CppReflectionType *enumtype, Il2CppReflectionType* t);
-    };
+
+class LIBIL2CPP_CODEGEN_API EnumBuilder
+{
+public:
+	static void setup_enum_type (Il2CppReflectionType *enumtype, Il2CppReflectionType* t);
+};
+
 } /* namespace Emit */
 } /* namespace Reflection */
 } /* namespace System */

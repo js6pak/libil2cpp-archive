@@ -11,56 +11,57 @@ namespace il2cpp
 {
 namespace os
 {
-    ConditionVariableImpl::ConditionVariableImpl()
-    {
-        pthread_cond_init(&m_ConditionVariable, NULL);
-    }
 
-    ConditionVariableImpl::~ConditionVariableImpl()
-    {
-        pthread_cond_destroy(&m_ConditionVariable);
-    }
+ConditionVariableImpl::ConditionVariableImpl()
+{
+	pthread_cond_init(&m_ConditionVariable, NULL);
+}
 
-    int ConditionVariableImpl::Wait(FastMutexImpl* lock)
-    {
-        return pthread_cond_wait(&m_ConditionVariable, lock->GetOSHandle());
-    }
+ConditionVariableImpl::~ConditionVariableImpl()
+{
+	pthread_cond_destroy(&m_ConditionVariable);
+}
 
-    int ConditionVariableImpl::TimedWait(FastMutexImpl* lock, uint32_t timeout_ms)
-    {
-        struct timeval tv;
-        struct timespec ts;
-        int64_t usecs;
-        int res;
+int ConditionVariableImpl::Wait(FastMutexImpl* lock)
+{
+	return pthread_cond_wait(&m_ConditionVariable, lock->GetOSHandle());
+}
 
-        if (timeout_ms == (uint32_t)0xFFFFFFFF)
-            return pthread_cond_wait(&m_ConditionVariable, lock->GetOSHandle());
+int ConditionVariableImpl::TimedWait(FastMutexImpl* lock, uint32_t timeout_ms)
+{
+	struct timeval tv;
+	struct timespec ts;
+	int64_t usecs;
+	int res;
 
-        /* ms = 10^-3, us = 10^-6, ns = 10^-9 */
+	if (timeout_ms == (uint32_t)0xFFFFFFFF)
+		return pthread_cond_wait(&m_ConditionVariable, lock->GetOSHandle());
 
-        gettimeofday(&tv, NULL);
-        tv.tv_sec += timeout_ms / 1000;
-        usecs = tv.tv_usec + ((timeout_ms % 1000) * 1000);
-        if (usecs >= 1000000)
-        {
-            usecs -= 1000000;
-            tv.tv_sec++;
-        }
-        ts.tv_sec = tv.tv_sec;
-        ts.tv_nsec = usecs * 1000;
+	/* ms = 10^-3, us = 10^-6, ns = 10^-9 */
 
-        return pthread_cond_timedwait(&m_ConditionVariable, lock->GetOSHandle(), &ts);
-    }
+	gettimeofday(&tv, NULL);
+	tv.tv_sec += timeout_ms / 1000;
+	usecs = tv.tv_usec + ((timeout_ms % 1000) * 1000);
+	if (usecs >= 1000000) {
+		usecs -= 1000000;
+		tv.tv_sec++;
+	}
+	ts.tv_sec = tv.tv_sec;
+	ts.tv_nsec = usecs * 1000;
 
-    void ConditionVariableImpl::Broadcast()
-    {
-        pthread_cond_broadcast(&m_ConditionVariable);
-    }
+	return pthread_cond_timedwait(&m_ConditionVariable, lock->GetOSHandle(), &ts);
+}
 
-    void ConditionVariableImpl::Signal()
-    {
-        pthread_cond_signal(&m_ConditionVariable);
-    }
+void ConditionVariableImpl::Broadcast()
+{
+	pthread_cond_broadcast(&m_ConditionVariable);
+}
+
+void ConditionVariableImpl::Signal()
+{
+	pthread_cond_signal(&m_ConditionVariable);
+}
+
 }
 }
 
