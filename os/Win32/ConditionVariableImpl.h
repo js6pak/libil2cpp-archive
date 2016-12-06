@@ -12,20 +12,22 @@ namespace il2cpp
 {
 namespace os
 {
-    class ConditionVariableImpl : public il2cpp::utils::NonCopyable
-    {
-    public:
-        ConditionVariableImpl();
-        ~ConditionVariableImpl();
 
-        int Wait(FastMutexImpl* lock);
-        int TimedWait(FastMutexImpl* lock, uint32_t timeout_ms);
-        void Broadcast();
-        void Signal();
+class ConditionVariableImpl : public il2cpp::utils::NonCopyable
+{
+public:
+	ConditionVariableImpl();
+	~ConditionVariableImpl();
 
-    private:
-        CONDITION_VARIABLE m_ConditionVariable;
-    };
+	int Wait(FastMutexImpl* lock);
+	int TimedWait(FastMutexImpl* lock, uint32_t timeout_ms);
+	void Broadcast();
+	void Signal();
+
+private:
+	CONDITION_VARIABLE m_ConditionVariable;
+};
+
 }
 }
 

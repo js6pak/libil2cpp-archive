@@ -14,10 +14,13 @@ namespace System
 {
 namespace IO
 {
-    int32_t FileSystemWatcher::InternalSupportsFSW()
-    {
-        return os::FileSystemWatcher::IsSupported();
-    }
+
+
+int32_t FileSystemWatcher::InternalSupportsFSW ()
+{
+	return os::FileSystemWatcher::IsSupported();
+}
+
 } /* namespace IO */
 } /* namespace System */
 } /* namespace System */

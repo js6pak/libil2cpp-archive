@@ -86,6 +86,7 @@
 
 #include "icalls/mscorlib/System.Runtime.InteropServices/GCHandle.h"
 #include "icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
+#include "icalls/mscorlib/System.Runtime.InteropServices.WindowsRuntime/UnsafeNativeMethods.h"
 
 #include "icalls/mscorlib/System.Runtime.Remoting.Activation/ActivationServices.h"
 #include "icalls/mscorlib/System.Runtime.Remoting.Contexts/Context.h"
@@ -163,3 +164,11 @@
 
 #include "mono/metadata/threadpool-ms.h"
 #include "mono/metadata/threadpool-ms-io.h"
+
+#include "icalls/mscorlib/Mono/SafeStringMarshal.h"
+#include "icalls/mscorlib/Mono/RuntimeMarshal.h"
+#include "icalls/mscorlib/Mono/RuntimeGPtrArrayHandle.h"
+#include "icalls/mscorlib/Mono/RuntimeClassHandle.h"
+
+#include "icalls/mscorlib/System.Reflection/EventInfo.h"
+#include "icalls/mscorlib/System.Reflection/PropertyInfo.h"

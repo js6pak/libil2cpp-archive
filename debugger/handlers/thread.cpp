@@ -12,83 +12,85 @@ namespace il2cpp
 {
 namespace debugger
 {
-    const Reply *Agent::Process(const ThreadGetIdCommand *command)
-    {
-        ThreadGetIdCommand::Reply *get_id_reply = command->reply();
 
-        get_id_reply->id((uintptr_t)command->thread());
+const Reply *Agent::Process(const ThreadGetIdCommand *command)
+{
+	ThreadGetIdCommand::Reply *get_id_reply = command->reply();
 
-        return get_id_reply;
-    }
+	get_id_reply->id((uintptr_t)command->thread());
 
-    const Reply *Agent::Process(const ThreadGetNameCommand *command)
-    {
-        ThreadGetNameCommand::Reply *get_name_reply = command->reply();
+	return get_id_reply;
+}
 
-        uint32_t len = 0;
-        char *name = il2cpp_thread_get_name(command->thread(), &len);
+const Reply *Agent::Process(const ThreadGetNameCommand *command)
+{
+	ThreadGetNameCommand::Reply *get_name_reply = command->reply();
 
-        get_name_reply->name(std::string(name, len));
+	uint32_t len = 0;
+	char *name = il2cpp_thread_get_name(command->thread(), &len);
 
-        if (name)
-            delete name;
+	get_name_reply->name(std::string(name, len));
 
-        return get_name_reply;
-    }
+	if(name)
+		delete name;
 
-    const Reply *Agent::Process(const ThreadGetInfoCommand *command)
-    {
-        ThreadGetInfoCommand::Reply *get_info_reply = command->reply();
+	return get_name_reply;
+}
 
-        LOG("warning: `ThreadGetInfoCommand` is not implemented properly");
+const Reply *Agent::Process(const ThreadGetInfoCommand *command)
+{
+	ThreadGetInfoCommand::Reply *get_info_reply = command->reply();
 
-        // TODO: assuming thread is never in a pool for now
-        get_info_reply->is_thread_pool(false);
+	LOG("warning: `ThreadGetInfoCommand` is not implemented properly");
 
-        return get_info_reply;
-    }
+	// TODO: assuming thread is never in a pool for now
+	get_info_reply->is_thread_pool(false);
 
-    const Reply *Agent::Process(const ThreadGetFrameInfoCommand *command)
-    {
-        ThreadGetFrameInfoCommand::Reply *get_frame_info_reply = command->reply();
+	return get_info_reply;
+}
 
-        // TODO: assert that the VM is suspended or suspending; in the second case, wait for the suspension to
-        // complete.
-        // if(IsSuspending()) WaitForSuspend();
+const Reply *Agent::Process(const ThreadGetFrameInfoCommand *command)
+{
+	ThreadGetFrameInfoCommand::Reply *get_frame_info_reply = command->reply();
 
-        IL2CPP_ASSERT(IsSuspended() && "`ThreadGetFrameInfoCommand` can only be invoked with the VM suspended or suspending.");
+	// TODO: assert that the VM is suspended or suspending; in the second case, wait for the suspension to
+	// complete.
+	// if(IsSuspending()) WaitForSuspend();
 
-        ThreadData *data = _thread_data.ThreadDataFor(command->thread());
-        data->UpdateFramesCacheIfNeeded();
+	IL2CPP_ASSERT(IsSuspended() && "`ThreadGetFrameInfoCommand` can only be invoked with the VM suspended or suspending.");
 
-        std::vector<const Il2CppStackFrameInfo*>::const_iterator it = data->frames_cache().begin();
+	ThreadData *data = _thread_data.ThreadDataFor(command->thread());
+	data->UpdateFramesCacheIfNeeded();
 
-        while (it != data->frames_cache().end())
-        {
-            const Il2CppStackFrameInfo *frame = *it;
-            ThreadGetFrameInfoCommand::Reply::FrameInfo frame_info;
+	std::vector<const Il2CppStackFrameInfo*>::const_iterator it = data->frames_cache().begin();
 
-            frame_info.flags = 0;
-            frame_info.frame_id = frame->id;
-            frame_info.il_offset = frame->il_offset;
-            frame_info.method = frame->method;
+	while(it != data->frames_cache().end())
+	{
+		const Il2CppStackFrameInfo *frame = *it;
+		ThreadGetFrameInfoCommand::Reply::FrameInfo frame_info;
 
-            get_frame_info_reply->infos().push_back(frame_info);
+		frame_info.flags = 0;
+		frame_info.frame_id = frame->id;
+		frame_info.il_offset = frame->il_offset;
+		frame_info.method = frame->method;
 
-            ++it;
-        }
+		get_frame_info_reply->infos().push_back(frame_info);
 
-        return get_frame_info_reply;
-    }
+		++it;
+	}
 
-    const Reply *Agent::Process(const ThreadGetStateCommand *command)
-    {
-        LOG("warning: `ThreadGetStateCommand` not implemented. Returning a `NotImplemented` reply!");
+	return get_frame_info_reply;
+}
 
-        IL2CPP_ASSERT(0);
+const Reply *Agent::Process(const ThreadGetStateCommand *command)
+{
+	LOG("warning: `ThreadGetStateCommand` not implemented. Returning a `NotImplemented` reply!");
 
-        return new InternalErrorNotImplementedReply(command);
-    }
+	IL2CPP_ASSERT(0);
+
+	return new InternalErrorNotImplementedReply(command);
+}
+
 }
 }
 

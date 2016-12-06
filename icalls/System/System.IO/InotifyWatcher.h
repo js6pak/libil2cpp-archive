@@ -26,15 +26,17 @@ namespace System
 {
 namespace IO
 {
-    typedef int32_t InotifyMask;
 
-    class LIBIL2CPP_CODEGEN_API InotifyWatcher
-    {
-    public:
-        static Il2CppIntPtr RemoveWatch(Il2CppIntPtr fd, int32_t wd);
-        static int32_t AddWatch(Il2CppIntPtr fd, Il2CppString* name, InotifyMask mask);
-        static Il2CppIntPtr GetInotifyInstance();
-    };
+typedef int32_t InotifyMask;
+
+class LIBIL2CPP_CODEGEN_API InotifyWatcher
+{
+public:
+	static Il2CppIntPtr RemoveWatch (Il2CppIntPtr fd, int32_t wd);
+	static int32_t AddWatch (Il2CppIntPtr fd, Il2CppString* name, InotifyMask mask);
+	static Il2CppIntPtr GetInotifyInstance ();
+};
+
 } /* namespace IO */
 } /* namespace System */
 } /* namespace System */

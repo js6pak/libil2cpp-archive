@@ -8,10 +8,12 @@ namespace il2cpp
 {
 namespace metadata
 {
-    struct Il2CppSignatureCompare
-    {
-        bool operator()(const KeyWrapper<dynamic_array<const Il2CppType*> >& s1, const KeyWrapper<dynamic_array<const Il2CppType*> >& s2) const;
-        static bool Equals(const KeyWrapper<dynamic_array<const Il2CppType*> >& s1, const KeyWrapper<dynamic_array<const Il2CppType*> >& s2);
-    };
+
+struct Il2CppSignatureCompare
+{
+	bool operator()(const dynamic_array<const Il2CppType*>& s1, const dynamic_array<const Il2CppType*>& s2) const;
+	static bool Equals(const dynamic_array<const Il2CppType*>& s1, const dynamic_array<const Il2CppType*>& s2);
+};
+
 } /* namespace metadata */
 } /* namespace il2cpp */

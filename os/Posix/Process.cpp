@@ -10,37 +10,39 @@
 
 struct ProcessHandle
 {
-    pid_t pid;
+	pid_t pid;
 };
 
 namespace il2cpp
 {
 namespace os
 {
-    int Process::GetCurrentProcessId()
-    {
-        return getpid();
-    }
 
-    ProcessHandle* Process::GetProcess(int processId)
-    {
-        // If/when we implement the CreateProcess_internal icall we will likely
-        // need to so something smarter here to find the process if we did
-        // not create it and return a known pseudo-handle. For now this
-        // is sufficient though.
-        return (ProcessHandle*)(intptr_t)processId;
-    }
+int Process::GetCurrentProcessId()
+{
+	return getpid();
+}
 
-    void Process::FreeProcess(ProcessHandle* handle)
-    {
-        // We have nothing to do here.
-    }
+ProcessHandle* Process::GetProcess(int processId)
+{
+	// If/when we implement the CreateProcess_internal icall we will likely
+	// need to so something smarter here to find the process if we did
+	// not create it and return a known pseudo-handle. For now this
+	// is sufficient though.
+	return (ProcessHandle*)(intptr_t)processId;
+}
 
-    std::string Process::GetProcessName(ProcessHandle* handle)
-    {
-        NOT_SUPPORTED_IL2CPP(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
-        return std::string();
-    }
+void Process::FreeProcess(ProcessHandle* handle)
+{
+	// We have nothing to do here.
+}
+
+std::string Process::GetProcessName(ProcessHandle* handle)
+{
+	NOT_SUPPORTED_IL2CPP(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
+	return std::string();
+}
+
 }
 }
 

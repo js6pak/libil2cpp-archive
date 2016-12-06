@@ -17,57 +17,60 @@ namespace Security
 {
 namespace Cryptography
 {
-    void RNGCryptoServiceProvider::RngClose(Il2CppIntPtr provider)
-    {
-        os::Cryptography::ReleaseCryptographyProvider(provider.m_value);
-    }
 
-    Il2CppIntPtr RNGCryptoServiceProvider::RngGetBytes(Il2CppIntPtr provider, Il2CppArray *data)
-    {
-        uint32_t len = il2cpp_array_length(data);
-        unsigned char* buf = il2cpp_array_addr(data, unsigned char, 0);
+void RNGCryptoServiceProvider::RngClose (Il2CppIntPtr provider)
+{
+	os::Cryptography::ReleaseCryptographyProvider(provider.m_value);
+}
 
-        if (!os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, buf))
-        {
-            os::Cryptography::ReleaseCryptographyProvider(provider.m_value);
-            provider = RngInitialize(NULL);
+Il2CppIntPtr RNGCryptoServiceProvider::RngGetBytes (Il2CppIntPtr provider, Il2CppArray *data)
+{
+	uint32_t len = il2cpp_array_length(data);
+	unsigned char* buf = il2cpp_array_addr(data, unsigned char, 0);
 
-            if (!os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, buf))
-            {
-                os::Cryptography::ReleaseCryptographyProvider(provider.m_value);
-                return Il2CppIntPtr::Zero;
-            }
-        }
+	if (!os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, buf))
+	{
+		os::Cryptography::ReleaseCryptographyProvider (provider.m_value);
+		provider = RngInitialize (NULL);
 
-        return provider;
-    }
+		if (!os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, buf))
+		{
+			os::Cryptography::ReleaseCryptographyProvider (provider.m_value);
+			return Il2CppIntPtr::Zero;
+		}
+	}
 
-    Il2CppIntPtr RNGCryptoServiceProvider::RngInitialize(Il2CppArray *seed)
-    {
-        Il2CppIntPtr provider;
-        provider.m_value = os::Cryptography::GetCryptographyProvider();
+	return provider;
+	
+}
 
-        if ((provider.m_value != 0) && seed)
-        {
-            uint32_t len = il2cpp_array_length(seed);
-            unsigned char *buf = il2cpp_array_addr(seed, unsigned char, 0);
-            unsigned char* data = (unsigned char*)IL2CPP_MALLOC(len);
-            if (data)
-            {
-                memcpy(data, buf, len);
-                os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, data);
-                memset(data, 0, len);
-                IL2CPP_FREE(data);
-            }
-        }
+Il2CppIntPtr RNGCryptoServiceProvider::RngInitialize (Il2CppArray *seed)
+{
+	Il2CppIntPtr provider;
+	provider.m_value = os::Cryptography::GetCryptographyProvider();
 
-        return provider;
-    }
+	if ((provider.m_value != 0) && seed)
+	{
+		uint32_t len = il2cpp_array_length (seed);
+		unsigned char *buf = il2cpp_array_addr (seed, unsigned char, 0);
+		unsigned char* data = (unsigned char*)IL2CPP_MALLOC (len);
+		if (data)
+		{
+			memcpy (data, buf, len);
+			os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, data);
+			memset (data, 0, len);
+			IL2CPP_FREE (data);
+		}
+	}
 
-    bool RNGCryptoServiceProvider::RngOpen()
-    {
-        return os::Cryptography::OpenCryptographyProvider();
-    }
+	return provider;
+}
+
+bool RNGCryptoServiceProvider::RngOpen ()
+{
+	return os::Cryptography::OpenCryptographyProvider();
+}
+
 } /* namespace Cryptography */
 } /* namespace Security */
 } /* namespace System */

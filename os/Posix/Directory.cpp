@@ -23,151 +23,153 @@ namespace il2cpp
 {
 namespace os
 {
-    std::string Directory::GetCurrent(int *error)
-    {
-        char buf[PATH_MAX + 1];
-        // Note: not all implementations would allocate a buffer when passing 0 to getcwd, as we used to do.
-        // this does *not* seem to be part of the POSIX spec:
-        // http://pubs.opengroup.org/onlinepubs/000095399/functions/getcwd.html
-        char* cwd = getcwd(buf, PATH_MAX + 1);
 
-        if (cwd == NULL)
-        {
-            *error = FileErrnoToErrorCode(errno);
-            return std::string();
-        }
+std::string Directory::GetCurrent (int *error)
+{
+	char buf[PATH_MAX+1];
+	// Note: not all implementations would allocate a buffer when passing 0 to getcwd, as we used to do.
+	// this does *not* seem to be part of the POSIX spec:
+	// http://pubs.opengroup.org/onlinepubs/000095399/functions/getcwd.html
+	char* cwd = getcwd (buf, PATH_MAX+1);
 
-        std::string directory(cwd);
+	if(cwd == NULL)
+	{
+		*error = FileErrnoToErrorCode(errno);
+		return std::string();
+	}
 
-        *error = kErrorCodeSuccess;
-        return directory;
-    }
+	std::string directory(cwd);
 
-    bool Directory::SetCurrent(const std::string& path, int *error)
-    {
-        const int ret = chdir(path.c_str());
+	*error = kErrorCodeSuccess;
+	return directory;
+}
 
-        if (ret == -1)
-        {
-            *error = FileErrnoToErrorCode(errno);
-            return false;
-        }
+bool Directory::SetCurrent (const std::string& path, int *error)
+{
+	const int ret = chdir (path.c_str());
 
-        *error = kErrorCodeSuccess;
-        return true;
-    }
+	if(ret == -1)
+	{
+		*error = FileErrnoToErrorCode(errno);
+		return false;
+	}
 
-    bool Directory::Create(const std::string& path, int *error)
-    {
-        const int ret = mkdir(path.c_str(), 0777);
+	*error = kErrorCodeSuccess;
+	return true;
+}
 
-        if (ret == -1)
-        {
-            *error = PathErrnoToErrorCode(path, errno);
-            return false;
-        }
+bool Directory::Create (const std::string& path, int *error)
+{
+	const int ret = mkdir (path.c_str(), 0777);
 
-        *error = kErrorCodeSuccess;
-        return true;
-    }
+	if(ret == -1)
+	{
+		*error = PathErrnoToErrorCode (path, errno);
+		return false;
+	}
 
-    bool Directory::Remove(const std::string& path, int *error)
-    {
-        const int ret = rmdir(path.c_str());
+	*error = kErrorCodeSuccess;
+	return true;
+}
 
-        if (ret == -1)
-        {
-            *error = PathErrnoToErrorCode(path, errno);
-            return false;
-        }
+bool Directory::Remove (const std::string& path, int *error)
+{
+	const int ret = rmdir (path.c_str());
 
-        *error = kErrorCodeSuccess;
-        return true;
-    }
+	if(ret == -1)
+	{
+		*error = PathErrnoToErrorCode (path, errno);
+		return false;
+	}
 
-    static void DirectoryGlob(DIR *dir, const std::string& pattern, std::set<std::string>& result)
-    {
-        if (pattern.empty())
-            return;
+	*error = kErrorCodeSuccess;
+	return true;
+}
 
-        std::string matchPattern = il2cpp::utils::CollapseAdjacentStars(pattern);
+static void DirectoryGlob (DIR *dir, const std::string& pattern, std::set<std::string>& result)
+{
+	if(pattern.empty())
+		return;
 
-        struct dirent *entry;
+	std::string matchPattern = il2cpp::utils::CollapseAdjacentStars(pattern);
 
-        while ((entry = readdir(dir)) != NULL)
-        {
-            const std::string filename(entry->d_name);
+	struct dirent *entry;
 
-            if (!il2cpp::utils::Match(filename, matchPattern))
-                continue;
+	while((entry = readdir (dir)) != NULL)
+	{
+		const std::string filename(entry->d_name);
 
-            result.insert(filename);
-        }
-    }
+		if(!il2cpp::utils::Match(filename, matchPattern))
+			continue;
 
-    static bool DirectoryGlob(const std::string& directoryPath, const std::string& pattern, std::set<std::string>& result, int* error)
-    {
-        DIR* dir = opendir(directoryPath.c_str());
+		result.insert(filename);
+	}
+}
 
-        if (dir == NULL)
-        {
-            *error = PathErrnoToErrorCode(directoryPath, errno);
-            return false;
-        }
+static bool DirectoryGlob (const std::string& directoryPath, const std::string& pattern, std::set<std::string>& result, int* error)
+{
+	DIR* dir = opendir(directoryPath.c_str());
 
-        DirectoryGlob(dir, pattern, result);
+	if(dir == NULL)
+	{
+		*error = PathErrnoToErrorCode (directoryPath, errno);
+		return false;
+	}
 
-        closedir(dir);
+	DirectoryGlob(dir, pattern, result);
 
-        return true;
-    }
+	closedir(dir);
 
-    std::set<std::string> Directory::GetFileSystemEntries(const std::string& path, const std::string& pathWithPattern, int32_t attributes, int32_t mask, int* error)
-    {
-        const std::string directoryPath(il2cpp::utils::PathUtils::DirectoryName(pathWithPattern));
-        const std::string pattern(il2cpp::utils::PathUtils::Basename(pathWithPattern));
+	return true;
+}
 
-        std::set<std::string> globResult;
+std::set<std::string> Directory::GetFileSystemEntries (const std::string& path, const std::string& pathWithPattern, int32_t attributes, int32_t mask, int* error)
+{
+	const std::string directoryPath(il2cpp::utils::PathUtils::DirectoryName(pathWithPattern));
+	const std::string pattern(il2cpp::utils::PathUtils::Basename(pathWithPattern));
 
-        if (DirectoryGlob(directoryPath, pattern, globResult, error) == false)
-            return std::set<std::string>();
+	std::set<std::string> globResult;
 
-        if (il2cpp::utils::StringUtils::EndsWith(pattern, ".*"))
-        {
-            /* Special-case the patterns ending in '.*', as
-             * windows also matches entries with no extension with
-             * this pattern.
-             */
+	if(DirectoryGlob(directoryPath, pattern, globResult, error) == false)
+		return std::set<std::string>();
 
-            if (DirectoryGlob(directoryPath, pattern.substr(0, pattern.length() - 2), globResult, error) == false)
-                return std::set<std::string>();
-        }
+	if(il2cpp::utils::StringUtils::EndsWith(pattern, ".*"))
+	{
+		/* Special-case the patterns ending in '.*', as
+		 * windows also matches entries with no extension with
+		 * this pattern.
+		 */
 
-        std::set<std::string> result;
+		 if(DirectoryGlob(directoryPath, pattern.substr(0, pattern.length()-2), globResult, error) == false)
+			return std::set<std::string>();
+	}
 
-        for (std::set<std::string>::const_iterator it = globResult.begin(), end = globResult.end(); it != end; ++it)
-        {
-            const std::string& filename = *it;
+	std::set<std::string> result;
 
-            if (filename == "." || filename == "..")
-                continue;
+	for(std::set<std::string>::const_iterator it = globResult.begin(), end = globResult.end(); it != end; ++it)
+	{
+		const std::string& filename = *it;
 
-            const std::string path(directoryPath + IL2CPP_DIR_SEPARATOR + filename);
+		if(filename == "." || filename == "..")
+			continue;
 
-            int attributeError;
-            const int32_t pathAttributes = static_cast<int32_t>(File::GetFileAttributes(path, &attributeError));
+		const std::string path(directoryPath + IL2CPP_DIR_SEPARATOR + filename);
 
-            if (attributeError != kErrorCodeSuccess)
-                continue;
+		int attributeError;
+		const int32_t pathAttributes = static_cast<int32_t>(File::GetFileAttributes(path, &attributeError));
 
-            if ((pathAttributes & mask) == attributes)
-                result.insert(path);
-        }
+		if(attributeError != kErrorCodeSuccess)
+			continue;
+
+		if((pathAttributes & mask) == attributes)
+			result.insert(path);
+	}
 
 
-        *error = kErrorCodeSuccess;
-        return result;
-    }
+	*error = kErrorCodeSuccess;
+	return result;
+}
+
 }
 }
 

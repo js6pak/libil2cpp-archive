@@ -26,13 +26,15 @@ namespace System
 {
 namespace IO
 {
-    struct FAMConnection;
 
-    class LIBIL2CPP_CODEGEN_API FAMWatcher
-    {
-    public:
-        static int32_t InternalFAMNextEvent(FAMConnection* fc, Il2CppString** filename, int32_t* code, int32_t* reqnum);
-    };
+struct FAMConnection;
+
+class LIBIL2CPP_CODEGEN_API FAMWatcher
+{
+public:
+	static int32_t InternalFAMNextEvent (FAMConnection* fc, Il2CppString** filename, int32_t* code, int32_t* reqnum);
+};
+
 } /* namespace IO */
 } /* namespace System */
 } /* namespace System */

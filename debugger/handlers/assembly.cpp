@@ -19,107 +19,108 @@ namespace il2cpp
 {
 namespace debugger
 {
-    const Reply *Agent::Process(const AssemblyGetTypeCommand *command)
-    {
-        AssemblyGetTypeCommand::Reply *get_type_reply = command->reply();
 
-        /*char *s = decode_string (p, &p, end);
-        gboolean ignorecase = decode_byte (p, &p, end);
-        MonoTypeNameParse info;
-        MonoType *t;
-        gboolean type_resolve;
+const Reply *Agent::Process(const AssemblyGetTypeCommand *command)
+{
+	AssemblyGetTypeCommand::Reply *get_type_reply = command->reply();
+	
+	/*char *s = decode_string (p, &p, end);
+	gboolean ignorecase = decode_byte (p, &p, end);
+	MonoTypeNameParse info;
+	MonoType *t;
+	gboolean type_resolve;
 
-        if (!mono_reflection_parse_type (s, &info)) {
-            t = NULL;
-        } else {
-            if (info.assembly.name)
-                NOT_IMPLEMENTED;
-            t = mono_reflection_get_type (ass->image, &info, ignorecase, &type_resolve);
-        }
-        buffer_add_typeid (buf, domain, t ? mono_class_from_mono_type (t) : NULL);
-        mono_reflection_free_type_info (&info);
-        g_free (s);*/
+	if (!mono_reflection_parse_type (s, &info)) {
+		t = NULL;
+	} else {
+		if (info.assembly.name)
+			NOT_IMPLEMENTED;
+		t = mono_reflection_get_type (ass->image, &info, ignorecase, &type_resolve);
+	}
+	buffer_add_typeid (buf, domain, t ? mono_class_from_mono_type (t) : NULL);
+	mono_reflection_free_type_info (&info);
+	g_free (s);*/
 
-        LOG("warning: Implement proper name parsing for `AssemblyGetType` command");
+	LOG("warning: Implement proper name parsing for `AssemblyGetType` command");
 
-        if (command->ignore_case())
-            LOG("warning: AssemblyGetType not implemented for ignore_case = true");
+	if (command->ignore_case())
+		LOG("warning: AssemblyGetType not implemented for ignore_case = true");
+	
+	std::string ns;
+	std::string name;
 
-        std::string ns;
-        std::string name;
+	const size_t last_dot_index = command->name().find_last_of(".");
 
-        const size_t last_dot_index = command->name().find_last_of(".");
+	if(last_dot_index != std::string::npos)
+	{
+		ns.assign(command->name().begin(), command->name().begin() + last_dot_index);
+		name.assign(command->name().begin() + last_dot_index + 1, command->name().end());
+	} else
+	{
+		name = command->name();
+	}
 
-        if (last_dot_index != std::string::npos)
-        {
-            ns.assign(command->name().begin(), command->name().begin() + last_dot_index);
-            name.assign(command->name().begin() + last_dot_index + 1, command->name().end());
-        }
-        else
-        {
-            name = command->name();
-        }
+	Il2CppClass *type = il2cpp_class_from_name(
+		il2cpp_assembly_get_image(command->assembly()),
+		ns.c_str(), name.c_str());
+	
+	if(type == 0)
+		LOG("warning: AssemblyGetType command not mocked up for type " << command->name());
 
-        Il2CppClass *type = il2cpp_class_from_name(
-                il2cpp_assembly_get_image(command->assembly()),
-                ns.c_str(), name.c_str());
+	get_type_reply->type(type);
 
-        if (type == 0)
-            LOG("warning: AssemblyGetType command not mocked up for type " << command->name());
+	return get_type_reply;
+}
 
-        get_type_reply->type(type);
+const Reply *Agent::Process(const AssemblyGetObjectCommand *command)
+{
+	LOG("warning: `AssemblyGetObjectCommand` not implemented. Returning a `NotImplemented` reply!");
 
-        return get_type_reply;
-    }
+	IL2CPP_ASSERT(0);
 
-    const Reply *Agent::Process(const AssemblyGetObjectCommand *command)
-    {
-        LOG("warning: `AssemblyGetObjectCommand` not implemented. Returning a `NotImplemented` reply!");
+	return new InternalErrorNotImplementedReply(command);
+}
 
-        IL2CPP_ASSERT(0);
+const Reply *Agent::Process(const AssemblyGetEntryPointCommand *command)
+{
+	LOG("warning: `AssemblyGetEntryPointCommand` not implemented. Returning a `NotImplemented` reply!");
 
-        return new InternalErrorNotImplementedReply(command);
-    }
+	IL2CPP_ASSERT(0);
 
-    const Reply *Agent::Process(const AssemblyGetEntryPointCommand *command)
-    {
-        LOG("warning: `AssemblyGetEntryPointCommand` not implemented. Returning a `NotImplemented` reply!");
+	return new InternalErrorNotImplementedReply(command);
+}
 
-        IL2CPP_ASSERT(0);
+const Reply *Agent::Process(const AssemblyGetManifestModuleCommand *command)
+{
+	AssemblyGetManifestModuleCommand::Reply *reply = command->reply();
 
-        return new InternalErrorNotImplementedReply(command);
-    }
+	reply->module(il2cpp_assembly_get_image(command->assembly()));
 
-    const Reply *Agent::Process(const AssemblyGetManifestModuleCommand *command)
-    {
-        AssemblyGetManifestModuleCommand::Reply *reply = command->reply();
+	return reply;
+}
 
-        reply->module(il2cpp_assembly_get_image(command->assembly()));
+const Reply *Agent::Process(const AssemblyGetNameCommand *command)
+{
+	AssemblyGetNameCommand::Reply *reply = command->reply();
 
-        return reply;
-    }
+	const Il2CppAssembly *assembly = command->assembly();
 
-    const Reply *Agent::Process(const AssemblyGetNameCommand *command)
-    {
-        AssemblyGetNameCommand::Reply *reply = command->reply();
+	reply->name(il2cpp::vm::AssemblyName::AssemblyNameToString(assembly->aname));
 
-        const Il2CppAssembly *assembly = command->assembly();
+	return reply;
+}
 
-        reply->name(il2cpp::vm::AssemblyName::AssemblyNameToString(assembly->aname));
+const Reply *Agent::Process(const AssemblyGetLocationCommand *command)
+{
+	AssemblyGetLocationCommand::Reply *reply = command->reply();
 
-        return reply;
-    }
+	reply->location(
+		il2cpp_image_get_filename(
+			il2cpp_assembly_get_image(command->assembly())));
 
-    const Reply *Agent::Process(const AssemblyGetLocationCommand *command)
-    {
-        AssemblyGetLocationCommand::Reply *reply = command->reply();
+	return reply;
+}
 
-        reply->location(
-            il2cpp_image_get_filename(
-                il2cpp_assembly_get_image(command->assembly())));
-
-        return reply;
-    }
 }
 }
 

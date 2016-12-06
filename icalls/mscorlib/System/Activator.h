@@ -13,11 +13,13 @@ namespace mscorlib
 {
 namespace System
 {
-    class LIBIL2CPP_CODEGEN_API Activator
-    {
-    public:
-        static Il2CppObject* CreateInstanceInternal(Il2CppReflectionType *type);
-    };
+
+class LIBIL2CPP_CODEGEN_API Activator
+{
+public:
+	static Il2CppObject* CreateInstanceInternal (Il2CppReflectionType *type);
+};
+
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

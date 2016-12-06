@@ -9,47 +9,50 @@
 
 struct ProcessHandle
 {
-    HANDLE handle;
+	HANDLE handle;
 };
 
 namespace il2cpp
 {
 namespace os
 {
-    int Process::GetCurrentProcessId()
-    {
-        return ::GetCurrentProcessId();
-    }
 
-    ProcessHandle* Process::GetProcess(int processId)
-    {
-        return (ProcessHandle*)OpenProcess(PROCESS_ALL_ACCESS, TRUE, processId);
-    }
+int Process::GetCurrentProcessId()
+{
+	return ::GetCurrentProcessId();
+}
 
-    void Process::FreeProcess(ProcessHandle* handle)
-    {
-        ::CloseHandle((HANDLE)handle);
-    }
+ProcessHandle* Process::GetProcess(int processId)
+{
+	return (ProcessHandle*)OpenProcess(PROCESS_ALL_ACCESS, TRUE, processId);
+}
 
-    std::string Process::GetProcessName(ProcessHandle* handle)
-    {
-        const size_t bufferLength = 256;
-        WCHAR buf[bufferLength];
+void Process::FreeProcess(ProcessHandle* handle)
+{
+	::CloseHandle((HANDLE)handle);
+}
 
-        DWORD length = ::GetProcessImageFileName((HANDLE)handle, buf, bufferLength);
+std::string Process::GetProcessName(ProcessHandle* handle)
+{
+	const size_t bufferLength = 256;
+	WCHAR buf[bufferLength];
 
-        if (length == 0)
-            return std::string();
+	DWORD length = ::GetProcessImageFileName((HANDLE)handle, buf, bufferLength);
+	
+	if (length == 0)
+		return std::string();
 
-        char multiByteStr[bufferLength];
+	char multiByteStr[bufferLength];
 
-        size_t numConverted = wcstombs(multiByteStr, buf, bufferLength);
-        if (numConverted <= 0)
-            return std::string();
+	size_t numConverted = wcstombs(multiByteStr, buf, bufferLength);
+	if (numConverted <= 0)
+		return std::string();
 
-        return std::string(multiByteStr, numConverted);
-    }
+	return std::string(multiByteStr, numConverted);
+}
+
 }
 }
 
 #endif
+

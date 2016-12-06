@@ -827,9 +827,31 @@
     <ClCompile Include="os\Posix\CpuInfo.cpp">
       <Filter>os\Posix</Filter>
     </ClCompile>
+    <ClCompile Include="utils\Logging.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
     <ClCompile Include="os\Win32\Initialize.cpp">
       <Filter>os\Win32</Filter>
     </ClCompile>
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeClassHandle.cpp">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeGPtrArrayHandle.cpp">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeMarshal.cpp">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="icalls\mscorlib\Mono\SafeStringMarshal.cpp">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="icalls\mscorlib\System.Reflection\EventInfo.cpp">
+      <Filter>icalls\mscorlib\System.Reflection</Filter>
+    </ClCompile>
+    <ClCompile Include="icalls\mscorlib\System.Reflection\PropertyInfo.cpp">
+      <Filter>icalls\mscorlib\System.Reflection</Filter>
+    </ClCompile>
+    <ClCompile Include="mono-structs.cpp" />
     <ClCompile Include="vm\ThreadPoolMs.cpp">
       <Filter>vm</Filter>
     </ClCompile>
@@ -1605,9 +1627,38 @@
     <ClInclude Include="gc\AppendOnlyGCHashMap.h">
       <Filter>gc</Filter>
     </ClInclude>
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeClassHandle.h">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeGPtrArrayHandle.h">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeMarshal.h">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="icalls\mscorlib\Mono\SafeStringMarshal.h">
+      <Filter>icalls\mscorlib\Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="icalls\mscorlib\System.Reflection\EventInfo.h">
+      <Filter>icalls\mscorlib\System.Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="icalls\mscorlib\System.Reflection\PropertyInfo.h">
+      <Filter>icalls\mscorlib\System.Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="mono-structs.h" />
     <ClInclude Include="vm\ThreadPoolMs.h">
       <Filter>vm</Filter>
     </ClInclude>
+    <ClInclude Include="utils\Logging.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\NonCachedCCWBase.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\CachedCCWBase.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="il2cpp-vm-support.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
