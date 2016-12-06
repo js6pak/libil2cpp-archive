@@ -10,11 +10,13 @@ namespace il2cpp
 {
 namespace os
 {
-    uint32_t LastError::GetLastError()
-    {
-        return ::GetLastError();
-    }
+
+uint32_t LastError::GetLastError()
+{
+	return ::GetLastError();
+}
+
 } /* namespace os */
 } /* namespace il2cpp*/
 
-#endif
+#endif 

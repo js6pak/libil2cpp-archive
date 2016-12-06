@@ -10,33 +10,35 @@ namespace il2cpp
 {
 namespace os
 {
-    EventImpl::EventImpl(bool manualReset, bool signaled)
-        : posix::PosixWaitObject(manualReset ? kManualResetEvent : kAutoResetEvent)
-    {
-        if (signaled)
-            m_Count = 1;
-    }
 
-    ErrorCode EventImpl::Set()
-    {
-        posix::PosixAutoLock lock(&m_Mutex);
+EventImpl::EventImpl (bool manualReset, bool signaled)
+	: posix::PosixWaitObject (manualReset ? kManualResetEvent : kAutoResetEvent)
+{
+	if (signaled)
+		m_Count = 1;
+}
 
-        m_Count = 1;
+ErrorCode EventImpl::Set ()
+{
+	posix::PosixAutoLock lock (&m_Mutex);
 
-        if (HaveWaitingThreads())
-            pthread_cond_broadcast(&m_Condition);
+	m_Count = 1;
 
-        return kErrorCodeSuccess;
-    }
+	if (HaveWaitingThreads ())
+		pthread_cond_broadcast (&m_Condition);
 
-    ErrorCode EventImpl::Reset()
-    {
-        posix::PosixAutoLock lock(&m_Mutex);
-        m_Count = 0;
+	return kErrorCodeSuccess;
+}
 
-        return kErrorCodeSuccess;
-    }
+ErrorCode EventImpl::Reset ()
+{
+	posix::PosixAutoLock lock (&m_Mutex);
+	m_Count = 0;
+
+	return kErrorCodeSuccess;
+}
+
 }
 }
 
-#endif
+#endif 

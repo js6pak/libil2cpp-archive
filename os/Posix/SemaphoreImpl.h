@@ -12,16 +12,18 @@ namespace il2cpp
 {
 namespace os
 {
-    class SemaphoreImpl : public posix::PosixWaitObject
-    {
-    public:
-        SemaphoreImpl(int32_t initialValue, int32_t maximumValue);
 
-        bool Post(int32_t releaseCount, int32_t* previousCount);
+class SemaphoreImpl : public posix::PosixWaitObject
+{
+public:
+	SemaphoreImpl (int32_t initialValue, int32_t maximumValue);
 
-    protected:
-        uint32_t m_MaximumValue;
-    };
+	bool Post (int32_t releaseCount, int32_t* previousCount);
+
+protected:
+	uint32_t m_MaximumValue;
+};
+
 }
 }
 

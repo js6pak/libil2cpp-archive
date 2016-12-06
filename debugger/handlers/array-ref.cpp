@@ -14,64 +14,65 @@ namespace il2cpp
 {
 namespace debugger
 {
-    const Reply *Agent::Process(const ArrayRefGetValuesCommand *command)
-    {
-        ArrayRefGetValuesCommand::Reply *get_values_reply = command->reply();
 
-        Il2CppArray *arr = (Il2CppArray*)command->object();
-        if (arr == 0)
-            return get_values_reply;
+const Reply *Agent::Process(const ArrayRefGetValuesCommand *command)
+{
+	ArrayRefGetValuesCommand::Reply *get_values_reply = command->reply();
 
-        Il2CppClass *array_klass = il2cpp_object_get_class(arr);
+	Il2CppArray *arr = (Il2CppArray*)command->object();
+	if(arr == 0)
+		return get_values_reply;
 
-        int32_t element_size = il2cpp_array_element_size(array_klass);
-        for (int32_t i = command->index(); i < command->index() + command->length(); ++i)
-        {
-            void *element = (void*)((uint8_t*)arr + kIl2CppSizeOfArray + (i * element_size));
-            get_values_reply->values().push_back(
-                Variant(array_klass->element_class->byval_arg, element));
-        }
+	Il2CppClass *array_klass = il2cpp_object_get_class(arr);
 
-        return get_values_reply;
-    }
+	int32_t element_size = il2cpp_array_element_size (array_klass);
+	for(int32_t i = command->index(); i < command->index() + command->length(); ++i)
+	{
+		void *element = (void*)((uint8_t*)arr + kIl2CppSizeOfArray + (i * element_size));
+		get_values_reply->values().push_back(
+			Variant(array_klass->element_class->byval_arg, element));
+	}
 
-    const Reply *Agent::Process(const ArrayRefGetLengthCommand *command)
-    {
-        ArrayRefGetLengthCommand::Reply *get_length_reply = command->reply();
+	return get_values_reply;
+}
 
-        Il2CppArray *arr = (Il2CppArray*)command->object();
-        if (arr == 0)
-            return get_length_reply;
+const Reply *Agent::Process(const ArrayRefGetLengthCommand *command)
+{
+	ArrayRefGetLengthCommand::Reply *get_length_reply = command->reply();
 
-        Il2CppClass *array_klass = il2cpp_object_get_class(arr);
+	Il2CppArray *arr = (Il2CppArray*)command->object();
+	if(arr == 0)
+		return get_length_reply;
 
-        get_length_reply->rank(array_klass->rank);
+	Il2CppClass *array_klass = il2cpp_object_get_class(arr);
 
-        if (!arr->bounds)
-        {
-            get_length_reply->lengths().push_back(arr->max_length);
-            get_length_reply->lower_bounds().push_back(0);
-        }
-        else
-        {
-            for (uint8_t i = 0; i < array_klass->rank; ++i)
-            {
-                get_length_reply->lengths().push_back(arr->bounds[i].length);
-                get_length_reply->lower_bounds().push_back(arr->bounds[i].lower_bound);
-            }
-        }
+	get_length_reply->rank(array_klass->rank);
 
-        return get_length_reply;
-    }
+	if (!arr->bounds)
+	{
+		get_length_reply->lengths().push_back(arr->max_length);
+		get_length_reply->lower_bounds().push_back(0);
+	} else
+	{
+		for(uint8_t i = 0; i < array_klass->rank; ++i)
+		{
+			get_length_reply->lengths().push_back(arr->bounds[i].length);
+			get_length_reply->lower_bounds().push_back(arr->bounds[i].lower_bound);
+		}
+	}
 
-    const Reply *Agent::Process(const ArrayRefSetValuesCommand *command)
-    {
-        LOG("warning: `ArrayRefSetValuesCommand` not implemented. Returning a `NotImplemented` reply!");
+	return get_length_reply;
+}
 
-        IL2CPP_ASSERT(0);
+const Reply *Agent::Process(const ArrayRefSetValuesCommand *command)
+{
+	LOG("warning: `ArrayRefSetValuesCommand` not implemented. Returning a `NotImplemented` reply!");
 
-        return new InternalErrorNotImplementedReply(command);
-    }
+	IL2CPP_ASSERT(0);
+
+	return new InternalErrorNotImplementedReply(command);
+}
+
 }
 }
 

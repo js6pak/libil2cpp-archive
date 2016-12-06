@@ -7,16 +7,18 @@ namespace il2cpp
 {
 namespace vm
 {
-    class LIBIL2CPP_CODEGEN_API LastError
-    {
-    public:
-        static uint32_t GetLastError();
-        static void StoreLastError();
 
-        static void InitializeLastErrorThreadStatic();
+class LIBIL2CPP_CODEGEN_API LastError
+{
+public:
+	static uint32_t GetLastError();
+	static void StoreLastError();
 
-    private:
-        static int32_t s_LastErrorThreadLocalStorageOffset;
-    };
+	static void InitializeLastErrorThreadStatic();
+
+private:
+	static int32_t s_LastErrorThreadLocalStorageOffset;
+};
+
 } /* namespace vm */
 } /* namespace il2cpp */

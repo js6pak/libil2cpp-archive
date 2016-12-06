@@ -6,104 +6,105 @@
 
 namespace il2cpp
 {
+
 namespace gc
 {
-    template<class Key, class T,
-             class HashFcn,
-             class EqualKey = typename Il2CppHashMap<Key, T, HashFcn>::key_equal>
-    class AppendOnlyGCHashMap : public il2cpp::utils::NonCopyable
-    {
-        typedef Il2CppHashMap<Key, size_t, HashFcn, EqualKey> hash_map_type;
-        typedef typename Il2CppHashMap<Key, size_t, HashFcn, EqualKey>::const_iterator ConstIterator;
-    public:
 
-        typedef typename hash_map_type::key_type key_type;
-        typedef T data_type;
-        typedef typename hash_map_type::size_type size_type;
-        typedef typename hash_map_type::hasher hasher;
-        typedef typename hash_map_type::key_equal key_equal;
+template <class Key, class T,
+class HashFcn,
+class EqualKey = std::equal_to<Key> >
+class AppendOnlyGCHashMap : public il2cpp::utils::NonCopyable
+{
+	typedef Il2CppHashMap<Key, size_t, HashFcn, EqualKey> hash_map_type;
+	typedef typename Il2CppHashMap<Key, size_t, HashFcn, EqualKey>::const_iterator ConstIterator;
+public:
 
-        AppendOnlyGCHashMap() :
-            m_Data(NULL),
-            m_Size(0)
-        {
-        }
+	typedef typename hash_map_type::key_type key_type;
+	typedef T data_type;
+	typedef typename hash_map_type::size_type size_type;
+	typedef typename hash_map_type::hasher hasher;
+	typedef typename hash_map_type::key_equal key_equal;
 
-        ~AppendOnlyGCHashMap()
-        {
-            if (m_Data)
-                il2cpp::gc::GarbageCollector::FreeFixed(m_Data);
-        }
+	AppendOnlyGCHashMap () :
+		m_Data (NULL),
+		m_Size (0)
+	{
+	}
 
-        bool Contains(const Key& k)
-        {
-            return m_Map.find(k) != m_Map.end();
-        }
+	~AppendOnlyGCHashMap ()
+	{
+		if (m_Data)
+			il2cpp::gc::GarbageCollector::FreeFixed (m_Data);
+	}
 
-        // Returns true if value was added. False if it already existed
-        bool Add(const Key& k, T value)
-        {
-            if (m_Map.find(k) != m_Map.end())
-                return false;
+	bool Contains (const Key& k)
+	{
+		return m_Map.find (k) != m_Map.end ();
+	}
 
-            if (m_Size == 0)
-            {
-                m_Size = 8;
-                m_Data = (T*)il2cpp::gc::GarbageCollector::AllocateFixed(m_Size * sizeof(T), NULL);
-                assert(m_Data);
-            }
-            else if (m_Map.size() == m_Size)
-            {
-                size_t newSize = 2 * m_Size;
-                T* newData = (T*)il2cpp::gc::GarbageCollector::AllocateFixed(newSize * sizeof(T), NULL);
+	// Returns true if value was added. False if it already existed
+	bool Add (const Key& k, T value)
+	{
+		if (m_Map.find (k) != m_Map.end ())
+			return false;
 
-                MemCpyData memCpyData = { newData, m_Data, m_Size * sizeof(T) };
-                // perform memcpy with GC lock held so GC doesn't see torn pointer values.I think this is less of an issue with Boehm than other GCs, but being safe.
-                il2cpp::gc::GarbageCollector::CallWithAllocLockHeld(&CopyValues, &memCpyData);
+		if (m_Size == 0)
+		{
+			m_Size = 8;
+			m_Data = (T*)il2cpp::gc::GarbageCollector::AllocateFixed (m_Size * sizeof (T), NULL);
+			assert (m_Data);
+		}
+		else if (m_Map.size () == m_Size)
+		{
+			size_t newSize = 2 * m_Size;
+			T* newData = (T*)il2cpp::gc::GarbageCollector::AllocateFixed (newSize * sizeof (T), NULL);
 
-                il2cpp::gc::GarbageCollector::FreeFixed(m_Data);
-                m_Size = newSize;
-                m_Data = newData;
-                assert(m_Data);
-            }
+			MemCpyData memCpyData = { newData, m_Data, m_Size * sizeof (T) };
+			// perform memcpy with GC lock held so GC doesn't see torn pointer values.I think this is less of an issue with Boehm than other GCs, but being safe.
+			il2cpp::gc::GarbageCollector::CallWithAllocLockHeld (&CopyValues, &memCpyData);
 
-            size_t index = m_Map.size();
-            m_Map.insert(std::make_pair(k, index));
-            m_Data[index] = value;
-            assert(m_Map.size() <= m_Size);
-            return true;
-        }
+			il2cpp::gc::GarbageCollector::FreeFixed (m_Data);
+			m_Size = newSize;
+			m_Data = newData;
+			assert (m_Data);
+		}
 
-        bool TryGetValue(const Key& k, T* value)
-        {
-            ConstIterator iter = m_Map.find(k);
-            if (iter == m_Map.end())
-                return false;
+		size_t index = m_Map.size ();
+		m_Map.insert (std::make_pair (k, index));
+		m_Data[index] = value;
+		assert (m_Map.size () <= m_Size);
+		return true;
+	}
 
-            size_t index = iter->second;
-            assert(index <= m_Map.size());
-            *value = m_Data[index];
-            return true;
-        }
+	bool TryGetValue (const Key& k, T* value)
+	{
+		ConstIterator iter = m_Map.find (k);
+		if (iter == m_Map.end ())
+			return false;
 
-    private:
-        struct MemCpyData
-        {
-            void* dst;
-            const void* src;
-            size_t size;
-        };
+		size_t index = iter->second;
+		assert (index <= m_Map.size ());
+		*value = m_Data[index];
+		return true;
+	}
+private:
+	struct MemCpyData
+	{
+		void* dst;
+		const void* src;
+		size_t size;
+	};
 
-        static void* CopyValues(void* arg)
-        {
-            MemCpyData* thisPtr = (MemCpyData*)arg;
-            memcpy(thisPtr->dst, thisPtr->src, thisPtr->size);
-            return NULL;
-        }
+	static void* CopyValues (void* arg)
+	{
+		MemCpyData* thisPtr = (MemCpyData*)arg;
+		memcpy (thisPtr->dst, thisPtr->src, thisPtr->size);
+		return NULL;
+	}
 
-        Il2CppHashMap<Key, size_t, HashFcn, EqualKey> m_Map;
-        T* m_Data;
-        size_t m_Size;
-    };
+	Il2CppHashMap<Key, size_t, HashFcn, EqualKey> m_Map;
+	T* m_Data;
+	size_t m_Size;
+};
 }
 }

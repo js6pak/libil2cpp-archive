@@ -7,44 +7,47 @@ namespace il2cpp
 {
 namespace debugger
 {
-    struct TCPDataTransportHandle;
 
-    class TCPDataTransport : public IDataTransport
-    {
-    public:
+struct TCPDataTransportHandle;
 
-        TCPDataTransport(const char *host, int32_t port);
-        ~TCPDataTransport();
+class TCPDataTransport : public IDataTransport
+{
 
-        inline const char *host() const
-        {
-            return _host;
-        }
+public:
 
-        inline int32_t port() const
-        {
-            return _port;
-        }
+	TCPDataTransport(const char *host, int32_t port);
+	~TCPDataTransport();
 
-        inline bool connected() const
-        {
-            return _connected;
-        }
+	inline const char *host() const
+	{
+		return _host;
+	}
 
-        bool Setup();
-        bool WaitForClient();
-        int32_t Send(const uint8_t *data, size_t length, int flags = 0);
-        int32_t Recv(uint8_t *data, size_t length, int flags = 0);
-        void Close();
+	inline int32_t port() const
+	{
+		return _port;
+	}
 
-    private:
+	inline bool connected() const
+	{
+		return _connected;
+	}
 
-        const char *_host;
-        int32_t _port;
-        bool _connected;
-        TCPDataTransportHandle *_handle;
+	bool Setup();
+	bool WaitForClient();
+	int32_t Send(const uint8_t *data, size_t length, int flags = 0);
+	int32_t Recv(uint8_t *data, size_t length, int flags = 0);
+	void Close();
 
-        DISALLOW_COPY(TCPDataTransport);
-    };
+private:
+
+	const char *_host;
+	int32_t _port;
+	bool _connected;
+	TCPDataTransportHandle *_handle;
+
+	DISALLOW_COPY(TCPDataTransport);
+};
+
 } /* namespace debugger */
 } /* namespace il2cpp */

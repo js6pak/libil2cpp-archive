@@ -14,34 +14,36 @@ namespace il2cpp
 {
 namespace os
 {
-    Event::Event(bool manualReset, bool signaled)
-        : m_Event(new EventImpl(manualReset, signaled))
-    {
-    }
 
-    Event::~Event()
-    {
-        delete m_Event;
-    }
+Event::Event (bool manualReset, bool signaled)
+: m_Event (new EventImpl (manualReset, signaled))
+{
+}
 
-    ErrorCode Event::Set()
-    {
-        return m_Event->Set();
-    }
+Event::~Event ()
+{
+	delete m_Event;
+}
 
-    ErrorCode Event::Reset()
-    {
-        return m_Event->Reset();
-    }
+ErrorCode Event::Set ()
+{
+	return m_Event->Set ();
+}
 
-    WaitStatus Event::Wait(bool interruptible)
-    {
-        return m_Event->Wait(interruptible);
-    }
+ErrorCode Event::Reset ()
+{
+	return m_Event->Reset ();
+}
 
-    WaitStatus Event::Wait(uint32_t ms, bool interruptible)
-    {
-        return m_Event->Wait(ms, interruptible);
-    }
+WaitStatus Event::Wait (bool interruptible)
+{
+	return m_Event->Wait (interruptible);
+}
+
+WaitStatus Event::Wait (uint32_t ms, bool interruptible)
+{
+	return m_Event->Wait (ms, interruptible);
+}
+
 }
 }

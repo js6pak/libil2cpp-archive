@@ -23,143 +23,146 @@ namespace il2cpp
 {
 namespace os
 {
-    std::string Environment::GetMachineName()
-    {
-        char buf[256];
 
-        if (gethostname(buf, sizeof(buf)) != 0)
-            return NULL;
+std::string Environment::GetMachineName()
+{
+	char buf [256];
 
-        return buf;
-    }
+	if (gethostname(buf, sizeof (buf))!=0)
+		return NULL;
 
-    int32_t Environment::GetProcessorCount()
-    {
-        int count = 1;
+	return buf;
+}
+
+int32_t Environment::GetProcessorCount()
+{
+	int count = 1;
 #ifdef _SC_NPROCESSORS_ONLN
-        count = (int)sysconf(_SC_NPROCESSORS_ONLN);
-        if (count > 0)
-            return count;
+	count = (int)sysconf (_SC_NPROCESSORS_ONLN);
+	if (count > 0)
+		return count;
 #endif
 #ifdef USE_SYSCTL
-        {
-            int mib[2];
-            size_t len = sizeof(int);
-            mib[0] = CTL_HW;
-            mib[1] = HW_NCPU;
-            if (sysctl(mib, 2, &count, &len, NULL, 0) == 0)
-                return count;
-        }
+	{
+		int mib [2];
+		size_t len = sizeof (int);
+		mib [0] = CTL_HW;
+		mib [1] = HW_NCPU;
+		if (sysctl (mib, 2, &count, &len, NULL, 0) == 0)
+			return count;
+	}
 #endif
-        return count;
-    }
+	return count;
+}
 
-    std::string Environment::GetOsVersionString()
-    {
-        struct utsname name;
 
-        if (uname(&name) >= 0)
-            return name.release;
+std::string Environment::GetOsVersionString()
+{
+	struct utsname name;
 
-        return "0.0.0.0";
-    }
+	if (uname (&name) >= 0)
+		return name.release;
 
-    std::string Environment::GetOsUserName()
-    {
-        const std::string username(GetEnvironmentVariable("USER"));
-        return username.empty() ? "Unknown" : username;
-    }
+	return "0.0.0.0";
+}
 
-    std::string Environment::GetEnvironmentVariable(const std::string& name)
-    {
-        const char* variable = getenv(name.c_str());
-        return variable ? std::string(variable) : std::string();
-    }
+std::string Environment::GetOsUserName()
+{
+	const std::string username(GetEnvironmentVariable("USER"));
+	return username.empty() ? "Unknown" : username;
+}
 
-    void Environment::SetEnvironmentVariable(const std::string& name, const std::string& value)
-    {
-        if (value.empty())
-        {
-            unsetenv(name.c_str());
-        }
-        else
-        {
-            setenv(name.c_str(), value.c_str(), 1); // 1 means overwrite
-        }
-    }
+std::string Environment::GetEnvironmentVariable(const std::string& name)
+{
+	const char* variable = getenv(name.c_str());
+	return variable ? std::string(variable) : std::string();
+}
 
-    std::vector<std::string> Environment::GetEnvironmentVariableNames()
-    {
-        std::vector<std::string> result;
+void Environment::SetEnvironmentVariable(const std::string& name, const std::string& value)
+{
+	if(value.empty())
+	{
+		unsetenv(name.c_str());
+	}
+	else
+	{
+		setenv(name.c_str(), value.c_str(), 1); // 1 means overwrite
+	}
+}
 
-        for (char **envvar = environ; *envvar != NULL; ++envvar)
-        {
-            const char* equalAddress = strchr(*envvar, '=');
+std::vector<std::string> Environment::GetEnvironmentVariableNames ()
+{
+	std::vector<std::string> result;
 
-            if (equalAddress != NULL)
-                result.push_back(std::string(*envvar, size_t(equalAddress - *envvar)));
-        }
+	for(char **envvar = environ; *envvar != NULL; ++envvar)
+	{
+		const char* equalAddress = strchr(*envvar, '=');
 
-        return result;
-    }
+		if(equalAddress != NULL)
+			result.push_back(std::string(*envvar, size_t(equalAddress - *envvar)));
+	}
 
-    std::string Environment::GetHomeDirectory()
-    {
-        static std::string homeDirectory;
+	return result;
+}
 
-        if (!homeDirectory.empty())
-            return homeDirectory;
+std::string Environment::GetHomeDirectory ()
+{
+	static std::string homeDirectory;
 
-        homeDirectory = GetEnvironmentVariable("HOME");
+	if(!homeDirectory.empty())
+		return homeDirectory;
 
-        return homeDirectory.empty() ? "/" : homeDirectory;
-    }
+	homeDirectory = GetEnvironmentVariable("HOME");
 
-    std::vector<std::string> Environment::GetLogicalDrives()
-    {
-        std::vector<std::string> result;
+	return homeDirectory.empty() ? "/" : homeDirectory;
+}
 
-        // This implementation is not correct according to the definition of this icall, but this is
-        // the only "logical drive" that the Mono version in Unity returns for OSX.
-        result.push_back("/");
+std::vector<std::string> Environment::GetLogicalDrives ()
+{
+	std::vector<std::string> result;
 
-        // TODO: Implement additional logic for Linux
+	// This implementation is not correct according to the definition of this icall, but this is
+	// the only "logical drive" that the Mono version in Unity returns for OSX.
+	result.push_back("/");
 
-        return result;
-    }
+	// TODO: Implement additional logic for Linux
 
-    void Environment::Exit(int result)
-    {
-        il2cpp_shutdown();
-        exit(result);
-    }
+	return result;
+}
 
-    NORETURN void Environment::Abort()
-    {
-        abort();
-    }
+void Environment::Exit (int result)
+{
+	il2cpp_shutdown ();
+	exit (result);
+}
 
-    std::string Environment::GetWindowsFolderPath(int folder)
-    {
-        // This should only be called on Windows.
-        return std::string();
-    }
+NORETURN void Environment::Abort()
+{
+	abort();
+}
+
+std::string Environment::GetWindowsFolderPath(int folder)
+{
+	// This should only be called on Windows.
+	return std::string();
+}
 
 #if NET_4_0
 
-    bool Environment::Is64BitOs()
-    {
-        struct utsname name;
+bool Environment::Is64BitOs()
+{
+	struct utsname name;
 
-        if (uname(&name) >= 0)
-        {
-            return strcmp(name.machine, "x86_64") == 0 || strncmp(name.machine, "aarch64", 7) == 0 || strncmp(name.machine, "ppc64", 5) == 0;
-        }
+	if (uname(&name) >= 0)
+	{
+		return strcmp(name.machine, "x86_64") == 0 || strncmp(name.machine, "aarch64", 7) == 0 || strncmp(name.machine, "ppc64", 5) == 0;
+	}
 
-        return false;
-    }
+	return false;
+}
 
 #endif
+
 }
 }
 #endif
