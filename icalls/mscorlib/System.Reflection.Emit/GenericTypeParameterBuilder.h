@@ -15,11 +15,13 @@ namespace Reflection
 {
 namespace Emit
 {
-    class LIBIL2CPP_CODEGEN_API GenericTypeParameterBuilder
-    {
-    public:
-        static void initialize(Il2CppReflectionGenericParam* genericParameter);
-    };
+
+class LIBIL2CPP_CODEGEN_API GenericTypeParameterBuilder
+{
+public:
+	static void initialize (Il2CppReflectionGenericParam* genericParameter);
+};
+
 } /* namespace Emit */
 } /* namespace Reflection */
 } /* namespace System */

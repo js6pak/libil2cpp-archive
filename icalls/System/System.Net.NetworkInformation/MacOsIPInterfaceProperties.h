@@ -12,11 +12,13 @@ namespace Net
 {
 namespace NetworkInformation
 {
-    class LIBIL2CPP_CODEGEN_API MacOsIPInterfaceProperties
-    {
-    public:
-        static bool ParseRouteInfo_internal(Il2CppString* iface, Il2CppArray** gw_addr_list);
-    };
+
+class LIBIL2CPP_CODEGEN_API MacOsIPInterfaceProperties
+{
+public:
+	static bool ParseRouteInfo_internal(Il2CppString* iface, Il2CppArray** gw_addr_list);
+};
+
 } // namespace NetworkInformation
 } // namespace Net
 } // namespace System

@@ -4,20 +4,22 @@ namespace il2cpp
 {
 namespace os
 {
-    class Cryptography
-    {
-    public:
-        /* Returns a handle the cryptography provider to use in other calls on this API. */
-        static void* GetCryptographyProvider();
 
-        /* Open the cryptogrpahy provider. */
-        static bool OpenCryptographyProvider();
+class Cryptography
+{
+public:
+	/* Returns a handle the cryptography provider to use in other calls on this API. */
+	static void* GetCryptographyProvider();
 
-        /* Indicate that the cyrptography provider is no longer in use. */
-        static void ReleaseCryptographyProvider(void* provider);
+	/* Open the cryptogrpahy provider. */
+	static bool OpenCryptographyProvider();
 
-        /* Use the provider to fill the buffer with cryptographically random bytes. */
-        static bool FillBufferWithRandomBytes(void* provider, uint32_t length, unsigned char* data);
-    };
+	/* Indicate that the cyrptography provider is no longer in use. */
+	static void ReleaseCryptographyProvider(void* provider);
+
+	/* Use the provider to fill the buffer with cryptographically random bytes. */
+	static bool FillBufferWithRandomBytes(void* provider, uint32_t length, unsigned char* data);
+};
+
 }
 }

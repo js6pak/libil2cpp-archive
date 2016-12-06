@@ -47,21 +47,7 @@ struct ThreadPoolStateHasher
 	}
 };
 
-struct ThreadPoolStateCompare
-{
-	bool operator()(const KeyWrapper<int>& thread1, const KeyWrapper<int>& thread2) const
-	{
-		if (thread1.type != thread2.type)
-			return false;
-		else if (!thread1.isNormal())
-			return true;
-
-		// You can't overload events
-		return thread1.key == thread2.key;
-	}
-};
-
-typedef Il2CppHashMap<int, ManagedList*, ThreadPoolStateHasher, ThreadPoolStateCompare> ThreadPoolStateHash;
+typedef Il2CppHashMap<int, ManagedList*, ThreadPoolStateHasher> ThreadPoolStateHash;
 
 typedef enum {
 	UPDATE_EMPTY = 0,

@@ -1138,6 +1138,10 @@
     <ClInclude Include="icalls\mscorlib\Mono.Interop\ComInteropProxy.h" />
     <ClInclude Include="icalls\mscorlib\Mono.Security.Cryptography\KeyPairPersistence.h" />
     <ClInclude Include="icalls\mscorlib\Mono\Runtime.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeClassHandle.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeGPtrArrayHandle.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeMarshal.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\SafeStringMarshal.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\Assert.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\Debugger.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\StackFrame.h" />
@@ -1167,6 +1171,7 @@
     <ClInclude Include="icalls\mscorlib\System.Reflection\Assembly.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\AssemblyName.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\CustomAttributeData.h" />
+    <ClInclude Include="icalls\mscorlib\System.Reflection\EventInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\FieldInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\MemberInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\MethodBase.h" />
@@ -1181,6 +1186,7 @@
     <ClInclude Include="icalls\mscorlib\System.Reflection\MonoMethodInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\MonoPropertyInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\ParameterInfo.h" />
+    <ClInclude Include="icalls\mscorlib\System.Reflection\PropertyInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\RtFieldInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Runtime.CompilerServices\RuntimeHelpers.h" />
     <ClInclude Include="icalls\mscorlib\System.Runtime.InteropServices\GCHandle.h" />
@@ -1278,6 +1284,7 @@
     <ClInclude Include="il2cpp-debugger.h" />
     <ClInclude Include="il2cpp-metadata.h" />
     <ClInclude Include="il2cpp-string-types.h" />
+    <ClInclude Include="il2cpp-vm-support.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="metadata\ArrayMetadata.h" />
     <ClInclude Include="metadata\FieldLayout.h" />
@@ -1297,6 +1304,7 @@
     <ClInclude Include="metadata\Il2CppTypeCompare.h" />
     <ClInclude Include="metadata\Il2CppTypeHash.h" />
     <ClInclude Include="metadata\Il2CppTypeVector.h" />
+    <ClInclude Include="mono-structs.h" />
     <ClInclude Include="mono\metadata\threadpool-ms-io-poll.h" />
     <ClInclude Include="mono\metadata\threadpool-ms-io.h" />
     <ClInclude Include="mono\metadata\threadpool-ms.h" />
@@ -1388,6 +1396,7 @@
     <ClInclude Include="utils\HashUtils.h" />
     <ClInclude Include="utils\Il2CppHStringReference.h" />
     <ClInclude Include="utils\KeyWrapper.h" />
+    <ClInclude Include="utils\Logging.h" />
     <ClInclude Include="utils\MathUtils.h" />
     <ClInclude Include="utils\Memory.h" />
     <ClInclude Include="utils\MemoryPool.h" />
@@ -1406,6 +1415,7 @@
     <ClInclude Include="vm\Assembly.h" />
     <ClInclude Include="vm\AssemblyName.h" />
     <ClInclude Include="vm\Atomic.h" />
+    <ClInclude Include="vm\CachedCCWBase.h" />
     <ClInclude Include="vm\CCW.h" />
     <ClInclude Include="vm\Class.h" />
     <ClInclude Include="vm\COM.h" />
@@ -1434,6 +1444,7 @@
     <ClInclude Include="vm\Method.h" />
     <ClInclude Include="vm\Module.h" />
     <ClInclude Include="vm\Monitor.h" />
+    <ClInclude Include="vm\NonCachedCCWBase.h" />
     <ClInclude Include="vm\Object.h" />
     <ClInclude Include="vm\Parameter.h" />
     <ClInclude Include="vm\PlatformInvoke.h" />
@@ -1502,6 +1513,10 @@
     <ClCompile Include="icalls\mscorlib\Mono.Interop\ComInteropProxy.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Security.Cryptography\KeyPairPersistence.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono\Runtime.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeClassHandle.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeGPtrArrayHandle.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeMarshal.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\SafeStringMarshal.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Diagnostics\Assert.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Diagnostics\Debugger.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Diagnostics\StackFrame.cpp" />
@@ -1528,6 +1543,7 @@
     <ClCompile Include="icalls\mscorlib\System.Reflection\Assembly.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\AssemblyName.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\CustomAttributeData.cpp" />
+    <ClCompile Include="icalls\mscorlib\System.Reflection\EventInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\FieldInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\MemberInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\MethodBase.cpp" />
@@ -1542,6 +1558,7 @@
     <ClCompile Include="icalls\mscorlib\System.Reflection\MonoMethodInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\MonoPropertyInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\ParameterInfo.cpp" />
+    <ClCompile Include="icalls\mscorlib\System.Reflection\PropertyInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\RtFieldInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Runtime.CompilerServices\RuntimeHelpers.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Runtime.InteropServices\GCHandle.cpp" />
@@ -1653,6 +1670,7 @@
     <ClCompile Include="metadata\Il2CppSignatureHash.cpp" />
     <ClCompile Include="metadata\Il2CppTypeCompare.cpp" />
     <ClCompile Include="metadata\Il2CppTypeHash.cpp" />
+    <ClCompile Include="mono-structs.cpp" />
     <ClCompile Include="mono\metadata\threadpool-ms-io-poll.cpp" />
     <ClCompile Include="mono\metadata\threadpool-ms-io.cpp" />
     <ClCompile Include="mono\metadata\threadpool-ms.cpp" />
@@ -1758,6 +1776,7 @@
     <ClCompile Include="os\WinRT\Win32ApiWinRTEmulation.cpp" />
     <ClCompile Include="utils\BlobReader.cpp" />
     <ClCompile Include="utils\DirectoryUtils.cpp" />
+    <ClCompile Include="utils\Logging.cpp" />
     <ClCompile Include="utils\Memory.cpp" />
     <ClCompile Include="utils\MemoryPool.cpp" />
     <ClCompile Include="utils\Output.cpp" />

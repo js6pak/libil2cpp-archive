@@ -23,8 +23,10 @@ namespace os
 {
 namespace win
 {
+
 // Wait for a release of the given handle in way that can be interrupted by APCs.
-    WaitStatus WaitForSingleObjectAndAccountForAPCs(HANDLE handle, uint32_t ms, bool interruptible);
+WaitStatus WaitForSingleObjectAndAccountForAPCs (HANDLE handle, uint32_t ms, bool interruptible);
+
 }
 }
 }
