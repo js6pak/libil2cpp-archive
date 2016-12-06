@@ -12,46 +12,48 @@ namespace il2cpp
 {
 namespace vm
 {
-    Il2CppDomain* Domain::S_domain = NULL;
 
-    Il2CppDomain* Domain::GetCurrent()
-    {
-        if (S_domain)
-            return S_domain;
+Il2CppDomain* Domain::S_domain = NULL;
 
-        // allocate using gc memory since we hold onto object references
-        S_domain = (Il2CppDomain*)il2cpp::gc::GarbageCollector::AllocateFixed(sizeof(Il2CppDomain), NULL);
+Il2CppDomain* Domain::GetCurrent ()
+{
+	if (S_domain)
+		return S_domain;
 
-        return S_domain;
-    }
+	// allocate using gc memory since we hold onto object references
+	S_domain = (Il2CppDomain*)il2cpp::gc::GarbageCollector::AllocateFixed (sizeof(Il2CppDomain), NULL);
 
-    Il2CppDomain* Domain::GetRoot()
-    {
-        // just one domain for now
-        return GetCurrent();
-    }
+	return S_domain;
+}
 
-    void Domain::ContextInit(Il2CppDomain *domain)
-    {
-        Il2CppClass* klass = Class::FromName(il2cpp_defaults.corlib, "System.Runtime.Remoting.Contexts", "Context");
-        Il2CppAppContext* context = (Il2CppAppContext*)Object::New(klass);
+Il2CppDomain* Domain::GetRoot ()
+{
+	// just one domain for now
+	return GetCurrent ();
+}
 
-        // To match Mono's implementation we do not call the constructor here. If we do, context_id will be 1, which
-        // is not correct.
-        context->domain_id = domain->domain_id;
-        context->context_id = 0;
+void Domain::ContextInit (Il2CppDomain *domain)
+{
+	Il2CppClass* klass = Class::FromName (il2cpp_defaults.corlib, "System.Runtime.Remoting.Contexts", "Context");
+	Il2CppAppContext* context = (Il2CppAppContext*)Object::New (klass);
 
-        domain->default_context = context;
-    }
+	// To match Mono's implementation we do not call the constructor here. If we do, context_id will be 1, which
+	// is not correct.
+	context->domain_id = domain->domain_id;
+	context->context_id = 0;
 
-    void Domain::ContextSet(Il2CppAppContext* context)
-    {
-        IL2CPP_OBJECT_SETREF(il2cpp::vm::Thread::Current()->GetInternalThread(), current_appcontext, (Il2CppObject*)context);
-    }
+	domain->default_context = context;
+}
 
-    Il2CppAppContext* Domain::ContextGet()
-    {
-        return (Il2CppAppContext*)il2cpp::vm::Thread::Current()->GetInternalThread()->current_appcontext;
-    }
+void Domain::ContextSet (Il2CppAppContext* context)
+{
+	IL2CPP_OBJECT_SETREF(il2cpp::vm::Thread::Current()->GetInternalThread(), current_appcontext, (Il2CppObject*)context);
+}
+
+Il2CppAppContext* Domain::ContextGet ()
+{
+	return (Il2CppAppContext*)il2cpp::vm::Thread::Current()->GetInternalThread()->current_appcontext;
+}
+
 } /* namespace vm */
 } /* namespace il2cpp */

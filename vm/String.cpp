@@ -18,182 +18,185 @@ namespace il2cpp
 {
 namespace vm
 {
-    static Il2CppString* s_EmptyString;
 
-    void String::InitializeEmptyString(Il2CppClass* stringClass)
-    {
-        IL2CPP_ASSERT(s_EmptyString == NULL && "Empty string was already initialized");
+static Il2CppString* s_EmptyString;
 
-        // size for string and null terminator
-        s_EmptyString = static_cast<Il2CppString*>(gc::GarbageCollector::AllocateFixed(sizeof(Il2CppString) + 2, 0));
-        s_EmptyString->object.klass = stringClass;
-        s_EmptyString->length = 0;
-        s_EmptyString->chars[0] = 0;
-    }
+void String::InitializeEmptyString(Il2CppClass* stringClass)
+{
+	IL2CPP_ASSERT(s_EmptyString == NULL && "Empty string was already initialized");
 
-    void String::CleanupEmptyString()
-    {
-        IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
-        gc::GarbageCollector::FreeFixed(s_EmptyString);
-        s_EmptyString = NULL;
-    }
+	// size for string and null terminator
+	s_EmptyString = static_cast<Il2CppString*>(gc::GarbageCollector::AllocateFixed(sizeof(Il2CppString) + 2, 0));
+	s_EmptyString->object.klass = stringClass;
+	s_EmptyString->length = 0;
+	s_EmptyString->chars[0] = 0;
+}
 
-    Il2CppString* String::Empty()
-    {
-        IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
-        return s_EmptyString;
-    }
+void String::CleanupEmptyString()
+{
+	IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
+	gc::GarbageCollector::FreeFixed(s_EmptyString);
+	s_EmptyString = NULL;
+}
 
-    int32_t String::GetLength(Il2CppString* str)
-    {
-        return str->length;
-    }
+Il2CppString* String::Empty()
+{
+	IL2CPP_ASSERT(s_EmptyString && "Empty string was not yet initialized");
+	return s_EmptyString;
+}
 
-    Il2CppChar* String::GetChars(Il2CppString* str)
-    {
-        return str->chars;
-    }
+int32_t String::GetLength (Il2CppString* str)
+{
+	return str->length;
+}
 
-    int32_t String::GetHash(Il2CppString* str)
-    {
-        const Il2CppChar* p = GetChars(str);
-        int i, len = GetLength(str);
-        uint32_t h = 0;
+Il2CppChar* String::GetChars (Il2CppString* str)
+{
+	return str->chars;
+}
 
-        for (i = 0; i < len; i++)
-        {
-            h = (h << 5) - h + *p;
-            p++;
-        }
+int32_t String::GetHash (Il2CppString* str)
+{
+	const Il2CppChar* p = GetChars (str);
+	int i, len = GetLength (str);
+	uint32_t h = 0;
 
-        return h;
-    }
+	for (i = 0; i < len; i++) {
+		h = (h << 5) - h + *p;
+		p++;
+	}
 
-    Il2CppString* String::New(const char* str)
-    {
-        return NewLen(str, (uint32_t)strlen(str));
-    }
+	return h;
+}
 
-    Il2CppString* String::NewWrapper(const char* str)
-    {
-        return New(str);
-    }
+Il2CppString* String::New (const char* str)
+{
+	return NewLen (str, (uint32_t)strlen(str));
+}
 
-    Il2CppString* String::NewLen(const char* str, uint32_t length)
-    {
-        UTF16String utf16Chars = il2cpp::utils::StringUtils::Utf8ToUtf16(str, length);
+Il2CppString* String::NewWrapper (const char* str)
+{
+	return New (str);
+}
 
-        return NewUtf16(utf16Chars.c_str(), (uint32_t)utf16Chars.length());
-    }
+Il2CppString* String::NewLen (const char* str, uint32_t length)
+{
+	UTF16String utf16Chars = il2cpp::utils::StringUtils::Utf8ToUtf16 (str, length);
+	
+	return NewUtf16 (utf16Chars.c_str(), (uint32_t)utf16Chars.length ());
+}
 
-    Il2CppString* String::NewUtf16(const Il2CppChar* text, int32_t len)
-    {
-        Il2CppString *s;
+Il2CppString* String::NewUtf16 (const Il2CppChar* text, int32_t len)
+{
+	Il2CppString *s;
+	
+	s = NewSize (len);
+	IL2CPP_ASSERT(s != NULL);
 
-        s = NewSize(len);
-        IL2CPP_ASSERT(s != NULL);
+	memcpy (String::GetChars (s), text, len * 2);
 
-        memcpy(String::GetChars(s), text, len * 2);
+	return s;
+}
 
-        return s;
-    }
+Il2CppString* String::NewUtf16(const utils::StringView<Il2CppChar>& text)
+{
+	assert(text.Length() < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+	return NewUtf16(text.Str(), static_cast<int32_t>(text.Length()));
+}
 
-    Il2CppString* String::NewSize(int32_t len)
-    {
-        if (len == 0)
-            return Empty();
+Il2CppString* String::NewSize (int32_t len)
+{
+	if (len == 0)
+		return Empty();
 
-        Il2CppString *s;
-        IL2CPP_ASSERT(len >= 0);
-        size_t size = (sizeof(Il2CppString) + ((len + 1) * 2));
+	Il2CppString *s;
+	IL2CPP_ASSERT(len >= 0);
+	size_t size = (sizeof (Il2CppString) + ((len + 1) * 2));
 
-        /* overflow ? can't fit it, can't allocate it! */
-        if (static_cast<uint32_t>(len) > size)
-            Exception::RaiseOutOfMemoryException();
+	/* overflow ? can't fit it, can't allocate it! */
+	if (static_cast<uint32_t>(len) > size)
+		Exception::RaiseOutOfMemoryException ();
 
-        s = reinterpret_cast<Il2CppString*>(Object::AllocatePtrFree(size, il2cpp_defaults.string_class));
+	s = reinterpret_cast<Il2CppString*> (Object::AllocatePtrFree (size, il2cpp_defaults.string_class));
 
-        s->length = len;
+	s->length = len;
 #if NEED_TO_ZERO_PTRFREE
-        s->chars[len] = 0;
+	s->chars [len] = 0;
 #endif
 
 #if IL2CPP_ENABLE_PROFILER
-        if (Profiler::ProfileAllocations())
-            Profiler::Allocation((Il2CppObject*)s, il2cpp_defaults.string_class);
+	if (Profiler::ProfileAllocations ())
+		Profiler::Allocation ((Il2CppObject*)s, il2cpp_defaults.string_class);
 #endif
 
-        return s;
-    }
+	return s;
+}
 
-    struct InternedString
-    {
-        int32_t length;
-        const Il2CppChar* chars;
-    };
+struct InternedString
+{
+	int32_t length;
+	const Il2CppChar* chars;
+};
 
-    class InternedStringHash
-    {
-    public:
-        size_t operator()(const InternedString& ea) const
-        {
-            return utils::StringUtils::Hash(ea.chars, ea.length);
-        }
-    };
+class InternedStringHash
+{
+public:
+	size_t operator( )( const InternedString& ea ) const
+	{
+		return utils::StringUtils::Hash (ea.chars, ea.length);
+	}
+};
 
-    class InternedStringCompare
-    {
-    public:
-        bool operator()(const KeyWrapper<InternedString>& ea, const KeyWrapper<InternedString>& eb) const
-        {
-            if (ea.type != eb.type)
-                return false;
-            else if (!ea.isNormal())
-                return true;
-
-            return (ea.key.length == eb.key.length) && (0 == memcmp(ea.key.chars, eb.key.chars, sizeof(Il2CppChar) * ea.key.length));
-        }
-    };
+class InternedStringCompare
+{
+public:
+	bool operator()(const InternedString& ea, const InternedString& eb) const
+	{
+		return (ea.length == eb.length) && (0 == memcmp (ea.chars, eb.chars, sizeof(Il2CppChar)*ea.length));
+	}
+};
 
 
-    typedef il2cpp::gc::AppendOnlyGCHashMap<InternedString, Il2CppString*, InternedStringHash, InternedStringCompare> InternedStringMap;
 
-    static os::FastMutex s_InternedStringMapMutex;
-    static InternedStringMap* s_InternedStringMap;
+typedef il2cpp::gc::AppendOnlyGCHashMap<InternedString, Il2CppString*, InternedStringHash, InternedStringCompare> InternedStringMap;
 
-    Il2CppString* String::Intern(Il2CppString* str)
-    {
-        os::FastAutoLock lockMap(&s_InternedStringMapMutex);
+static os::FastMutex s_InternedStringMapMutex;
+static InternedStringMap* s_InternedStringMap;
 
-        // allocate this are runtime since it uses GC allocator to keep managed strings alive and needs GC initialized
-        if (s_InternedStringMap == NULL)
-            s_InternedStringMap = new InternedStringMap();
+Il2CppString* String::Intern (Il2CppString* str)
+{
+	os::FastAutoLock lockMap (&s_InternedStringMapMutex);
 
-        InternedString internedString = { str->length, str->chars };
-        Il2CppString* value = NULL;
-        if (s_InternedStringMap->TryGetValue(internedString, &value))
-            return value;
+	// allocate this are runtime since it uses GC allocator to keep managed strings alive and needs GC initialized
+	if (s_InternedStringMap == NULL)
+		s_InternedStringMap = new InternedStringMap ();
 
-        internedString.chars = String::GetChars(str);
-        s_InternedStringMap->Add(internedString, str);
+	InternedString internedString = { str->length, str->chars };
+	Il2CppString* value = NULL;
+	if (s_InternedStringMap->TryGetValue (internedString, &value))
+		return value;
 
-        return str;
-    }
+	internedString.chars = String::GetChars (str);
+	s_InternedStringMap->Add (internedString, str);
 
-    Il2CppString* String::IsInterned(Il2CppString* str)
-    {
-        os::FastAutoLock lockMap(&s_InternedStringMapMutex);
+	return str;
+}
 
-        // if this is NULL, it means we have no interned strings
-        if (s_InternedStringMap == NULL)
-            return NULL;
+Il2CppString* String::IsInterned(Il2CppString* str)
+{
+	os::FastAutoLock lockMap (&s_InternedStringMapMutex);
 
-        InternedString internedString = { str->length, str->chars };
-        Il2CppString* value = NULL;
-        if (s_InternedStringMap->TryGetValue(internedString, &value))
-            return value;
+	// if this is NULL, it means we have no interned strings
+	if (s_InternedStringMap == NULL)
+		return NULL;
 
-        return NULL;
-    }
+	InternedString internedString = { str->length, str->chars };
+	Il2CppString* value = NULL;
+	if (s_InternedStringMap->TryGetValue (internedString, &value))
+		return value;
+		
+	return NULL;
+}
+
 } /* namespace vm */
 } /* namespace il2cpp */

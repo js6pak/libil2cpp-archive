@@ -19,30 +19,32 @@ namespace mscorlib
 {
 namespace System
 {
-    bool CurrentSystemTimeZone::GetTimeZoneData(int year, Il2CppArray** data, Il2CppArray** names)
-    {
-        NOT_IMPLEMENTED_NO_ASSERT(CurrentSystemTimeZone::GetTimeZoneData, "Check arguments and write barriers");
-        int64_t dataTemp[4] = {0};
-        std::string namesTemp[2];
-        IL2CPP_CHECK_ARG_NULL(data);
-        IL2CPP_CHECK_ARG_NULL(names);
 
-        *data = Array::New(il2cpp_defaults.int64_class, 4);
-        //mono_gc_wbarrier_generic_store (data, Array::New (il2cpp_defaults.int64_class, 4));
-        *names = Array::New(il2cpp_defaults.string_class, 2);
-        //mono_gc_wbarrier_generic_store (names, Array::New (il2cpp_defaults.string_class, 2));
+bool CurrentSystemTimeZone::GetTimeZoneData (int year, Il2CppArray** data, Il2CppArray** names)
+{
+	NOT_IMPLEMENTED_NO_ASSERT (CurrentSystemTimeZone::GetTimeZoneData, "Check arguments and write barriers");
+	int64_t dataTemp[4] = {0};
+	std::string namesTemp[2];
+	IL2CPP_CHECK_ARG_NULL (data);
+	IL2CPP_CHECK_ARG_NULL (names);
 
-        if (!TimeZone::GetTimeZoneData(year, dataTemp, namesTemp))
-            return false;
+	*data = Array::New (il2cpp_defaults.int64_class, 4);
+	//mono_gc_wbarrier_generic_store (data, Array::New (il2cpp_defaults.int64_class, 4));
+	*names = Array::New (il2cpp_defaults.string_class, 2);
+	//mono_gc_wbarrier_generic_store (names, Array::New (il2cpp_defaults.string_class, 2));
 
-        for (int i = 0; i < 4; i++)
-            il2cpp_array_set((*data), int64_t, i, dataTemp[i]);
+	if (!TimeZone::GetTimeZoneData (year, dataTemp, namesTemp))
+		return false;
 
-        for (int i = 0; i < 2; i++)
-            il2cpp_array_setref((*names), i, String::New(namesTemp[i].c_str()));
+	for (int i = 0; i < 4; i++)
+		il2cpp_array_set ((*data), int64_t, i, dataTemp[i]);
 
-        return true;
-    }
+	for (int i = 0; i < 2; i++)
+		il2cpp_array_setref ((*names), i, String::New (namesTemp[i].c_str ()));
+
+	return true;
+}
+
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

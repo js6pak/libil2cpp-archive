@@ -16,12 +16,14 @@ namespace Net
 {
 namespace Sockets
 {
-    int32_t SocketException::WSAGetLastError()
-    {
-        NOT_IMPLEMENTED_ICALL(SocketException::WSAGetLastError);
 
-        return (int32_t)os::Error::GetLastError();
-    }
+int32_t SocketException::WSAGetLastError ()
+{
+	NOT_IMPLEMENTED_ICALL (SocketException::WSAGetLastError);
+	
+	return (int32_t) os::Error::GetLastError ();
+}
+
 } /* namespace Sockets */
 } /* namespace Net */
 } /* namespace System */

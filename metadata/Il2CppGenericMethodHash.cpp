@@ -10,17 +10,19 @@ namespace il2cpp
 {
 namespace metadata
 {
-    size_t Il2CppGenericMethodHash::operator()(const Il2CppGenericMethod* method) const
-    {
-        return Hash(method);
-    }
 
-    size_t Il2CppGenericMethodHash::Hash(const Il2CppGenericMethod* method)
-    {
-        size_t tokenHash = method->methodDefinition->token;
-        size_t contextHash = Il2CppGenericContextHash::Hash(&method->context);
+size_t Il2CppGenericMethodHash::operator() (const Il2CppGenericMethod* method) const
+{
+	return Hash (method);
+}
 
-        return HashUtils::Combine(tokenHash, contextHash);
-    }
+size_t Il2CppGenericMethodHash::Hash (const Il2CppGenericMethod* method)
+{
+	size_t tokenHash = method->methodDefinition->token;
+	size_t contextHash = Il2CppGenericContextHash::Hash (&method->context);
+
+	return HashUtils::Combine (tokenHash, contextHash);
+}
+
 } /* namespace metadata */
 } /* namespace il2cpp */

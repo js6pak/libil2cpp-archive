@@ -11,17 +11,19 @@ namespace il2cpp
 {
 namespace metadata
 {
-    size_t Il2CppGenericClassHash::operator()(const Il2CppGenericClass* item) const
-    {
-        return Hash(item);
-    }
 
-    size_t Il2CppGenericClassHash::Hash(const Il2CppGenericClass* item)
-    {
-        size_t containerHash = item->typeDefinitionIndex;
-        size_t contextHash = Il2CppGenericContextHash::Hash(&item->context);
+size_t Il2CppGenericClassHash::operator() (const Il2CppGenericClass* item) const 
+{
+	return Hash (item);
+}
 
-        return HashUtils::Combine(containerHash, contextHash);
-    }
+size_t Il2CppGenericClassHash::Hash (const Il2CppGenericClass* item) 
+{
+	size_t containerHash = item->typeDefinitionIndex;
+	size_t contextHash = Il2CppGenericContextHash::Hash (&item->context);
+
+	return HashUtils::Combine (containerHash, contextHash);
+}
+
 } /* namespace vm */
 } /* namespace il2cpp */

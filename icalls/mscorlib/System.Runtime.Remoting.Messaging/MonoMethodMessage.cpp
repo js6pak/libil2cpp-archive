@@ -24,91 +24,93 @@ namespace Remoting
 {
 namespace Messaging
 {
-    void MonoMethodMessage::InitMessage(Il2CppMethodMessage *this_obj, Il2CppReflectionMethod *method, Il2CppArray *out_args)
-    {
+
+void MonoMethodMessage::InitMessage (Il2CppMethodMessage *this_obj, Il2CppReflectionMethod *method, Il2CppArray *out_args)
+{
 #if !NET_4_0
-        NOT_SUPPORTED_REMOTING(MonoMethodMessage::InitMessage);
+	NOT_SUPPORTED_REMOTING(MonoMethodMessage::InitMessage);
 #else
-        static Il2CppClass *object_array_klass;
-        static Il2CppClass *byte_array_klass;
-        static Il2CppClass *string_array_klass;
-        Il2CppString *name;
-        Il2CppArray *arr;
-        int i, j;
-        unsigned char arg_type;
+	static Il2CppClass *object_array_klass;
+	static Il2CppClass *byte_array_klass;
+	static Il2CppClass *string_array_klass;
+	Il2CppString *name;
+	Il2CppArray *arr;
+	int i, j;
+	unsigned char arg_type;
 
-        if (!object_array_klass)
-        {
-            Il2CppClass *klass;
+	if (!object_array_klass) 
+	{
+		Il2CppClass *klass;
 
-            klass = il2cpp_array_class_get(il2cpp_defaults.byte_class, 1);
-            IL2CPP_ASSERT(klass);
-            byte_array_klass = klass;
+		klass = il2cpp_array_class_get(il2cpp_defaults.byte_class, 1);
+		IL2CPP_ASSERT(klass);
+		byte_array_klass = klass;
 
-            klass = il2cpp_array_class_get(il2cpp_defaults.string_class, 1);
-            IL2CPP_ASSERT(klass);
-            string_array_klass = klass;
+		klass = il2cpp_array_class_get(il2cpp_defaults.string_class, 1);
+		IL2CPP_ASSERT(klass);
+		string_array_klass = klass;
 
-            klass = il2cpp_array_class_get(il2cpp_defaults.object_class, 1);
-            IL2CPP_ASSERT(klass);
+		klass = il2cpp_array_class_get(il2cpp_defaults.object_class, 1);
+		IL2CPP_ASSERT(klass);
 
-            il2cpp::vm::Atomic::ExchangePointer(&object_array_klass, klass);
-        }
+		il2cpp::vm::Atomic::ExchangePointer(&object_array_klass, klass);
+	}
 
-        IL2CPP_OBJECT_SETREF(this_obj, method, method);
+	IL2CPP_OBJECT_SETREF(this_obj, method, method);
 
-        arr = il2cpp_array_new(object_array_klass, method->method->parameters_count);
+	arr = il2cpp_array_new(object_array_klass, method->method->parameters_count);
 
-        IL2CPP_OBJECT_SETREF(this_obj, args, arr);
+	IL2CPP_OBJECT_SETREF(this_obj, args, arr);
 
-        arr = il2cpp_array_new(byte_array_klass, method->method->parameters_count);
+	arr = il2cpp_array_new(byte_array_klass, method->method->parameters_count);
 
-        IL2CPP_OBJECT_SETREF(this_obj, arg_types, arr);
+	IL2CPP_OBJECT_SETREF(this_obj, arg_types, arr);
 
-        this_obj->async_result = NULL;
-        this_obj->call_type = CallType_Sync;
+	this_obj->async_result = NULL;
+	this_obj->call_type = CallType_Sync;
 
-        dynamic_array<const char*> names(method->method->parameters_count);
+	dynamic_array<const char*> names(method->method->parameters_count);
 
-        for (int i = 0; i < method->method->parameters_count; ++i)
-            names[i] = method->method->parameters[i].name;
+	for (int i = 0; i < method->method->parameters_count; ++i)
+		names[i] = method->method->parameters[i].name;
 
-        arr = il2cpp_array_new(string_array_klass, method->method->parameters_count);
+	arr = il2cpp_array_new(string_array_klass, method->method->parameters_count);
 
-        IL2CPP_OBJECT_SETREF(this_obj, names, arr);
+	IL2CPP_OBJECT_SETREF(this_obj, names, arr);
 
-        for (i = 0; i < method->method->parameters_count; i++)
-        {
-            name = il2cpp::vm::String::New(names[i]);
-            il2cpp_array_setref(this_obj->names, i, name);
-        }
+	for (i = 0; i < method->method->parameters_count; i++) 
+	{
+		name = il2cpp::vm::String::New(names[i]);
+		il2cpp_array_setref(this_obj->names, i, name);
+	}
 
-        for (i = 0, j = 0; i < method->method->parameters_count; i++)
-        {
-            if (method->method->parameters[i].parameter_type->byref)
-            {
-                if (out_args)
-                {
-                    Il2CppObject* arg = (Il2CppObject*)il2cpp_array_get(out_args, void*, j);
-                    il2cpp_array_setref(this_obj->args, i, arg);
-                    j++;
-                }
+	for (i = 0, j = 0; i < method->method->parameters_count; i++) 
+	{
+		if (method->method->parameters[i].parameter_type->byref) 
+		{
+			if (out_args) 
+			{
+				Il2CppObject* arg = (Il2CppObject *)il2cpp_array_get(out_args, void*, j);
+				il2cpp_array_setref(this_obj->args, i, arg);
+				j++;
+			}
 
-                arg_type = 2;
-                if (!(method->method->parameters[i].parameter_type->attrs & PARAM_ATTRIBUTE_OUT))
-                    arg_type |= 1;
-            }
-            else
-            {
-                arg_type = 1;
-                if (method->method->parameters[i].parameter_type->attrs & PARAM_ATTRIBUTE_OUT)
-                    arg_type |= 4;
-            }
+			arg_type = 2;
+			if (!(method->method->parameters[i].parameter_type->attrs & PARAM_ATTRIBUTE_OUT))
+				arg_type |= 1;
+		}
+		else 
+		{
+			arg_type = 1;
+			if (method->method->parameters[i].parameter_type->attrs & PARAM_ATTRIBUTE_OUT)
+				arg_type |= 4;
+		}
 
-            il2cpp_array_set(this_obj->arg_types, unsigned char, i, arg_type);
-        }
+		il2cpp_array_set(this_obj->arg_types, unsigned char, i, arg_type);
+	}
 #endif
-    }
+}
+
 } /* namespace Messaging */
 } /* namespace Remoting */
 } /* namespace Runtime */

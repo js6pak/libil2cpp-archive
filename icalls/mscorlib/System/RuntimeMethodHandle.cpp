@@ -11,12 +11,15 @@ namespace mscorlib
 {
 namespace System
 {
-    Il2CppIntPtr RuntimeMethodHandle::GetFunctionPointer(Il2CppIntPtr m)
-    {
-        NOT_IMPLEMENTED_ICALL(RuntimeMethodHandle::GetFunctionPointer);
 
-        return Il2CppIntPtr::Zero;
-    }
+
+Il2CppIntPtr RuntimeMethodHandle::GetFunctionPointer (Il2CppIntPtr m)
+{
+	NOT_IMPLEMENTED_ICALL (RuntimeMethodHandle::GetFunctionPointer);
+	
+	return Il2CppIntPtr::Zero;
+}
+
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

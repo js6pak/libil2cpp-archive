@@ -11,22 +11,24 @@ namespace il2cpp
 {
 namespace os
 {
-    struct ErrorDesc
-    {
-        ErrorCode code;
-        const char *message;
-    };
 
-    extern ErrorDesc common_messages[];
+struct ErrorDesc
+{
+	ErrorCode code;
+	const char *message;
+};
+
+extern ErrorDesc common_messages [];
 
 #ifndef IL2CPP_DISABLE_FULL_MESSAGES
-    extern ErrorDesc messages[];
+extern ErrorDesc messages [];
 #endif
 
-    class Messages
-    {
-    public:
-        static std::string FromCode(ErrorCode code);
-    };
+class Messages
+{
+public:
+	static std::string FromCode(ErrorCode code);
+};
+
 }
 }

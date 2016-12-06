@@ -9,9 +9,9 @@
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 
-static inline int Win32ErrorToErrorCode(DWORD win32ErrorCode)
+static inline int Win32ErrorToErrorCode (DWORD win32ErrorCode)
 {
-    return win32ErrorCode;
+	return win32ErrorCode;
 }
 
 using namespace il2cpp::utils::PathUtils;
@@ -20,114 +20,111 @@ namespace il2cpp
 {
 namespace os
 {
-    std::string Directory::GetCurrent(int *error)
-    {
-        UTF16String buf;
-        int len, res_len;
 
-        len = MAX_PATH + 1;
-        buf.resize(len, 0);
+std::string Directory::GetCurrent (int *error)
+{
+	UTF16String buf;
+	int len, res_len;
 
-        *error = ERROR_SUCCESS;
+	len = MAX_PATH + 1;
+	buf.resize (len, 0);
 
-        res_len = ::GetCurrentDirectory(len, (LPWSTR)buf.c_str());
-        if (res_len > len) /*buf is too small.*/
-        {
-            int old_res_len = res_len;
-            buf.resize(res_len, 0);
-            res_len = ::GetCurrentDirectory(res_len, (LPWSTR)buf.c_str()) == old_res_len;
-        }
+	*error = ERROR_SUCCESS;
 
-        std::string directory;
+	res_len = ::GetCurrentDirectory (len, (LPWSTR)buf.c_str());
+	if (res_len > len) { /*buf is too small.*/
+		int old_res_len = res_len;
+		buf.resize (res_len, 0);
+		res_len = ::GetCurrentDirectory (res_len, (LPWSTR)buf.c_str()) == old_res_len;
+	}
 
-        if (res_len)
-        {
-            len = 0;
-            while (buf[len])
-                ++len;
+	std::string directory;
 
-            directory = il2cpp::utils::StringUtils::Utf16ToUtf8(buf.c_str());
-        }
-        else
-        {
-            *error = Win32ErrorToErrorCode(::GetLastError());
-        }
+	if (res_len) {
+		len = 0;
+		while (buf [len])
+			++ len;
 
-        return directory;
-    }
+		directory = il2cpp::utils::StringUtils::Utf16ToUtf8 (buf.c_str());
+	} else {
+		*error = Win32ErrorToErrorCode (::GetLastError ());
+	}
 
-    bool Directory::SetCurrent(const std::string& path, int* error)
-    {
-        *error = kErrorCodeSuccess;
+	return directory;
+}
 
-        const UTF16String utf16Path(il2cpp::utils::StringUtils::Utf8ToUtf16(path.c_str()));
-        if (::SetCurrentDirectory((LPWSTR)utf16Path.c_str()))
-            return true;
+bool Directory::SetCurrent (const std::string& path, int* error)
+{
+	*error = kErrorCodeSuccess;
 
-        *error = Win32ErrorToErrorCode(::GetLastError());
-        return false;
-    }
+	const UTF16String utf16Path(il2cpp::utils::StringUtils::Utf8ToUtf16 (path.c_str ()));
+	if (::SetCurrentDirectory ((LPWSTR)utf16Path.c_str ()))
+		return true;
 
-    bool Directory::Create(const std::string& path, int *error)
-    {
-        *error = kErrorCodeSuccess;
+	*error = Win32ErrorToErrorCode (::GetLastError ());
+	return false;
+}
 
-        const UTF16String utf16Path(il2cpp::utils::StringUtils::Utf8ToUtf16(path.c_str()));
-        if (::CreateDirectory((LPWSTR)utf16Path.c_str(), NULL))
-            return true;
+bool Directory::Create (const std::string& path, int *error)
+{
+	*error = kErrorCodeSuccess;
 
-        *error = Win32ErrorToErrorCode(::GetLastError());
-        return false;
-    }
+	const UTF16String utf16Path (il2cpp::utils::StringUtils::Utf8ToUtf16 (path.c_str ()));
+	if (::CreateDirectory ((LPWSTR)utf16Path.c_str (), NULL))
+		return true;
 
-    bool Directory::Remove(const std::string& path, int *error)
-    {
-        *error = kErrorCodeSuccess;
+	*error = Win32ErrorToErrorCode (::GetLastError ());
+	return false;
+}
 
-        const UTF16String utf16Path(il2cpp::utils::StringUtils::Utf8ToUtf16(path.c_str()));
-        if (::RemoveDirectory((LPWSTR)utf16Path.c_str()))
-            return true;
+bool Directory::Remove (const std::string& path, int *error)
+{
+	*error = kErrorCodeSuccess;
 
-        *error = Win32ErrorToErrorCode(::GetLastError());
-        return false;
-    }
+	const UTF16String utf16Path (il2cpp::utils::StringUtils::Utf8ToUtf16 (path.c_str ()));
+	if (::RemoveDirectory ((LPWSTR)utf16Path.c_str ()))
+		return true;
 
-    std::set<std::string> Directory::GetFileSystemEntries(const std::string& path, const std::string& pathWithPattern, int32_t attrs, int32_t mask, int* error)
-    {
-        *error = kErrorCodeSuccess;
-        std::set<std::string> files;
-        WIN32_FIND_DATA ffd;
-        const UTF16String utf16Path(il2cpp::utils::StringUtils::Utf8ToUtf16(pathWithPattern.c_str()));
+	*error = Win32ErrorToErrorCode (::GetLastError ());
+	return false;
+}
 
-        HANDLE handle = ::FindFirstFileExW((LPCWSTR)utf16Path.c_str(), FindExInfoStandard, &ffd, FindExSearchNameMatch, NULL, 0);
-        if (INVALID_HANDLE_VALUE == handle)
-        {
-            // Following the Mono implementation, do not treat a directory with no files as an error.
-            int errorCode = Win32ErrorToErrorCode(::GetLastError());
-            if (errorCode != ERROR_FILE_NOT_FOUND)
-                *error = errorCode;
-            return files;
-        }
+std::set<std::string> Directory::GetFileSystemEntries (const std::string& path, const std::string& pathWithPattern, int32_t attrs, int32_t mask, int* error)
+{
+	*error = kErrorCodeSuccess;
+	std::set<std::string> files;
+	WIN32_FIND_DATA ffd;
+	const UTF16String utf16Path (il2cpp::utils::StringUtils::Utf8ToUtf16 (pathWithPattern.c_str ()));
 
-        do
-        {
-            const std::string fileName(il2cpp::utils::StringUtils::Utf16ToUtf8(ffd.cFileName));
+	HANDLE handle = ::FindFirstFileExW ((LPCWSTR)utf16Path.c_str (), FindExInfoStandard, &ffd, FindExSearchNameMatch, NULL, 0);
+	if (INVALID_HANDLE_VALUE == handle)
+	{
+		// Following the Mono implementation, do not treat a directory with no files as an error.
+		int errorCode = Win32ErrorToErrorCode(::GetLastError());
+		if (errorCode != ERROR_FILE_NOT_FOUND)
+			*error = errorCode;
+		return files;
+	}
 
-            if ((fileName.length() == 1 && fileName.at(0) == '.') ||
-                (fileName.length() == 2 && fileName.at(0) == '.' && fileName.at(1) == '.'))
-                continue;
+	do
+	{
+		const std::string fileName(il2cpp::utils::StringUtils::Utf16ToUtf8(ffd.cFileName));
 
-            if ((ffd.dwFileAttributes & mask) == attrs)
-            {
-                files.insert(Combine(path, fileName));
-            }
-        }
-        while (::FindNextFile(handle, &ffd) != 0);
+		if ((fileName.length () == 1 && fileName.at (0) == '.') ||
+			(fileName.length () == 2 && fileName.at (0) == '.' && fileName.at (1) == '.'))
+			continue;
 
-        ::FindClose(handle);
+		if ((ffd.dwFileAttributes & mask) == attrs)
+		{
+			files.insert (Combine (path, fileName));
+		}
+	} while (::FindNextFile (handle, &ffd) != 0);
 
-        return files;
-    }
+	::FindClose (handle);
+
+	return files;
+}
+
 }
 }
 
