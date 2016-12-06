@@ -13,12 +13,15 @@ namespace System
 {
 namespace Reflection
 {
-    Il2CppObject* RtFieldInfo::UnsafeGetValue(Il2CppReflectionField* _this, Il2CppObject* obj)
-    {
-        // In mono's icall-def.h file, this maps to the same icall as MonoField.GetValueInternal
-        // so our implementation will do the same
-        return MonoField::GetValueInternal(_this, obj);
-    }
+
+Il2CppObject* RtFieldInfo::UnsafeGetValue(Il2CppReflectionField* _this, Il2CppObject* obj)
+{
+	// In mono's icall-def.h file, this maps to the same icall as MonoField.GetValueInternal
+	// so our implementation will do the same
+	return MonoField::GetValueInternal(_this, obj);
+}
+
+
 } // namespace Reflection
 } // namespace System
 } // namespace mscorlib

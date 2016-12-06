@@ -8,37 +8,39 @@ namespace il2cpp
 {
 namespace utils
 {
-    typedef void (*CallOnceFunc) (void* arg);
 
-    struct OnceFlag : NonCopyable
-    {
-        OnceFlag() : m_Flag(NULL)
-        {
-        }
+typedef void (*CallOnceFunc) (void* arg);
 
-        friend void CallOnce(OnceFlag& flag, CallOnceFunc func, void* arg);
+struct OnceFlag : NonCopyable
+{
+	OnceFlag () : m_Flag (NULL)
+	{
+	}
 
-        bool IsSet()
-        {
-            return il2cpp::os::Atomic::ReadPointer(&m_Flag) ? true : false;
-        }
+	friend void CallOnce (OnceFlag& flag, CallOnceFunc func, void* arg);
 
-    private:
-        void* m_Flag;
-        il2cpp::os::FastMutex m_Mutex;
-    };
+	bool IsSet()
+	{
+		return il2cpp::os::Atomic::ReadPointer(&m_Flag) ? true : false;
+	}
 
-    inline void CallOnce(OnceFlag& flag, CallOnceFunc func, void* arg)
-    {
-        if (!il2cpp::os::Atomic::ReadPointer(&flag.m_Flag))
-        {
-            os::FastAutoLock lock(&flag.m_Mutex);
-            if (!il2cpp::os::Atomic::ReadPointer(&flag.m_Flag))
-            {
-                func(arg);
-                il2cpp::os::Atomic::ExchangePointer(&flag.m_Flag, (void*)1);
-            }
-        }
-    }
+private:
+	void* m_Flag;
+	il2cpp::os::FastMutex m_Mutex;
+};
+
+inline void CallOnce (OnceFlag& flag, CallOnceFunc func, void* arg)
+{
+	if (!il2cpp::os::Atomic::ReadPointer (&flag.m_Flag))
+	{
+		os::FastAutoLock lock (&flag.m_Mutex);
+		if (!il2cpp::os::Atomic::ReadPointer (&flag.m_Flag))
+		{
+			func (arg);
+			il2cpp::os::Atomic::ExchangePointer (&flag.m_Flag, (void*)1);
+		}
+	}
+}
+
 }
 }

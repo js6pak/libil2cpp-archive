@@ -20,268 +20,275 @@ namespace il2cpp
 {
 namespace os
 {
+
 /// An Event that we never signal. This is used for sleeping threads in an alertable state. They
 /// simply wait on this object with the sleep timer as the timeout. This way we don't need a separate
 /// codepath for implementing sleep logic.
-    static Event s_ThreadSleepObject;
+static Event s_ThreadSleepObject;
 
 
 #define ASSERT_CALLED_ON_CURRENT_THREAD \
-    IL2CPP_ASSERT(pthread_equal (pthread_self (), m_Handle) && "Must be called on current thread!");
+	IL2CPP_ASSERT(pthread_equal (pthread_self (), m_Handle) && "Must be called on current thread!");
 
 
-    ThreadImpl::ThreadImpl()
-        : m_Handle(0)
-        , m_StartFunc(NULL)
-        , m_StartArg(NULL)
-        , m_CurrentWaitObject(NULL)
-        , m_StackSize(IL2CPP_DEFAULT_STACK_SIZE)
-    {
-        pthread_mutex_init(&m_PendingAPCsMutex, NULL);
-    }
+ThreadImpl::ThreadImpl ()
+	: m_Handle (0)
+	, m_StartFunc (NULL)
+	, m_StartArg (NULL)
+	, m_CurrentWaitObject (NULL)
+	, m_StackSize( IL2CPP_DEFAULT_STACK_SIZE )
+{
+	pthread_mutex_init (&m_PendingAPCsMutex, NULL);
+}
 
-    ThreadImpl::~ThreadImpl()
-    {
-        pthread_mutex_destroy(&m_PendingAPCsMutex);
-    }
+ThreadImpl::~ThreadImpl ()
+{
+	pthread_mutex_destroy (&m_PendingAPCsMutex);
+}
 
-    ErrorCode ThreadImpl::Run(Thread::StartFunc func, void* arg)
-    {
-        // Store state for run wrapper.
-        m_StartFunc = func;
-        m_StartArg = arg;
+ErrorCode ThreadImpl::Run (Thread::StartFunc func, void* arg)
+{
+	// Store state for run wrapper.
+	m_StartFunc = func;
+	m_StartArg = arg;
 
-        // Initialize thread attributes.
-        pthread_attr_t attr;
-        int s = pthread_attr_init(&attr);
-        if (s)
-            return kErrorCodeGenFailure;
+	// Initialize thread attributes.
+	pthread_attr_t attr;
+	int s = pthread_attr_init (&attr);
+	if (s)
+		return kErrorCodeGenFailure;
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
-        // set create default core affinity
-        pthread_attr_setaffinity_np(&attr, 0, NULL);
+	// set create default core affinity
+	pthread_attr_setaffinity_np (&attr, 0, NULL);
 #endif
-
+	
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE)
-        pthread_attr_setstacksize(&attr, m_StackSize);
+	pthread_attr_setstacksize (&attr, m_StackSize);
 #endif
 
 
-        // Create thread.
-        pthread_t threadId;
-        s = pthread_create(&threadId, &attr, &ThreadStartWrapper, this);
-        if (s)
-            return kErrorCodeGenFailure;
+	// Create thread.
+	pthread_t threadId;
+	s = pthread_create (&threadId, &attr, &ThreadStartWrapper, this);
+	if (s)
+		return kErrorCodeGenFailure;
 
-        // Destroy thread attributes.
-        s = pthread_attr_destroy(&attr);
-        if (s)
-            return kErrorCodeGenFailure;
+	// Destroy thread attributes.
+	s = pthread_attr_destroy (&attr);
+	if (s)
+		return kErrorCodeGenFailure;
 
-        // We're up and running.
-        m_Handle = threadId;
+	// We're up and running.
+	m_Handle = threadId;
 
-        return kErrorCodeSuccess;
-    }
+	return kErrorCodeSuccess;
+}
 
-    void* ThreadImpl::ThreadStartWrapper(void* arg)
-    {
-        ThreadImpl* thread = reinterpret_cast<ThreadImpl*>(arg);
+void* ThreadImpl::ThreadStartWrapper (void* arg)
+{
+	ThreadImpl* thread = reinterpret_cast<ThreadImpl*> (arg);
 
-        // Also set handle here. No matter which thread proceeds first,
-        // we need to make sure the handle is set.
-        thread->m_Handle = pthread_self();
+	// Also set handle here. No matter which thread proceeds first,
+	// we need to make sure the handle is set.
+	thread->m_Handle = pthread_self ();
 
-        // Detach this thread since we will manage calling Join at the VM level
-        // if necessary. Detaching it also prevents use from running out of thread
-        // handles for background threads that are never joined.
-        int returnValue = pthread_detach(thread->m_Handle);
-        IL2CPP_ASSERT(returnValue == 0);
-        (void)returnValue;
+	// Detach this thread since we will manage calling Join at the VM level
+	// if necessary. Detaching it also prevents use from running out of thread
+	// handles for background threads that are never joined.
+	int returnValue = pthread_detach (thread->m_Handle);
+	IL2CPP_ASSERT(returnValue == 0);
+	(void)returnValue;
 
-        // Run user code.
-        thread->m_StartFunc(thread->m_StartArg);
+	// Run user code.
+	thread->m_StartFunc (thread->m_StartArg);
 
-        return 0;
-    }
+	return 0;
+}
 
-    uint64_t ThreadImpl::Id()
-    {
-        return posix::PosixThreadIdToThreadId(m_Handle);
-    }
+uint64_t ThreadImpl::Id ()
+{
+	return posix::PosixThreadIdToThreadId (m_Handle);
+}
 
-    void ThreadImpl::SetName(const std::string& name)
-    {
-        // Can only be set on current thread on OSX and Linux.
-        if (pthread_self() != m_Handle)
-            return;
-
+void ThreadImpl::SetName (const std::string& name)
+{
+	// Can only be set on current thread on OSX and Linux.
+	if (pthread_self () != m_Handle)
+		return;
+	
 #if IL2CPP_TARGET_DARWIN
-        pthread_setname_np(name.c_str());
+	pthread_setname_np (name.c_str ());
 #elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
-        pthread_setname_np(m_Handle, name.c_str());
+	pthread_setname_np (m_Handle, name.c_str ());
 #endif
-    }
 
-    void ThreadImpl::SetStackSize(size_t newsize)
-    {
-        // only makes sense if it's called BEFORE the thread has been created
-        IL2CPP_ASSERT(m_Handle == NULL);
+}
 
-        // if newsize is zero we use the per-platform default value for size of stack
-        if (newsize == 0)
-        {
-            newsize = IL2CPP_DEFAULT_STACK_SIZE;
-        }
 
-        m_StackSize = newsize;
-    }
 
-    void ThreadImpl::SetPriority(ThreadPriority priority)
-    {
-        ////TODO
-    }
+void ThreadImpl::SetStackSize(size_t newsize)
+{
+	// only makes sense if it's called BEFORE the thread has been created
+	IL2CPP_ASSERT(m_Handle == NULL);
 
-    ThreadPriority ThreadImpl::GetPriority()
-    {
-        /// TODO
-        return kThreadPriorityNormal;
-    }
+	// if newsize is zero we use the per-platform default value for size of stack
+	if (newsize == 0)
+	{
+		newsize = IL2CPP_DEFAULT_STACK_SIZE;
+	}
 
-    void ThreadImpl::QueueUserAPC(Thread::APCFunc function, void* context)
-    {
-        IL2CPP_ASSERT(function != NULL);
+	m_StackSize = newsize;
+}
 
-        // Put on queue.
-        {
-            pthread_mutex_lock(&m_PendingAPCsMutex);
-            m_PendingAPCs.push_back(APCRequest(function, context));
-            pthread_mutex_unlock(&m_PendingAPCsMutex);
-        }
 
-        // Interrupt an ongoing wait.
-        posix::AutoLockWaitObjectDeletion lock;
-        posix::PosixWaitObject* waitObject = m_CurrentWaitObject;
-        if (waitObject)
-            waitObject->InterruptWait();
-    }
 
-    void ThreadImpl::CheckForUserAPCAndHandle()
-    {
-        ASSERT_CALLED_ON_CURRENT_THREAD;
-        pthread_mutex_lock(&m_PendingAPCsMutex);
+void ThreadImpl::SetPriority (ThreadPriority priority)
+{
+	////TODO
+}
 
-        while (!m_PendingAPCs.empty())
-        {
-            APCRequest apcRequest = m_PendingAPCs.front();
+ThreadPriority ThreadImpl::GetPriority()
+{
+	/// TODO
+	return kThreadPriorityNormal;
+}
 
-            // Remove from list. Do before calling the function to make sure the list
-            // is up to date in case the function throws.
-            m_PendingAPCs.erase(m_PendingAPCs.begin());
+void ThreadImpl::QueueUserAPC (Thread::APCFunc function, void* context)
+{
+	IL2CPP_ASSERT(function != NULL);
 
-            // Release mutex while we call the function so that we don't deadlock
-            // if the function starts waiting on a thread that tries queuing an APC
-            // on us.
-            pthread_mutex_unlock(&m_PendingAPCsMutex);
+	// Put on queue.
+	{
+		pthread_mutex_lock (&m_PendingAPCsMutex);
+		m_PendingAPCs.push_back (APCRequest(function, context));
+		pthread_mutex_unlock (&m_PendingAPCsMutex);
+	}
 
-            // Call function.
-            apcRequest.callback(apcRequest.context);
+	// Interrupt an ongoing wait.
+	posix::AutoLockWaitObjectDeletion lock;
+	posix::PosixWaitObject* waitObject = m_CurrentWaitObject;
+	if (waitObject)
+		waitObject->InterruptWait ();
+}
 
-            // Re-acquire mutex.
-            pthread_mutex_lock(&m_PendingAPCsMutex);
-        }
+void ThreadImpl::CheckForUserAPCAndHandle ()
+{
+	ASSERT_CALLED_ON_CURRENT_THREAD;
+	pthread_mutex_lock (&m_PendingAPCsMutex);
 
-        pthread_mutex_unlock(&m_PendingAPCsMutex);
-    }
+	while (!m_PendingAPCs.empty ())
+	{
+		APCRequest apcRequest = m_PendingAPCs.front ();
 
-    void ThreadImpl::SetWaitObject(posix::PosixWaitObject* waitObject)
-    {
-        // Cannot set wait objects on threads other than the current thread.
-        ASSERT_CALLED_ON_CURRENT_THREAD;
+		// Remove from list. Do before calling the function to make sure the list
+		// is up to date in case the function throws.
+		m_PendingAPCs.erase (m_PendingAPCs.begin ());
 
-        // This is an unprotected write as write acccess is restricted to the
-        // current thread.
-        m_CurrentWaitObject = waitObject;
-    }
+		// Release mutex while we call the function so that we don't deadlock
+		// if the function starts waiting on a thread that tries queuing an APC
+		// on us.
+		pthread_mutex_unlock (&m_PendingAPCsMutex);
 
-    void ThreadImpl::Sleep(uint32_t milliseconds, bool interruptible)
-    {
-        s_ThreadSleepObject.Wait(milliseconds, interruptible);
-    }
+		// Call function.
+		apcRequest.callback (apcRequest.context);
 
-    uint64_t ThreadImpl::CurrentThreadId()
-    {
-        return posix::PosixThreadIdToThreadId(pthread_self());
-    }
+		// Re-acquire mutex.
+		pthread_mutex_lock (&m_PendingAPCsMutex);
+	}
 
-    ThreadImpl* ThreadImpl::GetCurrentThread()
-    {
-        return Thread::GetCurrentThread()->m_Thread;
-    }
+	pthread_mutex_unlock (&m_PendingAPCsMutex);
+}
 
-    ThreadImpl* ThreadImpl::CreateForCurrentThread()
-    {
-        ThreadImpl* thread = new ThreadImpl();
-        thread->m_Handle = pthread_self();
-        return thread;
-    }
+void ThreadImpl::SetWaitObject (posix::PosixWaitObject* waitObject)
+{
+	// Cannot set wait objects on threads other than the current thread.
+	ASSERT_CALLED_ON_CURRENT_THREAD;
+
+	// This is an unprotected write as write acccess is restricted to the
+	// current thread.
+	m_CurrentWaitObject = waitObject;
+}
+
+void ThreadImpl::Sleep (uint32_t milliseconds, bool interruptible)
+{
+	s_ThreadSleepObject.Wait (milliseconds, interruptible);
+}
+
+uint64_t ThreadImpl::CurrentThreadId ()
+{
+	return posix::PosixThreadIdToThreadId (pthread_self ());
+}
+
+ThreadImpl* ThreadImpl::GetCurrentThread ()
+{
+	return Thread::GetCurrentThread ()->m_Thread;
+}
+
+ThreadImpl* ThreadImpl::CreateForCurrentThread ()
+{
+	ThreadImpl* thread = new ThreadImpl ();
+	thread->m_Handle = pthread_self ();
+	return thread;
+}
 
 #if NET_4_0
 
-    bool ThreadImpl::YieldInternal()
-    {
-        return sched_yield() == 0;
-    }
+bool ThreadImpl::YieldInternal()
+{
+	return sched_yield() == 0;
+}
 
 #endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 
-    static pthread_key_t s_CleanupKey;
-    static Thread::ThreadCleanupFunc s_CleanupFunc;
+static pthread_key_t s_CleanupKey;
+static Thread::ThreadCleanupFunc s_CleanupFunc;
 
-    static void CleanupThreadIfCanceled(void* arg)
-    {
-        if (s_CleanupFunc)
-            s_CleanupFunc(arg);
-    }
+static void CleanupThreadIfCanceled (void* arg)
+{
+	if (s_CleanupFunc)
+		s_CleanupFunc (arg);
+}
 
-    void ThreadImpl::SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction)
-    {
-        if (cleanupFunction)
-        {
-            IL2CPP_ASSERT(!s_CleanupFunc);
-            s_CleanupFunc = cleanupFunction;
-            int result = pthread_key_create(&s_CleanupKey, &CleanupThreadIfCanceled);
-            IL2CPP_ASSERT(!result);
-            NO_UNUSED_WARNING(result);
-        }
-        else
-        {
-            IL2CPP_ASSERT(s_CleanupFunc);
-            int result = pthread_key_delete(s_CleanupKey);
-            IL2CPP_ASSERT(!result);
-            NO_UNUSED_WARNING(result);
-            s_CleanupFunc = NULL;
-        }
-    }
+void ThreadImpl::SetNativeThreadCleanup (Thread::ThreadCleanupFunc cleanupFunction)
+{
+	if (cleanupFunction)
+	{
+		IL2CPP_ASSERT(!s_CleanupFunc);
+		s_CleanupFunc = cleanupFunction;
+		int result = pthread_key_create(&s_CleanupKey, &CleanupThreadIfCanceled);
+		IL2CPP_ASSERT(!result);
+		NO_UNUSED_WARNING(result);
+	}
+	else
+	{
+		IL2CPP_ASSERT(s_CleanupFunc);
+		int result = pthread_key_delete (s_CleanupKey);
+		IL2CPP_ASSERT(!result);
+		NO_UNUSED_WARNING(result);
+		s_CleanupFunc = NULL;
+	}
+}
 
-    void ThreadImpl::RegisterCurrentThreadForCleanup(void* arg)
-    {
-        IL2CPP_ASSERT(s_CleanupFunc);
-        pthread_setspecific(s_CleanupKey, arg);
-    }
+void ThreadImpl::RegisterCurrentThreadForCleanup (void* arg)
+{
+	IL2CPP_ASSERT(s_CleanupFunc);
+	pthread_setspecific (s_CleanupKey, arg);
+}
 
-    void ThreadImpl::UnregisterCurrentThreadForCleanup()
-    {
-        IL2CPP_ASSERT(s_CleanupFunc);
-        void* data = pthread_getspecific(s_CleanupKey);
-        if (data != NULL)
-            pthread_setspecific(s_CleanupKey, NULL);
-    }
+void ThreadImpl::UnregisterCurrentThreadForCleanup ()
+{
+	IL2CPP_ASSERT(s_CleanupFunc);
+	void* data = pthread_getspecific(s_CleanupKey);
+	if (data != NULL)
+		pthread_setspecific (s_CleanupKey, NULL);
+}
 
 #endif
+
 }
 }
 

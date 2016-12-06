@@ -9,11 +9,13 @@ namespace mscorlib
 {
 namespace System
 {
-    class LIBIL2CPP_CODEGEN_API CLRConfig
-    {
-    public:
-        static bool CheckThrowUnobservedTaskExceptions();
-    };
+
+class LIBIL2CPP_CODEGEN_API CLRConfig
+{
+public:
+	static bool CheckThrowUnobservedTaskExceptions();
+};
+
 } // namespace System
 } // namespace mscorlib
 } // namespace icalls

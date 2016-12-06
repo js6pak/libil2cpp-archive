@@ -13,324 +13,332 @@ namespace il2cpp
 {
 namespace debugger
 {
-    class Reply;
-    class Buffer;
-    class Command;
-    class IDataTransport;
 
-    enum HeaderType
-    {
-        kHeaderTypeCommand = 0x00,
-        kHeaderTypeReply = 0x80
-    };
+class Reply;
+class Buffer;
+class Command;
+class IDataTransport;
 
-    class Header
-    {
-    public:
+enum HeaderType
+{
+	kHeaderTypeCommand = 0x00,
+	kHeaderTypeReply = 0x80
+};
 
-        static const int32_t Length = 11;
+class Header
+{
 
-        explicit Header(HeaderType type);
+public:
 
-        inline HeaderType type() const
-        {
-            return (HeaderType)_flags;
-        }
+	static const int32_t Length = 11;
 
-        inline bool is_command() const
-        {
-            return _flags == kHeaderTypeCommand;
-        }
+	explicit Header(HeaderType type);
 
-        inline bool is_reply() const
-        {
-            return _flags == kHeaderTypeReply;
-        }
+	inline HeaderType type() const
+	{
+		return (HeaderType)_flags;
+	}
 
-        inline size_t message_size() const
-        {
-            return _packet_size - Header::Length;
-        }
+	inline bool is_command() const
+	{
+		return _flags == kHeaderTypeCommand;
+	}
 
-        inline int32_t id() const
-        {
-            return _id;
-        }
+	inline bool is_reply() const
+	{
+		return _flags == kHeaderTypeReply;
+	}
 
-        inline void id(int32_t v)
-        {
-            _id = v;
-        }
+	inline size_t message_size() const
+	{
+		return _packet_size - Header::Length;
+	}
 
-        inline size_t packet_size() const
-        {
-            return _packet_size;
-        }
+	inline int32_t id() const
+	{
+		return _id;
+	}
 
-        inline void packet_size(size_t v)
-        {
-            _packet_size = v;
-        }
+	inline void id(int32_t v)
+	{
+		_id = v;
+	}
 
-        inline CommandSet set() const
-        {
-            IL2CPP_ASSERT(is_command() && "Header::set() can only be invoked on `Command` headers");
+	inline size_t packet_size() const
+	{
+		return _packet_size;
+	}
 
-            return (CommandSet)((_data >> 8) & 0xFF);
-        }
+	inline void packet_size(size_t v)
+	{
+		_packet_size = v;
+	}
 
-        inline void set(CommandSet v)
-        {
-            IL2CPP_ASSERT(is_command() && "Header::set(CommandSet) can only be invoked on `Command` headers");
+	inline CommandSet set() const
+	{
+		IL2CPP_ASSERT(is_command() && "Header::set() can only be invoked on `Command` headers");
 
-            _data = (v << 8) | (_data & 0xFF);
-        }
+		return (CommandSet)((_data >> 8) & 0xFF);
+	}
 
-        inline int32_t command() const
-        {
-            IL2CPP_ASSERT(is_command() && "Header::command() can only be invoked on `Command` headers");
+	inline void set(CommandSet v)
+	{
+		IL2CPP_ASSERT(is_command() && "Header::set(CommandSet) can only be invoked on `Command` headers");
 
-            return _data & 0xFF;
-        }
+		_data = (v << 8) | (_data & 0xFF);
+	}
 
-        inline void command(int32_t v)
-        {
-            IL2CPP_ASSERT(is_command() && "Header::command(int32_t) can only be invoked on `Command` headers");
+	inline int32_t command() const
+	{
+		IL2CPP_ASSERT(is_command() && "Header::command() can only be invoked on `Command` headers");
 
-            _data = (_data & 0xFF00) | (v & 0xFF);
-        }
+		return _data & 0xFF;
+	}
 
-        inline ErrorCode error_code() const
-        {
-            IL2CPP_ASSERT(is_reply() && "Header::error_code() can only be invoked on `Reply` headers");
+	inline void command(int32_t v)
+	{
+		IL2CPP_ASSERT(is_command() && "Header::command(int32_t) can only be invoked on `Command` headers");
 
-            return (ErrorCode)_data;
-        }
+		_data = (_data & 0xFF00) | (v & 0xFF);
+	}
 
-        inline void error_code(ErrorCode v)
-        {
-            IL2CPP_ASSERT(is_reply() && "Header::error_code(ErrorCode) can only be invoked on `Command` headers");
+	inline ErrorCode error_code() const
+	{
+		IL2CPP_ASSERT(is_reply() && "Header::error_code() can only be invoked on `Reply` headers");
 
-            _data = v;
-        }
+		return (ErrorCode)_data;
+	}
 
-        static void ReadHeader(Header & header, Buffer & in);
+	inline void error_code(ErrorCode v)
+	{
+		IL2CPP_ASSERT(is_reply() && "Header::error_code(ErrorCode) can only be invoked on `Command` headers");
 
-        void WriteTo(Buffer &out) const;
+		_data = v;
+	}
 
-    private:
+	static void ReadHeader(Header &header, Buffer &in);
 
-        size_t _packet_size;
-        int32_t _id;
-        uint8_t _flags;
-        uint16_t _data;
+	void WriteTo(Buffer &out) const;
 
-        DISALLOW_COPY(Header);
-    };
+private:
+
+	size_t _packet_size;
+	int32_t _id;
+	uint8_t _flags;
+	uint16_t _data;
+
+	DISALLOW_COPY(Header);
+};
 
 #define PROTOCOL_COMMAND(TSet, TCommand) \
-    public: \
-        static const CommandSet SetKind = kCommandSet ## TSet; \
-        static const int32_t CommandKind = kCommandSet ## TSet ## TCommand; \
-        inline static Command *Factory(Header &header, Buffer &in) \
-        { \
-            Command * command = new TSet ## TCommand ## Command(header.id()); \
-            command->ReadProperties(in); \
-            return command; \
-        }
+	public: \
+		static const CommandSet SetKind = kCommandSet ## TSet; \
+		static const int32_t CommandKind = kCommandSet ## TSet ## TCommand; \
+		inline static Command *Factory(Header &header, Buffer &in) \
+		{ \
+			Command * command = new TSet ## TCommand ## Command(header.id()); \
+			command->ReadProperties(in); \
+			return command; \
+		}
 
-    class Command
-    {
-    public:
+class Command
+{
 
-        Command(CommandSet set, int32_t command, int32_t id);
-        virtual ~Command();
+public:
 
-        inline CommandSet set() const
-        {
-            return _set;
-        }
+	Command(CommandSet set, int32_t command, int32_t id);
+	virtual ~Command();
 
-        inline int32_t command() const
-        {
-            return _command;
-        }
+	inline CommandSet set() const
+	{
+		return _set;
+	}
 
-        inline int32_t id() const
-        {
-            return _id;
-        }
+	inline int32_t command() const
+	{
+		return _command;
+	}
 
-        inline bool is(CommandSet set, int32_t command) const
-        {
-            return _set == set && _command == command;
-        }
+	inline int32_t id() const
+	{
+		return _id;
+	}
 
-        void WriteTo(Buffer &out) const;
+	inline bool is(CommandSet set, int32_t command) const
+	{
+		return _set == set && _command == command;
+	}
+	
+	void WriteTo(Buffer &out) const;
 
-        virtual void ReadProperties(Buffer & in);
+	virtual void ReadProperties(Buffer &in);
 
-    protected:
+protected:
+	
+	virtual void WriteContentTo(Buffer &out) const;
 
-        virtual void WriteContentTo(Buffer &out) const;
+	int32_t _id;
+	CommandSet _set;
+	int32_t _command;
 
-        int32_t _id;
-        CommandSet _set;
-        int32_t _command;
+	DISALLOW_COPY(Command);
+};
 
-        DISALLOW_COPY(Command);
-    };
+class Reply
+{
 
-    class Reply
-    {
-    public:
+public:
+	
+	explicit Reply(const Command *command);
+	virtual ~Reply();
 
-        explicit Reply(const Command *command);
-        virtual ~Reply();
+	inline const Command *command() const
+	{
+		return _command;
+	}
 
-        inline const Command *command() const
-        {
-            return _command;
-        }
+	inline ErrorCode error_code() const
+	{
+		return _error_code;
+	}
 
-        inline ErrorCode error_code() const
-        {
-            return _error_code;
-        }
+	inline void error_code(ErrorCode code)
+	{
+		_error_code = code;
+	}
 
-        inline void error_code(ErrorCode code)
-        {
-            _error_code = code;
-        }
+	void WriteTo(Buffer &out) const;
 
-        void WriteTo(Buffer &out) const;
+protected:
+	
+	virtual void WriteContentTo(Buffer &out) const;
+	
+	const Command *_command;
+	ErrorCode _error_code;
 
-    protected:
+	DISALLOW_COPY(Reply);
+};
 
-        virtual void WriteContentTo(Buffer &out) const;
+class EmptyReply : public Reply
+{
 
-        const Command *_command;
-        ErrorCode _error_code;
+public:
 
-        DISALLOW_COPY(Reply);
-    };
+	explicit EmptyReply(const Command *command);
 
-    class EmptyReply : public Reply
-    {
-    public:
+	DISALLOW_COPY(EmptyReply);
+};
 
-        explicit EmptyReply(const Command *command);
+class Event
+{
 
-        DISALLOW_COPY(EmptyReply);
-    };
+public:
 
-    class Event
-    {
-    public:
+	Event();
+	explicit Event(Il2CppThread *thread);
+	virtual ~Event();
 
-        Event();
-        explicit Event(Il2CppThread *thread);
-        virtual ~Event();
+	inline virtual EventKind kind() const
+	{
+		return kEventKindInvalid;
+	}
 
-        inline virtual EventKind kind() const
-        {
-            return kEventKindInvalid;
-        }
+	inline Il2CppThread *thread() const
+	{
+		return _thread;
+	}
 
-        inline Il2CppThread *thread() const
-        {
-            return _thread;
-        }
+	inline void thread(Il2CppThread *v)
+	{
+		_thread = v;
+	}
 
-        inline void thread(Il2CppThread *v)
-        {
-            _thread = v;
-        }
+	void WriteTo(Buffer &out, int32_t req_id) const;
 
-        void WriteTo(Buffer &out, int32_t req_id) const;
+protected:
+	
+	virtual void WriteContentTo(Buffer &out) const;
 
-    protected:
+	Il2CppThread *_thread;
 
-        virtual void WriteContentTo(Buffer &out) const;
+	DISALLOW_COPY(Event);
+};
 
-        Il2CppThread *_thread;
+class Protocol
+{
 
-        DISALLOW_COPY(Event);
-    };
+	typedef uint16_t CommandUId;
+	typedef Command* (*CommandGenerator)(Header &header, Buffer &in);
 
-    class Protocol
-    {
-        typedef uint16_t CommandUId;
-        typedef Command* (*CommandGenerator)(Header &header, Buffer &in);
+public:
 
-    public:
+	static const int32_t MajorVersion = 2;
+	static const int32_t MinorVersion = 1;
 
-        static const int32_t MajorVersion = 2;
-        static const int32_t MinorVersion = 1;
+	Protocol();
+	~Protocol();
 
-        Protocol();
-        ~Protocol();
+	inline IDataTransport *transport()
+	{
+		return _transport;
+	}
 
-        inline IDataTransport *transport()
-        {
-            return _transport;
-        }
+	inline int32_t major_version() const
+	{
+		return _major_version;
+	}
 
-        inline int32_t major_version() const
-        {
-            return _major_version;
-        }
+	inline void major_version(int32_t v)
+	{
+		_major_version = v;
+	}
 
-        inline void major_version(int32_t v)
-        {
-            _major_version = v;
-        }
+	inline int32_t minor_version() const
+	{
+		return _minor_version;
+	}
 
-        inline int32_t minor_version() const
-        {
-            return _minor_version;
-        }
+	inline void minor_version(int32_t v)
+	{
+		_minor_version = v;
+	}
 
-        inline void minor_version(int32_t v)
-        {
-            _minor_version = v;
-        }
+	inline bool is_disposed() const
+	{
+		return _transport == 0;
+	}
 
-        inline bool is_disposed() const
-        {
-            return _transport == 0;
-        }
+	void Setup(IDataTransport *transport);
+	void Dispose();
 
-        void Setup(IDataTransport *transport);
-        void Dispose();
+	bool Handshake();
 
-        bool Handshake();
+	// Note WaitForCommand gives ownership of the Command object away for now.
+	// It is responsability of the invoker to delete the Command when done.
+	const Command  *WaitForCommand();
+	bool SendReply(const Reply *reply);
+	bool SendCommand(const Command *command);
 
-        // Note WaitForCommand gives ownership of the Command object away for now.
-        // It is responsability of the invoker to delete the Command when done.
-        const Command  *WaitForCommand();
-        bool SendReply(const Reply *reply);
-        bool SendCommand(const Command *command);
+private:
 
-    private:
+	template<typename TCommand>
+	inline void RegisterCommand()
+	{
+		LOG("Registering " << command_to_string(TCommand::SetKind, TCommand::CommandKind) << " with id: " << CommandIdFor(TCommand::SetKind, TCommand::CommandKind));
+		_command_factories[CommandIdFor(TCommand::SetKind, TCommand::CommandKind)] = &TCommand::Factory;
+	}
 
-        template<typename TCommand>
-        inline void RegisterCommand()
-        {
-            LOG("Registering " << command_to_string(TCommand::SetKind, TCommand::CommandKind) << " with id: " << CommandIdFor(TCommand::SetKind, TCommand::CommandKind));
-            _command_factories[CommandIdFor(TCommand::SetKind, TCommand::CommandKind)] = &TCommand::Factory;
-        }
+	Command *CreateCommand(Header &header, Buffer &in) const;
+	CommandUId CommandIdFor(Header &header) const;
+	CommandUId CommandIdFor(CommandSet set, int32_t command) const;
+	
+	int32_t _major_version;
+	int32_t _minor_version;
+	IDataTransport *_transport;
+	std::map<CommandUId, CommandGenerator> _command_factories;
 
-        Command *CreateCommand(Header & header, Buffer & in) const;
-        CommandUId CommandIdFor(Header &header) const;
-        CommandUId CommandIdFor(CommandSet set, int32_t command) const;
+	DISALLOW_COPY(Protocol);
+};
 
-        int32_t _major_version;
-        int32_t _minor_version;
-        IDataTransport *_transport;
-        std::map<CommandUId, CommandGenerator> _command_factories;
-
-        DISALLOW_COPY(Protocol);
-    };
 } /* namespace debugger */
 } /* namespace il2cpp */

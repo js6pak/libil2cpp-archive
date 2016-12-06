@@ -9,10 +9,12 @@ namespace il2cpp
 {
 namespace os
 {
-    bool Debug::IsDebuggerPresent()
-    {
-        return false;
-    }
+
+bool Debug::IsDebuggerPresent()
+{
+	return false;
+}
+
 }
 }
 

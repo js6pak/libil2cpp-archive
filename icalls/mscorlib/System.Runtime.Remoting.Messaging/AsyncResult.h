@@ -15,11 +15,13 @@ namespace Remoting
 {
 namespace Messaging
 {
-    class LIBIL2CPP_CODEGEN_API AsyncResult
-    {
-    public:
-        static Il2CppObject* Invoke(Il2CppObject* _this);
-    };
+
+class LIBIL2CPP_CODEGEN_API AsyncResult
+{
+public:
+	static Il2CppObject* Invoke(Il2CppObject* _this);
+};
+
 } // namespace Messaging
 } // namespace Remoting
 } // namespace Runtime

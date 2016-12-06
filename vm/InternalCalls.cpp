@@ -12,43 +12,45 @@ namespace il2cpp
 {
 namespace vm
 {
-    void InternalCalls::Add(const char* name, Il2CppMethodPointer method)
-    {
-        //ICallMap::iterator res = s_InternalCalls.find(name);
 
-        // TODO: Don't assert right now because Unity adds some icalls multiple times.
-        //if (res != icalls.end())
-        //  IL2CPP_ASSERT(0 && "Adding internal call twice!");
+void InternalCalls::Add (const char* name, Il2CppMethodPointer method)
+{
+	//ICallMap::iterator res = s_InternalCalls.find(name);
 
-        IL2CPP_ASSERT(method);
+	// TODO: Don't assert right now because Unity adds some icalls multiple times.
+	//if (res != icalls.end())
+	//	IL2CPP_ASSERT(0 && "Adding internal call twice!");
 
-        s_InternalCalls[name] = method;
-    }
+	IL2CPP_ASSERT(method);
 
-    Il2CppMethodPointer InternalCalls::Resolve(const char* name)
-    {
-        // Try to find the whole name first, then search using just type::method
-        // if parameters were passed
-        // ex: First, System.Foo::Bar(System.Int32)
-        // Then, System.Foo::Bar
-        ICallMap::iterator res = s_InternalCalls.find(name);
+	s_InternalCalls[name] = method;
+}
 
-        if (res != s_InternalCalls.end())
-            return res->second;
+Il2CppMethodPointer InternalCalls::Resolve (const char* name)
+{
+	// Try to find the whole name first, then search using just type::method
+	// if parameters were passed
+	// ex: First, System.Foo::Bar(System.Int32)
+	// Then, System.Foo::Bar
+	ICallMap::iterator res = s_InternalCalls.find(name);
 
-        std::string shortName(name);
-        size_t index = shortName.find('(');
+	if (res != s_InternalCalls.end())
+		return res->second;
 
-        if (index != std::string::npos)
-        {
-            shortName = shortName.substr(0, index);
-            res = s_InternalCalls.find(shortName);
+	std::string shortName(name);
+	size_t index = shortName.find('(');
 
-            if (res != s_InternalCalls.end())
-                return res->second;
-        }
+	if (index != std::string::npos)
+	{
+		shortName = shortName.substr(0, index);
+		res = s_InternalCalls.find(shortName);
 
-        return NULL;
-    }
+		if (res != s_InternalCalls.end())
+			return res->second;
+	}
+
+	return NULL;
+}
+
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -4,9 +4,13 @@ namespace il2cpp
 {
 namespace os
 {
+
 namespace Image
 {
-    void* GetImageBase();
+
+void* GetImageBase();
+
 }
+
 }
 }

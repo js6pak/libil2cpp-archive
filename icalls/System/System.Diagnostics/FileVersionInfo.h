@@ -26,11 +26,13 @@ namespace System
 {
 namespace Diagnostics
 {
-    class LIBIL2CPP_CODEGEN_API FileVersionInfo
-    {
-    public:
-        static void GetVersionInfo_internal(void* /* System.Diagnostics.FileVersionInfo */ self, Il2CppString* fileName);
-    };
+
+class LIBIL2CPP_CODEGEN_API FileVersionInfo
+{
+public:
+	static void GetVersionInfo_internal (void* /* System.Diagnostics.FileVersionInfo */ self, Il2CppString* fileName);
+};
+
 } /* namespace Diagnostics */
 } /* namespace System */
 } /* namespace System */

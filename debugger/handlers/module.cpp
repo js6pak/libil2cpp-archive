@@ -11,22 +11,24 @@ namespace il2cpp
 {
 namespace debugger
 {
-    const Reply *Agent::Process(const ModuleGetInfoCommand *command)
-    {
-        ModuleGetInfoCommand::Reply *get_info_reply = command->reply();
 
-        Il2CppImage *image = command->module();
+const Reply *Agent::Process(const ModuleGetInfoCommand *command)
+{
+	ModuleGetInfoCommand::Reply *get_info_reply = command->reply();
 
-        LOG("warning: `ModuleGetInfoCommand` is not implemented properly.");
+	Il2CppImage *image = command->module();
 
-        get_info_reply->basename("FAKE BASENAME");
-        get_info_reply->scope_name("FAKE SCOPE NAME");
-        get_info_reply->fullname(il2cpp_image_get_name(image));
-        get_info_reply->guid("FAKE GUID");
-        get_info_reply->assembly(const_cast<Il2CppAssembly*>(il2cpp_image_get_assembly(image)));
+	LOG("warning: `ModuleGetInfoCommand` is not implemented properly.");
 
-        return get_info_reply;
-    }
+	get_info_reply->basename("FAKE BASENAME");
+	get_info_reply->scope_name("FAKE SCOPE NAME");
+	get_info_reply->fullname(il2cpp_image_get_name(image));
+	get_info_reply->guid("FAKE GUID");
+	get_info_reply->assembly(const_cast<Il2CppAssembly*> (il2cpp_image_get_assembly(image)));
+
+	return get_info_reply;
+}
+
 }
 }
 

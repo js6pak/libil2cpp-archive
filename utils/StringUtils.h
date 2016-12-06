@@ -58,10 +58,19 @@ public:
 		IL2CPP_ASSERT(nativeStr.length() < static_cast<size_t>(std::numeric_limits<int>::max()));
 		return Utf16ToUtf8(nativeStr.c_str(), static_cast<int>(nativeStr.length()));
 	}
+	static inline Il2CppNativeString Utf8ToNativeString(const std::string str)
+	{
+		IL2CPP_ASSERT(str.length() < static_cast<size_t>(std::numeric_limits<int>::max()));
+		return Utf8ToUtf16(str.c_str(), str.length());
+	}
 #else
 	static inline std::string NativeStringToUtf8(Il2CppNativeString nativeStr)
 	{
 		return nativeStr;
+	}
+	static inline Il2CppNativeString Utf8ToNativeString(const std::string str)
+	{
+		return str;
 	}
 #endif
 
@@ -148,7 +157,7 @@ public:
 
 		return hash1 + (hash2 * 1566083941);
 	}
-	
+
 	template <typename StringType>
 	struct StringHasher
 	{
@@ -157,6 +166,15 @@ public:
 		size_t operator()(const StringType& value) const
 		{
 			return Hash(value.c_str(), value.length());
+		}
+	};
+
+	template <typename CharType>
+	struct StringHasher<const CharType*>
+	{
+		size_t operator()(const CharType* value) const
+		{
+			return Hash(value);
 		}
 	};
 };

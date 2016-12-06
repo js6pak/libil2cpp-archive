@@ -26,11 +26,13 @@ namespace System
 {
 namespace IO
 {
-    class LIBIL2CPP_CODEGEN_API FileSystemWatcher
-    {
-    public:
-        static int32_t InternalSupportsFSW();
-    };
+
+class LIBIL2CPP_CODEGEN_API FileSystemWatcher
+{
+public:
+	static int32_t InternalSupportsFSW ();
+};
+
 } /* namespace IO */
 } /* namespace System */
 } /* namespace System */

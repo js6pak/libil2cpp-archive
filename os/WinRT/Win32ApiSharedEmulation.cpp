@@ -20,38 +20,40 @@ using namespace ABI::Windows::Storage;
 
 extern "C"
 {
+
 BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize)
 {
 #define ERROR_CHECK(hr) do { if (FAILED(hr)) { SetLastError(WIN32_FROM_HRESULT(hr)); return FALSE; } } while (false)
 
-    ComPtr<INetworkInformationStatics> info;
-    auto hr = RoGetActivationFactory(HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), __uuidof(info), &info);
-    ERROR_CHECK(hr);
+	ComPtr<INetworkInformationStatics> info;
+	auto hr = RoGetActivationFactory(HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), __uuidof(info), &info);
+	ERROR_CHECK(hr);
 
-    ComPtr<IVectorView<HostName*> > names;
-    hr = info->GetHostNames(&names);
-    ERROR_CHECK(hr);
+	ComPtr<IVectorView<HostName*>> names;
+	hr = info->GetHostNames(&names);
+	ERROR_CHECK(hr);
 
-    unsigned int size;
-    hr = names->get_Size(&size);
-    if (FAILED(hr) || !size)
-    {
-        SetLastError(WIN32_FROM_HRESULT(hr));
-        return FALSE;
-    }
+	unsigned int size;
+	hr = names->get_Size(&size);
+	if (FAILED(hr) || !size)
+	{
+		SetLastError(WIN32_FROM_HRESULT(hr));
+		return FALSE;
+	}
 
-    ComPtr<IHostName> name;
-    hr = names->GetAt(0, &name);
-    ERROR_CHECK(hr);
+	ComPtr<IHostName> name;
+	hr = names->GetAt(0, &name);
+	ERROR_CHECK(hr);
 
-    HString displayName;
-    hr = name->get_DisplayName(displayName.GetAddressOf());
-    ERROR_CHECK(hr);
+	HString displayName;
+	hr = name->get_DisplayName(displayName.GetAddressOf());
+	ERROR_CHECK(hr);
 
 #undef ERROR_CHECK
 
-    return CopyHStringToBuffer(displayName, lpBuffer, nSize);
+	return CopyHStringToBuffer(displayName, lpBuffer, nSize);
 }
+
 } // extern "C"
 
 #endif
