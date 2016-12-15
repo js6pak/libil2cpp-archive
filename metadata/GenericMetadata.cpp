@@ -244,8 +244,7 @@ const Il2CppGenericMethod* GenericMetadata::Inflate (const Il2CppGenericMethod* 
 	// We have cases where we could infinitely recurse, inflating generics at runtime. This will lead to a stack overflow.
 	// As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
 	// level, a crash will happen. We'll assume that this code won't actually be executed though.
-	const int maximumRuntimeGenericDepth = 7;
-	if (RecursiveGenericDepthFor(classInst) > maximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > maximumRuntimeGenericDepth)
+	if (RecursiveGenericDepthFor(classInst) > MaximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > MaximumRuntimeGenericDepth)
 		return NULL;
 
 	return MetadataCache::GetGenericMethod (genericMethod->methodDefinition, classInst, methodInst);
