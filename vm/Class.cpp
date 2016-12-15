@@ -1328,6 +1328,8 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 
 	klass->init_pending = true;
 
+	klass->genericRecursionDepth++;
+
 	if (klass->generic_class)
 		InitLocked (GenericClass::GetTypeDefinition (klass->generic_class), lock);
 
@@ -1379,7 +1381,8 @@ static bool InitLocked (Il2CppClass *klass, const FastAutoLock& lock)
 	if (klass->generic_class)
 	{
 		const Il2CppTypeDefinition* typeDefinition = GenericClass::GetTypeDefinition (klass->generic_class)->typeDefinition;
-		klass->rgctx_data = GenericMetadata::InflateRGCTX (typeDefinition->rgctxStartIndex, typeDefinition->rgctxCount, &klass->generic_class->context);
+		if (klass->genericRecursionDepth < GenericMetadata::MaximumRuntimeGenericDepth)
+			klass->rgctx_data = GenericMetadata::InflateRGCTX (typeDefinition->rgctxStartIndex, typeDefinition->rgctxCount, &klass->generic_class->context);
 	}
 
 	klass->initialized = true;
