@@ -89,6 +89,9 @@ void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar
 	printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.c_str());
 #endif
 
+	if (nativeDynamicLibrary.IsEmpty())
+		return LoadLibraryWithName(NULL);
+
 	StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
 	void* handle = LoadLibraryWithName(libraryName);
 
