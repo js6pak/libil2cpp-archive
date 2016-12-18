@@ -14,6 +14,13 @@ private:
 	const CharType* m_String;
 	size_t m_Length;
 
+	// Intended to only be used by Empty()
+	inline StringView() :
+		m_String(NULL),
+		m_Length(0)
+	{
+	}
+
 public:
 	template <size_t Length>
 	inline StringView(const CharType (&str)[Length]) :
@@ -58,6 +65,16 @@ public:
 	inline bool IsNullTerminated() const
 	{
 		return m_String[m_Length] == 0;
+	}
+
+	inline bool IsEmpty() const
+	{
+		return Length() == 0;
+	}
+
+	static inline StringView<CharType> Empty()
+	{
+		return StringView<CharType>();
 	}
 };
 
