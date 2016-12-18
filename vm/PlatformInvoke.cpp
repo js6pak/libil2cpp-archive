@@ -31,7 +31,12 @@ void PlatformInvoke::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
 
 Il2CppMethodPointer PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
 {
-	void* dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
+    void* dynamicLibrary = NULL;
+	if (utils::StringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
+		dynamicLibrary = LibraryLoader::LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
+	else
+		dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
+
 	if (dynamicLibrary == NULL)
 	{
 		std::basic_stringstream<Il2CppNativeChar> message;

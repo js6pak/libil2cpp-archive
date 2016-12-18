@@ -5,6 +5,7 @@
 #include "metadata.h"
 #include "os/Mutex.h"
 #include "os/LibraryLoader.h"
+#include "os/Image.h"
 #include "vm/PlatformInvoke.h"
 #include "utils/StringUtils.h"
 
@@ -23,6 +24,9 @@ os::FastMutex s_NativeDllCacheMutex;
 
 void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
 {
+	if (nativeDynamicLibrary.IsEmpty())
+		return (HMODULE)Image::GetImageBase();
+
 	{
 		os::FastAutoLock lock(&s_NativeDllCacheMutex);
 
