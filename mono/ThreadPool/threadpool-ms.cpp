@@ -19,53 +19,52 @@
 //  - src/vm/hillclimbing.cpp
 //
 // Ported from C++ to C and adjusted to Mono runtime
+
+#include "il2cpp-config.h"
+
 #if NET_4_0
 #include <stdlib.h>
 #define _USE_MATH_DEFINES // needed by MSVC to define math constants
+#include <algorithm>
 #include <cmath>
-#include <mono/metadata/threadpool-ms.h>
-#include <mono/metadata/threadpool-ms-io.h>
+#include <complex>
 
 #include "il2cpp-api.h"
+#include "gc/GarbageCollector.h"
+#include "gc/GCHandle.h"
+#include "icalls/mscorlib/System.Threading/ThreadPool.h"
+#include "icalls/mscorlib/System.Runtime.Remoting.Messaging/MonoMethodMessage.h"
+#include "mono/ThreadPool/threadpool-ms.h"
+#include "mono/ThreadPool/threadpool-ms-io.h"
+#include "mono/ThreadPool/ThreadPoolDataStructures.h"
+#include "mono/ThreadPool/ThreadPoolMacros.h"
+#include "mono/ThreadPool/ThreadPoolMonitorThread.h"
+#include "mono/ThreadPool/ThreadPoolWorkerThread.h"
 #include "object-internals.h"
-#include <algorithm>
-#include <complex>
+#include "os/CpuInfo.h"
+#include "os/Environment.h"
+#include "os/Mutex.h"
+#include "os/Time.h"
+#include "utils/CallOnce.h"
+#include "vm/Atomic.h"
+#include "vm/Array.h"
+#include "vm/Class.h"
+#include "vm/Domain.h"
+#include "vm/Exception.h"
+#include "vm/Object.h"
+#include "vm/Reflection.h"
+#include "vm/Random.h"
+#include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/ThreadPool.h"
-#include "vm/Runtime.h"
-#include "vm/Domain.h"
-#include "vm/Class.h"
-#include "vm/Object.h"
-#include "vm/Atomic.h"
 #include "vm/WaitHandle.h"
-#include "vm/Reflection.h"
-#include "vm/Array.h"
-#include "vm/Class.h"
-#include "vm/Exception.h"
-#include "os/Mutex.h"
-#include "os/Environment.h"
-#include "os/Time.h"
-#include "os/ConditionVariable.h"
-#include "gc/GCHandle.h"
-#include "gc/GarbageCollector.h"
-#include "utils/CallOnce.h"
-#include "vm/Random.h"
-#include "os/CpuInfo.h"
-#include "icalls/mscorlib/System.Threading/ThreadPool.h"
-#include "icalls/mscorlib/System.Runtime.Remoting.Messaging/MonoMethodMessage.h"
 
 #ifndef CLAMP
 #define CLAMP(a,low,high) (((a) < (low)) ? (low) : (((a) > (high)) ? (high) : (a)))
 #endif
 
-#define CPU_USAGE_LOW 80
-#define CPU_USAGE_HIGH 95
-
-#define MONITOR_INTERVAL 500 // ms
-#define MONITOR_MINIMAL_LIFETIME 60 * 1000 // ms
-
-#define WORKER_CREATION_MAX_PER_SEC 10
+ThreadPool* g_ThreadPool;
 
 /* The exponent to apply to the gain. 1.0 means to use linear gain,
  * higher values will enhance large moves and damp small ones.
@@ -89,149 +88,7 @@
 #define HILL_CLIMBING_ERROR_SMOOTHING_FACTOR 0.01
 #define HILL_CLIMBING_MAX_SAMPLE_ERROR_PERCENT 0.15
 
-typedef union {
-	struct {
-		int16_t max_working; /* determined by heuristic */
-		int16_t active; /* executing worker_thread */
-		int16_t working; /* actively executing worker_thread, not parked */
-		int16_t parked; /* parked */
-	} _;
-	int64_t as_int64_t;
-} ThreadPoolCounter;
-
-typedef struct {
-	Il2CppDomain *domain;
-	int32_t outstanding_request;
-} ThreadPoolDomain;
-
-typedef Il2CppInternalThread ThreadPoolWorkingThread;
-
-typedef struct {
-	int32_t wave_period;
-	int32_t samples_to_measure;
-	double target_throughput_ratio;
-	double target_signal_to_noise_ratio;
-	double max_change_per_second;
-	double max_change_per_sample;
-	int32_t max_thread_wave_magnitude;
-	int32_t sample_interval_low;
-	double thread_magnitude_multiplier;
-	int32_t sample_interval_high;
-	double throughput_error_smoothing_factor;
-	double gain_exponent;
-	double max_sample_error;
-
-	double current_control_setting;
-	int64_t total_samples;
-	int16_t last_thread_count;
-	double elapsed_since_last_change;
-	double completions_since_last_change;
-
-	double average_throughput_noise;
-
-	double *samples;
-	double *thread_counts;
-
-	uint32_t current_sample_interval;
-	void* random_interval_generator;
-
-	int32_t accumulated_completion_count;
-	double accumulated_sample_duration;
-} ThreadPoolHillClimbing;
-
-typedef struct {
-	ThreadPoolCounter counters;
-
-	std::vector<ThreadPoolDomain*> domains;
-	il2cpp::os::FastMutex domains_lock;
-
-	std::vector<Il2CppInternalThread*> working_threads;
-	int32_t parked_threads_count;
-	il2cpp::os::ConditionVariable parked_threads_cond;
-	il2cpp::os::FastMutex active_threads_lock; /* protect access to working_threads and parked_threads */
-
-	uint32_t worker_creation_current_second;
-	uint32_t worker_creation_current_count;
-	il2cpp::os::FastMutex worker_creation_lock;
-
-	int32_t heuristic_completions;
-	int64_t heuristic_sample_start;
-	int64_t heuristic_last_dequeue; // ms
-	int64_t heuristic_last_adjustment; // ms
-	int64_t heuristic_adjustment_interval; // ms
-	ThreadPoolHillClimbing heuristic_hill_climbing;
-	il2cpp::os::Mutex heuristic_lock;
-
-	int32_t limit_worker_min;
-	int32_t limit_worker_max;
-	int32_t limit_io_min;
-	int32_t limit_io_max;
-
-	void* cpu_usage_state;
-	int32_t cpu_usage;
-
-	/* suspended by the debugger */
-	bool suspended;
-} ThreadPool;
-
-typedef enum {
-	TRANSITION_WARMUP,
-	TRANSITION_INITIALIZING,
-	TRANSITION_RANDOM_MOVE,
-	TRANSITION_CLIMBING_MOVE,
-	TRANSITION_CHANGE_POINT,
-	TRANSITION_STABILIZING,
-	TRANSITION_STARVATION,
-	TRANSITION_THREAD_TIMED_OUT,
-	TRANSITION_UNDEFINED,
-} ThreadPoolHeuristicStateTransition;
-
 static il2cpp::utils::OnceFlag lazy_init_status;
-
-enum {
-	MONITOR_STATUS_REQUESTED,
-	MONITOR_STATUS_WAITING_FOR_REQUEST,
-	MONITOR_STATUS_NOT_RUNNING,
-};
-
-static int32_t monitor_status = MONITOR_STATUS_NOT_RUNNING;
-
-static ThreadPool* threadpool;
-
-#define COUNTER_CHECK(counter) \
-	do { \
-		IL2CPP_ASSERT(counter._.max_working > 0); \
-		IL2CPP_ASSERT(counter._.working >= 0); \
-		IL2CPP_ASSERT(counter._.active >= 0); \
-	} while (0)
-
-#define COUNTER_READ() (il2cpp::vm::Atomic::Read64 (&threadpool->counters.as_int64_t))
-
-#define COUNTER_ATOMIC(var,block) \
-	do { \
-		ThreadPoolCounter __old; \
-		do { \
-			IL2CPP_ASSERT(threadpool); \
-			__old.as_int64_t = COUNTER_READ (); \
-			(var) = __old; \
-			{ block; } \
-			COUNTER_CHECK (var); \
-		} while (il2cpp::vm::Atomic::CompareExchange64 (&threadpool->counters.as_int64_t, (var).as_int64_t, __old.as_int64_t) != __old.as_int64_t); \
-	} while (0)
-
-#define COUNTER_TRY_ATOMIC(res,var,block) \
-	do { \
-		ThreadPoolCounter __old; \
-		do { \
-			IL2CPP_ASSERT(threadpool); \
-			__old.as_int64_t = COUNTER_READ (); \
-			(var) = __old; \
-			(res) = false; \
-			{ block; } \
-			COUNTER_CHECK (var); \
-			(res) = il2cpp::vm::Atomic::CompareExchange64 (&threadpool->counters.as_int64_t, (var).as_int64_t, __old.as_int64_t) == __old.as_int64_t; \
-		} while (0); \
-	} while (0)
 
 static Il2CppMethodMessage *
 mono_method_call_message_new(MethodInfo *method, void* *params, MethodInfo *invoke,
@@ -276,12 +133,6 @@ mono_method_call_message_new(MethodInfo *method, void* *params, MethodInfo *invo
 	return msg;
 }
 
-static Il2CppException* mono_thread_interruption_checkpoint(void)
-{
-	// For now just do nothing.  The one place this is used doesn't care about the return value
-	return NULL;
-}
-
 static void* cpu_info_create()
 {
 	// Note : Implementing CpuInfo on all platforms will be challenging, so for now we are going to cheat
@@ -293,17 +144,6 @@ static void* cpu_info_create()
 #endif
 }
 
-static int32_t cpu_info_usage(void* prev)
-{
-	// Note : Implementing CpuInfo on all platforms will be challenging, so for now we are going to cheat
-	// and always say it's low
-#if IL2CPP_ENABLE_CPU_INFO
-	return il2cpp::os::CpuInfo::Usage(prev);
-#else
-	return CPU_USAGE_LOW;
-#endif
-}
-
 static void initialize(void* arg)
 {
 	ThreadPoolHillClimbing *hc;
@@ -311,19 +151,19 @@ static void initialize(void* arg)
 	int threads_per_cpu;
 	int threads_count;
 
-	IL2CPP_ASSERT(!threadpool);
-	threadpool = new ThreadPool();
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(!g_ThreadPool);
+	g_ThreadPool = new ThreadPool();
+	IL2CPP_ASSERT(g_ThreadPool);
 
-	threadpool->parked_threads_count = 0;
+	g_ThreadPool->parked_threads_count = 0;
 
-	threadpool->worker_creation_current_second = -1;
+	g_ThreadPool->worker_creation_current_second = -1;
 
-	threadpool->heuristic_adjustment_interval = 10;
+	g_ThreadPool->heuristic_adjustment_interval = 10;
 
 	il2cpp::vm::Random::Open();
 
-	hc = &threadpool->heuristic_hill_climbing;
+	hc = &g_ThreadPool->heuristic_hill_climbing;
 
 	hc->wave_period = HILL_CLIMBING_WAVE_PERIOD;
 	hc->max_thread_wave_magnitude = HILL_CLIMBING_MAX_WAVE_MAGNITUDE;
@@ -358,19 +198,19 @@ static void initialize(void* arg)
 
 	threads_count = il2cpp::os::Environment::GetProcessorCount() * threads_per_cpu;
 
-	threadpool->limit_worker_min = threadpool->limit_io_min = threads_count;
+	g_ThreadPool->limit_worker_min = g_ThreadPool->limit_io_min = threads_count;
 
 #if IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_IOS
-	threadpool->limit_worker_max = threadpool->limit_io_max = CLAMP (threads_count * 100, MIN (threads_count, 200), MAX (threads_count, 200));
+	g_ThreadPool->limit_worker_max = g_ThreadPool->limit_io_max = CLAMP (threads_count * 100, MIN (threads_count, 200), MAX (threads_count, 200));
 #else
-	threadpool->limit_worker_max = threadpool->limit_io_max = threads_count * 100;
+	g_ThreadPool->limit_worker_max = g_ThreadPool->limit_io_max = threads_count * 100;
 #endif
 
-	threadpool->counters._.max_working = threadpool->limit_worker_min;
+	g_ThreadPool->counters._.max_working = g_ThreadPool->limit_worker_min;
 
-	threadpool->cpu_usage_state = cpu_info_create();
+	g_ThreadPool->cpu_usage_state = cpu_info_create();
 
-	threadpool->suspended = false;
+	g_ThreadPool->suspended = false;
 }
 
 static void lazy_initialize()
@@ -378,7 +218,13 @@ static void lazy_initialize()
 	il2cpp::utils::CallOnce(lazy_init_status, initialize, NULL);
 }
 
-static void worker_kill (ThreadPoolWorkingThread *thread);
+static void worker_kill(Il2CppInternalThread* thread)
+{
+	if (thread == il2cpp::vm::Thread::CurrentInternal())
+		return;
+
+	il2cpp::vm::Thread::Stop(thread);
+}
 
 static void cleanup (void)
 {
@@ -388,22 +234,21 @@ static void cleanup (void)
 	 * cleaning up only if the runtime is shutting down */
 	IL2CPP_ASSERT(il2cpp::vm::Runtime::IsShuttingDown ());
 
-	while (monitor_status != MONITOR_STATUS_NOT_RUNNING)
+	while (GetMonitorStatus() != MONITOR_STATUS_NOT_RUNNING)
 		il2cpp::vm::Thread::Sleep(1);
-
 
 	std::vector<Il2CppInternalThread*> working_threads;
 
-	threadpool->active_threads_lock.Lock();
-	working_threads = threadpool->working_threads;
-	threadpool->active_threads_lock.Unlock();
+	g_ThreadPool->active_threads_lock.Lock();
+	working_threads = g_ThreadPool->working_threads;
+	g_ThreadPool->active_threads_lock.Unlock();
 	
 	/* stop all threadpool->working_threads */
 	for (i = 0; i < working_threads.size(); ++i)
 		worker_kill (working_threads[i]);
 
-	/* unpark all threadpool->parked_threads */
-	threadpool->parked_threads_cond.Broadcast();
+	/* unpark all g_ThreadPool->parked_threads */
+	g_ThreadPool->parked_threads_cond.Broadcast();
 }
 
 bool threadpool_ms_enqueue_work_item (Il2CppDomain *domain, Il2CppObject *work_item)
@@ -440,8 +285,8 @@ static ThreadPoolDomain* domain_get(Il2CppDomain *domain, bool create)
 
 	IL2CPP_ASSERT(domain);
 
-	for (i = 0; i < threadpool->domains.size(); ++i) {
-		tpdomain = (ThreadPoolDomain *)threadpool->domains[i];
+	for (i = 0; i < g_ThreadPool->domains.size(); ++i) {
+		tpdomain = g_ThreadPool->domains[i];
 		if (tpdomain->domain == domain)
 			return tpdomain;
 	}
@@ -449,365 +294,34 @@ static ThreadPoolDomain* domain_get(Il2CppDomain *domain, bool create)
 	if (create) {
 		tpdomain = new ThreadPoolDomain();
 		tpdomain->domain = domain;
-		threadpool->domains.push_back(tpdomain);
+		g_ThreadPool->domains.push_back(tpdomain);
 	}
 
 	return tpdomain;
 }
 
-/* LOCKING: threadpool->domains_lock must be held */
-static bool domain_any_has_request(void)
+bool worker_try_unpark()
 {
-	unsigned int i;
+	il2cpp::os::FastAutoLock lock(&g_ThreadPool->active_threads_lock);
 
-	for (i = 0; i < threadpool->domains.size(); ++i) {
-		ThreadPoolDomain *tmp = (ThreadPoolDomain *)threadpool->domains[i];
-		if (tmp->outstanding_request > 0)
-			return true;
-	}
+	if (g_ThreadPool->parked_threads_count == 0)
+		return false;
 
-	return false;
+	g_ThreadPool->parked_threads_cond.Signal();
+	return true;
 }
-
-/* LOCKING: threadpool->domains_lock must be held */
-static ThreadPoolDomain* domain_get_next(ThreadPoolDomain *current)
-{
-	ThreadPoolDomain *tpdomain = NULL;
-	unsigned int len;
-
-	len = (unsigned int)threadpool->domains.size();
-	if (len > 0) {
-		unsigned int i, current_idx = -1;
-		if (current) {
-			for (i = 0; i < len; ++i) {
-				if (current == threadpool->domains[i]) {
-					current_idx = i;
-					break;
-				}
-			}
-			IL2CPP_ASSERT(current_idx >= 0);
-		}
-		for (i = current_idx + 1; i < len + current_idx + 1; ++i) {
-			ThreadPoolDomain *tmp = (ThreadPoolDomain *)threadpool->domains[i % len];
-			if (tmp->outstanding_request > 0) {
-				tpdomain = tmp;
-				break;
-			}
-		}
-	}
-
-	return tpdomain;
-}
-
-static void worker_wait_interrupt (void* data)
-{
-	threadpool->active_threads_lock.Lock();
-	threadpool->parked_threads_cond.Signal();
-	threadpool->active_threads_lock.Unlock();
-}
-
-static void remove_working_thread(Il2CppInternalThread *thread)
-{
-	int index = 0;
-	for (unsigned i = 0; i < threadpool->working_threads.size(); ++i)
-	{
-		if (threadpool->working_threads[i] == thread)
-		{
-			index = i;
-			break;
-		}
-	}
-	threadpool->working_threads.erase(threadpool->working_threads.begin() + index);
-}
-
-/*
-* mono_thread_info_install_interrupt: install an interruption token for the current thread.
-*
-*  - @callback: must be able to be called from another thread and always cancel the wait
-*  - @data: passed to the callback
-*  - @interrupted: will be set to TRUE if a token is already installed, FALSE otherwise
-*     if set to TRUE, it must mean that the thread is in interrupted state
-*/
-static void thread_info_install_interrupt(void(*callback) (void* data), void* data, bool *interrupted)
-{
-	// We can get by without this for the time being.  Not needed until we have cooperative threading
-}
-
-static void thread_info_uninstall_interrupt(bool *interrupted)
-{
-	// We can get by without this for the time being.  Not needed until we have cooperative threading
-}
-
-/* return true if timeout, false otherwise (worker unpark or interrupt) */
-static bool worker_park (void)
-{
-	bool timeout = false;
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] current worker parking", mono_native_thread_id_get ());
-
-	il2cpp::gc::GarbageCollector::SetSkipThread (true);
-
-	threadpool->active_threads_lock.Lock();
-
-	if (!il2cpp::vm::Runtime::IsShuttingDown ()) {
-		static void* rand_handle = NULL;
-		Il2CppInternalThread *thread_internal;
-		bool interrupted = false;
-
-		if (!rand_handle)
-			rand_handle = il2cpp::vm::Random::Create ();
-		IL2CPP_ASSERT(rand_handle);
-
-		thread_internal = il2cpp::vm::Thread::CurrentInternal();
-		IL2CPP_ASSERT(thread_internal);
-
-		threadpool->parked_threads_count += 1;
-		remove_working_thread(thread_internal);
-
-		thread_info_install_interrupt(worker_wait_interrupt, NULL, &interrupted);
-		if (interrupted)
-			goto done;
-
-		if (threadpool->parked_threads_cond.TimedWait(&threadpool->active_threads_lock, il2cpp::vm::Random::Next (&rand_handle, 5 * 1000, 60 * 1000)) != 0)
-			timeout = true;
-
-		thread_info_uninstall_interrupt(&interrupted);
-
-	done:
-		threadpool->working_threads.push_back(thread_internal);
-		threadpool->parked_threads_count -= 1;
-	}
-
-	threadpool->active_threads_lock.Unlock();
-
-	il2cpp::gc::GarbageCollector::SetSkipThread (false);
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] current worker unparking, timeout? %s", mono_native_thread_id_get (), timeout ? "yes" : "no");
-
-	return timeout;
-}
-
-static bool worker_try_unpark (void)
-{
-	bool res = false;
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try unpark worker", mono_native_thread_id_get ());
-
-	threadpool->active_threads_lock.Lock();
-	if (threadpool->parked_threads_count > 0) {
-		threadpool->parked_threads_cond.Signal();
-		res = true;
-	}
-	threadpool->active_threads_lock.Unlock();
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try unpark worker, success? %s", mono_native_thread_id_get (), res ? "yes" : "no");
-
-	return res;
-}
-
-static void worker_kill (ThreadPoolWorkingThread *thread)
-{
-	if (thread == il2cpp::vm::Thread::CurrentInternal())
-		return;
-
-	il2cpp::vm::Thread::Stop ((Il2CppInternalThread*) thread);
-}
-
-static void worker_thread (void* data)
-{
-	//Il2CppError error;
-	Il2CppInternalThread *thread;
-	ThreadPoolDomain *tpdomain, *previous_tpdomain;
-	ThreadPoolCounter counter;
-	bool retire = false;
-
-	//mono_trace (G_LOG_LEVEL_INFO, MONO_TRACE_THREADPOOL, "[%p] worker starting", mono_native_thread_id_get ());
-
-	IL2CPP_ASSERT(threadpool);
-
-	thread = il2cpp::vm::Thread::CurrentInternal();
-	IL2CPP_ASSERT(thread);
-
-	il2cpp::vm::Thread::SetName(thread, il2cpp::vm::String::New("Threadpool worker"));
-
-	threadpool->active_threads_lock.Lock();
-	threadpool->working_threads.push_back(thread);
-	threadpool->active_threads_lock.Unlock();
-
-	previous_tpdomain = NULL;
-
-	threadpool->domains_lock.Lock();
-
-	while (!il2cpp::vm::Runtime::IsShuttingDown ()) {
-		tpdomain = NULL;
-
-		/*if ((thread->state & (il2cpp::vm::ThreadState::kThreadStateStopRequested | il2cpp::vm::ThreadState::kThreadStateSuspendRequested)) != 0) {
-			mono_coop_mutex_unlock (&threadpool->domains_lock);
-			mono_thread_interruption_checkpoint ();
-			mono_coop_mutex_lock (&threadpool->domains_lock);
-		}*/
-
-		if (retire || !(tpdomain = domain_get_next(previous_tpdomain))) {
-			bool timeout;
-
-			COUNTER_ATOMIC (counter, {
-				counter._.working --;
-				counter._.parked ++;
-			});
-
-			threadpool->domains_lock.Unlock();
-			timeout = worker_park ();
-			threadpool->domains_lock.Lock();
-
-			COUNTER_ATOMIC (counter, {
-				counter._.working ++;
-				counter._.parked --;
-			});
-
-			if (timeout)
-				break;
-
-			if (retire)
-				retire = false;
-
-			continue;
-		}
-
-		tpdomain->outstanding_request --;
-		IL2CPP_ASSERT(tpdomain->outstanding_request >= 0);
-
-		/*mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] worker running in domain %p",
-			mono_native_thread_id_get (), tpdomain->domain, tpdomain->outstanding_request);*/
-
-		IL2CPP_ASSERT(tpdomain->domain);
-		IL2CPP_ASSERT(tpdomain->domain->threadpool_jobs >= 0);
-		tpdomain->domain->threadpool_jobs ++;
-
-		threadpool->domains_lock.Unlock();
-
-		Il2CppObject *exc = NULL;
-
-		Il2CppObject* res = il2cpp::vm::Runtime::InvokeWithThrow(il2cpp_defaults.threadpool_perform_wait_callback_method, NULL, NULL);
-		//if (exc || !mono_error_ok(&error)) {
-			//if (exc == NULL)
-			//	exc = (MonoObject *) mono_error_convert_to_exception (&error);
-			//else
-			//	mono_error_cleanup (&error);
-			//mono_thread_internal_unhandled_exception (exc);
-		//}
-		if (res && *(bool*) il2cpp::vm::Object::Unbox (res) == false)
-			retire = true;
-
-		il2cpp::vm::Thread::ClrState(thread, il2cpp::vm::kThreadStateBackground);
-		if (!il2cpp::vm::Thread::TestState (thread , il2cpp::vm::kThreadStateBackground))
-			il2cpp::vm::Thread::SetState (thread, il2cpp::vm::kThreadStateBackground);
-
-		threadpool->domains_lock.Lock();
-
-		tpdomain->domain->threadpool_jobs --;
-		IL2CPP_ASSERT(tpdomain->domain->threadpool_jobs >= 0);
-
-		//if (tpdomain->domain->threadpool_jobs == 0 && mono_domain_is_unloading (tpdomain->domain)) {
-		//	bool removed = domain_remove (tpdomain);
-		//	IL2CPP_ASSERT(removed);
-		//	if (tpdomain->domain->cleanup_semaphore)
-		//		ReleaseSemaphore (tpdomain->domain->cleanup_semaphore, 1, NULL);
-		//	domain_free (tpdomain);
-		//	tpdomain = NULL;
-		//}
-
-		previous_tpdomain = tpdomain;
-	}
-
-	threadpool->domains_lock.Unlock();
-
-	threadpool->active_threads_lock.Lock();
-	remove_working_thread(thread);
-	threadpool->active_threads_lock.Unlock();
-
-	COUNTER_ATOMIC (counter, {
-		counter._.working--;
-		counter._.active --;
-	});
-
-	//mono_trace (G_LOG_LEVEL_INFO, MONO_TRACE_THREADPOOL, "[%p] worker finishing", mono_native_thread_id_get ());
-}
-
-static bool worker_try_create (void)
-{
-	ThreadPoolCounter counter;
-	Il2CppInternalThread *thread;
-	int64_t current_ticks;
-	int32_t now;
-
-	il2cpp::os::FastAutoLock lock(&threadpool->worker_creation_lock);
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try create worker", mono_native_thread_id_get ());
-	current_ticks = il2cpp::os::Time::GetTicks100NanosecondsMonotonic();
-	now = (int32_t)(current_ticks / (10 * 1000 * 1000));
-	/*if (0 == current_ticks) {
-		g_warning ("failed to get 100ns ticks");
-	} else {*/
-	if (current_ticks != 0) {
-		if (threadpool->worker_creation_current_second != now) {
-			threadpool->worker_creation_current_second = now;
-			threadpool->worker_creation_current_count = 0;
-		} else {
-			IL2CPP_ASSERT(threadpool->worker_creation_current_count <= WORKER_CREATION_MAX_PER_SEC);
-			if (threadpool->worker_creation_current_count == WORKER_CREATION_MAX_PER_SEC) {
-				//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try create worker, failed: maximum number of worker created per second reached, current count = %d",
-					//mono_native_thread_id_get (), threadpool->worker_creation_current_count);
-				//mono_coop_mutex_unlock (&threadpool->worker_creation_lock);
-				return false;
-			}
-		}
-	}
-
-	COUNTER_ATOMIC (counter, {
-		if (counter._.working >= counter._.max_working) {
-			//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try create worker, failed: maximum number of working threads reached",
-				//mono_native_thread_id_get ());
-			//mono_coop_mutex_unlock (&threadpool->worker_creation_lock);
-			return false;
-		}
-		counter._.working ++;
-		counter._.active ++;
-	});
-
-	//Il2CppError error;
-	if ((thread = il2cpp::vm::Thread::CreateInternal (worker_thread, NULL, true, 0)) != NULL) {
-		threadpool->worker_creation_current_count += 1;
-
-		//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try create worker, created %p, now = %d count = %d", mono_native_thread_id_get (), thread->tid, now, threadpool->worker_creation_current_count);
-		//mono_coop_mutex_unlock (&threadpool->worker_creation_lock);
-		return true;
-	}
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] try create worker, failed: could not create thread due to %s", mono_native_thread_id_get (), mono_error_get_message (&error));
-	//mono_error_cleanup (&error);
-
-	COUNTER_ATOMIC (counter, {
-		counter._.working --;
-		counter._.active --;
-	});
-
-	//mono_coop_mutex_unlock (&threadpool->worker_creation_lock);
-	return false;
-}
-
-static void monitor_ensure_running (void);
 
 static bool worker_request (Il2CppDomain *domain)
 {
 	ThreadPoolDomain *tpdomain;
 
 	IL2CPP_ASSERT(domain);
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 
 	if (il2cpp::vm::Runtime::IsShuttingDown ())
 		return false;
 
-	threadpool->domains_lock.Lock();
+	g_ThreadPool->domains_lock.Lock();
 
 	/* synchronize check with worker_thread */
 	//if (mono_domain_is_unloading (domain)) {
@@ -822,9 +336,9 @@ static bool worker_request (Il2CppDomain *domain)
 	/*mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] request worker, domain = %p, outstanding_request = %d",
 		mono_native_thread_id_get (), tpdomain->domain, tpdomain->outstanding_request);*/
 
-	threadpool->domains_lock.Unlock();
+	g_ThreadPool->domains_lock.Unlock();
 
-	if (threadpool->suspended)
+	if (g_ThreadPool->suspended)
 		return false;
 
 	monitor_ensure_running ();
@@ -843,191 +357,13 @@ static bool worker_request (Il2CppDomain *domain)
 	return false;
 }
 
-static bool monitor_should_keep_running (void)
-{
-	static int64_t last_should_keep_running = -1;
-
-	IL2CPP_ASSERT(monitor_status == MONITOR_STATUS_WAITING_FOR_REQUEST || monitor_status == MONITOR_STATUS_REQUESTED);
-
-	if (il2cpp::vm::Atomic::Exchange(&monitor_status, MONITOR_STATUS_WAITING_FOR_REQUEST) == MONITOR_STATUS_WAITING_FOR_REQUEST) {
-		bool should_keep_running = true, force_should_keep_running = false;
-
-		if (il2cpp::vm::Runtime::IsShuttingDown ()) {
-			should_keep_running = false;
-		} else {
-			threadpool->domains_lock.Lock();
-			if (!domain_any_has_request ())
-				should_keep_running = false;
-			threadpool->domains_lock.Unlock();
-
-			if (!should_keep_running) {
-				if (last_should_keep_running == -1 || il2cpp::os::Time::GetTicks100NanosecondsMonotonic() - last_should_keep_running < MONITOR_MINIMAL_LIFETIME * 1000 * 10) {
-					should_keep_running = force_should_keep_running = true;
-				}
-			}
-		}
-
-		if (should_keep_running) {
-			if (last_should_keep_running == -1 || !force_should_keep_running)
-				last_should_keep_running = il2cpp::os::Time::GetTicks100NanosecondsMonotonic ();
-		} else {
-			last_should_keep_running = -1;
-			if (il2cpp::vm::Atomic::CompareExchange (&monitor_status, MONITOR_STATUS_NOT_RUNNING, MONITOR_STATUS_WAITING_FOR_REQUEST) == MONITOR_STATUS_WAITING_FOR_REQUEST)
-				return false;
-		}
-	}
-
-	IL2CPP_ASSERT(monitor_status == MONITOR_STATUS_WAITING_FOR_REQUEST || monitor_status == MONITOR_STATUS_REQUESTED);
-
-	return true;
-}
-
-static bool monitor_sufficient_delay_since_last_dequeue (void)
-{
-	int64_t threshold;
-
-	IL2CPP_ASSERT(threadpool);
-
-	if (threadpool->cpu_usage < CPU_USAGE_LOW) {
-		threshold = MONITOR_INTERVAL;
-	} else {
-		ThreadPoolCounter counter;
-		counter.as_int64_t = COUNTER_READ();
-		threshold = counter._.max_working * MONITOR_INTERVAL * 2;
-	}
-
-	return il2cpp::os::Time::GetTicksMillisecondsMonotonic () >= threadpool->heuristic_last_dequeue + threshold;
-}
-
-static void hill_climbing_force_change (int16_t new_thread_count, ThreadPoolHeuristicStateTransition transition);
-
-static void monitor_thread (void* data)
-{
-	Il2CppInternalThread *current_thread = il2cpp::vm::Thread::CurrentInternal();
-	unsigned int i;
-
-	cpu_info_usage (threadpool->cpu_usage_state);
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] monitor thread, started", mono_native_thread_id_get ());
-
-	do {
-		ThreadPoolCounter counter;
-		bool limit_worker_max_reached;
-		int32_t interval_left = MONITOR_INTERVAL;
-		int32_t awake = 0; /* number of spurious awakes we tolerate before doing a round of rebalancing */
-
-		IL2CPP_ASSERT(monitor_status != MONITOR_STATUS_NOT_RUNNING);
-
-		il2cpp::gc::GarbageCollector::SetSkipThread(true);
-
-		do {
-			int64_t ts;
-			bool alerted = false;
-
-			if (il2cpp::vm::Runtime::IsShuttingDown ())
-				break;
-
-			ts = il2cpp::os::Time::GetTicksMillisecondsMonotonic ();
-			il2cpp::vm::Thread::Sleep(interval_left);
-			/*if (mono_thread_info_sleep (interval_left, &alerted) == 0)
-				break;*/
-			interval_left -= (int32_t)(il2cpp::os::Time::GetTicksMillisecondsMonotonic() - ts);
-
-			il2cpp::gc::GarbageCollector::SetSkipThread(false);
-			if ((current_thread->state & (il2cpp::vm::kThreadStateStopRequested | il2cpp::vm::kThreadStateSuspendRequested)) != 0)
-				mono_thread_interruption_checkpoint ();
-			il2cpp::gc::GarbageCollector::SetSkipThread(true);
-		} while (interval_left > 0 && ++awake < 10);
-
-		il2cpp::gc::GarbageCollector::SetSkipThread(false);
-
-		if (threadpool->suspended)
-			continue;
-
-		if (il2cpp::vm::Runtime::IsShuttingDown ())
-			continue;
-
-		threadpool->domains_lock.Lock();
-		if (!domain_any_has_request ())
-		{
-			threadpool->domains_lock.Unlock();
-			continue;
-		}
-		threadpool->domains_lock.Unlock();
-
-		threadpool->cpu_usage = cpu_info_usage(threadpool->cpu_usage_state);
-
-		if (!monitor_sufficient_delay_since_last_dequeue ())
-			continue;
-
-		limit_worker_max_reached = false;
-
-		COUNTER_ATOMIC (counter, {
-			if (counter._.max_working >= threadpool->limit_worker_max) {
-				limit_worker_max_reached = true;
-				break;
-			}
-			counter._.max_working ++;
-		});
-
-		if (limit_worker_max_reached)
-			continue;
-
-		hill_climbing_force_change (counter._.max_working, TRANSITION_STARVATION);
-
-		for (i = 0; i < 5; ++i) {
-			if (il2cpp::vm::Runtime::IsShuttingDown ())
-				break;
-
-			if (worker_try_unpark ()) {
-				//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] monitor thread, unparked", mono_native_thread_id_get ());
-				break;
-			}
-
-			if (worker_try_create ()) {
-				//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] monitor thread, created", mono_native_thread_id_get ());
-				break;
-			}
-		}
-	} while (monitor_should_keep_running ());
-
-	//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_THREADPOOL, "[%p] monitor thread, finished", mono_native_thread_id_get ());
-}
-
-static void monitor_ensure_running (void)
-{
-	//Il2CppError error;
-	for (;;) {
-		switch (monitor_status) {
-		case MONITOR_STATUS_REQUESTED:
-			return;
-		case MONITOR_STATUS_WAITING_FOR_REQUEST:
-			il2cpp::vm::Atomic::CompareExchange(&monitor_status, MONITOR_STATUS_REQUESTED, MONITOR_STATUS_WAITING_FOR_REQUEST);
-			break;
-		case MONITOR_STATUS_NOT_RUNNING:
-			if (il2cpp::vm::Runtime::IsShuttingDown ())
-				return;
-			if (il2cpp::vm::Atomic::CompareExchange(&monitor_status, MONITOR_STATUS_REQUESTED, MONITOR_STATUS_NOT_RUNNING) == MONITOR_STATUS_NOT_RUNNING) {
-				if (!il2cpp::vm::Thread::CreateInternal(monitor_thread, NULL, true, SMALL_STACK)) {
-					monitor_status = MONITOR_STATUS_NOT_RUNNING;
-					//mono_error_cleanup (&error);
-				}
-				return;
-			}
-			break;
-		default:
-			IL2CPP_ASSERT(0 && "should not be reached");
-		}
-	}
-}
-
 static void hill_climbing_change_thread_count (int16_t new_thread_count, ThreadPoolHeuristicStateTransition transition)
 {
 	ThreadPoolHillClimbing *hc;
 
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 
-	hc = &threadpool->heuristic_hill_climbing;
+	hc = &g_ThreadPool->heuristic_hill_climbing;
 
 	//mono_trace (G_LOG_LEVEL_INFO, MONO_TRACE_THREADPOOL, "[%p] hill climbing, change max number of threads %d", mono_native_thread_id_get (), new_thread_count);
 
@@ -1037,13 +373,13 @@ static void hill_climbing_change_thread_count (int16_t new_thread_count, ThreadP
 	hc->completions_since_last_change = 0;
 }
 
-static void hill_climbing_force_change (int16_t new_thread_count, ThreadPoolHeuristicStateTransition transition)
+void hill_climbing_force_change (int16_t new_thread_count, ThreadPoolHeuristicStateTransition transition)
 {
 	ThreadPoolHillClimbing *hc;
 
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 
-	hc = &threadpool->heuristic_hill_climbing;
+	hc = &g_ThreadPool->heuristic_hill_climbing;
 
 	if (new_thread_count != hc->last_thread_count) {
 		hc->current_control_setting += new_thread_count - hc->last_thread_count;
@@ -1057,11 +393,11 @@ static std::complex<double> hill_climbing_get_wave_component (double *samples, u
 	double w, cosine, sine, coeff, q0, q1, q2;
 	unsigned int i;
 
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 	IL2CPP_ASSERT(sample_count >= period);
 	IL2CPP_ASSERT(period >= 2);
 
-	hc = &threadpool->heuristic_hill_climbing;
+	hc = &g_ThreadPool->heuristic_hill_climbing;
 
 	w = 2.0 * M_PI / period;
 	cosine = cos (w);
@@ -1095,10 +431,10 @@ static int16_t hill_climbing_update (int16_t current_thread_count, uint32_t samp
 	std::complex<double> throughput_wave_component;
 	std::complex<double> ratio;
 
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 	IL2CPP_ASSERT(adjustment_interval);
 
-	hc = &threadpool->heuristic_hill_climbing;
+	hc = &g_ThreadPool->heuristic_hill_climbing;
 
 	/* If someone changed the thread count without telling us, update our records accordingly. */
 	if (current_thread_count != hc->last_thread_count)
@@ -1256,7 +592,7 @@ static int16_t hill_climbing_update (int16_t current_thread_count, uint32_t samp
 	move = std::min (move, hc->max_change_per_sample);
 
 	/* If the result was positive, and CPU is > 95%, refuse the move. */
-	if (move > 0.0 && threadpool->cpu_usage > CPU_USAGE_HIGH)
+	if (move > 0.0 && g_ThreadPool->cpu_usage > CPU_USAGE_HIGH)
 		move = 0.0;
 
 	/* Apply the move to our control setting. */
@@ -1269,18 +605,18 @@ static int16_t hill_climbing_update (int16_t current_thread_count, uint32_t samp
 	new_thread_wave_magnitude = CLAMP (new_thread_wave_magnitude, 1, hc->max_thread_wave_magnitude);
 
 	/* Make sure our control setting is within the ThreadPool's limits. */
-	hc->current_control_setting = CLAMP (hc->current_control_setting, threadpool->limit_worker_min, threadpool->limit_worker_max - new_thread_wave_magnitude);
+	hc->current_control_setting = CLAMP (hc->current_control_setting, g_ThreadPool->limit_worker_min, g_ThreadPool->limit_worker_max - new_thread_wave_magnitude);
 
 	/* Calculate the new thread count (control setting + square wave). */
 	new_thread_count = (int)(hc->current_control_setting + new_thread_wave_magnitude * ((hc->total_samples / (hc->wave_period / 2)) % 2));
 
 	/* Make sure the new thread count doesn't exceed the ThreadPool's limits. */
-	new_thread_count = CLAMP (new_thread_count, threadpool->limit_worker_min, threadpool->limit_worker_max);
+	new_thread_count = CLAMP (new_thread_count, g_ThreadPool->limit_worker_min, g_ThreadPool->limit_worker_max);
 
 	if (new_thread_count != current_thread_count)
 		hill_climbing_change_thread_count (new_thread_count, transition);
 
-	if (std::real (ratio) < 0.0 && new_thread_count == threadpool->limit_worker_min)
+	if (std::real (ratio) < 0.0 && new_thread_count == g_ThreadPool->limit_worker_min)
 		*adjustment_interval = (int)(0.5 + hc->current_sample_interval * (10.0 * std::max (-1.0 * std::real (ratio), 1.0)));
 	else
 		*adjustment_interval = hc->current_sample_interval;
@@ -1290,17 +626,17 @@ static int16_t hill_climbing_update (int16_t current_thread_count, uint32_t samp
 
 static void heuristic_notify_work_completed (void)
 {
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 
-	il2cpp::vm::Atomic::Increment(&threadpool->heuristic_completions);
-	threadpool->heuristic_last_dequeue = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
+	il2cpp::vm::Atomic::Increment(&g_ThreadPool->heuristic_completions);
+	g_ThreadPool->heuristic_last_dequeue = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
 }
 
 static bool heuristic_should_adjust (void)
 {
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 
-	if (threadpool->heuristic_last_dequeue > threadpool->heuristic_last_adjustment + threadpool->heuristic_adjustment_interval) {
+	if (g_ThreadPool->heuristic_last_dequeue > g_ThreadPool->heuristic_last_adjustment + g_ThreadPool->heuristic_adjustment_interval) {
 		ThreadPoolCounter counter;
 		counter.as_int64_t = COUNTER_READ();
 		if (counter._.working <= counter._.max_working)
@@ -1312,30 +648,30 @@ static bool heuristic_should_adjust (void)
 
 static void heuristic_adjust (void)
 {
-	IL2CPP_ASSERT(threadpool);
+	IL2CPP_ASSERT(g_ThreadPool);
 	
-	if (threadpool->heuristic_lock.TryLock()) {
-		int32_t completions = il2cpp::vm::Atomic::Exchange (&threadpool->heuristic_completions, 0);
+	if (g_ThreadPool->heuristic_lock.TryLock()) {
+		int32_t completions = il2cpp::vm::Atomic::Exchange (&g_ThreadPool->heuristic_completions, 0);
 		int64_t sample_end = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
-		int64_t sample_duration = sample_end - threadpool->heuristic_sample_start;
+		int64_t sample_duration = sample_end - g_ThreadPool->heuristic_sample_start;
 
-		if (sample_duration >= threadpool->heuristic_adjustment_interval / 2) {
+		if (sample_duration >= g_ThreadPool->heuristic_adjustment_interval / 2) {
 			ThreadPoolCounter counter;
 			int16_t new_thread_count;
 
 			counter.as_int64_t = COUNTER_READ ();
-			new_thread_count = hill_climbing_update (counter._.max_working, (uint32_t)sample_duration, completions, &threadpool->heuristic_adjustment_interval);
+			new_thread_count = hill_climbing_update (counter._.max_working, (uint32_t)sample_duration, completions, &g_ThreadPool->heuristic_adjustment_interval);
 
 			COUNTER_ATOMIC (counter, { counter._.max_working = new_thread_count; });
 
 			if (new_thread_count > counter._.max_working)
 				worker_request (il2cpp::vm::Domain::GetCurrent());
 
-			threadpool->heuristic_sample_start = sample_end;
-			threadpool->heuristic_last_adjustment = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
+			g_ThreadPool->heuristic_sample_start = sample_end;
+			g_ThreadPool->heuristic_last_adjustment = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
 		}
 
-		threadpool->heuristic_lock.Unlock();
+		g_ThreadPool->heuristic_lock.Unlock();
 	}
 }
 
@@ -1439,14 +775,14 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 
 void threadpool_ms_suspend (void)
 {
-	if (threadpool)
-		threadpool->suspended = true;
+	if (g_ThreadPool)
+		g_ThreadPool->suspended = true;
 }
 
 void threadpool_ms_resume (void)
 {
-	if (threadpool)
-		threadpool->suspended = false;
+	if (g_ThreadPool)
+		g_ThreadPool->suspended = false;
 }
 
 void ves_icall_System_Threading_ThreadPool_GetAvailableThreadsNative (int32_t *worker_threads, int32_t *completion_port_threads)
@@ -1460,8 +796,8 @@ void ves_icall_System_Threading_ThreadPool_GetAvailableThreadsNative (int32_t *w
 
 	counter.as_int64_t = COUNTER_READ ();
 
-	*worker_threads = std::max (0, threadpool->limit_worker_max - counter._.active);
-	*completion_port_threads = threadpool->limit_io_max;
+	*worker_threads = std::max (0, g_ThreadPool->limit_worker_max - counter._.active);
+	*completion_port_threads = g_ThreadPool->limit_io_max;
 }
 
 void ves_icall_System_Threading_ThreadPool_GetMinThreadsNative (int32_t *worker_threads, int32_t *completion_port_threads)
@@ -1471,8 +807,8 @@ void ves_icall_System_Threading_ThreadPool_GetMinThreadsNative (int32_t *worker_
 
 	lazy_initialize ();
 
-	*worker_threads = threadpool->limit_worker_min;
-	*completion_port_threads = threadpool->limit_io_min;
+	*worker_threads = g_ThreadPool->limit_worker_min;
+	*completion_port_threads = g_ThreadPool->limit_io_min;
 }
 
 void ves_icall_System_Threading_ThreadPool_GetMaxThreadsNative (int32_t *worker_threads, int32_t *completion_port_threads)
@@ -1482,21 +818,21 @@ void ves_icall_System_Threading_ThreadPool_GetMaxThreadsNative (int32_t *worker_
 
 	lazy_initialize ();
 
-	*worker_threads = threadpool->limit_worker_max;
-	*completion_port_threads = threadpool->limit_io_max;
+	*worker_threads = g_ThreadPool->limit_worker_max;
+	*completion_port_threads = g_ThreadPool->limit_io_max;
 }
 
 bool ves_icall_System_Threading_ThreadPool_SetMinThreadsNative (int32_t worker_threads, int32_t completion_port_threads)
 {
 	lazy_initialize ();
 
-	if (worker_threads <= 0 || worker_threads > threadpool->limit_worker_max)
+	if (worker_threads <= 0 || worker_threads > g_ThreadPool->limit_worker_max)
 		return false;
-	if (completion_port_threads <= 0 || completion_port_threads > threadpool->limit_io_max)
+	if (completion_port_threads <= 0 || completion_port_threads > g_ThreadPool->limit_io_max)
 		return false;
 
-	threadpool->limit_worker_min = worker_threads;
-	threadpool->limit_io_min = completion_port_threads;
+	g_ThreadPool->limit_worker_min = worker_threads;
+	g_ThreadPool->limit_io_min = completion_port_threads;
 
 	return true;
 }
@@ -1507,13 +843,13 @@ bool ves_icall_System_Threading_ThreadPool_SetMaxThreadsNative (int32_t worker_t
 
 	lazy_initialize ();
 
-	if (worker_threads < threadpool->limit_worker_min || worker_threads < cpu_count)
+	if (worker_threads < g_ThreadPool->limit_worker_min || worker_threads < cpu_count)
 		return false;
-	if (completion_port_threads < threadpool->limit_io_min || completion_port_threads < cpu_count)
+	if (completion_port_threads < g_ThreadPool->limit_io_min || completion_port_threads < cpu_count)
 		return false;
 
-	threadpool->limit_worker_max = worker_threads;
-	threadpool->limit_io_max = completion_port_threads;
+	g_ThreadPool->limit_worker_max = worker_threads;
+	g_ThreadPool->limit_io_max = completion_port_threads;
 
 	return true;
 }

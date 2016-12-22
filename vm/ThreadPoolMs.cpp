@@ -9,7 +9,7 @@
 #include "vm/Runtime.h"
 #include "os/Atomic.h"
 #include "gc/WriteBarrier.h"
-#include "mono/metadata/threadpool-ms.h"
+#include "mono/ThreadPool/threadpool-ms.h"
 
 namespace il2cpp
 {

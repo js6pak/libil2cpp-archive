@@ -77,7 +77,7 @@ NORETURN void Exception::RaiseArgumentOutOfRangeException(const char* msg)
 	Raise(GetArgumentOutOfRangeException(msg));
 }
 
-inline static void TryThrowExceptionFromRestrictedErrorInfo(Il2CppIRestrictedErrorInfo* errorInfo)
+inline static Il2CppException* TryGetExceptionFromRestrictedErrorInfo(Il2CppIRestrictedErrorInfo* errorInfo)
 {
 	Il2CppILanguageExceptionErrorInfo* languageExceptionInfo;
 	il2cpp_hresult_t hr = errorInfo->QueryInterface(Il2CppILanguageExceptionErrorInfo::IID, reinterpret_cast<void**>(&languageExceptionInfo));
@@ -100,10 +100,12 @@ inline static void TryThrowExceptionFromRestrictedErrorInfo(Il2CppIRestrictedErr
 
 				// TODO: set restricted error info instead of releaseing it here
 				errorInfo->Release();
-				Exception::Raise(exception);
+				return exception;
 			}
 		}
 	}
+
+	return NULL;
 }
 
 inline static UTF16String GetMessageFromRestrictedErrorInfo(Il2CppIRestrictedErrorInfo* errorInfo)
@@ -149,56 +151,58 @@ inline static UTF16String GetMessageFromRestrictedErrorInfo(Il2CppIRestrictedErr
 // When doing COM interop, any unrecognized hresult gets turned into a COMException
 // When doing Windows Runtime interop, any unrecognized hresult gets turned into a System.Exception
 // Go figure.
-NORETURN void Exception::Raise(il2cpp_hresult_t hresult, bool defaultToCOMException)
+Il2CppException* Exception::Get(il2cpp_hresult_t hresult, bool defaultToCOMException)
 {
 	UTF16String message;
 
 	Il2CppIRestrictedErrorInfo* errorInfo = os::WindowsRuntime::GetRestrictedErrorInfo();
 	if (errorInfo != NULL)
 	{
-		// First, try retrieving and throwing original exception from restricted error info
-		TryThrowExceptionFromRestrictedErrorInfo(errorInfo);
-		
+		// First, try retrieving the original exception from restricted error info
+		Il2CppException* exception = TryGetExceptionFromRestrictedErrorInfo(errorInfo);
+		if (exception != NULL)
+			return exception;
+
 		// If we got here, restricted error info contained no existing managed exception
 		message = GetMessageFromRestrictedErrorInfo(errorInfo);
 
-		// To do: instead of releasing it here, store it on the exception that we're about to throw
+		// To do: instead of releasing it here, store it on the exception that we're about to return
 		errorInfo->Release();
 	}
 
 	switch (hresult)
 	{
 	case IL2CPP_E_NOTIMPL:
-		Raise(FromNameMsg(Image::GetCorlib(), "System", "NotImplementedException", message));
+		return FromNameMsg(Image::GetCorlib(), "System", "NotImplementedException", message);
 
 	case IL2CPP_E_NOINTERFACE:
-		Raise(GetInvalidCastException(message));
+		return GetInvalidCastException(message);
 
 	case IL2CPP_E_POINTER:
-		RaiseNullReferenceException(message);
+		return GetNullReferenceException(message);
 
 	case IL2CPP_COR_E_OPERATIONCANCELED:
-		Raise(FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", message));
+		return FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", message);
 
 	case IL2CPP_E_ACCESS_DENIED:
-		Raise(GetUnauthorizedAccessException(message));
+		return GetUnauthorizedAccessException(message);
 
 	case IL2CPP_E_OUTOFMEMORY:
-		RaiseOutOfMemoryException(message);
+		return GetOutOfMemoryException(message);
 
 	case IL2CPP_E_INVALIDARG:
-		Raise(GetArgumentException(utils::StringView<Il2CppChar>::Empty(), message));
+		return GetArgumentException(utils::StringView<Il2CppChar>::Empty(), message);
 
 	case IL2CPP_COR_E_OBJECTDISPOSED:
 	case IL2CPP_RO_E_CLOSED:
-		Raise(FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", message, hresult));
+		return FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", message, hresult);
 
 	case IL2CPP_E_FAIL:
 	{
 		if (message.empty())
 			message = utils::StringUtils::Utf8ToUtf16("Unspecified error");
 
-		Raise(FromNameMsg(Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", message, hresult));
+		return FromNameMsg(Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", message, hresult);
 	}
 
 	case IL2CPP_COR_E_PLATFORMNOTSUPPORTED:
@@ -206,19 +210,19 @@ NORETURN void Exception::Raise(il2cpp_hresult_t hresult, bool defaultToCOMExcept
 		if (message.empty())
 			message = utils::StringUtils::Utf8ToUtf16("Operation is not supported on this platform.");
 
-		Raise(GetPlatformNotSupportedException(message));
+		return GetPlatformNotSupportedException(message);
 	}
 
 	default:
-	{
-		Il2CppException* exception = defaultToCOMException
+		return defaultToCOMException
 			? Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", message, hresult)
 			: Exception::FromNameMsg(vm::Image::GetCorlib(), "System", "Exception", message, hresult);
-
-		Raise(exception);
 	}
+}
 
-	}
+NORETURN void Exception::Raise(il2cpp_hresult_t hresult, bool defaultToCOMException)
+{
+	Raise(Get(hresult, defaultToCOMException));
 }
 
 Il2CppException* Exception::FromNameMsg (const Il2CppImage* image, const char *name_space, const char *name, const char *msg)

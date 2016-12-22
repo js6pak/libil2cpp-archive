@@ -1057,6 +1057,11 @@ inline void il2cpp_codegen_com_raise_exception_if_failed(il2cpp_hresult_t hr, bo
 	il2cpp::vm::Exception::RaiseIfFailed(hr, defaultToCOMException);
 }
 
+inline Il2CppException* il2cpp_codegen_com_get_exception(il2cpp_hresult_t hr, bool defaultToCOMException)
+{
+	return il2cpp::vm::Exception::Get(hr, defaultToCOMException);
+}
+
 inline void il2cpp_codegen_store_exception_info(Il2CppException* ex, Il2CppCodeGenString* exceptionString)
 {
 	il2cpp::vm::Exception::StoreExceptionInfo(ex, reinterpret_cast<Il2CppString*>(exceptionString));
@@ -1174,25 +1179,3 @@ inline void Il2CppCodeGenWriteBarrier(T** targetAddress, T* object)
 {
 	// TODO
 }
-
-// This is used to get a tiny bit of type safety since we're casting the pointer away in a macro
-inline void VerifyStringParameter(Il2CppCodeGenString* str)
-{
-}
-
-// Assumes str is not NULL
-#if defined(_MSC_VER)
-#define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
-	VerifyStringParameter(str); \
-	il2cpp::utils::StringView<Il2CppNativeChar> variableName(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length);
-#define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
-	il2cpp::utils::StringView<Il2CppChar> variableName(str, wcslen(str));
-#else
-#define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
-	VerifyStringParameter(str); \
-	Il2CppNativeString variableName##_native_string_storage = il2cpp::utils::StringUtils::Utf16ToUtf8(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length); \
-	il2cpp::utils::StringView<Il2CppNativeChar> variableName(variableName##_native_string_storage.c_str(), variableName##_native_string_storage.length());
-#define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
-	UTF16String utf16String = il2cpp::utils::StringUtils::Utf8ToUtf16(str); \
-	il2cpp::utils::StringView<Il2CppChar> variableName(utf16String);
-#endif

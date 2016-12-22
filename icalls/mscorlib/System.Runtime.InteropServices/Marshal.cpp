@@ -5,6 +5,7 @@
 #include "class-internals.h"
 #include "tabledefs.h"
 
+#include "gc/GarbageCollector.h"
 #include "metadata/FieldLayout.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
@@ -313,7 +314,19 @@ int32_t Marshal::ReleaseInternal (Il2CppIntPtr pUnk)
 
 int32_t Marshal::ReleaseComObjectInternal (Il2CppObject* co)
 {
-	NOT_SUPPORTED_IL2CPP(Marshal::ReleaseComObjectInternal, "COM icalls are not supported.");
+	// There's a check in mscorlib before calling this internal icall, so assert instead of full check is OK here.
+	IL2CPP_ASSERT(co->klass->is_import_or_windows_runtime);
+
+	// We can't really release the COM object directly, because it might have additional
+	// fields that cache different interfaces. So let's just call its finalizer here.
+	// In order to deal with the fact that this may get called from different threads 
+	// at the same time, we (atomically) register a NULL finalizer, and if another finalizer
+	// was already registered, we call it. If there was no finalizer registered, it means 
+	// that we lost the race and we should just carry on.
+	gc::GarbageCollector::FinalizerCallback oldFinalizer = gc::GarbageCollector::RegisterFinalizerWithCallback(co, NULL);
+	if (oldFinalizer != NULL)
+		oldFinalizer(co, NULL);
+
 	return 0;
 }
 

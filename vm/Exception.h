@@ -18,6 +18,8 @@ class LIBIL2CPP_CODEGEN_API Exception
 {
 // exported
 public:
+	static Il2CppException* Get(il2cpp_hresult_t hresult, bool defaultToCOMException);
+
 	static NORETURN void Raise (Il2CppException* ex);
 	static NORETURN void RaiseOutOfMemoryException ();
 	static NORETURN void RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg);
