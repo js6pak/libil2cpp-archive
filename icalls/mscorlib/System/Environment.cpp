@@ -120,10 +120,12 @@ void Environment::internalBroadcastSettingChange ()
 
 Il2CppString * Environment::GetMachineConfigPath(void)
 {
+	const char* frameworkVersion = vm::Runtime::GetFrameworkVersion();
+
 	std::string path = utils::PathUtils::Combine (
 		vm::Runtime::GetConfigDir(), utils::PathUtils::Combine(
-			"mono", utils::PathUtils::Combine (
-				vm::Runtime::GetFrameworkVersion (), "machine.config")));
+			utils::StringView<char>("mono"), utils::PathUtils::Combine (
+				utils::StringView<char>(frameworkVersion, strlen(frameworkVersion)), utils::StringView<char>("machine.config"))));
 
 	return vm::String::NewWrapper(path.c_str ());
 }

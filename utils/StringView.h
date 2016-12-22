@@ -84,6 +84,22 @@ public:
 	{
 		return StringView<CharType>();
 	}
+	
+	inline size_t RFind(CharType c) const
+	{
+		for (const CharType* ptr = m_String + m_Length - 1; ptr >= m_String; ptr--)
+		{
+			if (*ptr == c)
+				return ptr - m_String;
+		}
+
+		return NPos();
+	}
+
+	inline static size_t NPos()
+	{
+		return static_cast<size_t>(-1);
+	}
 };
 
 #define StringViewAsNullTerminatedStringOf(CharType, stringView, variableName) \

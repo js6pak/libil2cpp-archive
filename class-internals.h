@@ -402,6 +402,7 @@ struct Il2CppClass
 	uint16_t interface_offsets_count; // lazily calculated for arrays, i.e. when rank > 0
 
 	uint8_t typeHierarchyDepth; // Initialized in SetupTypeHierachy
+	uint8_t genericRecursionDepth;
 	uint8_t rank;
 	uint8_t minimumAlignment;
 	uint8_t packingSize;

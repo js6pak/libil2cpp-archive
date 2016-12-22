@@ -9,6 +9,10 @@
 
 static bool s_GCInitialized = false;
 
+#if IL2CPP_ENABLE_DEFERRED_GC
+static bool s_PendingGC = false;
+#endif
+
 #if IL2CPP_ENABLE_PROFILER
 using il2cpp::vm::Profiler;
 static void on_gc_event (GCEventType eventType);
@@ -58,13 +62,29 @@ il2cpp::gc::GarbageCollector::GetMaxGeneration ()
 void
 il2cpp::gc::GarbageCollector::Collect (int maxGeneration)
 {
+#if IL2CPP_ENABLE_DEFERRED_GC
+	if (GC_is_disabled())
+		s_PendingGC = true;
+#endif
 	GC_gcollect ();
 }
 
 int32_t
 il2cpp::gc::GarbageCollector::CollectALittle ()
 {
+#if IL2CPP_ENABLE_DEFERRED_GC
+	if (s_PendingGC) {
+		s_PendingGC = false;
+		GC_gcollect ();
+		return 0; // no more work to do
+	}
+	else {
+		return GC_collect_a_little ();
+	}
+#else
 	return GC_collect_a_little ();
+#endif
+
 }
 
 int64_t

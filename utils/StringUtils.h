@@ -42,7 +42,8 @@ public:
 	static std::string Utf16ToUtf8(const Il2CppChar* utf16String, int maximumSize);
 	static std::string Utf16ToUtf8(const UTF16String& utf16String);
 	static UTF16String Utf8ToUtf16(const char* utf8String);
-	static UTF16String Utf8ToUtf16 (const char* utf8String, size_t length);
+	static UTF16String Utf8ToUtf16(const char* utf8String, size_t length);
+	static UTF16String Utf8ToUtf16(const std::string& utf8String);
 	static char* StringDuplicate (const char *strSource);
 	static Il2CppChar* StringDuplicate (const Il2CppChar* strSource, size_t length);
 	static bool EndsWith(const std::string& string, const std::string& suffix);
@@ -182,3 +183,21 @@ public:
 
 } /* utils */
 } /* il2cpp */
+
+// Assumes str is not NULL
+#if defined(_MSC_VER)
+#define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
+	il2cpp::utils::StringView<Il2CppNativeChar> variableName(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length);
+#define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
+	il2cpp::utils::StringView<Il2CppChar> variableName(str, wcslen(str));
+#define DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
+	il2cpp::utils::StringView<Il2CppChar> variableName(str);
+#else
+#define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
+	Il2CppNativeString variableName##_native_string_storage = il2cpp::utils::StringUtils::Utf16ToUtf8(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length); \
+	il2cpp::utils::StringView<Il2CppNativeChar> variableName(variableName##_native_string_storage.c_str(), variableName##_native_string_storage.length());
+#define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
+	UTF16String variableName##_utf16String = il2cpp::utils::StringUtils::Utf8ToUtf16(str); \
+	il2cpp::utils::StringView<Il2CppChar> variableName(variableName##_utf16String);
+#define DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS
+#endif

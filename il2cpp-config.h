@@ -326,7 +326,8 @@
 /* GC defines*/
 #define IL2CPP_GC_BOEHM 1
 #define IL2CPP_GC_NULL !IL2CPP_GC_BOEHM
-
+#define IL2CPP_ENABLE_DEFERRED_GC	IL2CPP_TARGET_JAVASCRIPT
+	
 /* we always need to NULL pointer free memory with our current allocators */
 #define NEED_TO_ZERO_PTRFREE 1
 #define IL2CPP_HAS_GC_DESCRIPTORS 1

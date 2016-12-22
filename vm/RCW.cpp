@@ -25,6 +25,7 @@ const Il2CppGuid Il2CppIInspectable::IID = { 0xaf86e2e0, 0xb12d, 0x4c6a, 0x9c, 0
 const Il2CppGuid Il2CppIActivationFactory::IID = { 0x00000035, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 const Il2CppGuid Il2CppIRestrictedErrorInfo::IID = { 0x82ba7092, 0x4c88, 0x427d, 0xa7, 0xbc, 0x16, 0xdd, 0x93, 0xfe, 0xb6, 0x7e };
 const Il2CppGuid Il2CppILanguageExceptionErrorInfo::IID = { 0x04a2dbf3, 0xdf83, 0x116c, 0x09, 0x46, 0x08, 0x12, 0xab, 0xf6, 0xe0, 0x7d };
+const Il2CppGuid Il2CppIAgileObject::IID = { 0x94ea2b94, 0xe9cc, 0x49e0, 0xc0, 0xff, 0xee, 0x64, 0xca, 0x8f, 0x5b, 0x90 };
 
 using il2cpp::utils::PointerHash;
 
@@ -220,9 +221,14 @@ void RCW::Cleanup(Il2CppComObject* rcw)
 	{
 		Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
 
-		// If it's not NULL, it means that we have already created a new RCW in place 
-		// of this one during the time it had been queued for finalization
-		if (obj == NULL)
+		// If it's null, it means that the cache contains our object
+		// but the weak GC handle has been invalidated by the GC already
+		// If it's equal to our object, it means that RCW::Cleanup was 
+		// called manually, and we should also delete it from the cache
+		// Otherwise, it's a different object. It means that we have already 
+		// created a new RCW in place of this one during the time
+		// it had been queued for finalization
+		if (obj == NULL || obj == rcw)
 			s_RCWCache.erase(iter);
 	}
 }
