@@ -132,6 +132,11 @@ UTF16String StringUtils::Utf8ToUtf16 (const char* utf8String, size_t length)
 	return utf16String;
 }
 
+UTF16String StringUtils::Utf8ToUtf16(const std::string& utf8String)
+{
+	return Utf8ToUtf16(utf8String.c_str(), utf8String.length());
+}
+
 char* StringUtils::StringDuplicate (const char *strSource)
 {
 	char* result = NULL;

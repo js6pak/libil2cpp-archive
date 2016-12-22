@@ -121,7 +121,7 @@ bool AssemblyName::ParseAssemblyName(Il2CppIntPtr namePtr, MonoAssemblyName* ana
 	const il2cpp::vm::TypeNameParseInfo::AssemblyName& parsedName = info.assembly_name();
 
 	aname->name.m_value = il2cpp::utils::StringUtils::StringDuplicate(parsedName.name.c_str());
-	if (parsedName.culture == "neutral")
+	if (utils::StringUtils::CaseInsensitiveEquals(parsedName.culture.c_str(), "neutral")) // culture names are case insensitive
 		aname->culture.m_value = NULL;
 	else
 		aname->culture.m_value = il2cpp::utils::StringUtils::StringDuplicate(parsedName.culture.c_str());

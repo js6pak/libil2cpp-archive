@@ -4,6 +4,9 @@
 
 #include "WindowsHeaders.h"
 
+#undef FindFirstFile
+#undef FindNextFile
+
 #include "os/Directory.h"
 #include "os/ErrorCodes.h"
 #include "utils/StringUtils.h"
@@ -118,11 +121,65 @@ std::set<std::string> Directory::GetFileSystemEntries (const std::string& path, 
 		{
 			files.insert (Combine (path, fileName));
 		}
-	} while (::FindNextFile (handle, &ffd) != 0);
+	} while (::FindNextFileW (handle, &ffd) != 0);
 
 	::FindClose (handle);
 
 	return files;
+}
+
+Directory::FindHandle::FindHandle(const utils::StringView<Il2CppNativeChar>& searchPathWithPattern) :
+	osHandle(INVALID_HANDLE_VALUE),
+	directoryPath(il2cpp::utils::PathUtils::DirectoryName(searchPathWithPattern)),
+	pattern(il2cpp::utils::PathUtils::Basename(searchPathWithPattern))
+{
+}
+
+Directory::FindHandle::~FindHandle()
+{
+	IL2CPP_ASSERT(osHandle == INVALID_HANDLE_VALUE);
+}
+
+int32_t Directory::FindHandle::CloseOSHandle()
+{
+	int32_t result = os::kErrorCodeSuccess;
+
+	if (osHandle != INVALID_HANDLE_VALUE)
+	{
+		result = ::FindClose(osHandle);
+		osHandle = INVALID_HANDLE_VALUE;
+	}
+
+	return result;
+}
+
+os::ErrorCode Directory::FindFirstFile(FindHandle* findHandle, const utils::StringView<Il2CppNativeChar>& searchPathWithPattern, Il2CppNativeString* resultFileName, int32_t* resultAttributes)
+{
+	WIN32_FIND_DATA findData;
+	HANDLE handle = FindFirstFileExW(searchPathWithPattern.Str(), FindExInfoStandard, &findData, FindExSearchNameMatch, NULL, 0);
+
+	if (handle != INVALID_HANDLE_VALUE)
+	{
+		findHandle->SetOSHandle(handle);
+		*resultFileName = findData.cFileName;
+		*resultAttributes = findData.dwFileAttributes;
+		return os::kErrorCodeSuccess;
+	}
+	else
+	{
+		return static_cast<os::ErrorCode>(GetLastError());
+	}
+}
+
+os::ErrorCode Directory::FindNextFile(FindHandle* findHandle, Il2CppNativeString* resultFileName, int32_t* resultAttributes)
+{
+	WIN32_FIND_DATA findData;	
+	if (FindNextFileW(findHandle->osHandle, &findData) == FALSE)
+		return static_cast<os::ErrorCode>(GetLastError());
+
+	*resultFileName = findData.cFileName;
+	*resultAttributes = findData.dwFileAttributes;
+	return os::kErrorCodeSuccess;
 }
 
 }

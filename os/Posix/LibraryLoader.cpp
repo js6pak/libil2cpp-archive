@@ -83,11 +83,19 @@ static void* CheckLibraryVariations(const char* name)
 	return NULL;
 }
 
+Il2CppMethodPointer LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(const il2cpp::utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, const il2cpp::utils::StringView<char>& entryPoint)
+{
+	return NULL;
+}
+
 void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
 {
 #ifdef VERBOSE_OUTPUT
 	printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.c_str());
 #endif
+
+	if (nativeDynamicLibrary.IsEmpty())
+		return LoadLibraryWithName(NULL);
 
 	StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
 	void* handle = LoadLibraryWithName(libraryName);
