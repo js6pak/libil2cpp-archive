@@ -11,9 +11,9 @@ using namespace il2cpp::vm;
 
 void* MetadataLoader::LoadMetadataFile (const char* fileName)
 {
-	std::string resourcesDirectory = utils::PathUtils::Combine (Runtime::GetDataDir (), "Metadata");
+	std::string resourcesDirectory = utils::PathUtils::Combine (Runtime::GetDataDir (), utils::StringView<char>("Metadata"));
 
-	std::string resourceFilePath = utils::PathUtils::Combine (resourcesDirectory, fileName);
+	std::string resourceFilePath = utils::PathUtils::Combine (resourcesDirectory, utils::StringView<char>(fileName, strlen(fileName)));
 
 	int error = 0;
 	FileHandle* handle = File::Open (resourceFilePath, File::kFileModeOpen, File::kFileAccessRead, File::kFileShareRead, File::kFileOptionsNone, &error);

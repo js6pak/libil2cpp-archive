@@ -128,6 +128,7 @@
 #include "icalls/mscorlib/System.Threading/ThreadPool.h"
 #include "icalls/mscorlib/System.Threading/WaitHandle.h"
 #include "icalls/mscorlib/System/TimeSpan.h"
+#include "icalls/mscorlib/System/TimeZoneInfo.h"
 #include "icalls/mscorlib/System/Type.h"
 #include "icalls/mscorlib/System/TypedReference.h"
 #include "icalls/mscorlib/System/ValueType.h"
@@ -162,8 +163,8 @@
 
 #include "icalls/System/System.Threading/Semaphore.h"
 
-#include "mono/metadata/threadpool-ms.h"
-#include "mono/metadata/threadpool-ms-io.h"
+#include "mono/ThreadPool/threadpool-ms.h"
+#include "mono/ThreadPool/threadpool-ms-io.h"
 
 #include "icalls/mscorlib/Mono/SafeStringMarshal.h"
 #include "icalls/mscorlib/Mono/RuntimeMarshal.h"

@@ -75,7 +75,7 @@ public:
 
 #if NET_4_0
 	static int32_t FindClose(Il2CppIntPtr handle);
-	static Il2CppString* FindFirst(Il2CppString* path, Il2CppString* pattern, int32_t* result_attr, MonoIOError* error, Il2CppIntPtr* handle);
+	static Il2CppString* FindFirst(Il2CppString* path, Il2CppString* pathWithPattern, int32_t* resultAttributes, MonoIOError* error, Il2CppIntPtr* handle);
 	static Il2CppString* FindNext(Il2CppIntPtr handle, int32_t* result_attr, MonoIOError* error);
 	static void DumpHandles();
 #endif

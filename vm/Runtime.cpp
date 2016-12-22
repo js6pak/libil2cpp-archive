@@ -42,8 +42,8 @@
 #include "utils/RegisterRuntimeInitializeAndCleanup.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
-#include "mono/metadata/threadpool-ms.h"
-#include "mono/metadata/threadpool-ms-io.h"
+#include "mono/ThreadPool/threadpool-ms.h"
+#include "mono/ThreadPool/threadpool-ms-io.h"
 //#include "icalls/mscorlib/System.Reflection/Assembly.h"
 
 #if IL2CPP_DEBUGGER_ENABLED
@@ -398,7 +398,7 @@ std::string Runtime::GetConfigDir ()
 	if (s_ConfigDir.size() > 0)
 		return s_ConfigDir;
 
-	return utils::PathUtils::Combine(GetDataDir(), "etc");
+	return utils::PathUtils::Combine(GetDataDir(), utils::StringView<char>("etc"));
 }
 
 std::string Runtime::GetDataDir()
@@ -409,7 +409,7 @@ std::string Runtime::GetDataDir()
 
 	std::string executablePath = os::Path::GetExecutablePath();
 	if (!executablePath.empty())
-		return utils::PathUtils::Combine(utils::PathUtils::DirectoryName(executablePath), "Data").c_str();
+		return utils::PathUtils::Combine(utils::PathUtils::DirectoryName(executablePath), utils::StringView<char>("Data"));
 
 	if (s_DataDirFallback.size () == 0 && Environment::GetNumMainArgs () > 0)
 	{

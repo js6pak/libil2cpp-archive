@@ -800,15 +800,6 @@
     <ClCompile Include="os\WinRT\File.cpp">
       <Filter>os\WinRT</Filter>
     </ClCompile>
-    <ClCompile Include="mono\metadata\threadpool-ms.cpp">
-      <Filter>mono\metadata</Filter>
-    </ClCompile>
-    <ClCompile Include="mono\metadata\threadpool-ms-io.cpp">
-      <Filter>mono\metadata</Filter>
-    </ClCompile>
-    <ClCompile Include="mono\metadata\threadpool-ms-io-poll.cpp">
-      <Filter>mono\metadata</Filter>
-    </ClCompile>
     <ClCompile Include="os\ConditionVariable.cpp">
       <Filter>os</Filter>
     </ClCompile>
@@ -854,6 +845,21 @@
     <ClCompile Include="mono-structs.cpp" />
     <ClCompile Include="vm\ThreadPoolMs.cpp">
       <Filter>vm</Filter>
+    </ClCompile>
+    <ClCompile Include="mono\ThreadPool\threadpool-ms.cpp">
+      <Filter>mono\ThreadPool</Filter>
+    </ClCompile>
+    <ClCompile Include="mono\ThreadPool\threadpool-ms-io.cpp">
+      <Filter>mono\ThreadPool</Filter>
+    </ClCompile>
+    <ClCompile Include="mono\ThreadPool\threadpool-ms-io-poll.cpp">
+      <Filter>mono\ThreadPool</Filter>
+    </ClCompile>
+    <ClCompile Include="mono\ThreadPool\ThreadPoolWorkerThread.cpp">
+      <Filter>mono\ThreadPool</Filter>
+    </ClCompile>
+    <ClCompile Include="mono\ThreadPool\ThreadPoolMonitorThread.cpp">
+      <Filter>mono\ThreadPool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1598,12 +1604,6 @@
     <ClInclude Include="os\WinRT\Win32ApiWinRTEmulation.h">
       <Filter>os\WinRT</Filter>
     </ClInclude>
-    <ClInclude Include="mono\metadata\threadpool-ms.h">
-      <Filter>mono\metadata</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\metadata\threadpool-ms-io.h">
-      <Filter>mono\metadata</Filter>
-    </ClInclude>
     <ClInclude Include="os\ConditionVariable.h">
       <Filter>os</Filter>
     </ClInclude>
@@ -1612,9 +1612,6 @@
     </ClInclude>
     <ClInclude Include="os\Posix\ConditionVariableImpl.h">
       <Filter>os\Posix</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\metadata\threadpool-ms-io-poll.h">
-      <Filter>mono\metadata</Filter>
     </ClInclude>
     <ClInclude Include="icallincludes.h" />
     <ClInclude Include="vm\Random.h">
@@ -1659,6 +1656,30 @@
       <Filter>vm</Filter>
     </ClInclude>
     <ClInclude Include="il2cpp-vm-support.h" />
+    <ClInclude Include="icalls\mscorlib\System\TimeZoneInfo.h">
+      <Filter>icalls\mscorlib\System</Filter>
+    </ClInclude>
+    <ClInclude Include="mono\ThreadPool\threadpool-ms-io-poll.h">
+      <Filter>mono\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="mono\ThreadPool\threadpool-ms.h">
+      <Filter>mono\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="mono\ThreadPool\threadpool-ms-io.h">
+      <Filter>mono\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="mono\ThreadPool\ThreadPoolDataStructures.h">
+      <Filter>mono\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="mono\ThreadPool\ThreadPoolWorkerThread.h">
+      <Filter>mono\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="mono\ThreadPool\ThreadPoolMacros.h">
+      <Filter>mono\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="mono\ThreadPool\ThreadPoolMonitorThread.h">
+      <Filter>mono\ThreadPool</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -2409,14 +2430,14 @@
     <Filter Include="mono">
       <UniqueIdentifier>{31d18c78-b7d7-4ffd-ac5b-afc9849ed2b2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="mono\metadata">
-      <UniqueIdentifier>{1f2821fc-c40c-40c8-ad24-200ee6b123fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="external\google">
       <UniqueIdentifier>{cb9dfdd5-8359-4a4b-a94c-d6bcb85032e2}</UniqueIdentifier>
     </Filter>
     <Filter Include="external\google\sparsehash">
       <UniqueIdentifier>{b4723b4d-6f82-47d4-a565-c63585dc3646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mono\ThreadPool">
+      <UniqueIdentifier>{1f2821fc-c40c-40c8-ad24-200ee6b123fd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

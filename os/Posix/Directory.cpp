@@ -7,6 +7,7 @@
 #include "os/File.h"
 #include "os/Posix/Error.h"
 #include "utils/DirectoryUtils.h"
+#include "utils/Memory.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include <assert.h>
@@ -168,6 +169,85 @@ std::set<std::string> Directory::GetFileSystemEntries (const std::string& path, 
 
 	*error = kErrorCodeSuccess;
 	return result;
+}
+
+
+Directory::FindHandle::FindHandle(const utils::StringView<Il2CppNativeChar>& searchPathWithPattern) :
+	osHandle(NULL)
+{
+	directoryPath = il2cpp::utils::PathUtils::DirectoryName(searchPathWithPattern);
+	pattern = il2cpp::utils::PathUtils::Basename(searchPathWithPattern);
+
+	// Special-case the patterns ending in '.*', as windows also matches entries with no extension with this pattern.
+	if (il2cpp::utils::StringUtils::EndsWith(pattern, ".*"))
+	{
+		pattern.pop_back();
+		*pattern.rbegin() = '*';
+	}
+
+	pattern = il2cpp::utils::CollapseAdjacentStars(pattern);
+}
+
+Directory::FindHandle::~FindHandle()
+{
+	IL2CPP_ASSERT(osHandle == NULL);
+}
+
+int32_t Directory::FindHandle::CloseOSHandle()
+{
+	int32_t result = os::kErrorCodeSuccess;
+
+	if (osHandle != NULL)
+	{
+		int32_t ret = closedir(static_cast<DIR*>(osHandle));
+		if (ret != 0)
+			result = FileErrnoToErrorCode(errno);
+
+		osHandle = NULL;
+	}
+
+	return result;
+}
+
+os::ErrorCode Directory::FindFirstFile(FindHandle* findHandle, const utils::StringView<Il2CppNativeChar>& searchPathWithPattern, Il2CppNativeString* resultFileName, int32_t* resultAttributes)
+{
+	DIR* dir = opendir(findHandle->directoryPath.c_str());
+	if (dir == NULL)
+		return PathErrnoToErrorCode(findHandle->directoryPath, errno);
+
+	findHandle->SetOSHandle(dir);
+	return FindNextFile(findHandle, resultFileName, resultAttributes);
+}
+
+os::ErrorCode Directory::FindNextFile(FindHandle* findHandle, Il2CppNativeString* resultFileName, int32_t* resultAttributes)
+{
+	errno = 0;
+
+	dirent* entry;
+	while ((entry = readdir(static_cast<DIR*>(findHandle->osHandle))) != NULL)
+	{
+		const Il2CppNativeString filename(entry->d_name);
+
+		if (il2cpp::utils::Match(filename, findHandle->pattern))
+		{
+			const Il2CppNativeString path = utils::PathUtils::Combine(findHandle->directoryPath, filename);
+
+			int attributeError;
+			const int32_t pathAttributes = static_cast<int32_t>(File::GetFileAttributes(path, &attributeError));
+
+			if (attributeError == kErrorCodeSuccess)
+			{
+				*resultFileName = filename;
+				*resultAttributes = pathAttributes;
+				return os::kErrorCodeSuccess;
+			}
+		}
+	}
+
+	if (errno != 0)
+		return FileErrnoToErrorCode(errno);
+
+	return os::kErrorCodeNoMoreFiles;
 }
 
 }

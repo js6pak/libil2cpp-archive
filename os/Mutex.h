@@ -83,5 +83,23 @@ private:
 	FastMutex* m_Mutex;
 };
 
+
+struct FastAutoUnlock : public il2cpp::utils::NonCopyable
+{
+	FastAutoUnlock(FastMutex* mutex)
+		: m_Mutex(mutex)
+	{
+		m_Mutex->Unlock();
+	}
+
+	~FastAutoUnlock()
+	{
+		m_Mutex->Lock();
+	}
+
+private:
+	FastMutex* m_Mutex;
+};
+
 }
 }
