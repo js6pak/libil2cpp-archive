@@ -1172,3 +1172,6 @@ System.Runtime.InteropServices.WindowsRuntime.UnsafeNativeMethods::WindowsDelete
 System.Runtime.InteropServices.WindowsRuntime.UnsafeNativeMethods::GetRestrictedErrorInfo() mscorlib::System::Runtime::InteropServices::WindowsRuntime::UnsafeNativeMethods::GetRestrictedErrorInfo
 System.Runtime.InteropServices.WindowsRuntime.UnsafeNativeMethods::RoReportUnhandledError(System.Runtime.InteropServices.WindowsRuntime.IRestrictedErrorInfo) mscorlib::System::Runtime::InteropServices::WindowsRuntime::UnsafeNativeMethods::RoReportUnhandledError
 
+// System.TimeZoneInfo
+System.TimeZoneInfo::UseRegistryForTimeZoneInformation() mscorlib::System::TimeZoneInfo::UseRegistryForTimeZoneInformation
+

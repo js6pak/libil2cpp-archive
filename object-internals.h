@@ -533,7 +533,7 @@ struct Il2CppException {
 	Il2CppString* remote_stack_trace;
 	int remote_stack_index;
 	Il2CppObject* _dynamicMethods;
-	int hresult;
+	il2cpp_hresult_t hresult;
 	Il2CppString* source;
 	Il2CppObject* safeSerializationManager;
 	Il2CppArray* captured_traces;
@@ -1500,3 +1500,10 @@ struct NOVTABLE Il2CppILanguageExceptionErrorInfo : Il2CppIUnknown
 	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
 	virtual il2cpp_hresult_t STDCALL GetLanguageException(Il2CppIUnknown** languageException) = 0;
 };
+
+struct NOVTABLE Il2CppIAgileObject : Il2CppIUnknown
+{
+	static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+	virtual il2cpp_hresult_t STDCALL GetLanguageException(Il2CppIUnknown** languageException) = 0;
+};
+

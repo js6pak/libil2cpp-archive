@@ -30,7 +30,22 @@ void PlatformInvoke::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
 
 Il2CppMethodPointer PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
 {
-	void* dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
+	// Before resolving a P/Invoke, check against a hardcoded list of "known P/Invokes" that is different for every platform.
+	// This bit solves several different problems we have when P/Invoking into native system libraries from mscorlib.dll.
+	// Some platforms, like UWP, just don't allow you to load to load system libraries at runtime dynamically.
+	// On other platforms (THEY SHALL NOT BE NAMED :O), while the functions that mscorlib.dll wants to P/Invoke into exist,
+	// They exist in different system libraries than it is said in the DllImport attribute.
+	Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
+
+	if (function != NULL)
+		return function;
+
+	void* dynamicLibrary = NULL;
+	if (utils::StringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
+		dynamicLibrary = LibraryLoader::LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
+	else
+		dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
+
 	if (dynamicLibrary == NULL)
 	{
 		std::basic_string<Il2CppNativeChar> message;
@@ -40,7 +55,7 @@ Il2CppMethodPointer PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
 		Exception::Raise(Exception::GetDllNotFoundException(il2cpp::utils::StringUtils::NativeStringToUtf8(message).c_str()));
 	}
 
-	Il2CppMethodPointer function = os::LibraryLoader::GetFunctionPointer(dynamicLibrary, pinvokeArgs);
+	function = os::LibraryLoader::GetFunctionPointer(dynamicLibrary, pinvokeArgs);
 	if (function == NULL)
 	{
 		std::basic_string<Il2CppNativeChar> message;

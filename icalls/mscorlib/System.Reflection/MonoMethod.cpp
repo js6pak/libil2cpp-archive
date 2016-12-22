@@ -396,8 +396,9 @@ Il2CppReflectionMethod* MonoMethod::get_base_method(Il2CppReflectionMethod* meth
 
 void MonoMethod::GetPInvoke(Il2CppReflectionMethod* _this, int32_t* flags, Il2CppString** entryPoint, Il2CppString** dllName)
 {
-	NOT_IMPLEMENTED_ICALL(MonoMethod::GetPInvoke);
-	IL2CPP_UNREACHABLE;
+	// we don't keep these around in metadata
+	*flags = 0;
+	*dllName = *entryPoint = vm::String::Empty(); // TODO: Write barrier here!
 }
 #endif
 

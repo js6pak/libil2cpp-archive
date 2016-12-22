@@ -370,7 +370,7 @@ Il2CppArray* Assembly::GetReferencedAssemblies(Il2CppReflectionAssembly* self)
 
 static void* LoadResourceFile(Il2CppReflectionAssembly* assembly)
 {
-	std::string resourcesDirectory = utils::PathUtils::Combine(il2cpp::vm::Runtime::GetDataDir(), "Resources");
+	std::string resourcesDirectory = utils::PathUtils::Combine(il2cpp::vm::Runtime::GetDataDir(), utils::StringView<char>("Resources"));
 
 	std::string resourceFileName(MetadataCache::GetImageFromIndex (assembly->assembly->imageIndex)->name);
 	resourceFileName += "-resources.dat";
