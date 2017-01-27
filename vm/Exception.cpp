@@ -470,8 +470,8 @@ Il2CppException* Exception::GetFileLoadException(const char* msg)
 
 std::string Exception::FormatException(const Il2CppException* ex)
 {
-	std::string exception_namespace = ex->object.klass->namespaze;
-	std::string exception_type= ex->object.klass->name;
+	std::string exception_namespace = ex->klass->namespaze;
+	std::string exception_type= ex->klass->name;
 	if (ex->message)
 		return exception_namespace + "." + exception_type + ": " + il2cpp::utils::StringUtils::Utf16ToUtf8(il2cpp::vm::String::GetChars(ex->message));
 	else

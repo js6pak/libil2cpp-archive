@@ -247,6 +247,7 @@ System.Environment::set_ExitCode(System.Int32) mscorlib::System::Environment::se
 System.Environment::GetIs64BitOperatingSystem() mscorlib::System::Environment::GetIs64BitOperatingSystem
 System.Environment::GetPageSize() mscorlib::System::Environment::GetPageSize
 System.Environment::GetNewLine() mscorlib::System::Environment::GetNewLine
+System.Environment::get_bundled_machine_config() mscorlib::System::Environment::get_bundled_machine_config
 
 // System.GC
 System.GC::CollectionCount(System.Int32) mscorlib::System::GC::CollectionCount
@@ -261,6 +262,10 @@ System.GC::SuppressFinalize(System.Object) mscorlib::System::GC::SuppressFinaliz
 System.GC::WaitForPendingFinalizers() mscorlib::System::GC::WaitForPendingFinalizers
 System.GC::get_ephemeron_tombstone() mscorlib::System::GC::get_ephemeron_tombstone
 System.GC::register_ephemeron_array(System.Runtime.CompilerServices.Ephemeron[]) mscorlib::System::GC::register_ephemeron_array
+System.GC::GetCollectionCount(System.Int32) mscorlib::System::GC::GetCollectionCount
+System.GC::GetMaxGeneration() mscorlib::System::GC::GetMaxGeneration
+System.GC::_ReRegisterForFinalize(System.Object) mscorlib::System::GC::_ReRegisterForFinalize
+System.GC::_SuppressFinalize(System.Object) mscorlib::System::GC::_SuppressFinalize
 
 // System.Globalization.CompareInfo
 System.Globalization.CompareInfo::assign_sortkey(System.Object,System.String,System.Globalization.CompareOptions) mscorlib::System::Globalization::CompareInfo::assign_sortkey
@@ -1174,4 +1179,18 @@ System.Runtime.InteropServices.WindowsRuntime.UnsafeNativeMethods::RoReportUnhan
 
 // System.TimeZoneInfo
 System.TimeZoneInfo::UseRegistryForTimeZoneInformation() mscorlib::System::TimeZoneInfo::UseRegistryForTimeZoneInformation
+
+// Mono.Net.Security.MonoTlsProviderFactory
+Mono.Net.Security.MonoTlsProviderFactory::IsBtlsSupported() System::Mono::Net::Security::MonoTlsProviderFactory::IsBtlsSupported
+
+// System.SizedReference
+System.SizedReference::GetApproximateSizeOfSizedRef(System.IntPtr) mscorlib::System::SizedReference::GetApproximateSizeOfSizedRef
+System.SizedReference::CreateSizedRef(System.Object) mscorlib::System::SizedReference::CreateSizedRef
+System.SizedReference::GetTargetOfSizedRef(System.IntPtr) mscorlib::System::SizedReference::GetTargetOfSizedRef
+System.SizedReference::FreeSizedRef(System.IntPtr) mscorlib::System::SizedReference::FreeSizedRef
+
+// System.Net.NetworkInformation.LinuxNetworkInterface
+System.Net.NetworkInformation.LinuxNetworkInterface::GetInterfaceAddresses(System.IntPtr&) System::System::Net::NetworkInformation::LinuxNetworkInterface::GetInterfaceAddresses
+System.Net.NetworkInformation.LinuxNetworkInterface::FreeInterfaceAddresses(System.IntPtr) System::System::Net::NetworkInformation::LinuxNetworkInterface::FreeInterfaceAddresses
+System.Net.NetworkInformation.LinuxNetworkInterface::InitializeInterfaceAddresses() System::System::Net::NetworkInformation::LinuxNetworkInterface::InitializeInterfaceAddresses
 

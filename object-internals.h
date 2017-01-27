@@ -335,7 +335,6 @@ struct Il2CppInternalThread
 	Il2CppObject* abort_exc;
 	int abort_state_handle;
 	uint64_t tid;
-	void* start_notify;
 	void* stack_ptr;
 	void** static_data;
 	void* runtime_thread_info;
@@ -357,8 +356,10 @@ struct Il2CppInternalThread
 	void* interrupt_on_stop;
 	void* flags;
 	void* thread_pinning_ref;
-	void* start_notify_refcount;
+	void* abort_protected_block_count;
+	void* unused1;
 	void* unused2;
+	void* last;
 };
 
 /* Keep in sync with System.IOSelectorJob in mcs/class/System/System/IOSelectorJob.cs */
@@ -505,9 +506,8 @@ struct Il2CppThread
 };
 
 // System.Exception
-struct Il2CppException {
-	Il2CppObject object;
-
+struct Il2CppException : public Il2CppObject
+{
 #if !NET_4_0
 	/* Stores the IPs and the generic sharing infos
 	   (vtable/MRGCTX) of the frames. */
