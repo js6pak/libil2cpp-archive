@@ -125,6 +125,19 @@ private:
 	const MethodInfo* m_method;
 };
 
+template <typename T>
+struct Il2CppFakeBox : Il2CppObject
+{
+	T m_Value;
+
+	Il2CppFakeBox(Il2CppClass* boxedType, T* value)
+	{
+		klass = boxedType;
+		monitor = NULL;
+		m_Value = *value;
+	}
+};
+
 // TODO: This file should contain all the functions and type declarations needed for the generated code.
 // Hopefully, we stop including everything in the generated code and know exactly what dependencies we have.
 // Note that all parameter and return types should match the generated types not the runtime types.
@@ -383,28 +396,22 @@ inline uint32_t il2cpp_codegen_sizeof(Il2CppClass* klass)
 	return il2cpp::vm::Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
 }
 
-FORCE_INLINE void il2cpp_codegen_get_virtual_invoke_data(Il2CppMethodSlot slot, void* obj, VirtualInvokeData* invokeData)
+FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_virtual_invoke_data(Il2CppMethodSlot slot, const Il2CppObject* obj)
 {
 	Assert(slot != 65535 && "il2cpp_codegen_get_virtual_invoke_data got called on a non-virtual method");
-
-	*invokeData = ((Il2CppObject*)obj)->klass->vtable[slot];
+	return obj->klass->vtable[slot];
 }
 
-FORCE_INLINE void il2cpp_codegen_get_interface_invoke_data(Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj, VirtualInvokeData* invokeData)
+FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke_data(Il2CppMethodSlot slot, const Il2CppObject* obj, const Il2CppClass* declaringInterface)
 {
 	Assert(slot != 65535 && "il2cpp_codegen_get_interface_invoke_data got called on a non-virtual method");
-
-	Il2CppClass* typeInfo = ((Il2CppObject*)obj)->klass;
-	slot += il2cpp::vm::Class::GetInterfaceOffset(typeInfo, declaringInterface, true);
-
-	*invokeData = typeInfo->vtable[slot];
+	return il2cpp::vm::Class::GetInterfaceInvokeDataFromVTable(obj, declaringInterface, slot);
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInfo* method, void* obj, VirtualInvokeData* invokeData)
+FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInfo* method, const Il2CppObject* obj, VirtualInvokeData* invokeData)
 {
-	const Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
 	uint16_t slot = method->slot;
-	const MethodInfo* methodDefinition = typeInfo->vtable[slot].method;
+	const MethodInfo* methodDefinition = obj->klass->vtable[slot].method;
 	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
 #if IL2CPP_DEBUG
 	IL2CPP_ASSERT(targetMethodInfo);
@@ -414,27 +421,9 @@ FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInf
 	invokeData->method = targetMethodInfo;
 }
 
-FORCE_INLINE void il2cpp_codegen_get_com_interface_invoke_data(Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj, VirtualInvokeData* invokeData)
+FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const MethodInfo* method, const Il2CppObject* obj, VirtualInvokeData* invokeData)
 {
-	// check for managed object that implements com interface
-	if (!il2cpp::vm::COM::IsCOMObject(static_cast<Il2CppObject*>(obj)))
-	{
-		il2cpp_codegen_get_interface_invoke_data(slot, declaringInterface, obj, invokeData);
-		return;
-	}
-
-	// class is il2cpp_com_object_class, which means we created the object from native interface and we don't know its concrete type
-	// in this case, invoke COM interface method directly
-	*invokeData = declaringInterface->vtable[slot];
-	IL2CPP_ASSERT(invokeData->method);
-}
-
-FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const MethodInfo* method, void* obj, VirtualInvokeData* invokeData)
-{
-	Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
-	uint16_t slot = method->slot + il2cpp::vm::Class::GetInterfaceOffset(typeInfo, method->declaring_type, true);
-
-	const MethodInfo* methodDefinition = typeInfo->vtable[slot].method;
+	const MethodInfo* methodDefinition = il2cpp::vm::Class::GetInterfaceInvokeDataFromVTable(obj, method->declaring_type, method->slot).method;
 	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
 
 #if IL2CPP_DEBUG
@@ -573,12 +562,6 @@ inline Il2CppCodeGenArray* GenArrayNew(Il2CppClass* arrayType, il2cpp_array_size
 	do { \
 		if (((uint32_t)(index)) >= ((uint32_t)length)) il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetIndexOutOfRangeException()); \
 	} while (0)
-
-inline int32_t il2cpp_codegen_class_interface_offset (Il2CppClass *klass, Il2CppClass *itf)
-{
-	int32_t offset = il2cpp::vm::Class::GetInterfaceOffset (klass, itf, false);
-	return offset != -1 ? offset : 0;
-}
 
 inline bool il2cpp_codegen_class_is_assignable_from (Il2CppClass *klass, Il2CppClass *oklass)
 {
@@ -808,22 +791,20 @@ inline void ArrayElementTypeCheck(Il2CppCodeGenArray* array, void* value)
 		il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
 }
 
-inline const MethodInfo* GetVirtualMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot)
+inline const MethodInfo* GetVirtualMethodInfo(Il2CppObject* pThis, Il2CppMethodSlot slot)
 {
 	if (!pThis)
 		il2cpp::vm::Exception::RaiseNullReferenceException();
 
-	return ((Il2CppObject*)pThis)->klass->vtable[slot].method;
+	return pThis->klass->vtable[slot].method;
 }
 
-inline const MethodInfo* GetInterfaceMethodInfo (Il2CppCodeGenObject* pThis, Il2CppMethodSlot slot, Il2CppClass* declaringInterface)
+inline const MethodInfo* GetInterfaceMethodInfo(Il2CppObject* pThis, Il2CppMethodSlot slot, Il2CppClass* declaringInterface)
 {
 	if (!pThis)
 		il2cpp::vm::Exception::RaiseNullReferenceException();
 
-	Il2CppClass* typeInfo = ((Il2CppObject*)pThis)->klass;
-	int32_t itf_offset = il2cpp::vm::Class::GetInterfaceOffset(typeInfo, declaringInterface, true);
-	return typeInfo->vtable[itf_offset + slot].method;
+	return il2cpp::vm::Class::GetInterfaceInvokeDataFromVTable(pThis, declaringInterface, slot).method;
 }
 
 #if IL2CPP_COMPILER_MSVC
@@ -903,9 +884,10 @@ inline void il2cpp_codegen_initialize_method (uint32_t index)
 	il2cpp::vm::MetadataCache::InitializeMethodMetadata (index);
 }
 
-inline bool il2cpp_codegen_type_implements_virtual_method(Il2CppClass* type, int32_t slot)
+inline bool il2cpp_codegen_type_implements_virtual_method(Il2CppClass* type, const MethodInfo* method)
 {
-	return type->vtable[slot].method->declaring_type == type;
+	IL2CPP_ASSERT(il2cpp::vm::Class::IsValuetype(type));
+	return method->declaring_type == type;
 }
 
 inline Il2CppCodeGenMethodBase* il2cpp_codegen_get_method_object(const MethodInfo* methodInfo)
@@ -1070,12 +1052,6 @@ inline void il2cpp_codegen_store_exception_info(Il2CppException* ex, Il2CppCodeG
 inline Il2CppIActivationFactory* il2cpp_codegen_windows_runtime_get_activation_factory(const il2cpp::utils::StringView<Il2CppNativeChar>& runtimeClassName)
 {
 	return il2cpp::vm::WindowsRuntime::GetActivationFactory(runtimeClassName);
-}
-
-template <typename T>
-inline Il2CppObject* il2cpp_codegen_fake_box(T* ptrToValueType)
-{
-	return reinterpret_cast<Il2CppObject*>(ptrToValueType) - 1;
 }
 
 // delegate
