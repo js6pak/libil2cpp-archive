@@ -112,6 +112,7 @@
 #include "icalls/mscorlib/System.Security/SecurityFrame.h"
 
 #include "icalls/mscorlib/System.Security/SecurityManager.h"
+#include "icalls/mscorlib/System/SizedReference.h"
 #include "icalls/mscorlib/System/String.h"
 
 #include "icalls/mscorlib/System.Text/Encoding.h"
@@ -134,6 +135,7 @@
 #include "icalls/mscorlib/System/ValueType.h"
 
 #include "icalls/System/Microsoft.Win32/NativeMethods.h"
+#include "icalls/System/Mono.Net.Security/MonoTlsProviderFactory.h"
 
 #include "icalls/System.Configuration/System.Configuration/InternalConfigurationHost.h"
 #include "icalls/System.Core/System.IO.MemoryMappedFiles/MemoryMapImpl.h"
@@ -157,6 +159,7 @@
 
 #include "icalls/System/System.Net/Dns.h"
 
+#include "icalls/System/System.Net.NetworkInformation/LinuxNetworkInterface.h"
 #include "icalls/System/System.Net.NetworkInformation/MacOsIPInterfaceProperties.h"
 #include "icalls/System/System.Net.Sockets/Socket.h"
 #include "icalls/System/System.Net.Sockets/SocketException.h"

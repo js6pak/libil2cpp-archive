@@ -7,6 +7,7 @@
 #include "metadata/Il2CppTypeVector.h"
 #include "utils/dynamic_array.h"
 #include "class-internals.h"
+#include "object-internals.h"
 #include "Exception.h"
 #include "Type.h"
 
@@ -89,9 +90,66 @@ public:
 	static const char *GetAssemblyName (const Il2CppClass *klass);
 
 public:
+	//internal
+	static FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+	{
+		const Il2CppClass* klass = obj->klass;
+		IL2CPP_ASSERT(klass->initialized);
+		IL2CPP_ASSERT(slot < itf->method_count);
 
+		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
+		{
+			if (klass->interfaceOffsets[i].interfaceType == itf)
+			{
+				int32_t offset = klass->interfaceOffsets[i].offset;
+				IL2CPP_ASSERT(offset != -1);
+				IL2CPP_ASSERT(offset + slot < klass->vtable_count);
+				return klass->vtable[offset + slot];
+			}
+		}
+
+		return GetInterfaceInvokeDataFromVTableSlowPath(obj, itf, slot);
+	}
+
+	static bool Init (Il2CppClass *klass);
+
+	static Il2CppClass* GetArrayClass (Il2CppClass *element_class, uint32_t rank);
+	static Il2CppClass* GetBoundedArrayClass (Il2CppClass *element_class, uint32_t rank, bool bounded);
+	static Il2CppClass* GetInflatedGenericInstanceClass (Il2CppClass* klass, const metadata::Il2CppTypeVector& types);
+	static Il2CppClass* InflateGenericClass (Il2CppClass* klass, Il2CppGenericContext *context);
+	static const Il2CppType* InflateGenericType (const Il2CppType* type, Il2CppGenericContext *context);
+
+	static Il2CppClass* GetArrayClassCached (Il2CppClass *element_class, uint32_t rank)
+	{
+		return GetArrayClass (element_class, rank);
+	}
+
+	static const Il2CppGenericContainer* GetGenericContainer (Il2CppClass *klass);
+	static const MethodInfo* GetCCtor (Il2CppClass *klass);
+	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
+	static int GetFieldMarshaledSize(const FieldInfo *field);
+	static Il2CppClass* GetPtrClass (const Il2CppType* type);
+	static Il2CppClass* GetPtrClass (Il2CppClass* elementClass);
+	static bool HasReferences (Il2CppClass *klass);
+	static void SetupEvents (Il2CppClass *klass);
+	static void SetupFields (Il2CppClass *klass);
+	static void SetupMethods (Il2CppClass *klass);
+	static void SetupNestedTypes (Il2CppClass *klass);
+	static void SetupProperties (Il2CppClass *klass);
+	static void SetupTypeHierarchy (Il2CppClass *klass);
+	static void SetupInterfaces (Il2CppClass *klass);
+
+	static const dynamic_array<Il2CppClass*>& GetStaticFieldData ();
+
+	static size_t GetBitmapSize (const Il2CppClass* klass);
+	static void GetBitmap (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit);
+
+	static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase);
+
+	static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
+private:
 #if NET_4_0
-	static FORCE_INLINE bool IsGenericInterfaceAssignableFrom(Il2CppClass* itf, Il2CppClass* oitf, const Il2CppGenericContainer* genericContainer)
+	static FORCE_INLINE bool IsGenericInterfaceAssignableFrom(const Il2CppClass* itf, const Il2CppClass* oitf, const Il2CppGenericContainer* genericContainer)
 	{
 		const Il2CppGenericClass* itfGenericClass = itf->generic_class;
 		const Il2CppGenericClass* oitfGenericClass = oitf->generic_class;
@@ -134,78 +192,10 @@ public:
 
 		return true;
 	}
-
-	// we don't want this method to get inlined because that makes GetInterfaceOffset method itself very large and performance suffers
-	static IL2CPP_NO_INLINE int32_t GetInterfaceOffsetGeneric(Il2CppClass *klass, Il2CppClass *itf, bool throwIfNotFound);
 #endif
 
-	//internal
-	static FORCE_INLINE int32_t GetInterfaceOffset(Il2CppClass *klass, Il2CppClass *itf, bool throwIfNotFound)
-	{
-		for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
-		{
-			if (klass->interfaceOffsets[i].interfaceType == itf)
-			{
-				int32_t offset = klass->interfaceOffsets[i].offset;
-				IL2CPP_ASSERT(offset != -1);
-				return offset;
-			}
-		}
-
-#if NET_4_0
-		if (itf->generic_class != NULL)
-			return GetInterfaceOffsetGeneric(klass, itf, throwIfNotFound);
-#endif
-		if (throwIfNotFound)
-			RaiseExceptionForNotFoundInterface(klass, itf);
-
-		return -1;
-	}
-
-	static bool Init (Il2CppClass *klass);
-
-	static Il2CppClass* GetArrayClass (Il2CppClass *element_class, uint32_t rank);
-	static Il2CppClass* GetBoundedArrayClass (Il2CppClass *element_class, uint32_t rank, bool bounded);
-	static Il2CppClass* GetInflatedGenericInstanceClass (Il2CppClass* klass, const metadata::Il2CppTypeVector& types);
-	static Il2CppClass* InflateGenericClass (Il2CppClass* klass, Il2CppGenericContext *context);
-	static const Il2CppType* InflateGenericType (const Il2CppType* type, Il2CppGenericContext *context);
-
-	static Il2CppClass* GetArrayClassCached (Il2CppClass *element_class, uint32_t rank)
-	{
-		return GetArrayClass (element_class, rank);
-	}
-
-	static const Il2CppGenericContainer* GetGenericContainer (Il2CppClass *klass);
-	static const MethodInfo* GetCCtor (Il2CppClass *klass);
-	static const char* GetFieldDefaultValue (const FieldInfo *field, const Il2CppType** type);
-	static int GetFieldMarshaledSize(const FieldInfo *field);
-	static Il2CppClass* GetPtrClass (const Il2CppType* type);
-	static Il2CppClass* GetPtrClass (Il2CppClass* elementClass);
-	static bool HasReferences (Il2CppClass *klass);
-	static void SetupEvents (Il2CppClass *klass);
-	static void SetupFields (Il2CppClass *klass);
-	static void SetupMethods (Il2CppClass *klass);
-	static void SetupNestedTypes (Il2CppClass *klass);
-	static void SetupProperties (Il2CppClass *klass);
-	static void SetupTypeHierarchy (Il2CppClass *klass);
-	static void SetupInterfaces (Il2CppClass *klass);
-
-	static const dynamic_array<Il2CppClass*>& GetStaticFieldData ();
-
-	static size_t GetBitmapSize (const Il2CppClass* klass);
-	static void GetBitmap (Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit);
-
-	static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase);
-
-	static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
-private:
-	static void RaiseExceptionForNotFoundInterface(Il2CppClass* klass, Il2CppClass* itf)
-	{
-		std::string message;
-		message = "Failed to access interface '" + Type::GetName(itf->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "' on type '"
-			+ Type::GetName(klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "'.";
-		Exception::Raise(il2cpp::vm::Exception::GetMethodAccessException(message.c_str()));
-	}
+	// we don't want this method to get inlined because that makes GetInterfaceInvokeDataFromVTable method itself very large and performance suffers
+	static IL2CPP_NO_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot);
 };
 
 } /* namespace vm */

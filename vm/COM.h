@@ -41,11 +41,6 @@ public:
 		const il2cpp_hresult_t hr = os::COM::SafeArrayDestroy(safeArray);
 		Exception::RaiseIfFailed(hr, true);
 	}
-
-	static inline bool IsCOMObject(Il2CppObject* obj)
-	{
-		return obj->klass == il2cpp_defaults.il2cpp_com_object_class;
-	}
 };
 
 } /* namespace vm */

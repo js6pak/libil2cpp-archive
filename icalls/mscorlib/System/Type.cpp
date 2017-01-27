@@ -394,16 +394,43 @@ void Type::GetInterfaceMapData (Il2CppReflectionType* type, Il2CppReflectionType
 	*targets = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfMethods);
 	*methods = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfMethods);
 
+	if (numberOfMethods == 0)
+		return;
+
 	void* unused = NULL;
 	Class::Init(klass);
-	int32_t ioffset = Class::GetInterfaceOffset(klass, iklass, true);
+	const VirtualInvokeData* invokeDataStart;
+	
+	// So this part is tricky. GetInterfaceInvokeDataFromVTable takes an object pointer in order to support
+	// COM peculiarities, like being able to return invoke data for an interface only if native side implements it
+	// So here we create a fake object of the class we want to query and pass that to GetInterfaceInvokeDataFromVTable
+	// It is safe because the only fields GetInterfaceInvokeDataFromVTable accesses are the klass and identity fields
+	if (!klass->is_import_or_windows_runtime)
+	{
+		Il2CppObject fakeObject;
+		fakeObject.klass = klass;
+		fakeObject.monitor = NULL;
+		invokeDataStart = &Class::GetInterfaceInvokeDataFromVTable(&fakeObject, iklass, 0);
+	}
+	else
+	{
+		Il2CppComObject fakeComObject;
+		fakeComObject.klass = klass;
+		fakeComObject.monitor = NULL;
+		
+		// This makes GetInterfaceInvokeDataFromVTable believe that the COM object is dead, 
+		// thus making it skip asking native side whether a particular interface is supported
+		fakeComObject.identity = NULL; 
+
+		invokeDataStart = &Class::GetInterfaceInvokeDataFromVTable(&fakeComObject, iklass, 0);
+	}
 
 	for (int i = 0; i < numberOfMethods; ++i)
-{
-		const MethodInfo *method = il2cpp_class_get_methods (iklass, &unused);
+	{
+		const MethodInfo *method = il2cpp_class_get_methods(iklass, &unused);
 		Il2CppReflectionMethod* member = il2cpp_method_get_object(method, iklass);
 		il2cpp_array_setref(*methods, i, member);
-		member = il2cpp_method_get_object(klass->vtable[i + ioffset].method, klass);
+		member = il2cpp_method_get_object(invokeDataStart[i].method, klass);
 		il2cpp_array_setref(*targets, i, member);
 	}
 }

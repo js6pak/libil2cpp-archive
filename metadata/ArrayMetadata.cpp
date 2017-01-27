@@ -505,6 +505,7 @@ Il2CppClass* ArrayMetadata::GetBoundedArrayClass (Il2CppClass* elementClass, uin
 	klass->rank = rank;
 
 	klass->instance_size = Class::GetInstanceSize (arrayClass);
+	klass->vtable_count = static_cast<uint16_t>(slots);
 
 	// need this before we access the size or has_references
 	Class::SetupFields (elementClass);

@@ -1012,7 +1012,7 @@ void Runtime::VerifyApiVersion()
 #if !NET_4_0
 	IL2CPP_ASSERT(value == 82);
 #else
-	IL2CPP_ASSERT(value == 153);
+	IL2CPP_ASSERT(value == 156);
 #endif
 #endif
 }
