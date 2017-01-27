@@ -70,7 +70,7 @@ Il2CppIManagedObjectHolder* CCW::CreateCCW(Il2CppObject* obj)
 			return createCcw(obj);
 	}
 
-	// otherwise create generic ccw object that "only" implements IUnknown, IMarshal, IInspectable, IManagedObject and IManagedObjectHolder interfaces
+	// otherwise create generic ccw object that "only" implements IUnknown, IMarshal, IInspectable, IAgileObject and IManagedObjectHolder interfaces
 	void* memory = utils::Memory::Malloc(sizeof(ManagedObject));
 	if (memory == NULL)
 		Exception::RaiseOutOfMemoryException();

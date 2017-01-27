@@ -1126,6 +1126,9 @@
     <ClInclude Include="external\google\sparsehash\dense_hash_map.h" />
     <ClInclude Include="external\google\sparsehash\dense_hash_set.h" />
     <ClInclude Include="external\google\sparsehash\type_traits.h" />
+    <ClInclude Include="external\xamarin-android\logger.h" />
+    <ClInclude Include="external\xamarin-android\monodroid.h" />
+    <ClInclude Include="external\xamarin-android\xamarin_getifaddrs.h" />
     <ClInclude Include="gc\Allocator.h" />
     <ClInclude Include="gc\AppendOnlyGCHashMap.h" />
     <ClInclude Include="gc\GarbageCollector.h" />
@@ -1272,6 +1275,7 @@
     <ClInclude Include="icalls\System\System.IO\FileSystemWatcher.h" />
     <ClInclude Include="icalls\System\System.IO\InotifyWatcher.h" />
     <ClInclude Include="icalls\System\System.IO\KqueueMonitor.h" />
+    <ClInclude Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.h" />
     <ClInclude Include="icalls\System\System.Net.NetworkInformation\MacOsIPInterfaceProperties.h" />
     <ClInclude Include="icalls\System\System.Net.Sockets\Socket.h" />
     <ClInclude Include="icalls\System\System.Net.Sockets\SocketException.h" />
@@ -1512,6 +1516,7 @@
     <ClCompile Include="debugger\transport-tcp.cpp" />
     <ClCompile Include="debugger\variant.cpp" />
     <ClCompile Include="externals\MonoPosixHelper.cpp" />
+    <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c" />
     <ClCompile Include="gc\GarbageCollector.cpp" />
     <ClCompile Include="gc\WriteBarrier.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Globalization.Unicode\Normalization.cpp" />
@@ -1647,6 +1652,7 @@
     <ClCompile Include="icalls\System\System.IO\FileSystemWatcher.cpp" />
     <ClCompile Include="icalls\System\System.IO\InotifyWatcher.cpp" />
     <ClCompile Include="icalls\System\System.IO\KqueueMonitor.cpp" />
+    <ClCompile Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.cpp" />
     <ClCompile Include="icalls\System\System.Net.NetworkInformation\MacOsIPInterfaceProperties.cpp" />
     <ClCompile Include="icalls\System\System.Net.Sockets\Socket.cpp" />
     <ClCompile Include="icalls\System\System.Net.Sockets\SocketException.cpp" />

@@ -218,6 +218,8 @@ Il2CppClass* GenericClass::GetClass (Il2CppGenericClass *gclass)
 
 		if (klass->enumtype)
 			klass->element_class = klass->castClass =  definition->element_class;
+
+		klass->is_import_or_windows_runtime = definition->is_import_or_windows_runtime;
 	}
 
 	return gclass->cached_class;

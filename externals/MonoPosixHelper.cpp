@@ -9,7 +9,11 @@
 #define ARGUMENT_ERROR -10
 #define IO_ERROR -11
 
+#if NET_4_0
+typedef int32_t (*read_write_func)(intptr_t buffer, int32_t length, intptr_t gchandle);
+#else
 typedef int32_t (STDCALL *read_write_func)(intptr_t buffer, int32_t length, intptr_t gchandle);
+#endif
 
 struct ZStream
 {
