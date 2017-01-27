@@ -183,13 +183,11 @@ const MethodInfo* Object::GetVirtualMethod (Il2CppObject *obj, const MethodInfo 
 	if ((method->flags & METHOD_ATTRIBUTE_FINAL) || !(method->flags & METHOD_ATTRIBUTE_VIRTUAL))
 		return method;
 
-	Il2CppClass* typeInfo = obj->klass;
-	VirtualInvokeData* vtable = typeInfo->vtable;
-	
-	if (Class::IsInterface (method->declaring_type))
-		return vtable[Class::GetInterfaceOffset (typeInfo, method->declaring_type, true) + method->slot].method;
-	
-	return vtable[method->slot].method;
+	Il2CppClass* methodDeclaringType = method->declaring_type;	
+	if (!Class::IsInterface(methodDeclaringType))
+		return obj->klass->vtable[method->slot].method;
+
+	return Class::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, method->slot).method;
 }
 
 Il2CppObject* Object::IsInst (Il2CppObject *obj, Il2CppClass *klass)

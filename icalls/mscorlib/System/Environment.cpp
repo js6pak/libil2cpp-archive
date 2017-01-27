@@ -223,6 +223,12 @@ Il2CppString* Environment::internalGetEnvironmentVariable_native(Il2CppIntPtr va
 	return variable.empty() ? NULL : il2cpp::vm::String::New(variable.c_str());
 }
 
+Il2CppString* Environment::get_bundled_machine_config ()
+{
+	NOT_IMPLEMENTED_ICALL (Environment::get_bundled_machine_config);
+	IL2CPP_UNREACHABLE;
+}
+
 #endif
 
 } /* namespace System */
