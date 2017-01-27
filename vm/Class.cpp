@@ -19,6 +19,7 @@
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
 #include "vm/MetadataLock.h"
+#include "vm/Method.h"
 #include "vm/Property.h"
 #include "vm/Runtime.h"
 #include "vm/Reflection.h"
@@ -2019,27 +2020,61 @@ Il2CppClass* Class::GetDeclaringType(Il2CppClass* klass)
 	return klass->declaringType;
 }
 
-#if NET_4_0
-
-int32_t Class::GetInterfaceOffsetGeneric(Il2CppClass *klass, Il2CppClass *itf, bool throwIfNotFound)
+NORETURN static void RaiseExceptionForNotFoundInterface(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
 {
-	const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(itf->generic_class->typeDefinitionIndex);
-	const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericInterface->genericContainerIndex);
-
-	for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
-	{
-		const Il2CppRuntimeInterfaceOffsetPair* pair = klass->interfaceOffsets + i;
-		if (IsGenericInterfaceAssignableFrom(itf, pair->interfaceType, genericContainer))
-			return pair->offset;
-	}
-
-	if (throwIfNotFound)
-		RaiseExceptionForNotFoundInterface(klass, itf);
-
-	return -1;
+	std::string message;
+	message = "Attempt to access method '" + Type::GetName(itf->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "." + Method::GetName(itf->methods[slot]) 
+		+ "' on type '" + Type::GetName(klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "' failed.";
+	Exception::Raise(il2cpp::vm::Exception::GetMethodAccessException(message.c_str()));
 }
 
+const VirtualInvokeData& Class::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+{
+	const Il2CppClass* klass = obj->klass;
+
+#if NET_4_0
+	if (itf->generic_class != NULL)
+	{
+		const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(itf->generic_class->typeDefinitionIndex);
+		const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericInterface->genericContainerIndex);
+
+		for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
+		{
+			const Il2CppRuntimeInterfaceOffsetPair* pair = klass->interfaceOffsets + i;
+			if (IsGenericInterfaceAssignableFrom(itf, pair->interfaceType, genericContainer))
+			{
+				IL2CPP_ASSERT(pair->offset + slot < klass->vtable_count);
+				return klass->vtable[pair->offset + slot];
+			}
+		}
+	}
 #endif
+
+	if (klass->is_import_or_windows_runtime)
+	{
+		Il2CppIUnknown* iunknown = static_cast<const Il2CppComObject*>(obj)->identity;
+		
+		// It might be null if it's called on a dead (already released) or fake object
+		if (iunknown != NULL)
+		{
+			if (itf->vtable_count > 0)
+			{
+				IL2CPP_ASSERT(slot < itf->vtable_count);
+
+				// Nothing will be referencing these types directly, so we need to initialize them here
+				const VirtualInvokeData& invokeData = itf->vtable[slot];
+				Init(invokeData.method->declaring_type);
+				return invokeData;
+			}
+
+			// TO DO: add support for covariance/contravariance for projected interfaces like 
+			// System.Collections.Generic.IEnumerable`1<T>
+		}
+	}
+
+	RaiseExceptionForNotFoundInterface(klass, itf, slot);
+	IL2CPP_UNREACHABLE;
+}
 
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -86,8 +86,28 @@ void GC::register_ephemeron_array(Il2CppArray* array)
 	// Mono only does something in this icall when SGEN is in use.  We don't have SGEN,
 	// so there is nothing to do here.
 }
-#endif
 
+int32_t GC::GetCollectionCount(int32_t generation)
+{
+	return CollectionCount(generation);
+}
+
+int32_t GC::GetMaxGeneration()
+{
+	return get_MaxGeneration();
+}
+
+void GC::_ReRegisterForFinalize(Il2CppObject* o)
+{
+	ReRegisterForFinalize(o);
+}
+
+void GC::_SuppressFinalize(Il2CppObject* o)
+{
+	SuppressFinalize(o);
+}
+
+#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

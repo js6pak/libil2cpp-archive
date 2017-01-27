@@ -913,7 +913,7 @@ static void WorkerThreadEntryPoint (void* data)
 	{
 		// Only eat a ThreadAbortException, as it may have been thrown by the runtime
 		// when there was managed code on the stack, but that managed code exited already.
-		if (strcmp(e.ex->object.klass->name, "ThreadAbortException") != 0)
+		if (strcmp(e.ex->klass->name, "ThreadAbortException") != 0)
 			throw;
 	}
 

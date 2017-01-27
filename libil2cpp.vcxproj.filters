@@ -861,6 +861,12 @@
     <ClCompile Include="mono\ThreadPool\ThreadPoolMonitorThread.cpp">
       <Filter>mono\ThreadPool</Filter>
     </ClCompile>
+    <ClCompile Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.cpp">
+      <Filter>icalls\System\System.Net.NetworkInformation</Filter>
+    </ClCompile>
+    <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c">
+      <Filter>external\xamarin-android</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1680,6 +1686,18 @@
     <ClInclude Include="mono\ThreadPool\ThreadPoolMonitorThread.h">
       <Filter>mono\ThreadPool</Filter>
     </ClInclude>
+    <ClInclude Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.h">
+      <Filter>icalls\System\System.Net.NetworkInformation</Filter>
+    </ClInclude>
+    <ClInclude Include="external\xamarin-android\logger.h">
+      <Filter>external\xamarin-android</Filter>
+    </ClInclude>
+    <ClInclude Include="external\xamarin-android\monodroid.h">
+      <Filter>external\xamarin-android</Filter>
+    </ClInclude>
+    <ClInclude Include="external\xamarin-android\xamarin_getifaddrs.h">
+      <Filter>external\xamarin-android</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -2438,6 +2456,9 @@
     </Filter>
     <Filter Include="mono\ThreadPool">
       <UniqueIdentifier>{1f2821fc-c40c-40c8-ad24-200ee6b123fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\xamarin-android">
+      <UniqueIdentifier>{4862e90c-23f0-4fcf-a14b-787c976f6083}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
