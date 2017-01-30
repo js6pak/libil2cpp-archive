@@ -263,6 +263,10 @@
 #define IL2CPP_DEBUG 0
 #endif
 
+#ifndef IL2CPP_DEVELOPMENT
+#define IL2CPP_DEVELOPMENT 0
+#endif
+
 /* Threading */
 #define IL2CPP_SUPPORT_THREADS !IL2CPP_TARGET_JAVASCRIPT
 
