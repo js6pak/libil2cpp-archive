@@ -336,6 +336,19 @@ bool Monitor::TryEnter (Il2CppObject* obj, uint32_t timeOutMilliseconds)
 		// Attempt to acquire lock if it's free
 		if (installedMonitor->TryAcquire (currentThreadId))
 		{
+
+			// There is no locking around the sections of this logic to speed
+			// things up, there is potential for race condition to reset the objects
+			// monitor.  If it has been reset prior to successfully coming out of
+			// TryAquire, dont return, unaquire the installedMonitor, go back through the logic again to grab a
+			// a valid monitor.
+
+			if (!obj->monitor)
+			{
+				installedMonitor->Unacquire();
+				continue;
+			}
+
 			// Ownership of monitor passed from previously locking thread to us.
 			assert(installedMonitor->recursiveLockingCount == 1);
 			assert(obj->monitor == installedMonitor);
