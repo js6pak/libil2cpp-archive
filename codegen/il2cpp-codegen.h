@@ -375,18 +375,31 @@ inline void il2cpp_codegen_get_interface_invoke_data(Il2CppMethodSlot slot, Il2C
 	*invokeData = typeInfo->vtable[slot];
 }
 
+inline const MethodInfo* il2cpp_codegen_get_generic_virtual_method(const MethodInfo* method, const Il2CppObject* obj)
+{
+	uint16_t slot = method->slot;
+	const MethodInfo* methodDefinition = obj->klass->vtable[slot].method;
+	return il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
+}
+
 inline void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInfo* method, void* obj, VirtualInvokeData* invokeData)
 {
-	const Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
-	uint16_t slot = method->slot;
-	const MethodInfo* methodDefinition = typeInfo->vtable[slot].method;
-	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
+	const MethodInfo* targetMethodInfo = il2cpp_codegen_get_generic_virtual_method(method, (const Il2CppObject*)obj);
 #if IL2CPP_DEBUG
 	IL2CPP_ASSERT(targetMethodInfo);
 #endif
 
 	invokeData->methodPtr = targetMethodInfo->methodPointer;
 	invokeData->method = targetMethodInfo;
+}
+
+inline const MethodInfo* il2cpp_codegen_get_generic_interface_method(const MethodInfo* method, const Il2CppObject* obj)
+{
+	Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
+	uint16_t slot = method->slot + il2cpp::vm::Class::GetInterfaceOffset(typeInfo, method->declaring_type, true);
+
+	const MethodInfo* methodDefinition = typeInfo->vtable[slot].method;
+	return il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
 }
 
 inline void il2cpp_codegen_get_com_interface_invoke_data(Il2CppMethodSlot slot, Il2CppClass* declaringInterface, void* obj, VirtualInvokeData* invokeData)
@@ -423,11 +436,7 @@ inline void il2cpp_codegen_get_com_interface_invoke_data(Il2CppMethodSlot slot, 
 
 inline void il2cpp_codegen_get_generic_interface_invoke_data(const MethodInfo* method, void* obj, VirtualInvokeData* invokeData)
 {
-	Il2CppClass* typeInfo = ((Il2CppObject *)obj)->klass;
-	uint16_t slot = method->slot + il2cpp::vm::Class::GetInterfaceOffset(typeInfo, method->declaring_type, true);
-
-	const MethodInfo* methodDefinition = typeInfo->vtable[slot].method;
-	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
+	const MethodInfo* targetMethodInfo = il2cpp_codegen_get_generic_interface_method(method, (const Il2CppObject*)obj);
 
 #if IL2CPP_DEBUG
 	IL2CPP_ASSERT(targetMethodInfo);
@@ -950,6 +959,11 @@ inline Il2CppCodeGenType* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFun
 	if (type == NULL)
 		return ((getTypeFuncType)getTypeFunction)(NULL, typeName, throwOnError, ignoreCase, NULL);
 	return type;
+}
+
+inline Il2CppCodeGenAssembly* il2cpp_codegen_get_executing_assembly(const MethodInfo* methodInfo)
+{
+	return (Il2CppCodeGenAssembly*)il2cpp::vm::Reflection::GetAssemblyObject(il2cpp::vm::MetadataCache::GetAssemblyFromIndex(methodInfo->declaring_type->image->assemblyIndex));
 }
 
 // Atomic
