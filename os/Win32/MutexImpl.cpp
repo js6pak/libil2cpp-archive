@@ -14,7 +14,11 @@ namespace os
 
 MutexImpl::MutexImpl ()
 {
+#if IL2CPP_THREADS_ALL_ACCESS
+	m_MutexHandle = ::CreateMutexEx (NULL, NULL, 0, MUTEX_ALL_ACCESS);
+#else
 	m_MutexHandle = ::CreateMutex (NULL, FALSE, NULL);
+#endif
 	IL2CPP_ASSERT(m_MutexHandle);
 }
 
