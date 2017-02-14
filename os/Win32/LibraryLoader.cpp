@@ -58,6 +58,13 @@ const HardcodedPInvokeDependencyFunction kTimezoneFunctions[] =
 };
 #endif
 
+#if IL2CPP_TARGET_WINRT
+const HardcodedPInvokeDependencyFunction kWinTypesFunctions[] =
+{
+	HARDCODED_DEPENDENCY_FUNCTION(RoGetBufferMarshaler)
+};
+#endif
+
 // All these come without ".dll" extension!
 const HardcodedPInvokeDependencyLibrary kHardcodedPInvokeDependencies[] =
 {
@@ -65,6 +72,9 @@ const HardcodedPInvokeDependencyLibrary kHardcodedPInvokeDependencies[] =
 	HARDCODED_DEPENDENCY_LIBRARY(L"api-ms-win-core-timezone-l1-1-0", kTimezoneFunctions),
 #endif
 	HARDCODED_DEPENDENCY_LIBRARY(L"kernel32", kKernel32Functions),
+#if IL2CPP_TARGET_WINRT // Win8+, plus needs to be looked up dynamically on Xbox One
+	HARDCODED_DEPENDENCY_LIBRARY(L"wintypes", kWinTypesFunctions),
+#endif
 };
 
 inline static wchar_t AsciiToLower(wchar_t c)

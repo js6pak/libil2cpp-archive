@@ -62,7 +62,7 @@ UNITY_PLATFORM_BEGIN_NAMESPACE;
 #	define ATOMIC_HAS_DCAS
 #	define ATOMIC_HAS_LDR
 
-#elif defined(_M_ARM) || (defined (__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (!UNITY_STV_API) && (!UNITY_TIZEN) && (defined(__clang__) || defined(__GNUC__)))
+#elif defined(_M_ARM) || (defined (__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (!UNITY_STV_API) && (defined(__clang__) || defined(__GNUC__)))
 
 	typedef int atomic_word;
 	union atomic_word2

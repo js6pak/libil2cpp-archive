@@ -149,43 +149,43 @@ public:
 	static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
 private:
 #if NET_4_0
-	static FORCE_INLINE bool IsGenericInterfaceAssignableFrom(const Il2CppClass* itf, const Il2CppClass* oitf, const Il2CppGenericContainer* genericContainer)
+	static FORCE_INLINE bool IsGenericClassAssignableFrom(const Il2CppClass* klass, const Il2CppClass* oklass, const Il2CppGenericContainer* genericContainer)
 	{
-		const Il2CppGenericClass* itfGenericClass = itf->generic_class;
-		const Il2CppGenericClass* oitfGenericClass = oitf->generic_class;
+		const Il2CppGenericClass* genericClass = klass->generic_class;
+		const Il2CppGenericClass* oGenericClass = oklass->generic_class;
 
-		if (oitfGenericClass == NULL || oitfGenericClass->typeDefinitionIndex != itfGenericClass->typeDefinitionIndex)
+		if (oGenericClass == NULL || oGenericClass->typeDefinitionIndex != genericClass->typeDefinitionIndex)
 			return false;
 
 		const int32_t genericParameterCount = genericContainer->type_argc;
 
-		const Il2CppGenericInst* itfGenericInst = itfGenericClass->context.class_inst;
-		IL2CPP_ASSERT(itfGenericInst->type_argc == genericParameterCount);
+		const Il2CppGenericInst* genericInst = genericClass->context.class_inst;
+		IL2CPP_ASSERT(genericInst->type_argc == genericParameterCount);
 
-		const Il2CppGenericInst* oitfGenericInst = oitfGenericClass->context.class_inst;
-		IL2CPP_ASSERT(oitfGenericInst->type_argc == genericParameterCount);
+		const Il2CppGenericInst* oGenericInst = oGenericClass->context.class_inst;
+		IL2CPP_ASSERT(oGenericInst->type_argc == genericParameterCount);
 
 		for (int32_t i = 0; i < genericParameterCount; ++i)
 		{
 			const Il2CppGenericParameter* genericParameter = MetadataCache::GetGenericParameterFromIndex(genericContainer->genericParameterStart + i);
 			const int32_t parameterVariance = genericParameter->flags & GENERIC_PARAMETER_ATTRIBUTE_VARIANCE_MASK;
-			Il2CppClass* itfGenericParameterType = Class::FromIl2CppType(itfGenericInst->type_argv[i]);
-			Il2CppClass* oitfGenericParameterType = Class::FromIl2CppType(oitfGenericInst->type_argv[i]);
+			Il2CppClass* genericParameterType = Class::FromIl2CppType(genericInst->type_argv[i]);
+			Il2CppClass* oGenericParameterType = Class::FromIl2CppType(oGenericInst->type_argv[i]);
 
-			if (parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT || Class::IsValuetype(itfGenericParameterType) || Class::IsValuetype(oitfGenericParameterType))
+			if (parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT || Class::IsValuetype(genericParameterType) || Class::IsValuetype(oGenericParameterType))
 			{
-				if (itfGenericParameterType != oitfGenericParameterType)
+				if (genericParameterType != oGenericParameterType)
 					return false;
 			}
 			else if (parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_COVARIANT)
 			{
-				if (!Class::IsAssignableFrom(itfGenericParameterType, oitfGenericParameterType))
+				if (!Class::IsAssignableFrom(genericParameterType, oGenericParameterType))
 					return false;
 			}
 			else
 			{
 				IL2CPP_ASSERT(parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_CONTRAVARIANT);
-				if (!Class::IsAssignableFrom(oitfGenericParameterType, itfGenericParameterType))
+				if (!Class::IsAssignableFrom(oGenericParameterType, genericParameterType))
 					return false;
 			}
 		}
