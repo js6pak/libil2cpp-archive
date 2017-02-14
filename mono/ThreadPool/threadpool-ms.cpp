@@ -201,7 +201,7 @@ static void initialize(void* arg)
 	g_ThreadPool->limit_worker_min = g_ThreadPool->limit_io_min = threads_count;
 
 #if IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_IOS
-	g_ThreadPool->limit_worker_max = g_ThreadPool->limit_io_max = CLAMP (threads_count * 100, MIN (threads_count, 200), MAX (threads_count, 200));
+	g_ThreadPool->limit_worker_max = g_ThreadPool->limit_io_max = CLAMP (threads_count * 100, std::min (threads_count, 200), std::max (threads_count, 200));
 #else
 	g_ThreadPool->limit_worker_max = g_ThreadPool->limit_io_max = threads_count * 100;
 #endif

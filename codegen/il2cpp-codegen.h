@@ -408,11 +408,16 @@ FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke_data(I
 	return il2cpp::vm::Class::GetInterfaceInvokeDataFromVTable(obj, declaringInterface, slot);
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInfo* method, const Il2CppObject* obj, VirtualInvokeData* invokeData)
+FORCE_INLINE const MethodInfo* il2cpp_codegen_get_generic_virtual_method(const MethodInfo* method, const Il2CppObject* obj)
 {
 	uint16_t slot = method->slot;
 	const MethodInfo* methodDefinition = obj->klass->vtable[slot].method;
-	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
+	return il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
+}
+
+FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInfo* method, const Il2CppObject* obj, VirtualInvokeData* invokeData)
+{
+	const MethodInfo* targetMethodInfo = il2cpp_codegen_get_generic_virtual_method(method, obj);
 #if IL2CPP_DEBUG
 	IL2CPP_ASSERT(targetMethodInfo);
 #endif
@@ -421,10 +426,15 @@ FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const MethodInf
 	invokeData->method = targetMethodInfo;
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const MethodInfo* method, const Il2CppObject* obj, VirtualInvokeData* invokeData)
+FORCE_INLINE const MethodInfo* il2cpp_codegen_get_generic_interface_method(const MethodInfo* method, const Il2CppObject* obj)
 {
 	const MethodInfo* methodDefinition = il2cpp::vm::Class::GetInterfaceInvokeDataFromVTable(obj, method->declaring_type, method->slot).method;
-	const MethodInfo* targetMethodInfo = il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
+	return il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, method);
+}
+
+FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const MethodInfo* method, const Il2CppObject* obj, VirtualInvokeData* invokeData)
+{
+	const MethodInfo* targetMethodInfo = il2cpp_codegen_get_generic_interface_method(method, obj);
 
 #if IL2CPP_DEBUG
 	IL2CPP_ASSERT(targetMethodInfo);

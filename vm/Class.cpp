@@ -621,7 +621,18 @@ bool Class::IsAssignableFrom (Il2CppClass *klass, Il2CppClass *oklass)
 			return Class::IsAssignableFrom(nullableArg, oklass);
 		}
 
-		return HasParentUnsafe (oklass, klass);
+#if NET_4_0
+		if (klass->parent == il2cpp_defaults.multicastdelegate_class && klass->generic_class != NULL)
+		{
+			const Il2CppTypeDefinition* genericClass = MetadataCache::GetTypeDefinitionFromIndex(klass->generic_class->typeDefinitionIndex);
+			const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericClass->genericContainerIndex);
+
+			if (IsGenericClassAssignableFrom(klass, oklass, genericContainer))
+				return true;
+		}
+#endif
+
+		return HasParentUnsafe(oklass, klass);
 	}
 
 #if NET_4_0
@@ -634,18 +645,18 @@ bool Class::IsAssignableFrom (Il2CppClass *klass, Il2CppClass *oklass)
 
 		for (Il2CppClass* iter = oklass; iter != NULL; iter = iter->parent)
 		{
-			if (IsGenericInterfaceAssignableFrom(klass, iter, genericContainer))
+			if (IsGenericClassAssignableFrom(klass, iter, genericContainer))
 				return true;
 
 			for (uint16_t i = 0; i < iter->interfaces_count; ++i)
 			{
-				if (IsGenericInterfaceAssignableFrom(klass, iter->implementedInterfaces[i], genericContainer))
+				if (IsGenericClassAssignableFrom(klass, iter->implementedInterfaces[i], genericContainer))
 					return true;
 			}
 
 			for (uint16_t i = 0; i < iter->interface_offsets_count; ++i)
 			{
-				if (IsGenericInterfaceAssignableFrom(klass, iter->interfaceOffsets[i].interfaceType, genericContainer))
+				if (IsGenericClassAssignableFrom(klass, iter->interfaceOffsets[i].interfaceType, genericContainer))
 					return true;
 			}
 		}
@@ -2041,7 +2052,7 @@ const VirtualInvokeData& Class::GetInterfaceInvokeDataFromVTableSlowPath(const I
 		for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
 		{
 			const Il2CppRuntimeInterfaceOffsetPair* pair = klass->interfaceOffsets + i;
-			if (IsGenericInterfaceAssignableFrom(itf, pair->interfaceType, genericContainer))
+			if (IsGenericClassAssignableFrom(itf, pair->interfaceType, genericContainer))
 			{
 				IL2CPP_ASSERT(pair->offset + slot < klass->vtable_count);
 				return klass->vtable[pair->offset + slot];
