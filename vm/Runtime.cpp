@@ -784,11 +784,16 @@ struct ConstCharCompare
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 
+static Il2CppMethodPointer MaskSpareBits(const Il2CppMethodPointer method)
+{
+	return (Il2CppMethodPointer)((size_t)method & ~IL2CPP_POINTER_SPARE_BITS);
+}
+
 struct MethodInfoToMethodPointerConverter
 {
 	Il2CppMethodPointer operator()(const Runtime::MethodDefinitionKey& methodInfo) const
 	{
-		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~IL2CPP_POINTER_SPARE_BITS);
+		return  MaskSpareBits(methodInfo.method);
 	}
 };
 
@@ -919,7 +924,7 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 		nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
 
 		// do exact lookup based on the symbol start address, as that is our key
-		NativeMethodMap::iterator iter = s_NativeMethods.find_first (nativeMethod);
+		NativeMethodMap::iterator iter = s_NativeMethods.find_first (MaskSpareBits(nativeMethod));
 		if (iter != s_NativeMethods.end ())
 		{
 			return MetadataCache::GetMethodInfoFromMethodDefinitionIndex (iter->methodIndex);
