@@ -26,7 +26,7 @@ public:
 	static Il2CppObject* GetValueObject (FieldInfo *field, Il2CppObject *obj);
 	static bool HasAttribute (FieldInfo *field, Il2CppClass *attr_class);
 	static bool IsDeleted (FieldInfo *field);
-	static void SetValue (Il2CppObject *obj, FieldInfo *field, void *value);
+	static void SetValue (Il2CppObject *obj, const FieldInfo *field, void *value);
 	static void StaticGetValue (FieldInfo *field, void *value);
 	static void StaticSetValue (FieldInfo *field, void *value);
 	static void SetInstanceFieldValueObject(Il2CppObject* objectInstance, FieldInfo* field, Il2CppObject* value);

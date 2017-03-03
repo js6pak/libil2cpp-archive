@@ -205,6 +205,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT(generic_ienumerable_class, "System.Collections.Generic", "IEnumerable`1");
 #if NET_4_0
 	DEFAULTS_INIT(generic_ireadonlylist_class, "System.Collections.Generic", "IReadOnlyList`1");
+	DEFAULTS_INIT(generic_ireadonlycollection_class, "System.Collections.Generic", "IReadOnlyCollection`1");
 #endif
 	DEFAULTS_INIT(generic_nullable_class, "System", "Nullable`1");
 	DEFAULTS_INIT(version, "System", "Version");
@@ -240,6 +241,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
 	DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
 	DEFAULTS_INIT(value_type_class, "System", "ValueType");
+	DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
 
 #if NET_4_0
 	DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
@@ -255,6 +257,7 @@ void Runtime::Init(const char* filename, const char *runtime_version)
 	{
 		const Il2CppImage* windowsRuntimeMetadataImage = Assembly::GetImage(windowsRuntimeMetadataAssembly);
 		il2cpp_defaults.ireference_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "IReference`1");
+		il2cpp_defaults.ikey_value_pair_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation.Collections", "IKeyValuePair`2");
 	}
 
 	Class::Init (il2cpp_defaults.string_class);
@@ -804,11 +807,16 @@ struct ConstCharCompare
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 
+static Il2CppMethodPointer MaskSpareBits(const Il2CppMethodPointer method)
+{
+	return (Il2CppMethodPointer)((size_t)method & ~IL2CPP_POINTER_SPARE_BITS);
+}
+
 struct MethodInfoToMethodPointerConverter
 {
 	Il2CppMethodPointer operator()(const Runtime::MethodDefinitionKey& methodInfo) const
 	{
-		return (Il2CppMethodPointer)((size_t)methodInfo.method & ~IL2CPP_POINTER_SPARE_BITS);
+		return  MaskSpareBits(methodInfo.method);
 	}
 };
 
@@ -938,8 +946,12 @@ const MethodInfo* Runtime::GetMethodFromNativeSymbol (Il2CppMethodPointer native
 
 		nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
 
+		// We can’t assume that the map file is aligned.  
+		// We must use the same masking/no masking logic used to insert into the data structure for the lookup. 
+		// If we don’t, the find will try to look up unmasked in a table full of masked values.
+
 		// do exact lookup based on the symbol start address, as that is our key
-		NativeMethodMap::iterator iter = s_NativeMethods.find_first (nativeMethod);
+		NativeMethodMap::iterator iter = s_NativeMethods.find_first (MaskSpareBits(nativeMethod));
 		if (iter != s_NativeMethods.end ())
 		{
 			return MetadataCache::GetMethodInfoFromMethodDefinitionIndex (iter->methodIndex);
