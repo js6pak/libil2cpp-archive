@@ -118,7 +118,7 @@ bool Field::IsDeleted (FieldInfo *field)
 	return false;
 }
 
-void Field::SetValue (Il2CppObject *obj, FieldInfo *field, void *value)
+void Field::SetValue (Il2CppObject *obj, const FieldInfo *field, void *value)
 {
 	void *dest;
 

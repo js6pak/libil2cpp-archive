@@ -943,6 +943,11 @@ inline Il2CppCodeGenType* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFun
 	return type;
 }
 
+inline Il2CppCodeGenAssembly* il2cpp_codegen_get_executing_assembly(const MethodInfo* methodInfo)
+{
+	return (Il2CppCodeGenAssembly*)il2cpp::vm::Reflection::GetAssemblyObject(il2cpp::vm::MetadataCache::GetAssemblyFromIndex(methodInfo->declaring_type->image->assemblyIndex));
+}
+
 // Atomic
 
 inline void* il2cpp_codegen_atomic_compare_exchange_pointer(void* volatile* dest, void* exchange, void* comparand)

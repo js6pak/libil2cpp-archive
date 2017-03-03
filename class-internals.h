@@ -99,6 +99,7 @@ typedef struct {
 	Il2CppClass *generic_ienumerable_class;
 #if NET_4_0
 	Il2CppClass *generic_ireadonlylist_class;
+	Il2CppClass *generic_ireadonlycollection_class;
 	Il2CppClass *runtimetype_class;
 #endif
 	Il2CppClass *generic_nullable_class;
@@ -153,6 +154,8 @@ typedef struct {
 
 	// Windows.Foundation.IReference`1<T>
 	Il2CppClass* ireference_class;
+	Il2CppClass* ikey_value_pair_class;
+	Il2CppClass* key_value_pair_class;
 } Il2CppDefaults;
 
 extern LIBIL2CPP_CODEGEN_API Il2CppDefaults il2cpp_defaults;
