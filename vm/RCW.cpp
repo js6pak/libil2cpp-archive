@@ -2,7 +2,10 @@
 #include "object-internals.h"
 #include "class-internals.h"
 #include "gc/GCHandle.h"
+#include "metadata/GenericMetadata.h"
 #include "vm/Exception.h"
+#include "vm/Field.h"
+#include "vm/GenericClass.h"
 #include "vm/MetadataCache.h"
 #include "vm/Object.h"
 #include "vm/PlatformInvoke.h"
@@ -92,17 +95,22 @@ static inline Il2CppClass* GetClassForRCW(Il2CppIUnknown* unknown, Il2CppClass* 
 	return result;
 }
 
+Il2CppObject* ReboxIReference(Il2CppIUnknown* comObject, Il2CppClass* objectClass);
+Il2CppObject* ReboxKeyValuePair(Il2CppIUnknown* comObject, Il2CppClass* keyValuePairGenericInstance);
+
 Il2CppObject* ReboxIfBoxed(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
 {
-	const char kWindowsFoundationNamespace[] = "Windows.Foundation";
-	const char kIReferenceClassName[] = "IReference`1";
+	if (strcmp(objectClass->namespaze, "Windows.Foundation") == 0 && strcmp(objectClass->name, "IReference`1") == 0)
+		return ReboxIReference(comObject, objectClass);
 
-	if (strcmp(objectClass->namespaze, kWindowsFoundationNamespace) != 0)
-		return NULL;
+	if (strcmp(objectClass->namespaze, "System.Collections.Generic") == 0 && strcmp(objectClass->name, "KeyValuePair`2") == 0)
+		return ReboxKeyValuePair(comObject, objectClass);
 
-	if (strcmp(objectClass->name, kIReferenceClassName) != 0)
-		return NULL;
+	return NULL;
+}
 
+Il2CppObject* ReboxIReference(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
+{
 	Class::Init(objectClass);
 	
 	// Sanity checks
@@ -123,6 +131,71 @@ Il2CppObject* ReboxIfBoxed(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
 
 	if (exception != NULL)
 		Exception::Raise(exception);
+
+	return reboxed;
+}
+
+Il2CppObject* ReboxKeyValuePair(Il2CppIUnknown* comObject, Il2CppClass* keyValuePairGenericInstance)
+{
+	Class::Init(keyValuePairGenericInstance);
+
+	// Sanity checks
+	IL2CPP_ASSERT(Class::IsInflated(keyValuePairGenericInstance));
+	IL2CPP_ASSERT(il2cpp_defaults.ikey_value_pair_class != NULL);
+	
+	// Retrieve Windows.Foundation.Collections.IKeyValuePair`1<K, V> generic instance
+	Il2CppGenericClass* iKeyValuePairGenericClass = metadata::GenericMetadata::GetGenericClass(il2cpp_defaults.ikey_value_pair_class, keyValuePairGenericInstance->generic_class->context.class_inst);
+	Il2CppClass* iKeyValuePairGenericInstance = GenericClass::GetClass(iKeyValuePairGenericClass);
+	Class::Init(iKeyValuePairGenericInstance);
+
+	IL2CPP_ASSERT(iKeyValuePairGenericInstance->vtable_count == 2);
+
+	const MethodInfo* getKeyMethod = iKeyValuePairGenericInstance->vtable[0].method;
+	IL2CPP_ASSERT(strcmp(getKeyMethod->name, "get_Key") == 0);
+
+	const MethodInfo* getValueMethod = iKeyValuePairGenericInstance->vtable[1].method;
+	IL2CPP_ASSERT(strcmp(getValueMethod->name, "get_Value") == 0);
+
+	Il2CppComObject fakeRcw;
+	fakeRcw.klass = il2cpp_defaults.il2cpp_com_object_class;
+	fakeRcw.monitor = NULL;
+	fakeRcw.identity = comObject;
+
+	// Create new boxed key value pair
+	Il2CppObject* reboxed = Object::New(keyValuePairGenericInstance);
+
+	for (uint16_t i = 0; i < 2; i++)
+	{
+		const MethodInfo* methodToInvoke;
+		const FieldInfo& field = keyValuePairGenericInstance->fields[i];
+
+		// Figure out which getter to call
+		if (strcmp(field.name, "key") == 0)
+		{
+			methodToInvoke = getKeyMethod;
+		}
+		else if (strcmp(field.name, "value") == 0)
+		{
+			methodToInvoke = getValueMethod;
+		}
+
+		// Call the getter
+		Il2CppException* exception = NULL;
+		Il2CppObject* fieldValue = Runtime::Invoke(methodToInvoke, &fakeRcw, NULL, &exception);
+
+		if (exception != NULL)
+			Exception::Raise(exception);
+
+		// Set the field in our reboxed key value pair instance
+		if (Class::FromIl2CppType(field.type)->valuetype)
+		{
+			Field::SetValue(reboxed, &field, Object::Unbox(fieldValue));
+		}
+		else
+		{
+			Field::SetValue(reboxed, &field, fieldValue);
+		}
+	}
 
 	return reboxed;
 }
@@ -174,13 +247,19 @@ static inline Il2CppObject* GetOrCreateRCW(T* comObject, Il2CppClass* objectClas
 	{
 		objectClass = GetClassForRCW(comObject, objectClass);
 
-		// If object class is Windows.Foundation.IReference`1<T>,
+		// If object class is one of the blessed unboxable classes,
 		// unbox the object from its windows runtime representation,
 		// unmarshal it, box it to Il2CppObject and return it
+		//
+		// Current list of unboxable classes:
+		//     Windows.Foundation.IReference`1<T>
+		//     System.Collections.Generic.KeyValuePair`2<K, V>
 		Il2CppObject* reboxed = ReboxIfBoxed(comObject, objectClass);
 		if (reboxed != NULL)
 			return reboxed;
 	}
+
+	IL2CPP_ASSERT(Class::HasParent(objectClass, il2cpp_defaults.il2cpp_com_object_class));
 
 	// 4. Create RCW object
 	Il2CppComObject* rcw = static_cast<Il2CppComObject*>(Object::New(objectClass));
