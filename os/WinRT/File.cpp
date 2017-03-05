@@ -31,6 +31,7 @@ static inline std::wstring GetDirectoryForStandardOutput()
 
 static FileHandle* GetOrCreateRedirectedHandle(FILE* stdFile, const wchar_t* fileNameOnDisk)
 {
+#if IL2CPP_DEBUG || IL2CPP_DEVELOPMENT
 	auto stdFd = _fileno(stdFile);
 	auto stdHandle = reinterpret_cast<FileHandle*>(_get_osfhandle(stdFd));
 
@@ -40,6 +41,9 @@ static FileHandle* GetOrCreateRedirectedHandle(FILE* stdFile, const wchar_t* fil
 	std::wstring pathOnDisk = GetDirectoryForStandardOutput() + fileNameOnDisk;
 	auto redirectedFile = _wfreopen(pathOnDisk.c_str(), L"w+", stdFile);
 	return reinterpret_cast<FileHandle*>(_get_osfhandle(_fileno(redirectedFile)));
+#else
+	return NULL;
+#endif
 }
 
 bool File::Isatty(FileHandle* fileHandle)
