@@ -15,52 +15,50 @@ namespace System
 {
 namespace Threading
 {
+    bool NativeEventCalls::ResetEvent_internal(Il2CppIntPtr handlePtr)
+    {
+        EventHandle* handle = (EventHandle*)handlePtr.m_value;
+        ErrorCode result = handle->Get().Reset();
 
-bool NativeEventCalls::ResetEvent_internal (Il2CppIntPtr handlePtr)
-{
-	EventHandle* handle = (EventHandle*)handlePtr.m_value;
-	ErrorCode result = handle->Get ().Reset ();
+        return kErrorCodeSuccess == result;
+    }
 
-	return kErrorCodeSuccess == result;
-}
+    bool NativeEventCalls::SetEvent_internal(Il2CppIntPtr handlePtr)
+    {
+        EventHandle* handle = (EventHandle*)handlePtr.m_value;
+        ErrorCode result = handle->Get().Set();
 
-bool NativeEventCalls::SetEvent_internal (Il2CppIntPtr handlePtr)
-{
-	EventHandle* handle = (EventHandle*)handlePtr.m_value;
-	ErrorCode result = handle->Get ().Set ();
+        return kErrorCodeSuccess == result;
+    }
 
-	return kErrorCodeSuccess == result;
-}
+    Il2CppIntPtr NativeEventCalls::CreateEvent_internal(bool manualReset, bool signaled, Il2CppString* name, bool* created)
+    {
+        *created = true;
+        il2cpp::os::Event* event = NULL;
 
-Il2CppIntPtr NativeEventCalls::CreateEvent_internal (bool manualReset, bool signaled, Il2CppString* name, bool* created)
-{
-	*created = true;
-	il2cpp::os::Event* event = NULL;
-	
-	if (name == NULL)
-		event = new Event (manualReset, signaled);
-	else 
-		NOT_SUPPORTED_IL2CPP (NativeEventCalls::CreateEvent_internal, "Named events are not supported.");
+        if (name == NULL)
+            event = new Event(manualReset, signaled);
+        else
+            NOT_SUPPORTED_IL2CPP(NativeEventCalls::CreateEvent_internal, "Named events are not supported.");
 
-	Il2CppIntPtr ret = { new EventHandle(event) };
-	return ret;
-}
+        Il2CppIntPtr ret = { new EventHandle(event) };
+        return ret;
+    }
 
-void NativeEventCalls::CloseEvent_internal (Il2CppIntPtr handlePtr)
-{
-	Handle* handle = (Handle*)handlePtr.m_value;
-	// should we close or just delete
-	//handle->Close ();
-	delete handle;
-}
+    void NativeEventCalls::CloseEvent_internal(Il2CppIntPtr handlePtr)
+    {
+        Handle* handle = (Handle*)handlePtr.m_value;
+        // should we close or just delete
+        //handle->Close ();
+        delete handle;
+    }
 
-Il2CppIntPtr NativeEventCalls::OpenEvent_internal (Il2CppString* name, EventWaitHandleRights rights, MonoIOError* error)
-{
-	NOT_IMPLEMENTED_ICALL (NativeEventCalls::OpenEvent_internal);
-	
-	return Il2CppIntPtr();
-}
+    Il2CppIntPtr NativeEventCalls::OpenEvent_internal(Il2CppString* name, EventWaitHandleRights rights, MonoIOError* error)
+    {
+        NOT_IMPLEMENTED_ICALL(NativeEventCalls::OpenEvent_internal);
 
+        return Il2CppIntPtr();
+    }
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

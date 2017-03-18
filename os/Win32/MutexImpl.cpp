@@ -11,35 +11,33 @@ namespace il2cpp
 {
 namespace os
 {
+    MutexImpl::MutexImpl()
+    {
+        m_MutexHandle = ::CreateMutex(NULL, FALSE, NULL);
+        IL2CPP_ASSERT(m_MutexHandle);
+    }
 
-MutexImpl::MutexImpl ()
-{
-	m_MutexHandle = ::CreateMutex (NULL, FALSE, NULL);
-	IL2CPP_ASSERT(m_MutexHandle);
-}
+    MutexImpl::~MutexImpl()
+    {
+        IL2CPP_ASSERT(m_MutexHandle);
+        ::CloseHandle(m_MutexHandle);
+    }
 
-MutexImpl::~MutexImpl ()
-{
-	IL2CPP_ASSERT(m_MutexHandle);
-	::CloseHandle (m_MutexHandle);
-}
+    void MutexImpl::Lock(bool interruptible)
+    {
+        TryLock(INFINITE, interruptible);
+    }
 
-void MutexImpl::Lock (bool interruptible)
-{
-	TryLock (INFINITE, interruptible);
-}
+    bool MutexImpl::TryLock(uint32_t milliseconds, bool interruptible)
+    {
+        return (il2cpp::os::win::WaitForSingleObjectAndAccountForAPCs(m_MutexHandle, milliseconds, interruptible) == kWaitStatusSuccess);
+    }
 
-bool MutexImpl::TryLock (uint32_t milliseconds, bool interruptible)
-{
-	return (il2cpp::os::win::WaitForSingleObjectAndAccountForAPCs (m_MutexHandle, milliseconds, interruptible) == kWaitStatusSuccess);
-}
-
-void MutexImpl::Unlock ()
-{
-	ReleaseMutex (m_MutexHandle);
-}
-
+    void MutexImpl::Unlock()
+    {
+        ReleaseMutex(m_MutexHandle);
+    }
 }
 }
 
-#endif 
+#endif

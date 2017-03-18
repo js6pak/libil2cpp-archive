@@ -3,98 +3,95 @@
 
 namespace il2cpp
 {
-
 namespace utils
 {
+    template<typename CharType>
+    class StringView
+    {
+    private:
+        const CharType* m_String;
+        size_t m_Length;
 
-template <typename CharType>
-class StringView
-{
-private:
-	const CharType* m_String;
-	size_t m_Length;
+        // Intended to only be used by Empty()
+        inline StringView() :
+            m_String(NULL),
+            m_Length(0)
+        {
+        }
 
-	// Intended to only be used by Empty()
-	inline StringView() :
-		m_String(NULL),
-		m_Length(0)
-	{
-	}
+    public:
+        template<size_t Length>
+        inline StringView(const CharType(&str)[Length]) :
+            m_String(str), m_Length(Length - 1)
+        {
+        }
 
-public:
-	template <size_t Length>
-	inline StringView(const CharType (&str)[Length]) :
-		m_String(str), m_Length(Length - 1)
-	{
-	}
+        inline StringView(const CharType* str, size_t length) :
+            m_String(str), m_Length(length)
+        {
+            IL2CPP_ASSERT(str != NULL);
+        }
 
-	inline StringView(const CharType* str, size_t length) :
-		m_String(str), m_Length(length)
-	{
-		IL2CPP_ASSERT(str != NULL);
-	}
+        inline StringView(const StringView<CharType>& str, size_t startIndex, size_t length) :
+            m_String(str.Str() + startIndex),
+            m_Length(length)
+        {
+            IL2CPP_ASSERT(startIndex + length <= str.Length());
+        }
 
-	inline StringView(const StringView<CharType>& str, size_t startIndex, size_t length) :
-		m_String(str.Str() + startIndex),
-		m_Length(length)
-	{
-		IL2CPP_ASSERT(startIndex + length <= str.Length());
-	}
+        template<typename CharTraits, typename StringAlloc>
+        inline StringView(const std::basic_string<CharType, CharTraits, StringAlloc>& str) :
+            m_String(str.c_str()), m_Length(str.length())
+        {
+        }
 
-	template <typename CharTraits, typename StringAlloc>
-	inline StringView(const std::basic_string<CharType, CharTraits, StringAlloc>& str) :
-		m_String(str.c_str()), m_Length(str.length())
-	{
-	}
+        inline const CharType* Str() const
+        {
+            return m_String;
+        }
 
-	inline const CharType* Str() const
-	{
-		return m_String;
-	}
+        inline size_t Length() const
+        {
+            return m_Length;
+        }
 
-	inline size_t Length() const
-	{
-		return m_Length;
-	}
+        inline CharType operator[](size_t index) const
+        {
+            return m_String[index];
+        }
 
-	inline CharType operator[](size_t index) const
-	{
-		return m_String[index];
-	}
+        inline bool IsNullTerminated() const
+        {
+            return m_String[m_Length] == 0;
+        }
 
-	inline bool IsNullTerminated() const
-	{
-		return m_String[m_Length] == 0;
-	}
+        inline bool IsEmpty() const
+        {
+            return Length() == 0;
+        }
 
-	inline bool IsEmpty() const
-	{
-		return Length() == 0;
-	}
-
-	static inline StringView<CharType> Empty()
-	{
-		return StringView<CharType>();
-	}
-};
+        static inline StringView<CharType> Empty()
+        {
+            return StringView<CharType>();
+        }
+    };
 
 #define StringViewAsNullTerminatedStringOf(CharType, stringView, variableName) \
-	const CharType* variableName; \
-	do \
-	{ \
-		if (stringView.IsNullTerminated()) \
-		{ \
-			variableName = stringView.Str(); \
-		} \
-		else \
-		{ \
-			CharType* buffer = static_cast<CharType*>(alloca((stringView.Length() + 1) * sizeof(CharType))); \
-			memcpy(buffer, stringView.Str(), stringView.Length() * sizeof(CharType)); \
-			buffer[stringView.Length()] = 0; \
-			variableName = buffer; \
-		} \
-	} \
-	while (false)
-
+    const CharType* variableName; \
+    do \
+    { \
+        if (stringView.IsNullTerminated()) \
+        { \
+            variableName = stringView.Str(); \
+        } \
+        else \
+        { \
+            CharType* buffer = static_cast<CharType*>(alloca((stringView.Length() + 1) * sizeof(CharType))); \
+            memcpy(buffer, stringView.Str(), stringView.Length() * sizeof(CharType)); \
+            buffer[stringView.Length()] = 0; \
+            variableName = buffer; \
+        } \
+    } \
+    while (false)
 }
 }

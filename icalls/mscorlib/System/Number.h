@@ -11,14 +11,12 @@ namespace mscorlib
 {
 namespace System
 {
-
-class LIBIL2CPP_CODEGEN_API Number
-{
-public:
-	static bool NumberBufferToDecimal(uint8_t* number, Il2CppDecimal* value);
-	static bool NumberBufferToDouble(uint8_t* number, double* value);
-};
-
+    class LIBIL2CPP_CODEGEN_API Number
+    {
+    public:
+        static bool NumberBufferToDecimal(uint8_t* number, Il2CppDecimal* value);
+        static bool NumberBufferToDouble(uint8_t* number, double* value);
+    };
 } // namespace System
 } // namespace mscorlib
 } // namespace icalls

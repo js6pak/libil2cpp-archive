@@ -13,13 +13,10 @@ namespace System
 {
 namespace Diagnostics
 {
-
-
-void DefaultTraceListener::WriteWindowsDebugString (Il2CppString* message)
-{
-	NOT_IMPLEMENTED_ICALL (DefaultTraceListener::WriteWindowsDebugString);
-}
-
+    void DefaultTraceListener::WriteWindowsDebugString(Il2CppString* message)
+    {
+        NOT_IMPLEMENTED_ICALL(DefaultTraceListener::WriteWindowsDebugString);
+    }
 } /* namespace Diagnostics */
 } /* namespace System */
 } /* namespace System */
