@@ -13,15 +13,12 @@ namespace System
 {
 namespace Globalization
 {
+    bool RegionInfo::construct_internal_region_from_name(void* /* System.Globalization.RegionInfo */ self, Il2CppString* name)
+    {
+        NOT_IMPLEMENTED_ICALL(RegionInfo::construct_internal_region_from_name);
 
-
-bool RegionInfo::construct_internal_region_from_name (void* /* System.Globalization.RegionInfo */ self, Il2CppString* name)
-{
-	NOT_IMPLEMENTED_ICALL (RegionInfo::construct_internal_region_from_name);
-	
-	return false;
-}
-
+        return false;
+    }
 } /* namespace Globalization */
 } /* namespace System */
 } /* namespace mscorlib */

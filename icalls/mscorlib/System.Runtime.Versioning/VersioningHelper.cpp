@@ -14,15 +14,12 @@ namespace Runtime
 {
 namespace Versioning
 {
-
-int32_t VersioningHelper::GetRuntimeId()
-{
-	NOT_IMPLEMENTED_ICALL(VersioningHelper::GetRuntimeId);
-	IL2CPP_UNREACHABLE;
-	return NULL;
-}
-
-
+    int32_t VersioningHelper::GetRuntimeId()
+    {
+        NOT_IMPLEMENTED_ICALL(VersioningHelper::GetRuntimeId);
+        IL2CPP_UNREACHABLE;
+        return NULL;
+    }
 } // namespace Versioning
 } // namespace Runtime
 } // namespace System

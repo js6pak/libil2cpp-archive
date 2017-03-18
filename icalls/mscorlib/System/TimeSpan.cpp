@@ -10,15 +10,12 @@ namespace mscorlib
 {
 namespace System
 {
-
-bool TimeSpan::LegacyFormatMode()
-{
-	NOT_IMPLEMENTED_ICALL(TimeSpan::LegacyFormatMode);
-	IL2CPP_UNREACHABLE;
-	return NULL;
-}
-
-
+    bool TimeSpan::LegacyFormatMode()
+    {
+        NOT_IMPLEMENTED_ICALL(TimeSpan::LegacyFormatMode);
+        IL2CPP_UNREACHABLE;
+        return NULL;
+    }
 } // namespace System
 } // namespace mscorlib
 } // namespace icalls

@@ -11,62 +11,60 @@ namespace il2cpp
 {
 namespace os
 {
-
-static inline std::wstring GetDirectoryForStandardOutput()
-{
+    static inline std::wstring GetDirectoryForStandardOutput()
+    {
 #if IL2CPP_TARGET_XBOXONE
 
-	return L"D:\\";
+        return L"D:\\";
 
 #elif IL2CPP_TARGET_WINRT
 
-	wchar_t buffer[MAX_PATH + 2];
-	uint32_t tempPathLength = GetTempPathW(MAX_PATH + 2, buffer);
-	return std::wstring(buffer, tempPathLength);
+        wchar_t buffer[MAX_PATH + 2];
+        uint32_t tempPathLength = GetTempPathW(MAX_PATH + 2, buffer);
+        return std::wstring(buffer, tempPathLength);
 
 #else
 #error Unknown platform
 #endif
-}
+    }
 
-static FileHandle* GetOrCreateRedirectedHandle(FILE* stdFile, const wchar_t* fileNameOnDisk)
-{
+    static FileHandle* GetOrCreateRedirectedHandle(FILE* stdFile, const wchar_t* fileNameOnDisk)
+    {
 #if IL2CPP_DEBUG || IL2CPP_DEVELOPMENT
-	auto stdFd = _fileno(stdFile);
-	auto stdHandle = reinterpret_cast<FileHandle*>(_get_osfhandle(stdFd));
+        auto stdFd = _fileno(stdFile);
+        auto stdHandle = reinterpret_cast<FileHandle*>(_get_osfhandle(stdFd));
 
-	if (stdHandle != INVALID_HANDLE_VALUE && !_isatty(stdFd))
-		return stdHandle;
+        if (stdHandle != INVALID_HANDLE_VALUE && !_isatty(stdFd))
+            return stdHandle;
 
-	std::wstring pathOnDisk = GetDirectoryForStandardOutput() + fileNameOnDisk;
-	auto redirectedFile = _wfreopen(pathOnDisk.c_str(), L"w+", stdFile);
-	return reinterpret_cast<FileHandle*>(_get_osfhandle(_fileno(redirectedFile)));
+        std::wstring pathOnDisk = GetDirectoryForStandardOutput() + fileNameOnDisk;
+        auto redirectedFile = _wfreopen(pathOnDisk.c_str(), L"w+", stdFile);
+        return reinterpret_cast<FileHandle*>(_get_osfhandle(_fileno(redirectedFile)));
 #else
-	return NULL;
+        return NULL;
 #endif
-}
+    }
 
-bool File::Isatty(FileHandle* fileHandle)
-{
-	NOT_IMPLEMENTED_ICALL(File::IsAtty);
-	return false;
-}
+    bool File::Isatty(FileHandle* fileHandle)
+    {
+        NOT_IMPLEMENTED_ICALL(File::IsAtty);
+        return false;
+    }
 
-FileHandle* File::GetStdInput()
-{
-	return GetOrCreateRedirectedHandle(stdin, L"stdin.txt");
-}
+    FileHandle* File::GetStdInput()
+    {
+        return GetOrCreateRedirectedHandle(stdin, L"stdin.txt");
+    }
 
-FileHandle* File::GetStdError ()
-{
-	return GetOrCreateRedirectedHandle(stderr, L"stderr.txt");
-}
+    FileHandle* File::GetStdError()
+    {
+        return GetOrCreateRedirectedHandle(stderr, L"stderr.txt");
+    }
 
-FileHandle* File::GetStdOutput ()
-{
-	return GetOrCreateRedirectedHandle(stdout, L"stdout.txt");
-}
-
+    FileHandle* File::GetStdOutput()
+    {
+        return GetOrCreateRedirectedHandle(stdout, L"stdout.txt");
+    }
 } //os
 } //il2cpp
 

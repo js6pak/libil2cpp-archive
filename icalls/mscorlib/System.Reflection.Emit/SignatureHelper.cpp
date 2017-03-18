@@ -14,19 +14,17 @@ namespace Reflection
 {
 namespace Emit
 {
+    Il2CppArray* SignatureHelper::get_signature_local(Il2CppReflectionSigHelper*)
+    {
+        NOT_SUPPORTED_SRE(SignatureHelper::get_signature_local);
+        return NULL;
+    }
 
-Il2CppArray* SignatureHelper::get_signature_local (Il2CppReflectionSigHelper*)
-{
-	NOT_SUPPORTED_SRE (SignatureHelper::get_signature_local);
-	return NULL;
-}
-
-Il2CppArray* SignatureHelper::get_signature_field (Il2CppReflectionSigHelper*)
-{
-	NOT_SUPPORTED_SRE (SignatureHelper::get_signature_field);
-	return NULL;
-}
-
+    Il2CppArray* SignatureHelper::get_signature_field(Il2CppReflectionSigHelper*)
+    {
+        NOT_SUPPORTED_SRE(SignatureHelper::get_signature_field);
+        return NULL;
+    }
 } /* namespace Emit */
 } /* namespace Reflection */
 } /* namespace System */

@@ -14,13 +14,10 @@ namespace System
 {
 namespace Text
 {
-
-Il2CppString* EncodingHelper::InternalCodePage(int32_t* code_page)
-{
-	return Encoding::InternalCodePage(code_page);
-}
-
-
+    Il2CppString* EncodingHelper::InternalCodePage(int32_t* code_page)
+    {
+        return Encoding::InternalCodePage(code_page);
+    }
 } // namespace Text
 } // namespace System
 } // namespace mscorlib

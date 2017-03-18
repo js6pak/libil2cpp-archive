@@ -13,15 +13,13 @@ namespace System
 {
 namespace Reflection
 {
-
-class LIBIL2CPP_CODEGEN_API MethodBase
-{
-public:
-	static Il2CppReflectionMethod* GetCurrentMethod();
-	static void* /* System.Reflection.MethodBody */ GetMethodBodyInternal (Il2CppIntPtr handle);
-	static Il2CppReflectionMethod* GetMethodFromHandleInternalType (Il2CppIntPtr method,Il2CppIntPtr type);
-};
-	
+    class LIBIL2CPP_CODEGEN_API MethodBase
+    {
+    public:
+        static Il2CppReflectionMethod* GetCurrentMethod();
+        static void* /* System.Reflection.MethodBody */ GetMethodBodyInternal(Il2CppIntPtr handle);
+        static Il2CppReflectionMethod* GetMethodFromHandleInternalType(Il2CppIntPtr method, Il2CppIntPtr type);
+    };
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

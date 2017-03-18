@@ -9,18 +9,14 @@ namespace il2cpp
 {
 namespace os
 {
-
 namespace FileSystemWatcher
 {
-
-int IsSupported()
-{
-	NOT_IMPLEMENTED_ICALL (FileSystemWatcher::IsSupported);
-	return 0;
+    int IsSupported()
+    {
+        NOT_IMPLEMENTED_ICALL(FileSystemWatcher::IsSupported);
+        return 0;
+    }
 }
-
-}
-
 }
 }
 

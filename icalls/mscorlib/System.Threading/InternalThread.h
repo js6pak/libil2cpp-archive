@@ -14,13 +14,11 @@ namespace System
 {
 namespace Threading
 {
-
-class LIBIL2CPP_CODEGEN_API InternalThread
-{
-public:
-	static void Thread_free_internal(Il2CppInternalThread* _this, Il2CppIntPtr handle);
-};
-
+    class LIBIL2CPP_CODEGEN_API InternalThread
+    {
+    public:
+        static void Thread_free_internal(Il2CppInternalThread* _this, Il2CppIntPtr handle);
+    };
 } // namespace Threading
 } // namespace System
 } // namespace mscorlib
