@@ -8,33 +8,31 @@ namespace il2cpp
 {
 namespace os
 {
-
 namespace Console
 {
+    int32_t InternalKeyAvailable(int32_t ms_timeout)
+    {
+        NOT_IMPLEMENTED_ICALL(Console::InternalKeyAvailable);
+        return 0;
+    }
 
-int32_t InternalKeyAvailable (int32_t ms_timeout)
-{
-	NOT_IMPLEMENTED_ICALL(Console::InternalKeyAvailable);
-	return 0;
-}
+    bool SetBreak(bool wantBreak)
+    {
+        NOT_IMPLEMENTED_ICALL(Console::SetBreak);
+        return false;
+    }
 
-bool SetBreak (bool wantBreak)
-{
-	NOT_IMPLEMENTED_ICALL(Console::SetBreak);
-	return false;
-}
+    bool SetEcho(bool wantEcho)
+    {
+        NOT_IMPLEMENTED_ICALL(Console::SetEcho);
+        return false;
+    }
 
-bool SetEcho (bool wantEcho)
-{
-	NOT_IMPLEMENTED_ICALL(Console::SetEcho);
-	return false;
-}
-bool TtySetup (const std::string& keypadXmit, const std::string& teardown, uint8_t* control_characters, int32_t** size)
-{
-	NOT_IMPLEMENTED_ICALL(Console::TtySetup);
-	return false;
-}
-
+    bool TtySetup(const std::string& keypadXmit, const std::string& teardown, uint8_t* control_characters, int32_t** size)
+    {
+        NOT_IMPLEMENTED_ICALL(Console::TtySetup);
+        return false;
+    }
 }
 }
 }

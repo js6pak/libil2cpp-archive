@@ -9,13 +9,11 @@ namespace mscorlib
 {
 namespace System
 {
-
-class LIBIL2CPP_CODEGEN_API MissingMemberException
-{
-public:
-	static Il2CppString* FormatSignature(Il2CppArray* signature);
-};
-
+    class LIBIL2CPP_CODEGEN_API MissingMemberException
+    {
+    public:
+        static Il2CppString* FormatSignature(Il2CppArray* signature);
+    };
 } // namespace System
 } // namespace mscorlib
 } // namespace icalls
