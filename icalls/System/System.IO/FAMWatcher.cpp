@@ -13,15 +13,12 @@ namespace System
 {
 namespace IO
 {
+    int32_t FAMWatcher::InternalFAMNextEvent(FAMConnection* fc, Il2CppString** filename, int32_t* code, int32_t* reqnum)
+    {
+        NOT_IMPLEMENTED_ICALL(FAMWatcher::InternalFAMNextEvent);
 
-
-int32_t FAMWatcher::InternalFAMNextEvent (FAMConnection* fc, Il2CppString** filename, int32_t* code, int32_t* reqnum)
-{
-	NOT_IMPLEMENTED_ICALL (FAMWatcher::InternalFAMNextEvent);
-	
-	return 0;
-}
-
+        return 0;
+    }
 } /* namespace IO */
 } /* namespace System */
 } /* namespace System */

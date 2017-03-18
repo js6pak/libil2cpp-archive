@@ -12,13 +12,11 @@ namespace System
 {
 namespace Reflection
 {
-
-class LIBIL2CPP_CODEGEN_API RtFieldInfo
-{
-public:
-	static Il2CppObject* UnsafeGetValue(Il2CppReflectionField* _this, Il2CppObject* obj);
-};
-
+    class LIBIL2CPP_CODEGEN_API RtFieldInfo
+    {
+    public:
+        static Il2CppObject* UnsafeGetValue(Il2CppReflectionField* _this, Il2CppObject* obj);
+    };
 } // namespace Reflection
 } // namespace System
 } // namespace mscorlib

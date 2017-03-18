@@ -7,26 +7,22 @@ namespace il2cpp
 {
 namespace metadata
 {
+    bool Il2CppGenericMethodCompare::operator()(const KeyWrapper<const Il2CppGenericMethod*>& m1, const KeyWrapper<const Il2CppGenericMethod*>& m2) const
+    {
+        return Equals(m1, m2);
+    }
 
+    bool Il2CppGenericMethodCompare::Equals(const KeyWrapper<const Il2CppGenericMethod*>& m1, const KeyWrapper<const Il2CppGenericMethod*>& m2)
+    {
+        if (m1.type != m2.type)
+            return false;
+        else if (!m1.isNormal())
+            return true;
 
-bool Il2CppGenericMethodCompare::operator() (const KeyWrapper<const Il2CppGenericMethod*>& m1, const KeyWrapper<const Il2CppGenericMethod*>& m2) const
-{
-	return Equals (m1, m2);
-}
+        if (m1.key->methodDefinition != m2.key->methodDefinition)
+            return false;
 
-
-bool Il2CppGenericMethodCompare::Equals (const KeyWrapper<const Il2CppGenericMethod*>& m1, const KeyWrapper<const Il2CppGenericMethod*>& m2)
-{
-	if (m1.type != m2.type)
-		return false;
-	else if (!m1.isNormal())
-		return true;
-		
-	if (m1.key->methodDefinition != m2.key->methodDefinition)
-		return false;
-
-	return Il2CppGenericContextCompare::Compare (&m1.key->context, &m2.key->context);
-}
-
+        return Il2CppGenericContextCompare::Compare(&m1.key->context, &m2.key->context);
+    }
 } /* namespace vm */
 } /* namespace il2cpp */

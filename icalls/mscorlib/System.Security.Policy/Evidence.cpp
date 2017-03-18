@@ -15,15 +15,12 @@ namespace Security
 {
 namespace Policy
 {
+    bool Evidence::IsAuthenticodePresent(Il2CppAssembly* a)
+    {
+        NOT_SUPPORTED_IL2CPP(Evidence::IsAuthenticodePresent, "This icall is not supported by il2cpp.");
 
-
-bool Evidence::IsAuthenticodePresent (Il2CppAssembly* a)
-{
-	NOT_SUPPORTED_IL2CPP (Evidence::IsAuthenticodePresent, "This icall is not supported by il2cpp.");
-	
-	return false;
-}
-
+        return false;
+    }
 } /* namespace Policy */
 } /* namespace Security */
 } /* namespace System */

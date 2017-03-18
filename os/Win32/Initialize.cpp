@@ -9,12 +9,12 @@
 void il2cpp::os::Initialize()
 {
 #if _DEBUG
-	std::string buildMachine = il2cpp::os::Environment::GetEnvironmentVariable("UNITY_THISISABUILDMACHINE");
-	if (!buildMachine.empty())
-	{
-		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
-		_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
-	}
+    std::string buildMachine = il2cpp::os::Environment::GetEnvironmentVariable("UNITY_THISISABUILDMACHINE");
+    if (!buildMachine.empty())
+    {
+        _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
+        _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
+    }
 #endif
 }
 
@@ -22,6 +22,7 @@ void il2cpp::os::Initialize()
 void il2cpp::os::Uninitialize()
 {
 }
+
 #endif
 
 #endif

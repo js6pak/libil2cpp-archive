@@ -15,79 +15,78 @@ namespace mscorlib
 {
 namespace System
 {
+    void GC::SuppressFinalize(Il2CppObject *obj)
+    {
+        if (obj == NULL)
+            il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetArgumentNullException("obj"));
 
-void GC::SuppressFinalize(Il2CppObject *obj)
-{
-	if (obj == NULL)
-		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetArgumentNullException ("obj"));
+        il2cpp::gc::GarbageCollector::SuppressFinalizer(obj);
+    }
 
-	il2cpp::gc::GarbageCollector::SuppressFinalizer (obj);
-}
+    int32_t GC::GetGeneration(Il2CppObject* obj)
+    {
+        return il2cpp::gc::GarbageCollector::GetGeneration(obj);
+    }
 
-int32_t GC::GetGeneration (Il2CppObject* obj)
-{
-	return il2cpp::gc::GarbageCollector::GetGeneration (obj);
-}
+    void GC::KeepAlive(Il2CppObject* obj)
+    {
+        // do nothing. icall just prevents compilers from optimizing away references to object being passed in
+    }
 
-void GC::KeepAlive (Il2CppObject* obj)
-{
-	// do nothing. icall just prevents compilers from optimizing away references to object being passed in
-}
+    void GC::InternalCollect(int generation)
+    {
+        il2cpp::gc::GarbageCollector::Collect(generation);
+    }
 
-void GC::InternalCollect(int generation)
-{
-	il2cpp::gc::GarbageCollector::Collect (generation);
-}
+    int32_t GC::get_MaxGeneration()
+    {
+        return il2cpp::gc::GarbageCollector::GetMaxGeneration();
+    }
 
-int32_t GC::get_MaxGeneration()
-{
-	return il2cpp::gc::GarbageCollector::GetMaxGeneration ();
-}
+    void GC::RecordPressure(int64_t bytesAllocated)
+    {
+        il2cpp::gc::GarbageCollector::AddMemoryPressure(bytesAllocated);
+    }
 
-void GC::RecordPressure (int64_t bytesAllocated)
-{
-	il2cpp::gc::GarbageCollector::AddMemoryPressure (bytesAllocated);
-}
+    void GC::WaitForPendingFinalizers()
+    {
+        il2cpp::gc::GarbageCollector::WaitForPendingFinalizers();
+    }
 
-void GC::WaitForPendingFinalizers()
-{
-	il2cpp::gc::GarbageCollector::WaitForPendingFinalizers ();
-}
+    int64_t GC::GetTotalMemory(bool forceFullCollection)
+    {
+        if (forceFullCollection)
+            il2cpp::gc::GarbageCollector::Collect(il2cpp::gc::GarbageCollector::GetMaxGeneration());
 
-int64_t GC::GetTotalMemory (bool forceFullCollection)
-{
-	if ( forceFullCollection )
-		il2cpp::gc::GarbageCollector::Collect (il2cpp::gc::GarbageCollector::GetMaxGeneration ());
+        return il2cpp::gc::GarbageCollector::GetUsedHeapSize();
+    }
 
-	return il2cpp::gc::GarbageCollector::GetUsedHeapSize ();
-}
+    void GC::ReRegisterForFinalize(Il2CppObject* obj)
+    {
+        if (obj == NULL)
+            il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetArgumentNullException("obj"));
 
-void GC::ReRegisterForFinalize (Il2CppObject* obj)
-{
-	if (obj == NULL)
-		il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetArgumentNullException ("obj"));
+        il2cpp::gc::GarbageCollector::RegisterFinalizer(obj);
+    }
 
-	il2cpp::gc::GarbageCollector::RegisterFinalizer (obj);
-}
-
-int32_t GC::CollectionCount (int32_t generation)
-{
-	return il2cpp::gc::GarbageCollector::GetCollectionCount (generation);
-}
+    int32_t GC::CollectionCount(int32_t generation)
+    {
+        return il2cpp::gc::GarbageCollector::GetCollectionCount(generation);
+    }
 
 #if NET_4_0
-Il2CppObject* GC::get_ephemeron_tombstone()
-{
-	return vm::Object::New(il2cpp_defaults.object_class);
-}
+    Il2CppObject* GC::get_ephemeron_tombstone()
+    {
+        return vm::Object::New(il2cpp_defaults.object_class);
+    }
 
-void GC::register_ephemeron_array(Il2CppArray* array)
-{
-	// Mono only does something in this icall when SGEN is in use.  We don't have SGEN,
-	// so there is nothing to do here.
-}
+    void GC::register_ephemeron_array(Il2CppArray* array)
+    {
+        // Mono only does something in this icall when SGEN is in use.  We don't have SGEN,
+        // so there is nothing to do here.
+    }
+
 #endif
-
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

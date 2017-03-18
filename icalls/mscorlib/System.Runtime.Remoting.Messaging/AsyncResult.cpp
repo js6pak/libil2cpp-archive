@@ -22,47 +22,44 @@ namespace Remoting
 {
 namespace Messaging
 {
+    Il2CppObject* AsyncResult::Invoke(Il2CppObject* _this)
+    {
+        Il2CppAsyncCall *ac;
+        Il2CppObject *res;
+        Il2CppAsyncResult *ares = (Il2CppAsyncResult*)_this;
 
-Il2CppObject* AsyncResult::Invoke(Il2CppObject* _this)
-{
-	Il2CppAsyncCall *ac;
-	Il2CppObject *res;
-	Il2CppAsyncResult *ares = (Il2CppAsyncResult*)_this;
+        IL2CPP_ASSERT(ares);
+        IL2CPP_ASSERT(ares->async_delegate);
 
-	IL2CPP_ASSERT(ares);
-	IL2CPP_ASSERT(ares->async_delegate);
+        ac = (Il2CppAsyncCall*)ares->object_data;
+        if (!ac)
+        {
+            res = vm::Runtime::DelegateInvoke(ares->async_delegate, (void**)&ares->async_state, NULL);
+        }
+        else
+        {
+            il2cpp::os::EventHandle *wait_event = NULL;
 
-	ac = (Il2CppAsyncCall*)ares->object_data;
-	if (!ac) 
-	{
-		res = vm::Runtime::DelegateInvoke(ares->async_delegate, (void**)&ares->async_state, NULL);
-	}
-	else 
-	{
-		il2cpp::os::EventHandle *wait_event = NULL;
+            ac->msg->exc = NULL;
+            res = il2cpp::vm::ThreadPoolMs::MessageInvoke((Il2CppObject*)ares->async_delegate->target, ac->msg, &ac->msg->exc, &ac->out_args);
+            IL2CPP_OBJECT_SETREF(ac, res, res);
 
-		ac->msg->exc = NULL;
-		res = il2cpp::vm::ThreadPoolMs::MessageInvoke((Il2CppObject*)ares->async_delegate->target, ac->msg, &ac->msg->exc, &ac->out_args);
-		IL2CPP_OBJECT_SETREF(ac, res, res);
+            il2cpp_monitor_enter((Il2CppObject*)ares);
+            ares->completed = 1;
+            if (ares->handle)
+                wait_event = (il2cpp::os::EventHandle*)il2cpp::vm::WaitHandle::GetPlatformHandle(ares->handle);
 
-		il2cpp_monitor_enter((Il2CppObject*)ares);
-		ares->completed = 1;
-		if (ares->handle)
-			wait_event = (il2cpp::os::EventHandle*)il2cpp::vm::WaitHandle::GetPlatformHandle(ares->handle);
+            il2cpp_monitor_exit((Il2CppObject*)ares);
 
-		il2cpp_monitor_exit((Il2CppObject*)ares);
+            if (wait_event != NULL)
+                wait_event->Get().Set();
 
-		if (wait_event != NULL)
-			wait_event->Get().Set();
+            if (ac->cb_method)
+                vm::Runtime::Invoke(ac->cb_method, ac->cb_target, (void**)&ares, (Il2CppException**)&ac->msg->exc);
+        }
 
-		if (ac->cb_method) 
-			vm::Runtime::Invoke(ac->cb_method, ac->cb_target, (void**)&ares, (Il2CppException**)&ac->msg->exc);
-	}
-
-	return res;
-}
-
-
+        return res;
+    }
 } // namespace Messaging
 } // namespace Remoting
 } // namespace Runtime
