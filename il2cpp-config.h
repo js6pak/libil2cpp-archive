@@ -9,44 +9,44 @@
 
 /* first setup platform defines*/
 #if defined(SN_TARGET_PSP2)
-	#define IL2CPP_TARGET_PSP2 1
-	#define _UNICODE 1
-	#define UNICODE 1
-	#include "il2cpp-config-psp2.h"
+    #define IL2CPP_TARGET_PSP2 1
+    #define _UNICODE 1
+    #define UNICODE 1
+    #include "il2cpp-config-psp2.h"
 #elif defined(SN_TARGET_ORBIS)
-	#define IL2CPP_TARGET_PS4 1
-	#define _UNICODE 1
-	#define UNICODE 1
+    #define IL2CPP_TARGET_PS4 1
+    #define _UNICODE 1
+    #define UNICODE 1
 #elif defined(_MSC_VER)
-	#define IL2CPP_TARGET_WINDOWS 1
-	#if defined(_XBOX_ONE)
-		#define IL2CPP_TARGET_XBOXONE 1
-	#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
-		#define IL2CPP_TARGET_WINRT 1
-	#else
-		#define IL2CPP_TARGET_WINDOWS_DESKTOP 1
-	#endif
-	#define _UNICODE 1
-	#define UNICODE 1
-	#define STRICT 1
+    #define IL2CPP_TARGET_WINDOWS 1
+    #if defined(_XBOX_ONE)
+        #define IL2CPP_TARGET_XBOXONE 1
+    #elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
+        #define IL2CPP_TARGET_WINRT 1
+    #else
+        #define IL2CPP_TARGET_WINDOWS_DESKTOP 1
+    #endif
+    #define _UNICODE 1
+    #define UNICODE 1
+    #define STRICT 1
 #elif defined(__APPLE__)
-	#define IL2CPP_TARGET_DARWIN 1
-	#include "TargetConditionals.h"
-	#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR || TARGET_TVOS_SIMULATOR
-		#define IL2CPP_TARGET_IOS 1
-	#endif
+    #define IL2CPP_TARGET_DARWIN 1
+    #include "TargetConditionals.h"
+    #if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR || TARGET_TVOS_SIMULATOR
+        #define IL2CPP_TARGET_IOS 1
+    #endif
 #elif defined(__ANDROID__)
-	#define IL2CPP_TARGET_ANDROID 1
+    #define IL2CPP_TARGET_ANDROID 1
 #elif defined(EMSCRIPTEN)
-	#define IL2CPP_TARGET_JAVASCRIPT 1
+    #define IL2CPP_TARGET_JAVASCRIPT 1
 #elif defined(TIZEN)
     #define IL2CPP_TARGET_TIZEN 1
 #elif defined(__linux__)
-	#define IL2CPP_TARGET_LINUX 1
+    #define IL2CPP_TARGET_LINUX 1
 #elif defined(NN_PLATFORM_CTR)
-	#define IL2CPP_TARGET_N3DS 1
+    #define IL2CPP_TARGET_N3DS 1
 #else
-	#error please define your target platform
+    #error please define your target platform
 #endif
 
 #ifndef IL2CPP_TARGET_WINDOWS
@@ -138,51 +138,51 @@
 #if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
 #include <crtdbg.h>
 #define IL2CPP_ASSERT(expr) \
-	_ASSERTE(expr)
+    _ASSERTE(expr)
 #else
 #define IL2CPP_ASSERT(expr) \
-	assert(expr)
+    assert(expr)
 #endif
 
 #if defined(__ARMCC_VERSION)
-	#include <assert.h>
-	#include <wchar.h>
-	#include <ctype.h>
-	#define INTPTR_MAX 2147483647
+    #include <assert.h>
+    #include <wchar.h>
+    #include <ctype.h>
+    #define INTPTR_MAX 2147483647
 #endif
 
 #if IL2CPP_TARGET_DARWIN
-	#define IL2CPP_METHOD_ATTR
-	// the following gives more accurate managed stack traces, but may cause linker errors on ARMv7 builds
-	// #define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT,__managed,regular,pure_instructions")))
+    #define IL2CPP_METHOD_ATTR
+// the following gives more accurate managed stack traces, but may cause linker errors on ARMv7 builds
+// #define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT,__managed,regular,pure_instructions")))
 #else
-	#define IL2CPP_METHOD_ATTR
+    #define IL2CPP_METHOD_ATTR
 #endif
 
 #if defined(_MSC_VER)
-	#if defined(_M_X64)
-		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(_M_IX86) || defined(_M_ARM)
-		#define IL2CPP_SIZEOF_VOID_P 4
-	#else
-		#error invalid windows architecture
-	#endif
+    #if defined(_M_X64)
+        #define IL2CPP_SIZEOF_VOID_P 8
+    #elif defined(_M_IX86) || defined(_M_ARM)
+        #define IL2CPP_SIZEOF_VOID_P 4
+    #else
+        #error invalid windows architecture
+    #endif
 #elif defined(__GNUC__) || defined(__SNC__)
-	#if defined(__x86_64__)
-		#define IL2CPP_SIZEOF_VOID_P 8
-	#elif defined(__i386__)
-		#define IL2CPP_SIZEOF_VOID_P 4
-	#elif defined(EMSCRIPTEN)
-		#define IL2CPP_SIZEOF_VOID_P 4
-	#elif defined(__arm__)
-		#define IL2CPP_SIZEOF_VOID_P 4
-	#elif defined(__arm64__)
-		#define IL2CPP_SIZEOF_VOID_P 8
-	#else
-		#error invalid windows architecture
-	#endif
+    #if defined(__x86_64__)
+        #define IL2CPP_SIZEOF_VOID_P 8
+    #elif defined(__i386__)
+        #define IL2CPP_SIZEOF_VOID_P 4
+    #elif defined(EMSCRIPTEN)
+        #define IL2CPP_SIZEOF_VOID_P 4
+    #elif defined(__arm__)
+        #define IL2CPP_SIZEOF_VOID_P 4
+    #elif defined(__arm64__)
+        #define IL2CPP_SIZEOF_VOID_P 8
+    #else
+        #error invalid windows architecture
+    #endif
 #else
-	#error please define your target architecture size
+    #error please define your target architecture size
 #endif
 
 #if defined(_MSC_VER)
@@ -234,26 +234,26 @@
 // error C2719: 'value': formal parameter with requested alignment of 16 won't be aligned
 // Since this isn't actually needed for Windows, and it's not a standard .NET feature but just IL2CPP extension, let's just turn it off on Windows
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
-	#define ALIGN_OF(T) __alignof__(T)
-	#define ALIGN_TYPE(val) __attribute__((aligned(val)))
-	#define ALIGN_FIELD(val) ALIGN_TYPE(val)
-	#define FORCE_INLINE inline __attribute__ ((always_inline))
+    #define ALIGN_OF(T) __alignof__(T)
+    #define ALIGN_TYPE(val) __attribute__((aligned(val)))
+    #define ALIGN_FIELD(val) ALIGN_TYPE(val)
+    #define FORCE_INLINE inline __attribute__ ((always_inline))
 #elif defined(_MSC_VER)
-	#define ALIGN_OF(T) __alignof(T)
-	#define ALIGN_TYPE(val)
-	#define ALIGN_FIELD(val) __declspec(align(val))
-	#define FORCE_INLINE __forceinline
+    #define ALIGN_OF(T) __alignof(T)
+    #define ALIGN_TYPE(val)
+    #define ALIGN_FIELD(val) __declspec(align(val))
+    #define FORCE_INLINE __forceinline
 #else
-	#define ALIGN_TYPE(size)
-	#define ALIGN_FIELD(size)
-	#define FORCE_INLINE inline
+    #define ALIGN_TYPE(size)
+    #define ALIGN_FIELD(size)
+    #define FORCE_INLINE inline
 #endif
 
 #define IL2CPP_PAGE_SIZE 4096
 
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \
-	IL2CPP_ASSERT((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
+    IL2CPP_ASSERT((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
 
 // 64-bit types are aligned to 8 bytes on 64-bit platforms and always on Windows
 #define IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT ((IL2CPP_SIZEOF_VOID_P == 8) || (IL2CPP_TARGET_WINDOWS))
@@ -321,16 +321,16 @@
 #define IL2CPP_HAS_GC_DESCRIPTORS 1
 
 #if defined(_MSC_VER)
-	#define IL2CPP_ZERO_LEN_ARRAY 0
+    #define IL2CPP_ZERO_LEN_ARRAY 0
 #else
-	#define IL2CPP_ZERO_LEN_ARRAY 0
+    #define IL2CPP_ZERO_LEN_ARRAY 0
 #endif
 
 #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
 
 /* clang specific __has_builtin check */
 #ifndef __has_builtin
-	#define __has_builtin(x) 0 // Compatibility with non-clang compilers.
+    #define __has_builtin(x) 0 // Compatibility with non-clang compilers.
 #endif
 
 #if _MSC_VER
@@ -344,98 +344,98 @@
 typedef uint32_t Il2CppMethodSlot;
 
 /* Debug macros */
-#define STRINGIZE( L )			#L
-#define MAKE_STRING( M, L )		M(L)
-#define $Line					MAKE_STRING( STRINGIZE, __LINE__ )
-#define FIXME					__FILE__ "(" $Line ") : FIXME: "
-#define ICALLMESSAGE(name)		__FILE__ "(" $Line ") : FIXME: Missing internal call implementation: " name
-#define RUNTIMEMESSAGE(name)	__FILE__ "(" $Line ") : FIXME: Missing runtime implementation: " name
-#define NOTSUPPORTEDICALLMESSAGE(target, name, reason)	__FILE__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
+#define STRINGIZE(L)          #L
+#define MAKE_STRING(M, L)     M(L)
+#define $Line                   MAKE_STRING( STRINGIZE, __LINE__ )
+#define FIXME                   __FILE__ "(" $Line ") : FIXME: "
+#define ICALLMESSAGE(name)      __FILE__ "(" $Line ") : FIXME: Missing internal call implementation: " name
+#define RUNTIMEMESSAGE(name)    __FILE__ "(" $Line ") : FIXME: Missing runtime implementation: " name
+#define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)
-//	#define PRAGMA_MESSAGE(value) __pragma(message(value))
+//  #define PRAGMA_MESSAGE(value) __pragma(message(value))
 //#else
-//	#define PRAGMA_MESSAGE(value) _Pragma(STRINGIZE(value))
+//  #define PRAGMA_MESSAGE(value) _Pragma(STRINGIZE(value))
 //#endif
 #define PRAGMA_MESSAGE(value)
 
 #if !defined(EMSCRIPTEN)
 
 #define NOT_IMPLEMENTED_ICALL(func) \
-	PRAGMA_MESSAGE(ICALLMESSAGE(#func)) \
-	IL2CPP_ASSERT(0 && #func)
-#define NOT_IMPLEMENTED_ICALL_NO_ASSERT(func,reason) \
-	PRAGMA_MESSAGE(ICALLMESSAGE(#func))
+    PRAGMA_MESSAGE(ICALLMESSAGE(#func)) \
+    IL2CPP_ASSERT(0 && #func)
+#define NOT_IMPLEMENTED_ICALL_NO_ASSERT(func, reason) \
+    PRAGMA_MESSAGE(ICALLMESSAGE(#func))
 
 #define NOT_IMPLEMENTED(func) \
-	PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func)) \
-	IL2CPP_ASSERT(0 && #func)
-#define NOT_IMPLEMENTED_NO_ASSERT(func,reason) \
-	PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func))
+    PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func)) \
+    IL2CPP_ASSERT(0 && #func)
+#define NOT_IMPLEMENTED_NO_ASSERT(func, reason) \
+    PRAGMA_MESSAGE(RUNTIMEMESSAGE(#func))
 
 #else
 
 // emscripten's assert will throw an exception in js.
 // For now, we don't want that, so just printf and move on.
-	#define NOT_IMPLEMENTED_ICALL(func) \
-	PRAGMA_MESSAGE(message(ICALLMESSAGE(#func))) \
-	printf("Not implemented icall: %s\n", #func);
-#define NOT_IMPLEMENTED_ICALL_NO_ASSERT(func,reason) \
-	PRAGMA_MESSAGE(message(ICALLMESSAGE(#func)))
+    #define NOT_IMPLEMENTED_ICALL(func) \
+    PRAGMA_MESSAGE(message(ICALLMESSAGE(#func))) \
+    printf("Not implemented icall: %s\n", #func);
+#define NOT_IMPLEMENTED_ICALL_NO_ASSERT(func, reason) \
+    PRAGMA_MESSAGE(message(ICALLMESSAGE(#func)))
 
 #define NOT_IMPLEMENTED(func) \
-	PRAGMA_MESSAGE(message(RUNTIMEMESSAGE(#func))) \
-	printf("Not implemented: %s\n", #func);
-#define NOT_IMPLEMENTED_NO_ASSERT(func,reason) \
-	PRAGMA_MESSAGE(message(RUNTIMEMESSAGE(#func)))
+    PRAGMA_MESSAGE(message(RUNTIMEMESSAGE(#func))) \
+    printf("Not implemented: %s\n", #func);
+#define NOT_IMPLEMENTED_NO_ASSERT(func, reason) \
+    PRAGMA_MESSAGE(message(RUNTIMEMESSAGE(#func)))
 
 #endif
 
 #define NOT_SUPPORTED_IL2CPP(func, reason) \
-	il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason) ))
+    il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason) ))
 
 #define NOT_SUPPORTED_SRE(func) \
-	il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, "System.Reflection.Emit is not supported.") ))
+    il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, "System.Reflection.Emit is not supported.") ))
 
 #define NOT_SUPPORTED_REMOTING(func) \
-	il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, "System.Runtime.Remoting is not supported.") ))
+    il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, "System.Runtime.Remoting is not supported.") ))
 
 #if IL2CPP_TARGET_JAVASCRIPT
 #define NOT_SUPPORTED_WEBGL(func, reason) \
-	il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("WebGL", #func, #reason) ))
+    il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("WebGL", #func, #reason) ))
 #else
 #define NOT_SUPPORTED_WEBGL(func, reason)
 #endif
 
 #if IL2CPP_COMPILER_MSVC
-	#define IL2CPP_DIR_SEPARATOR '\\'	/* backslash */
+    #define IL2CPP_DIR_SEPARATOR '\\'   /* backslash */
 #else
-	#define IL2CPP_DIR_SEPARATOR '/'	/* forward slash */
+    #define IL2CPP_DIR_SEPARATOR '/'    /* forward slash */
 #endif
 
 #ifndef IL2CPP_DEBUGGER_ENABLED
-	#define	IL2CPP_DEBUGGER_ENABLED	0
+    #define IL2CPP_DEBUGGER_ENABLED 0
 #endif
 
 #ifndef IL2CPP_DEBUGGER_LOG
-	#define	IL2CPP_DEBUGGER_LOG	0
+    #define IL2CPP_DEBUGGER_LOG 0
 #endif
-	
+
 #ifndef IL2CPP_DISABLE_FULL_MESSAGES
-	#define IL2CPP_DISABLE_FULL_MESSAGES	1
+    #define IL2CPP_DISABLE_FULL_MESSAGES    1
 #endif
 
 #if IL2CPP_COMPILER_MSVC
-	#define IL2CPP_USE_GENERIC_SOCKET_IMPL	0
+    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  0
 #else
-	#define IL2CPP_USE_GENERIC_SOCKET_IMPL	(!IL2CPP_TARGET_POSIX || IL2CPP_TARGET_JAVASCRIPT)
+    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  (!IL2CPP_TARGET_POSIX || IL2CPP_TARGET_JAVASCRIPT)
 #endif
 
-#define IL2CPP_USE_GENERIC_ENVIRONMENT	(!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
+#define IL2CPP_USE_GENERIC_ENVIRONMENT  (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 
-#define IL2CPP_USE_GENERIC_COM	(!IL2CPP_TARGET_WINDOWS)
-#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS	(!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
+#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
 #define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
@@ -445,7 +445,7 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
-#if IL2CPP_COMPILER_MSVC	// Use stub "return false" implementation where it's not implemented
+#if IL2CPP_COMPILER_MSVC    // Use stub "return false" implementation where it's not implemented
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 1
 #else
 #define IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED 0
@@ -456,10 +456,10 @@ typedef uint32_t Il2CppMethodSlot;
 #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PSP2 )
 #endif
 
-template <bool value>
+template<bool value>
 struct Il2CppStaticAssertHelper;
 
-template <>
+template<>
 struct Il2CppStaticAssertHelper<true>
 {
 };
@@ -475,13 +475,13 @@ const int64_t kIl2CppInt64Max = INT64_MAX;
 const uint64_t kIl2CppUInt64Max = UINT64_MAX;
 
 #if IL2CPP_SIZEOF_VOID_P == 8
-	const intptr_t kIl2CppIntPtrMin = kIl2CppInt64Min;
-	const intptr_t kIl2CppIntPtrMax = kIl2CppInt64Max;
-	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt64Max;
+const intptr_t kIl2CppIntPtrMin = kIl2CppInt64Min;
+const intptr_t kIl2CppIntPtrMax = kIl2CppInt64Max;
+const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt64Max;
 #else
-	const intptr_t kIl2CppIntPtrMin = kIl2CppInt32Min;
-	const intptr_t kIl2CppIntPtrMax = kIl2CppInt32Max;
-	const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
+const intptr_t kIl2CppIntPtrMin = kIl2CppInt32Min;
+const intptr_t kIl2CppIntPtrMax = kIl2CppInt32Max;
+const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
 
 const int ipv6AddressSize = 16;
