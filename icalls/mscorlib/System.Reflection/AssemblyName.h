@@ -16,16 +16,14 @@ namespace System
 {
 namespace Reflection
 {
-
-class LIBIL2CPP_CODEGEN_API AssemblyName
-{
-public:
-	static bool ParseName (Il2CppReflectionAssemblyName* aname, Il2CppString* assemblyName);
+    class LIBIL2CPP_CODEGEN_API AssemblyName
+    {
+    public:
+        static bool ParseName(Il2CppReflectionAssemblyName* aname, Il2CppString* assemblyName);
 #if NET_4_0
-	static void get_public_token(uint8_t* token, uint8_t* pubkey, int32_t len);
+        static void get_public_token(uint8_t* token, uint8_t* pubkey, int32_t len);
 #endif
-};
-
+    };
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

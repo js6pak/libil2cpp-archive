@@ -9,25 +9,27 @@ namespace il2cpp
 {
 namespace os
 {
-bool NativeMethods::CloseProcess(ProcessHandle* handle)
-{
-	NOT_IMPLEMENTED_ICALL(NativeMethods::CloseProcess);
-	IL2CPP_UNREACHABLE;
-}
-bool NativeMethods::GetExitCodeProcess(ProcessHandle* handle, int32_t* exitCode)
-{
-	NOT_IMPLEMENTED_ICALL(NativeMethods::GetExitCodeProcess);
-	IL2CPP_UNREACHABLE;
-}
+    bool NativeMethods::CloseProcess(ProcessHandle* handle)
+    {
+        NOT_IMPLEMENTED_ICALL(NativeMethods::CloseProcess);
+        IL2CPP_UNREACHABLE;
+    }
 
-int32_t NativeMethods::GetCurrentProcessId()
-{
-	return Process::GetCurrentProcessId();
-}
-ProcessHandle* NativeMethods::GetCurrentProcess()
-{
-	return Process::GetProcess(Process::GetCurrentProcessId());
-}
+    bool NativeMethods::GetExitCodeProcess(ProcessHandle* handle, int32_t* exitCode)
+    {
+        NOT_IMPLEMENTED_ICALL(NativeMethods::GetExitCodeProcess);
+        IL2CPP_UNREACHABLE;
+    }
+
+    int32_t NativeMethods::GetCurrentProcessId()
+    {
+        return Process::GetCurrentProcessId();
+    }
+
+    ProcessHandle* NativeMethods::GetCurrentProcess()
+    {
+        return Process::GetProcess(Process::GetCurrentProcessId());
+    }
 }
 }
 

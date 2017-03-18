@@ -7,27 +7,24 @@
 
 namespace il2cpp
 {
-
 namespace utils
 {
+    class Il2CppHStringReference
+    {
+    private:
+        Il2CppHString m_String;
+        Il2CppHStringHeader m_Header;
 
-class Il2CppHStringReference
-{
-private:
-	Il2CppHString m_String;
-	Il2CppHStringHeader m_Header;
+    public:
+        inline Il2CppHStringReference(const StringView<Il2CppNativeChar>& str)
+        {
+            il2cpp::vm::WindowsRuntime::CreateHStringReference(str, &m_Header, &m_String);
+        }
 
-public:
-	inline Il2CppHStringReference(const StringView<Il2CppNativeChar>& str)
-	{
-		il2cpp::vm::WindowsRuntime::CreateHStringReference(str, &m_Header, &m_String);
-	}
-
-	inline operator Il2CppHString() const
-	{
-		return m_String;
-	}
-};
-
+        inline operator Il2CppHString() const
+        {
+            return m_String;
+        }
+    };
 }
 }
