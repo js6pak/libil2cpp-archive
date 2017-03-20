@@ -502,8 +502,9 @@ Il2CppClass* MetadataCache::GetTypeInfoFromTypeIndex (TypeIndex index)
 		return s_TypeInfoTable[index];
 
 	const Il2CppType* type = s_Il2CppMetadataRegistration->types[index];
-	s_TypeInfoTable[index] = il2cpp::vm::Class::FromIl2CppType (type);
-	Class::Init (s_TypeInfoTable[index]);
+	Il2CppClass *klass = il2cpp::vm::Class::FromIl2CppType(type);
+	Class::Init (klass);
+	s_TypeInfoTable[index] = klass;
 
 	return s_TypeInfoTable[index];
 }
