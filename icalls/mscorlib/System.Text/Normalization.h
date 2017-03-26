@@ -12,13 +12,11 @@ namespace System
 {
 namespace Text
 {
-
-class LIBIL2CPP_CODEGEN_API Normalization
-{
-public:
-	static void load_normalization_resource(Il2CppIntPtr* props, Il2CppIntPtr* mappedChars, Il2CppIntPtr* charMapIndex, Il2CppIntPtr* helperIndex, Il2CppIntPtr* mapIdxToComposite, Il2CppIntPtr* combiningClass);
-};
-
+    class LIBIL2CPP_CODEGEN_API Normalization
+    {
+    public:
+        static void load_normalization_resource(Il2CppIntPtr* props, Il2CppIntPtr* mappedChars, Il2CppIntPtr* charMapIndex, Il2CppIntPtr* helperIndex, Il2CppIntPtr* mapIdxToComposite, Il2CppIntPtr* combiningClass);
+    };
 } // namespace Text
 } // namespace System
 } // namespace mscorlib

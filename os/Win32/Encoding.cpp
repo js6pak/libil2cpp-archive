@@ -9,19 +9,15 @@ namespace il2cpp
 {
 namespace os
 {
-
 namespace Encoding
 {
-
-std::string GetCharSet()
-{
-	static char buf[14];
-	sprintf (buf, "CP%u", GetACP ());
-	return std::string(buf);
+    std::string GetCharSet()
+    {
+        static char buf[14];
+        sprintf(buf, "CP%u", GetACP());
+        return std::string(buf);
+    }
 }
-
-}
-
 }
 }
 

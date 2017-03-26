@@ -15,12 +15,10 @@ namespace System
 {
 namespace IO
 {
-
-Il2CppString* Path::get_temp_path ()
-{
-	return il2cpp::vm::String::New (il2cpp::os::Path::GetTempPath().c_str());
-}
-
+    Il2CppString* Path::get_temp_path()
+    {
+        return il2cpp::vm::String::New(il2cpp::os::Path::GetTempPath().c_str());
+    }
 } /* namespace IO */
 } /* namespace System */
 } /* namespace mscorlib */

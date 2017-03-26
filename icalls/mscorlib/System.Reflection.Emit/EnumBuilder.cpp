@@ -14,12 +14,10 @@ namespace Reflection
 {
 namespace Emit
 {
-
-void EnumBuilder::setup_enum_type (Il2CppReflectionType *enumtype, Il2CppReflectionType* t)
-{
-	NOT_SUPPORTED_SRE (EnumBuilder::setup_enum_type);
-}
-
+    void EnumBuilder::setup_enum_type(Il2CppReflectionType *enumtype, Il2CppReflectionType* t)
+    {
+        NOT_SUPPORTED_SRE(EnumBuilder::setup_enum_type);
+    }
 } /* namespace Emit */
 } /* namespace Reflection */
 } /* namespace System */

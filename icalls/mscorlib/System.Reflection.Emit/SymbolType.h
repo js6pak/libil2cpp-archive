@@ -13,13 +13,11 @@ namespace Reflection
 {
 namespace Emit
 {
-
-class LIBIL2CPP_CODEGEN_API SymbolType
-{
-public:
-	static void create_unmanaged_type(Il2CppObject* type);
-};
-
+    class LIBIL2CPP_CODEGEN_API SymbolType
+    {
+    public:
+        static void create_unmanaged_type(Il2CppObject* type);
+    };
 } // namespace Emit
 } // namespace Reflection
 } // namespace System
