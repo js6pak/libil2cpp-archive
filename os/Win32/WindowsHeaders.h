@@ -10,6 +10,7 @@
 #if !IL2CPP_TARGET_WINDOWS_DESKTOP
 #include <bcrypt.h>
 #include <roapi.h>
+#include <robuffer.h>
 #include <winstring.h>
 #endif
 

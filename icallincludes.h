@@ -86,6 +86,7 @@
 
 #include "icalls/mscorlib/System.Runtime.InteropServices/GCHandle.h"
 #include "icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
+#include "icalls/mscorlib/System.Runtime.InteropServices.WindowsRuntime/UnsafeNativeMethods.h"
 
 #include "icalls/mscorlib/System.Runtime.Remoting.Activation/ActivationServices.h"
 #include "icalls/mscorlib/System.Runtime.Remoting.Contexts/Context.h"
@@ -111,6 +112,7 @@
 #include "icalls/mscorlib/System.Security/SecurityFrame.h"
 
 #include "icalls/mscorlib/System.Security/SecurityManager.h"
+#include "icalls/mscorlib/System/SizedReference.h"
 #include "icalls/mscorlib/System/String.h"
 
 #include "icalls/mscorlib/System.Text/Encoding.h"
@@ -127,11 +129,13 @@
 #include "icalls/mscorlib/System.Threading/ThreadPool.h"
 #include "icalls/mscorlib/System.Threading/WaitHandle.h"
 #include "icalls/mscorlib/System/TimeSpan.h"
+#include "icalls/mscorlib/System/TimeZoneInfo.h"
 #include "icalls/mscorlib/System/Type.h"
 #include "icalls/mscorlib/System/TypedReference.h"
 #include "icalls/mscorlib/System/ValueType.h"
 
 #include "icalls/System/Microsoft.Win32/NativeMethods.h"
+#include "icalls/System/Mono.Net.Security/MonoTlsProviderFactory.h"
 
 #include "icalls/System.Configuration/System.Configuration/InternalConfigurationHost.h"
 #include "icalls/System.Core/System.IO.MemoryMappedFiles/MemoryMapImpl.h"
@@ -155,11 +159,20 @@
 
 #include "icalls/System/System.Net/Dns.h"
 
+#include "icalls/System/System.Net.NetworkInformation/LinuxNetworkInterface.h"
 #include "icalls/System/System.Net.NetworkInformation/MacOsIPInterfaceProperties.h"
 #include "icalls/System/System.Net.Sockets/Socket.h"
 #include "icalls/System/System.Net.Sockets/SocketException.h"
 
 #include "icalls/System/System.Threading/Semaphore.h"
 
-#include "mono/metadata/threadpool-ms.h"
-#include "mono/metadata/threadpool-ms-io.h"
+#include "mono/ThreadPool/threadpool-ms.h"
+#include "mono/ThreadPool/threadpool-ms-io.h"
+
+#include "icalls/mscorlib/Mono/SafeStringMarshal.h"
+#include "icalls/mscorlib/Mono/RuntimeMarshal.h"
+#include "icalls/mscorlib/Mono/RuntimeGPtrArrayHandle.h"
+#include "icalls/mscorlib/Mono/RuntimeClassHandle.h"
+
+#include "icalls/mscorlib/System.Reflection/EventInfo.h"
+#include "icalls/mscorlib/System.Reflection/PropertyInfo.h"

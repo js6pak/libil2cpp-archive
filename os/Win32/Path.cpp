@@ -15,21 +15,23 @@ namespace il2cpp
 {
 namespace os
 {
-    std::string Path::GetExecutablePath()
-    {
-        wchar_t buffer[MAX_PATH];
-        GetModuleFileNameW(NULL, buffer, MAX_PATH);
-        return utils::StringUtils::Utf16ToUtf8(buffer);
-    }
 
-    std::string Path::GetTempPath()
-    {
-        WCHAR tempPath[MAX_PATH + 1];
-        ::GetTempPathW(sizeof(tempPath) / sizeof(tempPath[0]), tempPath);
-        ::GetLongPathNameW(tempPath, tempPath, sizeof(tempPath) / sizeof(tempPath[0]));
+std::string Path::GetExecutablePath()
+{
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileNameW(NULL, buffer, MAX_PATH);
+	return utils::StringUtils::Utf16ToUtf8(buffer);
+}
 
-        return utils::StringUtils::Utf16ToUtf8(tempPath);
-    }
+std::string Path::GetTempPath()
+{
+	WCHAR tempPath[MAX_PATH + 1];
+	::GetTempPathW(sizeof(tempPath) / sizeof(tempPath[0]), tempPath);
+	::GetLongPathNameW(tempPath, tempPath, sizeof(tempPath) / sizeof(tempPath[0]));
+
+	return utils::StringUtils::Utf16ToUtf8(tempPath);
+}
+
 }
 }
 #endif

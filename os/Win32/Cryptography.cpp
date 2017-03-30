@@ -11,36 +11,38 @@ namespace il2cpp
 {
 namespace os
 {
-    void* Cryptography::GetCryptographyProvider()
-    {
-        HCRYPTPROV provider = 0;
 
-        if (!CryptAcquireContext(&provider, NULL, NULL, PROV_INTEL_SEC, CRYPT_VERIFYCONTEXT))
-        {
-            if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-            {
-                provider = 0;
-            }
-        }
+void* Cryptography::GetCryptographyProvider()
+{
+	HCRYPTPROV provider = 0;
 
-        return (void*)provider;
-    }
+	if (!CryptAcquireContext(&provider, NULL, NULL, PROV_INTEL_SEC, CRYPT_VERIFYCONTEXT))
+	{
+		if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+		{
+			provider = 0;
+		}
+	}
 
-    bool Cryptography::OpenCryptographyProvider()
-    {
-        return false;
-    }
+	return (void*)provider;
+}
 
-    void Cryptography::ReleaseCryptographyProvider(void* provider)
-    {
-        CryptReleaseContext((HCRYPTPROV)provider, 0);
-    }
+bool Cryptography::OpenCryptographyProvider()
+{
+	return false;
+}
 
-    bool Cryptography::FillBufferWithRandomBytes(void* provider, uint32_t length, unsigned char* data)
-    {
-        return CryptGenRandom((HCRYPTPROV)provider, length, data) == TRUE;
-    }
+void Cryptography::ReleaseCryptographyProvider(void* provider)
+{
+	CryptReleaseContext((HCRYPTPROV)provider, 0);
+}
+
+bool Cryptography::FillBufferWithRandomBytes(void* provider, uint32_t length, unsigned char* data)
+{
+	return CryptGenRandom((HCRYPTPROV)provider, length, data) == TRUE;
+}
+
 }
 }
 
-#endif
+#endif 

@@ -1126,6 +1126,9 @@
     <ClInclude Include="external\google\sparsehash\dense_hash_map.h" />
     <ClInclude Include="external\google\sparsehash\dense_hash_set.h" />
     <ClInclude Include="external\google\sparsehash\type_traits.h" />
+    <ClInclude Include="external\xamarin-android\logger.h" />
+    <ClInclude Include="external\xamarin-android\monodroid.h" />
+    <ClInclude Include="external\xamarin-android\xamarin_getifaddrs.h" />
     <ClInclude Include="gc\Allocator.h" />
     <ClInclude Include="gc\AppendOnlyGCHashMap.h" />
     <ClInclude Include="gc\GarbageCollector.h" />
@@ -1138,6 +1141,10 @@
     <ClInclude Include="icalls\mscorlib\Mono.Interop\ComInteropProxy.h" />
     <ClInclude Include="icalls\mscorlib\Mono.Security.Cryptography\KeyPairPersistence.h" />
     <ClInclude Include="icalls\mscorlib\Mono\Runtime.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeClassHandle.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeGPtrArrayHandle.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\RuntimeMarshal.h" />
+    <ClInclude Include="icalls\mscorlib\Mono\SafeStringMarshal.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\Assert.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\Debugger.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\StackFrame.h" />
@@ -1167,6 +1174,7 @@
     <ClInclude Include="icalls\mscorlib\System.Reflection\Assembly.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\AssemblyName.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\CustomAttributeData.h" />
+    <ClInclude Include="icalls\mscorlib\System.Reflection\EventInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\FieldInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\MemberInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\MethodBase.h" />
@@ -1181,6 +1189,7 @@
     <ClInclude Include="icalls\mscorlib\System.Reflection\MonoMethodInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\MonoPropertyInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\ParameterInfo.h" />
+    <ClInclude Include="icalls\mscorlib\System.Reflection\PropertyInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Reflection\RtFieldInfo.h" />
     <ClInclude Include="icalls\mscorlib\System.Runtime.CompilerServices\RuntimeHelpers.h" />
     <ClInclude Include="icalls\mscorlib\System.Runtime.InteropServices\GCHandle.h" />
@@ -1243,6 +1252,7 @@
     <ClInclude Include="icalls\mscorlib\System\RuntimeTypeHandle.h" />
     <ClInclude Include="icalls\mscorlib\System\String.h" />
     <ClInclude Include="icalls\mscorlib\System\TimeSpan.h" />
+    <ClInclude Include="icalls\mscorlib\System\TimeZoneInfo.h" />
     <ClInclude Include="icalls\mscorlib\System\Type.h" />
     <ClInclude Include="icalls\mscorlib\System\TypedReference.h" />
     <ClInclude Include="icalls\mscorlib\System\ValueType.h" />
@@ -1265,6 +1275,7 @@
     <ClInclude Include="icalls\System\System.IO\FileSystemWatcher.h" />
     <ClInclude Include="icalls\System\System.IO\InotifyWatcher.h" />
     <ClInclude Include="icalls\System\System.IO\KqueueMonitor.h" />
+    <ClInclude Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.h" />
     <ClInclude Include="icalls\System\System.Net.NetworkInformation\MacOsIPInterfaceProperties.h" />
     <ClInclude Include="icalls\System\System.Net.Sockets\Socket.h" />
     <ClInclude Include="icalls\System\System.Net.Sockets\SocketException.h" />
@@ -1278,6 +1289,7 @@
     <ClInclude Include="il2cpp-debugger.h" />
     <ClInclude Include="il2cpp-metadata.h" />
     <ClInclude Include="il2cpp-string-types.h" />
+    <ClInclude Include="il2cpp-vm-support.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="metadata\ArrayMetadata.h" />
     <ClInclude Include="metadata\FieldLayout.h" />
@@ -1297,9 +1309,14 @@
     <ClInclude Include="metadata\Il2CppTypeCompare.h" />
     <ClInclude Include="metadata\Il2CppTypeHash.h" />
     <ClInclude Include="metadata\Il2CppTypeVector.h" />
-    <ClInclude Include="mono\metadata\threadpool-ms-io-poll.h" />
-    <ClInclude Include="mono\metadata\threadpool-ms-io.h" />
-    <ClInclude Include="mono\metadata\threadpool-ms.h" />
+    <ClInclude Include="mono-structs.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolDataStructures.h" />
+    <ClInclude Include="mono\ThreadPool\threadpool-ms-io-poll.h" />
+    <ClInclude Include="mono\ThreadPool\threadpool-ms-io.h" />
+    <ClInclude Include="mono\ThreadPool\threadpool-ms.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolMacros.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolMonitorThread.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolWorkerThread.h" />
     <ClInclude Include="normalization-tables.h" />
     <ClInclude Include="number-formatter.h" />
     <ClInclude Include="object-internals.h" />
@@ -1388,6 +1405,7 @@
     <ClInclude Include="utils\HashUtils.h" />
     <ClInclude Include="utils\Il2CppHStringReference.h" />
     <ClInclude Include="utils\KeyWrapper.h" />
+    <ClInclude Include="utils\Logging.h" />
     <ClInclude Include="utils\MathUtils.h" />
     <ClInclude Include="utils\Memory.h" />
     <ClInclude Include="utils\MemoryPool.h" />
@@ -1406,6 +1424,7 @@
     <ClInclude Include="vm\Assembly.h" />
     <ClInclude Include="vm\AssemblyName.h" />
     <ClInclude Include="vm\Atomic.h" />
+    <ClInclude Include="vm\CachedCCWBase.h" />
     <ClInclude Include="vm\CCW.h" />
     <ClInclude Include="vm\Class.h" />
     <ClInclude Include="vm\COM.h" />
@@ -1434,6 +1453,7 @@
     <ClInclude Include="vm\Method.h" />
     <ClInclude Include="vm\Module.h" />
     <ClInclude Include="vm\Monitor.h" />
+    <ClInclude Include="vm\NonCachedCCWBase.h" />
     <ClInclude Include="vm\Object.h" />
     <ClInclude Include="vm\Parameter.h" />
     <ClInclude Include="vm\PlatformInvoke.h" />
@@ -1496,12 +1516,17 @@
     <ClCompile Include="debugger\transport-tcp.cpp" />
     <ClCompile Include="debugger\variant.cpp" />
     <ClCompile Include="externals\MonoPosixHelper.cpp" />
+    <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c" />
     <ClCompile Include="gc\GarbageCollector.cpp" />
     <ClCompile Include="gc\WriteBarrier.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Globalization.Unicode\Normalization.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Interop\ComInteropProxy.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Security.Cryptography\KeyPairPersistence.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono\Runtime.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeClassHandle.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeGPtrArrayHandle.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\RuntimeMarshal.cpp" />
+    <ClCompile Include="icalls\mscorlib\Mono\SafeStringMarshal.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Diagnostics\Assert.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Diagnostics\Debugger.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Diagnostics\StackFrame.cpp" />
@@ -1528,6 +1553,7 @@
     <ClCompile Include="icalls\mscorlib\System.Reflection\Assembly.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\AssemblyName.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\CustomAttributeData.cpp" />
+    <ClCompile Include="icalls\mscorlib\System.Reflection\EventInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\FieldInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\MemberInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\MethodBase.cpp" />
@@ -1542,6 +1568,7 @@
     <ClCompile Include="icalls\mscorlib\System.Reflection\MonoMethodInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\MonoPropertyInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\ParameterInfo.cpp" />
+    <ClCompile Include="icalls\mscorlib\System.Reflection\PropertyInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Reflection\RtFieldInfo.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Runtime.CompilerServices\RuntimeHelpers.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Runtime.InteropServices\GCHandle.cpp" />
@@ -1625,6 +1652,7 @@
     <ClCompile Include="icalls\System\System.IO\FileSystemWatcher.cpp" />
     <ClCompile Include="icalls\System\System.IO\InotifyWatcher.cpp" />
     <ClCompile Include="icalls\System\System.IO\KqueueMonitor.cpp" />
+    <ClCompile Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.cpp" />
     <ClCompile Include="icalls\System\System.Net.NetworkInformation\MacOsIPInterfaceProperties.cpp" />
     <ClCompile Include="icalls\System\System.Net.Sockets\Socket.cpp" />
     <ClCompile Include="icalls\System\System.Net.Sockets\SocketException.cpp" />
@@ -1653,9 +1681,12 @@
     <ClCompile Include="metadata\Il2CppSignatureHash.cpp" />
     <ClCompile Include="metadata\Il2CppTypeCompare.cpp" />
     <ClCompile Include="metadata\Il2CppTypeHash.cpp" />
-    <ClCompile Include="mono\metadata\threadpool-ms-io-poll.cpp" />
-    <ClCompile Include="mono\metadata\threadpool-ms-io.cpp" />
-    <ClCompile Include="mono\metadata\threadpool-ms.cpp" />
+    <ClCompile Include="mono-structs.cpp" />
+    <ClCompile Include="mono\ThreadPool\threadpool-ms-io-poll.cpp" />
+    <ClCompile Include="mono\ThreadPool\threadpool-ms-io.cpp" />
+    <ClCompile Include="mono\ThreadPool\threadpool-ms.cpp" />
+    <ClCompile Include="mono\ThreadPool\ThreadPoolMonitorThread.cpp" />
+    <ClCompile Include="mono\ThreadPool\ThreadPoolWorkerThread.cpp" />
     <ClCompile Include="os\ConditionVariable.cpp" />
     <ClCompile Include="os\Debug.cpp" />
     <ClCompile Include="os\Error.cpp" />
@@ -1758,6 +1789,7 @@
     <ClCompile Include="os\WinRT\Win32ApiWinRTEmulation.cpp" />
     <ClCompile Include="utils\BlobReader.cpp" />
     <ClCompile Include="utils\DirectoryUtils.cpp" />
+    <ClCompile Include="utils\Logging.cpp" />
     <ClCompile Include="utils\Memory.cpp" />
     <ClCompile Include="utils\MemoryPool.cpp" />
     <ClCompile Include="utils\Output.cpp" />

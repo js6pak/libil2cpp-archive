@@ -12,100 +12,107 @@ struct Il2CppStackFrameInfo;
 
 namespace il2cpp
 {
+
 namespace os
 {
-    class Mutex;
-    class Event;
+
+class Mutex;
+class Event;
+
 } /* namespace os */
 
 namespace debugger
 {
-    struct MethodInvokeData
-    {
-        MethodInvokeData() :
-            method_to_invoke(NULL),
-            return_value(NULL)
-        {}
 
-        const MethodInfo* method_to_invoke;
-        Il2CppObject* return_value;
-    };
+struct MethodInvokeData
+{
+	MethodInvokeData() :
+		method_to_invoke(NULL),
+		return_value(NULL)
+	{}
 
-    static int32_t frame_id = 0;
+	const MethodInfo* method_to_invoke;
+	Il2CppObject* return_value;
+};
 
-    class ThreadData
-    {
-    public:
+static int32_t frame_id = 0;
 
-        explicit ThreadData(Il2CppThread *thread);
-        ~ThreadData();
+class ThreadData
+{
 
-        inline Il2CppThread *thread()
-        {
-            return _thread;
-        }
+public:
 
-        inline std::vector<const Il2CppStackFrameInfo*> &frames_cache()
-        {
-            return _frames_cache;
-        }
+	explicit ThreadData(Il2CppThread *thread);
+	~ThreadData();
 
-        inline const std::vector<const Il2CppStackFrameInfo*> &frames_cache() const
-        {
-            return _frames_cache;
-        }
+	inline Il2CppThread *thread()
+	{
+		return _thread;
+	}
 
-        void UpdateFramesCacheIfNeeded();
-        void InvalidateFramesCache();
+	inline std::vector<const Il2CppStackFrameInfo*> &frames_cache()
+	{
+		return _frames_cache;
+	}
 
-        bool IsFramesCacheValid();
-        const Il2CppStackFrameInfo *FrameById(int32_t id);
+	inline const std::vector<const Il2CppStackFrameInfo*> &frames_cache() const
+	{
+		return _frames_cache;
+	}
 
-        void SetMethodToInvoke(const MethodInfo* method);
-        const MethodInfo* GetMethodToInvoke() const;
-        void ClearMethodToInvoke();
-        void SetReturnValueOfMethodToInvoke(Il2CppObject* return_value);
-        Il2CppObject* GetReturnValueOfMethodToInvoke() const;
-        void WaitForMethodToBeInvoked();
-        void SignalMethodInvokeComplete();
+	void UpdateFramesCacheIfNeeded();
+	void InvalidateFramesCache();
+	
+	bool IsFramesCacheValid();
+	const Il2CppStackFrameInfo *FrameById(int32_t id);
 
-    private:
+	void SetMethodToInvoke(const MethodInfo* method);
+	const MethodInfo* GetMethodToInvoke () const;
+	void ClearMethodToInvoke();
+	void SetReturnValueOfMethodToInvoke(Il2CppObject* return_value);
+	Il2CppObject* GetReturnValueOfMethodToInvoke() const;
+	void WaitForMethodToBeInvoked();
+	void SignalMethodInvokeComplete();
 
-        static void UpdateStackFrame(const Il2CppStackFrameInfo *info, void *user_data);
+private:
 
-        Il2CppThread *_thread;
-        const std::auto_ptr<os::Mutex> _write_sync;
-        int32_t _is_frames_cache_valid;
-        std::vector<const Il2CppStackFrameInfo*> _frames_cache;
+	static void UpdateStackFrame(const Il2CppStackFrameInfo *info, void *user_data);
 
-        const std::auto_ptr<os::Mutex> _method_to_invoke_sync;
-        const std::auto_ptr<os::Event> _method_to_invoke_complete;
-        MethodInvokeData _method_to_invoke_data;
+	Il2CppThread *_thread;
+	const std::auto_ptr<os::Mutex>_write_sync;
+	int32_t _is_frames_cache_valid;
+	std::vector<const Il2CppStackFrameInfo*> _frames_cache;
 
-        DISALLOW_COPY(ThreadData);
-    };
+	const std::auto_ptr<os::Mutex> _method_to_invoke_sync;
+	const std::auto_ptr<os::Event> _method_to_invoke_complete;
+	MethodInvokeData _method_to_invoke_data;
 
-    class ThreadDataMap
-    {
-    public:
+	DISALLOW_COPY(ThreadData);
+};
 
-        ThreadDataMap();
-        ~ThreadDataMap();
+class ThreadDataMap
+{
 
-        void NotifyThreadAttach(Il2CppThread *thread);
-        void NotifyThreadDetach(Il2CppThread *thread);
+public:
 
-        bool HasThreadDataForThread(const Il2CppThread *thread) const;
-        bool HasThreadDataForCurrentThread() const;
+	ThreadDataMap();
+	~ThreadDataMap();
 
-        ThreadData *ThreadDataFor(const Il2CppThread *thread);
+	void NotifyThreadAttach(Il2CppThread *thread);
+	void NotifyThreadDetach(Il2CppThread *thread);
+	
+	bool HasThreadDataForThread(const Il2CppThread *thread) const;
+	bool HasThreadDataForCurrentThread() const;
 
-    private:
+	ThreadData *ThreadDataFor(const Il2CppThread *thread);
 
-        os::Mutex *_thread_to_data_sync;
-        std::map<const Il2CppThread*, ThreadData*> _thread_to_data;
+private:
+	
+	os::Mutex *_thread_to_data_sync;
+	std::map<const Il2CppThread*, ThreadData*> _thread_to_data;
 
-        DISALLOW_COPY(ThreadDataMap);
-    };
+	DISALLOW_COPY(ThreadDataMap);
+};
+
 } /* namespace debugger */
 } /* namespace il2cpp */

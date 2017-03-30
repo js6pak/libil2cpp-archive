@@ -10,21 +10,24 @@ namespace il2cpp
 {
 namespace os
 {
+
 namespace Image
 {
-    void* GetImageBase()
-    {
+
+void* GetImageBase()
+{
 #if IL2CPP_TARGET_JAVASCRIPT
-        return NULL;
+	return NULL;
 #else
-        Dl_info info;
-        void* const anySymbol = reinterpret_cast<void*>(&GetImageBase);
-        if (dladdr(anySymbol, &info))
-            return info.dli_fbase;
-        else
-            return NULL;
+	Dl_info info;
+	void* const anySymbol = reinterpret_cast<void*>(&GetImageBase);
+	if (dladdr(anySymbol, &info))
+		return info.dli_fbase;
+	else
+		return NULL;
 #endif
-    }
+}
+
 }
 }
 }

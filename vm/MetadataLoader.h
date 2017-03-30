@@ -5,10 +5,12 @@ namespace il2cpp
 {
 namespace vm
 {
-    class LIBIL2CPP_CODEGEN_API MetadataLoader
-    {
-    public:
-        static void* LoadMetadataFile(const char* fileName);
-    };
+
+class LIBIL2CPP_CODEGEN_API MetadataLoader
+{
+public:
+	static void* LoadMetadataFile (const char* fileName);
+};
+
 } // namespace vm
 } // namespace il2cpp

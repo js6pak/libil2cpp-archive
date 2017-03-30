@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <string>
-#include <sstream>
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -25,216 +24,218 @@ namespace il2cpp
 {
 namespace vm
 {
-    static const int32_t kPublicKeyTokenLength = 17;
 
-    class TypeNameParseInfo
-    {
-    public:
-        struct AssemblyName
-        {
-            std::string name;
-            std::string culture;
-            std::string hash_value;
-            std::string public_key;
-            char public_key_token[kPublicKeyTokenLength];
-            uint32_t hash_alg;
-            uint32_t hash_len;
-            uint32_t flags;
-            uint16_t major;
-            uint16_t minor;
-            uint16_t build;
-            uint16_t revision;
+static const int32_t kPublicKeyTokenLength = 17;
 
-            AssemblyName() :
-                hash_alg(0),
-                hash_len(0),
-                flags(0),
-                major(0),
-                minor(0),
-                build(0),
-                revision(0)
-            {
-                memset(public_key_token, 0, kPublicKeyTokenLength);
-            }
-        };
+class TypeNameParseInfo
+{
+public:
+	struct AssemblyName
+	{
+		std::string name;
+		std::string culture;
+		std::string hash_value;
+		std::string public_key;
+		char public_key_token[kPublicKeyTokenLength];
+		uint32_t hash_alg;
+		uint32_t hash_len;
+		uint32_t flags;
+		uint16_t major;
+		uint16_t minor;
+		uint16_t build;
+		uint16_t revision;
 
-        TypeNameParseInfo();
-        ~TypeNameParseInfo();
+		AssemblyName () :
+			hash_alg (0),
+			hash_len (0),
+			flags (0),
+			major (0),
+			minor (0),
+			build (0),
+			revision (0)
+		{
+			memset (public_key_token, 0, kPublicKeyTokenLength);
+		}
+	};
 
-        inline const std::string &ns() const
-        {
-            return _namespace;
-        }
+	TypeNameParseInfo ();
+	~TypeNameParseInfo ();
 
-        inline const std::string &name() const
-        {
-            return _name;
-        }
+	inline const std::string &ns () const
+	{
+		return _namespace;
+	}
 
-        inline const AssemblyName &assembly_name() const
-        {
-            return _assembly_name;
-        }
+	inline const std::string &name () const
+	{
+		return _name;
+	}
 
-        inline const std::vector<int> &modifiers() const
-        {
-            return _modifiers;
-        }
+	inline const AssemblyName &assembly_name () const
+	{
+		return _assembly_name;
+	}
 
-        inline const std::vector<TypeNameParseInfo> &type_arguments() const
-        {
-            return _type_arguments;
-        }
+	inline const std::vector<int> &modifiers () const
+	{
+		return _modifiers;
+	}
 
-        inline const std::vector<std::string> &nested() const
-        {
-            return _nested;
-        }
+	inline const std::vector<TypeNameParseInfo> &type_arguments () const
+	{
+		return _type_arguments;
+	}
 
-        inline bool is_byref() const
-        {
-            return std::find(_modifiers.begin(), _modifiers.end(), 0) != _modifiers.end();
-        }
+	inline const std::vector<std::string> &nested () const
+	{
+		return _nested;
+	}
 
-        inline bool has_generic_arguments() const
-        {
-            return _type_arguments.size() > 0;
-        }
+	inline bool is_byref () const
+	{
+		return std::find (_modifiers.begin (), _modifiers.end (), 0) != _modifiers.end ();
+	}
 
-        inline bool is_pointer() const
-        {
-            return std::find(_modifiers.begin(), _modifiers.end(), -1) != _modifiers.end();
-        }
+	inline bool has_generic_arguments () const
+	{
+		return _type_arguments.size () > 0;
+	}
 
-        inline bool is_bounded() const
-        {
-            return std::find(_modifiers.begin(), _modifiers.end(), -2) != _modifiers.end();
-        }
+	inline bool is_pointer () const
+	{
+		return std::find (_modifiers.begin (), _modifiers.end (), -1) != _modifiers.end ();
+	}
 
-        inline bool is_array() const
-        {
-            std::vector<int32_t>::const_iterator it = _modifiers.begin();
-            while (it != _modifiers.end())
-            {
-                if (*it > 0)
-                    return true;
+	inline bool is_bounded () const
+	{
+		return std::find (_modifiers.begin (), _modifiers.end (), -2) != _modifiers.end ();
+	}
 
-                ++it;
-            }
+	inline bool is_array () const
+	{
+		std::vector<int32_t>::const_iterator it = _modifiers.begin ();
+		while (it != _modifiers.end ())
+		{
+			if (*it > 0)
+				return true;
 
-            return false;
-        }
+			++it;
+		}
 
-    private:
+		return false;
+	}
 
-        std::string _namespace;
-        std::string _name;
-        AssemblyName _assembly_name;
-        std::vector<int32_t> _modifiers;
-        std::vector<TypeNameParseInfo> _type_arguments;
-        std::vector<std::string> _nested;
+private:
 
-        friend class TypeNameParser;
-    };
+	std::string _namespace;
+	std::string _name;
+	AssemblyName _assembly_name;
+	std::vector<int32_t> _modifiers;
+	std::vector<TypeNameParseInfo> _type_arguments;
+	std::vector<std::string> _nested;
 
-    class TypeNameParser
-    {
-    public:
+	friend class TypeNameParser;
+};
 
-        TypeNameParser(std::string &name, TypeNameParseInfo &info, bool is_nested);
-        TypeNameParser(std::string::const_iterator &begin, std::string::const_iterator &end, TypeNameParseInfo &info, bool is_nested);
+class TypeNameParser
+{
+public:
 
-        bool Parse(bool acceptAssemblyName = true);
-        bool ParseAssembly();
+	TypeNameParser (std::string &name, TypeNameParseInfo &info, bool is_nested);
+	TypeNameParser (std::string::const_iterator &begin, std::string::const_iterator &end, TypeNameParseInfo &info, bool is_nested);
 
-    private:
+	bool Parse (bool acceptAssemblyName = true);
+	bool ParseAssembly ();
 
-        inline bool IsEOL() const
-        {
-            return _p >= _end;
-        }
+private:
 
-        inline bool CurrentIs(char v) const
-        {
-            if (IsEOL())
-                return false;
+	inline bool IsEOL () const
+	{
+		return _p >= _end;
+	}
 
-            return *_p == v;
-        }
+	inline bool CurrentIs (char v) const
+	{
+		if (IsEOL())
+			return false;
 
-        inline bool Next(bool skipWhites = false)
-        {
-            ++_p;
+		return *_p == v;
+	}
 
-            if (skipWhites)
-                SkipWhites();
+	inline bool Next (bool skipWhites = false)
+	{
+		++_p;
 
-            return !IsEOL();
-        }
+		if (skipWhites)
+			SkipWhites ();
+		
+		return !IsEOL();
+	}
+	
+	bool NextWillBe (char v, bool skipWhites = false) const;
+	
+	void InitializeParser ();
+	void SkipWhites ();
+	void ConsumeIdentifier ();
+	void ConsumeAssemblyIdentifier ();
+	void ConsumePropertyIdentifier ();
+	void ConsumePropertyValue ();
+	bool ConsumeNumber (int32_t &value);
+	bool ParseTypeName (int32_t &arity);
+	bool ParseNestedTypeOptional (int32_t &arity);
+	bool ParseTypeArgumentsOptional (int32_t &arity);
+	bool ParseAssemblyNameOptional ();
+	bool ParseAssemblyName ();
+	bool ParsePropertiesOptional ();
+	bool ParseArrayModifierOptional ();
+	bool ParsePointerModifiersOptional ();
+	bool ParseByRefModifiersOptional ();
 
-        bool NextWillBe(char v, bool skipWhites = false) const;
+	static bool ParseVersion (const std::string& version, uint16_t& major, uint16_t& minor, uint16_t& build, uint16_t& revision);
 
-        void InitializeParser();
-        void SkipWhites();
-        void ConsumeIdentifier();
-        void ConsumeAssemblyIdentifier();
-        void ConsumePropertyIdentifier();
-        void ConsumePropertyValue();
-        bool ConsumeNumber(int32_t &value);
-        bool ParseTypeName(int32_t &arity);
-        bool ParseNestedTypeOptional(int32_t &arity);
-        bool ParseTypeArgumentsOptional(int32_t &arity);
-        bool ParseAssemblyNameOptional();
-        bool ParseAssemblyName();
-        bool ParsePropertiesOptional();
-        bool ParseArrayModifierOptional();
-        bool ParsePointerModifiersOptional();
-        bool ParseByRefModifiersOptional();
+	TypeNameParseInfo &_info;
 
-        static bool ParseVersion(const std::string& version, uint16_t& major, uint16_t& minor, uint16_t& build, uint16_t& revision);
+	bool _is_nested;
+	bool _accept_assembly_name;
+	std::string::const_iterator _p;
+	std::string::const_iterator _end;
+};
 
-        TypeNameParseInfo &_info;
+class LIBIL2CPP_CODEGEN_API Type
+{
+public:
+	// exported
+	static std::string GetName (const Il2CppType *type, Il2CppTypeNameFormat format);
+	static int GetType (const Il2CppType *type);
+	static Il2CppClass* GetClassOrElementClass (const Il2CppType *type);
+	static const Il2CppType* GetUnderlyingType (const Il2CppType *type);
+	static uint32_t GetToken (const Il2CppType *type);
+	static bool IsGenericInstance (const Il2CppType *type);
+	static Il2CppReflectionType* GetDeclaringType(const Il2CppType* type);
+	static Il2CppArray* GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray);
 
-        bool _is_nested;
-        bool _accept_assembly_name;
-        std::string::const_iterator _p;
-        std::string::const_iterator _end;
-    };
+public:
+	// internal
+	static void GetNameInternal (std::string &oss, const Il2CppType *type, Il2CppTypeNameFormat format, bool is_nested);
+	static bool IsReference (const Il2CppType* type);
+	static bool IsStruct (const Il2CppType* type);
+	static bool GenericInstIsValuetype (const Il2CppType* type);
 
-    class LIBIL2CPP_CODEGEN_API Type
-    {
-    public:
-        // exported
-        static std::string GetName(const Il2CppType *type, Il2CppTypeNameFormat format);
-        static int GetType(const Il2CppType *type);
-        static Il2CppClass* GetClassOrElementClass(const Il2CppType *type);
-        static const Il2CppType* GetUnderlyingType(const Il2CppType *type);
-        static uint32_t GetToken(const Il2CppType *type);
-        static bool IsGenericInstance(const Il2CppType *type);
-        static Il2CppReflectionType* GetDeclaringType(const Il2CppType* type);
-        static Il2CppArray* GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray);
+	static bool IsEnum (const Il2CppType *type);
+	static bool IsValueType (const Il2CppType *type);
+	static bool IsEmptyType (const Il2CppType *type);
 
-    public:
-        // internal
-        static void GetNameInternal(std::ostringstream &oss, const Il2CppType *type, Il2CppTypeNameFormat format, bool is_nested);
-        static bool IsReference(const Il2CppType* type);
-        static bool IsStruct(const Il2CppType* type);
-        static bool GenericInstIsValuetype(const Il2CppType* type);
+	static bool IsSystemDBNull (const Il2CppType *type);
+	static bool IsSystemDateTime (const Il2CppType *type);
+	static bool IsSystemDecimal (const Il2CppType *type);
 
-        static bool IsEnum(const Il2CppType *type);
-        static bool IsValueType(const Il2CppType *type);
-        static bool IsEmptyType(const Il2CppType *type);
+	static Il2CppClass* GetClass (const Il2CppType *type);
+	static const Il2CppGenericParameter* GetGenericParameter (const Il2CppType *type);
 
-        static bool IsSystemDBNull(const Il2CppType *type);
-        static bool IsSystemDateTime(const Il2CppType *type);
-        static bool IsSystemDecimal(const Il2CppType *type);
+	static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
 
-        static Il2CppClass* GetClass(const Il2CppType *type);
-        static const Il2CppGenericParameter* GetGenericParameter(const Il2CppType *type);
+	static Il2CppString* AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName);
+};
 
-        static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
-
-        static Il2CppString* AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName);
-    };
 } /* namespace vm */
 } /* namespace il2cpp */

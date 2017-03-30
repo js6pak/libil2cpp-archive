@@ -14,11 +14,13 @@ namespace Reflection
 {
 namespace Emit
 {
-    Il2CppReflectionMethod* MethodBuilder::MakeGenericMethod(Il2CppReflectionMethod*, Il2CppArray*)
-    {
-        NOT_SUPPORTED_SRE(MethodBuilder::MakeGenericMethod);
-        return NULL;
-    }
+
+Il2CppReflectionMethod* MethodBuilder::MakeGenericMethod (Il2CppReflectionMethod*, Il2CppArray*)
+{
+	NOT_SUPPORTED_SRE (MethodBuilder::MakeGenericMethod);
+	return NULL;
+}
+
 } /* namespace Emit */
 } /* namespace Reflection */
 } /* namespace System */

@@ -1,5 +1,5 @@
 /*
-    Directory utility functions that are common to all posix and posix-like platforms.
+	Directory utility functions that are common to all posix and posix-like platforms.
 */
 
 #include "il2cpp-config.h"
@@ -11,69 +11,71 @@ namespace il2cpp
 {
 namespace utils
 {
-    bool Match(const std::string name, size_t nameIndex, const std::string& pattern, const size_t patternIndex)
-    {
-        const size_t nameLength = name.length();
 
-        for (size_t i = patternIndex, patternLength = pattern.length(); i < patternLength; ++i)
-        {
-            const char c = pattern[i];
+bool Match (const std::string name, size_t nameIndex, const std::string& pattern, const size_t patternIndex)
+{
+	const size_t nameLength = name.length();
 
-            if (c == '*')
-            {
-                if (i + 1 == patternLength) // Star is last character, match everything.
-                    return true;
+	for(size_t i = patternIndex, patternLength = pattern.length(); i < patternLength; ++i)
+	{
+		const char c = pattern[i];
 
-                do
-                {
-                    // Check that we match the rest of the pattern against name.
-                    if (Match(name, nameIndex, pattern, i + 1))
-                        return true;
-                }
-                while (nameIndex++ < nameLength);
+		if(c == '*')
+		{
+			if(i+1 == patternLength) // Star is last character, match everything.
+				return true;
 
-                return false;
-            }
-            else if (c == '?')
-            {
-                if (nameIndex == nameLength)
-                    return false;
+			do
+			{
+				// Check that we match the rest of the pattern against name.
+				if(Match(name, nameIndex, pattern, i+1))
+					return true;
+			}
+			while(nameIndex++ < nameLength);
 
-                nameIndex++;
-            }
-            else
-            {
-                if (nameIndex == nameLength || name[nameIndex] != c)
-                    return false;
+			return false;
+		}
+		else if(c == '?')
+		{
+			if(nameIndex == nameLength)
+				return false;
 
-                nameIndex++;
-            }
-        }
+			nameIndex++;
+		}
+		else
+		{
+			if(nameIndex == nameLength || name[nameIndex] != c)
+				return false;
 
-        // All characters matched
-        return nameIndex == nameLength;
-    }
+			nameIndex++;
+		}
+	}
 
-    bool Match(const std::string name, const std::string& pattern)
-    {
-        return Match(name, 0, pattern, 0);
-    }
+	// All characters matched
+	return nameIndex == nameLength;
+}
 
-    std::string CollapseAdjacentStars(const std::string& pattern)
-    {
-        std::string matchPattern;
-        matchPattern.reserve(pattern.length());
+bool Match (const std::string name, const std::string& pattern)
+{
+	return Match(name, 0, pattern, 0);
+}
 
-        // Collapse adjacent stars into one
-        for (size_t i = 0, length = pattern.length(); i < length; ++i)
-        {
-            if (i > 0 && pattern[i] == '*' && pattern[i - 1] == '*')
-                continue;
+std::string CollapseAdjacentStars(const std::string& pattern)
+{
+	std::string matchPattern;
+	matchPattern.reserve(pattern.length());
 
-            matchPattern.append(1, pattern[i]);
-        }
+	// Collapse adjacent stars into one
+	for (size_t i = 0, length = pattern.length(); i < length; ++i)
+	{
+		if (i > 0 && pattern[i] == '*' && pattern[i-1] == '*')
+			continue;
 
-        return matchPattern;
-    }
+		matchPattern.append(1, pattern[i]);
+	}
+
+	return matchPattern;
+}
+
 }
 }

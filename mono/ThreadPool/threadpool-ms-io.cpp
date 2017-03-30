@@ -7,6 +7,8 @@
  * Copyright 2015 Xamarin, Inc (http://www.xamarin.com)
  * Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
+#include "il2cpp-config.h"
+
 #if NET_4_0
 
 #ifndef DISABLE_SOCKETS
@@ -18,22 +20,22 @@
 #include <fcntl.h>
 #endif
 
-#include <mono/metadata/threadpool-ms.h>
-#include <mono/metadata/threadpool-ms-io.h>
-#include <mono/metadata/threadpool-ms-io-poll.h>
-
-#include "object-internals.h"
-#include "vm/ThreadPool.h"
-#include "vm/Runtime.h"
-#include "vm/Thread.h"
-#include "vm/Domain.h"
-#include "os/Mutex.h"
-#include "os/ConditionVariable.h"
-#include "gc/Allocator.h"
 #include <vector>
-#include "utils/Il2CppHashMap.h"
+
+#include "gc/Allocator.h"
+#include "mono/ThreadPool/threadpool-ms.h"
+#include "mono/ThreadPool/threadpool-ms-io.h"
+#include "mono/ThreadPool/threadpool-ms-io-poll.h"
+#include "object-internals.h"
+#include "os/ConditionVariable.h"
+#include "os/Mutex.h"
 #include "os/Socket.h"
 #include "utils/CallOnce.h"
+#include "utils/Il2CppHashMap.h"
+#include "vm/Domain.h"
+#include "vm/Runtime.h"
+#include "vm/Thread.h"
+#include "vm/ThreadPool.h"
 
 #define UPDATES_CAPACITY 128
 
@@ -47,21 +49,7 @@ struct ThreadPoolStateHasher
 	}
 };
 
-struct ThreadPoolStateCompare
-{
-	bool operator()(const KeyWrapper<int>& thread1, const KeyWrapper<int>& thread2) const
-	{
-		if (thread1.type != thread2.type)
-			return false;
-		else if (!thread1.isNormal())
-			return true;
-
-		// You can't overload events
-		return thread1.key == thread2.key;
-	}
-};
-
-typedef Il2CppHashMap<int, ManagedList*, ThreadPoolStateHasher, ThreadPoolStateCompare> ThreadPoolStateHash;
+typedef Il2CppHashMap<int, ManagedList*, ThreadPoolStateHasher> ThreadPoolStateHash;
 
 typedef enum {
 	UPDATE_EMPTY = 0,
