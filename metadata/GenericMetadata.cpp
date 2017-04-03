@@ -234,7 +234,7 @@ namespace metadata
         // As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
         // level, a crash will happen. We'll assume that this code won't actually be executed though.
         if (RecursiveGenericDepthFor(classInst) > MaximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > MaximumRuntimeGenericDepth)
-            return NULL;
+            vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
 
         return MetadataCache::GetGenericMethod(genericMethod->methodDefinition, classInst, methodInst);
     }
