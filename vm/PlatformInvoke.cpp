@@ -11,6 +11,7 @@
 #include "Type.h"
 #include "os/LibraryLoader.h"
 #include "os/MarshalStringAlloc.h"
+#include "utils/NativeDelegateMethodCache.h"
 #include "utils/Memory.h"
 #include "utils/StringViewStream.h"
 #include "utils/StringUtils.h"
@@ -143,7 +144,7 @@ namespace vm
         }
 
         int32_t stringLength = String::GetLength(managedString);
-        Il2CppChar* stringChars = String::GetChars(managedString);
+        Il2CppChar* stringChars = utils::StringUtils::GetChars(managedString);
         return os::MarshalStringAlloc::AllocateBStringLength(stringChars, stringLength, bstr);
     }
 
@@ -163,28 +164,12 @@ namespace vm
         return String::New(value);
     }
 
-    static int32_t Utf16StringLength(const Il2CppChar* value)
-    {
-        if (value == NULL)
-            return 0;
-
-        const Il2CppChar* ptr = value;
-        int32_t length = 0;
-        while (*ptr)
-        {
-            ptr++;
-            length++;
-        }
-
-        return length;
-    }
-
     Il2CppString* PlatformInvoke::MarshalCppWStringToCSharpStringResult(const Il2CppChar* value)
     {
         if (value == NULL)
             return NULL;
 
-        return String::NewUtf16(value, Utf16StringLength(value));
+        return String::NewUtf16(value, (int32_t)utils::StringUtils::StrLen(value));
     }
 
     Il2CppString* PlatformInvoke::MarshalCppBStringToCSharpStringResult(const Il2CppChar* value)
@@ -428,49 +413,19 @@ namespace vm
         Il2CppObject* delegate = il2cpp::vm::Object::New(delegateType);
         Il2CppMethodPointer nativeFunctionPointer = (Il2CppMethodPointer)functionPtr;
 
-        const MethodInfo* method = MetadataCache::GetNativeDelegate(nativeFunctionPointer);
+        const MethodInfo* method = utils::NativeDelegateMethodCache::GetNativeDelegate(nativeFunctionPointer);
         if (method == NULL)
         {
             MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC(1, sizeof(MethodInfo));
             newMethod->methodPointer = nativeFunctionPointer;
             newMethod->invoker_method = NULL;
-            MetadataCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
+            utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }
 
         Type::ConstructDelegate((Il2CppDelegate*)delegate, delegate, managedToNativeWrapperMethodPointer, method);
 
         return (Il2CppDelegate*)delegate;
-    }
-
-    void PlatformInvoke::MarshalStructToNative(void* managedStructure, void* marshaledStructure, Il2CppClass* type)
-    {
-        IL2CPP_ASSERT(type->interopData);
-        IL2CPP_ASSERT(type->interopData->pinvokeMarshalToNativeFunction);
-        type->interopData->pinvokeMarshalToNativeFunction(managedStructure, marshaledStructure);
-    }
-
-    void PlatformInvoke::MarshalStructFromNative(void* marshaledStructure, void* managedStructure, Il2CppClass* type)
-    {
-        IL2CPP_ASSERT(type->interopData);
-        IL2CPP_ASSERT(type->interopData->pinvokeMarshalFromNativeFunction);
-        type->interopData->pinvokeMarshalFromNativeFunction(marshaledStructure, managedStructure);
-    }
-
-    bool PlatformInvoke::MarshalFreeStruct(void* marshaledStructure, Il2CppClass* type)
-    {
-        const Il2CppInteropData* interopData = type->interopData;
-
-        if (interopData == NULL)
-            return false;
-
-        PInvokeMarshalCleanupFunc cleanup = interopData->pinvokeMarshalCleanupFunction;
-
-        if (cleanup == NULL)
-            return false;
-
-        cleanup(marshaledStructure);
-        return true;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

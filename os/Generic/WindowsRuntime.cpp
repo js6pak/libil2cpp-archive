@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "il2cpp-vm-support.h"
 #include "os/WindowsRuntime.h"
 #include "vm/Exception.h"
 
@@ -44,14 +45,14 @@ namespace os
     {
         NO_UNUSED_WARNING(hstring);
         NO_UNUSED_WARNING(length);
-        vm::Exception::Raise(IL2CPP_COR_E_PLATFORMNOTSUPPORTED, false);
+        IL2CPP_VM_RAISE_COM_EXCEPTION(IL2CPP_COR_E_PLATFORMNOTSUPPORTED, false);
         return NULL;
     }
 
     Il2CppString* WindowsRuntime::HStringToManagedString(Il2CppHString hstring)
     {
         NO_UNUSED_WARNING(hstring);
-        vm::Exception::Raise(IL2CPP_COR_E_PLATFORMNOTSUPPORTED, false);
+        IL2CPP_VM_RAISE_COM_EXCEPTION(IL2CPP_COR_E_PLATFORMNOTSUPPORTED, false);
         return NULL;
     }
 

@@ -42,7 +42,7 @@ struct  PublicKeyTokenFixedBuffer
     };
 };
 
-struct  MonoAssemblyName
+struct  Il2CppMonoAssemblyName
 {
     // System.IntPtr Mono.MonoAssemblyName::name
     Il2CppIntPtr name;

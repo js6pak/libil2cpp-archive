@@ -12,7 +12,7 @@ namespace mscorlib
 {
 namespace Mono
 {
-    void RuntimeMarshal::FreeAssemblyName(MonoAssemblyName* name)
+    void RuntimeMarshal::FreeAssemblyName(Il2CppMonoAssemblyName* name)
     {
         IL2CPP_FREE(name->name.m_value);
         IL2CPP_FREE(name->culture.m_value);
