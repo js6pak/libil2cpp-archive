@@ -977,7 +977,7 @@ namespace vm
     {
         if (typeName != NULL)
         {
-            std::string name = utils::StringUtils::Utf16ToUtf8(String::GetChars(typeName));
+            std::string name = utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(typeName));
 
             il2cpp::vm::TypeNameParseInfo info;
             il2cpp::vm::TypeNameParser parser(name, info, false);

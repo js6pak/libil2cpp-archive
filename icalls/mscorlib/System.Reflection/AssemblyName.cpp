@@ -32,7 +32,7 @@ namespace Reflection
 {
     bool AssemblyName::ParseName(Il2CppReflectionAssemblyName* aname, Il2CppString* assemblyName)
     {
-        return vm::AssemblyName::ParseName(aname, utils::StringUtils::Utf16ToUtf8(String::GetChars(assemblyName)));
+        return vm::AssemblyName::ParseName(aname, utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(assemblyName)));
     }
 
 #if NET_4_0
@@ -50,18 +50,18 @@ namespace Reflection
             return 'A' + (value - 10);
     }
 
-    MonoAssemblyName* AssemblyName::GetNativeName(Il2CppIntPtr assembly_ptr)
+    Il2CppMonoAssemblyName* AssemblyName::GetNativeName(Il2CppIntPtr assembly_ptr)
     {
         Il2CppAssembly *assembly = (Il2CppAssembly*)assembly_ptr.m_value;
 
-        MonoAssemblyName *aname = (MonoAssemblyName*)il2cpp::vm::Reflection::GetMonoAssemblyName(assembly);
+        Il2CppMonoAssemblyName *aname = (Il2CppMonoAssemblyName*)il2cpp::vm::Reflection::GetMonoAssemblyName(assembly);
         if (aname)
         {
             return aname;
         }
         else
         {
-            aname = (MonoAssemblyName*)IL2CPP_MALLOC_ZERO(sizeof(MonoAssemblyName));
+            aname = (Il2CppMonoAssemblyName*)IL2CPP_MALLOC_ZERO(sizeof(Il2CppMonoAssemblyName));
             aname->name.m_value = (void*)il2cpp::vm::MetadataCache::GetStringFromIndex(assembly->aname.nameIndex);
             aname->culture.m_value = (void*)il2cpp::vm::MetadataCache::GetStringFromIndex(assembly->aname.cultureIndex);
             aname->hash_value.m_value = (void*)il2cpp::vm::MetadataCache::GetStringFromIndex(assembly->aname.hashValueIndex);
@@ -91,7 +91,7 @@ namespace Reflection
         }
     }
 
-    bool AssemblyName::ParseAssemblyName(Il2CppIntPtr namePtr, MonoAssemblyName* aname, bool* is_version_defined, bool* is_token_defined)
+    bool AssemblyName::ParseAssemblyName(Il2CppIntPtr namePtr, Il2CppMonoAssemblyName* aname, bool* is_version_defined, bool* is_token_defined)
     {
         std::string name((char*)namePtr.m_value);
 

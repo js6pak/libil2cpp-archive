@@ -29,8 +29,8 @@ namespace Globalization
     static int string_invariant_indexof(Il2CppString *source, int sindex, int count, Il2CppString *value, bool first)
     {
         int lencmpstr = il2cpp::vm::String::GetLength(value);
-        Il2CppChar* src = il2cpp::vm::String::GetChars(source);
-        Il2CppChar* cmpstr = il2cpp::vm::String::GetChars(value);
+        Il2CppChar* src = il2cpp::utils::StringUtils::GetChars(source);
+        Il2CppChar* cmpstr = il2cpp::utils::StringUtils::GetChars(value);
 
         if (first)
         {
@@ -102,8 +102,8 @@ namespace Globalization
         else
             length = len2;
 
-        Il2CppChar* ustr1 = il2cpp::vm::String::GetChars(str1) + off1;
-        Il2CppChar* ustr2 = il2cpp::vm::String::GetChars(str2) + off2;
+        Il2CppChar* ustr1 = il2cpp::utils::StringUtils::GetChars(str1) + off1;
+        Il2CppChar* ustr2 = il2cpp::utils::StringUtils::GetChars(str2) + off2;
 
         int pos = 0;
         for (pos = 0; pos != length; pos++)

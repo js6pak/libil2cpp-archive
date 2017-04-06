@@ -17,7 +17,6 @@ struct Il2CppDelegate;
 struct Il2CppObject;
 struct MethodInfo;
 struct Il2CppClass;
-struct VirtualInvokeData;
 
 namespace il2cpp
 {
@@ -29,7 +28,6 @@ namespace vm
         static void Init(const char* filename, const char *runtime_version);
         static void Shutdown();
         static bool IsShuttingDown();
-        static NORETURN void Abort();
         static void SetConfigDir(const char *path);
         static void SetDataDir(const char *path);
         static void SetConfigUtf16(const Il2CppChar* executablePath);
@@ -56,17 +54,6 @@ namespace vm
         static Il2CppRuntimeUnhandledExceptionPolicy GetUnhandledExceptionPolicy();
         static void UnhandledException(Il2CppException* exc);
         static void ClassInit(Il2CppClass *klass);
-
-#if IL2CPP_ENABLE_NATIVE_STACKTRACES
-        struct MethodDefinitionKey
-        {
-            Il2CppMethodPointer method;
-            MethodIndex methodIndex;
-        };
-
-        static void RegisterMethods(const std::vector<MethodDefinitionKey>& managedMethods);
-        static const MethodInfo* GetMethodFromNativeSymbol(Il2CppMethodPointer nativeMethod);
-#endif
 
         static const char *GetBundledMachineConfig();
         static void RegisterBundledMachineConfig(const char *config_xml);

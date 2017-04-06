@@ -218,7 +218,7 @@ namespace System
 
     Il2CppReflectionType * Type::internal_from_name(Il2CppString* name, bool throwOnError, bool ignoreCase)
     {
-        std::string str = StringUtils::Utf16ToUtf8(String::GetChars(name));
+        std::string str = StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(name));
 
         il2cpp::vm::TypeNameParseInfo info;
         il2cpp::vm::TypeNameParser parser(str, info, false);
