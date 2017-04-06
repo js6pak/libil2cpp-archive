@@ -67,7 +67,7 @@ typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppArray*> 
 typedef il2cpp::gc::AppendOnlyGCHashMap<const Il2CppType*, Il2CppReflectionType*, Il2CppTypeHash, Il2CppTypeEqualityComparer> TypeMap;
 
 typedef Il2CppHashMap<const Il2CppGenericParameter*, const MonoGenericParameterInfo*, il2cpp::utils::PointerHash<const Il2CppGenericParameter> > MonoGenericParameterMap;
-typedef Il2CppHashMap<const  Il2CppAssembly*, const MonoAssemblyName*, il2cpp::utils::PointerHash<const Il2CppAssembly> > MonoAssemblyNameMap;
+typedef Il2CppHashMap<const  Il2CppAssembly*, const Il2CppMonoAssemblyName*, il2cpp::utils::PointerHash<const Il2CppAssembly> > MonoAssemblyNameMap;
 
 // these needs to be pointers and allocated after GC is initialized since it uses GC Allocator
 static AssemblyMap* s_AssemblyMap;
@@ -747,7 +747,7 @@ namespace vm
         s_MonoGenericParamterMap->insert(std::make_pair(param, monoParam));
     }
 
-    const MonoAssemblyName* Reflection::GetMonoAssemblyName(const Il2CppAssembly *assembly)
+    const Il2CppMonoAssemblyName* Reflection::GetMonoAssemblyName(const Il2CppAssembly *assembly)
     {
         MonoAssemblyNameMap::const_iterator it = s_MonoAssemblyNameMap->find(assembly);
         if (it == s_MonoAssemblyNameMap->end())
@@ -756,7 +756,7 @@ namespace vm
         return it->second;
     }
 
-    void Reflection::SetMonoAssemblyName(const Il2CppAssembly *assembly, const MonoAssemblyName *aname)
+    void Reflection::SetMonoAssemblyName(const Il2CppAssembly *assembly, const Il2CppMonoAssemblyName *aname)
     {
         s_MonoAssemblyNameMap->insert(std::make_pair(assembly, aname));
     }

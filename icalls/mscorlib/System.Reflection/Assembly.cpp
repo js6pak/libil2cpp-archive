@@ -71,7 +71,7 @@ namespace Reflection
 
     Il2CppReflectionType* Assembly::InternalGetType(Il2CppReflectionAssembly *assembly, mscorlib_System_Reflection_Module *, Il2CppString* name, bool throwOnError, bool ignoreCase)
     {
-        std::string str = utils::StringUtils::Utf16ToUtf8(String::GetChars(name));
+        std::string str = utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(name));
 
         il2cpp::vm::TypeNameParseInfo info;
         il2cpp::vm::TypeNameParser parser(str, info, false);
@@ -329,7 +329,7 @@ namespace Reflection
         // Our implementation is going to behave a bit different.  We can't actually load any assembly.  If we didn't know about the assembly at conversion time,
         // then we won't be able to do anything.
         // On the other hand, if the name of the assembly matches the name of an assembly that we converted, then lets return the assembly that we know about.
-        std::string utf8Path = utils::StringUtils::Utf16ToUtf8(vm::String::GetChars(assemblyFile));
+        std::string utf8Path = utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(assemblyFile));
         std::string fileName = utils::PathUtils::BasenameNoExtension(utf8Path);
 
         const Il2CppAssembly* foundAssembly = MetadataCache::GetAssemblyByName(fileName);

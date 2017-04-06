@@ -299,8 +299,13 @@ namespace utils
 
     bool StringUtils::CaseInsensitiveEquals(const char* left, const char* right)
     {
-        functional::Filter<const char*, StringUtils::CaseInsensitiveComparer> equalsLeft(left);
+        functional::Filter<const char *, StringUtils::CaseInsensitiveComparer> equalsLeft(left);
         return equalsLeft(right);
+    }
+
+    Il2CppChar* StringUtils::GetChars(Il2CppString* str)
+    {
+        return str->chars;
     }
 } /* utils */
 } /* il2cpp */

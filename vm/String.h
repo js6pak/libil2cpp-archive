@@ -16,7 +16,6 @@ namespace vm
         //exported
         static Il2CppString* Empty();
         static int32_t GetLength(Il2CppString* str);
-        static Il2CppChar* GetChars(Il2CppString* str);
         static int32_t GetHash(Il2CppString* str);
         static Il2CppString* New(const char* str);
         static Il2CppString* NewWrapper(const char* str);

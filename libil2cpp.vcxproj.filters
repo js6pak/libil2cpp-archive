@@ -846,26 +846,39 @@
     <ClCompile Include="vm\ThreadPoolMs.cpp">
       <Filter>vm</Filter>
     </ClCompile>
-    <ClCompile Include="mono\ThreadPool\threadpool-ms.cpp">
-      <Filter>mono\ThreadPool</Filter>
+    <ClCompile Include="utils\NativeSymbol.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="mono\ThreadPool\threadpool-ms-io.cpp">
-      <Filter>mono\ThreadPool</Filter>
+    <ClCompile Include="utils\MarshalingUtils.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="mono\ThreadPool\threadpool-ms-io-poll.cpp">
-      <Filter>mono\ThreadPool</Filter>
-    </ClCompile>
-    <ClCompile Include="mono\ThreadPool\ThreadPoolWorkerThread.cpp">
-      <Filter>mono\ThreadPool</Filter>
-    </ClCompile>
-    <ClCompile Include="mono\ThreadPool\ThreadPoolMonitorThread.cpp">
-      <Filter>mono\ThreadPool</Filter>
+    <ClCompile Include="mono-runtime\il2cpp-callbacks.cpp" />
+    <ClCompile Include="mono-runtime\il2cpp-mono-support.cpp" />
+    <ClCompile Include="mono\ThreadPool\threadpool-ms-io-poll.cpp" />
+    <ClCompile Include="mono\ThreadPool\threadpool-ms-io.cpp" />
+    <ClCompile Include="mono\ThreadPool\threadpool-ms.cpp" />
+    <ClCompile Include="mono\ThreadPool\ThreadPoolMonitorThread.cpp" />
+    <ClCompile Include="mono\ThreadPool\ThreadPoolWorkerThread.cpp" />
+    <ClCompile Include="utils\NativeDelegateMethodCache.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.cpp">
       <Filter>icalls\System\System.Net.NetworkInformation</Filter>
     </ClCompile>
     <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c">
       <Filter>external\xamarin-android</Filter>
+    </ClCompile>
+    <ClCompile Include="vm\Path.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Android\StackTrace.cpp">
+      <Filter>os\Android</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\Runtime.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\Exception.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1623,6 +1636,9 @@
     <ClInclude Include="vm\Random.h">
       <Filter>vm</Filter>
     </ClInclude>
+    <ClInclude Include="codegen\il2cpp-codegen-mono.h">
+      <Filter>codegen</Filter>
+    </ClInclude>
     <ClInclude Include="os\CpuInfo.h">
       <Filter>os</Filter>
     </ClInclude>
@@ -1655,36 +1671,25 @@
     <ClInclude Include="utils\Logging.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="vm\NonCachedCCWBase.h">
-      <Filter>vm</Filter>
-    </ClInclude>
-    <ClInclude Include="vm\CachedCCWBase.h">
-      <Filter>vm</Filter>
-    </ClInclude>
+    <ClInclude Include="codegen\il2cpp-codegen-il2cpp.h" />
+    <ClInclude Include="icalls\mscorlib\System\TimeZoneInfo.h" />
     <ClInclude Include="il2cpp-vm-support.h" />
-    <ClInclude Include="icalls\mscorlib\System\TimeZoneInfo.h">
-      <Filter>icalls\mscorlib\System</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\ThreadPool\threadpool-ms-io-poll.h">
-      <Filter>mono\ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\ThreadPool\threadpool-ms.h">
-      <Filter>mono\ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\ThreadPool\threadpool-ms-io.h">
-      <Filter>mono\ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\ThreadPool\ThreadPoolDataStructures.h">
-      <Filter>mono\ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\ThreadPool\ThreadPoolWorkerThread.h">
-      <Filter>mono\ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\ThreadPool\ThreadPoolMacros.h">
-      <Filter>mono\ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="mono\ThreadPool\ThreadPoolMonitorThread.h">
-      <Filter>mono\ThreadPool</Filter>
+    <ClInclude Include="mono-runtime\il2cpp-callbacks.h" />
+    <ClInclude Include="mono-runtime\il2cpp-mapping.h" />
+    <ClInclude Include="mono-runtime\il2cpp-mono-support.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolDataStructures.h" />
+    <ClInclude Include="mono\ThreadPool\threadpool-ms-io-poll.h" />
+    <ClInclude Include="mono\ThreadPool\threadpool-ms-io.h" />
+    <ClInclude Include="mono\ThreadPool\threadpool-ms.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolMacros.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolMonitorThread.h" />
+    <ClInclude Include="mono\ThreadPool\ThreadPoolWorkerThread.h" />
+    <ClInclude Include="utils\MarshalingUtils.h" />
+    <ClInclude Include="utils\NativeSymbol.h" />
+    <ClInclude Include="vm\CachedCCWBase.h" />
+    <ClInclude Include="vm\NonCachedCCWBase.h" />
+    <ClInclude Include="utils\NativeDelegateMethodCache.h">
+      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.h">
       <Filter>icalls\System\System.Net.NetworkInformation</Filter>
@@ -1697,6 +1702,15 @@
     </ClInclude>
     <ClInclude Include="external\xamarin-android\xamarin_getifaddrs.h">
       <Filter>external\xamarin-android</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\Path.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Runtime.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Exception.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2459,6 +2473,9 @@
     </Filter>
     <Filter Include="external\xamarin-android">
       <UniqueIdentifier>{4862e90c-23f0-4fcf-a14b-787c976f6083}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os\Android">
+      <UniqueIdentifier>{9b67d9fa-cf50-45a7-93fc-b2e25ac4e73a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

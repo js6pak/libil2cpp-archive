@@ -3,6 +3,15 @@
 #include <stdint.h>
 #include <vector>
 #include "il2cpp-config.h"
+#include "il2cpp-metadata.h"
+
+#if IL2CPP_ENABLE_NATIVE_STACKTRACES
+struct MethodDefinitionKey
+{
+    Il2CppMethodPointer method;
+    MethodIndex methodIndex;
+};
+#endif
 
 namespace il2cpp
 {

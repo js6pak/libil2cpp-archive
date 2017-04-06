@@ -58,10 +58,6 @@ namespace vm
         static Il2CppIntPtr MarshalDelegate(Il2CppDelegate* d);
         static Il2CppDelegate* MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType);
 
-        static void MarshalStructToNative(void* managedStructure, void* marshaledStructure, Il2CppClass* type);
-        static void MarshalStructFromNative(void* marshaledStructure, void* managedStructure, Il2CppClass* type);
-        static bool MarshalFreeStruct(void* marshaledStructure, Il2CppClass* type);
-
         template<typename T>
         static T* MarshalAllocateStringBuffer(size_t numberOfCharacters)
         {

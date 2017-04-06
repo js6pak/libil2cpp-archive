@@ -179,7 +179,7 @@ namespace os
         // Special-case the patterns ending in '.*', as windows also matches entries with no extension with this pattern.
         if (il2cpp::utils::StringUtils::EndsWith(pattern, ".*"))
         {
-            pattern.pop_back();
+            pattern.erase(pattern.size() - 1, 1);
             *pattern.rbegin() = '*';
         }
 

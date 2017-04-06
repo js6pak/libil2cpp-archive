@@ -36,9 +36,6 @@ namespace vm
         static const Il2CppGenericContainer* GetMethodGenericContainer(const MethodInfo* method);
         static const MethodInfo* GetGenericMethodDefinition(const MethodInfo* method);
 
-        static const MethodInfo* GetNativeDelegate(Il2CppMethodPointer nativeFunctionPointer);
-        static void AddNativeDelegate(Il2CppMethodPointer nativeFunctionPointer, const MethodInfo* managedMethodInfo);
-
         static Il2CppClass* GetPointerType(Il2CppClass* type);
         static Il2CppClass* GetWindowsRuntimeClass(const std::string& fullName);
         static const char* GetWindowsRuntimeClassName(const Il2CppClass* klass);
@@ -73,6 +70,7 @@ namespace vm
         static Il2CppImage* GetImageFromIndex(ImageIndex index);
         static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index);
         static const Il2CppTypeDefinition* GetTypeDefinitionFromIndex(TypeDefinitionIndex index);
+        static TypeDefinitionIndex GetExportedTypeFromIndex(TypeDefinitionIndex index);
         static const Il2CppGenericContainer* GetGenericContainerFromIndex(GenericContainerIndex index);
         static const Il2CppGenericParameter* GetGenericParameterFromIndex(GenericParameterIndex index);
         static const Il2CppType* GetGenericParameterConstraintFromIndex(GenericParameterConstraintIndex index);

@@ -234,7 +234,11 @@ struct ParameterInfo
     const Il2CppType* parameter_type;
 };
 
-typedef void* (*InvokerMethod)(const MethodInfo*, void*, void**);
+#if RUNTIME_MONO
+typedef void* (*InvokerMethod)(Il2CppMethodPointer, const MonoMethod*, void*, void**);
+#else
+typedef void* (*InvokerMethod)(Il2CppMethodPointer, const MethodInfo*, void*, void**);
+#endif
 
 #if IL2CPP_DEBUGGER_ENABLED
 struct Il2CppDebugDocument
@@ -333,6 +337,10 @@ typedef void (*PInvokeMarshalFromNativeFunc)(void* marshaledStructure, void* man
 typedef void (*PInvokeMarshalCleanupFunc)(void* marshaledStructure);
 typedef struct Il2CppIUnknown* (*CreateCCWFunc)(Il2CppObject* obj);
 
+#if RUNTIME_MONO
+#include "il2cpp-mapping.h"
+#endif
+
 struct Il2CppInteropData
 {
     Il2CppMethodPointer delegatePInvokeWrapperFunction;
@@ -341,7 +349,11 @@ struct Il2CppInteropData
     PInvokeMarshalCleanupFunc pinvokeMarshalCleanupFunction;
     CreateCCWFunc createCCWFunction;
     const Il2CppGuid* guid;
+#if RUNTIME_MONO
+    MonoMetadataToken typeToken;
+#else
     const Il2CppType* type;
+#endif
 };
 
 #if IL2CPP_COMPILER_MSVC
@@ -470,6 +482,9 @@ struct Il2CppImage
 
     TypeDefinitionIndex typeStart;
     uint32_t typeCount;
+
+    TypeDefinitionIndex exportedTypeStart;
+    uint32_t exportedTypeCount;
 
     MethodIndex entryPointIndex;
 

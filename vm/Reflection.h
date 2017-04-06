@@ -29,7 +29,7 @@ struct Il2CppType;
 struct Il2CppObject;
 struct MonoGenericParameterInfo;
 struct Il2CppGenericParameter;
-struct MonoAssemblyName;
+struct Il2CppMonoAssemblyName;
 
 namespace il2cpp
 {
@@ -51,8 +51,8 @@ namespace vm
         static CustomAttributesCache* GetCustomAttrsInfo(Il2CppObject *obj);
         static const MonoGenericParameterInfo* GetMonoGenericParameterInfo(const Il2CppGenericParameter *param);
         static void SetMonoGenericParameterInfo(const Il2CppGenericParameter *param, const MonoGenericParameterInfo *monoParam);
-        static const MonoAssemblyName* GetMonoAssemblyName(const Il2CppAssembly *assembly);
-        static void SetMonoAssemblyName(const Il2CppAssembly *assembly, const MonoAssemblyName *aname);
+        static const Il2CppMonoAssemblyName* GetMonoAssemblyName(const Il2CppAssembly *assembly);
+        static void SetMonoAssemblyName(const Il2CppAssembly *assembly, const Il2CppMonoAssemblyName *aname);
 
         static bool HasAttribute(Il2CppObject *obj, Il2CppClass *attribute);
         static bool HasAttribute(FieldInfo *field, Il2CppClass *attribute);

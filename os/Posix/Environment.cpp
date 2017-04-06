@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "il2cpp-vm-support.h"
 
 #if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4
 #include "class-internals.h"
@@ -130,7 +131,7 @@ namespace os
 
     void Environment::Exit(int result)
     {
-        il2cpp_shutdown();
+        IL2CPP_VM_SHUTDOWN();
         exit(result);
     }
 
