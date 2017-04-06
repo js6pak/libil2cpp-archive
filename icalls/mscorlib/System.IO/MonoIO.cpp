@@ -4,10 +4,10 @@
 #include "os/Directory.h"
 #include "os/ErrorCodes.h"
 #include "os/File.h"
-#include "os/Path.h"
 #include "utils/PathUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
+#include "vm/Path.h"
 #include "vm/String.h"
 #include "vm/Exception.h"
 #include "utils/Memory.h"
@@ -283,7 +283,7 @@ namespace IO
 // This is never called from Mono.
     int32_t MonoIO::GetTempPath(Il2CppString** path)
     {
-        const std::string tempPath(il2cpp::os::Path::GetTempPath());
+        const std::string tempPath(il2cpp::vm::Path::GetTempPath());
         *path = vm::String::New(tempPath.c_str());
         return vm::String::GetLength(*path);
     }
@@ -346,7 +346,7 @@ namespace IO
 
         // Allocate result string
         Il2CppString* result = vm::String::NewSize(static_cast<int32_t>(directoryNameIl2CppChars.Length() + fileNameIl2CppChars.Length() + 1));
-        Il2CppChar* targetBuffer = vm::String::GetChars(result);
+        Il2CppChar* targetBuffer = utils::StringUtils::GetChars(result);
 
         // Copy in directory name
         memcpy(targetBuffer, directoryNameIl2CppChars.Str(), sizeof(Il2CppChar) * directoryNameIl2CppChars.Length());

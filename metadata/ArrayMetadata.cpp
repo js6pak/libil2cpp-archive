@@ -202,7 +202,7 @@ namespace metadata
         CollectImplicitArrayInterfacesFromElementClass(arrayClass->element_class, interfaces);
     }
 
-    // note assuming list is ordered as IList, ICollection, IEnumerable
+// note assuming list is ordered as IList, ICollection, IEnumerable
 
     static void CollectGenericArrayMethods(GenericArrayMethods& genericArrayMethods)
     {

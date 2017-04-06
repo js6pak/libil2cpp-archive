@@ -2,7 +2,7 @@
 
 #if NET_4_0
 
-struct MonoAssemblyName;
+struct Il2CppMonoAssemblyName;
 
 namespace il2cpp
 {
@@ -15,7 +15,7 @@ namespace Mono
     class LIBIL2CPP_CODEGEN_API RuntimeMarshal
     {
     public:
-        static void FreeAssemblyName(MonoAssemblyName* name);
+        static void FreeAssemblyName(Il2CppMonoAssemblyName* name);
     };
 } // namespace Mono
 } // namespace mscorlib

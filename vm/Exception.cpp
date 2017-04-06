@@ -452,7 +452,7 @@ namespace vm
 
     Il2CppException * Exception::GetMaxmimumNestedGenericsException()
     {
-        return GetNotSupportedException("IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted.");
+        return GetNotSupportedException(MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE);
     }
 
     Il2CppException* Exception::GetDivideByZeroException()
@@ -468,40 +468,6 @@ namespace vm
     Il2CppException* Exception::GetFileLoadException(const char* msg)
     {
         return FromNameMsg(Image::GetCorlib(), "System.IO", "FileLoadException", msg);
-    }
-
-    std::string Exception::FormatException(const Il2CppException* ex)
-    {
-        std::string exception_namespace = ex->klass->namespaze;
-        std::string exception_type = ex->klass->name;
-        if (ex->message)
-            return exception_namespace + "." + exception_type + ": " + il2cpp::utils::StringUtils::Utf16ToUtf8(il2cpp::vm::String::GetChars(ex->message));
-        else
-            return exception_namespace + "." + exception_type;
-    }
-
-    std::string Exception::FormatInvalidCastException(const Il2CppClass* fromType, const Il2CppClass* toType)
-    {
-        std::string message;
-
-        if (fromType != NULL && toType != NULL)
-        {
-            message += "Unable to cast object of type '";
-            message += fromType->name;
-            message += "' to type '";
-            message += toType->name;
-            message += "'.";
-        }
-
-        return message;
-    }
-
-    std::string Exception::FormatStackTrace(const Il2CppException* ex)
-    {
-        if (ex->stack_trace)
-            return il2cpp::utils::StringUtils::Utf16ToUtf8(il2cpp::vm::String::GetChars(ex->stack_trace));
-
-        return "";
     }
 
     void Exception::StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString)

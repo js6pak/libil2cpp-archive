@@ -717,11 +717,6 @@ namespace os
             }
         }
 
-#if IL2CPP_TARGET_DARWIN
-        int32_t value = 1;
-        setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, &value, sizeof(value));
-#endif
-
         // mono_once (&socket_ops_once, socket_ops_init);
 
         // handle = _wapi_handle_new_fd (WAPI_HANDLE_SOCKET, fd, &socket_handle);
@@ -1055,7 +1050,6 @@ namespace os
         return ConnectInternal((struct sockaddr *)&sa, sa_size);
 #else
         NOT_SUPPORTED_IL2CPP(sockaddr_from_address, "IPv6 is not supported on this platform.");
-        return kWaitStatusFailure;
 #endif
     }
 
@@ -1268,7 +1262,7 @@ namespace os
     {
         *len = 0;
 
-        int32_t c_flags = convert_socket_flags(flags);
+        const int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
         {
@@ -1276,15 +1270,11 @@ namespace os
             return kWaitStatusFailure;
         }
 
-#if IL2CPP_USE_SEND_NOSIGNAL
-        c_flags |= MSG_NOSIGNAL;
-#endif
-
         int32_t ret = 0;
 
         do
         {
-            ret = (int32_t)send(_fd, (void*)data, count, c_flags);
+            ret = (int32_t)send(_fd, (void*)data, count, flags);
         }
         while (ret == -1 && errno == EINTR);
 
@@ -1301,7 +1291,7 @@ namespace os
 
     WaitStatus SocketImpl::SendArray(WSABuf *wsabufs, int32_t count, int32_t *sent, SocketFlags flags)
     {
-        int32_t c_flags = convert_socket_flags(flags);
+        const int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
         {
@@ -1319,10 +1309,6 @@ namespace os
             hdr.msg_iov[i].iov_base = wsabufs[i].buffer;
             hdr.msg_iov[i].iov_len  = wsabufs[i].length;
         }
-
-#if IL2CPP_USE_SEND_NOSIGNAL
-        c_flags |= MSG_NOSIGNAL;
-#endif
 
         int32_t ret = 0;
 
@@ -1405,17 +1391,13 @@ namespace os
 
     WaitStatus SocketImpl::SendToInternal(struct sockaddr *sa, int32_t sa_size, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
     {
-        int32_t c_flags = convert_socket_flags(flags);
+        const int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
         {
             _saved_error = kWSAeopnotsupp;
             return kWaitStatusFailure;
         }
-
-#if IL2CPP_USE_SEND_NOSIGNAL
-        c_flags |= MSG_NOSIGNAL;
-#endif
 
         int32_t ret = 0;
 
@@ -1858,56 +1840,7 @@ namespace os
                         return INVALID_OPTION_NAME;
                 }
                 break;
-#if IL2CPP_SUPPORT_IPV6
-            case kSocketOptionLevelIPv6:
-        #ifdef SOL_IP
-                *system_level = SOL_IPV6;
-        #else
-                *system_level = IPPROTO_IPV6;
-        #endif
 
-                switch (name)
-                {
-                    case kSocketOptionNameMulticastInterface:
-                        *system_name = IPV6_MULTICAST_IF;
-                        break;
-                    case kSocketOptionNameMulticastTimeToLive:
-                        *system_name = IPV6_MULTICAST_HOPS;
-                        break;
-                    case kSocketOptionNameMulticastLoopback:
-                        *system_name = IPV6_MULTICAST_LOOP;
-                        break;
-                    case kSocketOptionNameAddMembership:
-                        *system_name = IPV6_JOIN_GROUP;
-                        break;
-                    case kSocketOptionNameDropMembership:
-                        *system_name = IPV6_LEAVE_GROUP;
-                        break;
-                    case kSocketOptionNamePacketInformation:
-#ifdef HAVE_IPV6_PKTINFO
-                        *system_name = IPV6_PKTINFO;
-#endif
-                        break;
-                    case kSocketOptionNameIPv6Only:
-#ifdef IPV6_V6ONLY
-                        *system_name = IPV6_V6ONLY;
-#endif
-                        break;
-                    case kSocketOptionNameHeaderIncluded:
-                    case kSocketOptionNameIPOptions:
-                    case kSocketOptionNameTypeOfService:
-                    case kSocketOptionNameDontFragment:
-                    case kSocketOptionNameAddSourceMembership:
-                    case kSocketOptionNameDropSourceMembership:
-                    case kSocketOptionNameBlockSource:
-                    case kSocketOptionNameUnblockSource:
-                    // Can't figure out how to map these, so fall
-                    // through
-                    default:
-                        return INVALID_OPTION_NAME;
-                }
-                break;
-#endif // IL2CPP_SUPPORT_IPV6
             case kSocketOptionLevelTcp:
         #ifdef SOL_TCP
                 *system_level = SOL_TCP;
@@ -2298,75 +2231,6 @@ namespace os
 
         return SetSocketOptionInternal(system_level, system_name, &mreq, sizeof(mreq));
     }
-
-#if IL2CPP_TARGET_DARWIN
-    #include <sys/types.h>
-    #include <ifaddrs.h>
-    #include <sys/socket.h>
-    #include <net/if.h>
-    static int get_local_interface_id(int family)
-    {
-        struct ifaddrs *ifap = NULL, *ptr;
-        int idx = 0;
-        if (getifaddrs(&ifap))
-            return 0;
-
-        for (ptr = ifap; ptr; ptr = ptr->ifa_next)
-        {
-            if (!ptr->ifa_addr || !ptr->ifa_name)
-                continue;
-            if (ptr->ifa_addr->sa_family != family)
-                continue;
-            if ((ptr->ifa_flags & IFF_LOOPBACK) != 0)
-                continue;
-            if ((ptr->ifa_flags & IFF_MULTICAST) == 0)
-                continue;
-
-            idx = if_nametoindex(ptr->ifa_name);
-            break;
-        }
-
-        freeifaddrs(ifap);
-        return idx;
-    }
-
-#endif // IL2CPP_TARGET_DARWIN
-
-#if IL2CPP_SUPPORT_IPV6
-    WaitStatus SocketImpl::SetSocketOptionMembership(SocketOptionLevel level, SocketOptionName name, IPv6Address ipv6, uint64_t interfaceOffset)
-    {
-        int32_t system_level = 0;
-        int32_t system_name = 0;
-
-        const int32_t o_res = level_and_name_to_system(level, name, &system_level, &system_name);
-        if (o_res == SKIP_OPTION)
-        {
-            return kWaitStatusSuccess;
-        }
-
-        if (o_res == INVALID_OPTION_NAME)
-        {
-            _saved_error = kWSAenoprotoopt;
-
-            return kWaitStatusFailure;
-        }
-
-        struct ipv6_mreq mreq6 = {{0}};
-        struct in6_addr in6addr;
-        for (int i = 0; i < 16; ++i)
-            in6addr.s6_addr[i] = ipv6.addr[i];
-        mreq6.ipv6mr_multiaddr = in6addr;
-
-#if IL2CPP_TARGET_DARWIN
-        if (interfaceOffset == 0)
-            interfaceOffset = get_local_interface_id(AF_INET6);
-#endif
-        mreq6.ipv6mr_interface = interfaceOffset;
-
-        return SetSocketOptionInternal(system_level, system_name, &mreq6, sizeof(mreq6));
-    }
-
-#endif
 
     WaitStatus SocketImpl::SetSocketOptionInternal(int32_t level, int32_t name, const void *value, int32_t len)
     {

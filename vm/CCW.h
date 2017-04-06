@@ -4,6 +4,7 @@
 
 struct Il2CppIUnknown;
 struct Il2CppObject;
+struct Il2CppException;
 
 namespace il2cpp
 {
@@ -19,6 +20,8 @@ namespace vm
         {
             return gc::GarbageCollector::GetOrCreateCCW(obj, iid);
         }
+
+        static Il2CppException* GetIPropertyValueInvalidCast(Il2CppObject* value, const char* from, const char* to);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

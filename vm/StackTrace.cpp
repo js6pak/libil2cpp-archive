@@ -6,7 +6,7 @@
 #include "os/StackTrace.h"
 #include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
-#include "Runtime.h"
+#include "utils/NativeSymbol.h"
 
 namespace il2cpp
 {
@@ -110,7 +110,7 @@ namespace vm
     {
         static bool GetStackFramesCallback(Il2CppMethodPointer frame, void* context)
         {
-            const MethodInfo* method = Runtime::GetMethodFromNativeSymbol(frame);
+            const MethodInfo* method = il2cpp::utils::NativeSymbol::GetMethodFromNativeSymbol(frame);
             StackFrames* stackFrames = static_cast<StackFrames*>(context);
 
             if (method != NULL)
@@ -131,7 +131,7 @@ namespace vm
 
         static bool GetStackFrameAtCallback(Il2CppMethodPointer frame, void* context)
         {
-            const MethodInfo* method = Runtime::GetMethodFromNativeSymbol(frame);
+            const MethodInfo* method = il2cpp::utils::NativeSymbol::GetMethodFromNativeSymbol(frame);
             GetStackFrameAtContext* ctx = static_cast<GetStackFrameAtContext*>(context);
 
             if (method != NULL)

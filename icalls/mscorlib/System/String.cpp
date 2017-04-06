@@ -4,6 +4,7 @@
 #include "object-internals.h"
 #include "class-internals.h"
 #include "icalls/mscorlib/System/String.h"
+#include "utils/StringUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/String.h"
@@ -64,7 +65,7 @@ namespace System
         Il2CppChar *tmpstrptr;
 
         remempty = options & STRINGSPLITOPTIONS_REMOVE_EMPTY_ENTRIES;
-        src = il2cpp::vm::String::GetChars(me);
+        src = il2cpp::utils::StringUtils::GetChars(me);
         srcsize = il2cpp::vm::String::GetLength(me);
         arrsize = il2cpp::vm::Array::GetLength(separator);
 
@@ -146,7 +147,7 @@ namespace System
                         break;
                 }
                 tmpstr = il2cpp::vm::String::NewSize(srcsize);
-                tmpstrptr = il2cpp::vm::String::GetChars(tmpstr);
+                tmpstrptr = il2cpp::utils::StringUtils::GetChars(tmpstr);
 
                 memcpy(tmpstrptr, src, srcsize * sizeof(Il2CppChar));
                 retarr = il2cpp::vm::Array::NewSpecific(String_array, 1);
@@ -168,7 +169,7 @@ namespace System
                 {
                     tmpstrsize = i - lastpos;
                     tmpstr = il2cpp::vm::String::NewSize(tmpstrsize);
-                    tmpstrptr = il2cpp::vm::String::GetChars(tmpstr);
+                    tmpstrptr = il2cpp::utils::StringUtils::GetChars(tmpstr);
 
                     memcpy(tmpstrptr, src + lastpos, tmpstrsize * sizeof(Il2CppChar));
                     il2cpp_array_setref(retarr, arrpos, tmpstr);
@@ -203,7 +204,7 @@ namespace System
 
                         tmpstrsize = srcsize - lastpos;
                         tmpstr = il2cpp::vm::String::NewSize(tmpstrsize);
-                        tmpstrptr = il2cpp::vm::String::GetChars(tmpstr);
+                        tmpstrptr = il2cpp::utils::StringUtils::GetChars(tmpstr);
 
                         memcpy(tmpstrptr, src + lastpos, tmpstrsize * sizeof(Il2CppChar));
                         il2cpp_array_setref(retarr, arrpos, tmpstr);

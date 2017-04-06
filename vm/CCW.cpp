@@ -8,6 +8,8 @@
 #include "vm/Exception.h"
 #include "vm/MetadataCache.h"
 #include "vm/RCW.h"
+#include "vm/Runtime.h"
+#include "vm/String.h"
 
 namespace il2cpp
 {
@@ -74,6 +76,20 @@ namespace vm
         if (memory == NULL)
             Exception::RaiseOutOfMemoryException();
         return static_cast<Il2CppIManagedObjectHolder*>(new(memory)ManagedObject(obj));
+    }
+
+    Il2CppException* CCW::GetIPropertyValueInvalidCast(Il2CppObject* value, const char* from, const char* to)
+    {
+        Il2CppClass* klass = il2cpp::vm::Object::GetClass(value);
+        const MethodInfo* toString = il2cpp::vm::Class::GetMethodFromName(klass, "ToString", 0);
+        Il2CppString* valueString = (Il2CppString*)il2cpp::vm::Runtime::Invoke(toString, value, NULL, NULL);
+        std::string utf8Value = il2cpp::utils::StringUtils::Utf16ToUtf8(il2cpp::utils::StringUtils::GetChars(valueString));
+        std::string message = il2cpp::utils::StringUtils::Printf(
+                "Object in an IPropertyValue is of type '%s' with value '%s', which cannot be converted to a '%s'.",
+                from,
+                utf8Value.c_str(),
+                to);
+        return il2cpp::vm::Exception::GetInvalidCastException(message.c_str());
     }
 } /* namespace vm */
 } /* namespace il2cpp */
