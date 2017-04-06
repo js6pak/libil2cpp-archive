@@ -19,6 +19,7 @@
 #include "vm/RCW.h"
 #include "vm/String.h"
 #include "vm/Type.h"
+#include "utils/MarshalingUtils.h"
 #include "utils/StringUtils.h"
 #include <sstream>
 #include <string>
@@ -206,11 +207,11 @@ namespace InteropServices
                 typedef void (*Constructor)(Il2CppObject*);
                 Constructor ctor = reinterpret_cast<Constructor>(Class::GetMethodFromName(type, ".ctor", 0)->methodPointer);
                 ctor(result);
-                vm::PlatformInvoke::MarshalStructFromNative(ptr.m_value, result, type);
+                utils::MarshalingUtils::MarshalStructFromNative(ptr.m_value, result, type->interopData);
             }
             else
             {
-                vm::PlatformInvoke::MarshalStructFromNative(ptr.m_value, Object::Unbox(result), type);
+                utils::MarshalingUtils::MarshalStructFromNative(ptr.m_value, Object::Unbox(result), type->interopData);
             }
 
             return result;
@@ -259,7 +260,7 @@ namespace InteropServices
 
         if (type->interopData != NULL && type->interopData->pinvokeMarshalFromNativeFunction != NULL)
         {
-            vm::PlatformInvoke::MarshalStructFromNative(ptr.m_value, structure, type);
+            utils::MarshalingUtils::MarshalStructFromNative(ptr.m_value, structure, type->interopData);
             return;
         }
 
@@ -368,7 +369,7 @@ namespace InteropServices
             return Il2CppIntPtr::Zero;
 
         int32_t size = String::GetLength(s);
-        const Il2CppChar* utf16 = String::GetChars(s);
+        const Il2CppChar* utf16 = utils::StringUtils::GetChars(s);
         size_t bytes = (size + 1) * 2;
         Il2CppChar* cstr = static_cast<Il2CppChar*>(MarshalAlloc::AllocateHGlobal(bytes));
         memcpy(cstr, utf16, bytes);
@@ -382,7 +383,7 @@ namespace InteropServices
         if (s == NULL)
             return Il2CppIntPtr::Zero;
 
-        const Il2CppChar* utf16 = String::GetChars(s);
+        const Il2CppChar* utf16 = utils::StringUtils::GetChars(s);
         std::string str = il2cpp::utils::StringUtils::Utf16ToUtf8(utf16);
         char *cstr = (char*)MarshalAlloc::AllocateHGlobal(str.size() + 1);
         strcpy(cstr, str.c_str());
@@ -404,10 +405,10 @@ namespace InteropServices
         if (type->interopData != NULL && type->interopData->pinvokeMarshalToNativeFunction != NULL)
         {
             if (deleteOld)
-                vm::PlatformInvoke::MarshalFreeStruct(ptr.m_value, type);
+                utils::MarshalingUtils::MarshalFreeStruct(ptr.m_value, type->interopData);
 
             void* objectPtr = (type->byval_arg->type == IL2CPP_TYPE_CLASS) ? structure : Object::Unbox(structure);
-            vm::PlatformInvoke::MarshalStructToNative(objectPtr, ptr.m_value, type);
+            utils::MarshalingUtils::MarshalStructToNative(objectPtr, ptr.m_value, type->interopData);
             return;
         }
 
@@ -481,7 +482,7 @@ namespace InteropServices
 
         // If cleanup function exists, it will call it and return true
         // In that case, we're done.
-        if (vm::PlatformInvoke::MarshalFreeStruct(ptr.m_value, type))
+        if (utils::MarshalingUtils::MarshalFreeStruct(ptr.m_value, type->interopData))
             return;
 
         if (type->is_generic)

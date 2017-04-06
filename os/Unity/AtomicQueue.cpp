@@ -91,7 +91,7 @@ void AtomicStack::Push(AtomicNode* node)
         : "cc", "memory"
     );
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
     AtomicNode* top;
     int success;
 
@@ -212,7 +212,7 @@ void AtomicStack::PushAll(AtomicNode* first, AtomicNode* last)
         : "cc", "memory"
     );
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
     AtomicNode* top;
     int success;
 
@@ -342,7 +342,7 @@ AtomicNode* AtomicStack::Pop()
     );
     return top;
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
 
     AtomicNode* top = NULL;
     AtomicNode* tmp;
@@ -491,7 +491,7 @@ AtomicNode* AtomicStack::PopAll()
     );
     return top;
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
 
     AtomicNode* top;
     AtomicNode* tmp;
@@ -679,7 +679,7 @@ void AtomicQueue::Enqueue(AtomicNode* node)
         : "cc", "memory"
     );
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
 
     AtomicNode* head;
     int success;
@@ -787,7 +787,7 @@ void AtomicQueue::EnqueueAll(AtomicNode* first, AtomicNode* last)
         : "cc", "memory"
     );
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
 
     AtomicNode* head;
     int success;
@@ -938,7 +938,7 @@ AtomicNode* AtomicQueue::Dequeue()
     }
     return tail;
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
 
     AtomicNode* tail;
     AtomicNode* tmp;
@@ -1121,7 +1121,7 @@ AtomicQueue* CreateAtomicQueue()
     // should be properly aligned
 #if defined(ATOMIC_HAS_DCAS)
     return UNITY_PLATFORM_NEW_ALIGNED(AtomicQueue, kMemThread, sizeof(atomic_word2));
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
     //seems like UNITY_PLATFORM_NEW shouldn't take an alignment...?
     return UNITY_PLATFORM_NEW(AtomicQueue, kMemThread);
 #else
@@ -1255,7 +1255,7 @@ bool AtomicList::Add(AtomicNode *first, AtomicNode *last, atomic_word tag)
     );
     return failure == 0;
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
 
     /*
     AtomicNode* res;
@@ -1457,7 +1457,7 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
     );
     return res;
 
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
 
     AtomicNode* res;
     AtomicNode* tmp;
@@ -1664,15 +1664,15 @@ void AtomicList::Relax()
     __asm__ __volatile__ ("pause" ::: "memory");
 #elif defined(__x86__) || defined(__i386__) || defined(_M_IX86)
     __asm__ __volatile__ ("rep; nop" ::: "memory");
-#elif UNITY_N3DS
+#elif PLATFORM_N3DS
     __asm__ __volatile__ ("yield");
-#elif UNITY_SWITCH
+#elif PLATFORM_SWITCH
     // The embedded asm for arm64 seems to be ignored(!) by Switch's compiler. So, we do something different.
     NXAtomicListRelax();
 #elif (defined(__arm64__) || (defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)))) && (defined(__clang__) || defined(__GNUC__))
     // could be interesting to use wfe/sev instead of a semaphore
     __asm__ __volatile__ ("yield");
-#elif UNITY_PSP2
+#elif PLATFORM_PSVITA
     // There is no yield on Vita but we can give the scheduler a "kick" by delaying the thread (sleeping), not ideal but the best we can do for now.
     PSP2AtomicListRelax();
 #else

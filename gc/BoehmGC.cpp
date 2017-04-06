@@ -47,11 +47,6 @@ il2cpp::gc::GarbageCollector::Initialize()
     s_GCInitialized = true;
 }
 
-void il2cpp::gc::GarbageCollector::UninitializeGC()
-{
-    GC_deinit();
-}
-
 int32_t
 il2cpp::gc::GarbageCollector::GetCollectionCount(int32_t generation)
 {

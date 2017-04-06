@@ -102,7 +102,8 @@ enum Il2CppRGCTXDataType
     IL2CPP_RGCTX_DATA_INVALID,
     IL2CPP_RGCTX_DATA_TYPE,
     IL2CPP_RGCTX_DATA_CLASS,
-    IL2CPP_RGCTX_DATA_METHOD
+    IL2CPP_RGCTX_DATA_METHOD,
+    IL2CPP_RGCTX_DATA_ARRAY,
 };
 
 struct Il2CppRGCTXDefinition
@@ -301,6 +302,9 @@ struct Il2CppImageDefinition
     TypeDefinitionIndex typeStart;
     uint32_t typeCount;
 
+    TypeDefinitionIndex exportedTypeStart;
+    uint32_t exportedTypeCount;
+
     MethodIndex entryPointIndex;
     uint32_t token;
 };
@@ -413,5 +417,7 @@ struct Il2CppGlobalMetadataHeader
     int32_t unresolvedVirtualCallParameterRangesCount;
     int32_t windowsRuntimeTypeNamesOffset; // Il2CppWindowsRuntimeTypeNamePair
     int32_t windowsRuntimeTypeNamesSize;
+    int32_t exportedTypeDefinitionsOffset; // TypeDefinitionIndex
+    int32_t exportedTypeDefinitionsCount;
 };
 #pragma pack(pop, p1)

@@ -15,6 +15,7 @@
 #include "vm/Method.h"
 #include "vm/Monitor.h"
 #include "vm/Object.h"
+#include "vm/Path.h"
 #include "vm/PlatformInvoke.h"
 #include "vm/Profiler.h"
 #include "vm/Property.h"
@@ -25,8 +26,10 @@
 #include "vm/Thread.h"
 #include "vm/ThreadPool.h"
 #include "vm/Type.h"
+#include "utils/Exception.h"
 #include "utils/Logging.h"
 #include "utils/Memory.h"
+#include "utils/StringUtils.h"
 
 #if IL2CPP_DEBUGGER_ENABLED
     #include "il2cpp-debugger.h"
@@ -132,6 +135,11 @@ void il2cpp_set_config_dir(const char *config_path)
 void il2cpp_set_data_dir(const char *data_path)
 {
     il2cpp::vm::Runtime::SetDataDir(data_path);
+}
+
+void il2cpp_set_temp_dir(const char *temp_dir)
+{
+    il2cpp::vm::Path::SetTempPath(temp_dir);
 }
 
 void il2cpp_set_commandline_arguments(int argc, const char* const argv[], const char* basedir)
@@ -364,6 +372,11 @@ bool il2cpp_class_is_valuetype(const Il2CppClass* klass)
     return Class::IsValuetype(klass);
 }
 
+bool il2cpp_class_is_blittable(const Il2CppClass* klass)
+{
+    return Class::IsBlittable(klass);
+}
+
 int32_t il2cpp_class_value_size(Il2CppClass *klass, uint32_t *align)
 {
     return Class::GetValueSize(klass, align);
@@ -553,12 +566,12 @@ Il2CppException* il2cpp_get_exception_argument_null(const char *arg)
 
 void il2cpp_format_exception(const Il2CppException* ex, char* message, int message_size)
 {
-    strncpy(message, Exception::FormatException(ex).c_str(), message_size);
+    strncpy(message, il2cpp::utils::Exception::FormatException(ex).c_str(), message_size);
 }
 
 void il2cpp_format_stack_trace(const Il2CppException* ex, char* output, int output_size)
 {
-    strncpy(output, Exception::FormatStackTrace(ex).c_str(), output_size);
+    strncpy(output, il2cpp::utils::Exception::FormatStackTrace(ex).c_str(), output_size);
 }
 
 void il2cpp_unhandled_exception(Il2CppException* exc)
@@ -969,7 +982,7 @@ int32_t il2cpp_string_length(Il2CppString* str)
 
 Il2CppChar* il2cpp_string_chars(Il2CppString* str)
 {
-    return String::GetChars(str);
+    return il2cpp::utils::StringUtils::GetChars(str);
 }
 
 // Same as il2cpp_string_new_wrapper, because other normally takes a domain

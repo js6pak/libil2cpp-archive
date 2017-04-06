@@ -5,6 +5,7 @@
 #include "class-internals.h"
 #include "object-internals.h"
 #include "gc/WriteBarrier.h"
+#include "utils/StringUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -104,7 +105,7 @@ namespace System
                     if (s1len != s2len)
                         return false;
 
-                    if (memcmp(String::GetChars(s1), String::GetChars(s2), s1len * sizeof(Il2CppChar)) != 0)
+                    if (memcmp(utils::StringUtils::GetChars(s1), utils::StringUtils::GetChars(s2), s1len * sizeof(Il2CppChar)) != 0)
                         return false;
                     break;
                 default:
