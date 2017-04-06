@@ -80,10 +80,6 @@ namespace vm
 
         static Il2CppException* GetMaxmimumNestedGenericsException();
 
-        static std::string FormatException(const Il2CppException* ex);
-        static std::string FormatStackTrace(const Il2CppException* ex);
-        static std::string FormatInvalidCastException(const Il2CppClass* fromType, const Il2CppClass* toType);
-
         static void StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString);
     };
 } /* namespace vm */

@@ -746,6 +746,11 @@ namespace vm
         return klass->valuetype;
     }
 
+    bool Class::IsBlittable(const Il2CppClass *klass)
+    {
+        return klass->is_blittable;
+    }
+
     enum FieldLayoutKind
     {
         FIELD_LAYOUT_INSTANCE,

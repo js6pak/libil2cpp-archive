@@ -7,7 +7,7 @@
 
 #if defined(__APPLE__)
 #include "mach-o/dyld.h"
-#elif IL2CPP_TARGET_LINUX
+#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID
 #include <linux/limits.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -31,7 +31,7 @@ namespace os
         result.resize(size + 1);
         _NSGetExecutablePath(&result[0], &size);
         return result;
-#elif IL2CPP_TARGET_LINUX
+#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID
         char path[PATH_MAX];
         char dest[PATH_MAX];
         struct stat info;
@@ -57,7 +57,11 @@ namespace os
                 return tmpdir;
         }
 
+#if IL2CPP_TARGET_ANDROID
+        return std::string("/data/local/tmp");
+#else
         return std::string("/tmp");
+#endif
     }
 }
 }

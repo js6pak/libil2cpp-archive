@@ -43,7 +43,7 @@ namespace os
 
         if (length == 0)
         {
-            std::map<void*, int64_t>::iterator entry = s_MappedAddressToMappedLength.find(address);
+            static std::map<void*, int64_t>::iterator entry = s_MappedAddressToMappedLength.find(address);
             if (entry != s_MappedAddressToMappedLength.end())
                 length = entry->second;
         }

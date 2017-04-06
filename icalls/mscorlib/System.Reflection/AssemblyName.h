@@ -5,7 +5,7 @@
 
 struct Il2CppString;
 struct Il2CppReflectionAssemblyName;
-struct MonoAssemblyName;
+struct Il2CppMonoAssemblyName;
 
 namespace il2cpp
 {
@@ -23,8 +23,8 @@ namespace Reflection
         static bool ParseName(Il2CppReflectionAssemblyName* aname, Il2CppString* assemblyName);
 #if NET_4_0
         static void get_public_token(uint8_t* token, uint8_t* pubkey, int32_t len);
-        static MonoAssemblyName* GetNativeName(Il2CppIntPtr assembly_ptr);
-        static bool ParseAssemblyName(Il2CppIntPtr name, MonoAssemblyName* aname, bool* is_version_defined, bool* is_token_defined);
+        static Il2CppMonoAssemblyName* GetNativeName(Il2CppIntPtr assembly_ptr);
+        static bool ParseAssemblyName(Il2CppIntPtr name, Il2CppMonoAssemblyName* aname, bool* is_version_defined, bool* is_token_defined);
 #endif
     };
 } /* namespace Reflection */

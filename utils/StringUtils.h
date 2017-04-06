@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 //
 // Copyright(c) Unity Technologies, Microsoft Corporation
 //
@@ -52,6 +52,7 @@ public:
 	static bool CaseSensitiveEquals(const char* left, const char* right);
 	static bool CaseInsensitiveEquals(Il2CppString* left, const char* right);
 	static bool CaseInsensitiveEquals(const char* left, const char* right);
+    static Il2CppChar* GetChars(Il2CppString* str);
 
 #if IL2CPP_TARGET_WINDOWS
 	static inline std::string NativeStringToUtf8(const Il2CppNativeString& nativeStr)

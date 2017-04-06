@@ -73,6 +73,7 @@ namespace vm
         static bool IsInflated(const Il2CppClass *klass);
         static bool IsSubclassOf(Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces);
         static bool IsValuetype(const Il2CppClass *klass);
+        static bool IsBlittable(const Il2CppClass *klass);
         static bool HasDefaultConstructor(Il2CppClass* klass);
         static int GetFlags(const Il2CppClass *klass);
         static bool IsAbstract(const Il2CppClass *klass);

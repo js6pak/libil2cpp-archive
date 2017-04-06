@@ -10,7 +10,7 @@
 #include "vm/String.h"
 #include "WindowsHeaders.h"
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_TARGET_WINDOWS && !IL2CPP_USE_GENERIC_WINDOWSRUNTIME
 
 #if LINK_TO_WINDOWSRUNTIME_LIBS
 #include <roerrorapi.h>
@@ -267,7 +267,7 @@ namespace os
 
     void WindowsRuntime::OriginateLanguageException(Il2CppException* ex, Il2CppString* exceptionString)
     {
-        utils::StringView<Il2CppNativeChar> message(vm::String::GetChars(exceptionString), vm::String::GetLength(exceptionString));
+        utils::StringView<Il2CppNativeChar> message(utils::StringUtils::GetChars(exceptionString), vm::String::GetLength(exceptionString));
         utils::Il2CppHStringReference messageHString(message);
 
 #if IL2CPP_TARGET_XBOXONE

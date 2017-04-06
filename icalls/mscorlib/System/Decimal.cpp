@@ -1,8 +1,8 @@
 #include "il2cpp-config.h"
 #include "object-internals.h"
 #include "class-internals.h"
-#include "vm/String.h"
 #include "icalls/mscorlib/System/Decimal.h"
+#include "utils/StringUtils.h"
 #include "vm/Exception.h"
 #include <cmath>
 #include <algorithm>
@@ -2709,7 +2709,7 @@ namespace System
 
     int Decimal::string2decimal(il2cpp_decimal_repr *pA, Il2CppString *str, unsigned int decrDecimal, int sign)
     {
-        Il2CppChar* buf = vm::String::GetChars(str);
+        Il2CppChar* buf = utils::StringUtils::GetChars(str);
         Il2CppChar* p;
         uint64_t alo, ahi;
         alo = ahi = 0;
