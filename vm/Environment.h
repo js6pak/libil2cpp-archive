@@ -10,15 +10,13 @@ namespace il2cpp
 {
 namespace vm
 {
-
-class LIBIL2CPP_CODEGEN_API Environment
-{
-public:
-	static const std::vector<UTF16String>& GetMainArgs();
-	static int GetNumMainArgs();
-	static void SetMainArgs(const char* const* args, int num_args);
-	static void SetMainArgs(const Il2CppChar* const* args, int num_args);
-};
-
+    class LIBIL2CPP_CODEGEN_API Environment
+    {
+    public:
+        static const std::vector<UTF16String>& GetMainArgs();
+        static int GetNumMainArgs();
+        static void SetMainArgs(const char* const* args, int num_args);
+        static void SetMainArgs(const Il2CppChar* const* args, int num_args);
+    };
 } /* namespace vm */
 } /* namespace il2cpp */

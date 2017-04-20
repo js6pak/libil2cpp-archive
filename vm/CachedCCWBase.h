@@ -6,10 +6,8 @@
 
 namespace il2cpp
 {
-
 namespace vm
 {
-
 // Alright, so the lifetime of this guy is pretty weird
 // For a single managed object, the IUnknown of its COM Callable Wrapper must always be the same
 // That means that we have to keep the same COM Callable Wrapper alive for an object once we create it
@@ -23,67 +21,66 @@ namespace vm
 // handle when our reference count gets decreased to 0. Here's a kicker: we don't destroy the COM Callable Wrapper
 // when the reference count reaches 0; we instead rely on GC finalizer of the managed object to both remove it from
 // CCW cache and also destroy it.
-template <typename TDerived>
-struct NOVTABLE CachedCCWBase : ComObjectBase
-{
-private:
-	volatile uint32_t m_RefCount;
-	uint32_t m_GCHandle;
+    template<typename TDerived>
+    struct NOVTABLE CachedCCWBase : ComObjectBase
+    {
+    private:
+        volatile uint32_t m_RefCount;
+        uint32_t m_GCHandle;
 
-public:
-	inline CachedCCWBase(Il2CppObject* obj) :
-		ComObjectBase(obj),
-		m_RefCount(0), // We do not hold any references upon its creation
-		m_GCHandle(0)
-	{
-		Il2CppStaticAssert(utils::TemplateUtils::IsBaseOf<CachedCCWBase<TDerived>, TDerived>::value);
-	}
+    public:
+        inline CachedCCWBase(Il2CppObject* obj) :
+            ComObjectBase(obj),
+            m_RefCount(0), // We do not hold any references upon its creation
+            m_GCHandle(0)
+        {
+            Il2CppStaticAssert(utils::TemplateUtils::IsBaseOf<CachedCCWBase<TDerived>, TDerived>::value);
+        }
 
-	virtual uint32_t STDCALL AddRef() IL2CPP_OVERRIDE
-	{
-		return AddRefImpl();
-	}
+        virtual uint32_t STDCALL AddRef() IL2CPP_OVERRIDE
+        {
+            return AddRefImpl();
+        }
 
-	virtual uint32_t STDCALL Release() IL2CPP_OVERRIDE
-	{
-		return ReleaseImpl();
-	}
+        virtual uint32_t STDCALL Release() IL2CPP_OVERRIDE
+        {
+            return ReleaseImpl();
+        }
 
-	FORCE_INLINE uint32_t AddRefImpl()
-	{
-		const uint32_t refCount = Atomic::Increment(&m_RefCount);
+        FORCE_INLINE uint32_t AddRefImpl()
+        {
+            const uint32_t refCount = Atomic::Increment(&m_RefCount);
 
-		if (refCount == 1)
-		{
-			IL2CPP_ASSERT(m_GCHandle == 0);
-			m_GCHandle = gc::GCHandle::New(GetManagedObjectInline(), false);
-		}
+            if (refCount == 1)
+            {
+                IL2CPP_ASSERT(m_GCHandle == 0);
+                m_GCHandle = gc::GCHandle::New(GetManagedObjectInline(), false);
+            }
 
-		return refCount;
-	}
+            return refCount;
+        }
 
-	FORCE_INLINE uint32_t ReleaseImpl()
-	{
-		const uint32_t count = Atomic::Decrement(&m_RefCount);
-		if (count == 0)
-		{
-			IL2CPP_ASSERT(m_GCHandle != 0);
-			gc::GCHandle::Free(m_GCHandle);
-			m_GCHandle = 0;
-		}
+        FORCE_INLINE uint32_t ReleaseImpl()
+        {
+            const uint32_t count = Atomic::Decrement(&m_RefCount);
+            if (count == 0)
+            {
+                IL2CPP_ASSERT(m_GCHandle != 0);
+                gc::GCHandle::Free(m_GCHandle);
+                m_GCHandle = 0;
+            }
 
-		return count;
-	}
+            return count;
+        }
 
-	virtual void STDCALL Destroy() IL2CPP_FINAL IL2CPP_OVERRIDE
-	{
-		IL2CPP_ASSERT(m_RefCount == 0);
+        virtual void STDCALL Destroy() IL2CPP_FINAL IL2CPP_OVERRIDE
+        {
+            IL2CPP_ASSERT(m_RefCount == 0);
 
-		TDerived* instance = static_cast<TDerived*>(this);
-		instance->~TDerived();
-		utils::Memory::Free(instance);
-	}
-};
-
+            TDerived* instance = static_cast<TDerived*>(this);
+            instance->~TDerived();
+            utils::Memory::Free(instance);
+        }
+    };
 }
 }
