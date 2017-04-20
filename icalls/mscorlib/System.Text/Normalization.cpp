@@ -13,13 +13,10 @@ namespace System
 {
 namespace Text
 {
-
-void Normalization::load_normalization_resource(Il2CppIntPtr* props, Il2CppIntPtr* mappedChars, Il2CppIntPtr* charMapIndex, Il2CppIntPtr* helperIndex, Il2CppIntPtr* mapIdxToComposite, Il2CppIntPtr* combiningClass)
-{
-	icalls::mscorlib::Mono::Globalization::Unicode::Normalization::load_normalization_resource(props, mappedChars, charMapIndex, helperIndex, mapIdxToComposite, combiningClass);
-}
-
-
+    void Normalization::load_normalization_resource(Il2CppIntPtr* props, Il2CppIntPtr* mappedChars, Il2CppIntPtr* charMapIndex, Il2CppIntPtr* helperIndex, Il2CppIntPtr* mapIdxToComposite, Il2CppIntPtr* combiningClass)
+    {
+        icalls::mscorlib::Mono::Globalization::Unicode::Normalization::load_normalization_resource(props, mappedChars, charMapIndex, helperIndex, mapIdxToComposite, combiningClass);
+    }
 } // namespace Text
 } // namespace System
 } // namespace mscorlib

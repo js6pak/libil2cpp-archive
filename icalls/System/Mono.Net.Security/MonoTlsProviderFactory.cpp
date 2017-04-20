@@ -15,14 +15,11 @@ namespace Net
 {
 namespace Security
 {
-
-bool MonoTlsProviderFactory::IsBtlsSupported()
-{
-	NOT_IMPLEMENTED_ICALL(MonoTlsProviderFactory::IsBtlsSupported);
-	IL2CPP_UNREACHABLE;
-}
-
-
+    bool MonoTlsProviderFactory::IsBtlsSupported()
+    {
+        NOT_IMPLEMENTED_ICALL(MonoTlsProviderFactory::IsBtlsSupported);
+        IL2CPP_UNREACHABLE;
+    }
 } // namespace Security
 } // namespace Net
 } // namespace Mono
