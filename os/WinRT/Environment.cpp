@@ -16,12 +16,10 @@ using namespace Microsoft::WRL::Wrappers;
 
 namespace il2cpp
 {
-
-using namespace vm;
+    using namespace vm;
 
 namespace os
 {
-
 #define CSIDL_DESKTOP                   0x0000        // <desktop>
 #define CSIDL_PROGRAMS                  0x0002        // Start Menu\Programs
 #define CSIDL_PERSONAL                  0x0005        // My Documents
@@ -75,76 +73,75 @@ namespace os
 #define CSIDL_CDBURN_AREA               0x003b        // USERPROFILE\Local Settings\Application Data\Microsoft\CD Burning
 #define CSIDL_COMPUTERSNEARME           0x003d        // Computers Near Me (computered from Workgroup membership)
 
-template <typename T>
-static inline std::string GetAppFolder(T appDataToStorageFolder)
-{
-	ComPtr<IApplicationDataStatics> appDataStatics;
-	ComPtr<IApplicationData> appData;
-	ComPtr<IStorageFolder> appDataFolder;
-	ComPtr<IStorageItem> appDataFolderItem;
-	HString appDataPath;
+    template<typename T>
+    static inline std::string GetAppFolder(T appDataToStorageFolder)
+    {
+        ComPtr<IApplicationDataStatics> appDataStatics;
+        ComPtr<IApplicationData> appData;
+        ComPtr<IStorageFolder> appDataFolder;
+        ComPtr<IStorageItem> appDataFolderItem;
+        HString appDataPath;
 
-	auto hr = RoGetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), __uuidof(IApplicationDataStatics), &appDataStatics);
-	Exception::RaiseIfFailed(hr, false);
+        auto hr = RoGetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), __uuidof(IApplicationDataStatics), &appDataStatics);
+        Exception::RaiseIfFailed(hr, false);
 
-	hr = appDataStatics->get_Current(&appData);
-	Exception::RaiseIfFailed(hr, false);
+        hr = appDataStatics->get_Current(&appData);
+        Exception::RaiseIfFailed(hr, false);
 
-	hr = appDataToStorageFolder(appData.Get(), &appDataFolder);
-	Exception::RaiseIfFailed(hr, false);
+        hr = appDataToStorageFolder(appData.Get(), &appDataFolder);
+        Exception::RaiseIfFailed(hr, false);
 
-	hr = appDataFolder.As(&appDataFolderItem);
-	Exception::RaiseIfFailed(hr, false);
+        hr = appDataFolder.As(&appDataFolderItem);
+        Exception::RaiseIfFailed(hr, false);
 
-	hr = appDataFolderItem->get_Path(appDataPath.GetAddressOf());
-	Exception::RaiseIfFailed(hr, false);
+        hr = appDataFolderItem->get_Path(appDataPath.GetAddressOf());
+        Exception::RaiseIfFailed(hr, false);
 
-	unsigned int dummy;
-	return utils::StringUtils::Utf16ToUtf8(appDataPath.GetRawBuffer(&dummy));		
-}
+        unsigned int dummy;
+        return utils::StringUtils::Utf16ToUtf8(appDataPath.GetRawBuffer(&dummy));
+    }
 
-static inline std::string GetLocalAppDataFolder()
-{
-	return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_LocalFolder(folder); });
-}
+    static inline std::string GetLocalAppDataFolder()
+    {
+        return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_LocalFolder(folder); });
+    }
 
 #if !IL2CPP_TARGET_XBOXONE
-static inline std::string GetRoamingAppDataFolder()
-{
-	return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_RoamingFolder(folder); });
-}
+    static inline std::string GetRoamingAppDataFolder()
+    {
+        return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_RoamingFolder(folder); });
+    }
+
 #endif
 
-std::string Environment::GetWindowsFolderPath(int32_t folder)
-{
-	switch (folder)
-	{
+    std::string Environment::GetWindowsFolderPath(int32_t folder)
+    {
+        switch (folder)
+        {
 #if !IL2CPP_TARGET_XBOXONE
-	case CSIDL_APPDATA:
-		return GetRoamingAppDataFolder();
+            case CSIDL_APPDATA:
+                return GetRoamingAppDataFolder();
 #endif
 
-	case CSIDL_LOCAL_APPDATA:
-		return GetLocalAppDataFolder();
+            case CSIDL_LOCAL_APPDATA:
+                return GetLocalAppDataFolder();
 
-	default:
-		Exception::Raise(Exception::GetUnauthorizedAccessException(L"Failed getting the path of a special folder: Access Denied."));
-	}	
-}
+            default:
+                Exception::Raise(Exception::GetUnauthorizedAccessException(L"Failed getting the path of a special folder: Access Denied."));
+        }
+    }
 
 #if NET_4_0
 
-bool Environment::Is64BitOs()
-{
+    bool Environment::Is64BitOs()
+    {
 #if IL2CPP_TARGET_WINRT
-	vm::Exception::Raise(vm::Exception::GetPlatformNotSupportedException(L"It is not possible to check if the OS is a 64bit OS on the current platform."));
+        vm::Exception::Raise(vm::Exception::GetPlatformNotSupportedException(L"It is not possible to check if the OS is a 64bit OS on the current platform."));
 #endif
-	return true;
-}
+        return true;
+    }
 
 #endif
-
 }
-
 }
 #endif

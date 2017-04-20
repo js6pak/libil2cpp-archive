@@ -12,14 +12,12 @@ namespace mscorlib
 {
 namespace Mono
 {
-
-class LIBIL2CPP_CODEGEN_API SafeStringMarshal
-{
-public:
-	static Il2CppIntPtr StringToUtf8(Il2CppString* str);
-	static void GFree(Il2CppIntPtr ptr);
-};
-
+    class LIBIL2CPP_CODEGEN_API SafeStringMarshal
+    {
+    public:
+        static Il2CppIntPtr StringToUtf8(Il2CppString* str);
+        static void GFree(Il2CppIntPtr ptr);
+    };
 } // namespace Mono
 } // namespace mscorlib
 } // namespace icalls

@@ -15,19 +15,16 @@ namespace System
 {
 namespace Threading
 {
+    void InternalThread::Thread_free_internal(Il2CppInternalThread* _this, Il2CppIntPtr handle)
+    {
+        delete _this->synch_cs;
+        _this->synch_cs = NULL;
 
-void InternalThread::Thread_free_internal(Il2CppInternalThread* _this, Il2CppIntPtr handle)
-{
-	delete _this->synch_cs;
-	_this->synch_cs = NULL;
+        IL2CPP_FREE(_this->name);
 
-	IL2CPP_FREE(_this->name);
-
-	delete static_cast<il2cpp::os::Thread*>(handle.m_value);
-	handle.m_value = NULL;
-}
-
-
+        delete static_cast<il2cpp::os::Thread*>(handle.m_value);
+        handle.m_value = NULL;
+    }
 } // namespace Threading
 } // namespace System
 } // namespace mscorlib
