@@ -10,13 +10,11 @@ namespace mscorlib
 {
 namespace System
 {
-
-class LIBIL2CPP_CODEGEN_API TimeZoneInfo
-{
-public:
-	static inline bool UseRegistryForTimeZoneInformation() { return IL2CPP_TARGET_WINDOWS_DESKTOP; }
-};
-
+    class LIBIL2CPP_CODEGEN_API TimeZoneInfo
+    {
+    public:
+        static inline bool UseRegistryForTimeZoneInformation() { return IL2CPP_TARGET_WINDOWS_DESKTOP; }
+    };
 } // namespace System
 } // namespace mscorlib
 } // namespace icalls

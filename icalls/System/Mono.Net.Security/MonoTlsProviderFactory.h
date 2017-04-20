@@ -14,13 +14,11 @@ namespace Net
 {
 namespace Security
 {
-
-class LIBIL2CPP_CODEGEN_API MonoTlsProviderFactory
-{
-public:
-	static bool IsBtlsSupported();
-};
-
+    class LIBIL2CPP_CODEGEN_API MonoTlsProviderFactory
+    {
+    public:
+        static bool IsBtlsSupported();
+    };
 } // namespace Security
 } // namespace Net
 } // namespace Mono

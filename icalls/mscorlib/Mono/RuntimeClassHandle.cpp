@@ -13,15 +13,12 @@ namespace mscorlib
 {
 namespace Mono
 {
-
-Il2CppIntPtr RuntimeClassHandle::GetTypeFromClass(Il2CppClass* klass)
-{
-	Il2CppIntPtr retVal;
-	retVal.m_value = (void*)il2cpp::vm::Class::GetType(klass);
-	return retVal;
-}
-
-
+    Il2CppIntPtr RuntimeClassHandle::GetTypeFromClass(Il2CppClass* klass)
+    {
+        Il2CppIntPtr retVal;
+        retVal.m_value = (void*)il2cpp::vm::Class::GetType(klass);
+        return retVal;
+    }
 } // namespace Mono
 } // namespace mscorlib
 } // namespace icalls
