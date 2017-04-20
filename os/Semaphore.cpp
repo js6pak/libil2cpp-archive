@@ -14,31 +14,29 @@ namespace il2cpp
 {
 namespace os
 {
+    Semaphore::Semaphore(int32_t initialValue, int32_t maximumValue)
+        : m_Semaphore(new SemaphoreImpl(initialValue, maximumValue))
+    {
+    }
 
-Semaphore::Semaphore (int32_t initialValue, int32_t maximumValue)
-	: m_Semaphore (new SemaphoreImpl (initialValue, maximumValue))
-{
-}
+    Semaphore::~Semaphore()
+    {
+        delete m_Semaphore;
+    }
 
-Semaphore::~Semaphore ()
-{
-	delete m_Semaphore;
-}
+    bool Semaphore::Post(int32_t releaseCount, int32_t* previousCount)
+    {
+        return m_Semaphore->Post(releaseCount, previousCount);
+    }
 
-bool Semaphore::Post (int32_t releaseCount, int32_t* previousCount)
-{
-	return m_Semaphore->Post (releaseCount, previousCount);
-}
+    WaitStatus Semaphore::Wait(bool interruptible)
+    {
+        return m_Semaphore->Wait(interruptible);
+    }
 
-WaitStatus Semaphore::Wait (bool interruptible)
-{
-	return m_Semaphore->Wait (interruptible);
-}
-
-WaitStatus Semaphore::Wait (uint32_t ms, bool interruptible)
-{
-	return m_Semaphore->Wait (ms, interruptible);
-}
-
+    WaitStatus Semaphore::Wait(uint32_t ms, bool interruptible)
+    {
+        return m_Semaphore->Wait(ms, interruptible);
+    }
 }
 }

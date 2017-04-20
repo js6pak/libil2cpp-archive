@@ -11,14 +11,12 @@ namespace System
 {
 namespace System
 {
-
-class LIBIL2CPP_CODEGEN_API IOSelector
-{
-public:
-	static void Add(Il2CppIntPtr handle, Il2CppObject* job);
-	static void Remove(Il2CppIntPtr handle);
-};
-
+    class LIBIL2CPP_CODEGEN_API IOSelector
+    {
+    public:
+        static void Add(Il2CppIntPtr handle, Il2CppObject* job);
+        static void Remove(Il2CppIntPtr handle);
+    };
 } // namespace System
 } // namespace System
 } // namespace icalls

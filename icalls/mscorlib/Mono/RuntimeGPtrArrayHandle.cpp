@@ -13,14 +13,11 @@ namespace mscorlib
 {
 namespace Mono
 {
-
-void RuntimeGPtrArrayHandle::GPtrArrayFree(void* value)
-{
-	IL2CPP_ASSERT(value != NULL);
-	free_gptr_array((GPtrArray*)value);
-}
-
-
+    void RuntimeGPtrArrayHandle::GPtrArrayFree(void* value)
+    {
+        IL2CPP_ASSERT(value != NULL);
+        free_gptr_array((GPtrArray*)value);
+    }
 } // namespace Mono
 } // namespace mscorlib
 } // namespace icalls

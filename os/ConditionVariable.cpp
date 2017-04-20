@@ -14,37 +14,35 @@ namespace il2cpp
 {
 namespace os
 {
+    ConditionVariable::ConditionVariable()
+        : m_ConditionVariable(new ConditionVariableImpl())
+    {
+    }
 
-ConditionVariable::ConditionVariable()
-: m_ConditionVariable (new ConditionVariableImpl())
-{
-}
+    ConditionVariable::~ConditionVariable()
+    {
+        delete m_ConditionVariable;
+    }
 
-ConditionVariable::~ConditionVariable()
-{
-	delete m_ConditionVariable;
-}
+    int ConditionVariable::Wait(FastMutex* lock)
+    {
+        return m_ConditionVariable->Wait(lock->GetImpl());
+    }
 
-int ConditionVariable::Wait(FastMutex* lock)
-{
-	return m_ConditionVariable->Wait(lock->GetImpl());
-}
+    int ConditionVariable::TimedWait(FastMutex* lock, uint32_t timeout_ms)
+    {
+        return m_ConditionVariable->TimedWait(lock->GetImpl(), timeout_ms);
+    }
 
-int ConditionVariable::TimedWait(FastMutex* lock, uint32_t timeout_ms)
-{
-	return m_ConditionVariable->TimedWait(lock->GetImpl(), timeout_ms);
-}
+    void ConditionVariable::Broadcast()
+    {
+        m_ConditionVariable->Broadcast();
+    }
 
-void ConditionVariable::Broadcast()
-{
-	m_ConditionVariable->Broadcast();
-}
-
-void ConditionVariable::Signal()
-{
-	m_ConditionVariable->Signal();
-}
-
+    void ConditionVariable::Signal()
+    {
+        m_ConditionVariable->Signal();
+    }
 }
 }
 #endif

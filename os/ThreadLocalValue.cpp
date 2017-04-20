@@ -15,25 +15,24 @@ namespace il2cpp
 {
 namespace os
 {
+    ThreadLocalValue::ThreadLocalValue()
+        : m_ThreadLocalValue(new ThreadLocalValueImpl())
+    {
+    }
 
-ThreadLocalValue::ThreadLocalValue ()
-: m_ThreadLocalValue (new ThreadLocalValueImpl())
-{
-}
+    ThreadLocalValue::~ThreadLocalValue()
+    {
+        delete m_ThreadLocalValue;
+    }
 
-ThreadLocalValue::~ThreadLocalValue ()
-{
-	delete m_ThreadLocalValue;
-}
+    ErrorCode ThreadLocalValue::SetValue(void* value)
+    {
+        return m_ThreadLocalValue->SetValue(value);
+    }
 
-ErrorCode ThreadLocalValue::SetValue (void* value)
-{
-	return m_ThreadLocalValue->SetValue (value);
-}
-ErrorCode ThreadLocalValue::GetValue (void** value)
-{
-	return m_ThreadLocalValue->GetValue (value);
-}
-
+    ErrorCode ThreadLocalValue::GetValue(void** value)
+    {
+        return m_ThreadLocalValue->GetValue(value);
+    }
 }
 }

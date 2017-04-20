@@ -13,13 +13,11 @@ namespace Runtime
 {
 namespace Versioning
 {
-
-class LIBIL2CPP_CODEGEN_API VersioningHelper
-{
-public:
-	static int32_t GetRuntimeId();
-};
-
+    class LIBIL2CPP_CODEGEN_API VersioningHelper
+    {
+    public:
+        static int32_t GetRuntimeId();
+    };
 } // namespace Versioning
 } // namespace Runtime
 } // namespace System

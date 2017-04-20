@@ -34,283 +34,326 @@ using il2cpp::utils::PointerHash;
 
 namespace il2cpp
 {
-
-using namespace os;
+    using namespace os;
 
 namespace vm
 {
+    typedef Il2CppHashMap<Il2CppIUnknown*, /* Weak GC Handle */ uint32_t, PointerHash<Il2CppIUnknown> > RCWCache;
 
-typedef Il2CppHashMap<Il2CppIUnknown*, /* Weak GC Handle */uint32_t, PointerHash<Il2CppIUnknown> > RCWCache;
+    static FastMutex s_RCWCacheMutex;
+    static RCWCache s_RCWCache;
 
-static FastMutex s_RCWCacheMutex;
-static RCWCache s_RCWCache;
+    void RCW::Register(Il2CppComObject* rcw)
+    {
+        FastAutoLock lock(&s_RCWCacheMutex);
+        const bool inserted = s_RCWCache.insert(std::make_pair(rcw->identity, gc::GCHandle::NewWeakref(rcw, false))).second;
+        Assert(inserted);
+    }
 
-void RCW::Register(Il2CppComObject* rcw)
-{
-	FastAutoLock lock(&s_RCWCacheMutex);
-	const bool inserted = s_RCWCache.insert(std::make_pair(rcw->identity, gc::GCHandle::NewWeakref(rcw, false))).second;
-	Assert(inserted);
-}
+    static inline Il2CppIUnknown* GetIdentity(Il2CppIUnknown* unknown)
+    {
+        Il2CppIUnknown* identity;
+        il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIUnknown::IID, reinterpret_cast<void**>(&identity));
+        Exception::RaiseIfFailed(hr, true);
+        IL2CPP_ASSERT(identity);
 
-static inline Il2CppIUnknown* GetIdentity(Il2CppIUnknown* unknown)
-{
-	Il2CppIUnknown* identity;
-	il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIUnknown::IID, reinterpret_cast<void**>(&identity));
-	Exception::RaiseIfFailed(hr, true);
-	IL2CPP_ASSERT(identity);
-
-	return identity;
-}
+        return identity;
+    }
 
 // Shameless comment copycat from .NET Native (https://github.com/dotnet/corert/blob/374c3d47992a7c444ec7d1dfe94b1780de942a55/src/System.Private.Interop/src/Shared/McgComHelpers.cs#L557):
 // 1. Prefer using the class returned from GetRuntimeClassName
 // 2. Otherwise use the class (if there) in the signature
 // 3. Out of options - create Il2CppComObject
-static inline Il2CppClass* GetClassForRCW(Il2CppIInspectable* inspectable, Il2CppClass* fallbackClass)
-{
-	Il2CppHString className;
-	il2cpp_hresult_t hr = inspectable->GetRuntimeClassName(&className);
-	if (IL2CPP_HR_FAILED(hr) || className == NULL)
-		return fallbackClass;
-	
-	uint32_t classNameLength;
-	const Il2CppChar* classNamePtr = os::WindowsRuntime::GetHStringBuffer(className, &classNameLength);
-	std::string classNameUtf8 = utils::StringUtils::Utf16ToUtf8(classNamePtr, classNameLength);
-	os::WindowsRuntime::DeleteHString(className);
+    static inline Il2CppClass* GetClassForRCW(Il2CppIInspectable* inspectable, Il2CppClass* fallbackClass)
+    {
+        Il2CppHString className;
+        il2cpp_hresult_t hr = inspectable->GetRuntimeClassName(&className);
+        if (IL2CPP_HR_FAILED(hr) || className == NULL)
+            return fallbackClass;
 
-	Il2CppClass* rcwClass = MetadataCache::GetWindowsRuntimeClass(classNameUtf8);
-	return rcwClass != NULL ? rcwClass : fallbackClass;
-}
+        uint32_t classNameLength;
+        const Il2CppChar* classNamePtr = os::WindowsRuntime::GetHStringBuffer(className, &classNameLength);
+        std::string classNameUtf8 = utils::StringUtils::Utf16ToUtf8(classNamePtr, classNameLength);
+        os::WindowsRuntime::DeleteHString(className);
 
-static inline Il2CppClass* GetClassForRCW(Il2CppIUnknown* unknown, Il2CppClass* fallbackClass)
-{
-	Il2CppIInspectable* inspectable;
-	il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIInspectable::IID, reinterpret_cast<void**>(&inspectable));
+        Il2CppClass* rcwClass = MetadataCache::GetWindowsRuntimeClass(classNameUtf8);
+        return rcwClass != NULL ? rcwClass : fallbackClass;
+    }
 
-	if (IL2CPP_HR_FAILED(hr))
-		return fallbackClass;
+    static inline Il2CppClass* GetClassForRCW(Il2CppIUnknown* unknown, Il2CppClass* fallbackClass)
+    {
+        Il2CppIInspectable* inspectable;
+        il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIInspectable::IID, reinterpret_cast<void**>(&inspectable));
 
-	Il2CppClass* result = GetClassForRCW(inspectable, fallbackClass);
-	inspectable->Release();
-	return result;
-}
+        if (IL2CPP_HR_FAILED(hr))
+            return fallbackClass;
 
-Il2CppObject* ReboxIReference(Il2CppIUnknown* comObject, Il2CppClass* objectClass);
-Il2CppObject* ReboxKeyValuePair(Il2CppIUnknown* comObject, Il2CppClass* keyValuePairGenericInstance);
+        Il2CppClass* result = GetClassForRCW(inspectable, fallbackClass);
+        inspectable->Release();
+        return result;
+    }
 
-Il2CppObject* ReboxIfBoxed(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
-{
-	if (strcmp(objectClass->namespaze, "Windows.Foundation") == 0 && strcmp(objectClass->name, "IReference`1") == 0)
-		return ReboxIReference(comObject, objectClass);
+    Il2CppObject* ReboxIReference(Il2CppIUnknown* comObject, Il2CppClass* objectClass);
+    Il2CppObject* ReboxKeyValuePair(Il2CppIUnknown* comObject, Il2CppClass* keyValuePairGenericInstance);
+    Il2CppObject* ReboxUri(Il2CppIUnknown* comObject);
 
-	if (strcmp(objectClass->namespaze, "System.Collections.Generic") == 0 && strcmp(objectClass->name, "KeyValuePair`2") == 0)
-		return ReboxKeyValuePair(comObject, objectClass);
+    Il2CppObject* ReboxIfBoxed(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
+    {
+        if (strcmp(objectClass->namespaze, "Windows.Foundation") == 0 && strcmp(objectClass->name, "IReference`1") == 0)
+            return ReboxIReference(comObject, objectClass);
 
-	return NULL;
-}
+        if (strcmp(objectClass->namespaze, "System.Collections.Generic") == 0 && strcmp(objectClass->name, "KeyValuePair`2") == 0)
+            return ReboxKeyValuePair(comObject, objectClass);
 
-Il2CppObject* ReboxIReference(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
-{
-	Class::Init(objectClass);
-	
-	// Sanity checks
-	IL2CPP_ASSERT(Class::IsInflated(objectClass));
-	IL2CPP_ASSERT(objectClass->vtable_count == 1); // IReference`1<T> only has get_Value method
+        if (objectClass == il2cpp_defaults.system_uri_class)
+            return ReboxUri(comObject);
 
-	const MethodInfo* getValueMethod = objectClass->vtable[0].method;
-	IL2CPP_ASSERT(strcmp(getValueMethod->name, "get_Value") == 0);
+        return NULL;
+    }
 
-	// We don't really want to allocate it on the GC heap for this little invocation
-	Il2CppComObject fakeRcw;
-	fakeRcw.klass = objectClass;
-	fakeRcw.monitor = NULL;
-	fakeRcw.identity = comObject;
+    Il2CppObject* ReboxIReference(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
+    {
+        Class::Init(objectClass);
 
-	Il2CppException* exception = NULL;
-	Il2CppObject* reboxed = Runtime::Invoke(getValueMethod, &fakeRcw, NULL, &exception);
+        // Sanity checks
+        IL2CPP_ASSERT(Class::IsInflated(objectClass));
+        IL2CPP_ASSERT(objectClass->vtable_count == 1); // IReference`1<T> only has get_Value method
 
-	if (exception != NULL)
-		Exception::Raise(exception);
+        const MethodInfo* getValueMethod = objectClass->vtable[0].method;
+        IL2CPP_ASSERT(strcmp(getValueMethod->name, "get_Value") == 0);
 
-	return reboxed;
-}
+        // We don't really want to allocate it on the GC heap for this little invocation
+        Il2CppComObject fakeRcw;
+        fakeRcw.klass = objectClass;
+        fakeRcw.monitor = NULL;
+        fakeRcw.identity = comObject;
 
-Il2CppObject* ReboxKeyValuePair(Il2CppIUnknown* comObject, Il2CppClass* keyValuePairGenericInstance)
-{
-	Class::Init(keyValuePairGenericInstance);
+        Il2CppException* exception = NULL;
+        Il2CppObject* reboxed = Runtime::Invoke(getValueMethod, &fakeRcw, NULL, &exception);
 
-	// Sanity checks
-	IL2CPP_ASSERT(Class::IsInflated(keyValuePairGenericInstance));
-	IL2CPP_ASSERT(il2cpp_defaults.ikey_value_pair_class != NULL);
-	
-	// Retrieve Windows.Foundation.Collections.IKeyValuePair`1<K, V> generic instance
-	Il2CppGenericClass* iKeyValuePairGenericClass = metadata::GenericMetadata::GetGenericClass(il2cpp_defaults.ikey_value_pair_class, keyValuePairGenericInstance->generic_class->context.class_inst);
-	Il2CppClass* iKeyValuePairGenericInstance = GenericClass::GetClass(iKeyValuePairGenericClass);
-	Class::Init(iKeyValuePairGenericInstance);
+        if (exception != NULL)
+            Exception::Raise(exception);
 
-	IL2CPP_ASSERT(iKeyValuePairGenericInstance->vtable_count == 2);
+        return reboxed;
+    }
 
-	const MethodInfo* getKeyMethod = iKeyValuePairGenericInstance->vtable[0].method;
-	IL2CPP_ASSERT(strcmp(getKeyMethod->name, "get_Key") == 0);
+    Il2CppObject* ReboxKeyValuePair(Il2CppIUnknown* comObject, Il2CppClass* keyValuePairGenericInstance)
+    {
+        Class::Init(keyValuePairGenericInstance);
 
-	const MethodInfo* getValueMethod = iKeyValuePairGenericInstance->vtable[1].method;
-	IL2CPP_ASSERT(strcmp(getValueMethod->name, "get_Value") == 0);
+        // Sanity checks
+        IL2CPP_ASSERT(Class::IsInflated(keyValuePairGenericInstance));
+        IL2CPP_ASSERT(il2cpp_defaults.ikey_value_pair_class != NULL);
 
-	Il2CppComObject fakeRcw;
-	fakeRcw.klass = il2cpp_defaults.il2cpp_com_object_class;
-	fakeRcw.monitor = NULL;
-	fakeRcw.identity = comObject;
+        // Retrieve Windows.Foundation.Collections.IKeyValuePair`1<K, V> generic instance
+        Il2CppGenericClass* iKeyValuePairGenericClass = metadata::GenericMetadata::GetGenericClass(il2cpp_defaults.ikey_value_pair_class, keyValuePairGenericInstance->generic_class->context.class_inst);
+        Il2CppClass* iKeyValuePairGenericInstance = GenericClass::GetClass(iKeyValuePairGenericClass);
+        Class::Init(iKeyValuePairGenericInstance);
 
-	// Create new boxed key value pair
-	Il2CppObject* reboxed = Object::New(keyValuePairGenericInstance);
+        IL2CPP_ASSERT(iKeyValuePairGenericInstance->vtable_count == 2);
 
-	for (uint16_t i = 0; i < 2; i++)
-	{
-		const MethodInfo* methodToInvoke;
-		const FieldInfo& field = keyValuePairGenericInstance->fields[i];
+        const MethodInfo* getKeyMethod = iKeyValuePairGenericInstance->vtable[0].method;
+        IL2CPP_ASSERT(strcmp(getKeyMethod->name, "get_Key") == 0);
 
-		// Figure out which getter to call
-		if (strcmp(field.name, "key") == 0)
-		{
-			methodToInvoke = getKeyMethod;
-		}
-		else if (strcmp(field.name, "value") == 0)
-		{
-			methodToInvoke = getValueMethod;
-		}
+        const MethodInfo* getValueMethod = iKeyValuePairGenericInstance->vtable[1].method;
+        IL2CPP_ASSERT(strcmp(getValueMethod->name, "get_Value") == 0);
 
-		// Call the getter
-		Il2CppException* exception = NULL;
-		Il2CppObject* fieldValue = Runtime::Invoke(methodToInvoke, &fakeRcw, NULL, &exception);
+        Il2CppComObject fakeRcw;
+        fakeRcw.klass = il2cpp_defaults.il2cpp_com_object_class;
+        fakeRcw.monitor = NULL;
+        fakeRcw.identity = comObject;
 
-		if (exception != NULL)
-			Exception::Raise(exception);
+        // Create new boxed key value pair
+        Il2CppObject* reboxed = Object::New(keyValuePairGenericInstance);
 
-		// Set the field in our reboxed key value pair instance
-		if (Class::FromIl2CppType(field.type)->valuetype)
-		{
-			Field::SetValue(reboxed, &field, Object::Unbox(fieldValue));
-		}
-		else
-		{
-			Field::SetValue(reboxed, &field, fieldValue);
-		}
-	}
+        for (uint16_t i = 0; i < 2; i++)
+        {
+            const MethodInfo* methodToInvoke;
+            const FieldInfo& field = keyValuePairGenericInstance->fields[i];
 
-	return reboxed;
-}
+            // Figure out which getter to call
+            if (strcmp(field.name, "key") == 0)
+            {
+                methodToInvoke = getKeyMethod;
+            }
+            else if (strcmp(field.name, "value") == 0)
+            {
+                methodToInvoke = getValueMethod;
+            }
 
-template <typename T, bool isSealedClassInstance>
-static inline Il2CppObject* GetOrCreateRCW(T* comObject, Il2CppClass* objectClass)
-{
-	IL2CPP_ASSERT(comObject != NULL);
+            // Call the getter
+            Il2CppException* exception = NULL;
+            Il2CppObject* fieldValue = Runtime::Invoke(methodToInvoke, &fakeRcw, NULL, &exception);
 
-	if (!isSealedClassInstance)
-	{
-		// 1. Check if comObject is actually our COM Callable Wrapper
-		Il2CppIManagedObjectHolder* managedHolder;
-		il2cpp_hresult_t hr = comObject->QueryInterface(Il2CppIManagedObjectHolder::IID, reinterpret_cast<void**>(&managedHolder));
-		if (IL2CPP_HR_SUCCEEDED(hr))
-		{
-			Il2CppObject* instance = managedHolder->GetManagedObject();
-			managedHolder->Release();
+            if (exception != NULL)
+                Exception::Raise(exception);
 
-			IL2CPP_ASSERT(instance);
-			return instance;
-		}
-	}
+            // Set the field in our reboxed key value pair instance
+            if (Class::FromIl2CppType(field.type)->valuetype)
+            {
+                Field::SetValue(reboxed, &field, Object::Unbox(fieldValue));
+            }
+            else
+            {
+                Field::SetValue(reboxed, &field, fieldValue);
+            }
+        }
 
-	Il2CppIUnknown* identity = GetIdentity(comObject);
+        return reboxed;
+    }
 
-	// 2. Try to find it in RCW cache
-	FastAutoLock lock(&s_RCWCacheMutex);
-	RCWCache::iterator iter = s_RCWCache.find(identity);
-	if (iter != s_RCWCache.end())
-	{
-		Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
-		if (obj != NULL)
-		{
-			identity->Release();
-			identity = NULL;
-			return obj;
-		}
-		else
-		{
-			// The RCW was already queued for finalization.
-			// Erase it from the cache and let us create a new one.
-			s_RCWCache.erase(iter);
-		}
-	}
+    Il2CppObject* ReboxUri(Il2CppIUnknown* comObject)
+    {
+        Il2CppClass* systemUriClass = il2cpp_defaults.system_uri_class;
+        Il2CppClass* iUriRuntimeClassClass = il2cpp_defaults.windows_foundation_iuri_runtime_class_class;
 
-	// 3. Figure out the concrete RCW class
-	if (!isSealedClassInstance)
-	{
-		objectClass = GetClassForRCW(comObject, objectClass);
+        Class::Init(systemUriClass);
+        Class::Init(iUriRuntimeClassClass);
 
-		// If object class is one of the blessed unboxable classes,
-		// unbox the object from its windows runtime representation,
-		// unmarshal it, box it to Il2CppObject and return it
-		//
-		// Current list of unboxable classes:
-		//     Windows.Foundation.IReference`1<T>
-		//     System.Collections.Generic.KeyValuePair`2<K, V>
-		Il2CppObject* reboxed = ReboxIfBoxed(comObject, objectClass);
-		if (reboxed != NULL)
-			return reboxed;
-	}
+        const int kGetRawUriMethodIndex = 10; // IUriRuntimeClass::get_RawUri
+        IL2CPP_ASSERT(iUriRuntimeClassClass->vtable_count > kGetRawUriMethodIndex);
 
-	IL2CPP_ASSERT(Class::HasParent(objectClass, il2cpp_defaults.il2cpp_com_object_class));
+        VirtualInvokeData getRawUriInvokeData = iUriRuntimeClassClass->vtable[kGetRawUriMethodIndex];
+        IL2CPP_ASSERT(strcmp(getRawUriInvokeData.method->name, "get_RawUri") == 0);
 
-	// 4. Create RCW object
-	Il2CppComObject* rcw = static_cast<Il2CppComObject*>(Object::New(objectClass));
-	rcw->identity = identity;
+        Il2CppComObject fakeRcw;
+        fakeRcw.klass = il2cpp_defaults.il2cpp_com_object_class;
+        fakeRcw.monitor = NULL;
+        fakeRcw.identity = comObject;
 
-	// 5. Insert it into the cache
-	const bool inserted = s_RCWCache.insert(std::make_pair(identity, gc::GCHandle::NewWeakref(rcw, false))).second;
-	Assert(inserted);
+        Il2CppObject* rawUri = Runtime::InvokeWithThrow(getRawUriInvokeData.method, &fakeRcw, NULL);
 
-	return rcw;
-}
+        const MethodInfo* uriConstructor = NULL;
+        uint16_t uriMethodCount = systemUriClass->method_count;
 
-Il2CppObject* RCW::GetOrCreateFromIUnknown(Il2CppIUnknown* unknown, Il2CppClass* fallbackClass)
-{
-	return GetOrCreateRCW<Il2CppIUnknown, false>(unknown, fallbackClass);
-}
+        for (uint16_t i = 0; i < uriMethodCount; i++)
+        {
+            const MethodInfo* method = systemUriClass->methods[i];
+            if (strcmp(method->name, ".ctor") == 0 && method->parameters_count == 1 && method->parameters[0].parameter_type->type == IL2CPP_TYPE_STRING)
+            {
+                uriConstructor = method;
+                break;
+            }
+        }
 
-Il2CppObject* RCW::GetOrCreateFromIInspectable(Il2CppIInspectable* inspectable, Il2CppClass* fallbackClass)
-{
-	return GetOrCreateRCW<Il2CppIInspectable, false>(inspectable, fallbackClass);
-}
+        IL2CPP_ASSERT(uriConstructor);
+        Il2CppObject* reboxedUri = Object::New(systemUriClass);
+        void* constructorArgs[1] = { rawUri };
 
-Il2CppObject* RCW::GetOrCreateForSealedClass(Il2CppIUnknown* unknown, Il2CppClass* objectClass)
-{
-	return GetOrCreateRCW<Il2CppIUnknown, true>(unknown, objectClass);
-}
+        Runtime::InvokeWithThrow(uriConstructor, reboxedUri, constructorArgs);
+        return reboxedUri;
+    }
 
-void RCW::Cleanup(Il2CppComObject* rcw)
-{
-	FastAutoLock lock(&s_RCWCacheMutex);
+    template<typename T, bool isSealedClassInstance>
+    static inline Il2CppObject* GetOrCreateRCW(T* comObject, Il2CppClass* objectClass)
+    {
+        IL2CPP_ASSERT(comObject != NULL);
 
-	RCWCache::iterator iter = s_RCWCache.find(rcw->identity);
+        if (!isSealedClassInstance)
+        {
+            // 1. Check if comObject is actually our COM Callable Wrapper
+            Il2CppIManagedObjectHolder* managedHolder;
+            il2cpp_hresult_t hr = comObject->QueryInterface(Il2CppIManagedObjectHolder::IID, reinterpret_cast<void**>(&managedHolder));
+            if (IL2CPP_HR_SUCCEEDED(hr))
+            {
+                Il2CppObject* instance = managedHolder->GetManagedObject();
+                managedHolder->Release();
 
-	// It is possible for us to not find object in the cache if two RCWs for the same IUnknown get
-	// finalized in a row: then, the first finalizer will remove the NULL object, and the second one
-	// will not find it.
-	if (iter != s_RCWCache.end())
-	{
-		Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
+                IL2CPP_ASSERT(instance);
+                return instance;
+            }
+        }
 
-		// If it's null, it means that the cache contains our object
-		// but the weak GC handle has been invalidated by the GC already
-		// If it's equal to our object, it means that RCW::Cleanup was 
-		// called manually, and we should also delete it from the cache
-		// Otherwise, it's a different object. It means that we have already 
-		// created a new RCW in place of this one during the time
-		// it had been queued for finalization
-		if (obj == NULL || obj == rcw)
-			s_RCWCache.erase(iter);
-	}
-}
+        Il2CppIUnknown* identity = GetIdentity(comObject);
 
+        // 2. Try to find it in RCW cache
+        FastAutoLock lock(&s_RCWCacheMutex);
+        RCWCache::iterator iter = s_RCWCache.find(identity);
+        if (iter != s_RCWCache.end())
+        {
+            Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
+            if (obj != NULL)
+            {
+                identity->Release();
+                identity = NULL;
+                return obj;
+            }
+            else
+            {
+                // The RCW was already queued for finalization.
+                // Erase it from the cache and let us create a new one.
+                s_RCWCache.erase(iter);
+            }
+        }
+
+        // 3. Figure out the concrete RCW class
+        if (!isSealedClassInstance)
+        {
+            objectClass = GetClassForRCW(comObject, objectClass);
+
+            // If object class is one of the blessed unboxable classes,
+            // unbox the object from its windows runtime representation,
+            // unmarshal it, box it to Il2CppObject and return it
+            //
+            // Current list of unboxable classes:
+            //     Windows.Foundation.IReference`1<T>
+            //     System.Collections.Generic.KeyValuePair`2<K, V>
+            Il2CppObject* reboxed = ReboxIfBoxed(comObject, objectClass);
+            if (reboxed != NULL)
+                return reboxed;
+        }
+
+        IL2CPP_ASSERT(Class::HasParent(objectClass, il2cpp_defaults.il2cpp_com_object_class));
+
+        // 4. Create RCW object
+        Il2CppComObject* rcw = static_cast<Il2CppComObject*>(Object::New(objectClass));
+        rcw->identity = identity;
+
+        // 5. Insert it into the cache
+        const bool inserted = s_RCWCache.insert(std::make_pair(identity, gc::GCHandle::NewWeakref(rcw, false))).second;
+        Assert(inserted);
+
+        return rcw;
+    }
+
+    Il2CppObject* RCW::GetOrCreateFromIUnknown(Il2CppIUnknown* unknown, Il2CppClass* fallbackClass)
+    {
+        return GetOrCreateRCW<Il2CppIUnknown, false>(unknown, fallbackClass);
+    }
+
+    Il2CppObject* RCW::GetOrCreateFromIInspectable(Il2CppIInspectable* inspectable, Il2CppClass* fallbackClass)
+    {
+        return GetOrCreateRCW<Il2CppIInspectable, false>(inspectable, fallbackClass);
+    }
+
+    Il2CppObject* RCW::GetOrCreateForSealedClass(Il2CppIUnknown* unknown, Il2CppClass* objectClass)
+    {
+        return GetOrCreateRCW<Il2CppIUnknown, true>(unknown, objectClass);
+    }
+
+    void RCW::Cleanup(Il2CppComObject* rcw)
+    {
+        FastAutoLock lock(&s_RCWCacheMutex);
+
+        RCWCache::iterator iter = s_RCWCache.find(rcw->identity);
+
+        // It is possible for us to not find object in the cache if two RCWs for the same IUnknown get
+        // finalized in a row: then, the first finalizer will remove the NULL object, and the second one
+        // will not find it.
+        if (iter != s_RCWCache.end())
+        {
+            Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
+
+            // If it's null, it means that the cache contains our object
+            // but the weak GC handle has been invalidated by the GC already
+            // If it's equal to our object, it means that RCW::Cleanup was
+            // called manually, and we should also delete it from the cache
+            // Otherwise, it's a different object. It means that we have already
+            // created a new RCW in place of this one during the time
+            // it had been queued for finalization
+            if (obj == NULL || obj == rcw)
+                s_RCWCache.erase(iter);
+        }
+    }
 } /* namespace vm */
 } /* namespace il2cpp */

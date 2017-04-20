@@ -13,15 +13,12 @@ namespace System
 {
 namespace Reflection
 {
+    Il2CppReflectionType* MonoGenericCMethod::get_ReflectedType(void* /* System.Reflection.MonoGenericCMethod */ self)
+    {
+        NOT_SUPPORTED_IL2CPP(MonoGenericCMethod::get_ReflectedType, "This icall is not supported by il2cpp.");
 
-
-Il2CppReflectionType* MonoGenericCMethod::get_ReflectedType (void* /* System.Reflection.MonoGenericCMethod */ self)
-{
-	NOT_SUPPORTED_IL2CPP (MonoGenericCMethod::get_ReflectedType, "This icall is not supported by il2cpp.");
-	
-	return 0;
-}
-
+        return 0;
+    }
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */
