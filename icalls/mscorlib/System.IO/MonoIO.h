@@ -71,6 +71,7 @@ namespace IO
         static Il2CppChar get_VolumeSeparatorChar(void);
         static bool CreatePipe40(Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle, MonoIOError* error);
         static bool DuplicateHandle40(Il2CppIntPtr source_process_handle, Il2CppIntPtr source_handle, Il2CppIntPtr target_process_handle, Il2CppIntPtr* target_handle, int32_t access, int32_t inherit, int32_t options, MonoIOError* error);
+        static bool RemapPath(Il2CppString* path, Il2CppString** newPath);
 
 #if NET_4_0
         static int32_t FindClose(Il2CppIntPtr handle);

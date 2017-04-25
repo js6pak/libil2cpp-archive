@@ -120,7 +120,7 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
 
 #elif PLATFORM_PSVITA
 
-#	include "PlatformExtendedAtomicOps.h"
+#   include "PlatformExtendedAtomicOps.h"
 
 #elif (defined(__ppc64__) || defined(_ARCH_PPC64)) && (defined(__clang__) || defined(__GNUC__))
 

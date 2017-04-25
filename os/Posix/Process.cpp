@@ -8,6 +8,8 @@
 #include "os/Process.h"
 #include "vm/Exception.h"
 
+#include "il2cpp-vm-support.h"
+
 struct ProcessHandle
 {
     pid_t pid;
@@ -38,7 +40,7 @@ namespace os
 
     std::string Process::GetProcessName(ProcessHandle* handle)
     {
-        NOT_SUPPORTED_IL2CPP(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
+        IL2CPP_VM_NOT_SUPPORTED(Process::GetProcessName, "GetProcessName is not supported for non-Windows/OSX desktop platforms");
         return std::string();
     }
 }

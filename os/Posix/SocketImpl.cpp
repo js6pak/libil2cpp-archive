@@ -2,7 +2,6 @@
 
 #if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_POSIX
 
-
 // enable support for AF_UNIX and socket paths
 #define SUPPORT_UNIXSOCKETS (1)
 
@@ -44,6 +43,8 @@
 #include "os/Posix/ThreadImpl.h"
 #include "utils/StringUtils.h"
 #include "vm/Exception.h"
+
+#include "il2cpp-vm-support.h"
 
 namespace il2cpp
 {
@@ -972,7 +973,7 @@ namespace os
 
         return kWaitStatusSuccess;
 #else
-        NOT_SUPPORTED_IL2CPP(sockaddr_from_address, "IPv6 is not supported on this platform.");
+        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
         return kWaitStatusFailure;
 #endif
     }
@@ -1049,7 +1050,7 @@ namespace os
 
         return ConnectInternal((struct sockaddr *)&sa, sa_size);
 #else
-        NOT_SUPPORTED_IL2CPP(sockaddr_from_address, "IPv6 is not supported on this platform.");
+        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
 #endif
     }
 
@@ -1456,7 +1457,7 @@ namespace os
 
         return SendToInternal((sockaddr*)&sa, sa_size, data, count, flags, len);
 #else
-        NOT_SUPPORTED_IL2CPP(sockaddr_from_address, "IPv6 is not supported on this platform.");
+        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
         return kWaitStatusFailure;
 #endif
     }
@@ -1577,7 +1578,7 @@ namespace os
 
         return kWaitStatusSuccess;
 #else
-        NOT_SUPPORTED_IL2CPP(sockaddr_from_address, "IPv6 is not supported on this platform.");
+        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
         return kWaitStatusFailure;
 #endif
     }

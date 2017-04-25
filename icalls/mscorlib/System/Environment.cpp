@@ -105,7 +105,7 @@ namespace System
     {
         const std::string variableStr(utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(variable)));
 
-        const bool clearValue = value == NULL || vm::String::GetLength(value) == 0 || utils::StringUtils::GetChars(0) == 0;
+        const bool clearValue = value == NULL || utils::StringUtils::GetLength(value) == 0 || utils::StringUtils::GetChars(0) == 0;
 
         const std::string valueStr = clearValue ? std::string() : utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(value));
 

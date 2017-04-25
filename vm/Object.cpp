@@ -163,7 +163,7 @@ namespace vm
         Il2CppClass* klass = GetClass(obj);
         if (klass == il2cpp_defaults.string_class)
         {
-            return sizeof(Il2CppString) + 2 * String::GetLength((Il2CppString*)obj) + 2;
+            return sizeof(Il2CppString) + 2 * utils::StringUtils::GetLength((Il2CppString*)obj) + 2;
         }
         else if (obj->klass->rank)
         {

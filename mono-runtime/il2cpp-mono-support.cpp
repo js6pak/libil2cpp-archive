@@ -11,46 +11,30 @@
 #include "../libmono/mono-api.h"
 #include "utils/dynamic_array.h"
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
-#include "utils/NativeSymbol.h"
+#include "vm-utils/NativeSymbol.h"
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
 #include "utils/MarshalingUtils.h"
+#include "../libmono/vm/MetadataCache.h"
 
 Il2CppIntPtr Il2CppIntPtr::Zero;
 
-extern const Il2CppCodeRegistration g_CodeRegistration;
-extern int g_RuntimeGenericContextMappingSize;
-extern const ImageRuntimeGenericContextTokens g_RuntimeGenericContextMapping[];
-extern const MonoRGCTXDefinition g_RuntimeGenericContextIndices[];
-extern const Il2CppMethodSpec g_Il2CppMethodSpecTable[];
+extern const Il2CppCodeRegistration g_CodeRegistration IL2CPP_ATTRIBUTE_WEAK;
+extern const Il2CppMethodSpec g_Il2CppMethodSpecTable[] IL2CPP_ATTRIBUTE_WEAK;
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
-extern MethodIndex g_MethodIndices[];
-extern MethodIndex g_GenericMethodIndices[];
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
 
 // Mono-specific metadata emitted by IL2CPP
-extern const int g_MetadataUsageListsCount;
-extern Il2CppMetadataUsageList g_MetadataUsageLists[];
-extern const int g_MetadataUsagePairsCount;
-extern Il2CppMetadataUsagePair g_MetadataUsagePairs[];
-extern void** const g_MetadataUsages[];
-extern const int g_MonoTypeMetadataCount;
-extern MonoClassMetadata g_MonoTypeMetadataTable[];
-extern const int g_MonoFieldMetadataCount;
-extern MonoFieldMetadata g_MonoFieldMetadataTable[];
-extern const int g_MonoMethodMetadataCount;
-extern MonoMethodMetadata g_MonoMethodMetadataTable[];
-extern const MonoGenericInstMetadata* const g_MonoGenericInstMetadataTable[];
-extern const int g_MonoStringMetadataCount;
-extern MonoMetadataToken g_MonoStringMetadataTable[];
-extern const Il2CppCodeGenOptions s_Il2CppCodeGenOptions;
+extern void** const g_MetadataUsages[] IL2CPP_ATTRIBUTE_WEAK;
+extern const MonoGenericInstMetadata* const g_MonoGenericInstMetadataTable[] IL2CPP_ATTRIBUTE_WEAK;
+extern const Il2CppCodeGenOptions s_Il2CppCodeGenOptions IL2CPP_ATTRIBUTE_WEAK;
 
-extern const MonoMethodInfoMapContainerBase* g_pGenericMethodsMapContainer;
-extern const MonoMethodInfoMapContainerBase* g_pMethodsMapContainer;
-
-extern const int g_Il2CppInteropDataCount;
-extern Il2CppInteropData g_Il2CppInteropData[];
+extern const int g_Il2CppInteropDataCount IL2CPP_ATTRIBUTE_WEAK;
+extern Il2CppInteropData g_Il2CppInteropData[] IL2CPP_ATTRIBUTE_WEAK;
 
 static MonoGenericContext GetSharedContext(const MonoGenericContext* context);
+
+typedef Il2CppHashMap<uint64_t, const Il2CppInteropData*, il2cpp::utils::PassThroughHash<uint64_t> > InteropDataMap;
+static InteropDataMap s_InteropDataMap;
 
 static MonoGenericInst* GetSharedGenericInst(MonoGenericInst* inst)
 {
@@ -114,15 +98,18 @@ static MonoMethod* InflateGenericMethodWithContext(MonoMethod* method, MonoGener
     return mono_class_inflate_generic_method(method, context);
 }
 
+void initialize_interop_data_map()
+{
+    for (int i = 0; i < g_Il2CppInteropDataCount; ++i)
+        s_InteropDataMap.add(g_Il2CppInteropData[i].hash, &g_Il2CppInteropData[i]);
+}
+
 const Il2CppInteropData* FindInteropDataFor(MonoClass* klass)
 {
-    uint32_t token = mono_class_get_type_token(klass);
-    const char* imageName = mono_unity_class_get_image_name(klass);
-    for (int i = 0; i < g_Il2CppInteropDataCount; ++i)
-    {
-        if (token == g_Il2CppInteropData[i].typeToken.token && strcmp(imageName, g_Il2CppInteropData[i].typeToken.image) == 0)
-            return &g_Il2CppInteropData[i];
-    }
+    uint64_t hash = mono_unity_type_get_hash(mono_class_get_type(klass), true);
+    InteropDataMap::const_iterator it = s_InteropDataMap.find(hash);
+    if (it != s_InteropDataMap.end())
+        return it->second;
 
     return NULL;
 }
@@ -219,13 +206,13 @@ void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoErr
 
         //char *newMethodName = mono_method_get_name_full(sharedMethod, true, false, MONO_TYPE_NAME_FORMAT_IL);
 
-        uint64_t hash = mono_unity_method_get_hash(sharedMethod);
-        const MonoMethodInfoMap& infoMap = g_pGenericMethodsMapContainer->map();
-        MonoMethodInfoMap::const_iterator itInfo = infoMap.find(hash);
-        if (itInfo != infoMap.end())
+        uint64_t hash = mono_unity_method_get_hash(sharedMethod, true);
+        const MonoMethodInfo *methodInfo = mono::vm::MetadataCache::GetMonoGenericMethodInfoFromMethodHash(hash);
+
+        if (methodInfo)
         {
-            invokerIndex = itInfo->second.invoker_index;
-            methodPointerIndex = itInfo->second.method_pointer_index;
+            invokerIndex = methodInfo->invoker_index;
+            methodPointerIndex = methodInfo->method_pointer_index;
         }
         else
         {
@@ -242,13 +229,13 @@ void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoErr
     }
     else
     {
-        const MonoMethodInfoMap& infoMap = g_pMethodsMapContainer->map();
-        uint64_t hash = mono_unity_method_get_hash(method);
-        MonoMethodInfoMap::const_iterator itInfo = infoMap.find(hash);
-        if (itInfo != infoMap.end())
+        uint64_t hash = mono_unity_method_get_hash(method, true);
+        const MonoMethodInfo *methodInfo = mono::vm::MetadataCache::GetMonoMethodInfoFromMethodHash(hash);
+
+        if (methodInfo)
         {
-            invokerIndex = itInfo->second.invoker_index;
-            methodPointerIndex = itInfo->second.method_pointer_index;
+            invokerIndex = methodInfo->invoker_index;
+            methodPointerIndex = methodInfo->method_pointer_index;
         }
         else if (strcmp(mono_unity_method_get_name(method), "PtrToStructure") == 0 || strcmp(mono_unity_method_get_name(method), "StructureToPtr") == 0)
         {
@@ -306,7 +293,7 @@ void il2cpp_mono_get_invoke_data(MonoMethod* method, void* obj, VirtualInvokeDat
     if (!mono_error_ok(&error))
         mono_error_raise_exception(&error);
     invokeData->methodPtr = (Il2CppMethodPointer)mono_unity_method_get_method_pointer(target_method);
-    invokeData->method = (MethodInfo*)target_method;
+    invokeData->method = target_method;
 }
 
 static MonoClass* InflateGenericParameter(MonoGenericContainer* genericContainer, MonoGenericContext* context, const MonoRGCTXDefinition* rgctxDefintion)
@@ -317,7 +304,7 @@ static MonoClass* InflateGenericParameter(MonoGenericContainer* genericContainer
 
 static MonoClass* LookupGenericClassMetadata(MonoGenericContext* context, const MonoRGCTXDefinition* rgctxDefintion)
 {
-    return mono_class_get_full(mono_assembly_get_image(il2cpp_mono_assembly_from_name(rgctxDefintion->imageName)), rgctxDefintion->token, context);
+    return mono_class_get_full(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(rgctxDefintion->imageName))), rgctxDefintion->token, context);
 }
 
 static void* LookupMetadataFromRGCTX(const MonoRGCTXDefinition* definition, bool useSharedVersion, MonoGenericContext* context, MonoGenericContainer* genericContainer)
@@ -342,7 +329,7 @@ static void* LookupMetadataFromRGCTX(const MonoRGCTXDefinition* definition, bool
     }
     else if (definition->type == IL2CPP_RGCTX_DATA_METHOD)
     {
-        MonoMethod* methodDefinition = mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_name(definition->imageName)), definition->token, NULL);
+        MonoMethod* methodDefinition = mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(definition->imageName))), definition->token, NULL);
         return InflateGenericMethodWithContext(methodDefinition, context, useSharedVersion);
     }
     else if (definition->type == IL2CPP_RGCTX_DATA_TYPE)
@@ -362,27 +349,14 @@ static void* LookupMetadataFromRGCTX(const MonoRGCTXDefinition* definition, bool
     return NULL;
 }
 
-void* LookupMetadataFromToken(uint32_t token, const char* imageName, Il2CppRGCTXDataType rgctxType, int rgctxIndex, bool useSharedVersion, MonoGenericContext* context, MonoGenericContainer* genericContainer)
+void* LookupMetadataFromHash(uint64_t hash, Il2CppRGCTXDataType rgctxType, int rgctxIndex, bool useSharedVersion, MonoGenericContext* context, MonoGenericContainer* genericContainer)
 {
-    const RuntimeGenericContextInfo* rgctxInfo = NULL;
-    for (int imageIndex = 0; imageIndex < g_RuntimeGenericContextMappingSize; ++imageIndex)
+    const RuntimeGenericContextInfo* rgctxInfo = mono::vm::MetadataCache::GetRGCTXInfoFromHash(hash);
+    if (rgctxInfo)
     {
-        if (strcmp(g_RuntimeGenericContextMapping[imageIndex].name, imageName) == 0)
-        {
-            for (int typeIndex = 0; typeIndex < g_RuntimeGenericContextMapping[imageIndex].size; ++typeIndex)
-            {
-                if (token == g_RuntimeGenericContextMapping[imageIndex].tokens[typeIndex].token)
-                {
-                    rgctxInfo = &g_RuntimeGenericContextMapping[imageIndex].tokens[typeIndex];
-                    if (rgctxInfo->rgctxStart != -1)
-                    {
-                        const MonoRGCTXDefinition* definition = &g_RuntimeGenericContextIndices[rgctxInfo->rgctxStart + rgctxIndex];
-                        if (definition->type == rgctxType)
-                            return LookupMetadataFromRGCTX(definition, useSharedVersion, context, genericContainer);
-                    }
-                }
-            }
-        }
+        const MonoRGCTXDefinition* definition = mono::vm::MetadataCache::GetMonoRGCTXDefinition(rgctxInfo->rgctxStart + rgctxIndex);
+        if (definition->type == rgctxType)
+            return LookupMetadataFromRGCTX(definition, useSharedVersion, context, genericContainer);
     }
 
     return NULL;
@@ -390,19 +364,21 @@ void* LookupMetadataFromToken(uint32_t token, const char* imageName, Il2CppRGCTX
 
 void* il2cpp_mono_class_rgctx(MonoClass* klass, Il2CppRGCTXDataType rgctxType, int rgctxIndex, bool useSharedVersion)
 {
-    return LookupMetadataFromToken(mono_class_get_type_token(klass), mono_unity_class_get_image_name(klass), rgctxType, rgctxIndex, useSharedVersion,
+    uint64_t hash = mono_unity_type_get_hash(mono_class_get_type(klass), false);
+    return LookupMetadataFromHash(hash, rgctxType, rgctxIndex, useSharedVersion,
         mono_class_get_context(klass), mono_class_get_generic_container(mono_unity_class_get_generic_definition(klass)));
 }
 
 void* il2cpp_mono_method_rgctx(MonoMethod* method, Il2CppRGCTXDataType rgctxType, int rgctxIndex, bool useSharedVersion)
 {
-    return LookupMetadataFromToken(mono_unity_method_get_token(method), mono_unity_class_get_image_name(mono_unity_method_get_class(method)), rgctxType, rgctxIndex, useSharedVersion,
+    uint64_t hash = mono_unity_method_get_hash(method, false);
+    return LookupMetadataFromHash(hash, rgctxType, rgctxIndex, useSharedVersion,
         mono_method_get_context(method), mono_method_get_generic_container(mono_unity_method_get_generic_definition(method)));
 }
 
 static MonoClass* ClassFromIndex(TypeIndex index);
 
-static MonoClass* InflateGenericClass(MonoClass* generic_class, uint32_t num_indices, TypeIndex *generic_indices)
+static MonoClass* InflateGenericClass(MonoClass* generic_class, uint32_t num_indices, const TypeIndex *generic_indices)
 {
     std::vector<MonoType*> arguments(num_indices);
     for (uint32_t i = 0; i < num_indices; ++i)
@@ -429,7 +405,7 @@ static MonoClass* ClassFromMetadata(const MonoClassMetadata *classMetadata)
         return aklass;
     }
 
-    MonoClass *klass = mono_class_get(mono_assembly_get_image(il2cpp_mono_assembly_from_name(classMetadata->metadataToken.image)), classMetadata->metadataToken.token);
+    MonoClass *klass = mono_class_get(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(classMetadata->metadataToken.image))), classMetadata->metadataToken.token);
     mono_class_init(klass);
     return klass;
 }
@@ -439,13 +415,11 @@ static MonoClass* ClassFromIndex(TypeIndex index)
     if (index == kTypeIndexInvalid)
         return NULL;
 
-    assert(index < g_MonoTypeMetadataCount && "Invalid type index ");
-
-    MonoClassMetadata* classMetadata = &g_MonoTypeMetadataTable[index];
+    const MonoClassMetadata* classMetadata = mono::vm::MetadataCache::GetClassMetadataFromIndex(index);
 
     MonoClass* klass = ClassFromMetadata(classMetadata);
-    if (classMetadata->numberOfGenericParameters != 0)
-        klass = InflateGenericClass(klass, classMetadata->numberOfGenericParameters, classMetadata->genericParameterTypeIndices);
+    if (classMetadata->genericParametersCount != 0)
+        klass = InflateGenericClass(klass, classMetadata->genericParametersCount, mono::vm::MetadataCache::GetGenericArgumentIndices(classMetadata->genericParametersOffset));
 
     if (classMetadata->isPointer)
         klass = mono_ptr_class_get(mono_class_get_type(klass));
@@ -455,9 +429,7 @@ static MonoClass* ClassFromIndex(TypeIndex index)
 
 static MonoClassField* FieldFromIndex(EncodedMethodIndex index)
 {
-    assert(index >= 0 && index <= static_cast<uint32_t>(g_MonoFieldMetadataCount));
-
-    MonoFieldMetadata* fieldMetadata = &g_MonoFieldMetadataTable[index];
+    const MonoFieldMetadata* fieldMetadata = mono::vm::MetadataCache::GetFieldMetadataFromIndex(index);
     return mono_class_get_field(ClassFromIndex(fieldMetadata->parentTypeIndex), fieldMetadata->token);
 }
 
@@ -471,10 +443,8 @@ static MonoType* TypeFromIndex(TypeIndex index)
 
 MonoMethod* MethodFromIndex(MethodIndex index)
 {
-    assert(index >= 0 && static_cast<int32_t>(index) <= g_MonoMethodMetadataCount);
-
-    MonoMetadataToken* method = &g_MonoMethodMetadataTable[index].metadataToken;
-    return mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_name(method->image)), method->token, NULL);
+    const MonoMetadataToken* method = &mono::vm::MetadataCache::GetMonoMethodMetadataFromIndex(index)->metadataToken;
+    return mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(method->image))), method->token, NULL);
 }
 
 static std::vector<MonoType*> GenericArgumentsFromInst(const MonoGenericInstMetadata *inst)
@@ -523,26 +493,24 @@ MonoMethod* GenericMethodFromIndex(MethodIndex index)
 
 static MonoString* StringFromIndex(StringIndex index)
 {
-    assert(index >= 0 && static_cast<int32_t>(index) <= g_MonoStringMetadataCount);
-
-    MonoMetadataToken* stringMetadata = &g_MonoStringMetadataTable[index];
-    return mono_ldstr(mono_domain_get(), mono_assembly_get_image(il2cpp_mono_assembly_from_name(stringMetadata->image)), mono_metadata_token_index(stringMetadata->token));
+    const MonoMetadataToken* stringMetadata = mono::vm::MetadataCache::GetMonoStringTokenFromIndex(index);
+    return mono_ldstr(mono_domain_get(), mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(stringMetadata->image))), mono_metadata_token_index(stringMetadata->token));
 }
 
 void il2cpp_mono_initialize_method_metadata(uint32_t index)
 {
-    assert(g_MetadataUsageListsCount >= 0 && index <= static_cast<uint32_t>(g_MetadataUsageListsCount));
+    const Il2CppMetadataUsageList* usageList = mono::vm::MetadataCache::GetMetadataUsageList(index);
 
-    uint32_t start = g_MetadataUsageLists[index].start;
-    uint32_t count = g_MetadataUsageLists[index].count;
+    uint32_t start = usageList->start;
+    uint32_t count = usageList->count;
 
     for (uint32_t i = 0; i < count; i++)
     {
         uint32_t offset = start + i;
 
-        assert(g_MetadataUsagePairsCount >= 0 && offset <= static_cast<uint32_t>(g_MetadataUsagePairsCount));
-        uint32_t destinationIndex = g_MetadataUsagePairs[offset].destinationIndex;
-        uint32_t encodedSourceIndex = g_MetadataUsagePairs[offset].encodedSourceIndex;
+        const Il2CppMetadataUsagePair* usagePair = mono::vm::MetadataCache::GetMetadataUsagePair(offset);
+        uint32_t destinationIndex = usagePair->destinationIndex;
+        uint32_t encodedSourceIndex = usagePair->encodedSourceIndex;
 
         Il2CppMetadataUsage usage = GetEncodedIndexType(encodedSourceIndex);
         uint32_t decodedIndex = GetDecodedMethodIndex(encodedSourceIndex);
@@ -600,10 +568,10 @@ std::vector<uintptr_t> il2cpp_to_mono_array_dimensions(il2cpp_array_size_t* il2c
     return monoDimensions;
 }
 
-Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state)
+Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, MonoObject* state)
 {
     int numParams = mono_signature_get_param_count(mono_method_signature((MonoMethod*)delegate->method));
-    Il2CppObject *nullState = NULL;
+    MonoObject *nullState = NULL;
     Il2CppDelegate *nullCallback = NULL;
 
     std::vector<void*> newParams(numParams + 2);
@@ -637,17 +605,17 @@ static void MonoArrayGetGenericValue(MonoArray* array, int32_t pos, void* value)
     MonoClass *klass = mono_unity_object_get_class(obj);
 
     if (mono_class_is_valuetype(klass))
-        memcpy(value, mono_object_unbox(obj), mono_class_instance_size(klass) - sizeof(Il2CppObject));
+        memcpy(value, mono_object_unbox(obj), mono_class_instance_size(klass) - sizeof(MonoObject));
     else
         memcpy(value, &obj, mono_unity_array_get_element_size(array));
 }
 
-Il2CppObject* il2cpp_mono_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args)
+MonoObject* il2cpp_mono_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args)
 {
     MonoError unused;
     MonoObject *exc = NULL;
     MonoArray *mono_out_args = NULL;
-    Il2CppObject *retVal = (Il2CppObject*)mono_threadpool_ms_end_invoke((MonoAsyncResult*)asyncResult, &mono_out_args, &exc, &unused);
+    MonoObject *retVal = (MonoObject*)mono_threadpool_ms_end_invoke((MonoAsyncResult*)asyncResult, &mono_out_args, &exc, &unused);
 
     if (exc)
         mono_raise_exception((MonoException*)exc);
@@ -677,7 +645,7 @@ void RegisterAllManagedMethods()
     for (uint32_t i = 0; i < numberOfMethods; ++i)
     {
         MethodDefinitionKey currentMethod;
-        currentMethod.methodIndex = g_MethodIndices[i];
+        currentMethod.methodIndex = mono::vm::MetadataCache::GetMethodIndex(i);
         currentMethod.method = g_CodeRegistration.methodPointers[i];
         currentMethod.isGeneric = false;
         managedMethods.push_back(currentMethod);
@@ -686,7 +654,7 @@ void RegisterAllManagedMethods()
     for (uint32_t i = 0; i < numberOfGenericMethods; ++i)
     {
         MethodDefinitionKey currentMethod;
-        currentMethod.methodIndex = g_GenericMethodIndices[i];
+        currentMethod.methodIndex = mono::vm::MetadataCache::GetGenericMethodIndex(i);
         currentMethod.method = g_CodeRegistration.genericMethodPointers[i];
         currentMethod.isGeneric = true;
         managedMethods.push_back(currentMethod);
@@ -703,6 +671,18 @@ void RuntimeInit(MonoClass* klass)
     mono_runtime_class_init_full(mono_class_vtable(mono_domain_get(), klass), &error);
     if (!mono_error_ok(&error))
         mono_error_raise_exception(&error);
+}
+
+std::string il2cpp_mono_format_exception(const MonoException *exc)
+{
+    MonoClass *klass = mono_object_get_class((MonoObject*)exc);
+    std::string exception_namespace = mono_class_get_namespace(klass);
+    std::string exception_type = mono_class_get_name(klass);
+    MonoString *message = mono_unity_exception_get_message(const_cast<MonoException*>(exc));
+    if (message)
+        return exception_namespace + "." + exception_type + ": " + mono_string_to_utf8(message);
+    else
+        return exception_namespace + "." + exception_type;
 }
 
 extern "C"

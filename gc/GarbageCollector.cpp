@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "object-internals.h"
+#include "il2cpp-vm-support.h"
 #include "GarbageCollector.h"
 #include "os/Event.h"
 #include "os/Mutex.h"
@@ -307,7 +308,7 @@ namespace gc
 
         Il2CppIUnknown* result;
         il2cpp_hresult_t hr = comCallableWrapper->QueryInterface(iid, reinterpret_cast<void**>(&result));
-        Exception::RaiseIfFailed(hr, true);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
         return result;
     }
 

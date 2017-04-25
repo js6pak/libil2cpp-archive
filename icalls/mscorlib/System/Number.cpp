@@ -240,11 +240,7 @@ static void CheckTable(uint64_t val, int exp, const void* table, int size, const
 					fprintf(stderr, "%s:\n", name);
 					fBad = true;
 				}
-#if IL2CPP_COMPILER_MSVC
 				fprintf(stderr, "/*%d*/ I64(0x%I64x),\n", i + 1, val);
-#else
-				fprintf(stderr, "/*%d*/ I64(0x%lldx),\n", i + 1, val);
-#endif
 			}
 			break;
 		case 2:
