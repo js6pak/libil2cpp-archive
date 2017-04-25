@@ -13,6 +13,7 @@
 #include "vm/Reflection.h"
 #include "vm/AssemblyName.h"
 #include "utils/StringUtils.h"
+#include "vm-utils/VmStringUtils.h"
 
 using il2cpp::vm::Array;
 using il2cpp::vm::Class;
@@ -120,7 +121,7 @@ namespace Reflection
         const il2cpp::vm::TypeNameParseInfo::AssemblyName& parsedName = info.assembly_name();
 
         aname->name.m_value = il2cpp::utils::StringUtils::StringDuplicate(parsedName.name.c_str());
-        if (utils::StringUtils::CaseInsensitiveEquals(parsedName.culture.c_str(), "neutral")) // culture names are case insensitive
+        if (utils::VmStringUtils::CaseInsensitiveEquals(parsedName.culture.c_str(), "neutral")) // culture names are case insensitive
             aname->culture.m_value = NULL;
         else
             aname->culture.m_value = il2cpp::utils::StringUtils::StringDuplicate(parsedName.culture.c_str());

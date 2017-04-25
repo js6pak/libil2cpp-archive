@@ -6,6 +6,7 @@
 #include "vm/Array.h"
 #include "vm/String.h"
 #include "vm/Exception.h"
+#include "vm-utils/VmStringUtils.h"
 
 namespace il2cpp
 {
@@ -26,7 +27,7 @@ namespace Diagnostics
 
     Il2CppString* PerformanceCounterCategory::CategoryHelpInternal(Il2CppString* category, Il2CppString* machine)
     {
-        if (!utils::StringUtils::CaseInsensitiveEquals(machine, "."))
+        if (!utils::VmStringUtils::CaseInsensitiveEquals(machine, "."))
             return NULL;
         const CategoryDesc* cdesc = find_category(category);
         if (!cdesc)
@@ -36,7 +37,7 @@ namespace Diagnostics
 
     bool PerformanceCounterCategory::CounterCategoryExists(Il2CppString* counter, Il2CppString* category, Il2CppString* machine)
     {
-        if (!utils::StringUtils::CaseInsensitiveEquals(machine, "."))
+        if (!utils::VmStringUtils::CaseInsensitiveEquals(machine, "."))
             return false;
         const CategoryDesc* cdesc = find_category(category);
         if (!cdesc)
@@ -64,7 +65,7 @@ namespace Diagnostics
 
     Il2CppArray* PerformanceCounterCategory::GetCategoryNames(Il2CppString* machine)
     {
-        if (!utils::StringUtils::CaseInsensitiveEquals(machine, "."))
+        if (!utils::VmStringUtils::CaseInsensitiveEquals(machine, "."))
             return vm::Array::New(il2cpp_defaults.string_class, 0);
 
         Il2CppArray* res = vm::Array::New(il2cpp_defaults.string_class, NUM_CATEGORIES);
@@ -79,7 +80,7 @@ namespace Diagnostics
 
     Il2CppArray* PerformanceCounterCategory::GetCounterNames(Il2CppString* category, Il2CppString* machine)
     {
-        if (!utils::StringUtils::CaseInsensitiveEquals(machine, "."))
+        if (!utils::VmStringUtils::CaseInsensitiveEquals(machine, "."))
             return vm::Array::New(il2cpp_defaults.string_class, 0);
 
         const CategoryDesc* cdesc = find_category(category);

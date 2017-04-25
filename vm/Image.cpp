@@ -13,6 +13,7 @@
 #include "utils/HashUtils.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
+#include "vm-utils/VmStringUtils.h"
 
 using il2cpp::utils::HashUtils;
 using il2cpp::utils::StringUtils;
@@ -227,7 +228,7 @@ namespace vm
         }
         else
         {
-            utils::StringUtils::CaseInsensitiveComparer comparer;
+            utils::VmStringUtils::CaseInsensitiveComparer comparer;
             return comparer(left, right);
         }
     }

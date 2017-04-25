@@ -20,7 +20,11 @@ struct Il2CppNameToTypeDefinitionIndexHashTable;
 struct VirtualInvokeData
 {
     Il2CppMethodPointer methodPtr;
+#if RUNTIME_MONO
+    const MonoMethod* method;
+#else
     const MethodInfo* method;
+#endif
 };
 
 enum Il2CppTypeNameFormat
@@ -351,6 +355,7 @@ struct Il2CppInteropData
     const Il2CppGuid* guid;
 #if RUNTIME_MONO
     MonoMetadataToken typeToken;
+    uint64_t hash;
 #else
     const Il2CppType* type;
 #endif
