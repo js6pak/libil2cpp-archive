@@ -66,7 +66,7 @@ namespace System
 
         remempty = options & STRINGSPLITOPTIONS_REMOVE_EMPTY_ENTRIES;
         src = il2cpp::utils::StringUtils::GetChars(me);
-        srcsize = il2cpp::vm::String::GetLength(me);
+        srcsize = il2cpp::utils::StringUtils::GetLength(me);
         arrsize = il2cpp::vm::Array::GetLength(separator);
 
         if (!String_array)

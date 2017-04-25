@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include "il2cpp-metadata.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
@@ -7,59 +6,52 @@
 
 struct MonoMethodInfo
 {
+    int64_t hash;
     int32_t invoker_index;
     int32_t method_pointer_index;
-
-    MonoMethodInfo() :
-        invoker_index(-1), method_pointer_index(-1) {}
-
-    MonoMethodInfo(int32_t invoker_index_, int32_t method_pointer_index_) :
-        invoker_index(invoker_index_), method_pointer_index(method_pointer_index_) {}
 };
 
 struct MonoRGCTXDefinition
 {
     Il2CppRGCTXDataType type;
-    const char* imageName;
+    StringIndex imageName;
     int32_t token;
     int32_t generic_parameter_index;
 };
 
 struct RuntimeGenericContextInfo
 {
-    int32_t token;
+    uint64_t hash;
     int32_t rgctxStart;
     int32_t rgctxCount;
 };
 
-struct ImageRuntimeGenericContextTokens
-{
-    const char* name;
-    int size;
-    const RuntimeGenericContextInfo* tokens;
-};
-
 struct MonoMetadataToken
 {
-    const char* image;
+    StringIndex image;
     int32_t token;
 };
 
+#pragma pack(push, p1,4)
 struct MonoMethodMetadata
 {
     MonoMetadataToken metadataToken;
     MethodIndex reversePInvokeWrapperIndex;
+    uint64_t hash;
 };
+#pragma pack(pop, p1)
 
+#pragma pack(push, p1,4)
 struct MonoClassMetadata
 {
     MonoMetadataToken metadataToken;
-    int32_t numberOfGenericParameters;
-    TypeIndex *genericParameterTypeIndices;
-    bool isPointer;
-    int rank; //if rank == 0, the token is for a non-array type, otherwise the rank is valid and the token represents the element type of the array
+    int32_t genericParametersOffset;
+    int32_t genericParametersCount;
+    int32_t isPointer;
+    int32_t rank; //if rank == 0, the token is for a non-array type, otherwise the rank is valid and the token represents the element type of the array
     int32_t elementTypeIndex;
 };
+#pragma pack(pop, p1)
 
 struct MonoFieldMetadata
 {
@@ -73,13 +65,6 @@ struct MonoGenericInstMetadata
     const TypeIndex *type_argv_indices;
 };
 
-typedef Il2CppHashMap<uint64_t, MonoMethodInfo, il2cpp::utils::PassThroughHash<uint64_t> > MonoMethodInfoMap;
-
-class MonoMethodInfoMapContainerBase
-{
-protected:
-    MonoMethodInfoMap m_map;
-
-public:
-    const MonoMethodInfoMap& map() const { return m_map; }
-};
+typedef Il2CppHashMap<uint64_t, const MonoMethodInfo*, il2cpp::utils::PassThroughHash<uint64_t> > MonoMethodInfoMap;
+typedef Il2CppHashMap<uint64_t, const RuntimeGenericContextInfo*, il2cpp::utils::PassThroughHash<uint64_t> > MonoRgctxInfoMap;
+typedef Il2CppHashMap<uint64_t, const MonoMethodMetadata*, il2cpp::utils::PassThroughHash<uint64_t> > MonoMethodMetadataMap;

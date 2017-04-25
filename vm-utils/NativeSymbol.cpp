@@ -8,8 +8,8 @@
 #include "os/MemoryMappedFile.h"
 #include "os/Path.h"
 #include "NativeSymbol.h"
-#include "Collections.h"
-#include "PathUtils.h"
+#include "utils/Collections.h"
+#include "utils/PathUtils.h"
 #include <string>
 
 namespace il2cpp

@@ -18,6 +18,7 @@
 #include "vm/String.h"
 #include "vm/Type.h"
 #include "vm/Exception.h"
+#include "vm-utils/VmStringUtils.h"
 
 #include <vector>
 #include <set>
@@ -438,10 +439,10 @@ namespace System
 
         if (bindingFlags & BFLAGS_IgnoreCase)
         {
-            return GetFieldImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetFieldImpl(type, bindingFlags, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
         }
 
-        return GetFieldImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+        return GetFieldImpl(type, bindingFlags, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
     }
 
     template<typename NameFilter>
@@ -505,10 +506,10 @@ namespace System
 
         if (bindingFlags & BFLAGS_IgnoreCase)
         {
-            return GetFieldsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetFieldsImpl(_this, bindingFlags, reflectedType, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
         }
 
-        return GetFieldsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+        return GetFieldsImpl(_this, bindingFlags, reflectedType, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
     }
 
     Il2CppString * MonoType::getFullName(Il2CppReflectionType * type, bool full_name, bool assembly_qualified)
@@ -663,10 +664,10 @@ namespace System
         {
             if (ignoreCase)
             {
-                return GetMethodsByNameImpl(type->type, bindingFlags, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+                return GetMethodsByNameImpl(type->type, bindingFlags, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
             }
 
-            return GetMethodsByNameImpl(type->type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetMethodsByNameImpl(type->type, bindingFlags, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
         }
 
         return GetMethodsByNameImpl(type->type, bindingFlags, TrueFilter());
@@ -730,10 +731,10 @@ namespace System
         {
             if (ignoreCase)
             {
-                return GetPropertiesByNameImpl(type->type, bindingFlags, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+                return GetPropertiesByNameImpl(type->type, bindingFlags, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
             }
 
-            return GetPropertiesByNameImpl(type->type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetPropertiesByNameImpl(type->type, bindingFlags, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
         }
 
         return GetPropertiesByNameImpl(type->type, bindingFlags, TrueFilter());
@@ -806,10 +807,10 @@ namespace System
 
         if (bindingFlags & BFLAGS_IgnoreCase)
         {
-            return GetEventImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetEventImpl(type, bindingFlags, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
         }
 
-        return GetEventImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+        return GetEventImpl(type, bindingFlags, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
     }
 
     template<typename NameFilter>
@@ -878,10 +879,10 @@ namespace System
 
         if (bindingFlags & BFLAGS_IgnoreCase)
         {
-            return GetEventsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetEventsImpl(_this, bindingFlags, reflectedType, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
         }
 
-        return GetEventsImpl(_this, bindingFlags, reflectedType, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+        return GetEventsImpl(_this, bindingFlags, reflectedType, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
     }
 
     void MonoType::type_from_obj(void* /* System.MonoType */ type, Il2CppObject* obj)
@@ -933,10 +934,10 @@ namespace System
 
         if (bindingFlags & BFLAGS_IgnoreCase)
         {
-            return GetNestedTypeImpl(typeInfo, bindingFlags, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetNestedTypeImpl(typeInfo, bindingFlags, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
         }
 
-        return GetNestedTypeImpl(typeInfo, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+        return GetNestedTypeImpl(typeInfo, bindingFlags, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
     }
 
     template<typename NameFilter>
@@ -983,9 +984,9 @@ namespace System
             return GetNestedTypesImpl(type, bindingFlags, utils::functional::TrueFilter());
 
         if (bindingFlags & BFLAGS_IgnoreCase)
-            return GetNestedTypesImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+            return GetNestedTypesImpl(type, bindingFlags, Filter<std::string, VmStringUtils::CaseInsensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
 
-        return GetNestedTypesImpl(type, bindingFlags, Filter<std::string, StringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
+        return GetNestedTypesImpl(type, bindingFlags, Filter<std::string, VmStringUtils::CaseSensitiveComparer>(StringUtils::Utf16ToUtf8(name->chars)));
     }
 
     Il2CppArray* MonoType::GetNestedTypes(Il2CppReflectionType* type, int32_t bindingFlags)

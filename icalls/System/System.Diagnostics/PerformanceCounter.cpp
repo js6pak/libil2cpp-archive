@@ -6,6 +6,7 @@
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "vm/Exception.h"
+#include "vm-utils/VmStringUtils.h"
 
 namespace il2cpp
 {
@@ -62,7 +63,7 @@ namespace Diagnostics
     {
         Il2CppIntPtr returnValue = {0};
         const CategoryDesc *cdesc;
-        if (!utils::StringUtils::CaseInsensitiveEquals(machine, "."))
+        if (!utils::VmStringUtils::CaseInsensitiveEquals(machine, "."))
             return returnValue;
 
         cdesc = find_category(category);
