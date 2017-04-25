@@ -2,6 +2,7 @@
 
 #include "object-internals.h"
 #include "class-internals.h"
+#include "il2cpp-vm-support.h"
 #include "PlatformInvoke.h"
 #include "Exception.h"
 #include "LibraryLoader.h"
@@ -11,10 +12,11 @@
 #include "Type.h"
 #include "os/LibraryLoader.h"
 #include "os/MarshalStringAlloc.h"
-#include "utils/NativeDelegateMethodCache.h"
 #include "utils/Memory.h"
 #include "utils/StringViewStream.h"
 #include "utils/StringUtils.h"
+#include "vm-utils/NativeDelegateMethodCache.h"
+#include "vm-utils/VmStringUtils.h"
 
 #include <stdint.h>
 #include <algorithm>
@@ -41,7 +43,7 @@ namespace vm
             return function;
 
         void* dynamicLibrary = NULL;
-        if (utils::StringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
+        if (utils::VmStringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
             dynamicLibrary = LibraryLoader::LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
         else
             dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
@@ -107,7 +109,7 @@ namespace vm
         if (managedString == NULL)
             return NULL;
 
-        int32_t stringLength = String::GetLength(managedString);
+        int32_t stringLength = utils::StringUtils::GetLength(managedString);
         Il2CppChar* nativeString = MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
         for (int32_t i = 0; i < managedString->length; ++i)
             nativeString[i] = managedString->chars[i];
@@ -125,7 +127,7 @@ namespace vm
         }
         else
         {
-            int32_t stringLength = std::min(String::GetLength(managedString), numberOfCharacters - 1);
+            int32_t stringLength = std::min(utils::StringUtils::GetLength(managedString), numberOfCharacters - 1);
             for (int32_t i = 0; i < stringLength; ++i)
                 buffer[i] = managedString->chars[i];
 
@@ -143,7 +145,7 @@ namespace vm
             return IL2CPP_S_OK;
         }
 
-        int32_t stringLength = String::GetLength(managedString);
+        int32_t stringLength = utils::StringUtils::GetLength(managedString);
         Il2CppChar* stringChars = utils::StringUtils::GetChars(managedString);
         return os::MarshalStringAlloc::AllocateBStringLength(stringChars, stringLength, bstr);
     }
@@ -152,7 +154,7 @@ namespace vm
     {
         Il2CppChar* bstr;
         const il2cpp_hresult_t hr = MarshalCSharpStringToCppBStringNoThrow(managedString, &bstr);
-        Exception::RaiseIfFailed(hr, true);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
         return bstr;
     }
 
@@ -179,7 +181,7 @@ namespace vm
 
         int32_t length;
         const il2cpp_hresult_t hr = os::MarshalStringAlloc::GetBStringLength(value, &length);
-        Exception::RaiseIfFailed(hr, true);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
 
         return String::NewUtf16(value, length);
     }
@@ -187,7 +189,7 @@ namespace vm
     void PlatformInvoke::MarshalFreeBString(Il2CppChar* value)
     {
         const il2cpp_hresult_t hr = os::MarshalStringAlloc::FreeBString(value);
-        Exception::RaiseIfFailed(hr, true);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
     }
 
     char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
@@ -196,7 +198,7 @@ namespace vm
             return NULL;
 
 #if !NET_4_0
-        size_t stringLength = String::GetLength(stringBuilder->str);
+        size_t stringLength = utils::StringUtils::GetLength(stringBuilder->str);
 
         // not sure if this is necessary but it's better to be safe than sorry
         IL2CPP_ASSERT(static_cast<int32_t>(stringLength) >= stringBuilder->length);
@@ -270,7 +272,7 @@ namespace vm
             return NULL;
 
 #if !NET_4_0
-        int32_t stringLength = String::GetLength(stringBuilder->str);
+        int32_t stringLength = utils::StringUtils::GetLength(stringBuilder->str);
 
         // not sure if this is necessary but it's better to be safe than sorry
         IL2CPP_ASSERT(stringLength >= stringBuilder->length);
@@ -329,7 +331,7 @@ namespace vm
 #if !NET_4_0
         Il2CppString* managedString = MarshalCppStringToCSharpStringResult(buffer);
         stringBuilder->str = managedString;
-        stringBuilder->length = String::GetLength(managedString);
+        stringBuilder->length = utils::StringUtils::GetLength(managedString);
 #else
         UTF16String utf16String = utils::StringUtils::Utf8ToUtf16(buffer);
 
@@ -354,7 +356,7 @@ namespace vm
 #if !NET_4_0
         Il2CppString* managedString = MarshalCppWStringToCSharpStringResult(buffer);
         stringBuilder->str = managedString;
-        stringBuilder->length = String::GetLength(managedString);
+        stringBuilder->length = utils::StringUtils::GetLength(managedString);
 #else
         int len = (int)utils::StringUtils::StrLen(buffer);
 

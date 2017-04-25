@@ -13,7 +13,9 @@
 #include <set>
 
 #include "metadata.h"
+#include "vm/Environment.h"
 #include "os/LibraryLoader.h"
+#include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include "vm/Exception.h"
 #include "vm/PlatformInvoke.h"
@@ -56,9 +58,24 @@ namespace os
     static void* LoadLibraryWithName(const char* name)
     {
 #ifdef VERBOSE_OUTPUT
-        printf("Trying name: %s\n", name.c_str());
+        printf("Trying name: %s\n", name);
 #endif
-        void* handle = dlopen(name, RTLD_LAZY);
+
+        void* handle = NULL;
+#if IL2CPP_TARGET_IOS
+        std::string dirName;
+        if (vm::Environment::GetNumMainArgs() > 0)
+        {
+            std::string main = utils::StringUtils::Utf16ToUtf8(vm::Environment::GetMainArgs()[0]);
+            dirName = utils::PathUtils::DirectoryName(main);
+        }
+
+        std::string libPath = utils::StringUtils::Printf("%s/%s", dirName.c_str(), name);
+        handle = dlopen(libPath.c_str(), RTLD_LAZY);
+#else
+        handle = dlopen(name, RTLD_LAZY);
+#endif
+
         if (handle != NULL)
             return handle;
 
@@ -91,7 +108,7 @@ namespace os
     void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
     {
 #ifdef VERBOSE_OUTPUT
-        printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.c_str());
+        printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.Str());
 #endif
 
         if (nativeDynamicLibrary.IsEmpty())
@@ -166,7 +183,7 @@ namespace os
     Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const char* functionName)
     {
 #ifdef VERBOSE_OUTPUT
-        printf("Attempting to load method at entry point: %s\n", pinvokeArgs.entryPoint);
+        printf("Attempting to load method at entry point: %s\n", functionName);
 #endif
 
         Il2CppMethodPointer method = reinterpret_cast<Il2CppMethodPointer>(dlsym(dynamicLibrary, functionName));

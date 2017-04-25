@@ -6,7 +6,7 @@
 #include "os/StackTrace.h"
 #include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
-#include "utils/NativeSymbol.h"
+#include "vm-utils/NativeSymbol.h"
 
 namespace il2cpp
 {

@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "class-internals.h"
 #include "il2cpp-string-types.h"
+#include "il2cpp-vm-support.h"
 #include "os/WindowsRuntime.h"
 #include "utils/Il2CppHStringReference.h"
 #include "utils/StringUtils.h"
@@ -161,7 +162,7 @@ namespace os
             WindowsGetStringRawBuffer = ResolveAPI<WindowsGetStringRawBufferFunc>(L"api-ms-win-core-winrt-string-l1-1-0.dll", "WindowsGetStringRawBuffer");
 
             if (WindowsGetStringRawBuffer == NULL)
-                vm::Exception::Raise(vm::Exception::GetNotSupportedException("Marshaling HSTRINGs is not supported on current platform."));
+                IL2CPP_VM_NOT_SUPPORTED(GetHStringBuffer, "Marshaling HSTRINGs is not supported on current platform.");
         }
 
         return WindowsGetStringRawBuffer(hstring, length);
@@ -171,11 +172,11 @@ namespace os
     Il2CppString* WindowsRuntime::HStringToManagedString(Il2CppHString hstring)
     {
         if (hstring == NULL)
-            return vm::String::Empty();
+            return IL2CPP_VM_STRING_EMPTY();
 
         uint32_t length;
         const wchar_t* ptr = GetHStringBuffer(hstring, &length);
-        return vm::String::NewUtf16(ptr, length);
+        return IL2CPP_VM_STRING_NEW_UTF16(ptr, length);
     }
 
     Il2CppIRestrictedErrorInfo* WindowsRuntime::GetRestrictedErrorInfo()
@@ -252,7 +253,7 @@ namespace os
         }
 #endif
 
-        Il2CppIUnknown* exceptionCCW = vm::CCW::GetOrCreate(reinterpret_cast<Il2CppObject*>(ex), Il2CppIUnknown::IID);
+        Il2CppIUnknown* exceptionCCW = IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex);
 
 #if LINK_TO_WINDOWSRUNTIME_LIBS
         RoOriginateLanguageException(ex->hresult, reinterpret_cast<HSTRING>(static_cast<Il2CppHString>(message)), reinterpret_cast<IUnknown*>(exceptionCCW));
@@ -267,7 +268,7 @@ namespace os
 
     void WindowsRuntime::OriginateLanguageException(Il2CppException* ex, Il2CppString* exceptionString)
     {
-        utils::StringView<Il2CppNativeChar> message(utils::StringUtils::GetChars(exceptionString), vm::String::GetLength(exceptionString));
+        utils::StringView<Il2CppNativeChar> message(utils::StringUtils::GetChars(exceptionString), utils::StringUtils::GetLength(exceptionString));
         utils::Il2CppHStringReference messageHString(message);
 
 #if IL2CPP_TARGET_XBOXONE

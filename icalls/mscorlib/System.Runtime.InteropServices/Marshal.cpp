@@ -368,7 +368,7 @@ namespace InteropServices
         if (s == NULL)
             return Il2CppIntPtr::Zero;
 
-        int32_t size = String::GetLength(s);
+        int32_t size = utils::StringUtils::GetLength(s);
         const Il2CppChar* utf16 = utils::StringUtils::GetChars(s);
         size_t bytes = (size + 1) * 2;
         Il2CppChar* cstr = static_cast<Il2CppChar*>(MarshalAlloc::AllocateHGlobal(bytes));

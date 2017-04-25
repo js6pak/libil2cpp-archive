@@ -28,7 +28,6 @@
 #include "utils/Il2CppHashMap.h"
 #include "utils/Il2CppHashSet.h"
 #include "utils/Memory.h"
-#include "utils/NativeSymbol.h"
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -39,6 +38,9 @@
 #include "vm/Object.h"
 #include "vm/String.h"
 #include "vm/Type.h"
+#include "mono-runtime/il2cpp-mapping.h"
+#include "vm-utils/NativeSymbol.h"
+#include "vm-utils/VmStringUtils.h"
 
 using namespace il2cpp;
 using namespace il2cpp::utils::collections;
@@ -68,9 +70,10 @@ using il2cpp::utils::HashUtils;
 using il2cpp::utils::OnceFlag;
 using il2cpp::utils::PointerHash;
 using il2cpp::utils::StringUtils;
+using il2cpp::utils::VmStringUtils;
 
 typedef std::map<Il2CppClass*, Il2CppClass*> PointerTypeMap;
-typedef Il2CppHashMap<const char*, Il2CppClass*, StringUtils::StringHasher<const char*>, StringUtils::CaseSensitiveComparer> WindowsRuntimeTypeNameToClassMap;
+typedef Il2CppHashMap<const char*, Il2CppClass*, StringUtils::StringHasher<const char*>, VmStringUtils::CaseSensitiveComparer> WindowsRuntimeTypeNameToClassMap;
 typedef Il2CppHashMap<const Il2CppClass*, const char*, PointerHash<Il2CppClass> > ClassToWindowsRuntimeTypeNameMap;
 
 typedef Il2CppHashSet<const Il2CppGenericMethod*, Il2CppGenericMethodHash, Il2CppGenericMethodCompare> Il2CppGenericMethodSet;
