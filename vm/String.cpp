@@ -44,15 +44,10 @@ namespace vm
         return s_EmptyString;
     }
 
-    int32_t String::GetLength(Il2CppString* str)
-    {
-        return str->length;
-    }
-
     int32_t String::GetHash(Il2CppString* str)
     {
         const Il2CppChar* p = utils::StringUtils::GetChars(str);
-        int i, len = GetLength(str);
+        int i, len = utils::StringUtils::GetLength(str);
         uint32_t h = 0;
 
         for (i = 0; i < len; i++)

@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include "utils/StringUtils.h"
-#include "utils/BlobReader.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
 #include "vm/Field.h"
@@ -14,6 +13,7 @@
 #include "object-internals.h"
 #include "tabledefs.h"
 #include "utils/MemoryRead.h"
+#include "vm-utils/BlobReader.h"
 
 using namespace il2cpp::utils;
 

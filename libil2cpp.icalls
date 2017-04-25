@@ -346,6 +346,7 @@ System.IO.MonoIO::FindClose(System.IntPtr) mscorlib::System::IO::MonoIO::FindClo
 System.IO.MonoIO::FindFirst(System.String,System.String,System.IO.FileAttributes&,System.IO.MonoIOError&,System.IntPtr&) mscorlib::System::IO::MonoIO::FindFirst
 System.IO.MonoIO::FindNext(System.IntPtr,System.IO.FileAttributes&,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::FindNext
 System.IO.MonoIO::DumpHandles() mscorlib::System::IO::MonoIO::DumpHandles
+System.IO.MonoIO::RemapPath(System.String,System.String&) mscorlib::System::IO::MonoIO::RemapPath
 
 // System.IO.Path
 System.IO.Path::get_temp_path() mscorlib::System::IO::Path::get_temp_path

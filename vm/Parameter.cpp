@@ -3,7 +3,7 @@
 #include "class-internals.h"
 #include "object-internals.h"
 #include "Parameter.h"
-#include "utils/BlobReader.h"
+#include "vm-utils/BlobReader.h"
 #include "vm/Class.h"
 #include "vm/Object.h"
 #include "vm/Method.h"

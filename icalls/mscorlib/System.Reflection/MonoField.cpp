@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include "icalls/mscorlib/System.Reflection/MonoField.h"
 #include "utils/StringUtils.h"
-#include "utils/BlobReader.h"
 #include "vm/Class.h"
 #include "vm/Field.h"
 #include "vm/Object.h"
@@ -12,6 +11,7 @@
 #include "vm/Exception.h"
 #include "class-internals.h"
 #include "tabledefs.h"
+#include "vm-utils/BlobReader.h"
 
 using namespace il2cpp::vm;
 using il2cpp::utils::StringUtils;

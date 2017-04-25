@@ -5,6 +5,7 @@
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "vm/String.h"
+#include "vm-utils/VmStringUtils.h"
 
 namespace il2cpp
 {
@@ -29,7 +30,7 @@ namespace Diagnostics
     {
         for (int i = 0; i < NUM_CATEGORIES; ++i)
         {
-            if (utils::StringUtils::CaseInsensitiveEquals(category, predef_categories[i].name))
+            if (utils::VmStringUtils::CaseInsensitiveEquals(category, predef_categories[i].name))
                 return &predef_categories[i];
         }
         return NULL;
@@ -41,7 +42,7 @@ namespace Diagnostics
         const CounterDesc *end = &predef_counters[desc[1].first_counter];
         for (; cdesc < end; ++cdesc)
         {
-            if (utils::StringUtils::CaseInsensitiveEquals(counter, cdesc->name))
+            if (utils::VmStringUtils::CaseInsensitiveEquals(counter, cdesc->name))
                 return cdesc;
         }
         return NULL;

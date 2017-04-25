@@ -977,7 +977,7 @@ void il2cpp_runtime_unhandled_exception_policy_set(Il2CppRuntimeUnhandledExcepti
 
 int32_t il2cpp_string_length(Il2CppString* str)
 {
-    return String::GetLength(str);
+    return il2cpp::utils::StringUtils::GetLength(str);
 }
 
 Il2CppChar* il2cpp_string_chars(Il2CppString* str)
