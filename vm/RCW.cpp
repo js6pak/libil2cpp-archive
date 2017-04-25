@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "object-internals.h"
 #include "class-internals.h"
+#include "il2cpp-vm-support.h"
 #include "gc/GCHandle.h"
 #include "metadata/GenericMetadata.h"
 #include "vm/Exception.h"
@@ -54,7 +55,7 @@ namespace vm
     {
         Il2CppIUnknown* identity;
         il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIUnknown::IID, reinterpret_cast<void**>(&identity));
-        Exception::RaiseIfFailed(hr, true);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
         IL2CPP_ASSERT(identity);
 
         return identity;

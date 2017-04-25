@@ -285,7 +285,7 @@ namespace IO
     {
         const std::string tempPath(il2cpp::vm::Path::GetTempPath());
         *path = vm::String::New(tempPath.c_str());
-        return vm::String::GetLength(*path);
+        return utils::StringUtils::GetLength(*path);
     }
 
     bool MonoIO::CreatePipe40(Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle, MonoIOError* error)
@@ -307,6 +307,12 @@ namespace IO
         il2cpp::os::FileHandle* tpHandle = (il2cpp::os::FileHandle*)target_process_handle.m_value;
         il2cpp::os::FileHandle** tHandle = (il2cpp::os::FileHandle**)&target_handle->m_value;
         return il2cpp::os::File::DuplicateHandle(spHandle, sHandle, tpHandle, tHandle, access, inherit, options, error);
+    }
+
+    bool MonoIO::RemapPath(Il2CppString* path, Il2CppString** newPath)
+    {
+        *newPath = NULL;
+        return false;
     }
 
 #if NET_4_0

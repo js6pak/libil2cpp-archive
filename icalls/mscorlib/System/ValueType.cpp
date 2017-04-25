@@ -100,8 +100,8 @@ namespace System
                         break;
                     if ((s1 == NULL) || (s2 == NULL))
                         return false;
-                    s1len = String::GetLength(s1);
-                    s2len = String::GetLength(s2);
+                    s1len = utils::StringUtils::GetLength(s1);
+                    s2len = utils::StringUtils::GetLength(s2);
                     if (s1len != s2len)
                         return false;
 

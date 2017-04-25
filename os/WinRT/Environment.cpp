@@ -2,6 +2,7 @@
 
 #if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
 
+#include "il2cpp-vm-support.h"
 #include "os\Environment.h"
 #include "os\Win32\WindowsHelpers.h"
 #include "utils\StringUtils.h"
@@ -83,19 +84,19 @@ namespace os
         HString appDataPath;
 
         auto hr = RoGetActivationFactory(HStringReference(RuntimeClass_Windows_Storage_ApplicationData).Get(), __uuidof(IApplicationDataStatics), &appDataStatics);
-        Exception::RaiseIfFailed(hr, false);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, false);
 
         hr = appDataStatics->get_Current(&appData);
-        Exception::RaiseIfFailed(hr, false);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, false);
 
         hr = appDataToStorageFolder(appData.Get(), &appDataFolder);
-        Exception::RaiseIfFailed(hr, false);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, false);
 
         hr = appDataFolder.As(&appDataFolderItem);
-        Exception::RaiseIfFailed(hr, false);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, false);
 
         hr = appDataFolderItem->get_Path(appDataPath.GetAddressOf());
-        Exception::RaiseIfFailed(hr, false);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, false);
 
         unsigned int dummy;
         return utils::StringUtils::Utf16ToUtf8(appDataPath.GetRawBuffer(&dummy));

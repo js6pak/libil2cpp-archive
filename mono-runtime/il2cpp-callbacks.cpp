@@ -7,16 +7,18 @@
 #include "../libmono/icalls/mscorlib/System.Diagnostics/StackTrace.h"
 #include "../libmono/icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
 #include "../libmono/vm/StackTrace.h"
+#include "../libmono/vm/MetadataCache.h"
+#include "../libmono/vm/Environment.h"
 #include "il2cpp-callbacks.h"
 #include "il2cpp-mono-support.h"
 #include "class-internals.h"
 #include "object-internals.h"
 #include <iterator>
 #include "os/Thread.h"
-#include "utils/NativeSymbol.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/utf8-cpp/source/utf8.h"
+#include "vm-utils/NativeSymbol.h"
 
 static void* il2cpp_get_vtable_trampoline(MonoVTable *vtable, int slot_index)
 {
@@ -64,7 +66,7 @@ static void il2cpp_throw_exception(MonoException* ex)
         mono_unity_exception_set_trace_ips(ex, ips);
     }
 
-    throw Il2CppExceptionWrapper((Il2CppException*)ex);
+    throw Il2CppExceptionWrapper(ex);
 }
 
 static void il2cpp_walk_stack_with_ctx(MonoInternalStackWalk func, MonoContext *ctx, MonoUnwindOptions options, void *user_data)
@@ -324,6 +326,7 @@ void il2cpp_mono_runtime_init()
     mono_add_internal_call("System.Runtime.InteropServices.Marshal::GetDelegateForFunctionPointerInternal", (void*)mono::icalls::mscorlib::System::Runtime::InteropServices::Marshal::GetDelegateForFunctionPointerInternal);
 
     RegisterAllManagedMethods();
+    initialize_interop_data_map();
 }
 
 static void MonoSetConfigStr(const std::string& executablePath)
@@ -359,11 +362,18 @@ void il2cpp_mono_set_commandline_arguments_utf16(int argc, const Il2CppChar* con
         cargs[i] = args[i].c_str();
 
     mono_runtime_set_main_args(argc, const_cast<char**>(&cargs[0]));
+    mono::vm::Environment::SetMainArgs(argv, argc);
 }
 
 void il2cpp_mono_set_commandline_arguments(int argc, const char* const* argv)
 {
     mono_runtime_set_main_args(argc, const_cast<char**>(argv));
+    mono::vm::Environment::SetMainArgs(argv, argc);
+}
+
+void il2cpp_mono_initialize_metadata()
+{
+    mono::vm::MetadataCache::Initialize();
 }
 
 #endif
