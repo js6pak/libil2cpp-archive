@@ -10,7 +10,7 @@
 #include "class-internals.h"
 #include "object-internals.h"
 
-typedef dynamic_array<Il2CppObject*> custom_growable_array;
+typedef il2cpp::utils::dynamic_array<Il2CppObject*> custom_growable_array;
 
 #define MARK_OBJ(obj) \
     do { \
@@ -403,11 +403,11 @@ namespace vm
     void Liveness::FromStatics(void* state)
     {
         LivenessState* liveness_state = (LivenessState*)state;
-        const dynamic_array<Il2CppClass*>& classesWithStatics = Class::GetStaticFieldData();
+        const il2cpp::utils::dynamic_array<Il2CppClass*>& classesWithStatics = Class::GetStaticFieldData();
 
         liveness_state->Reset();
 
-        for (dynamic_array<Il2CppClass*>::const_iterator iter = classesWithStatics.begin();
+        for (il2cpp::utils::dynamic_array<Il2CppClass*>::const_iterator iter = classesWithStatics.begin();
              iter != classesWithStatics.end();
              iter++)
         {

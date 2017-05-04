@@ -13,10 +13,10 @@
 #include <set>
 
 #include "metadata.h"
-#include "vm/Environment.h"
 #include "os/LibraryLoader.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
+#include "utils/Environment.h"
 #include "vm/Exception.h"
 #include "vm/PlatformInvoke.h"
 
@@ -64,9 +64,9 @@ namespace os
         void* handle = NULL;
 #if IL2CPP_TARGET_IOS
         std::string dirName;
-        if (vm::Environment::GetNumMainArgs() > 0)
+        if (utils::Environment::GetNumMainArgs() > 0)
         {
-            std::string main = utils::StringUtils::Utf16ToUtf8(vm::Environment::GetMainArgs()[0]);
+            std::string main = utils::StringUtils::Utf16ToUtf8(utils::Environment::GetMainArgs()[0]);
             dirName = utils::PathUtils::DirectoryName(main);
         }
 

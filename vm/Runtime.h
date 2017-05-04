@@ -29,11 +29,9 @@ namespace vm
         static void Shutdown();
         static bool IsShuttingDown();
         static void SetConfigDir(const char *path);
-        static void SetDataDir(const char *path);
         static void SetConfigUtf16(const Il2CppChar* executablePath);
         static void SetConfig(const char* executablePath);
         static std::string GetConfigDir();
-        static std::string GetDataDir();
         static const char *GetFrameworkVersion();
         static const MethodInfo* GetDelegateInvoke(Il2CppClass* klass);
         static Il2CppObject* DelegateInvoke(Il2CppDelegate *obj, void **params, Il2CppException **exc);

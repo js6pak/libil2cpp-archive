@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "os/File.h"
+#include "os/OSGlobalEnums.h"
 
 namespace il2cpp
 {
@@ -16,7 +17,7 @@ namespace os
     struct FileHandle
     {
         int fd;
-        File::FileType type;
+        FileType type;
         std::string path;
         int options;
         int shareMode;
