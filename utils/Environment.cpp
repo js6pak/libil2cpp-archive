@@ -1,10 +1,10 @@
 #include "il2cpp-config.h"
 #include "utils/StringUtils.h"
-#include "vm/Environment.h"
+#include "utils/Environment.h"
 
 namespace il2cpp
 {
-namespace vm
+namespace utils
 {
     static int s_ArgCount = 0;
     static std::vector<UTF16String> s_Args;

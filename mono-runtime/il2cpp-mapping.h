@@ -1,8 +1,5 @@
 #pragma once
 #include "il2cpp-metadata.h"
-#include "utils/Il2CppHashMap.h"
-#include "utils/HashUtils.h"
-#include "utils/StringUtils.h"
 
 struct MonoMethodInfo
 {
@@ -14,7 +11,7 @@ struct MonoMethodInfo
 struct MonoRGCTXDefinition
 {
     Il2CppRGCTXDataType type;
-    StringIndex imageName;
+    AssemblyIndex assemblyIndex;
     int32_t token;
     int32_t generic_parameter_index;
 };
@@ -28,7 +25,7 @@ struct RuntimeGenericContextInfo
 
 struct MonoMetadataToken
 {
-    StringIndex image;
+    AssemblyIndex assemblyIndex;
     int32_t token;
 };
 
@@ -64,7 +61,3 @@ struct MonoGenericInstMetadata
     uint32_t type_argc;
     const TypeIndex *type_argv_indices;
 };
-
-typedef Il2CppHashMap<uint64_t, const MonoMethodInfo*, il2cpp::utils::PassThroughHash<uint64_t> > MonoMethodInfoMap;
-typedef Il2CppHashMap<uint64_t, const RuntimeGenericContextInfo*, il2cpp::utils::PassThroughHash<uint64_t> > MonoRgctxInfoMap;
-typedef Il2CppHashMap<uint64_t, const MonoMethodMetadata*, il2cpp::utils::PassThroughHash<uint64_t> > MonoMethodMetadataMap;

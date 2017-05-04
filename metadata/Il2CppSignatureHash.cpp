@@ -10,14 +10,14 @@ namespace il2cpp
 {
 namespace metadata
 {
-    size_t Il2CppSignatureHash::operator()(const dynamic_array<const Il2CppType*>& signature) const
+    size_t Il2CppSignatureHash::operator()(const il2cpp::utils::dynamic_array<const Il2CppType*>& signature) const
     {
         return Hash(signature);
     }
 
-    size_t Il2CppSignatureHash::Hash(const dynamic_array<const Il2CppType*>& signature)
+    size_t Il2CppSignatureHash::Hash(const il2cpp::utils::dynamic_array<const Il2CppType*>& signature)
     {
-        dynamic_array<const Il2CppType*>::const_iterator iter, end = signature.end();
+        il2cpp::utils::dynamic_array<const Il2CppType*>::const_iterator iter, end = signature.end();
         size_t retVal = 0;
 
         for (iter = signature.begin(); iter != end; ++iter)

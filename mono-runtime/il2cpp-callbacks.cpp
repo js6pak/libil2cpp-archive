@@ -8,7 +8,6 @@
 #include "../libmono/icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
 #include "../libmono/vm/StackTrace.h"
 #include "../libmono/vm/MetadataCache.h"
-#include "../libmono/vm/Environment.h"
 #include "il2cpp-callbacks.h"
 #include "il2cpp-mono-support.h"
 #include "class-internals.h"
@@ -17,6 +16,7 @@
 #include "os/Thread.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
+#include "utils/Environment.h"
 #include "utils/utf8-cpp/source/utf8.h"
 #include "vm-utils/NativeSymbol.h"
 
@@ -137,7 +137,7 @@ MonoObject* il2cpp_mono_determine_target_object(MonoMethod *method, MonoObject *
 MonoObject* il2cpp_mono_runtime_invoke(MonoMethod *method, void *obj, void **params, MonoObject **exc, MonoError *error)
 {
     il2cpp_mono_method_initialize_function_pointers(method, error);
-    if (!mono_error_ok(error))
+    if (!il2cpp_mono_error_ok(error))
         return NULL;
 
     if (exc)
@@ -362,13 +362,13 @@ void il2cpp_mono_set_commandline_arguments_utf16(int argc, const Il2CppChar* con
         cargs[i] = args[i].c_str();
 
     mono_runtime_set_main_args(argc, const_cast<char**>(&cargs[0]));
-    mono::vm::Environment::SetMainArgs(argv, argc);
+    il2cpp::utils::Environment::SetMainArgs(argv, argc);
 }
 
 void il2cpp_mono_set_commandline_arguments(int argc, const char* const* argv)
 {
     mono_runtime_set_main_args(argc, const_cast<char**>(argv));
-    mono::vm::Environment::SetMainArgs(argv, argc);
+    il2cpp::utils::Environment::SetMainArgs(argv, argc);
 }
 
 void il2cpp_mono_initialize_metadata()

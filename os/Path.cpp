@@ -1,4 +1,6 @@
 #include "il2cpp-config.h"
+#include "os/Path.h"
+#include <string>
 
 #if IL2CPP_USE_GENERIC_ENVIRONMENT
 #include "os/Path.h"

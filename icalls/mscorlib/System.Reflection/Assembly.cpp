@@ -11,6 +11,7 @@
 #include "os/Mutex.h"
 #include "os/Path.h"
 #include "utils/Memory.h"
+#include "utils/Runtime.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/AssemblyName.h"
@@ -368,7 +369,7 @@ namespace Reflection
 
     static void* LoadResourceFile(Il2CppReflectionAssembly* assembly)
     {
-        std::string resourcesDirectory = utils::PathUtils::Combine(il2cpp::vm::Runtime::GetDataDir(), utils::StringView<char>("Resources"));
+        std::string resourcesDirectory = utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("Resources"));
 
         std::string resourceFileName(MetadataCache::GetImageFromIndex(assembly->assembly->imageIndex)->name);
         resourceFileName += "-resources.dat";
@@ -376,7 +377,7 @@ namespace Reflection
         std::string resourceFilePath = utils::PathUtils::Combine(resourcesDirectory, resourceFileName);
 
         int error = 0;
-        os::FileHandle* handle = os::File::Open(resourceFilePath, os::File::kFileModeOpen, os::File::kFileAccessRead, os::File::kFileShareRead, os::File::kFileOptionsNone, &error);
+        os::FileHandle* handle = os::File::Open(resourceFilePath, kFileModeOpen, kFileAccessRead, kFileShareRead, kFileOptionsNone, &error);
         if (error != 0)
             return NULL;
 
