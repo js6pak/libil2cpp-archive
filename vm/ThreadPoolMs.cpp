@@ -18,7 +18,7 @@ namespace vm
     Il2CppAsyncResult* ThreadPoolMs::DelegateBeginInvoke(Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state)
     {
         int numParams = delegate->method->parameters_count;
-        dynamic_array<void*> newParams(numParams + 2);
+        il2cpp::utils::dynamic_array<void*> newParams(numParams + 2);
         for (int i = 0; i < numParams; ++i)
             newParams[i] = params[i];
 

@@ -17,7 +17,6 @@
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) mono_string_new_len(mono_domain_get(), value, length);
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason)))
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) isGeneric ? GenericMethodFromIndex(methodIndex) : MethodFromIndex(methodIndex)
-    #define IL2CPP_VM_GET_DATA_DIR() std::string()
     #define IL2CPP_VM_SHUTDOWN() do { if (mono_runtime_try_shutdown()) mono_runtime_quit(); } while(0)
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
 typedef MonoString VmString;
@@ -31,13 +30,11 @@ typedef MonoMethod VmMethod;
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) NULL
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
-    #define IL2CPP_VM_GET_DATA_DIR() IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
     #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
 #else // Assume the libil2cpp runtime
     #include "vm/Exception.h"
     #include "vm/MetadataCache.h"
-    #include "vm/Runtime.h"
     #include "vm/StackTrace.h"
     #include "vm/String.h"
     #define IL2CPP_VM_RAISE_EXCEPTION(exception) il2cpp::vm::Exception::Raise(exception)
@@ -48,7 +45,6 @@ typedef MonoMethod VmMethod;
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) il2cpp::vm::String::NewLen(value, length)
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) NOT_SUPPORTED_IL2CPP(func, reason)
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex (methodIndex)
-    #define IL2CPP_VM_GET_DATA_DIR() il2cpp::vm::Runtime::GetDataDir()
     #define IL2CPP_VM_SHUTDOWN() il2cpp_shutdown()
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) vm::CCW::GetOrCreate(reinterpret_cast<Il2CppObject*>(ex), Il2CppIUnknown::IID)
 typedef Il2CppString VmString;

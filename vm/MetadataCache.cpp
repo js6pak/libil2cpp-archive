@@ -103,7 +103,7 @@ typedef Il2CppHashMap<const Il2CppGenericMethod*, const Il2CppGenericMethodIndic
 typedef Il2CppMethodTableMap::const_iterator Il2CppMethodTableMapIter;
 static Il2CppMethodTableMap s_MethodTableMap;
 
-typedef Il2CppHashMap<dynamic_array<const Il2CppType*>, Il2CppMethodPointer, Il2CppSignatureHash, Il2CppSignatureCompare> Il2CppUnresolvedSignatureMap;
+typedef Il2CppHashMap<il2cpp::utils::dynamic_array<const Il2CppType*>, Il2CppMethodPointer, Il2CppSignatureHash, Il2CppSignatureCompare> Il2CppUnresolvedSignatureMap;
 typedef Il2CppUnresolvedSignatureMap::const_iterator Il2CppUnresolvedSignatureMapIter;
 static Il2CppUnresolvedSignatureMap *s_pUnresolvedSignatureMap;
 
@@ -286,7 +286,7 @@ void MetadataCache::InitializeUnresolvedSignatureTable()
     for (uint32_t i = 0; i < s_Il2CppCodeRegistration->unresolvedVirtualCallCount; ++i)
     {
         const Il2CppRange* range = MetadataOffset<Il2CppRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->unresolvedVirtualCallParameterRangesOffset, i);
-        dynamic_array<const Il2CppType*> signature;
+        il2cpp::utils::dynamic_array<const Il2CppType*> signature;
 
         for (int j = 0; j < range->length; ++j)
         {
@@ -688,7 +688,7 @@ static const Il2CppType* GetReducedType(const Il2CppType* type)
 
 Il2CppMethodPointer MetadataCache::GetUnresolvedVirtualCallStub(const MethodInfo* method)
 {
-    dynamic_array<const Il2CppType*> signature;
+    il2cpp::utils::dynamic_array<const Il2CppType*> signature;
 
     signature.push_back(GetReducedType(method->return_type));
     for (int i = 0; i < method->parameters_count; ++i)

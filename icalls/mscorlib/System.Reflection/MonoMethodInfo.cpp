@@ -61,8 +61,9 @@ namespace Reflection
     }
 
 #if NET_4_0
-    int32_t MonoMethodInfo::get_method_attributes(const MethodInfo* method)
+    int32_t MonoMethodInfo::get_method_attributes(Il2CppIntPtr methodPtr)
     {
+        MethodInfo* method = (MethodInfo*)methodPtr.m_value;
         return method->flags;
     }
 

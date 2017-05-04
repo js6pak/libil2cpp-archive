@@ -25,7 +25,7 @@
 #include <sys/types.h>
 
 #define INVALID_FILE_HANDLE     (FileHandle*)-1;
-#define INVALID_FILE_ATTRIBUTES (FileAttributes)((uint32_t)-1);
+#define INVALID_FILE_ATTRIBUTES (UnityPalFileAttributes)((uint32_t)-1);
 #define TIME_ZERO               116444736000000000ULL
 
 namespace il2cpp
@@ -59,7 +59,7 @@ namespace os
         }
     }
 
-    static void RemoveFileHandle(FileHandle *fileHandle)
+    static void RemoveFileHandle(il2cpp::os::FileHandle *fileHandle)
     {
         FastAutoLock autoLock(&s_fileHandleMutex);
 
@@ -105,17 +105,17 @@ namespace os
         if (fileHandle == NULL) // File is not open
             return true;
 
-        if (fileHandle->shareMode == File::kFileShareNone)
+        if (fileHandle->shareMode == kFileShareNone)
             return false;
 
-        if (((fileHandle->shareMode == File::kFileShareRead)  && (accessMode != File::kFileAccessRead)) ||
-            ((fileHandle->shareMode == File::kFileShareWrite) && (accessMode != File::kFileAccessWrite)))
+        if (((fileHandle->shareMode == kFileShareRead)  && (accessMode != kFileAccessRead)) ||
+            ((fileHandle->shareMode == kFileShareWrite) && (accessMode != kFileAccessWrite)))
         {
             return false;
         }
 
-        if (((fileHandle->accessMode & File::kFileAccessRead)  && !(shareMode & File::kFileShareRead)) ||
-            ((fileHandle->accessMode & File::kFileAccessWrite) && !(shareMode & File::kFileShareWrite)))
+        if (((fileHandle->accessMode & kFileAccessRead)  && !(shareMode & kFileShareRead)) ||
+            ((fileHandle->accessMode & kFileAccessWrite) && !(shareMode & kFileShareWrite)))
         {
             return false;
         }
@@ -123,7 +123,7 @@ namespace os
         return true;
     }
 
-    static File::FileAttributes StatToFileAttribute(const std::string& path, struct stat& pathStat, struct stat* linkStat)
+    static UnityPalFileAttributes StatToFileAttribute(const std::string& path, struct stat& pathStat, struct stat* linkStat)
     {
         uint32_t fileAttributes = 0;
 
@@ -132,40 +132,40 @@ namespace os
 
 #if defined(__APPLE__) && defined(__MACH__)
         if ((pathStat.st_flags & UF_IMMUTABLE) || (pathStat.st_flags & SF_IMMUTABLE))
-            fileAttributes |= File::kFileAttributeReadOnly;
+            fileAttributes |= kFileAttributeReadOnly;
 #endif
 
         const std::string filename(il2cpp::utils::PathUtils::Basename(path));
 
         if (S_ISDIR(pathStat.st_mode))
         {
-            fileAttributes = File::kFileAttributeDirectory;
+            fileAttributes = kFileAttributeDirectory;
 
             if (!(pathStat.st_mode & S_IWUSR) && !(pathStat.st_mode & S_IWGRP) && !(pathStat.st_mode & S_IWOTH))
-                fileAttributes |= File::kFileAttributeReadOnly;
+                fileAttributes |= kFileAttributeReadOnly;
 
             if (filename[0] == '.')
-                fileAttributes |= File::kFileAttributeHidden;
+                fileAttributes |= kFileAttributeHidden;
         }
         else
         {
             if (!(pathStat.st_mode & S_IWUSR) && !(pathStat.st_mode & S_IWGRP) && !(pathStat.st_mode & S_IWOTH))
             {
-                fileAttributes = File::kFileAttributeReadOnly;
+                fileAttributes = kFileAttributeReadOnly;
 
                 if (filename[0] == '.')
-                    fileAttributes |= File::kFileAttributeHidden;
+                    fileAttributes |= kFileAttributeHidden;
             }
             else if (filename[0] == '.')
-                fileAttributes = File::kFileAttributeHidden;
+                fileAttributes = kFileAttributeHidden;
             else
-                fileAttributes = File::kFileAttributeNormal;
+                fileAttributes = kFileAttributeNormal;
         }
 
         if (linkStat != NULL && S_ISLNK(linkStat->st_mode))
-            fileAttributes |= File::kFileAttributeReparse_point;
+            fileAttributes |= kFileAttributeReparse_point;
 
-        return (File::FileAttributes)fileAttributes;
+        return (UnityPalFileAttributes)fileAttributes;
     }
 
     static int GetStatAndLinkStat(const std::string& path, struct stat& pathStat, struct stat& linkStat)
@@ -251,7 +251,7 @@ namespace os
 
         s_handle = new FileHandle();
         s_handle->fd = 2;
-        s_handle->type = File::kFileTypeChar;
+        s_handle->type = kFileTypeChar;
         s_handle->options = 0;
         s_handle->accessMode = kFileAccessReadWrite;
         s_handle->shareMode = -1; // Only used for files
@@ -267,7 +267,7 @@ namespace os
 
         s_handle = new FileHandle();
         s_handle->fd = 0;
-        s_handle->type = File::kFileTypeChar;
+        s_handle->type = kFileTypeChar;
         s_handle->options = 0;
         s_handle->accessMode = kFileAccessRead;
         s_handle->shareMode = -1; // Only used for files
@@ -283,7 +283,7 @@ namespace os
 
         s_handle = new FileHandle();
         s_handle->fd = 1;
-        s_handle->type = File::kFileTypeChar;
+        s_handle->type = kFileTypeChar;
         s_handle->options = 0;
         s_handle->accessMode = kFileAccessReadWrite;
         s_handle->shareMode = -1; // Only used for files
@@ -311,14 +311,14 @@ namespace os
 
         FileHandle *input = new FileHandle();
         input->fd = fds[0];
-        input->type = File::kFileTypePipe;
+        input->type = kFileTypePipe;
         input->options = 0;
         input->accessMode = kFileAccessRead;
         input->shareMode = -1; // Only used for files
 
         FileHandle *output = new FileHandle();
         output->fd = fds[1];
-        output->type = File::kFileTypePipe;
+        output->type = kFileTypePipe;
         output->options = 0;
         output->accessMode = kFileAccessReadWrite;
         output->shareMode = -1; // Only used for files
@@ -329,7 +329,7 @@ namespace os
         return true;
     }
 
-    File::FileAttributes File::GetFileAttributes(const std::string& path, int *error)
+    UnityPalFileAttributes File::GetFileAttributes(const std::string& path, int *error)
     {
         struct stat pathStat, linkStat;
 
@@ -341,7 +341,7 @@ namespace os
         return StatToFileAttribute(path, pathStat, &linkStat);
     }
 
-    bool File::SetFileAttributes(const std::string& path, FileAttributes attributes, int* error)
+    bool File::SetFileAttributes(const std::string& path, UnityPalFileAttributes attributes, int* error)
     {
         struct stat pathStat;
 
@@ -416,14 +416,14 @@ namespace os
         return true;
     }
 
-    File::FileType File::GetFileType(FileHandle* handle)
+    FileType File::GetFileType(FileHandle* handle)
     {
         return ((FileHandle*)handle)->type;
     }
 
     bool File::DeleteFile(const std::string& path, int *error)
     {
-        const FileAttributes attributes = GetFileAttributes(path, error);
+        const UnityPalFileAttributes attributes = GetFileAttributes(path, error);
 
         if (*error != kErrorCodeSuccess)
         {
@@ -628,13 +628,13 @@ namespace os
 
         switch (fileaccess)
         {
-            case File::kFileAccessRead:
+            case kFileAccessRead:
                 flags = O_RDONLY;
                 break;
-            case File::kFileAccessWrite:
+            case kFileAccessWrite:
                 flags = O_WRONLY;
                 break;
-            case File::kFileAccessReadWrite:
+            case kFileAccessReadWrite:
                 flags = O_RDWR;
                 break;
             default:
@@ -644,19 +644,19 @@ namespace os
 
         switch (createmode)
         {
-            case File::kFileModeCreateNew:
+            case kFileModeCreateNew:
                 flags |= O_CREAT | O_EXCL;
                 break;
-            case File::kFileModeCreate:
+            case kFileModeCreate:
                 flags |= O_CREAT | O_TRUNC;
                 break;
-            case File::kFileModeOpen:
+            case kFileModeOpen:
                 break;
-            case File::kFileModeOpenOrCreate:
-            case File::kFileModeAppend:
+            case kFileModeOpenOrCreate:
+            case kFileModeAppend:
                 flags |= O_CREAT;
                 break;
-            case File::kFileModeTruncate:
+            case kFileModeTruncate:
                 flags |= O_TRUNC;
                 break;
             default:
@@ -751,11 +751,11 @@ namespace os
 #endif
 
         if (S_ISFIFO(statbuf.st_mode))
-            fileHandle->type = File::kFileTypePipe;
+            fileHandle->type = kFileTypePipe;
         else if (S_ISCHR(statbuf.st_mode))
-            fileHandle->type = File::kFileTypeChar;
+            fileHandle->type = kFileTypeChar;
         else
-            fileHandle->type = File::kFileTypeDisk;
+            fileHandle->type = kFileTypeDisk;
 
         *error = kErrorCodeSuccess;
 
@@ -1114,7 +1114,7 @@ namespace os
     }
 
     bool File::DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
-        FileHandle** target_handle, int access, int inherit, int options, int* error)
+        FileHandle** target_handle, int access, int inhert, int options, int* error)
     {
         NOT_IMPLEMENTED_ICALL(File::DuplicateHandle);
         return false;

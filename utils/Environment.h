@@ -8,7 +8,7 @@ struct Il2CppDomain;
 
 namespace il2cpp
 {
-namespace vm
+namespace utils
 {
     class LIBIL2CPP_CODEGEN_API Environment
     {
