@@ -240,7 +240,7 @@ static void CheckTable(uint64_t val, int exp, const void* table, int size, const
 					fprintf(stderr, "%s:\n", name);
 					fBad = true;
 				}
-				fprintf(stderr, "/*%d*/ I64(0x%I64x),\n", i + 1, val);
+				fprintf(stderr, "/*%d*/ I64(0x%llx),\n", i + 1, val);
 			}
 			break;
 		case 2:

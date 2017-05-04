@@ -22,7 +22,7 @@ namespace Reflection
         static Il2CppArray* get_parameter_info(Il2CppIntPtr methodPtr, Il2CppReflectionMethod* member);
 
 #if NET_4_0
-        static int32_t get_method_attributes(const MethodInfo* method);
+        static int32_t get_method_attributes(Il2CppIntPtr methodPtr);
 #endif
     };
 } /* namespace Reflection */

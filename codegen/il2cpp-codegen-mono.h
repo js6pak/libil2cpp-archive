@@ -267,14 +267,14 @@ inline uint32_t il2cpp_codegen_sizeof(RuntimeClass* klass)
 FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_virtual_invoke_data(RuntimeMethod* method, void* obj)
 {
     VirtualInvokeData invokeData;
-    il2cpp_mono_get_invoke_data(method, obj, &invokeData);
+    il2cpp_mono_get_virtual_invoke_data(method, obj, &invokeData);
     return invokeData;
 }
 
 FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_interface_invoke_data(RuntimeMethod* method, void* obj, RuntimeClass* declaringInterface)
 {
     VirtualInvokeData invokeData;
-    il2cpp_mono_get_invoke_data(method, obj, &invokeData);
+    il2cpp_mono_get_interface_invoke_data(method, obj, &invokeData);
     return invokeData;
 }
 
@@ -434,16 +434,16 @@ inline RuntimeObject* il2cpp_codegen_object_new(RuntimeClass *klass)
     return mono_object_new(mono_domain_get(), klass);
 }
 
-inline Il2CppMethodPointer il2cpp_codegen_resolve_icall(RuntimeMethod* icallMethod)
+inline Il2CppMethodPointer il2cpp_codegen_resolve_icall(const RuntimeMethod* icallMethod)
 {
-    return (Il2CppMethodPointer)mono_lookup_internal_call(icallMethod);
+    return (Il2CppMethodPointer)mono_lookup_internal_call(const_cast<RuntimeMethod*>(icallMethod));
 }
 
 template<typename FunctionPointerType>
-inline FunctionPointerType il2cpp_codegen_resolve_pinvoke(RuntimeMethod* pinvokeMethod)
+inline FunctionPointerType il2cpp_codegen_resolve_pinvoke(const RuntimeMethod* pinvokeMethod)
 {
     const char *exc_class, *exc_arg;
-    FunctionPointerType result = reinterpret_cast<FunctionPointerType>(mono_lookup_pinvoke_call(pinvokeMethod, &exc_class, &exc_arg));
+    FunctionPointerType result = reinterpret_cast<FunctionPointerType>(mono_lookup_pinvoke_call(const_cast<RuntimeMethod*>(pinvokeMethod), &exc_class, &exc_arg));
     if (exc_class)
     {
         mono_raise_exception(mono_exception_from_name_msg(mono_unity_image_get_mscorlib(), "System", exc_class, exc_arg));
@@ -663,12 +663,12 @@ inline void ArrayElementTypeCheck(RuntimeArray* array, void* value)
         mono_raise_exception(mono_get_exception_array_type_mismatch());
 }
 
-inline const RuntimeMethod* GetVirtualMethodInfo(RuntimeObject* pThis, RuntimeMethod* slot)
+inline const RuntimeMethod* GetVirtualMethodInfo(RuntimeObject* pThis, const RuntimeMethod* method)
 {
     if (!pThis)
         mono_raise_exception(mono_get_exception_null_reference());
 
-    return mono_object_get_virtual_method(pThis, slot);
+    return mono_object_get_virtual_method(pThis, const_cast<RuntimeMethod*>(method));
 }
 
 inline const RuntimeMethod* GetInterfaceMethodInfo(RuntimeObject* pThis, RuntimeMethod *slot, RuntimeClass* declaringInterface)
@@ -910,9 +910,9 @@ inline RuntimeAssembly* il2cpp_codegen_mono_corlib()
     return mono_unity_assembly_get_mscorlib();
 }
 
-inline RuntimeClass* il2cpp_codegen_mono_class(const char* imageName, uint32_t classToken)
+inline RuntimeClass* il2cpp_codegen_mono_class(AssemblyIndex assemblyIndex, uint32_t classToken)
 {
-    return mono_class_get(mono_assembly_get_image(il2cpp_mono_assembly_from_name(imageName)), classToken);
+    return mono_class_get(mono_assembly_get_image(il2cpp_mono_assembly_from_index(assemblyIndex)), classToken);
 }
 
 inline RuntimeClass* il2cpp_codegen_mono_class(RuntimeAssembly* assembly, uint32_t classToken)
@@ -920,9 +920,9 @@ inline RuntimeClass* il2cpp_codegen_mono_class(RuntimeAssembly* assembly, uint32
     return mono_class_get(mono_assembly_get_image(assembly), classToken);
 }
 
-inline RuntimeMethod* il2cpp_codegen_mono_method(const char* imageName, uint32_t methodToken)
+inline RuntimeMethod* il2cpp_codegen_mono_method(AssemblyIndex index, uint32_t methodToken)
 {
-    return mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_name(imageName)), methodToken, NULL);
+    return mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_index(index)), methodToken, NULL);
 }
 
 inline RuntimeMethod* il2cpp_codegen_mono_method(RuntimeAssembly* assembly, uint32_t methodToken)

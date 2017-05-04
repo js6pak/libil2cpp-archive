@@ -10,6 +10,7 @@
 #include "NativeSymbol.h"
 #include "utils/Collections.h"
 #include "utils/PathUtils.h"
+#include "utils/Runtime.h"
 #include <string>
 
 namespace il2cpp
@@ -54,7 +55,7 @@ namespace utils
     static void* LoadSymbolInfoFileFrom(const std::string& path)
     {
         int error;
-        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(path, il2cpp::os::File::kFileModeOpen, il2cpp::os::File::kFileAccessRead, il2cpp::os::File::kFileShareRead, il2cpp::os::File::kFileOptionsNone, &error);
+        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(path, kFileModeOpen, kFileAccessRead, kFileShareRead, kFileOptionsNone, &error);
 
         if (error != 0)
             return NULL;
@@ -92,7 +93,7 @@ namespace utils
         if (result != NULL)
             return result;
 
-        return LoadSymbolInfoFileFrom(il2cpp::utils::PathUtils::Combine(IL2CPP_VM_GET_DATA_DIR(), symbolMapFileName));
+        return LoadSymbolInfoFileFrom(il2cpp::utils::PathUtils::Combine(utils::Runtime::GetDataDir(), symbolMapFileName));
     }
 
     static void InitializeSymbolInfos()

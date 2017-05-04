@@ -23,7 +23,7 @@ namespace vm
         Il2CppProfileGCResizeFunc gcHeapResizeCallback;
     };
 
-    typedef dynamic_array<ProfilerDesc*> ProfilersVec;
+    typedef il2cpp::utils::dynamic_array<ProfilerDesc*> ProfilersVec;
     static ProfilersVec s_profilers;
     Il2CppProfileFlags Profiler::s_profilerEvents;
 

@@ -247,9 +247,6 @@
     <ClCompile Include="debugger\variant.cpp">
       <Filter>debugger</Filter>
     </ClCompile>
-    <ClCompile Include="vm\Environment.cpp">
-      <Filter>vm</Filter>
-    </ClCompile>
     <ClCompile Include="os\Posix\Directory.cpp">
       <Filter>os\Posix</Filter>
     </ClCompile>
@@ -871,6 +868,27 @@
     <ClCompile Include="utils\Exception.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="os\c-api\File.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\NativeMethods.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\Path.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\Process.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\Time.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\TimeZone.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\Allocator.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
     <ClCompile Include="vm-utils\NativeSymbol.cpp">
       <Filter>vm-utils</Filter>
     </ClCompile>
@@ -882,6 +900,9 @@
     </ClCompile>
     <ClCompile Include="vm-utils\VmStringUtils.cpp">
       <Filter>vm-utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\Environment.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1714,6 +1735,46 @@
     <ClInclude Include="utils\Exception.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="os\c-api\File-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\NativeMethods-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Path-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Process-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Time-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\TimeZone-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Allocator.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="vm-utils\NativeSymbol.h">
+      <Filter>vm-utils</Filter>
+    </ClInclude>
+    <ClInclude Include="vm-utils\BlobReader.h">
+      <Filter>vm-utils</Filter>
+    </ClInclude>
+    <ClInclude Include="vm-utils\NativeDelegateMethodCache.h">
+      <Filter>vm-utils</Filter>
+    </ClInclude>
+    <ClInclude Include="vm-utils\VmStringUtils.h">
+      <Filter>vm-utils</Filter>
+    </ClInclude>
+    <ClInclude Include="vm-utils\BlobReader.h" />
+    <ClInclude Include="vm-utils\NativeDelegateMethodCache.h" />
+    <ClInclude Include="vm-utils\NativeSymbol.h" />
+    <ClInclude Include="vm-utils\VmStringUtils.h" />
+    <ClInclude Include="utils\Environment.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1981,9 +2042,6 @@
     </ClInclude>
     <ClInclude Include="debugger\variant.h">
       <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="vm\Environment.h">
-      <Filter>vm</Filter>
     </ClInclude>
     <ClInclude Include="os\Environment.h">
       <Filter>os</Filter>
@@ -2478,6 +2536,9 @@
     </Filter>
     <Filter Include="os\Android">
       <UniqueIdentifier>{9b67d9fa-cf50-45a7-93fc-b2e25ac4e73a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os\c-api">
+      <UniqueIdentifier>{af05b2ca-3dde-4659-8af7-c9655f11d420}</UniqueIdentifier>
     </Filter>
     <Filter Include="vm-utils">
       <UniqueIdentifier>{282f089e-e7a0-494c-8a4b-f56ca071fb01}</UniqueIdentifier>

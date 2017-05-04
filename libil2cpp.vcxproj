@@ -1327,6 +1327,13 @@
     <ClInclude Include="number-formatter.h" />
     <ClInclude Include="object-internals.h" />
     <ClInclude Include="os\Atomic.h" />
+    <ClInclude Include="os\c-api\File-c-api.h" />
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\NativeMethods-c-api.h" />
+    <ClInclude Include="os\c-api\Path-c-api.h" />
+    <ClInclude Include="os\c-api\Process-c-api.h" />
+    <ClInclude Include="os\c-api\Time-c-api.h" />
+    <ClInclude Include="os\c-api\TimeZone-c-api.h" />
     <ClInclude Include="os\ConditionVariable.h" />
     <ClInclude Include="os\Console.h" />
     <ClInclude Include="os\CpuInfo.h" />
@@ -1404,6 +1411,7 @@
     <ClInclude Include="utils\Collections.h" />
     <ClInclude Include="utils\DirectoryUtils.h" />
     <ClInclude Include="utils\dynamic_array.h" />
+    <ClInclude Include="utils\Environment.h" />
     <ClInclude Include="utils\Exception.h" />
     <ClInclude Include="utils\Il2CppHashMap.h" />
     <ClInclude Include="utils\Il2CppHashSet.h" />
@@ -1445,7 +1453,6 @@
     <ClInclude Include="vm\Debug.h" />
     <ClInclude Include="vm\Domain.h" />
     <ClInclude Include="vm\Enum.h" />
-    <ClInclude Include="vm\Environment.h" />
     <ClInclude Include="vm\Event.h" />
     <ClInclude Include="vm\Exception.h" />
     <ClInclude Include="vm\Field.h" />
@@ -1704,7 +1711,14 @@
     <ClCompile Include="mono\ThreadPool\ThreadPoolMonitorThread.cpp" />
     <ClCompile Include="mono\ThreadPool\ThreadPoolWorkerThread.cpp" />
     <ClCompile Include="os\Android\StackTrace.cpp" />
+    <ClCompile Include="os\c-api\Allocator.cpp" />
     <ClCompile Include="os\ConditionVariable.cpp" />
+    <ClCompile Include="os\c-api\File.cpp" />
+    <ClCompile Include="os\c-api\NativeMethods.cpp" />
+    <ClCompile Include="os\c-api\Path.cpp" />
+    <ClCompile Include="os\c-api\Process.cpp" />
+    <ClCompile Include="os\c-api\Time.cpp" />
+    <ClCompile Include="os\c-api\TimeZone.cpp" />
     <ClCompile Include="os\Debug.cpp" />
     <ClCompile Include="os\Error.cpp" />
     <ClCompile Include="os\Event.cpp" />
@@ -1805,6 +1819,7 @@
     <ClCompile Include="os\WinRT\Win32ApiSharedEmulation.cpp" />
     <ClCompile Include="os\WinRT\Win32ApiWinRTEmulation.cpp" />
     <ClCompile Include="utils\DirectoryUtils.cpp" />
+    <ClCompile Include="utils\Environment.cpp" />
     <ClCompile Include="utils\Exception.cpp" />
     <ClCompile Include="utils\Logging.cpp" />
     <ClCompile Include="utils\MarshalingUtils.cpp" />
@@ -1829,7 +1844,6 @@
     <ClCompile Include="vm\Debug.cpp" />
     <ClCompile Include="vm\Domain.cpp" />
     <ClCompile Include="vm\Enum.cpp" />
-    <ClCompile Include="vm\Environment.cpp" />
     <ClCompile Include="vm\Event.cpp" />
     <ClCompile Include="vm\Exception.cpp" />
     <ClCompile Include="vm\Field.cpp" />
