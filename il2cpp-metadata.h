@@ -423,6 +423,7 @@ struct Il2CppGlobalMetadataHeader
 #pragma pack(pop, p1)
 
 #if RUNTIME_MONO
+
 #pragma pack(push, p1,4)
 struct Il2CppGlobalMonoMetadataHeader
 {
@@ -456,6 +457,8 @@ struct Il2CppGlobalMonoMetadataHeader
     int32_t metaDataUsageListsTableCount;
     int32_t metaDataUsagePairsTableOffset; // meta data usage pairs table
     int32_t metaDataUsagePairsTableCount;
+    int32_t assemblyNameTableOffset; // assembly names
+    int32_t assemblyNameTableCount;
 };
 #pragma pack(pop, p1)
 #endif

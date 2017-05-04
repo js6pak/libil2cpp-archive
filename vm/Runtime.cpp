@@ -14,7 +14,6 @@
 #include "vm/Assembly.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
-#include "vm/Environment.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
 #include "vm/Image.h"
@@ -42,6 +41,8 @@
 #include "utils/RegisterRuntimeInitializeAndCleanup.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
+#include "utils/Runtime.h"
+#include "utils/Environment.h"
 #include "mono/ThreadPool/threadpool-ms.h"
 #include "mono/ThreadPool/threadpool-ms-io.h"
 //#include "icalls/mscorlib/System.Reflection/Assembly.h"
@@ -65,8 +66,6 @@ namespace vm
     il2cpp::os::FastMutex g_MetadataLock;
 
     static std::string s_ConfigDir;
-    static std::string s_DataDir;
-    static std::string s_DataDirFallback;
     static const char *s_FrameworkVersion = 0;
     static const char *s_BundledMachineConfig = 0;
     static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
@@ -363,11 +362,6 @@ namespace vm
         s_ConfigDir = path;
     }
 
-    void Runtime::SetDataDir(const char *path)
-    {
-        s_DataDir = path;
-    }
-
     static void SetConfigStr(const std::string& executablePath)
     {
         Il2CppDomain* domain = vm::Domain::GetCurrent();
@@ -403,26 +397,7 @@ namespace vm
         if (s_ConfigDir.size() > 0)
             return s_ConfigDir;
 
-        return utils::PathUtils::Combine(GetDataDir(), utils::StringView<char>("etc"));
-    }
-
-    std::string Runtime::GetDataDir()
-    {
-        // use explicit value if set
-        if (s_DataDir.size() > 0)
-            return s_DataDir;
-
-        std::string executablePath = os::Path::GetExecutablePath();
-        if (!executablePath.empty())
-            return utils::PathUtils::Combine(utils::PathUtils::DirectoryName(executablePath), utils::StringView<char>("Data"));
-
-        if (s_DataDirFallback.size() == 0 && Environment::GetNumMainArgs() > 0)
-        {
-            std::string main = utils::StringUtils::Utf16ToUtf8(Environment::GetMainArgs()[0]);
-            s_DataDirFallback = utils::PathUtils::DirectoryName(main);
-        }
-
-        return s_DataDirFallback;
+        return utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("etc"));
     }
 
     const MethodInfo* Runtime::GetDelegateInvoke(Il2CppClass* klass)

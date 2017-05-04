@@ -241,7 +241,7 @@ namespace IO
 
     bool MonoIO::SetFileAttributes(Il2CppString* path, FileAttributes attrs, MonoIOError* error)
     {
-        return il2cpp::os::File::SetFileAttributes(il2cpp::utils::StringUtils::Utf16ToUtf8(path->chars), (il2cpp::os::File::FileAttributes)attrs, error);
+        return il2cpp::os::File::SetFileAttributes(il2cpp::utils::StringUtils::Utf16ToUtf8(path->chars), (UnityPalFileAttributes)attrs, error);
     }
 
     bool MonoIO::Flush(Il2CppIntPtr handle, MonoIOError* error)
