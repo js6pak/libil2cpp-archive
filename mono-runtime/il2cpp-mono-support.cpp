@@ -15,6 +15,10 @@
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
 #include "utils/MarshalingUtils.h"
 #include "../libmono/vm/MetadataCache.h"
+#include <string>
+#include "utils/Il2CppHashMap.h"
+#include "utils/HashUtils.h"
+#include "os/Mutex.h"
 
 Il2CppIntPtr Il2CppIntPtr::Zero;
 
@@ -32,9 +36,29 @@ extern const int g_Il2CppInteropDataCount IL2CPP_ATTRIBUTE_WEAK;
 extern Il2CppInteropData g_Il2CppInteropData[] IL2CPP_ATTRIBUTE_WEAK;
 
 static MonoGenericContext GetSharedContext(const MonoGenericContext* context);
+static MonoAssembly** s_MonoAssemblies;
+static int s_MonoAssembliesCount = 0;
+
+MonoAssembly* il2cpp_mono_assembly_from_name(const char* name);
 
 typedef Il2CppHashMap<uint64_t, const Il2CppInteropData*, il2cpp::utils::PassThroughHash<uint64_t> > InteropDataMap;
 static InteropDataMap s_InteropDataMap;
+
+typedef Il2CppHashMap<MonoClass*, const Il2CppInteropData*, il2cpp::utils::PointerHash<MonoClass> > InteropDataPointerCacheMap;
+static InteropDataPointerCacheMap s_InteropDataPointerCacheMap;
+static il2cpp::os::FastMutex s_InteropPointerCacheMutex;
+
+void il2cpp_mono_error_init(MonoError *oerror)
+{
+    MonoErrorInternal *error = (MonoErrorInternal*)oerror;
+    error->error_code = MONO_ERROR_NONE;
+    error->flags = 0;
+}
+
+bool il2cpp_mono_error_ok(MonoError *error)
+{
+    return error->error_code == MONO_ERROR_NONE;
+}
 
 static MonoGenericInst* GetSharedGenericInst(MonoGenericInst* inst)
 {
@@ -106,10 +130,20 @@ void initialize_interop_data_map()
 
 const Il2CppInteropData* FindInteropDataFor(MonoClass* klass)
 {
+    il2cpp::os::FastAutoLock cacheLock(&s_InteropPointerCacheMutex);
+    InteropDataPointerCacheMap::const_iterator itCache = s_InteropDataPointerCacheMap.find(klass);
+    if (itCache != s_InteropDataPointerCacheMap.end())
+        return itCache->second;
+
     uint64_t hash = mono_unity_type_get_hash(mono_class_get_type(klass), true);
+
     InteropDataMap::const_iterator it = s_InteropDataMap.find(hash);
     if (it != s_InteropDataMap.end())
-        return it->second;
+    {
+        const Il2CppInteropData *value = it->second;
+        s_InteropDataPointerCacheMap.add(klass, value);
+        return value;
+    }
 
     return NULL;
 }
@@ -188,12 +222,12 @@ void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoErr
     bool* isSpecialMarshalingMethod = NULL;
     assert(method != NULL);
 
-    mono_error_init(error);
-
     int32_t invokerIndex = -1;
     int32_t methodPointerIndex = -1;
 
-    if (mono_unity_method_get_invoke_pointer(method) || mono_unity_method_get_method_pointer(method))
+    il2cpp_mono_error_init(error);
+
+    if (method->invoke_pointer || method->method_pointer)
         return;
 
     //char *methodName = mono_method_get_name_full(method, true, false, MONO_TYPE_NAME_FORMAT_IL);
@@ -259,6 +293,23 @@ void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoErr
     }
 }
 
+void il2cpp_mono_init_assemblies()
+{
+    s_MonoAssembliesCount = mono::vm::MetadataCache::GetMonoAssemblyCount();
+    s_MonoAssemblies = new MonoAssembly*[mono::vm::MetadataCache::GetMonoAssemblyCount()];
+    for (int i = 0; i < s_MonoAssembliesCount; ++i)
+        s_MonoAssemblies[i] = il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetMonoAssemblyNameFromIndex(i));
+}
+
+MonoAssembly* il2cpp_mono_assembly_from_index(AssemblyIndex index)
+{
+    if (s_MonoAssembliesCount == 0)
+        il2cpp_mono_init_assemblies();
+
+    assert(index < s_MonoAssembliesCount && "assembly index is out of range");
+    return s_MonoAssemblies[index];
+}
+
 MonoAssembly* il2cpp_mono_assembly_from_name(const char* name)
 {
     // First look for the cached assembly in the domain.
@@ -284,13 +335,73 @@ MonoMethod* il2cpp_mono_get_virtual_target_method(MonoMethod* method, MonoObject
     return target_method;
 }
 
+MonoMethod* il2cpp_mono_get_virtual_target_method_fast(MonoMethod* method, MonoObject* obj)
+{
+    if (method->flags & METHOD_ATTRIBUTE_FINAL)
+        return method;
+
+    MonoClass *klass = obj->vtable->klass;
+    if (!klass->vtable)
+        mono_class_setup_vtable(klass);
+
+    MonoMethod* target_method = klass->vtable[method->slot];
+
+    if (target_method->klass->rank > 0)
+        target_method = mono_unity_method_get_aot_array_helper_from_wrapper(target_method);
+
+    return target_method;
+}
+
+MonoMethod* il2cpp_mono_get_interface_target_method_fast(MonoMethod* method, MonoObject* obj)
+{
+    if (method->flags & METHOD_ATTRIBUTE_FINAL)
+        return method;
+
+    MonoClass *klass = obj->vtable->klass;
+    if (!klass->vtable)
+        mono_class_setup_vtable(klass);
+
+    gboolean variance_used = 0;
+    int iface_offset = mono_class_interface_offset_with_variance(klass, method->klass, &variance_used);
+    MonoMethod* target_method = klass->vtable[iface_offset + method->slot];
+
+    if (target_method->klass->rank > 0)
+        target_method = mono_unity_method_get_aot_array_helper_from_wrapper(target_method);
+
+    return target_method;
+}
+
 void il2cpp_mono_get_invoke_data(MonoMethod* method, void* obj, VirtualInvokeData* invokeData)
 {
     MonoMethod* target_method = il2cpp_mono_get_virtual_target_method(method, (MonoObject*)obj);
 
     MonoError error;
     il2cpp_mono_method_initialize_function_pointers(target_method, &error);
-    if (!mono_error_ok(&error))
+    if (!il2cpp_mono_error_ok(&error))
+        mono_error_raise_exception(&error);
+    invokeData->methodPtr = (Il2CppMethodPointer)mono_unity_method_get_method_pointer(target_method);
+    invokeData->method = target_method;
+}
+
+void il2cpp_mono_get_virtual_invoke_data(MonoMethod* method, void* obj, VirtualInvokeData* invokeData)
+{
+    MonoMethod* target_method = il2cpp_mono_get_virtual_target_method_fast(method, (MonoObject*)obj);
+
+    MonoError error;
+    il2cpp_mono_method_initialize_function_pointers(target_method, &error);
+    if (!il2cpp_mono_error_ok(&error))
+        mono_error_raise_exception(&error);
+    invokeData->methodPtr = (Il2CppMethodPointer)mono_unity_method_get_method_pointer(target_method);
+    invokeData->method = target_method;
+}
+
+void il2cpp_mono_get_interface_invoke_data(MonoMethod* method, void* obj, VirtualInvokeData* invokeData)
+{
+    MonoMethod* target_method = il2cpp_mono_get_interface_target_method_fast(method, (MonoObject*)obj);
+
+    MonoError error;
+    il2cpp_mono_method_initialize_function_pointers(target_method, &error);
+    if (!il2cpp_mono_error_ok(&error))
         mono_error_raise_exception(&error);
     invokeData->methodPtr = (Il2CppMethodPointer)mono_unity_method_get_method_pointer(target_method);
     invokeData->method = target_method;
@@ -304,7 +415,7 @@ static MonoClass* InflateGenericParameter(MonoGenericContainer* genericContainer
 
 static MonoClass* LookupGenericClassMetadata(MonoGenericContext* context, const MonoRGCTXDefinition* rgctxDefintion)
 {
-    return mono_class_get_full(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(rgctxDefintion->imageName))), rgctxDefintion->token, context);
+    return mono_class_get_full(mono_assembly_get_image(il2cpp_mono_assembly_from_index(rgctxDefintion->assemblyIndex)), rgctxDefintion->token, context);
 }
 
 static void* LookupMetadataFromRGCTX(const MonoRGCTXDefinition* definition, bool useSharedVersion, MonoGenericContext* context, MonoGenericContainer* genericContainer)
@@ -329,7 +440,7 @@ static void* LookupMetadataFromRGCTX(const MonoRGCTXDefinition* definition, bool
     }
     else if (definition->type == IL2CPP_RGCTX_DATA_METHOD)
     {
-        MonoMethod* methodDefinition = mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(definition->imageName))), definition->token, NULL);
+        MonoMethod* methodDefinition = mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_index(definition->assemblyIndex)), definition->token, NULL);
         return InflateGenericMethodWithContext(methodDefinition, context, useSharedVersion);
     }
     else if (definition->type == IL2CPP_RGCTX_DATA_TYPE)
@@ -405,7 +516,7 @@ static MonoClass* ClassFromMetadata(const MonoClassMetadata *classMetadata)
         return aklass;
     }
 
-    MonoClass *klass = mono_class_get(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(classMetadata->metadataToken.image))), classMetadata->metadataToken.token);
+    MonoClass *klass = mono_class_get(mono_assembly_get_image(il2cpp_mono_assembly_from_index(classMetadata->metadataToken.assemblyIndex)), classMetadata->metadataToken.token);
     mono_class_init(klass);
     return klass;
 }
@@ -444,7 +555,7 @@ static MonoType* TypeFromIndex(TypeIndex index)
 MonoMethod* MethodFromIndex(MethodIndex index)
 {
     const MonoMetadataToken* method = &mono::vm::MetadataCache::GetMonoMethodMetadataFromIndex(index)->metadataToken;
-    return mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(method->image))), method->token, NULL);
+    return mono_get_method(mono_assembly_get_image(il2cpp_mono_assembly_from_index(method->assemblyIndex)), method->token, NULL);
 }
 
 static std::vector<MonoType*> GenericArgumentsFromInst(const MonoGenericInstMetadata *inst)
@@ -494,7 +605,7 @@ MonoMethod* GenericMethodFromIndex(MethodIndex index)
 static MonoString* StringFromIndex(StringIndex index)
 {
     const MonoMetadataToken* stringMetadata = mono::vm::MetadataCache::GetMonoStringTokenFromIndex(index);
-    return mono_ldstr(mono_domain_get(), mono_assembly_get_image(il2cpp_mono_assembly_from_name(mono::vm::MetadataCache::GetStringFromIndex(stringMetadata->image))), mono_metadata_token_index(stringMetadata->token));
+    return mono_ldstr(mono_domain_get(), mono_assembly_get_image(il2cpp_mono_assembly_from_index(stringMetadata->assemblyIndex)), mono_metadata_token_index(stringMetadata->token));
 }
 
 void il2cpp_mono_initialize_method_metadata(uint32_t index)
@@ -669,7 +780,7 @@ void RuntimeInit(MonoClass* klass)
 {
     MonoError error;
     mono_runtime_class_init_full(mono_class_vtable(mono_domain_get(), klass), &error);
-    if (!mono_error_ok(&error))
+    if (!il2cpp_mono_error_ok(&error))
         mono_error_raise_exception(&error);
 }
 

@@ -84,7 +84,7 @@ namespace os
     }
 
 #if !IL2CPP_TARGET_XBOXONE
-    File::FileAttributes File::GetFileAttributes(const std::string& path, int *error)
+    UnityPalFileAttributes File::GetFileAttributes(const std::string& path, int *error)
     {
         const UTF16String utf16Path(utils::StringUtils::Utf8ToUtf16(path.c_str()));
         WIN32_FILE_ATTRIBUTE_DATA fileAttributes;
@@ -93,16 +93,16 @@ namespace os
         if (result == FALSE)
         {
             *error = Win32ErrorToErrorCode(::GetLastError());
-            return static_cast<File::FileAttributes>(INVALID_FILE_ATTRIBUTES);
+            return static_cast<UnityPalFileAttributes>(INVALID_FILE_ATTRIBUTES);
         }
 
         *error = kErrorCodeSuccess;
-        return static_cast<FileAttributes>(fileAttributes.dwFileAttributes);
+        return static_cast<UnityPalFileAttributes>(fileAttributes.dwFileAttributes);
     }
 
 #endif
 
-    bool File::SetFileAttributes(const std::string& path, FileAttributes attributes, int* error)
+    bool File::SetFileAttributes(const std::string& path, UnityPalFileAttributes attributes, int* error)
     {
         const UTF16String utf16Path(utils::StringUtils::Utf8ToUtf16(path.c_str()));
 
@@ -146,14 +146,14 @@ namespace os
         return true;
     }
 
-    File::FileType File::GetFileType(FileHandle* handle)
+    FileType File::GetFileType(FileHandle* handle)
     {
         int result = ::GetFileType((HANDLE)handle);
         /*if (result == FILE_TYPE_UNKNOWN)
         {
             *error = GetLastError();
         }*/
-        return (File::FileType)result;
+        return (FileType)result;
     }
 
     bool File::CopyFile(const std::string& src, const std::string& dest, bool overwrite, int* error)
@@ -218,20 +218,20 @@ namespace os
     {
         switch (monoOpenMode)
         {
-            case File::kFileModeCreateNew:
+            case kFileModeCreateNew:
                 return CREATE_NEW;
 
-            case File::kFileModeCreate:
+            case kFileModeCreate:
                 return CREATE_ALWAYS;
 
-            case File::kFileModeOpen:
+            case kFileModeOpen:
                 return OPEN_EXISTING;
 
-            case File::kFileModeOpenOrCreate:
-            case File::kFileModeAppend:
+            case kFileModeOpenOrCreate:
+            case kFileModeAppend:
                 return OPEN_ALWAYS;
 
-            case File::kFileModeTruncate:
+            case kFileModeTruncate:
                 return TRUNCATE_EXISTING;
 
             default:
@@ -244,13 +244,13 @@ namespace os
     {
         switch (monoAccessMode)
         {
-            case File::kFileAccessRead:
+            case kFileAccessRead:
                 return GENERIC_READ;
 
-            case File::kFileAccessWrite:
+            case kFileAccessWrite:
                 return GENERIC_WRITE;
 
-            case File::kFileAccessReadWrite:
+            case kFileAccessReadWrite:
                 return GENERIC_READ | GENERIC_WRITE;
 
             default:
@@ -262,7 +262,7 @@ namespace os
     {
         DWORD flagsAndAttributes;
 
-        if (options & File::kFileOptionsEncrypted)
+        if (options & kFileOptionsEncrypted)
         {
             flagsAndAttributes = FILE_ATTRIBUTE_ENCRYPTED;
         }
@@ -272,10 +272,10 @@ namespace os
         }
 
         // Temporary flag does not mean temporary file.
-        flagsAndAttributes |= options & ~(File::kFileOptionsEncrypted | File::kFileOptionsTemporary);
+        flagsAndAttributes |= options & ~(kFileOptionsEncrypted | kFileOptionsTemporary);
 
         int error;
-        File::FileAttributes currentAttributes = File::GetFileAttributes(path, &error);
+        UnityPalFileAttributes currentAttributes = File::GetFileAttributes(path, &error);
 
         if (currentAttributes != INVALID_FILE_ATTRIBUTES && (currentAttributes & FILE_ATTRIBUTE_DIRECTORY))
             flagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS; // Required to open a directory

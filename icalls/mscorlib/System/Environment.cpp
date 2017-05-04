@@ -10,13 +10,13 @@
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
-#include "vm/Environment.h"
 #include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Exception.h"
 
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
+#include "utils/Environment.h"
 
 namespace il2cpp
 {
@@ -69,8 +69,8 @@ namespace System
     {
         Il2CppArray *res;
         int i;
-        int num_main_args = vm::Environment::GetNumMainArgs();
-        const std::vector<UTF16String>& mainArgs = vm::Environment::GetMainArgs();
+        int num_main_args = utils::Environment::GetNumMainArgs();
+        const std::vector<UTF16String>& mainArgs = utils::Environment::GetMainArgs();
 
         Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass(il2cpp_defaults.string_class, 1);
         res = (Il2CppArray*)il2cpp::vm::Array::NewSpecific(klass, num_main_args);

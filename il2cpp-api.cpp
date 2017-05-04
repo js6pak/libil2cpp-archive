@@ -5,7 +5,6 @@
 #include "vm/Assembly.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
-#include "vm/Environment.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
 #include "vm/Image.h"
@@ -30,6 +29,8 @@
 #include "utils/Logging.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
+#include "utils/Runtime.h"
+#include "utils/Environment.h"
 
 #if IL2CPP_DEBUGGER_ENABLED
     #include "il2cpp-debugger.h"
@@ -134,7 +135,7 @@ void il2cpp_set_config_dir(const char *config_path)
 
 void il2cpp_set_data_dir(const char *data_path)
 {
-    il2cpp::vm::Runtime::SetDataDir(data_path);
+    il2cpp::utils::Runtime::SetDataDir(data_path);
 }
 
 void il2cpp_set_temp_dir(const char *temp_dir)
@@ -144,12 +145,12 @@ void il2cpp_set_temp_dir(const char *temp_dir)
 
 void il2cpp_set_commandline_arguments(int argc, const char* const argv[], const char* basedir)
 {
-    il2cpp::vm::Environment::SetMainArgs(argv, argc);
+    il2cpp::utils::Environment::SetMainArgs(argv, argc);
 }
 
 void il2cpp_set_commandline_arguments_utf16(int argc, const Il2CppChar* const argv[], const char* basedir)
 {
-    il2cpp::vm::Environment::SetMainArgs(argv, argc);
+    il2cpp::utils::Environment::SetMainArgs(argv, argc);
 }
 
 void il2cpp_set_config_utf16(const Il2CppChar* executablePath)

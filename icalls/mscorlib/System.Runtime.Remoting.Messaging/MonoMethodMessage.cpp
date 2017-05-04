@@ -68,7 +68,7 @@ namespace Messaging
         this_obj->async_result = NULL;
         this_obj->call_type = CallType_Sync;
 
-        dynamic_array<const char*> names(method->method->parameters_count);
+        il2cpp::utils::dynamic_array<const char*> names(method->method->parameters_count);
 
         for (int i = 0; i < method->method->parameters_count; ++i)
             names[i] = method->method->parameters[i].name;
