@@ -14,12 +14,10 @@ namespace Reflection
 {
 namespace Emit
 {
-
-void GenericTypeParameterBuilder::initialize (Il2CppReflectionGenericParam* genericParameter)
-{
-	NOT_SUPPORTED_SRE (GenericTypeParameterBuilder::initialize);
-}
-
+    void GenericTypeParameterBuilder::initialize(Il2CppReflectionGenericParam* genericParameter)
+    {
+        NOT_SUPPORTED_SRE(GenericTypeParameterBuilder::initialize);
+    }
 } /* namespace Emit */
 } /* namespace Reflection */
 } /* namespace System */

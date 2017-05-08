@@ -12,13 +12,11 @@ namespace mscorlib
 {
 namespace Mono
 {
-
-class LIBIL2CPP_CODEGEN_API RuntimeMarshal
-{
-public:
-	static void FreeAssemblyName(MonoAssemblyName* name);
-};
-
+    class LIBIL2CPP_CODEGEN_API RuntimeMarshal
+    {
+    public:
+        static void FreeAssemblyName(MonoAssemblyName* name);
+    };
 } // namespace Mono
 } // namespace mscorlib
 } // namespace icalls

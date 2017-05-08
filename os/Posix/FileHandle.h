@@ -13,29 +13,27 @@ namespace il2cpp
 {
 namespace os
 {
+    struct FileHandle
+    {
+        int fd;
+        File::FileType type;
+        std::string path;
+        int options;
+        int shareMode;
+        int accessMode;
 
-struct FileHandle
-{
-	int fd;
-	File::FileType type;
-	std::string path;
-	int options;
-	int shareMode;
-	int accessMode;
+        // device and inode are used as key for finding file handles
+        dev_t device;
+        ino_t inode;
 
-	// device and inode are used as key for finding file handles
-	dev_t device;
-	ino_t inode;
+        // Linked list of file handles
+        FileHandle *prev;
+        FileHandle *next;
 
-	// Linked list of file handles
-	FileHandle *prev;
-	FileHandle *next;
-
-	FileHandle() : prev(NULL), next(NULL)
-	{
-	}
-};
-
+        FileHandle() : prev(NULL), next(NULL)
+        {
+        }
+    };
 }
 }
 

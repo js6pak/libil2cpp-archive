@@ -13,13 +13,10 @@ namespace System
 {
 namespace Threading
 {
-
-int64_t Timer::GetTimeMonotonic()
-{
-	return os::Time::GetTicks100NanosecondsMonotonic();
-}
-
-
+    int64_t Timer::GetTimeMonotonic()
+    {
+        return os::Time::GetTicks100NanosecondsMonotonic();
+    }
 } // namespace Threading
 } // namespace System
 } // namespace mscorlib
