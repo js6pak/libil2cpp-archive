@@ -537,7 +537,7 @@ namespace metadata
         }
 
         if (rank > 1 || bounded)
-            s_ArrayClassMap.insert(std::make_pair(ArrayClassMap::key_type(std::make_pair(klass->element_class, arrayClass->rank)), klass));
+            s_ArrayClassMap.insert(std::make_pair(ArrayClassMap::key_type(std::make_pair(klass->element_class, klass->rank)), klass));
         else
             s_SZArrayClassMap.insert(std::make_pair(klass->element_class, klass));
 
