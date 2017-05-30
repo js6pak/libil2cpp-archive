@@ -919,6 +919,25 @@ struct Il2CppCultureInfo
 #endif
 };
 
+// System.Globalization.RegionInfo
+struct Il2CppRegionInfo
+{
+    Il2CppObject obj;
+#if NET_4_0
+    int32_t geo_id;
+#else
+    int32_t lcid;
+    int32_t region_id;
+#endif
+    Il2CppString* iso2name;
+    Il2CppString* iso3name;
+    Il2CppString* win3name;
+    Il2CppString* english_name;
+    Il2CppString* currency_symbol;
+    Il2CppString* iso_currency_symbol;
+    Il2CppString* currency_english_name;
+};
+
 // System.Runtime.InteropServices.SafeHandle
 // Inherited by Microsoft.Win32.SafeHandles.SafeWaitHandle
 struct Il2CppSafeHandle
