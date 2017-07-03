@@ -12,6 +12,7 @@
 #include "utils/StringUtils.h"
 #include "vm/String.h"
 #include "vm/Class.h"
+#include "mono-structs.h"
 
 #include <vector>
 #include <string>
@@ -96,6 +97,33 @@ namespace vm
             return char(hexValue + 48);
 
         return char(hexValue + 87);
+    }
+
+    void AssemblyName::FillNativeAssemblyName(const Il2CppAssemblyName& aname, Il2CppMonoAssemblyName* nativeName)
+    {
+        nativeName->name = il2cpp::utils::StringUtils::StringDuplicate(il2cpp::vm::MetadataCache::GetStringFromIndex(aname.nameIndex));
+        nativeName->culture = il2cpp::utils::StringUtils::StringDuplicate(il2cpp::vm::MetadataCache::GetStringFromIndex(aname.cultureIndex));
+        nativeName->hash_value = il2cpp::utils::StringUtils::StringDuplicate(il2cpp::vm::MetadataCache::GetStringFromIndex(aname.hashValueIndex));
+        nativeName->public_key = reinterpret_cast<const uint8_t*>(il2cpp::utils::StringUtils::StringDuplicate(il2cpp::vm::MetadataCache::GetStringFromIndex(aname.publicKeyIndex)));
+        nativeName->hash_alg = aname.hash_alg;
+        nativeName->hash_len = aname.hash_len;
+        nativeName->flags = aname.flags;
+        nativeName->major = aname.major;
+        nativeName->minor = aname.minor;
+        nativeName->build = aname.build;
+        nativeName->revision = aname.revision;
+
+        //Mono public key token is stored as hexadecimal characters
+        if (aname.publicKeyToken[0])
+        {
+            int j = 0;
+            for (int i = 0; i < kPublicKeyByteLength; ++i)
+            {
+                uint8_t value = aname.publicKeyToken[i];
+                nativeName->public_key_token.padding[j++] = HexValueToLowercaseAscii((value & 0xF0) >> 4);
+                nativeName->public_key_token.padding[j++] = HexValueToLowercaseAscii(value & 0x0F);
+            }
+        }
     }
 
     static std::string PublicKeyTokenToString(const uint8_t* publicKeyToken)

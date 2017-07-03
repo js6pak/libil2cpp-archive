@@ -37,13 +37,6 @@ namespace utils
             m_FreeList.Push(reinterpret_cast<il2cpp::os::AtomicNode*>(node));
         }
 
-        ~ThreadSafeFreeList()
-        {
-            T* instance;
-            while ((instance = reinterpret_cast<T*>(m_FreeList.Pop())) != NULL)
-                delete instance;
-        }
-
     private:
 
         ALIGN_TYPE(64) il2cpp::os::AtomicStack m_FreeList;

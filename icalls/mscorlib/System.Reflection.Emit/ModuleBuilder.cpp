@@ -58,7 +58,7 @@ namespace Emit
         NOT_SUPPORTED_SRE(ModuleBuilder::build_metadata);
     }
 
-    void ModuleBuilder::WriteToFile(Il2CppReflectionModuleBuilder*, Il2CppIntPtr)
+    void ModuleBuilder::WriteToFile(Il2CppReflectionModuleBuilder*, intptr_t)
     {
         NOT_SUPPORTED_SRE(ModuleBuilder::WriteToFile);
     }

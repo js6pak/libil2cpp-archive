@@ -111,10 +111,9 @@ namespace System
         return Type::GetGenericTypeDefinition_impl(&type->type);
     }
 
-    Il2CppIntPtr RuntimeTypeHandle::GetGenericParameterInfo(Il2CppReflectionRuntimeType* type)
+    intptr_t RuntimeTypeHandle::GetGenericParameterInfo(Il2CppReflectionRuntimeType* type)
     {
-        Il2CppIntPtr retVal;
-        retVal.m_value = NULL;
+        intptr_t retVal = 0;
 
         const Il2CppType *thisType = type->type.type;
         if ((thisType->type == IL2CPP_TYPE_VAR) || (thisType->type == IL2CPP_TYPE_MVAR))
@@ -125,7 +124,7 @@ namespace System
                 MonoGenericParameterInfo *monoParam = (MonoGenericParameterInfo*)il2cpp::vm::Reflection::GetMonoGenericParameterInfo(param);
                 if (monoParam)
                 {
-                    retVal.m_value = monoParam;
+                    retVal = reinterpret_cast<intptr_t>(monoParam);
                 }
                 else
                 {
@@ -148,7 +147,7 @@ namespace System
                     monoParam->constraints[param->constraintsCount] = NULL;
 
                     il2cpp::vm::Reflection::SetMonoGenericParameterInfo(param, monoParam);
-                    retVal.m_value = monoParam;
+                    retVal = reinterpret_cast<intptr_t>(monoParam);
                 }
             }
         }

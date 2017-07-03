@@ -32,9 +32,9 @@ namespace IO
 #endif
     }
 
-    bool MonoIO::Close(Il2CppIntPtr handle, int *error)
+    bool MonoIO::Close(intptr_t handle, int *error)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
 
         return il2cpp::os::File::Close(fileHandle, error);
     }
@@ -47,24 +47,24 @@ namespace IO
         return il2cpp::os::File::CopyFile(srcString, destString, overwrite, error);
     }
 
-    Il2CppIntPtr MonoIO::get_ConsoleError(void)
+    intptr_t MonoIO::get_ConsoleError(void)
     {
-        Il2CppIntPtr ret;
-        ret.m_value = il2cpp::os::File::GetStdError();
+        intptr_t ret;
+        ret = (intptr_t)il2cpp::os::File::GetStdError();
         return ret;
     }
 
-    Il2CppIntPtr  MonoIO::get_ConsoleInput(void)
+    intptr_t  MonoIO::get_ConsoleInput(void)
     {
-        Il2CppIntPtr ret;
-        ret.m_value = il2cpp::os::File::GetStdInput();
+        intptr_t ret;
+        ret = (intptr_t)il2cpp::os::File::GetStdInput();
         return ret;
     }
 
-    Il2CppIntPtr  MonoIO::get_ConsoleOutput(void)
+    intptr_t  MonoIO::get_ConsoleOutput(void)
     {
-        Il2CppIntPtr ret;
-        ret.m_value = il2cpp::os::File::GetStdOutput();
+        intptr_t ret;
+        ret = (intptr_t)il2cpp::os::File::GetStdOutput();
         return ret;
     }
 
@@ -114,22 +114,22 @@ namespace IO
         return ret;
     }
 
-    int MonoIO::GetFileType(Il2CppIntPtr handle, int *error)
+    int MonoIO::GetFileType(intptr_t handle, int *error)
     {
-        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::GetFileType(h);
     }
 
-    int64_t MonoIO::GetLength(Il2CppIntPtr handle, int *error)
+    int64_t MonoIO::GetLength(intptr_t handle, int *error)
     {
-        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::GetLength(h, error);
     }
 
-    Il2CppIntPtr MonoIO::Open(Il2CppString *filename, int mode, int access_mode, int share, int options, int *error)
+    intptr_t MonoIO::Open(Il2CppString *filename, int mode, int access_mode, int share, int options, int *error)
     {
-        Il2CppIntPtr ret;
-        ret.m_value = il2cpp::os::File::Open(il2cpp::utils::StringUtils::Utf16ToUtf8(filename->chars), mode, access_mode, share, options, error);
+        intptr_t ret;
+        ret = (intptr_t)il2cpp::os::File::Open(il2cpp::utils::StringUtils::Utf16ToUtf8(filename->chars), mode, access_mode, share, options, error);
         return ret;
     }
 
@@ -142,7 +142,7 @@ namespace IO
 #endif
     }
 
-    int MonoIO::Read(Il2CppIntPtr handle, Il2CppArray *dest, int dest_offset, int count, int *error)
+    int MonoIO::Read(intptr_t handle, Il2CppArray *dest, int dest_offset, int count, int *error)
     {
         IL2CPP_ASSERT(dest != NULL);
 
@@ -151,7 +151,7 @@ namespace IO
         if (((uint32_t)dest_offset + count) > il2cpp::vm::Array::GetLength(dest))
             return 0;
 
-        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle;
 
         char *buffer = il2cpp_array_addr(dest, char, dest_offset);
 
@@ -163,19 +163,19 @@ namespace IO
         return il2cpp::os::Directory::SetCurrent(il2cpp::utils::StringUtils::Utf16ToUtf8(path->chars), error);
     }
 
-    bool MonoIO::SetLength(Il2CppIntPtr handle, int64_t length, int *error)
+    bool MonoIO::SetLength(intptr_t handle, int64_t length, int *error)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::SetLength(fileHandle, length, error);
     }
 
-    int64_t MonoIO::Seek(Il2CppIntPtr handle, int64_t offset, int origin, int *error)
+    int64_t MonoIO::Seek(intptr_t handle, int64_t offset, int origin, int *error)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::Seek(fileHandle, offset, origin, error);
     }
 
-    int MonoIO::Write(Il2CppIntPtr handle, Il2CppArray * src, int src_offset, int count, int * error)
+    int MonoIO::Write(intptr_t handle, Il2CppArray * src, int src_offset, int count, int * error)
     {
         IL2CPP_ASSERT(src != NULL);
 
@@ -184,7 +184,7 @@ namespace IO
         if ((uint32_t)(src_offset + count) > il2cpp::vm::Array::GetLength(src))
             return 0;
 
-        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle;
         char *buffer = il2cpp_array_addr(src, char, src_offset);
 
         return il2cpp::os::File::Write(h, buffer, count, error);
@@ -244,37 +244,37 @@ namespace IO
         return il2cpp::os::File::SetFileAttributes(il2cpp::utils::StringUtils::Utf16ToUtf8(path->chars), (UnityPalFileAttributes)attrs, error);
     }
 
-    bool MonoIO::Flush(Il2CppIntPtr handle, MonoIOError* error)
+    bool MonoIO::Flush(intptr_t handle, MonoIOError* error)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::Flush(fileHandle, error);
     }
 
-    bool MonoIO::SetFileTime(Il2CppIntPtr handle, int64_t creation_time, int64_t last_access_time, int64_t last_write_time, MonoIOError* error)
+    bool MonoIO::SetFileTime(intptr_t handle, int64_t creation_time, int64_t last_access_time, int64_t last_write_time, MonoIOError* error)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::SetFileTime(fileHandle, creation_time, last_access_time, last_write_time, error);
     }
 
-    void MonoIO::Lock(Il2CppIntPtr handle, int64_t position, int64_t length, MonoIOError* error)
+    void MonoIO::Lock(intptr_t handle, int64_t position, int64_t length, MonoIOError* error)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::Lock(fileHandle, position, length, error);
     }
 
-    void MonoIO::Unlock(Il2CppIntPtr handle, int64_t position, int64_t length, MonoIOError* error)
+    void MonoIO::Unlock(intptr_t handle, int64_t position, int64_t length, MonoIOError* error)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
         return il2cpp::os::File::Unlock(fileHandle, position, length, error);
     }
 
-    bool MonoIO::CreatePipe(Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle)
+    bool MonoIO::CreatePipe(intptr_t* read_handle, intptr_t* write_handle)
     {
         MonoIOError error;
         return CreatePipe40(read_handle, write_handle, &error);
     }
 
-    bool MonoIO::DuplicateHandle(Il2CppIntPtr source_process_handle, Il2CppIntPtr source_handle, Il2CppIntPtr target_process_handle, Il2CppIntPtr* target_handle, int32_t access, int32_t inherit, int32_t options)
+    bool MonoIO::DuplicateHandle(intptr_t source_process_handle, intptr_t source_handle, intptr_t target_process_handle, intptr_t* target_handle, int32_t access, int32_t inherit, int32_t options)
     {
         MonoIOError error;
         return DuplicateHandle40(source_process_handle, source_handle, target_process_handle, target_handle, access, inherit, options, &error);
@@ -288,10 +288,10 @@ namespace IO
         return utils::StringUtils::GetLength(*path);
     }
 
-    bool MonoIO::CreatePipe40(Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle, MonoIOError* error)
+    bool MonoIO::CreatePipe40(intptr_t* read_handle, intptr_t* write_handle, MonoIOError* error)
     {
-        il2cpp::os::FileHandle** input = (il2cpp::os::FileHandle**)&read_handle->m_value;
-        il2cpp::os::FileHandle** output = (il2cpp::os::FileHandle**)&write_handle->m_value;
+        il2cpp::os::FileHandle** input = (il2cpp::os::FileHandle**)read_handle;
+        il2cpp::os::FileHandle** output = (il2cpp::os::FileHandle**)write_handle;
 
 #if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
         vm::Exception::Raise(vm::Exception::GetNotSupportedException("Pipes are not supported on WinRT based platforms."));
@@ -300,12 +300,12 @@ namespace IO
 #endif
     }
 
-    bool MonoIO::DuplicateHandle40(Il2CppIntPtr source_process_handle, Il2CppIntPtr source_handle, Il2CppIntPtr target_process_handle, Il2CppIntPtr* target_handle, int32_t access, int32_t inherit, int32_t options, MonoIOError* error)
+    bool MonoIO::DuplicateHandle40(intptr_t source_process_handle, intptr_t source_handle, intptr_t target_process_handle, intptr_t* target_handle, int32_t access, int32_t inherit, int32_t options, MonoIOError* error)
     {
-        il2cpp::os::FileHandle* spHandle = (il2cpp::os::FileHandle*)source_process_handle.m_value;
-        il2cpp::os::FileHandle* sHandle = (il2cpp::os::FileHandle*)source_handle.m_value;
-        il2cpp::os::FileHandle* tpHandle = (il2cpp::os::FileHandle*)target_process_handle.m_value;
-        il2cpp::os::FileHandle** tHandle = (il2cpp::os::FileHandle**)&target_handle->m_value;
+        il2cpp::os::FileHandle* spHandle = (il2cpp::os::FileHandle*)source_process_handle;
+        il2cpp::os::FileHandle* sHandle = (il2cpp::os::FileHandle*)source_handle;
+        il2cpp::os::FileHandle* tpHandle = (il2cpp::os::FileHandle*)target_process_handle;
+        il2cpp::os::FileHandle** tHandle = (il2cpp::os::FileHandle**)target_handle;
         return il2cpp::os::File::DuplicateHandle(spHandle, sHandle, tpHandle, tHandle, access, inherit, options, error);
     }
 
@@ -327,9 +327,9 @@ namespace IO
         return result;
     }
 
-    int32_t MonoIO::FindClose(Il2CppIntPtr handle)
+    int32_t MonoIO::FindClose(intptr_t handle)
     {
-        return CloseFindHandle(static_cast<os::Directory::FindHandle*>(handle.m_value));
+        return CloseFindHandle(reinterpret_cast<os::Directory::FindHandle*>(handle));
     }
 
     Il2CppString* PrepareFindResult(os::Directory::FindHandle* findHandle, Il2CppNativeString& fileName, int32_t* resultAttributes, MonoIOError* error)
@@ -367,7 +367,7 @@ namespace IO
         return result;
     }
 
-    Il2CppString* MonoIO::FindFirst(Il2CppString* path, Il2CppString* pathWithPattern, int32_t* resultAttributes, MonoIOError* error, Il2CppIntPtr* handle)
+    Il2CppString* MonoIO::FindFirst(Il2CppString* path, Il2CppString* pathWithPattern, int32_t* resultAttributes, MonoIOError* error, intptr_t* handle)
     {
         DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(pathWithPatternNative, pathWithPattern);
         os::Directory::FindHandle* findHandle = new(utils::Memory::Malloc(sizeof(os::Directory::FindHandle))) os::Directory::FindHandle(pathWithPatternNative);
@@ -383,22 +383,22 @@ namespace IO
             return NULL;
         }
 
-        handle->m_value = findHandle;
+        *handle = reinterpret_cast<intptr_t>(findHandle);
         Il2CppString* result = PrepareFindResult(findHandle, fileName, resultAttributes, error);
 
         if (result == NULL)
         {
-            handle->m_value = NULL;
+            *handle = 0;
             CloseFindHandle(findHandle);
         }
 
         return result;
     }
 
-    Il2CppString* MonoIO::FindNext(Il2CppIntPtr handle, int32_t* resultAttributes, MonoIOError* error)
+    Il2CppString* MonoIO::FindNext(intptr_t handle, int32_t* resultAttributes, MonoIOError* error)
     {
         Il2CppNativeString fileName;
-        os::Directory::FindHandle* findHandle = static_cast<os::Directory::FindHandle*>(handle.m_value);
+        os::Directory::FindHandle* findHandle = reinterpret_cast<os::Directory::FindHandle*>(handle);
         return PrepareFindResult(findHandle, fileName, resultAttributes, error);
     }
 
@@ -406,6 +406,67 @@ namespace IO
     {
         NOT_IMPLEMENTED_ICALL(MonoIO::DumpHandles);
         IL2CPP_UNREACHABLE;
+    }
+
+#endif
+
+#if NET_4_0
+    bool MonoIO::FindCloseFile(intptr_t hnd)
+    {
+        return CloseFindHandle(reinterpret_cast<os::Directory::FindHandle*>(hnd));
+    }
+
+    bool MonoIO::FindNextFile(intptr_t hnd, Il2CppString** fileName, int32_t* fileAttr, int32_t* error)
+    {
+        Il2CppNativeString fileNameNative;
+        os::Directory::FindHandle* findHandle = reinterpret_cast<os::Directory::FindHandle*>(hnd);
+
+        while (fileNameNative.empty() || fileNameNative == IL2CPP_NATIVE_STRING(".") || fileNameNative == IL2CPP_NATIVE_STRING(".."))
+        {
+            os::ErrorCode findError = os::Directory::FindNextFile(findHandle, &fileNameNative, fileAttr);
+            if (findError != os::kErrorCodeSuccess)
+            {
+                *error = findError;
+                return false;
+            }
+        }
+
+        DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(fileNameNativeUtf16, fileNameNative);
+        *fileName = vm::String::NewUtf16(fileNameNativeUtf16);
+        return true;
+    }
+
+    intptr_t MonoIO::FindFirstFile(Il2CppString* path_with_pattern, Il2CppString** fileName, int32_t* fileAttr, int32_t* error)
+    {
+        DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(pathWithPatternNative, path_with_pattern);
+        os::Directory::FindHandle* findHandle = new(utils::Memory::Malloc(sizeof(os::Directory::FindHandle))) os::Directory::FindHandle(pathWithPatternNative);
+
+        Il2CppNativeString fileNameNative;
+        os::ErrorCode findError = os::Directory::FindFirstFile(findHandle, pathWithPatternNative, &fileNameNative, fileAttr);
+        if (findError != os::kErrorCodeSuccess)
+        {
+            *error = findError;
+
+            CloseFindHandle(findHandle);
+            return 0;
+        }
+
+        while (fileNameNative.empty() || fileNameNative == IL2CPP_NATIVE_STRING(".") || fileNameNative == IL2CPP_NATIVE_STRING(".."))
+        {
+            os::ErrorCode findError = os::Directory::FindNextFile(findHandle, &fileNameNative, fileAttr);
+            if (findError != os::kErrorCodeSuccess)
+            {
+                *error = findError;
+
+                CloseFindHandle(findHandle);
+                return 0;
+            }
+        }
+
+        DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(fileNameNativeUtf16, fileNameNative);
+        *fileName = vm::String::NewUtf16(fileNameNativeUtf16);
+
+        return reinterpret_cast<intptr_t>(findHandle);
     }
 
 #endif

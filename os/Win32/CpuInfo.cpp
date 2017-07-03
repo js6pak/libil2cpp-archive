@@ -1,8 +1,9 @@
-#if NET_4_0
-#if IL2CPP_ENABLE_CPU_INFO
 #include "il2cpp-config.h"
 
-#if IL2CPP_PLATFORM_WIN32
+#if NET_4_0
+#if IL2CPP_ENABLE_CPU_INFO
+
+#if IL2CPP_TARGET_WINDOWS
 
 #include "os/CpuInfo.h"
 #include "utils/Memory.h"

@@ -43,9 +43,9 @@ namespace os
 
 // safe array
 
-    Il2CppSafeArray* COM::SafeArrayCreate(uint16_t type, uint32_t dimention_count, Il2CppSafeArrayBound* bounds)
+    Il2CppSafeArray* COM::SafeArrayCreate(uint16_t type, uint32_t dimension_count, Il2CppSafeArrayBound* bounds)
     {
-        return reinterpret_cast<Il2CppSafeArray*>(::SafeArrayCreate(type, dimention_count, reinterpret_cast<SAFEARRAYBOUND*>(bounds)));
+        return reinterpret_cast<Il2CppSafeArray*>(::SafeArrayCreate(type, dimension_count, reinterpret_cast<SAFEARRAYBOUND*>(bounds)));
     }
 
     il2cpp_hresult_t COM::SafeArrayDestroy(Il2CppSafeArray* safeArray)

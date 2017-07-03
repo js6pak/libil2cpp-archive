@@ -4,8 +4,13 @@
 #include "il2cpp-config.h"
 #include "../Allocator.h"
 
+#if IL2CPP_TARGET_PS4
+size_t g_args;
+const void *g_argp;
+#endif
+
 // Have to define this due to Unity's customized
-// version of UNitTest++ that integrates into the Unity
+// version of UnitTest++ that integrates into the Unity
 // editor.
 
 extern "C"

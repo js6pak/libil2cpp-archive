@@ -43,7 +43,7 @@ namespace vm
             const MethodInfo *method = asyncResult->async_delegate->method;
             void** outArgsPtr = (void**)il2cpp_array_addr(arrayOutArgs, Il2CppObject*, 0);
 
-            for (int i = 0; i < arrayOutArgs->max_length; ++i)
+            for (il2cpp_array_size_t i = 0; i < arrayOutArgs->max_length; ++i)
             {
                 const Il2CppType* paramType = method->parameters[i].parameter_type;
 

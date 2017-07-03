@@ -351,14 +351,6 @@ namespace os
         return m_Socket->SetSocketOptionMembership(level, name, group_address, local_address);
     }
 
-#if IL2CPP_SUPPORT_IPV6
-    WaitStatus Socket::SetSocketOptionMembership(SocketOptionLevel level, SocketOptionName name, IPv6Address ipv6, uint64_t interfaceOffset)
-    {
-        return m_Socket->SetSocketOptionMembership(level, name, ipv6, interfaceOffset);
-    }
-
-#endif
-
     WaitStatus Socket::SendFile(const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options)
     {
         return m_Socket->SendFile(filename, buffers, options);

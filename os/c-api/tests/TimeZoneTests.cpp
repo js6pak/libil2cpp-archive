@@ -1,176 +1,107 @@
 #if ENABLE_UNIT_TESTS
 
+#include "il2cpp-config.h"
+
 #include "UnitTest++.h"
 
 #include "../TimeZone-c-api.h"
 #include "../../TimeZone.h"
 
 
-SUITE(TimeZoneTests)
+SUITE(TimeZone)
 {
     static const int32_t INVALID_YEAR = -45;
     static const int32_t VALID_YEAR = 2015;
 
-    TEST(TimeZoneResultMatchesClassResultValidYear)
+    struct TimeZoneFixture
     {
         int64_t data_c_api[4];
         const char* names_c_api[2];
-        bool result_c_api;
 
         int64_t data_class[4];
         std::string names_class[2];
-        bool result_class;
+    };
 
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
-
-        CHECK_EQUAL(result_class, result_c_api);
+    TEST_FIXTURE(TimeZoneFixture, ResultMatchesClassResultValidYear)
+    {
+        CHECK_EQUAL((int32_t)il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class), UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api));
     }
 
-    TEST(TimeZoneResultMatchesClassResultInValidYear)
+    TEST_FIXTURE(TimeZoneFixture, ResultMatchesClassResultInValidYear)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        int64_t data_class[4];
-        std::string names_class[2];
-        bool result_class;
-
-        result_c_api = UnityPalGetTimeZoneData(INVALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(INVALID_YEAR, data_class, names_class);
-
-        CHECK_EQUAL(result_class, result_c_api);
+        CHECK_EQUAL((int32_t)il2cpp::os::TimeZone::GetTimeZoneData(INVALID_YEAR, data_class, names_class), UnityPalGetTimeZoneData(INVALID_YEAR, data_c_api, names_c_api));
     }
 
-    TEST(TimeZoneStartOfDayLightSavingsValidYearMatchesClass)
+    TEST_FIXTURE(TimeZoneFixture, StartOfDayLightSavingsValidYearMatchesClass)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        int64_t data_class[4];
-        std::string names_class[2];
-        bool result_class;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
 
         CHECK_EQUAL(data_class[0], data_c_api[0]);
     }
 
-    TEST(TimeZoneEndOfDayLightSavingsValidYearMatchesClass)
+    TEST_FIXTURE(TimeZoneFixture, EndOfDayLightSavingsValidYearMatchesClass)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        int64_t data_class[4];
-        std::string names_class[2];
-        bool result_class;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
 
         CHECK_EQUAL(data_class[1], data_c_api[1]);
     }
 
-    TEST(TimeZoneUTFOffsetValidYear)
+    TEST_FIXTURE(TimeZoneFixture, UTCOffsetValidYear)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
 
         CHECK(data_c_api[2] < 1L);
     }
 
-    TEST(TimeZoneUTFOffSetValidYearMatchesClass)
+    TEST_FIXTURE(TimeZoneFixture, UTCOffSetValidYearMatchesClass)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        int64_t data_class[4];
-        std::string names_class[2];
-        bool result_class;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
 
         CHECK_EQUAL(data_class[2], data_c_api[2]);
     }
 
-    TEST(TimeZoneAdditionalOffSetValidYearMatchesClass)
+    TEST_FIXTURE(TimeZoneFixture, AdditionalOffSetValidYearMatchesClass)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        int64_t data_class[4];
-        std::string names_class[2];
-        bool result_class;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
 
         CHECK_EQUAL(data_class[3], data_c_api[3]);
     }
 
-    TEST(TimeZoneNameNotDayLighttValidYear)
+#if !IL2CPP_TARGET_PS4
+    TEST_FIXTURE(TimeZoneFixture, NameNotDayLightValidYear)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
 
         CHECK(strlen(names_c_api[0]) > 1);
     }
 
-    TEST(TimeZoneNameNotDayLightValidYearMatchesClass)
+    TEST_FIXTURE(TimeZoneFixture, NameNotDayLightValidYearMatchesClass)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        int64_t data_class[4];
-        std::string names_class[2];
-        bool result_class;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
 
         CHECK_EQUAL(names_class[0].c_str(), names_c_api[0]);
     }
 
-    TEST(TimeZoneNameDayLighttValidYear)
+    TEST_FIXTURE(TimeZoneFixture, NameDayLightValidYear)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
 
         CHECK(strlen(names_c_api[1]) > 1);
     }
 
-    TEST(TimeZoneNameDayLightValidYearMatchesClass)
+    TEST_FIXTURE(TimeZoneFixture, NameDayLightValidYearMatchesClass)
     {
-        int64_t data_c_api[4];
-        const char* names_c_api[2];
-        bool result_c_api;
-
-        int64_t data_class[4];
-        std::string names_class[2];
-        bool result_class;
-
-        result_c_api = UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
-        result_class = il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
+        UnityPalGetTimeZoneData(VALID_YEAR, data_c_api, names_c_api);
+        il2cpp::os::TimeZone::GetTimeZoneData(VALID_YEAR, data_class, names_class);
 
         CHECK_EQUAL(names_class[1].c_str(), names_c_api[1]);
     }
+#endif
 }
 
 #endif // ENABLE_UNIT_TESTS

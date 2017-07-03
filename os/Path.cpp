@@ -19,6 +19,11 @@ namespace os
     {
         return std::string("<NotImplemented>");
     }
+
+    bool Path::IsAbsolute(const std::string& path)
+    {
+        return false;
+    }
 }
 }
 

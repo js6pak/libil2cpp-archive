@@ -37,11 +37,6 @@ namespace vm
         return method->is_inflated;
     }
 
-    bool Method::IsGenericInstance(const MethodInfo *method)
-    {
-        return method->is_inflated && !method->is_generic;
-    }
-
     bool Method::IsInstance(const MethodInfo *method)
     {
         return !(method->flags & METHOD_ATTRIBUTE_STATIC);

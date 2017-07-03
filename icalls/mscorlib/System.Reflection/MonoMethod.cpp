@@ -101,7 +101,7 @@ namespace Reflection
         return m->name;
     }
 
-    mscorlib_System_Runtime_InteropServices_DllImportAttribute * MonoMethod::GetDllImportAttribute(Il2CppIntPtr)
+    mscorlib_System_Runtime_InteropServices_DllImportAttribute * MonoMethod::GetDllImportAttribute(intptr_t)
     {
         //Todo: [DllImport] is an pseudo attribute. it doesn't exist in the metadata as an attribute, but as a flag on a method.
         //however, if you use reflection to ask for attributes, it does get reported, so what needs to happen is we create an attribute
@@ -270,15 +270,24 @@ namespace Reflection
         return message;
     }
 
+    static std::string FormatExceptionMessageForNonGenericMethod(const MethodInfo* method)
+    {
+        std::string message;
+        message += "The method '";
+        message += Type::GetName(method->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+        message += "::";
+        message += Method::GetName(method);
+        message += "' is not a generic method.";
+
+        return message;
+    }
+
     Il2CppReflectionMethod* MonoMethod::MakeGenericMethod_impl(Il2CppReflectionMethod* method, Il2CppArray* genericArgumentTypes)
     {
         const MethodInfo* genericMethodDefinition = method->method;
 
         if (!genericMethodDefinition->is_generic)
-        {
-            std::string message; // what's the point of this ?
-            Exception::Raise(Exception::GetInvalidOperationException(message.c_str()));
-        }
+            Exception::Raise(Exception::GetInvalidOperationException(FormatExceptionMessageForNonGenericMethod(genericMethodDefinition).c_str()));
 
         uint32_t arrayLength = Array::GetLength(genericArgumentTypes);
         Il2CppTypeVector genericArguments;

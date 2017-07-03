@@ -55,7 +55,7 @@ namespace vm
         static void MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer);
         static void MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, Il2CppChar* buffer);
 
-        static Il2CppIntPtr MarshalDelegate(Il2CppDelegate* d);
+        static intptr_t MarshalDelegate(Il2CppDelegate* d);
         static Il2CppDelegate* MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType);
 
         template<typename T>

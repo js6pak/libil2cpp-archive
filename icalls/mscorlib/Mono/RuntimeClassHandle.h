@@ -15,7 +15,7 @@ namespace Mono
     class LIBIL2CPP_CODEGEN_API RuntimeClassHandle
     {
     public:
-        static Il2CppIntPtr GetTypeFromClass(Il2CppClass* klass);
+        static intptr_t GetTypeFromClass(Il2CppClass* klass);
     };
 } // namespace Mono
 } // namespace mscorlib

@@ -50,10 +50,10 @@ namespace os
 
 // safe array
 
-    Il2CppSafeArray* COM::SafeArrayCreate(uint16_t type, uint32_t dimention_count, Il2CppSafeArrayBound* bounds)
+    Il2CppSafeArray* COM::SafeArrayCreate(uint16_t type, uint32_t dimension_count, Il2CppSafeArrayBound* bounds)
     {
         NO_UNUSED_WARNING(type);
-        NO_UNUSED_WARNING(dimention_count);
+        NO_UNUSED_WARNING(dimension_count);
         NO_UNUSED_WARNING(bounds);
         return NULL;
     }

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <string>
 #include "os/ErrorCodes.h"
-#include "os/OSGlobalEnums.h"
+#include "os/c-api/OSGlobalEnums.h"
 
 namespace il2cpp
 {
@@ -54,6 +54,7 @@ namespace os
         static bool Flush(FileHandle* handle, int* error);
         static void Lock(FileHandle* handle,  int64_t position, int64_t length, int* error);
         static void Unlock(FileHandle* handle,  int64_t position, int64_t length, int* error);
+        static bool IsExecutable(const std::string& path);
 
         static bool DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
             FileHandle** target_handle, int access, int inherit, int options, int* error);

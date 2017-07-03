@@ -15,8 +15,8 @@ namespace Mono
     class LIBIL2CPP_CODEGEN_API SafeStringMarshal
     {
     public:
-        static Il2CppIntPtr StringToUtf8(Il2CppString* str);
-        static void GFree(Il2CppIntPtr ptr);
+        static intptr_t StringToUtf8(Il2CppString* str);
+        static void GFree(intptr_t ptr);
     };
 } // namespace Mono
 } // namespace mscorlib

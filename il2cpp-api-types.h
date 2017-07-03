@@ -174,4 +174,5 @@ typedef void (*Il2CppLogCallback)(const char*);
 struct Il2CppManagedMemorySnapshot;
 
 typedef void (*Il2CppMethodPointer)();
-typedef int32_t il2cpp_array_size_t;
+typedef uintptr_t il2cpp_array_size_t;
+#define ARRAY_LENGTH_AS_INT32(a) ((int32_t)a)

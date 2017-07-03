@@ -3,12 +3,12 @@
 
 extern "C"
 {
-bool UnityPalNativeCloseProcess(UnityPalProcessHandle* handle)
+int32_t UnityPalNativeCloseProcess(UnityPalProcessHandle* handle)
 {
     return il2cpp::os::NativeMethods::CloseProcess(handle);
 }
 
-bool UnityPalNativeGetExitCodeProcess(UnityPalProcessHandle* handle, int32_t* exitCode)
+int32_t UnityPalNativeGetExitCodeProcess(UnityPalProcessHandle* handle, int32_t* exitCode)
 {
     return il2cpp::os::NativeMethods::GetExitCodeProcess(handle, exitCode);
 }

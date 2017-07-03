@@ -15,45 +15,45 @@ namespace Microsoft
 {
 namespace Win32
 {
-    bool NativeMethods::CloseProcess(Il2CppIntPtr handle)
+    bool NativeMethods::CloseProcess(intptr_t handle)
     {
-        return os::NativeMethods::CloseProcess((il2cpp::os::ProcessHandle*)handle.m_value);
+        return os::NativeMethods::CloseProcess((il2cpp::os::ProcessHandle*)handle);
     }
 
-    bool NativeMethods::GetExitCodeProcess(Il2CppIntPtr processHandle, int32_t* exitCode)
+    bool NativeMethods::GetExitCodeProcess(intptr_t processHandle, int32_t* exitCode)
     {
-        return os::NativeMethods::GetExitCodeProcess((il2cpp::os::ProcessHandle*)processHandle.m_value, exitCode);
+        return os::NativeMethods::GetExitCodeProcess((il2cpp::os::ProcessHandle*)processHandle, exitCode);
     }
 
-    bool NativeMethods::GetProcessTimes(Il2CppIntPtr handle, int64_t* creation, int64_t* exit, int64_t* kernel, int64_t* user)
+    bool NativeMethods::GetProcessTimes(intptr_t handle, int64_t* creation, int64_t* exit, int64_t* kernel, int64_t* user)
     {
         NOT_IMPLEMENTED_ICALL(NativeMethods::GetProcessTimes);
         IL2CPP_UNREACHABLE;
         return false;
     }
 
-    bool NativeMethods::GetProcessWorkingSetSize(Il2CppIntPtr handle, Il2CppIntPtr* min, Il2CppIntPtr* max)
+    bool NativeMethods::GetProcessWorkingSetSize(intptr_t handle, intptr_t* min, intptr_t* max)
     {
         NOT_IMPLEMENTED_ICALL(NativeMethods::GetProcessWorkingSetSize);
         IL2CPP_UNREACHABLE;
         return false;
     }
 
-    bool NativeMethods::SetPriorityClass(Il2CppIntPtr handle, int32_t priorityClass)
+    bool NativeMethods::SetPriorityClass(intptr_t handle, int32_t priorityClass)
     {
         NOT_IMPLEMENTED_ICALL(NativeMethods::SetPriorityClass);
         IL2CPP_UNREACHABLE;
         return false;
     }
 
-    bool NativeMethods::SetProcessWorkingSetSize(Il2CppIntPtr handle, Il2CppIntPtr min, Il2CppIntPtr max)
+    bool NativeMethods::SetProcessWorkingSetSize(intptr_t handle, intptr_t min, intptr_t max)
     {
         NOT_IMPLEMENTED_ICALL(NativeMethods::SetProcessWorkingSetSize);
         IL2CPP_UNREACHABLE;
         return false;
     }
 
-    bool NativeMethods::TerminateProcess(Il2CppIntPtr processHandle, int32_t exitCode)
+    bool NativeMethods::TerminateProcess(intptr_t processHandle, int32_t exitCode)
     {
         NOT_IMPLEMENTED_ICALL(NativeMethods::TerminateProcess);
         IL2CPP_UNREACHABLE;
@@ -65,25 +65,23 @@ namespace Win32
         return os::NativeMethods::GetCurrentProcessId();
     }
 
-    int32_t NativeMethods::GetPriorityClass(Il2CppIntPtr handle)
+    int32_t NativeMethods::GetPriorityClass(intptr_t handle)
     {
         NOT_IMPLEMENTED_ICALL(NativeMethods::GetPriorityClass);
         IL2CPP_UNREACHABLE;
         return 0;
     }
 
-    int32_t NativeMethods::WaitForInputIdle(Il2CppIntPtr handle, int32_t milliseconds)
+    int32_t NativeMethods::WaitForInputIdle(intptr_t handle, int32_t milliseconds)
     {
         NOT_IMPLEMENTED_ICALL(NativeMethods::WaitForInputIdle);
         IL2CPP_UNREACHABLE;
         return 0;
     }
 
-    Il2CppIntPtr NativeMethods::GetCurrentProcess()
+    intptr_t NativeMethods::GetCurrentProcess()
     {
-        Il2CppIntPtr handle;
-        handle.m_value = os::NativeMethods::GetCurrentProcess();
-        return handle;
+        return reinterpret_cast<intptr_t>(os::NativeMethods::GetCurrentProcess());
     }
 } // namespace Win32
 } // namespace Microsoft

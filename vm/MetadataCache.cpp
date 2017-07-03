@@ -29,14 +29,12 @@
 #include "utils/Il2CppHashSet.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
-#include "utils/PathUtils.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataLoader.h"
 #include "vm/MetadataLock.h"
-#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/String.h"
 #include "vm/Type.h"
@@ -184,11 +182,6 @@ void MetadataCache::Initialize()
         const Il2CppImageDefinition* imageDefinition = imagesDefinitions + imageIndex;
         Il2CppImage* image = s_ImagesTable + imageIndex;
         image->name = GetStringFromIndex(imageDefinition->nameIndex);
-
-        std::string nameNoExt = utils::PathUtils::PathNoExtension(image->name);
-        image->nameNoExt = (char*)IL2CPP_CALLOC(nameNoExt.size() + 1, sizeof(char));
-        strcpy(const_cast<char*>(image->nameNoExt), nameNoExt.c_str());
-
         image->assemblyIndex = imageDefinition->assemblyIndex;
         image->typeStart = imageDefinition->typeStart;
         image->typeCount = imageDefinition->typeCount;
@@ -1021,11 +1014,6 @@ const Il2CppFieldDefaultValue* MetadataCache::GetFieldDefaultValueForField(const
 
 const Il2CppParameterDefaultValue * il2cpp::vm::MetadataCache::GetParameterDefaultValueForParameter(const MethodInfo* method, const ParameterInfo* parameter)
 {
-    if (Method::IsGenericInstance(method))
-        method = GetGenericMethodDefinition(method);
-
-    IL2CPP_ASSERT(!Method::IsGenericInstance(method));
-
     if (method->methodDefinition == NULL)
         return NULL;
 
