@@ -173,15 +173,13 @@ namespace System
         Type::GetPacking(&_this->type, packing, size);
     }
 
-    Il2CppIntPtr RuntimeType::GetConstructors_native(Il2CppReflectionRuntimeType* thisPtr, int32_t bindingAttr)
+    intptr_t RuntimeType::GetConstructors_native(Il2CppReflectionRuntimeType* thisPtr, int32_t bindingAttr)
     {
         Il2CppReflectionMethod *method;
-        Il2CppIntPtr retVal;
 
         if (thisPtr->type.type->byref)
         {
-            retVal.m_value = empty_gptr_array();
-            return retVal;
+            return reinterpret_cast<intptr_t>(empty_gptr_array());
         }
 
         VoidPtrArray res_array;
@@ -195,26 +193,23 @@ namespace System
             res_array.push_back((MethodInfo*)method->method);
         }
 
-        retVal.m_value = void_ptr_array_to_gptr_array(res_array);
-        return retVal;
+        return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(res_array));
     }
 
-    Il2CppIntPtr RuntimeType::GetEvents_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr)
+    intptr_t RuntimeType::GetEvents_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr)
     {
         Il2CppReflectionMonoEvent *event;
         VoidPtrArray res_array;
-        Il2CppIntPtr retVal;
-        const char *utf8_name = (const char*)name.m_value;
 
         if (thisPtr->type.type->byref)
         {
-            retVal.m_value = empty_gptr_array();
-            return retVal;
+            return reinterpret_cast<intptr_t>(empty_gptr_array());
         }
 
         res_array.reserve(4);
 
-        Il2CppString* nameStr = name.m_value == NULL ? NULL : il2cpp::vm::String::New((const char*)name.m_value);
+        const char *utf8_name = reinterpret_cast<const char*>(name);
+        Il2CppString* nameStr = utf8_name == NULL ? NULL : il2cpp::vm::String::New(utf8_name);
         Il2CppArray* events = MonoType::GetEventsByName(&thisPtr->type, nameStr, bindingAttr, &thisPtr->type);
 
         for (unsigned int i = 0; i < il2cpp::vm::Array::GetLength(events); i++)
@@ -223,26 +218,24 @@ namespace System
             res_array.push_back((EventInfo*)event->eventInfo);
         }
 
-        retVal.m_value = void_ptr_array_to_gptr_array(res_array);
-        return retVal;
+        return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(res_array));
     }
 
-    Il2CppIntPtr RuntimeType::GetFields_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr)
+    intptr_t RuntimeType::GetFields_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr)
     {
         Il2CppReflectionField *field;
-        Il2CppIntPtr retVal;
 
         VoidPtrArray res_array;
 
         if (thisPtr->type.type->byref)
         {
-            retVal.m_value = empty_gptr_array();
-            return retVal;
+            return reinterpret_cast<intptr_t>(empty_gptr_array());
         }
 
         res_array.reserve(16);
 
-        Il2CppString* nameStr = name.m_value == NULL ? NULL : il2cpp::vm::String::New((const char*)name.m_value);
+        const char *utf8_name = reinterpret_cast<const char*>(name);
+        Il2CppString* nameStr = utf8_name == NULL ? NULL : il2cpp::vm::String::New(utf8_name);
         Il2CppArray* fields = MonoType::GetFieldsByName(&thisPtr->type, nameStr, bindingAttr, &thisPtr->type);
 
         for (unsigned int i = 0; i < il2cpp::vm::Array::GetLength(fields); i++)
@@ -251,24 +244,21 @@ namespace System
             res_array.push_back(field->field);
         }
 
-        retVal.m_value = void_ptr_array_to_gptr_array(res_array);
-        return retVal;
+        return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(res_array));
     }
 
-    Il2CppIntPtr RuntimeType::GetMethodsByName_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr namePtr, int32_t bindingAttr, bool ignoreCase)
+    intptr_t RuntimeType::GetMethodsByName_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t namePtr, int32_t bindingAttr, bool ignoreCase)
     {
         VoidPtrArray res_array;
-        Il2CppIntPtr retVal;
         Il2CppReflectionMethod *method;
 
         if (thisPtr->type.type->byref)
         {
-            Il2CppIntPtr retVal;
-            retVal.m_value = empty_gptr_array();
-            return retVal;
+            return reinterpret_cast<intptr_t>(empty_gptr_array());
         }
 
-        Il2CppString* nameStr = namePtr.m_value == NULL ? NULL : il2cpp::vm::String::New((const char*)namePtr.m_value);
+        const char *utf8_name = reinterpret_cast<const char*>(namePtr);
+        Il2CppString* nameStr = utf8_name == NULL ? NULL : il2cpp::vm::String::New(utf8_name);
         Il2CppArray* methods = MonoType::GetMethodsByName(&thisPtr->type, nameStr, bindingAttr, ignoreCase, &thisPtr->type);
 
         for (unsigned int i = 0; i < il2cpp::vm::Array::GetLength(methods); i++)
@@ -277,23 +267,21 @@ namespace System
             res_array.push_back((MethodInfo*)method->method);
         }
 
-        retVal.m_value = void_ptr_array_to_gptr_array(res_array);
-        return retVal;
+        return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(res_array));
     }
 
-    Il2CppIntPtr RuntimeType::GetNestedTypes_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr)
+    intptr_t RuntimeType::GetNestedTypes_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr)
     {
         Il2CppReflectionType *nested;
         VoidPtrArray res_array;
-        Il2CppIntPtr retVal;
 
         if (thisPtr->type.type->byref)
         {
-            retVal.m_value = empty_gptr_array();
-            return retVal;
+            return reinterpret_cast<intptr_t>(empty_gptr_array());
         }
 
-        Il2CppString* nameStr = name.m_value == NULL ? NULL : il2cpp::vm::String::New((const char*)name.m_value);
+        const char *utf8_name = reinterpret_cast<const char*>(name);
+        Il2CppString* nameStr = utf8_name == NULL ? NULL : il2cpp::vm::String::New(utf8_name);
         Il2CppArray* nestedTypes = MonoType::GetNestedTypesByName(&thisPtr->type, nameStr, bindingAttr);
 
         for (unsigned int i = 0; i < il2cpp::vm::Array::GetLength(nestedTypes); i++)
@@ -302,25 +290,23 @@ namespace System
             res_array.push_back((Il2CppType*)nested->type);
         }
 
-        retVal.m_value = void_ptr_array_to_gptr_array(res_array);
-        return retVal;
+        return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(res_array));
     }
 
-    Il2CppIntPtr RuntimeType::GetPropertiesByName_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr, bool icase)
+    intptr_t RuntimeType::GetPropertiesByName_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr, bool icase)
     {
         Il2CppReflectionProperty *prop;
         VoidPtrArray res_array;
-        Il2CppIntPtr retVal;
 
         if (thisPtr->type.type->byref)
         {
-            retVal.m_value = empty_gptr_array();
-            return retVal;
+            return reinterpret_cast<intptr_t>(empty_gptr_array());
         }
 
         res_array.reserve(8);
 
-        Il2CppString* nameStr = name.m_value == NULL ? NULL : il2cpp::vm::String::New((const char*)name.m_value);
+        const char *utf8_name = reinterpret_cast<const char*>(name);
+        Il2CppString* nameStr = utf8_name == NULL ? NULL : il2cpp::vm::String::New(utf8_name);
         Il2CppArray* properties = MonoType::GetPropertiesByName(&thisPtr->type, nameStr, bindingAttr, icase, &thisPtr->type);
 
         for (unsigned int i = 0; i < il2cpp::vm::Array::GetLength(properties); i++)
@@ -329,8 +315,7 @@ namespace System
             res_array.push_back((PropertyInfo*)prop->property);
         }
 
-        retVal.m_value = void_ptr_array_to_gptr_array(res_array);
-        return retVal;
+        return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(res_array));
     }
 } // namespace System
 } // namespace mscorlib

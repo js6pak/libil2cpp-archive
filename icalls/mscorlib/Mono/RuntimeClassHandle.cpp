@@ -13,11 +13,9 @@ namespace mscorlib
 {
 namespace Mono
 {
-    Il2CppIntPtr RuntimeClassHandle::GetTypeFromClass(Il2CppClass* klass)
+    intptr_t RuntimeClassHandle::GetTypeFromClass(Il2CppClass* klass)
     {
-        Il2CppIntPtr retVal;
-        retVal.m_value = (void*)il2cpp::vm::Class::GetType(klass);
-        return retVal;
+        return reinterpret_cast<intptr_t>(il2cpp::vm::Class::GetType(klass));
     }
 } // namespace Mono
 } // namespace mscorlib

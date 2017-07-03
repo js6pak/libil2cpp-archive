@@ -42,19 +42,21 @@ namespace vm
 #endif
         }
 
-        Il2CppIntPtr retval;
+        os::Handle* retval;
         if (s_osHandle)
         {
-            vm::Field::GetValue((Il2CppObject*)waitHandle, s_osHandle, &retval);
+            intptr_t osHandle;
+            vm::Field::GetValue((Il2CppObject*)waitHandle, s_osHandle, &osHandle);
+            retval = reinterpret_cast<os::Handle*>(osHandle);
         }
         else
         {
             Il2CppSafeHandle *sh;
             vm::Field::GetValue((Il2CppObject*)waitHandle, s_safeHandle, &sh);
-            retval.m_value = sh->handle;
+            retval = static_cast<os::Handle*>(sh->handle);
         }
 
-        return static_cast<os::Handle*>(retval.m_value);
+        return static_cast<os::Handle*>(retval);
     }
 } /* namespace vm */
 } /* namespace il2cpp */

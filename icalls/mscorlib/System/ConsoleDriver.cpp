@@ -18,9 +18,9 @@ namespace System
 {
 // Used in .NET 2.0 System.Console -> CStreamReader/CStreamWriter -> TermInfoDriver -> ConsoleDriver -> icalls
 
-    bool ConsoleDriver::Isatty(Il2CppIntPtr handle)
+    bool ConsoleDriver::Isatty(intptr_t handle)
     {
-        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle.m_value;
+        il2cpp::os::FileHandle* fileHandle = (il2cpp::os::FileHandle*)handle;
         return os::File::Isatty(fileHandle);
     }
 

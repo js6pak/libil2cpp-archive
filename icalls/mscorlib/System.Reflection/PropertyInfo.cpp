@@ -16,14 +16,14 @@ namespace System
 {
 namespace Reflection
 {
-    Il2CppReflectionProperty* PropertyInfo::internal_from_handle_type(Il2CppIntPtr handlePtr, Il2CppIntPtr typePtr)
+    Il2CppReflectionProperty* PropertyInfo::internal_from_handle_type(intptr_t handlePtr, intptr_t typePtr)
     {
         Il2CppClass *klass;
 
-        IL2CPP_ASSERT(handlePtr.m_value);
+        IL2CPP_ASSERT(handlePtr);
 
-        ::PropertyInfo *handle = (::PropertyInfo*)handlePtr.m_value;
-        Il2CppType *type = (Il2CppType*)typePtr.m_value;
+        ::PropertyInfo *handle = (::PropertyInfo*)handlePtr;
+        Il2CppType *type = (Il2CppType*)typePtr;
 
         if (!type)
         {

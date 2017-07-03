@@ -19,8 +19,7 @@ void il2cpp_mono_get_virtual_invoke_data(MonoMethod* method, void* obj, VirtualI
 void il2cpp_mono_get_interface_invoke_data(MonoMethod* method, void* obj, VirtualInvokeData* invokeData);
 void il2cpp_mono_initialize_method_metadata(uint32_t index);
 void il2cpp_mono_raise_execution_engine_exception_if_method_is_not_found(MonoMethod* method);
-std::vector<uintptr_t> il2cpp_to_mono_array_dimensions(il2cpp_array_size_t* il2cppDimensions, int32_t numberOfElements);
-Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, MonoObject* state);
+Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(MonoDelegate* delegate, void** params, MonoDelegate* asyncCallback, MonoObject* state);
 MonoObject* il2cpp_mono_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args);
 MonoArray* MonoArrayNew(MonoClass* elementType, uintptr_t length);
 MonoMethod* MethodFromIndex(MethodIndex index);
@@ -29,7 +28,11 @@ const Il2CppInteropData* FindInteropDataFor(MonoClass* klass);
 void RuntimeInit(MonoClass* klass);
 std::string il2cpp_mono_format_exception(const MonoException *exc);
 void initialize_interop_data_map();
+void il2cpp_mono_error_init(MonoError *error);
 bool il2cpp_mono_error_ok(MonoError *error);
+MonoVTable* il2cpp_mono_class_vtable(MonoDomain *domain, MonoClass *klass);
+void* il2cpp_mono_get_static_field_address(MonoClass *klass, MonoClassField *field);
+void* il2cpp_mono_get_thread_static_field_address(MonoClass *klass, MonoClassField *field);
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 struct MethodDefinitionKey
@@ -41,5 +44,7 @@ struct MethodDefinitionKey
 
 void RegisterAllManagedMethods();
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
+
+extern MonoDomain *g_MonoDomain;
 
 #endif

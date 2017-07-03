@@ -151,8 +151,36 @@ namespace os
 
     std::string Environment::GetHomeDirectory()
     {
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
+        std::string home_directory;
+
+        PWSTR profile_path = NULL;
+        HRESULT hr = SHGetKnownFolderPath(FOLDERID_Profile, KF_FLAG_DEFAULT, NULL, &profile_path);
+        if (SUCCEEDED(hr))
+        {
+            home_directory = utils::StringUtils::Utf16ToUtf8(profile_path);
+            CoTaskMemFree(profile_path);
+        }
+
+        if (home_directory.empty())
+        {
+            home_directory = GetEnvironmentVariable("USERPROFILE");
+        }
+
+        if (home_directory.empty())
+        {
+            std::string drive = GetEnvironmentVariable("HOMEDRIVE");
+            std::string path = GetEnvironmentVariable("HOMEPATH");
+
+            if (!drive.empty() && !path.empty())
+                home_directory = drive + path;
+        }
+
+        return home_directory;
+#else
         NOT_IMPLEMENTED_ICALL(Environment::GetHomeDirectory);
         return std::string();
+#endif
     }
 
     std::vector<std::string> Environment::GetLogicalDrives()

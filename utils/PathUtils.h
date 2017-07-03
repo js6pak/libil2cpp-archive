@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include <string>
 #include "StringView.h"
 
@@ -10,7 +11,6 @@ namespace utils
 namespace PathUtils
 {
     std::string BasenameNoExtension(const std::string& path);
-    std::string PathNoExtension(const std::string& path);
 
     template<typename CharType>
     std::basic_string<CharType> Basename(const utils::StringView<CharType>& path)

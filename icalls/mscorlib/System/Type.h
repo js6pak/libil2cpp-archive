@@ -34,7 +34,7 @@ namespace System
         static Il2CppReflectionType* MakePointerType(Il2CppReflectionType* thisPtr);
         static bool get_IsGenericType(Il2CppReflectionType*);
         static bool get_IsGenericTypeDefinition(Il2CppReflectionType* type);
-        static Il2CppReflectionType* internal_from_handle(Il2CppIntPtr ptr);
+        static Il2CppReflectionType* internal_from_handle(intptr_t ptr);
         static Il2CppReflectionType* internal_from_name(Il2CppString* name, bool throwOnError, bool ignoreCase);
         static Il2CppReflectionType* make_array_type(Il2CppReflectionType* type, int32_t rank);
         static bool type_is_assignable_from(Il2CppReflectionType* type, Il2CppReflectionType* c);

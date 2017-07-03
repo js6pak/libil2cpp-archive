@@ -44,7 +44,7 @@ namespace System
         static bool GetIs64BitOperatingSystem();
         static int32_t GetPageSize();
         static Il2CppString* GetNewLine();
-        static Il2CppString* internalGetEnvironmentVariable_native(Il2CppIntPtr variable);
+        static Il2CppString* internalGetEnvironmentVariable_native(intptr_t variable);
         static Il2CppString* get_bundled_machine_config();
 #endif
     };

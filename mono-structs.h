@@ -45,13 +45,13 @@ struct  PublicKeyTokenFixedBuffer
 struct  Il2CppMonoAssemblyName
 {
     // System.IntPtr Mono.MonoAssemblyName::name
-    Il2CppIntPtr name;
+    const char * name;
     // System.IntPtr Mono.MonoAssemblyName::culture
-    Il2CppIntPtr culture;
+    const char * culture;
     // System.IntPtr Mono.MonoAssemblyName::hash_value
-    Il2CppIntPtr hash_value;
+    const char * hash_value;
     // System.IntPtr Mono.MonoAssemblyName::public_key
-    Il2CppIntPtr public_key;
+    const uint8_t* public_key;
     // Mono.MonoAssemblyName/<public_key_token>__FixedBuffer0 Mono.MonoAssemblyName::public_key_token
     PublicKeyTokenFixedBuffer  public_key_token;
     // System.UInt32 Mono.MonoAssemblyName::hash_alg

@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 
-#include "os/Mutex.h"
 #include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
 #if IL2CPP_THREADS_STD
@@ -12,9 +11,6 @@
 #else
 #include "os/ThreadImpl.h"
 #endif
-
-#include "utils/dynamic_array.h"
-
 #include <limits>
 
 namespace il2cpp
@@ -24,25 +20,6 @@ namespace os
 /// TLS variable referring to current thread.
     static ThreadLocalValue s_CurrentThread;
 
-    // TLS variable referring to whether this thread is currently executing Thread::Shutdown
-    // It is thread local for thread safety
-    static ThreadLocalValue s_IsCleaningUpThreads;
-
-    static FastMutex s_AliveThreadsMutex;
-    static il2cpp::utils::dynamic_array<Thread*> s_AliveThreads;
-
-    static bool GetIsCleaningUpThreads()
-    {
-        void* value = NULL;
-        s_IsCleaningUpThreads.GetValue(&value);
-        return reinterpret_cast<intptr_t>(value) != 0;
-    }
-
-    static void SetIsCleaningUpThreads(bool value)
-    {
-        s_IsCleaningUpThreads.SetValue(reinterpret_cast<void*>(static_cast<intptr_t>(value)));
-    }
-
     Thread::Thread()
         : m_Thread(new ThreadImpl())
         , m_State(kThreadCreated)
@@ -50,37 +27,11 @@ namespace os
         , m_CleanupFunc(NULL)
         , m_CleanupFuncArg(NULL)
     {
-        FastAutoLock lock(&s_AliveThreadsMutex);
-        s_AliveThreads.push_back(this);
-    }
-
-    Thread::Thread(ThreadImpl* thread)
-        : m_Thread(thread)
-        , m_State(kThreadRunning)
-        , m_CleanupFunc(NULL)
-        , m_CleanupFuncArg(NULL)
-    {
-        FastAutoLock lock(&s_AliveThreadsMutex);
-        s_AliveThreads.push_back(this);
     }
 
     Thread::~Thread()
     {
         delete m_Thread;
-
-        if (!GetIsCleaningUpThreads())
-        {
-            FastAutoLock lock(&s_AliveThreadsMutex);
-            size_t count = s_AliveThreads.size();
-            for (size_t i = 0; i < count; i++)
-            {
-                if (s_AliveThreads[i] == this)
-                {
-                    s_AliveThreads.erase_swap_back(&s_AliveThreads[i]);
-                    break;
-                }
-            }
-        }
     }
 
     void Thread::Init()
@@ -94,16 +45,6 @@ namespace os
     {
         Thread* thread = GetCurrentThread();
         thread->SetApartment(kApartmentStateUnknown);
-
-        SetIsCleaningUpThreads(true);
-
-        FastAutoLock lock(&s_AliveThreadsMutex);
-        size_t count = s_AliveThreads.size();
-        for (size_t i = 0; i < count; i++)
-            delete s_AliveThreads[i];
-
-        s_AliveThreads.clear();
-        SetIsCleaningUpThreads(false);
     }
 
     Thread::ThreadId Thread::Id()

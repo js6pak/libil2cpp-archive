@@ -163,7 +163,9 @@ namespace System
 
     bool Environment::get_HasShutdownStarted()
     {
-        return vm::Runtime::IsShuttingDown();
+        NOT_SUPPORTED_IL2CPP(Environment::get_HasShutdownStarted, "This icall is not supported by il2cpp.");
+
+        return false;
     }
 
     Il2CppString* Environment::get_EmbeddingHostName()
@@ -207,9 +209,9 @@ namespace System
         return get_NewLine();
     }
 
-    Il2CppString* Environment::internalGetEnvironmentVariable_native(Il2CppIntPtr variablePtr)
+    Il2CppString* Environment::internalGetEnvironmentVariable_native(intptr_t variablePtr)
     {
-        const char *value = (char*)variablePtr.m_value;
+        const char *value = (char*)variablePtr;
 
         if (!value)
             return NULL;

@@ -3,7 +3,8 @@
 #if NET_4_0
 
 struct Il2CppReflectionRuntimeType;
-struct Il2CppIntPtr;
+
+#include "object-internals.h"
 
 namespace il2cpp
 {
@@ -44,12 +45,12 @@ namespace System
         static void GetInterfaceMapData(Il2CppReflectionType* t, Il2CppReflectionType* iface, Il2CppArray** targets, Il2CppArray** methods);
         static void GetPacking(Il2CppReflectionRuntimeType* _this, int32_t* packing, int32_t* size);
 
-        static Il2CppIntPtr GetConstructors_native(Il2CppReflectionRuntimeType* thisPtr, int32_t bindingAttr);
-        static Il2CppIntPtr GetEvents_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr);
-        static Il2CppIntPtr GetFields_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr);
-        static Il2CppIntPtr GetMethodsByName_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr namePtr, int32_t bindingAttr, bool ignoreCase);
-        static Il2CppIntPtr GetNestedTypes_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr);
-        static Il2CppIntPtr GetPropertiesByName_native(Il2CppReflectionRuntimeType* thisPtr, Il2CppIntPtr name, int32_t bindingAttr, bool icase);
+        static intptr_t GetConstructors_native(Il2CppReflectionRuntimeType* thisPtr, int32_t bindingAttr);
+        static intptr_t GetEvents_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr);
+        static intptr_t GetFields_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr);
+        static intptr_t GetMethodsByName_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t namePtr, int32_t bindingAttr, bool ignoreCase);
+        static intptr_t GetNestedTypes_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr);
+        static intptr_t GetPropertiesByName_native(Il2CppReflectionRuntimeType* thisPtr, intptr_t name, int32_t bindingAttr, bool icase);
     };
 } // namespace System
 } // namespace mscorlib

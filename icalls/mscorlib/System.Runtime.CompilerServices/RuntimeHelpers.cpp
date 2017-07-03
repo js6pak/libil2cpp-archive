@@ -30,9 +30,9 @@ namespace CompilerServices
         return offsetof(Il2CppString, chars);
     }
 
-    void RuntimeHelpers::InitializeArray(Il2CppArray * array, Il2CppIntPtr ptr)
+    void RuntimeHelpers::InitializeArray(Il2CppArray * array, intptr_t ptr)
     {
-        FieldInfo* field_handle = (FieldInfo*)ptr.m_value;
+        FieldInfo* field_handle = (FieldInfo*)ptr;
         Il2CppClass *klass = array->klass;
         uint32_t size = Array::GetElementSize(klass);
         const Il2CppType *type = Type::GetUnderlyingType(klass->element_class->byval_arg);
@@ -52,7 +52,7 @@ namespace CompilerServices
             Exception::Raise(exc);
         }
 
-        size *= array->max_length;
+        size *= ARRAY_LENGTH_AS_INT32(array->max_length);
         field_data = Field::GetData(field_handle);
 
         NOT_IMPLEMENTED_ICALL_NO_ASSERT(RuntimeHelpers::InitializeArray, "Check type size");
@@ -74,17 +74,18 @@ namespace CompilerServices
         return 0;
     }
 
-    void RuntimeHelpers::RunClassConstructor(Il2CppIntPtr type)
+    void RuntimeHelpers::RunClassConstructor(intptr_t typeIntPtr)
     {
-        IL2CPP_CHECK_ARG_NULL(type.m_value);
+        const Il2CppType* type = reinterpret_cast<const Il2CppType*>(typeIntPtr);
+        IL2CPP_CHECK_ARG_NULL(type);
 
-        Il2CppClass* klass = Class::FromIl2CppType((const Il2CppType*)type.m_value);
+        Il2CppClass* klass = Class::FromIl2CppType(type);
         //MONO_CHECK_ARG(handle, klass);
 
         il2cpp::vm::Runtime::ClassInit(klass);
     }
 
-    void RuntimeHelpers::RunModuleConstructor(Il2CppIntPtr module)
+    void RuntimeHelpers::RunModuleConstructor(intptr_t module)
     {
         NOT_SUPPORTED_IL2CPP(RuntimeHelpers::RunModuleConstructor, "This icall is not supported by il2cpp.");
     }

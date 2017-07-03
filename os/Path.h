@@ -11,6 +11,7 @@ namespace os
     public:
         static std::string GetExecutablePath();
         static std::string GetTempPath();
+        static bool IsAbsolute(const std::string& path);
     };
 }
 }

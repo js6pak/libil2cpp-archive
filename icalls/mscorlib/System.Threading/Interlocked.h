@@ -22,12 +22,12 @@ namespace Threading
         static int32_t CompareExchange(int32_t* location, int32_t value, int32_t comparand);
         static int64_t CompareExchange64(int64_t* location1, int64_t value, int64_t comparand);
         static double CompareExchangeDouble(double* location1, double value, double comparand);
-        static Il2CppIntPtr CompareExchangeIntPtr(Il2CppIntPtr* location, Il2CppIntPtr value, Il2CppIntPtr comparand);
+        static intptr_t CompareExchangeIntPtr(intptr_t* location, intptr_t value, intptr_t comparand);
         static float CompareExchangeSingle(float* location1, float value, float comparand);
         static void* CompareExchange_T(void** location, void* value, void* comparand);
         static int32_t Decrement(int32_t* location);
         static int64_t Decrement64(int64_t* location);
-        static Il2CppIntPtr ExchangeIntPtr(Il2CppIntPtr* location, Il2CppIntPtr value);
+        static intptr_t ExchangeIntPtr(intptr_t* location, intptr_t value);
         static int32_t Exchange(int32_t* location1, int32_t value);
         static int64_t Exchange64(int64_t* location1, int64_t value);
         static double ExchangeDouble(double* location1, double value);

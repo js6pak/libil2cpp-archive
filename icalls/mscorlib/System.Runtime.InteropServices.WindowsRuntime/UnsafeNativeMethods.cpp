@@ -17,25 +17,25 @@ namespace InteropServices
 {
 namespace WindowsRuntime
 {
-    bool UnsafeNativeMethods::RoOriginateLanguageException(int32_t error, Il2CppString* message, Il2CppIntPtr languageException)
+    bool UnsafeNativeMethods::RoOriginateLanguageException(int32_t error, Il2CppString* message, intptr_t languageException)
     {
         NOT_IMPLEMENTED_ICALL(UnsafeNativeMethods::RoOriginateLanguageException);
         IL2CPP_UNREACHABLE;
     }
 
-    Il2CppChar* UnsafeNativeMethods::WindowsGetStringRawBuffer(Il2CppIntPtr hstring, uint32_t* length)
+    Il2CppChar* UnsafeNativeMethods::WindowsGetStringRawBuffer(intptr_t hstring, uint32_t* length)
     {
         NOT_IMPLEMENTED_ICALL(UnsafeNativeMethods::WindowsGetStringRawBuffer);
         IL2CPP_UNREACHABLE;
     }
 
-    int32_t UnsafeNativeMethods::WindowsCreateString(Il2CppString* sourceString, int32_t length, Il2CppIntPtr* hstring)
+    int32_t UnsafeNativeMethods::WindowsCreateString(Il2CppString* sourceString, int32_t length, intptr_t* hstring)
     {
         NOT_IMPLEMENTED_ICALL(UnsafeNativeMethods::WindowsCreateString);
         IL2CPP_UNREACHABLE;
     }
 
-    int32_t UnsafeNativeMethods::WindowsDeleteString(Il2CppIntPtr hstring)
+    int32_t UnsafeNativeMethods::WindowsDeleteString(intptr_t hstring)
     {
         NOT_IMPLEMENTED_ICALL(UnsafeNativeMethods::WindowsDeleteString);
         IL2CPP_UNREACHABLE;

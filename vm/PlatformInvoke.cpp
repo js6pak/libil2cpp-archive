@@ -373,10 +373,10 @@ namespace vm
 #endif
     }
 
-    Il2CppIntPtr PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
+    intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
         if (d == NULL)
-            return Il2CppIntPtr::Zero;
+            return 0;
 
         if (d->method->is_inflated)
             vm::Exception::Raise(vm::Exception::GetNotSupportedException("IL2CPP does not support marshaling delegates that point to generic methods."));
@@ -393,9 +393,7 @@ namespace vm
             vm::Exception::Raise(vm::Exception::GetNotSupportedException("To marshal a managed method, please add an attribute named 'MonoPInvokeCallback' to the method definition."));
         }
 
-        Il2CppIntPtr functionPointer;
-        functionPointer.m_value = (void*)reversePInvokeWrapper;
-        return functionPointer;
+        return reinterpret_cast<intptr_t>(reversePInvokeWrapper);
     }
 
     Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)

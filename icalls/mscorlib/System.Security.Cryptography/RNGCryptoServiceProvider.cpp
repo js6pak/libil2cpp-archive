@@ -17,37 +17,36 @@ namespace Security
 {
 namespace Cryptography
 {
-    void RNGCryptoServiceProvider::RngClose(Il2CppIntPtr provider)
+    void RNGCryptoServiceProvider::RngClose(intptr_t provider)
     {
-        os::Cryptography::ReleaseCryptographyProvider(provider.m_value);
+        os::Cryptography::ReleaseCryptographyProvider(reinterpret_cast<void*>(provider));
     }
 
-    Il2CppIntPtr RNGCryptoServiceProvider::RngGetBytes(Il2CppIntPtr provider, Il2CppArray *data)
+    intptr_t RNGCryptoServiceProvider::RngGetBytes(intptr_t provider, Il2CppArray *data)
     {
         uint32_t len = il2cpp_array_length(data);
         unsigned char* buf = il2cpp_array_addr(data, unsigned char, 0);
 
-        if (!os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, buf))
+        if (!os::Cryptography::FillBufferWithRandomBytes(reinterpret_cast<void*>(provider), len, buf))
         {
-            os::Cryptography::ReleaseCryptographyProvider(provider.m_value);
+            os::Cryptography::ReleaseCryptographyProvider(reinterpret_cast<void*>(provider));
             provider = RngInitialize(NULL);
 
-            if (!os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, buf))
+            if (!os::Cryptography::FillBufferWithRandomBytes(reinterpret_cast<void*>(provider), len, buf))
             {
-                os::Cryptography::ReleaseCryptographyProvider(provider.m_value);
-                return Il2CppIntPtr::Zero;
+                os::Cryptography::ReleaseCryptographyProvider(reinterpret_cast<void*>(provider));
+                return 0;
             }
         }
 
         return provider;
     }
 
-    Il2CppIntPtr RNGCryptoServiceProvider::RngInitialize(Il2CppArray *seed)
+    intptr_t RNGCryptoServiceProvider::RngInitialize(Il2CppArray *seed)
     {
-        Il2CppIntPtr provider;
-        provider.m_value = os::Cryptography::GetCryptographyProvider();
+        void* provider = os::Cryptography::GetCryptographyProvider();
 
-        if ((provider.m_value != 0) && seed)
+        if ((provider != 0) && seed)
         {
             uint32_t len = il2cpp_array_length(seed);
             unsigned char *buf = il2cpp_array_addr(seed, unsigned char, 0);
@@ -55,13 +54,13 @@ namespace Cryptography
             if (data)
             {
                 memcpy(data, buf, len);
-                os::Cryptography::FillBufferWithRandomBytes(provider.m_value, len, data);
+                os::Cryptography::FillBufferWithRandomBytes(provider, len, data);
                 memset(data, 0, len);
                 IL2CPP_FREE(data);
             }
         }
 
-        return provider;
+        return reinterpret_cast<intptr_t>(provider);
     }
 
     bool RNGCryptoServiceProvider::RngOpen()

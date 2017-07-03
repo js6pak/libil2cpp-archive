@@ -1,15 +1,15 @@
 #pragma once
 
-enum FileType
+typedef enum
 {
     kFileTypeUnknown = 0x0000,
     kFileTypeDisk = 0x0001,
     kFileTypeChar = 0x0002,
     kFileTypePipe = 0x0003,
     kFileTypeRemote = 0x8000
-};
+} FileType;
 
-enum UnityPalFileAttributes
+typedef enum
 {
     kFileAttributeReadOnly = 0x00000001,
     kFileAttributeHidden = 0x00000002,
@@ -27,16 +27,16 @@ enum UnityPalFileAttributes
     kFileAttributeEncrypted = 0x00004000,
     kFileAttributeVirtual = 0x00010000,
     kFileAttributeInternalMonoExecutable = 0x80000000 // Only used internally by Mono
-};
+} UnityPalFileAttributes;
 
-enum FileAccess
+typedef enum
 {
     kFileAccessRead = 0x01,
     kFileAccessWrite = 0x02,
     kFileAccessReadWrite = kFileAccessRead | kFileAccessWrite
-};
+} FileAccess;
 
-enum FileMode
+typedef enum
 {
     kFileModeCreateNew = 1,
     kFileModeCreate = 2,
@@ -44,18 +44,18 @@ enum FileMode
     kFileModeOpenOrCreate = 4,
     kFileModeTruncate = 5,
     kFileModeAppend = 6
-};
+} FileMode;
 
-enum FileShare
+typedef enum
 {
     kFileShareNone = 0x0,
     kFileShareRead = 0x01,
     kFileShareWrite = 0x02,
     kFileShareReadWrite = kFileShareRead | kFileShareWrite,
     kFileShareDelete = 0x04
-};
+} FileShare;
 
-enum FileOptions
+typedef enum
 {
     kFileOptionsNone = 0,
     kFileOptionsTemporary = 1,  // Internal.   See note in System.IO.FileOptions
@@ -65,11 +65,11 @@ enum FileOptions
     kFileOptionsRandomAccess = 0x10000000,
     kFileOptionsAsynchronous = 0x40000000,
     kFileOptionsWriteThrough = 0x80000000
-};
+} FileOptions;
 
-enum SeekOrigin
+typedef enum
 {
     kFileSeekOriginBegin = 0,
     kFileSeekOriginCurrent = 1,
     kFileSeekOriginEnd = 2
-};
+} SeekOrigin;

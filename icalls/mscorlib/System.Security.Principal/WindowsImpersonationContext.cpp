@@ -15,21 +15,21 @@ namespace Security
 {
 namespace Principal
 {
-    bool WindowsImpersonationContext::CloseToken(Il2CppIntPtr token)
+    bool WindowsImpersonationContext::CloseToken(intptr_t token)
     {
         NOT_SUPPORTED_IL2CPP(WindowsImpersonationContext::CloseToken, "This icall is not supported by il2cpp.");
 
         return false;
     }
 
-    Il2CppIntPtr WindowsImpersonationContext::DuplicateToken(Il2CppIntPtr token)
+    intptr_t WindowsImpersonationContext::DuplicateToken(intptr_t token)
     {
         NOT_SUPPORTED_IL2CPP(WindowsImpersonationContext::DuplicateToken, "This icall is not supported by il2cpp.");
 
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 
-    bool WindowsImpersonationContext::SetCurrentToken(Il2CppIntPtr token)
+    bool WindowsImpersonationContext::SetCurrentToken(intptr_t token)
     {
         NOT_SUPPORTED_IL2CPP(WindowsImpersonationContext::SetCurrentToken, "This icall is not supported by il2cpp.");
 

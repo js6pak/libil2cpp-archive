@@ -11,6 +11,7 @@
 #include "vm/Runtime.h"
 #include "vm/Thread.h"
 #include "os/Time.h"
+#include "os/CpuInfo.h"
 
 #define MONITOR_INTERVAL 500 // ms
 #define MONITOR_MINIMAL_LIFETIME 60 * 1000 // ms
