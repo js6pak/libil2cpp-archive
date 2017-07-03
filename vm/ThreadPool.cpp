@@ -358,7 +358,7 @@ namespace vm
 
 #if !NET_4_0
         // Acquire socket.
-        socketHandle.Acquire(os::PointerToSocketHandle(socketAsyncResult->handle.m_value));
+        socketHandle.Acquire(os::PointerToSocketHandle(reinterpret_cast<void*>(socketAsyncResult->handle)));
 #else
         IL2CPP_ASSERT(false && "Todo .net 4");
 #endif
@@ -633,12 +633,14 @@ namespace vm
 
     void SocketPollingThread::Terminate()
     {
-#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_POSIX
+        // Workaround on POSIX while we don't have proper thread abortion.
+#if IL2CPP_TARGET_POSIX
         if (!g_SocketPollingThread->thread)
             return;
 
 #if !IL2CPP_USE_SOCKET_MULTIPLEX_IO
-        WritePipe(writePipe, static_cast<char>(kMessageTerminate));
+        char message = kMessageTerminate;
+        write(writePipe, &message, 1);
 #endif
 
         g_SocketPollingThread->thread->Join();
@@ -945,9 +947,6 @@ namespace vm
         NOT_SUPPORTED_IL2CPP(ThreadPool::Shutdown, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
 #else
         g_SocketPollingThread->Terminate();
-        // avoid cleaning up until we properly handle race condition from other threads queueing jobs
-        // delete g_SocketPollingThread;
-        // g_SocketPollingThread = NULL;
 #endif
     }
 

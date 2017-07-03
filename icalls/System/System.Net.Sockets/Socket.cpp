@@ -214,9 +214,6 @@ namespace Sockets
 
         if (info.family == os::kAddressFamilyInterNetwork)
         {
-#if NET_4_0
-            socket_address->m_Size = 8;
-#endif
             socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 8);
 
             const uint16_t port = info.data.inet.port;
@@ -235,9 +232,6 @@ namespace Sockets
         {
             const int32_t path_len = (int32_t)strlen(info.data.path);
 
-#if NET_4_0
-            socket_address->m_Size = 3 + path_len;
-#endif
             socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 3 + path_len);
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
@@ -250,9 +244,6 @@ namespace Sockets
         }
         else if (info.family == os::kAddressFamilyInterNetworkV6)
         {
-#if NET_4_0
-            socket_address->m_Size = 28;
-#endif
             socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 28);
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
@@ -305,7 +296,7 @@ namespace Sockets
 
 /// Acquire os::SocketHandle in IntPtr "socket" for the current scope.
 #define AUTO_ACQUIRE_SOCKET \
-    os::SocketHandleWrapper socketHandle (os::PointerToSocketHandle (socket.m_value))
+    os::SocketHandleWrapper socketHandle (os::PointerToSocketHandle (reinterpret_cast<void*>(socket)))
 
 #define RETURN_IF_SOCKET_IS_INVALID(...) \
     if (!socketHandle.IsValid ()) \
@@ -314,7 +305,7 @@ namespace Sockets
         return __VA_ARGS__; \
     }
 
-    Il2CppIntPtr Socket::Accept(Il2CppIntPtr socket, int32_t* error, bool blocking)
+    intptr_t Socket::Accept(intptr_t socket, int32_t* error, bool blocking)
     {
         *error = 0;
 
@@ -334,16 +325,16 @@ namespace Sockets
             *error = os::kErrorCodeInvalidHandle;
         }
 
-        Il2CppIntPtr ret;
+        intptr_t ret;
         if (new_sock)
-            ret.m_value = reinterpret_cast<void*>(static_cast<uintptr_t>(os::CreateSocketHandle(new_sock)));
+            ret = static_cast<uintptr_t>(os::CreateSocketHandle(new_sock));
         else
-            ret.m_value = NULL;
+            ret = 0;
 
         return ret;
     }
 
-    int32_t Socket::Available(Il2CppIntPtr socket, int32_t *error)
+    int32_t Socket::Available(intptr_t socket, int32_t *error)
     {
         *error = 0;
 
@@ -382,11 +373,11 @@ namespace Sockets
                             (buffer[24]));
     }
 
-    void Socket::Bind(Il2CppIntPtr socket, Il2CppSocketAddress* socket_address, int32_t* error)
+    void Socket::Bind(intptr_t socket, Il2CppSocketAddress* socket_address, int32_t* error)
     {
         *error = 0;
 
-        const int32_t length = socket_address->data->max_length;
+        const int32_t length = ARRAY_LENGTH_AS_INT32(socket_address->data->max_length);
         const uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress(socket_address->data);
 
         if (length < 2)
@@ -455,7 +446,7 @@ namespace Sockets
         }
     }
 
-    void Socket::Blocking(Il2CppIntPtr socket, bool block, int32_t* error)
+    void Socket::Blocking(intptr_t socket, bool block, int32_t* error)
     {
         *error = 0;
 
@@ -468,20 +459,20 @@ namespace Sockets
             *error = socketHandle->GetLastError();
     }
 
-    void Socket::Close(Il2CppIntPtr socket, int32_t* error)
+    void Socket::Close(intptr_t socket, int32_t* error)
     {
         *error = 0;
 
         // Socket::Close get invoked when running the finalizers; in case Socket_internal
-        // didn't succeed, the socket.m_value has a NULL value and thus we don't need to do
+        // didn't succeed, the socket has a NULL value and thus we don't need to do
         // anything here.
-        if (os::PointerToSocketHandle(socket.m_value) == os::kInvalidSocketHandle)
+        if (os::PointerToSocketHandle(reinterpret_cast<void*>(socket)) == os::kInvalidSocketHandle)
             return;
 
         AUTO_ACQUIRE_SOCKET;
         RETURN_IF_SOCKET_IS_INVALID();
 
-        socket.m_value = (void*)os::kInvalidSocketHandle;
+        socket = static_cast<intptr_t>(os::kInvalidSocketHandle);
 
         socketHandle->Close();
 
@@ -490,11 +481,11 @@ namespace Sockets
         os::ReleaseSocketHandle(socketHandle.GetHandle());
     }
 
-    void Socket::Connect(Il2CppIntPtr socket, Il2CppSocketAddress* socket_address, int32_t* error)
+    void Socket::Connect(intptr_t socket, Il2CppSocketAddress* socket_address, int32_t* error)
     {
         *error = 0;
 
-        const int32_t length = socket_address->data->max_length;
+        const int32_t length = ARRAY_LENGTH_AS_INT32(socket_address->data->max_length);
         const uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress(socket_address->data);
 
         if (length < 2)
@@ -563,7 +554,7 @@ namespace Sockets
         }
     }
 
-    void Socket::Disconnect(Il2CppIntPtr socket, bool reuse, int32_t *error)
+    void Socket::Disconnect(intptr_t socket, bool reuse, int32_t *error)
     {
         *error = 0;
 
@@ -576,7 +567,7 @@ namespace Sockets
             *error = socketHandle->GetLastError();
     }
 
-    void Socket::GetSocketOptionArray(Il2CppIntPtr socket, SocketOptionLevel level, SocketOptionName name, Il2CppArray **byte_val, int32_t *error)
+    void Socket::GetSocketOptionArray(intptr_t socket, SocketOptionLevel level, SocketOptionName name, Il2CppArray **byte_val, int32_t *error)
     {
         *error = 0;
 
@@ -584,7 +575,7 @@ namespace Sockets
         const os::SocketOptionName system_name = (os::SocketOptionName)(name);
         const os::SocketOptionLevel system_level = (os::SocketOptionLevel)(level);
 
-        int32_t length = (*byte_val)->max_length;
+        int32_t length = ARRAY_LENGTH_AS_INT32((*byte_val)->max_length);
         uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress((*byte_val));
 
         AUTO_ACQUIRE_SOCKET;
@@ -596,7 +587,7 @@ namespace Sockets
             *error = socketHandle->GetLastError();
     }
 
-    void Socket::GetSocketOptionObj(Il2CppIntPtr socket, SocketOptionLevel level, SocketOptionName name, Il2CppObject **obj_val, int32_t *error)
+    void Socket::GetSocketOptionObj(intptr_t socket, SocketOptionLevel level, SocketOptionName name, Il2CppObject **obj_val, int32_t *error)
     {
         *error = 0;
 
@@ -634,13 +625,8 @@ namespace Sockets
 
                 *obj_val = vm::Object::New(System_Net_Sockets_LingerOption);
 
-#if NET_4_0
-                const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "enabled");
-                const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "lingerTime");
-#else
                 const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "enabled");
                 const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "seconds");
-#endif
 
                 *((bool*)((char*)(*obj_val) + enabled_field_info->offset)) = (first ? 1 : 0);
                 *((int32_t*)((char*)(*obj_val) + seconds_field_info->offset)) = second;
@@ -657,7 +643,7 @@ namespace Sockets
         }
     }
 
-    void Socket::Listen(Il2CppIntPtr socket, int32_t backlog, int32_t *error)
+    void Socket::Listen(intptr_t socket, int32_t backlog, int32_t *error)
     {
         *error = 0;
 
@@ -687,7 +673,7 @@ namespace Sockets
         return os::kPollFlagsNone;
     }
 
-    bool Socket::Poll(Il2CppIntPtr socket, SelectMode mode, int32_t timeout, int32_t *error)
+    bool Socket::Poll(intptr_t socket, SelectMode mode, int32_t timeout, int32_t *error)
     {
         *error = 0;
 
@@ -719,14 +705,14 @@ namespace Sockets
         return (requests[0].revents != os::kPollFlagsNone);
     }
 
-    int32_t Socket::ReceiveArray(Il2CppIntPtr socket, Il2CppArray *buffers, SocketFlags flags, int32_t *error)
+    int32_t Socket::ReceiveArray(intptr_t socket, Il2CppArray *buffers, SocketFlags flags, int32_t *error)
     {
         *error = 0;
 
         AUTO_ACQUIRE_SOCKET;
         RETURN_IF_SOCKET_IS_INVALID(0);
 
-        const int32_t count = buffers->max_length;
+        const int32_t count = ARRAY_LENGTH_AS_INT32(buffers->max_length);
         const os::SocketFlags c_flags = convert_socket_flags(flags);
 
         os::WSABuf *wsabufs = il2cpp_array_addr(buffers, os::WSABuf, 0);
@@ -744,14 +730,14 @@ namespace Sockets
         return len;
     }
 
-    int32_t Socket::Receive(Il2CppIntPtr socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, int32_t *error)
+    int32_t Socket::Receive(intptr_t socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, int32_t *error)
     {
         *error = 0;
 
         AUTO_ACQUIRE_SOCKET;
         RETURN_IF_SOCKET_IS_INVALID(0);
 
-        const int32_t a_len = buffer->max_length;
+        const int32_t a_len = ARRAY_LENGTH_AS_INT32(buffer->max_length);
         if (offset > a_len - count)
             return 0;
 
@@ -768,14 +754,14 @@ namespace Sockets
         return len;
     }
 
-    int32_t Socket::RecvFrom(Il2CppIntPtr socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, Il2CppSocketAddress **socket_address, int32_t *error)
+    int32_t Socket::RecvFrom(intptr_t socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, Il2CppSocketAddress **socket_address, int32_t *error)
     {
         *error = 0;
 
         AUTO_ACQUIRE_SOCKET;
         RETURN_IF_SOCKET_IS_INVALID(0);
 
-        const int32_t a_len = buffer->max_length;
+        const int32_t a_len = ARRAY_LENGTH_AS_INT32(buffer->max_length);
         if (offset > a_len - count)
             return 0;
 
@@ -784,7 +770,7 @@ namespace Sockets
 
         int32_t len = 0;
 
-        const int32_t length = (*socket_address)->data->max_length;
+        const int32_t length = ARRAY_LENGTH_AS_INT32((*socket_address)->data->max_length);
         const uint8_t *socket_buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress((*socket_address)->data);
 
         if (length < 2)
@@ -858,7 +844,7 @@ namespace Sockets
         return len;
     }
 
-    Il2CppSocketAddress* Socket::LocalEndPoint(Il2CppIntPtr socket, int32_t* error)
+    Il2CppSocketAddress* Socket::LocalEndPoint(intptr_t socket, int32_t* error)
     {
         AUTO_ACQUIRE_SOCKET;
         RETURN_IF_SOCKET_IS_INVALID(NULL);
@@ -883,7 +869,7 @@ namespace Sockets
         return socket_address;
     }
 
-    Il2CppSocketAddress* Socket::RemoteEndPoint(Il2CppIntPtr socket, int32_t* error)
+    Il2CppSocketAddress* Socket::RemoteEndPoint(intptr_t socket, int32_t* error)
     {
         AUTO_ACQUIRE_SOCKET;
         RETURN_IF_SOCKET_IS_INVALID(NULL);
@@ -913,7 +899,7 @@ namespace Sockets
         *error = 0;
 
         // Layout: READ, null, WRITE, null, ERROR, null
-        const uint32_t input_sockets_count = (*sockets)->max_length;
+        const uint32_t input_sockets_count = ARRAY_LENGTH_AS_INT32((*sockets)->max_length);
 
         std::vector<os::PollRequest> requests;
         std::vector<os::SocketHandleWrapper> socketHandles;
@@ -942,20 +928,20 @@ namespace Sockets
 #if !NET_4_0
 
             const FieldInfo *field_info = vm::Class::GetFieldFromName(obj->klass, "socket");
-            Il2CppIntPtr& intPtr = *((Il2CppIntPtr*)((char*)obj + field_info->offset));
+            intptr_t& intPtr = *((intptr_t*)((char*)obj + field_info->offset));
 #else
-            FieldInfo *safe_handle_field_info = vm::Class::GetFieldFromName(obj->klass, "safe_handle");
+            FieldInfo *safe_handle_field_info = vm::Class::GetFieldFromName(obj->klass, "m_Handle");
             const Il2CppObject* value = NULL;
             vm::Field::GetValue(obj, safe_handle_field_info, &value);
 
             const FieldInfo *handle_field_info = vm::Class::GetFieldFromName(value->klass, "handle");
-            Il2CppIntPtr& intPtr = *((Il2CppIntPtr*)((char*)value + handle_field_info->offset));
+            intptr_t& intPtr = *((intptr_t*)((char*)value + handle_field_info->offset));
 #endif
 
             // Acquire socket.
             socketHandles.push_back(os::SocketHandleWrapper());
             os::SocketHandleWrapper& socketHandle = socketHandles.back();
-            socketHandle.Acquire(os::PointerToSocketHandle(intPtr.m_value));
+            socketHandle.Acquire(os::PointerToSocketHandle(reinterpret_cast<void*>(intPtr)));
 
             os::PollRequest request;
             // May 'invalid socket' (-1); we want the error from Poll() in that case.
@@ -1044,7 +1030,7 @@ namespace Sockets
         *sockets = new_sockets;
     }
 
-    bool Socket::SendFile(Il2CppIntPtr socket, Il2CppString *filename, Il2CppArray *pre_buffer, Il2CppArray *post_buffer, TransmitFileOptions flags)
+    bool Socket::SendFile(intptr_t socket, Il2CppString *filename, Il2CppArray *pre_buffer, Il2CppArray *post_buffer, TransmitFileOptions flags)
     {
         if (filename == NULL)
             return false;
@@ -1054,13 +1040,13 @@ namespace Sockets
         if (pre_buffer != NULL)
         {
             t_buffers.head = il2cpp_array_addr(pre_buffer, uint8_t, 0);
-            t_buffers.head_length = pre_buffer->max_length;
+            t_buffers.head_length = ARRAY_LENGTH_AS_INT32(pre_buffer->max_length);
         }
 
         if (post_buffer != NULL)
         {
             t_buffers.tail = il2cpp_array_addr(post_buffer, uint8_t, 0);
-            t_buffers.tail_length = post_buffer->max_length;
+            t_buffers.tail_length = ARRAY_LENGTH_AS_INT32(post_buffer->max_length);
         }
 
         AUTO_ACQUIRE_SOCKET;
@@ -1087,11 +1073,11 @@ namespace Sockets
         return true;
     }
 
-    int32_t Socket::SendTo(Il2CppIntPtr socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, Il2CppSocketAddress *socket_address, int32_t *error)
+    int32_t Socket::SendTo(intptr_t socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, Il2CppSocketAddress *socket_address, int32_t *error)
     {
         *error = 0;
 
-        const int32_t a_len = buffer->max_length;
+        const int32_t a_len = ARRAY_LENGTH_AS_INT32(buffer->max_length);
         if (offset > a_len - count)
             return 0;
 
@@ -1100,7 +1086,7 @@ namespace Sockets
 
         int32_t len = 0;
 
-        const int32_t length = socket_address->data->max_length;
+        const int32_t length = ARRAY_LENGTH_AS_INT32(socket_address->data->max_length);
         const uint8_t *socket_buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress(socket_address->data);
 
         if (length < 2)
@@ -1171,11 +1157,11 @@ namespace Sockets
         return len;
     }
 
-    int32_t Socket::SendArray(Il2CppIntPtr socket, Il2CppArray *buffers, SocketFlags flags, int32_t *error)
+    int32_t Socket::SendArray(intptr_t socket, Il2CppArray *buffers, SocketFlags flags, int32_t *error)
     {
         *error = 0;
 
-        const int32_t count = buffers->max_length;
+        const int32_t count = ARRAY_LENGTH_AS_INT32(buffers->max_length);
         const os::SocketFlags c_flags = convert_socket_flags(flags);
 
         os::WSABuf *wsabufs = il2cpp_array_addr(buffers, os::WSABuf, 0);
@@ -1196,11 +1182,11 @@ namespace Sockets
         return sent;
     }
 
-    int32_t Socket::Send(Il2CppIntPtr socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, int32_t *error)
+    int32_t Socket::Send(intptr_t socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, int32_t *error)
     {
         *error = 0;
 
-        const int32_t a_len = buffer->max_length;
+        const int32_t a_len = ARRAY_LENGTH_AS_INT32(buffer->max_length);
         if (offset > a_len - count)
             return 0;
 
@@ -1220,42 +1206,7 @@ namespace Sockets
         return len;
     }
 
-#if IL2CPP_SUPPORT_IPV6
-    static os::IPv6Address ipaddress_to_ipv6_addr(Il2CppObject *ipaddr)
-    {
-        FieldInfo* numbersFieldInfo = vm::Class::GetFieldFromName(ipaddr->klass, "m_Numbers");
-        IL2CPP_ASSERT(numbersFieldInfo);
-        Il2CppArray* data = (Il2CppArray*)vm::Field::GetValueObject(numbersFieldInfo, ipaddr);
-
-        os::IPv6Address ipv6;
-        for (int i = 0; i < 8; i++)
-        {
-            uint16_t s = il2cpp_array_get(data, uint16_t, i);
-            ipv6.addr[2 * i] = (s >> 8) & 0xff;
-            ipv6.addr[2 * i + 1] = s & 0xff;
-        }
-
-        return ipv6;
-    }
-
-    static void GetAddressAndInterfaceFromObject(Il2CppObject* object, const char* groupField, const char* interfaceField,
-        os::IPv6Address& ipv6, uint64_t& interfaceOffset)
-    {
-        FieldInfo* groupFieldInfo = vm::Class::GetFieldFromName(object->klass, groupField);
-        IL2CPP_ASSERT(groupFieldInfo);
-        Il2CppObject* address = vm::Field::GetValueObject(groupFieldInfo, object);
-
-        if (address)
-            ipv6 = ipaddress_to_ipv6_addr(address);
-
-        FieldInfo* interfaceFieldInfo = vm::Class::GetFieldFromName(object->klass, interfaceField);
-        IL2CPP_ASSERT(interfaceFieldInfo);
-        vm::Field::GetValue(object, interfaceFieldInfo, &interfaceOffset);
-    }
-
-#endif // IL2CPP_SUPPORT_IPV6
-
-    void Socket::SetSocketOption(Il2CppIntPtr socket, SocketOptionLevel level, SocketOptionName name, Il2CppObject *obj_val, Il2CppArray *byte_val, int32_t int_val, int32_t *error)
+    void Socket::SetSocketOption(intptr_t socket, SocketOptionLevel level, SocketOptionName name, Il2CppObject *obj_val, Il2CppArray *byte_val, int32_t int_val, int32_t *error)
     {
         *error = 0;
 
@@ -1270,7 +1221,7 @@ namespace Sockets
 
         if (byte_val != NULL)
         {
-            const int32_t length = byte_val->max_length;
+            const int32_t length = ARRAY_LENGTH_AS_INT32(byte_val->max_length);
             const uint8_t *buffer = (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress(byte_val);
 
             status = socketHandle->SetSocketOptionArray(system_level, system_name, buffer, length);
@@ -1281,13 +1232,8 @@ namespace Sockets
             {
                 case kSocketOptionNameLinger:
                 {
-#if NET_4_0
-                    const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(obj_val->klass, "enabled");
-                    const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(obj_val->klass, "lingerTime");
-#else
                     const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(obj_val->klass, "enabled");
                     const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(obj_val->klass, "seconds");
-#endif
 
                     const bool enabled = *((bool*)((char*)obj_val + enabled_field_info->offset));
                     const int32_t seconds = *((int32_t*)((char*)obj_val + seconds_field_info->offset));
@@ -1300,39 +1246,19 @@ namespace Sockets
                 case kSocketOptionNameAddMembership:
                 case kSocketOptionNameDropMembership:
                 {
-#if IL2CPP_SUPPORT_IPV6
-                    if (system_level == (os::SocketOptionLevel)kSocketOptionLevelIPv6)
-                    {
-                        os::IPv6Address ipv6 = { { 0 } };
-                        uint64_t interfaceOffset;
-#if NET_4_0
-                        GetAddressAndInterfaceFromObject(obj_val, "m_Group", "m_Interface", ipv6, interfaceOffset);
-#else
-                        GetAddressAndInterfaceFromObject(obj_val, "group", "ifIndex", ipv6, interfaceOffset);
-#endif // NET_4_0
-                        status = socketHandle->SetSocketOptionMembership(system_level, system_name, ipv6, interfaceOffset);
-                    }
-                    else if (system_level == (os::SocketOptionLevel)kSocketOptionLevelIP)
-#endif // IL2CPP_SUPPORT_IPV6
-                    {
-                        FieldInfo *group_field_info = vm::Class::GetFieldFromName(obj_val->klass, "group");
-#if NET_4_0
-                        FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "localAddress");
-#else
-                        FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "local");
-#endif
+                    FieldInfo *group_field_info = vm::Class::GetFieldFromName(obj_val->klass, "group");
+                    FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "local");
 
-                        Il2CppObject* group_obj = vm::Field::GetValueObject(group_field_info, obj_val);
-                        Il2CppObject* local_obj = vm::Field::GetValueObject(local_field_info, obj_val);
+                    Il2CppObject* group_obj = vm::Field::GetValueObject(group_field_info, obj_val);
+                    Il2CppObject* local_obj = vm::Field::GetValueObject(local_field_info, obj_val);
 
-                        const FieldInfo *group_address_field_info = vm::Class::GetFieldFromName(group_obj->klass, "m_Address");
-                        const FieldInfo *local_address_field_info = vm::Class::GetFieldFromName(local_obj->klass, "m_Address");
+                    const FieldInfo *group_address_field_info = vm::Class::GetFieldFromName(group_obj->klass, "m_Address");
+                    const FieldInfo *local_address_field_info = vm::Class::GetFieldFromName(local_obj->klass, "m_Address");
 
-                        const uint32_t group_address = *((uint32_t*)(uint64_t*)((char*)group_obj + group_address_field_info->offset));
-                        const uint32_t local_address = *((uint32_t*)(uint64_t*)((char*)local_obj + local_address_field_info->offset));
+                    const uint32_t group_address = *((uint32_t*)(uint64_t*)((char*)group_obj + group_address_field_info->offset));
+                    const uint32_t local_address = *((uint32_t*)(uint64_t*)((char*)local_obj + local_address_field_info->offset));
 
-                        status = socketHandle->SetSocketOptionMembership(system_level, system_name, group_address, local_address);
-                    }
+                    status = socketHandle->SetSocketOptionMembership(system_level, system_name, group_address, local_address);
                 }
 
                 break;
@@ -1349,7 +1275,7 @@ namespace Sockets
             *error = socketHandle->GetLastError();
     }
 
-    void Socket::Shutdown(Il2CppIntPtr socket, SocketShutdown how, int32_t* error)
+    void Socket::Shutdown(intptr_t socket, SocketShutdown how, int32_t* error)
     {
         *error = 0;
 
@@ -1362,9 +1288,9 @@ namespace Sockets
             *error = socketHandle->GetLastError();
     }
 
-    Il2CppIntPtr Socket::Socket_internal(Il2CppObject *self, AddressFamily family, SocketType type, ProtocolType protocol, int32_t* error)
+    intptr_t Socket::Socket_internal(Il2CppObject *self, AddressFamily family, SocketType type, ProtocolType protocol, int32_t* error)
     {
-        Il2CppIntPtr socket = { NULL };
+        intptr_t socket = 0;
 
         *error = 0;
 
@@ -1405,12 +1331,12 @@ namespace Sockets
         }
 
         os::SocketHandle socketHandle = os::CreateSocketHandle(sock);
-        socket.m_value = reinterpret_cast<void*>(static_cast<uintptr_t>(socketHandle));
+        socket = static_cast<intptr_t>(socketHandle);
 
         return socket;
     }
 
-    int32_t Socket::WSAIoctl(Il2CppIntPtr socket, int32_t code, Il2CppArray *input, Il2CppArray *output, int32_t *error)
+    int32_t Socket::WSAIoctl(intptr_t socket, int32_t code, Il2CppArray *input, Il2CppArray *output, int32_t *error)
     {
         *error = 0;
 
@@ -1423,10 +1349,10 @@ namespace Sockets
             return -1;
         }
 
-        const int32_t in_length = (input ? input->max_length : 0);
+        const int32_t in_length = (input ? ARRAY_LENGTH_AS_INT32(input->max_length) : 0);
         const uint8_t *in_buffer = (input ? (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress(input) : NULL);
 
-        const int32_t out_length = (output ? output->max_length : 0);
+        const int32_t out_length = (output ? ARRAY_LENGTH_AS_INT32(output->max_length) : 0);
         uint8_t *out_buffer = (output ? (uint8_t*)il2cpp::vm::Array::GetFirstElementAddress(output) : NULL);
 
         int32_t output_bytes = 0;
@@ -1443,7 +1369,7 @@ namespace Sockets
     }
 
 #if NET_4_0
-    bool Socket::SendFile_internal(Il2CppIntPtr sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags)
+    bool Socket::SendFile_internal(intptr_t sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags, int32_t* error, bool blocking)
     {
         return SendFile(sock, filename, pre_buffer, post_buffer, static_cast<TransmitFileOptions>(flags));
     }
@@ -1455,30 +1381,30 @@ namespace Sockets
         return false;
     }
 
-    int32_t Socket::IOControl_internal(Il2CppIntPtr sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error)
+    int32_t Socket::IOControl_internal(intptr_t sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error)
     {
         NOT_IMPLEMENTED_ICALL(Socket::IOControl_internal);
         IL2CPP_UNREACHABLE;
         return 0;
     }
 
-    int32_t Socket::ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress** sockaddr, int32_t* error)
+    int32_t Socket::ReceiveFrom_internal(intptr_t sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress** sockaddr, int32_t* error, bool blocking)
     {
         return RecvFrom(sock, buffer, offset, count, static_cast<SocketFlags>(flags), sockaddr, error);
     }
 
-    int32_t Socket::SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress* sa, int32_t* error)
+    int32_t Socket::SendTo_internal(intptr_t sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress* sa, int32_t* error, bool blocking)
     {
         return SendTo(sock, buffer, offset, count, static_cast<SocketFlags>(flags), sa, error);
     }
 
-    Il2CppSocketAddress* Socket::LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+    Il2CppSocketAddress* Socket::LocalEndPoint_internal(intptr_t socket, int32_t family, int32_t* error)
     {
         // We should be able to ignore the family, as the socket should already have that information.
         return LocalEndPoint(socket, error);
     }
 
-    Il2CppSocketAddress* Socket::RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+    Il2CppSocketAddress* Socket::RemoteEndPoint_internal(intptr_t socket, int32_t family, int32_t* error)
     {
         // We should be able to ignore the family, as the socket should already have that information.
         return RemoteEndPoint(socket, error);
@@ -1493,11 +1419,38 @@ namespace Sockets
     {
         Il2CppThread* t = reinterpret_cast<Il2CppThread*>(thread);
         t->internal_thread->handle->QueueUserAPC(abort_apc, NULL);
+        // NOT_IMPLEMENTED_ICALL(Socket::cancel_blocking_socket_operation);
+        //IL2CPP_UNREACHABLE;
     }
 
-    void Socket::Connect_internal(Il2CppIntPtr sock, Il2CppSocketAddress* sa, int32_t* error)
+    void Socket::Connect_internal(intptr_t sock, Il2CppSocketAddress* sa, int32_t* error, bool blocking)
     {
         Connect(sock, sa, error);
+    }
+
+    int32_t Socket::ReceiveArray40(intptr_t socket, Il2CppArray *buffers, SocketFlags flags, int32_t *error, bool blocking)
+    {
+        return ReceiveArray(socket, buffers, flags, error);
+    }
+
+    int32_t Socket::Receive40(intptr_t socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, int32_t *error, bool blocking)
+    {
+        return Receive(socket, buffer, offset, count, flags, error);
+    }
+
+    int32_t Socket::SendArray40(intptr_t socket, Il2CppArray *buffers, SocketFlags flags, int32_t *error, bool blocking)
+    {
+        return SendArray(socket, buffers, flags, error);
+    }
+
+    int32_t Socket::Send40(intptr_t socket, Il2CppArray *buffer, int32_t offset, int32_t count, SocketFlags flags, int32_t *error, bool blocking)
+    {
+        return Send(socket, buffer, offset, count, flags, error);
+    }
+
+    bool Socket::IsProtocolSupported_internal(int32_t networkInterface)
+    {
+        return true;
     }
 
 #endif

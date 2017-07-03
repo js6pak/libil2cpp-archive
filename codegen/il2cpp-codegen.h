@@ -10,6 +10,9 @@ typedef MonoImage RuntimeImage;
 typedef MonoException RuntimeException;
 typedef MonoArray RuntimeArray;
 typedef MonoAssembly RuntimeAssembly;
+typedef MonoString RuntimeString;
+typedef MonoStringBuilder RuntimeStringBuilder;
+typedef MonoDelegate RuntimeDelegate;
 #include "il2cpp-codegen-mono.h"
 
 
@@ -27,5 +30,9 @@ typedef Il2CppImage RuntimeImage;
 typedef Il2CppException RuntimeException;
 typedef Il2CppArray RuntimeArray;
 typedef Il2CppAssembly RuntimeAssembly;
+typedef Il2CppString RuntimeString;
+struct Il2CppStringBuilder;
+typedef Il2CppStringBuilder RuntimeStringBuilder;
+typedef Il2CppDelegate RuntimeDelegate;
 #include "il2cpp-codegen-il2cpp.h"
 #endif

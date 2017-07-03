@@ -25,5 +25,5 @@ namespace os
     };
 }
 }
-#endif
-#endif
+#endif  // IL2CPP_ENABLE_CPU_INFO
+#endif  // NET_4_0

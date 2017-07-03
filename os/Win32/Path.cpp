@@ -30,6 +30,20 @@ namespace os
 
         return utils::StringUtils::Utf16ToUtf8(tempPath);
     }
+
+    bool Path::IsAbsolute(const std::string& path)
+    {
+        if (path[0] != '\0' && path[1] != '\0')
+        {
+            if (path[1] == ':' && path[2] != '\0' && (path[2] == '\\' || path[2] == '/'))
+                return true;
+            /* UNC paths */
+            else if (path[0] == '\\' && path[1] == '\\' && path[2] != '\0')
+                return true;
+        }
+
+        return false;
+    }
 }
 }
 #endif

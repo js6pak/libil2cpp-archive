@@ -177,15 +177,14 @@ namespace Threading
         GarbageCollector::FreeFixed(startData);
     }
 
-    Il2CppIntPtr Thread::Thread_internal(Il2CppThread * thisPtr, Il2CppDelegate * start)
+    intptr_t Thread::Thread_internal(Il2CppThread * thisPtr, Il2CppDelegate * start)
     {
         IL2CPP_ASSERT(thisPtr->GetInternalThread()->synch_cs != NULL);
         il2cpp::os::FastAutoLock lock(thisPtr->GetInternalThread()->synch_cs);
 
         if (il2cpp::vm::Thread::GetState(thisPtr) & kThreadStateAborted)
         {
-            Il2CppIntPtr ret = { thisPtr->GetInternalThread()->handle };
-            return ret;
+            return reinterpret_cast<intptr_t>(thisPtr->GetInternalThread()->handle);
         }
 
         // use fixed GC memory since we are storing managed object pointers
@@ -203,7 +202,7 @@ namespace Threading
         if (status != il2cpp::os::kErrorCodeSuccess)
         {
             delete thread;
-            return Il2CppIntPtr::Zero;
+            return 0;
         }
 
 #if NET_4_0
@@ -222,20 +221,18 @@ namespace Threading
 #endif
 
         // this is just checked against 0 in the calling code
-        Il2CppIntPtr ret = { thisPtr->GetInternalThread()->handle };
-        return ret;
+        return reinterpret_cast<intptr_t>(thisPtr->GetInternalThread()->handle);
     }
 
 #if !NET_4_0
-    void Thread::Thread_free_internal(Il2CppThread * thisPtr, Il2CppIntPtr handle)
+    void Thread::Thread_free_internal(Il2CppThread * thisPtr, intptr_t handle)
     {
         delete thisPtr->GetInternalThread()->synch_cs;
         thisPtr->GetInternalThread()->synch_cs = NULL;
 
         IL2CPP_FREE(thisPtr->GetInternalThread()->name);
 
-        delete static_cast<il2cpp::os::Thread*>(handle.m_value);
-        handle.m_value = NULL;
+        delete reinterpret_cast<il2cpp::os::Thread*>(handle);
     }
 
 #endif
@@ -453,11 +450,9 @@ namespace Threading
         return *reinterpret_cast<void* volatile*>(address);
     }
 
-    Il2CppIntPtr Thread::VolatileReadIntPtr(volatile void* address)
+    intptr_t Thread::VolatileReadIntPtr(volatile void* address)
     {
-        Il2CppIntPtr result;
-        result.m_value = VolatileReadPtr(address);
-        return result;
+        return reinterpret_cast<intptr_t>(VolatileReadPtr(address));
     }
 
     void Thread::VolatileWriteInt8(volatile void* address, int8_t value)
@@ -502,9 +497,9 @@ namespace Threading
         il2cpp::os::Atomic::MemoryBarrier();
     }
 
-    void Thread::VolatileWriteIntPtr(volatile void* address, Il2CppIntPtr value)
+    void Thread::VolatileWriteIntPtr(volatile void* address, intptr_t value)
     {
-        VolatileWritePtr(address, value.m_value);
+        VolatileWritePtr(address, reinterpret_cast<void*>(value));
     }
 
 #if NET_4_0
@@ -649,6 +644,14 @@ namespace Threading
     void Thread::SuspendInternal(Il2CppObject* _this)
     {
         NOT_SUPPORTED_IL2CPP(Thread::SuspendInternal, "Thread suspension is obsolete and not supported on IL2CPP.");
+    }
+
+#endif
+
+#if NET_4_0
+    Il2CppThread* Thread::GetCurrentThread()
+    {
+        return il2cpp::vm::Thread::Current();
     }
 
 #endif

@@ -19,8 +19,8 @@ namespace NetworkInformation
     class LIBIL2CPP_CODEGEN_API LinuxNetworkInterface
     {
     public:
-        static int32_t GetInterfaceAddresses(Il2CppIntPtr* ifap);
-        static void FreeInterfaceAddresses(Il2CppIntPtr ifap);
+        static int32_t GetInterfaceAddresses(intptr_t* ifap);
+        static void FreeInterfaceAddresses(intptr_t ifap);
         static void InitializeInterfaceAddresses();
     };
 } // namespace NetworkInformation

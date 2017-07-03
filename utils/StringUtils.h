@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 //
 // Copyright(c) Unity Technologies, Microsoft Corporation
 //
@@ -117,8 +117,8 @@ public:
 		}
 
 		return hash1 + (hash2 * 1566083941);
-	}	
-	
+	}
+
 	template <typename CharType>
 	static inline size_t Hash (const CharType *str)
 	{

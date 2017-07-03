@@ -13,10 +13,6 @@ il2cpp::gc::GarbageCollector::Initialize()
 {
 }
 
-void il2cpp::gc::GarbageCollector::UninitializeGC()
-{
-}
-
 void*
 il2cpp::gc::GarbageCollector::AllocateFixed(size_t size, void *descr)
 {

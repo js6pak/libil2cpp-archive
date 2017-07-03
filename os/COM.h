@@ -1,5 +1,8 @@
 #pragma once
 
+#include "il2cpp-config.h"
+#include "object-internals.h"
+
 namespace il2cpp
 {
 namespace os
@@ -17,7 +20,7 @@ namespace os
 
         // safe array
 
-        static Il2CppSafeArray* SafeArrayCreate(uint16_t type, uint32_t dimention_count, Il2CppSafeArrayBound* bounds);
+        static Il2CppSafeArray* SafeArrayCreate(uint16_t type, uint32_t dimension_count, Il2CppSafeArrayBound* bounds);
         static il2cpp_hresult_t SafeArrayDestroy(Il2CppSafeArray* safeArray);
         static il2cpp_hresult_t SafeArrayAccessData(Il2CppSafeArray* safeArray, void** data);
         static il2cpp_hresult_t SafeArrayUnaccessData(Il2CppSafeArray* safeArray);

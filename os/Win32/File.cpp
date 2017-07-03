@@ -485,6 +485,18 @@ namespace os
 
         return true;
     }
+
+    static bool ends_with(const std::string& value, const std::string& ending)
+    {
+        if (value.length() >= ending.length())
+            return value.compare(value.length() - ending.length(), ending.length(), ending) == 0;
+        return false;
+    }
+
+    bool File::IsExecutable(const std::string& path)
+    {
+        return ends_with(path, "exe");
+    }
 }
 }
 

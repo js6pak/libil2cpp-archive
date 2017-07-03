@@ -16,17 +16,17 @@ namespace Win32
     class LIBIL2CPP_CODEGEN_API NativeMethods
     {
     public:
-        static bool CloseProcess(Il2CppIntPtr handle);
-        static bool GetExitCodeProcess(Il2CppIntPtr processHandle, int32_t* exitCode);
-        static bool GetProcessTimes(Il2CppIntPtr handle, int64_t* creation, int64_t* exit, int64_t* kernel, int64_t* user);
-        static bool GetProcessWorkingSetSize(Il2CppIntPtr handle, Il2CppIntPtr* min, Il2CppIntPtr* max);
-        static bool SetPriorityClass(Il2CppIntPtr handle, int32_t priorityClass);
-        static bool SetProcessWorkingSetSize(Il2CppIntPtr handle, Il2CppIntPtr min, Il2CppIntPtr max);
-        static bool TerminateProcess(Il2CppIntPtr processHandle, int32_t exitCode);
+        static bool CloseProcess(intptr_t handle);
+        static bool GetExitCodeProcess(intptr_t processHandle, int32_t* exitCode);
+        static bool GetProcessTimes(intptr_t handle, int64_t* creation, int64_t* exit, int64_t* kernel, int64_t* user);
+        static bool GetProcessWorkingSetSize(intptr_t handle, intptr_t* min, intptr_t* max);
+        static bool SetPriorityClass(intptr_t handle, int32_t priorityClass);
+        static bool SetProcessWorkingSetSize(intptr_t handle, intptr_t min, intptr_t max);
+        static bool TerminateProcess(intptr_t processHandle, int32_t exitCode);
         static int32_t GetCurrentProcessId();
-        static int32_t GetPriorityClass(Il2CppIntPtr handle);
-        static int32_t WaitForInputIdle(Il2CppIntPtr handle, int32_t milliseconds);
-        static Il2CppIntPtr GetCurrentProcess();
+        static int32_t GetPriorityClass(intptr_t handle);
+        static int32_t WaitForInputIdle(intptr_t handle, int32_t milliseconds);
+        static intptr_t GetCurrentProcess();
     };
 } // namespace Win32
 } // namespace Microsoft

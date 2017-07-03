@@ -1,6 +1,6 @@
 #pragma once
 
-#include "il2cpp-config.h"
+#include <stddef.h>
 
 typedef void* (*allocate_func)(size_t size);
 

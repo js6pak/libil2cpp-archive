@@ -76,20 +76,42 @@ namespace System
 
     Il2CppArray * Array::CreateInstanceImpl(Il2CppReflectionType * elementType, Il2CppArray* lengths, Il2CppArray* bounds)
     {
-        il2cpp_array_size_t* i32lengths = NULL;
-        il2cpp_array_size_t* i32bounds = NULL;
+        int32_t* i32lengths = NULL;
+        int32_t* i32bounds = NULL;
+        il2cpp_array_size_t* arraySizeLengths = NULL;
+        il2cpp_array_size_t* arraySizeBounds = NULL;
+
         if (lengths != NULL)
-            i32lengths = (il2cpp_array_size_t*)il2cpp_array_addr_with_size(lengths, il2cpp_array_element_size(lengths->klass), 0);
+            i32lengths = (int32_t*)il2cpp_array_addr(lengths, int32_t, 0);
 
         if (bounds != NULL)
-            i32bounds = (il2cpp_array_size_t*)il2cpp_array_addr_with_size(bounds, il2cpp_array_element_size(bounds->klass), 0);
+            i32bounds = (int32_t*)il2cpp_array_addr(bounds, int32_t, 0);
 
         Il2CppClass* arrayType = il2cpp::vm::Class::GetArrayClassCached(il2cpp::vm::Class::FromIl2CppType(elementType->type), il2cpp::vm::Array::GetLength(lengths));
 
         if (arrayType == NULL)
             vm::Exception::Raise(vm::Exception::GetInvalidOperationException(FormatCreateInstanceException(elementType->type).c_str()));
 
-        return (Il2CppArray*)il2cpp::vm::Array::NewFull(arrayType, i32lengths, i32bounds);
+        //Convert the lengths and bounds of the array into il2cpp_array_size_t
+        if (lengths)
+        {
+            arraySizeLengths = (il2cpp_array_size_t*)alloca(lengths->max_length * sizeof(il2cpp_array_size_t));
+            for (il2cpp_array_size_t i = 0; i < lengths->max_length; i++)
+            {
+                arraySizeLengths[i] = i32lengths[i];
+            }
+        }
+
+        if (bounds)
+        {
+            arraySizeBounds = (il2cpp_array_size_t*)alloca(bounds->max_length * sizeof(il2cpp_array_size_t));
+            for (il2cpp_array_size_t i = 0; i < bounds->max_length; i++)
+            {
+                arraySizeBounds[i] = i32bounds[i];
+            }
+        }
+
+        return (Il2CppArray*)il2cpp::vm::Array::NewFull(arrayType, arraySizeLengths, arraySizeBounds);
     }
 
     bool Array::FastCopy(Il2CppArray *source, int32_t source_idx, Il2CppArray *dest, int32_t dest_idx, int32_t length)
@@ -196,7 +218,7 @@ namespace System
         if (length > G_MAXINT32)
             mono_raise_exception(mono_get_exception_overflow());
 #endif
-        return length;
+        return ARRAY_LENGTH_AS_INT32(length);
     }
 
     int32_t Array::GetLowerBound(Il2CppArray * thisPtr, int32_t dimension)
@@ -221,7 +243,8 @@ namespace System
     {
         Il2CppClass *ac, *ic;
         Il2CppArray *ao, *io;
-        int32_t i, pos, *ind;
+        int32_t i, *ind;
+        il2cpp_array_size_t pos;
 
         IL2CPP_CHECK_ARG_NULL(indices);
 
@@ -239,7 +262,7 @@ namespace System
 
         if (ao->bounds == NULL)
         {
-            if (*ind < 0 || *ind >= ao->max_length)
+            if (*ind < 0 || *ind >= ARRAY_LENGTH_AS_INT32(ao->max_length))
                 Exception::Raise(Exception::GetIndexOutOfRangeException());
 
             return GetValueImpl(thisPtr, *ind);
@@ -247,14 +270,14 @@ namespace System
 
         for (i = 0; i < ac->rank; i++)
             if ((ind[i] < ao->bounds[i].lower_bound) ||
-                (ind[i] >= ao->bounds[i].length + ao->bounds[i].lower_bound))
+                (ind[i] >= ARRAY_LENGTH_AS_INT32(ao->bounds[i].length) + ao->bounds[i].lower_bound))
                 Exception::Raise(Exception::GetIndexOutOfRangeException());
 
         pos = ind[0] - ao->bounds[0].lower_bound;
         for (i = 1; i < ac->rank; i++)
             pos = pos * ao->bounds[i].length + ind[i] - ao->bounds[i].lower_bound;
 
-        return GetValueImpl(thisPtr, pos);
+        return GetValueImpl(thisPtr, ARRAY_LENGTH_AS_INT32(pos));
     }
 
     Il2CppObject * Array::GetValueImpl(Il2CppArray * thisPtr, int32_t pos)
@@ -273,7 +296,8 @@ namespace System
     void Array::SetValue(Il2CppArray * thisPtr, Il2CppObject* value, Il2CppArray* idxs)
     {
         Il2CppClass *ac, *ic;
-        int32_t i, pos, *ind;
+        int32_t i, *ind;
+        il2cpp_array_size_t pos;
 
         IL2CPP_CHECK_ARG_NULL(idxs);
 
@@ -288,7 +312,7 @@ namespace System
 
         if (thisPtr->bounds == NULL)
         {
-            if (*ind < 0 || *ind >= thisPtr->max_length)
+            if (*ind < 0 || *ind >= ARRAY_LENGTH_AS_INT32(thisPtr->max_length))
                 Exception::Raise(Exception::GetIndexOutOfRangeException());
 
             SetValueImpl(thisPtr, value, *ind);
@@ -305,7 +329,7 @@ namespace System
             pos = pos * thisPtr->bounds[i].length + ind[i] -
                 thisPtr->bounds[i].lower_bound;
 
-        SetValueImpl(thisPtr, value, pos);
+        SetValueImpl(thisPtr, value, ARRAY_LENGTH_AS_INT32(pos));
     }
 
     static void ThrowNoWidening()

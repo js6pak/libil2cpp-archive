@@ -15,7 +15,7 @@ namespace Mono
     class LIBIL2CPP_CODEGEN_API RuntimeMarshal
     {
     public:
-        static void FreeAssemblyName(Il2CppMonoAssemblyName* name);
+        static void FreeAssemblyName(Il2CppMonoAssemblyName* name, bool freeStruct);
     };
 } // namespace Mono
 } // namespace mscorlib

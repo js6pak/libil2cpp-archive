@@ -106,9 +106,10 @@ namespace System
 
         Il2CppObject* customAttributeData = vm::Object::New(il2cpp_defaults.customattribute_data_class);
         int argCount = 0;
+        void* nullArg = NULL;
         params[0] = vm::Reflection::GetMethodObject(attributeConstructor, NULL);
         params[1] = vm::Reflection::GetAssemblyObject(MetadataCache::GetAssemblyFromIndex(attribute->klass->image->assemblyIndex));
-        params[2] = &Il2CppIntPtr::Zero;
+        params[2] = &nullArg;
         params[3] = &argCount;
         vm::Runtime::Invoke(customAttributeDataConstructor, customAttributeData, params, NULL);
         return customAttributeData;

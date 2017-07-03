@@ -19,9 +19,9 @@ namespace System
     public:
         static void* /* System.TypedReference */ IntGetNextArg(ArgIterator self);
         static Il2CppTypedRef IntGetNextArg_mscorlib_System_TypedReference(mscorlib_System_ArgIterator * thisPtr);
-        static Il2CppTypedRef IntGetNextArg_mscorlib_System_TypedReference_mscorlib_System_IntPtr(mscorlib_System_ArgIterator * thisPtr, Il2CppIntPtr rth);
-        static void Setup(mscorlib_System_ArgIterator * thisPtr, Il2CppIntPtr argsp, Il2CppIntPtr start);
-        static Il2CppIntPtr IntGetNextArgType(mscorlib_System_ArgIterator * thisPtr);
+        static Il2CppTypedRef IntGetNextArg_mscorlib_System_TypedReference_mscorlib_System_IntPtr(mscorlib_System_ArgIterator * thisPtr, intptr_t rth);
+        static void Setup(mscorlib_System_ArgIterator * thisPtr, intptr_t argsp, intptr_t start);
+        static intptr_t IntGetNextArgType(mscorlib_System_ArgIterator * thisPtr);
     };
 } /* namespace System */
 } /* namespace mscorlib */

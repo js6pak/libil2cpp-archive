@@ -323,22 +323,14 @@ struct Il2CppReflectionPointer
     Il2CppReflectionType* type;
 };
 
-// System.IntPtr
-// Just in case there is a platform where we cannot replace struct {void* val;} with void*
-struct Il2CppIntPtr
-{
-    void* m_value;
-    static Il2CppIntPtr Zero;
-};
-
 #if NET_4_0
 // System.Threading.InternalThread
 struct Il2CppInternalThread
 {
     Il2CppObject obj;
-
     int lock_thread_id;
     il2cpp::os::Thread* handle;
+    void* native_handle;
     Il2CppArray* cached_culture_info;
     Il2CppChar* name;
     int name_len;
@@ -368,8 +360,12 @@ struct Il2CppInternalThread
     void* flags;
     void* thread_pinning_ref;
     void* abort_protected_block_count;
-    void* unused1;
-    void* unused2;
+    int32_t priority;
+    void* owned_mutexes;
+    void * suspended;
+    int32_t self_suspended;
+    size_t thread_state;
+    size_t unused2;
     void* last;
 };
 
@@ -498,8 +494,7 @@ struct Il2CppThread
 #else
     Il2CppInternalThread* internal_thread;
     Il2CppObject* start_obj;
-    Il2CppObject* pending_exception;
-    int32_t priority;
+    Il2CppException* pending_exception;
     Il2CppObject* principal;
     int32_t principal_version;
     Il2CppDelegate* delegate;
@@ -598,7 +593,7 @@ struct Il2CppDelegate
     void* delegate_trampoline;
 
 #if NET_4_0
-    Il2CppIntPtr extraArg;
+    intptr_t extraArg;
 #endif
 
     /*
@@ -1082,7 +1077,7 @@ struct Il2CppSocketAsyncResult
 #if !NET_4_0
     Il2CppObject base;
     Il2CppObject *socket;
-    Il2CppIntPtr handle;
+    intptr_t handle;
     Il2CppObject *state;
     Il2CppDelegate *callback;
     Il2CppWaitHandle *wait_handle;
@@ -1289,7 +1284,7 @@ struct Il2CppSafeArrayBound
 
 struct Il2CppSafeArray
 {
-    uint16_t dimention_count;
+    uint16_t dimension_count;
     uint16_t features;
     uint32_t element_size;
     uint32_t lock_count;

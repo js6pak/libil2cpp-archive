@@ -202,9 +202,9 @@ namespace System
         return false;
     }
 
-    Il2CppReflectionType * Type::internal_from_handle(Il2CppIntPtr ptr)
+    Il2CppReflectionType * Type::internal_from_handle(intptr_t ptr)
     {
-        const Il2CppType* type = (const Il2CppType*)ptr.m_value;
+        const Il2CppType* type = (const Il2CppType*)ptr;
         Il2CppClass *klass = Class::FromIl2CppType(type);
 
         return il2cpp::vm::Reflection::GetTypeObject(klass->byval_arg);

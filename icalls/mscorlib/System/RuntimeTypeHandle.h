@@ -31,7 +31,7 @@ namespace System
         static Il2CppReflectionRuntimeType* GetBaseType(Il2CppReflectionRuntimeType* type);
         static Il2CppReflectionRuntimeType* GetElementType(Il2CppReflectionRuntimeType* type);
         static Il2CppReflectionType* GetGenericTypeDefinition_impl(Il2CppReflectionRuntimeType* type);
-        static Il2CppIntPtr GetGenericParameterInfo(Il2CppReflectionRuntimeType* type);
+        static intptr_t GetGenericParameterInfo(Il2CppReflectionRuntimeType* type);
     };
 } // namespace System
 } // namespace mscorlib
