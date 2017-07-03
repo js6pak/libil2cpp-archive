@@ -15,7 +15,7 @@ namespace Text
     class LIBIL2CPP_CODEGEN_API Normalization
     {
     public:
-        static void load_normalization_resource(Il2CppIntPtr* props, Il2CppIntPtr* mappedChars, Il2CppIntPtr* charMapIndex, Il2CppIntPtr* helperIndex, Il2CppIntPtr* mapIdxToComposite, Il2CppIntPtr* combiningClass);
+        static void load_normalization_resource(intptr_t* props, intptr_t* mappedChars, intptr_t* charMapIndex, intptr_t* helperIndex, intptr_t* mapIdxToComposite, intptr_t* combiningClass);
     };
 } // namespace Text
 } // namespace System

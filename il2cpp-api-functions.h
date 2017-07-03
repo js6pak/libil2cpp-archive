@@ -1,3 +1,8 @@
+#ifndef DO_API_NO_RETURN
+#define DO_API_NO_RETURN(r, n, p) DO_API(r,n,p)
+#endif
+
+
 DO_API(void, il2cpp_init, (const char* domain_name));
 DO_API(void, il2cpp_init_utf16, (const Il2CppChar * domain_name));
 DO_API(void, il2cpp_shutdown, ());
@@ -85,7 +90,7 @@ DO_API(const Il2CppAssembly*, il2cpp_domain_assembly_open, (Il2CppDomain * domai
 DO_API(const Il2CppAssembly**, il2cpp_domain_get_assemblies, (const Il2CppDomain * domain, size_t * size));
 
 // exception
-DO_API(void, il2cpp_raise_exception, (Il2CppException*));
+DO_API_NO_RETURN(void, il2cpp_raise_exception, (Il2CppException*));
 DO_API(Il2CppException*, il2cpp_exception_from_name_msg, (const Il2CppImage * image, const char *name_space, const char *name, const char *msg));
 DO_API(Il2CppException*, il2cpp_get_exception_argument_null, (const char *arg));
 DO_API(void, il2cpp_format_exception, (const Il2CppException * ex, char* message, int message_size));

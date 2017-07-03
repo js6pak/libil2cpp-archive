@@ -19,7 +19,7 @@ namespace System
     public:
         static Il2CppReflectionType* GetType(Il2CppObject* obj);
         static int InternalGetHashCode(Il2CppObject* obj);
-        static Il2CppIntPtr obj_address(Il2CppObject* obj);
+        static intptr_t obj_address(Il2CppObject* obj);
         static Il2CppObject* MemberwiseClone(Il2CppObject* obj);
     };
 } /* namespace System */

@@ -29,10 +29,9 @@ namespace System
         return il2cpp::vm::Object::Clone(obj);
     }
 
-    Il2CppIntPtr Object::obj_address(Il2CppObject* obj)
+    intptr_t Object::obj_address(Il2CppObject* obj)
     {
-        Il2CppIntPtr addr = { obj };
-        return addr;
+        return reinterpret_cast<intptr_t>(obj);
     }
 } /* namespace System */
 } /* namespace mscorlib */

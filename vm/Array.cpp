@@ -22,13 +22,13 @@ namespace vm
 
     uint32_t Array::GetLength(Il2CppArray* array)
     {
-        return array->max_length;
+        return ARRAY_LENGTH_AS_INT32(array->max_length);
     }
 
     uint32_t Array::GetByteLength(Il2CppArray* array)
     {
         Il2CppClass *klass;
-        int length;
+        il2cpp_array_size_t length;
         int i;
 
         klass = array->klass;
@@ -42,7 +42,7 @@ namespace vm
                 length *= array->bounds[i].length;
         }
 
-        return length * GetElementSize(klass);
+        return ARRAY_LENGTH_AS_INT32(length * GetElementSize(klass));
     }
 
     Il2CppArray* Array::New(Il2CppClass *elementTypeInfo, il2cpp_array_size_t length)
@@ -59,7 +59,8 @@ namespace vm
     {
         Il2CppObject *o;
         Il2CppArray *ao;
-        uint32_t byte_len, elem_size;
+        uint32_t elem_size;
+        il2cpp_array_size_t byte_len;
 
         Class::Init(klass);
         IL2CPP_ASSERT(klass->rank);
@@ -69,13 +70,11 @@ namespace vm
         NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Not checking for overflow");
         NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Handle allocations with a GC descriptor");
 
-        if (n < 0)
+        if (n > IL2CPP_ARRAY_MAX_INDEX)
+        {
             RaiseOverflowException();
-
-        //if (G_UNLIKELY (n > MONO_ARRAY_MAX_INDEX)) {
-        //  arith_overflow ();
-        //  return NULL;
-        //}
+            return NULL;
+        }
 
         elem_size = il2cpp_array_element_size(klass);
         //if (CHECK_MUL_OVERFLOW_UN (n, elem_size)) {
@@ -133,12 +132,6 @@ namespace vm
         NOT_IMPLEMENTED_NO_ASSERT(Array::NewFull, "IGNORING non-zero based arrays!");
         NOT_IMPLEMENTED_NO_ASSERT(Array::NewFull, "Handle allocations with a GC descriptor");
 
-        for (i = 0; i < array_class->rank; ++i)
-        {
-            if (lengths[i] < 0)
-                RaiseOverflowException();
-        }
-
         byte_len = il2cpp_array_element_size(array_class);
         len = 1;
 
@@ -156,8 +149,8 @@ namespace vm
 
             for (i = 0; i < array_class->rank; ++i)
             {
-                //if (lengths [i] > IL2CPP_ARRAY_MAX_INDEX) //MONO_ARRAY_MAX_INDEX
-                //  arith_overflow ();
+                if (lengths[i] > IL2CPP_ARRAY_MAX_INDEX)  //MONO_ARRAY_MAX_INDEX
+                    RaiseOverflowException();
                 //if (CHECK_MUL_OVERFLOW_UN (len, lengths [i]))
                 //  mono_gc_out_of_memory (MONO_ARRAY_MAX_SIZE);
                 len *= lengths[i];
@@ -213,7 +206,7 @@ namespace vm
             {
                 bounds[i].length = lengths[i];
                 if (lower_bounds)
-                    bounds[i].lower_bound = lower_bounds[i];
+                    bounds[i].lower_bound = ARRAY_LENGTH_AS_INT32(lower_bounds[i]);
             }
         }
 

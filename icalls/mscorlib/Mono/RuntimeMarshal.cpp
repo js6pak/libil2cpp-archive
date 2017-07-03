@@ -12,12 +12,14 @@ namespace mscorlib
 {
 namespace Mono
 {
-    void RuntimeMarshal::FreeAssemblyName(Il2CppMonoAssemblyName* name)
+    void RuntimeMarshal::FreeAssemblyName(Il2CppMonoAssemblyName* name, bool freeStruct)
     {
-        IL2CPP_FREE(name->name.m_value);
-        IL2CPP_FREE(name->culture.m_value);
-        IL2CPP_FREE(name->hash_value.m_value);
-        IL2CPP_FREE(name->public_key.m_value);
+        IL2CPP_FREE(const_cast<char*>(name->name));
+        IL2CPP_FREE(const_cast<char*>(name->culture));
+        IL2CPP_FREE(const_cast<char*>(name->hash_value));
+        IL2CPP_FREE(const_cast<uint8_t*>(name->public_key));
+        if (freeStruct)
+            IL2CPP_FREE(name);
     }
 } // namespace Mono
 } // namespace mscorlib

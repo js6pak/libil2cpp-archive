@@ -8,7 +8,7 @@
 #include "FilePlatformConfig.h"
 #endif
 
-
+#include "il2cpp-vm-support.h"
 #include "os/ErrorCodes.h"
 #include "os/File.h"
 #include "os/Mutex.h"
@@ -23,6 +23,7 @@
 #include <sys/errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string>
 
 #define INVALID_FILE_HANDLE     (FileHandle*)-1;
 #define INVALID_FILE_ATTRIBUTES (UnityPalFileAttributes)((uint32_t)-1);
@@ -1118,6 +1119,16 @@ namespace os
     {
         NOT_IMPLEMENTED_ICALL(File::DuplicateHandle);
         return false;
+    }
+
+    bool File::IsExecutable(const std::string& path)
+    {
+#if IL2CPP_CAN_CHECK_EXECUTABLE
+        return access(path.c_str(), X_OK) == 0;
+#else
+        IL2CPP_VM_NOT_SUPPORTED(File::IsExecutable, "This platform cannot check for executable permissions.");
+        return false;
+#endif
     }
 }
 }

@@ -38,11 +38,9 @@ namespace Threading
         return Atomic::CompareExchangePointer(location, value, comparand);
     }
 
-    Il2CppIntPtr Interlocked::CompareExchangeIntPtr(Il2CppIntPtr* location, Il2CppIntPtr value, Il2CppIntPtr comparand)
+    intptr_t Interlocked::CompareExchangeIntPtr(intptr_t* location, intptr_t value, intptr_t comparand)
     {
-        Il2CppIntPtr result;
-        result.m_value = Atomic::CompareExchangePointer(&location->m_value, value.m_value, comparand.m_value);
-        return result;
+        return reinterpret_cast<intptr_t>(Atomic::CompareExchangePointer(reinterpret_cast<void*volatile*>(location), reinterpret_cast<void*>(value), reinterpret_cast<void*>(comparand)));
     }
 
     int32_t Interlocked::CompareExchange(int32_t* location, int32_t value, int32_t comparand)
@@ -141,11 +139,9 @@ namespace Threading
         return ret.d_val;
     }
 
-    Il2CppIntPtr Interlocked::ExchangeIntPtr(Il2CppIntPtr* location, Il2CppIntPtr value)
+    intptr_t Interlocked::ExchangeIntPtr(intptr_t* location, intptr_t value)
     {
-        Il2CppIntPtr result;
-        result.m_value = Atomic::ExchangePointer(&location->m_value, value.m_value);
-        return result;
+        return reinterpret_cast<intptr_t>(Atomic::ExchangePointer(reinterpret_cast<void*volatile*>(location), reinterpret_cast<void*>(value)));
     }
 
     int32_t Interlocked::Exchange(int32_t* location1, int32_t value)

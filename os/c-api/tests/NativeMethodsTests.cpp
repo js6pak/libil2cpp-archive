@@ -2,11 +2,8 @@
 
 #include "UnitTest++.h"
 
-SUITE(NativeMethodsTests)
+SUITE(NativeMethods)
 {
-    TEST(FirstNativeMethodTest)
-    {
-    }
 }
 
 #endif // ENABLE_UNIT_TESTS

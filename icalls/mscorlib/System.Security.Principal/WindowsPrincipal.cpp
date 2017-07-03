@@ -15,14 +15,14 @@ namespace Security
 {
 namespace Principal
 {
-    bool WindowsPrincipal::IsMemberOfGroupId(Il2CppIntPtr user, Il2CppIntPtr group)
+    bool WindowsPrincipal::IsMemberOfGroupId(intptr_t user, intptr_t group)
     {
         NOT_SUPPORTED_IL2CPP(WindowsPrincipal::IsMemberOfGroupId, "This icall is not supported by il2cpp.");
 
         return false;
     }
 
-    bool WindowsPrincipal::IsMemberOfGroupName(Il2CppIntPtr user, Il2CppString* group)
+    bool WindowsPrincipal::IsMemberOfGroupName(intptr_t user, Il2CppString* group)
     {
         NOT_SUPPORTED_IL2CPP(WindowsPrincipal::IsMemberOfGroupName, "This icall is not supported by il2cpp.");
 

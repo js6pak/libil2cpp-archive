@@ -32,10 +32,10 @@ namespace Reflection
         return NULL;
     }
 
-    Il2CppReflectionField* FieldInfo::internal_from_handle_type(Il2CppIntPtr field_handle, Il2CppIntPtr type_handle)
+    Il2CppReflectionField* FieldInfo::internal_from_handle_type(intptr_t field_handle, intptr_t type_handle)
     {
-        ::FieldInfo* fieldInfo = (::FieldInfo*)field_handle.m_value;
-        Il2CppType* il2cppType = (Il2CppType*)type_handle.m_value;
+        ::FieldInfo* fieldInfo = (::FieldInfo*)field_handle;
+        Il2CppType* il2cppType = (Il2CppType*)type_handle;
 
         if (il2cppType == NULL)
             return vm::Reflection::GetFieldObject(fieldInfo->parent, fieldInfo);
