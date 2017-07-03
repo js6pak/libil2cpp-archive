@@ -6,7 +6,6 @@
 #include "il2cpp-api.h"
 #include "class-internals.h"
 #include "vm/Array.h"
-#include "vm/String.h"
 #include <string>
 #include "utils/StringUtils.h"
 
@@ -33,12 +32,10 @@ namespace Globalization
             len++;
         }
 
-        Il2CppArray* ret = il2cpp_array_new_specific(il2cpp_array_class_get(il2cpp_defaults.string_class, 1), len + 1);
+        Il2CppArray* ret = il2cpp_array_new_specific(il2cpp_array_class_get(il2cpp_defaults.string_class, 1), len);
 
         for (int i = 0; i < len; i++)
             il2cpp_array_setref(ret, i, il2cpp_string_new(idx2string(names[i])));
-
-        il2cpp_array_setref(ret, len, vm::String::Empty());
 
         return ret;
     }

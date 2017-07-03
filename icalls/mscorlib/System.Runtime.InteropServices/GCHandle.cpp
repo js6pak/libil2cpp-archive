@@ -26,24 +26,17 @@ namespace InteropServices
         gc::GCHandle::Free(handle);
     }
 
-    static inline Il2CppIntPtr MakeIntPtr(uint8_t* value)
-    {
-        Il2CppIntPtr ptr;
-        ptr.m_value = reinterpret_cast<void*>(value);
-        return ptr;
-    }
-
 // Returns -2 if gchandle is not pinned
-    Il2CppIntPtr GCHandle::GetAddrOfPinnedObject(int32_t handle)
+    intptr_t GCHandle::GetAddrOfPinnedObject(int32_t handle)
     {
         gc::GCHandleType type = gc::GCHandle::GetHandleType(handle);
 
         if (type != gc::HANDLE_PINNED)
-            return MakeIntPtr(reinterpret_cast<uint8_t*>(-2)); // mscorlib on managed land expects us to return "-2" as IntPtr if this condition occurs
+            return reinterpret_cast<intptr_t>(reinterpret_cast<uint8_t*>(-2)); // mscorlib on managed land expects us to return "-2" as IntPtr if this condition occurs
 
         Il2CppObject* obj = gc::GCHandle::GetTarget(handle);
         if (obj == NULL)
-            return MakeIntPtr(NULL);
+            return 0;
 
         ptrdiff_t offset;
 
@@ -63,7 +56,7 @@ namespace InteropServices
             offset = sizeof(Il2CppObject);
         }
 
-        return MakeIntPtr(reinterpret_cast<uint8_t*>(obj) + offset);
+        return reinterpret_cast<intptr_t>((reinterpret_cast<uint8_t*>(obj) + offset));
     }
 
     Il2CppObject* GCHandle::GetTarget(int32_t handle)

@@ -12,9 +12,9 @@
     #define IL2CPP_VM_RAISE_EXCEPTION(exception) mono_raise_exception(exception)
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) assert(false && "COM exceptions are not implemented yet.")
     #define IL2CPP_VM_RAISE_IF_FAILED(hresult, defaultToCOMException) assert(false && "COM exceptions are not implemented yet.")
-    #define IL2CPP_VM_STRING_EMPTY() mono_string_empty(mono_domain_get())
-    #define IL2CPP_VM_STRING_NEW_UTF16(value, length) mono_string_new_utf16(mono_domain_get(), value, length)
-    #define IL2CPP_VM_STRING_NEW_LEN(value, length) mono_string_new_len(mono_domain_get(), value, length);
+    #define IL2CPP_VM_STRING_EMPTY() mono_string_empty(g_MonoDomain)
+    #define IL2CPP_VM_STRING_NEW_UTF16(value, length) mono_string_new_utf16(g_MonoDomain, value, length)
+    #define IL2CPP_VM_STRING_NEW_LEN(value, length) mono_string_new_len(g_MonoDomain, value, length);
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason)))
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) isGeneric ? GenericMethodFromIndex(methodIndex) : MethodFromIndex(methodIndex)
     #define IL2CPP_VM_SHUTDOWN() do { if (mono_runtime_try_shutdown()) mono_runtime_quit(); } while(0)

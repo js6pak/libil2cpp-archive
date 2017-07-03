@@ -11,7 +11,7 @@ namespace mscorlib
 {
 namespace System
 {
-    void ArgIterator::Setup(mscorlib_System_ArgIterator * thisPtr, Il2CppIntPtr argsp, Il2CppIntPtr start)
+    void ArgIterator::Setup(mscorlib_System_ArgIterator * thisPtr, intptr_t argsp, intptr_t start)
     {
         NOT_SUPPORTED_IL2CPP(ArgIterator::Setup, "ArgIterator is not supported. Do not use __argList, use params instead.");
     }
@@ -22,16 +22,16 @@ namespace System
         return Il2CppTypedRef();
     }
 
-    Il2CppTypedRef ArgIterator::IntGetNextArg_mscorlib_System_TypedReference_mscorlib_System_IntPtr(mscorlib_System_ArgIterator * thisPtr, Il2CppIntPtr rth)
+    Il2CppTypedRef ArgIterator::IntGetNextArg_mscorlib_System_TypedReference_mscorlib_System_IntPtr(mscorlib_System_ArgIterator * thisPtr, intptr_t rth)
     {
         NOT_SUPPORTED_IL2CPP(ArgIterator::Setup, "ArgIterator is not supported. Do not use __argList, use params instead.");
         return Il2CppTypedRef();
     }
 
-    Il2CppIntPtr ArgIterator::IntGetNextArgType(mscorlib_System_ArgIterator * thisPtr)
+    intptr_t ArgIterator::IntGetNextArgType(mscorlib_System_ArgIterator * thisPtr)
     {
         NOT_SUPPORTED_IL2CPP(ArgIterator::Setup, "ArgIterator is not supported. Do not use __argList, use params instead.");
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 
     void* /* System.TypedReference */ ArgIterator::IntGetNextArg(ArgIterator self)

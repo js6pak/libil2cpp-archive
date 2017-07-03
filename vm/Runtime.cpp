@@ -54,7 +54,6 @@
 using il2cpp::metadata::GenericMethod;
 using il2cpp::utils::StringUtils;
 
-Il2CppIntPtr Il2CppIntPtr::Zero;
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
@@ -158,7 +157,7 @@ namespace vm
         DEFAULTS_INIT_TYPE(int32_class, "System", "Int32", int32_t);
         DEFAULTS_INIT_TYPE(uint32_class, "System", "UInt32", uint32_t);
         DEFAULTS_INIT(uint_class, "System", "UIntPtr");
-        DEFAULTS_INIT_TYPE(int_class, "System", "IntPtr", Il2CppIntPtr);
+        DEFAULTS_INIT_TYPE(int_class, "System", "IntPtr", intptr_t);
         DEFAULTS_INIT_TYPE(int64_class, "System", "Int64", int64_t);
         DEFAULTS_INIT_TYPE(uint64_class, "System", "UInt64", uint64_t);
         DEFAULTS_INIT_TYPE(single_class, "System", "Single", float);
@@ -335,15 +334,12 @@ namespace vm
         os::Socket::Cleanup();
         String::CleanupEmptyString();
 
-        il2cpp::gc::GarbageCollector::UninitializeFinalizers();
+        il2cpp::gc::GarbageCollector::Uninitialize();
 
         // after the gc cleanup so the finalizer thread can unregister itself
         Thread::UnInitialize();
 
         os::Thread::Shutdown();
-
-        // We need to do this after thread shut down because it is freeing GC fixed memory
-        il2cpp::gc::GarbageCollector::UninitializeGC();
 
         // This needs to happen after no managed code can run anymore, including GC finalizers
         os::LibraryLoader::CleanupLoadedLibraries();
@@ -653,7 +649,7 @@ namespace vm
                     if (parameters[i] != NULL)
                     {
                         IL2CPP_ASSERT(parameters[i]->klass == il2cpp_defaults.int_class);
-                        convertedParameters[i] = static_cast<Il2CppIntPtr*>(Object::Unbox(parameters[i]))->m_value;
+                        convertedParameters[i] = reinterpret_cast<void*>(*static_cast<intptr_t*>(Object::Unbox(parameters[i])));
                     }
                     else
                     {
@@ -837,7 +833,7 @@ namespace vm
 #if !NET_4_0
         IL2CPP_ASSERT(value == 82);
 #else
-        IL2CPP_ASSERT(value == 156);
+        IL2CPP_ASSERT(value == 1050001000);
 #endif
 #endif
     }

@@ -14,8 +14,8 @@ namespace System
     class LIBIL2CPP_CODEGEN_API IOSelector
     {
     public:
-        static void Add(Il2CppIntPtr handle, Il2CppObject* job);
-        static void Remove(Il2CppIntPtr handle);
+        static void Add(intptr_t handle, Il2CppObject* job);
+        static void Remove(intptr_t handle);
     };
 } // namespace System
 } // namespace System

@@ -59,9 +59,9 @@ namespace Diagnostics
         return NULL;
     }
 
-    Il2CppIntPtr PerformanceCounter::GetImpl(Il2CppString* category, Il2CppString* counter, Il2CppString* instance, Il2CppString* machine, int* type, bool* custom)
+    intptr_t PerformanceCounter::GetImpl(Il2CppString* category, Il2CppString* counter, Il2CppString* instance, Il2CppString* machine, int* type, bool* custom)
     {
-        Il2CppIntPtr returnValue = {0};
+        intptr_t returnValue = {0};
         const CategoryDesc *cdesc;
         if (!utils::VmStringUtils::CaseInsensitiveEquals(machine, "."))
             return returnValue;
@@ -76,31 +76,31 @@ namespace Diagnostics
             switch (cdesc->id)
             {
                 case CATEGORY_MONO_MEM:
-                    returnValue.m_value = Il2CppMemoryCounterImpl(counter, instance, type, custom);
+                    returnValue = reinterpret_cast<intptr_t>(Il2CppMemoryCounterImpl(counter, instance, type, custom));
             }
         }
 
         return returnValue;
     }
 
-    bool PerformanceCounter::GetSample(Il2CppIntPtr impl, bool only_value, Il2CppCounterSample* sample)
+    bool PerformanceCounter::GetSample(intptr_t impl, bool only_value, Il2CppCounterSample* sample)
     {
-        ImplVtable *vtable = (ImplVtable*)impl.m_value;
+        ImplVtable *vtable = (ImplVtable*)impl;
         if (vtable && vtable->sample)
             return vtable->sample(vtable, only_value, sample);
         return false;
     }
 
-    int64_t PerformanceCounter::UpdateValue(Il2CppIntPtr impl, bool do_incr, int64_t value)
+    int64_t PerformanceCounter::UpdateValue(intptr_t impl, bool do_incr, int64_t value)
     {
         NOT_IMPLEMENTED_ICALL(PerformanceCounter::UpdateValue);
 
         return 0;
     }
 
-    void PerformanceCounter::FreeData(Il2CppIntPtr impl)
+    void PerformanceCounter::FreeData(intptr_t impl)
     {
-        ImplVtable* vtable = (ImplVtable*)impl.m_value;
+        ImplVtable* vtable = (ImplVtable*)impl;
         if (vtable && vtable->cleanup)
             vtable->cleanup(vtable);
         IL2CPP_FREE(vtable);

@@ -6,6 +6,7 @@
 #include "il2cpp-config.h"
 struct Il2CppAssemblyName;
 struct Il2CppReflectionAssemblyName;
+struct Il2CppMonoAssemblyName;
 
 namespace il2cpp
 {
@@ -17,8 +18,7 @@ namespace vm
     public:
         static std::string AssemblyNameToString(const Il2CppAssemblyName& aname);
         static bool ParseName(Il2CppReflectionAssemblyName* aname, std::string assemblyName);
-    public:
-
+        static void FillNativeAssemblyName(const Il2CppAssemblyName& aname, Il2CppMonoAssemblyName* nativeName);
     private:
     };
 } /* namespace vm */

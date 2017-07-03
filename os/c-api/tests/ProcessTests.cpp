@@ -6,19 +6,19 @@
 #include "../Process-c-api.h"
 
 
-SUITE(ProcessTests)
+SUITE(Process)
 {
-    TEST(GetProcessIDTest)
+    TEST(GetProcessID)
     {
         CHECK(UnityPalGetCurrentProcessId() > 0);
     }
 
-    TEST(GetProcessIDMatchesClassTest)
+    TEST(GetProcessIDMatchesClass)
     {
         CHECK_EQUAL(il2cpp::os::Process::GetCurrentProcessId(), UnityPalGetCurrentProcessId());
     }
 
-    TEST(GetProcessHandleValidTest)
+    TEST(GetProcessHandleValid)
     {
         UnityPalProcessHandle* handle = NULL;
         handle = UnityPalGetProcess(UnityPalGetCurrentProcessId());
@@ -26,7 +26,9 @@ SUITE(ProcessTests)
         CHECK_NOT_NULL(handle);
     }
 
-    TEST(GetProcessHandleMatchesClassTest)
+// GetProcessName is only supported on macOS for Posix targets
+#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_DARWIN
+    TEST(GetProcessHandleMatchesClass)
     {
         int processId = il2cpp::os::Process::GetCurrentProcessId();
         UnityPalProcessHandle* api_handle = UnityPalGetProcess(processId);
@@ -38,7 +40,7 @@ SUITE(ProcessTests)
         CHECK_EQUAL(class_name, api_name);
     }
 
-    TEST(GetProcessNameNotNullTest)
+    TEST(GetProcessNameNotNull)
     {
         int processId = il2cpp::os::Process::GetCurrentProcessId();
         UnityPalProcessHandle* processHandle = UnityPalGetProcess(processId);
@@ -48,7 +50,7 @@ SUITE(ProcessTests)
         CHECK_NOT_NULL(processName);
     }
 
-    TEST(GetProcessNameValidTest)
+    TEST(GetProcessNameValid)
     {
         int processId = il2cpp::os::Process::GetCurrentProcessId();
         UnityPalProcessHandle* processHandle = UnityPalGetProcess(processId);
@@ -58,7 +60,7 @@ SUITE(ProcessTests)
         CHECK(strlen(processName) > 0);
     }
 
-    TEST(GetProcessNameMatchesClassTest)
+    TEST(GetProcessNameMatchesClass)
     {
         int processId = il2cpp::os::Process::GetCurrentProcessId();
         UnityPalProcessHandle* api_handle = UnityPalGetProcess(processId);
@@ -70,7 +72,7 @@ SUITE(ProcessTests)
         CHECK_EQUAL(class_name.c_str(), api_name);
     }
 
-    TEST(GetProcessNameWithInvalidIdTest)
+    TEST(GetProcessNameWithInvalidId)
     {
         const char* processName = NULL;
 
@@ -82,6 +84,7 @@ SUITE(ProcessTests)
 
         CHECK_EQUAL("", processName);
     }
+#endif
 }
 
 #endif // ENABLE_UNIT_TESTS

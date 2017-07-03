@@ -164,6 +164,7 @@ namespace vm
 
         il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
+#if !NET_4_0
         if (method->is_inflated)
         {
             refclass = method->declaring_type;
@@ -198,6 +199,7 @@ namespace vm
 
             return ret;
         }
+#endif
 
         if (!refclass)
             refclass = method->declaring_type;
@@ -259,7 +261,7 @@ namespace vm
         //basename = g_path_get_basename (image->name);
         //IL2CPP_OBJECT_SETREF (res, name, String::New (basename));
         IL2CPP_OBJECT_SETREF(res, name, String::New(image->name));
-        IL2CPP_OBJECT_SETREF(res, scopename, String::New(image->nameNoExt));
+        //IL2CPP_OBJECT_SETREF (res, scopename, String::New (image->module_name));
 
         //g_free (basename);
 

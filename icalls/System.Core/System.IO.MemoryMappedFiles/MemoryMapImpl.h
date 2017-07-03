@@ -20,13 +20,13 @@ namespace MemoryMappedFiles
     class LIBIL2CPP_CODEGEN_API MemoryMapImpl
     {
     public:
-        static bool Unmap(Il2CppIntPtr mmap_handle);
-        static int32_t MapInternal(Il2CppIntPtr handle, int64_t offset, int64_t* size, int32_t access, Il2CppIntPtr* mmap_handle, Il2CppIntPtr* base_address);
-        static Il2CppIntPtr OpenFileInternal(Il2CppString* path, int32_t mode, Il2CppString* mapName, int64_t* capacity, int32_t access, int32_t options, int32_t* error);
-        static Il2CppIntPtr OpenHandleInternal(Il2CppIntPtr handle, Il2CppString* mapName, int64_t* capacity, int32_t access, int32_t options, int32_t* error);
-        static void CloseMapping(Il2CppIntPtr handle);
-        static void ConfigureHandleInheritability(Il2CppIntPtr handle, int32_t inheritability);
-        static void Flush(Il2CppIntPtr file_handle);
+        static bool Unmap(intptr_t mmap_handle);
+        static int32_t MapInternal(intptr_t handle, int64_t offset, int64_t* size, int32_t access, intptr_t* mmap_handle, intptr_t* base_address);
+        static intptr_t OpenFileInternal(Il2CppString* path, int32_t mode, Il2CppString* mapName, int64_t* capacity, int32_t access, int32_t options, int32_t* error);
+        static intptr_t OpenHandleInternal(intptr_t handle, Il2CppString* mapName, int64_t* capacity, int32_t access, int32_t options, int32_t* error);
+        static void CloseMapping(intptr_t handle);
+        static void ConfigureHandleInheritability(intptr_t handle, int32_t inheritability);
+        static void Flush(intptr_t file_handle);
     };
 } // namespace MemoryMappedFiles
 } // namespace IO

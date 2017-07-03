@@ -28,7 +28,7 @@ namespace Emit
     {
     public:
         static void RegisterToken(Il2CppReflectionModuleBuilder*, Il2CppObject*, int);
-        static void WriteToFile(Il2CppReflectionModuleBuilder*, Il2CppIntPtr);
+        static void WriteToFile(Il2CppReflectionModuleBuilder*, intptr_t);
         static void basic_init(Il2CppReflectionModuleBuilder*);
         static void build_metadata(Il2CppReflectionModuleBuilder*);
         static Il2CppReflectionType * create_modified_type(Il2CppReflectionTypeBuilder*, Il2CppString*);

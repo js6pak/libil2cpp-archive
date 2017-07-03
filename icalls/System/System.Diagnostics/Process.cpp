@@ -15,35 +15,35 @@ namespace System
 {
 namespace Diagnostics
 {
-    int32_t Process::ExitCode_internal(Il2CppIntPtr handle)
+    int32_t Process::ExitCode_internal(intptr_t handle)
     {
         NOT_IMPLEMENTED_ICALL(Process::ExitCode_internal);
 
         return 0;
     }
 
-    int64_t Process::ExitTime_internal(Il2CppIntPtr handle)
+    int64_t Process::ExitTime_internal(intptr_t handle)
     {
         NOT_IMPLEMENTED_ICALL(Process::ExitTime_internal);
 
         return 0;
     }
 
-    bool Process::GetWorkingSet_internal(Il2CppIntPtr handle, int32_t* min, int32_t* max)
+    bool Process::GetWorkingSet_internal(intptr_t handle, int32_t* min, int32_t* max)
     {
         NOT_IMPLEMENTED_ICALL(Process::GetWorkingSet_internal);
 
         return false;
     }
 
-    bool Process::SetWorkingSet_internal(Il2CppIntPtr handle, int32_t min, int32_t max, bool use_min)
+    bool Process::SetWorkingSet_internal(intptr_t handle, int32_t min, int32_t max, bool use_min)
     {
         NOT_IMPLEMENTED_ICALL(Process::SetWorkingSet_internal);
 
         return false;
     }
 
-    Il2CppArray* Process::GetModules_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle)
+    Il2CppArray* Process::GetModules_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle)
     {
         NOT_IMPLEMENTED_ICALL(Process::GetModules_internal);
 
@@ -57,54 +57,51 @@ namespace Diagnostics
         return 0;
     }
 
-    int32_t Process::GetPriorityClass(Il2CppIntPtr handle, int32_t* error)
+    int32_t Process::GetPriorityClass(intptr_t handle, int32_t* error)
     {
         NOT_IMPLEMENTED_ICALL(Process::GetPriorityClass);
 
         return 0;
     }
 
-    bool Process::SetPriorityClass(Il2CppIntPtr handle, int32_t priority, int32_t* error)
+    bool Process::SetPriorityClass(intptr_t handle, int32_t priority, int32_t* error)
     {
         NOT_IMPLEMENTED_ICALL(Process::SetPriorityClass);
 
         return false;
     }
 
-    int64_t Process::Times(Il2CppIntPtr handle, int32_t type)
+    int64_t Process::Times(intptr_t handle, int32_t type)
     {
         NOT_IMPLEMENTED_ICALL(Process::Times);
 
         return 0;
     }
 
-    Il2CppString* Process::ProcessName_internal(Il2CppIntPtr handle)
+    Il2CppString* Process::ProcessName_internal(intptr_t handle)
     {
-        os::ProcessHandle *pHandle = (os::ProcessHandle*)handle.m_value;
+        os::ProcessHandle *pHandle = (os::ProcessHandle*)handle;
         std::string name = os::Process::GetProcessName(pHandle);
         return il2cpp::vm::String::New(name.c_str());
     }
 
-    int64_t Process::StartTime_internal(Il2CppIntPtr handle)
+    int64_t Process::StartTime_internal(intptr_t handle)
     {
         NOT_IMPLEMENTED_ICALL(Process::StartTime_internal);
 
         return 0;
     }
 
-    bool Process::Kill_internal(Il2CppIntPtr handle, int32_t signo)
+    bool Process::Kill_internal(intptr_t handle, int32_t signo)
     {
         NOT_IMPLEMENTED_ICALL(Process::Kill_internal);
 
         return false;
     }
 
-    Il2CppIntPtr Process::GetProcess_internal(int32_t pid)
+    intptr_t Process::GetProcess_internal(int32_t pid)
     {
-        Il2CppIntPtr process;
-        process.m_value = os::Process::GetProcess(pid);
-
-        return process;
+        return reinterpret_cast<intptr_t>(os::Process::GetProcess(pid));
     }
 
     int32_t Process::GetPid_internal()
@@ -126,30 +123,30 @@ namespace Diagnostics
         return false;
     }
 
-    bool Process::CreateProcess_internal(void* /* System.Diagnostics.ProcessStartInfo */ startInfo, Il2CppIntPtr _stdin, Il2CppIntPtr _stdout, Il2CppIntPtr _stderr, ProcInfo* proc_info)
+    bool Process::CreateProcess_internal(void* /* System.Diagnostics.ProcessStartInfo */ startInfo, intptr_t _stdin, intptr_t _stdout, intptr_t _stderr, ProcInfo* proc_info)
     {
         NOT_IMPLEMENTED_ICALL(Process::CreateProcess_internal);
 
         return false;
     }
 
-    bool Process::WaitForExit_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle, int32_t ms)
+    bool Process::WaitForExit_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle, int32_t ms)
     {
         NOT_IMPLEMENTED_ICALL(Process::WaitForExit_internal);
 
         return false;
     }
 
-    bool Process::WaitForInputIdle_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle, int32_t ms)
+    bool Process::WaitForInputIdle_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle, int32_t ms)
     {
         NOT_IMPLEMENTED_ICALL(Process::WaitForInputIdle_internal);
 
         return false;
     }
 
-    void Process::Process_free_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle)
+    void Process::Process_free_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle)
     {
-        os::Process::FreeProcess((os::ProcessHandle*)handle.m_value);
+        os::Process::FreeProcess((os::ProcessHandle*)handle);
     }
 } /* namespace Diagnostics */
 } /* namespace System */

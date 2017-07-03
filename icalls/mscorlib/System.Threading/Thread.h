@@ -56,7 +56,7 @@ namespace Threading
         static void Sleep_internal(int32_t milliseconds);
         static void Suspend_internal(void* /* System.Threading.Thread */ self);
         static void Thread_init(Il2CppThread* thisPtr);
-        static Il2CppIntPtr Thread_internal(Il2CppThread* thisPtr, Il2CppDelegate * start);
+        static intptr_t Thread_internal(Il2CppThread* thisPtr, Il2CppDelegate * start);
         static int8_t VolatileReadInt8(volatile void* address);
         static int16_t VolatileReadInt16(volatile void* address);
         static int32_t VolatileReadInt32(volatile void* address);
@@ -64,7 +64,7 @@ namespace Threading
         static float VolatileReadFloat(volatile void* address);
         static double VolatileReadDouble(volatile void* address);
         static void* VolatileReadPtr(volatile void* address);
-        static Il2CppIntPtr VolatileReadIntPtr(volatile void* address);
+        static intptr_t VolatileReadIntPtr(volatile void* address);
         static void VolatileWriteInt8(volatile void* address, int8_t value);
         static void VolatileWriteInt16(volatile void* address, int16_t value);
         static void VolatileWriteInt32(volatile void* address, int32_t value);
@@ -72,9 +72,9 @@ namespace Threading
         static void VolatileWriteFloat(volatile void* address, float value);
         static void VolatileWriteDouble(volatile void* address, double value);
         static void VolatileWritePtr(volatile void* address, void* value);
-        static void VolatileWriteIntPtr(volatile void* address, Il2CppIntPtr value);
+        static void VolatileWriteIntPtr(volatile void* address, intptr_t value);
 #if !NET_4_0
-        static void Thread_free_internal(Il2CppThread* thisPtr, Il2CppIntPtr handle);
+        static void Thread_free_internal(Il2CppThread* thisPtr, intptr_t handle);
 #endif
 
 #if NET_4_0
@@ -99,6 +99,10 @@ namespace Threading
         static void SetState40(Il2CppInternalThread* thread, vm::ThreadState set);
         static void SleepInternal(int32_t millisecondsTimeout);
         static void SuspendInternal(Il2CppObject* _this);
+#endif
+
+#if NET_4_0
+        static Il2CppThread* GetCurrentThread();
 #endif
     };
 } /* namespace Threading */

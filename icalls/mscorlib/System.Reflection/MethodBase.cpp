@@ -26,13 +26,13 @@ namespace Reflection
         return klass->generic_class ? il2cpp::vm::GenericClass::GetTypeDefinition(klass->generic_class) : klass;
     }
 
-    Il2CppReflectionMethod * MethodBase::GetMethodFromHandleInternalType(Il2CppIntPtr method, Il2CppIntPtr type)
+    Il2CppReflectionMethod * MethodBase::GetMethodFromHandleInternalType(intptr_t method, intptr_t type)
     {
         Il2CppClass *klass = NULL;
-        MethodInfo* methodInfo = (MethodInfo*)method.m_value;
-        if (type.m_value)
+        MethodInfo* methodInfo = (MethodInfo*)method;
+        if (type)
         {
-            klass = vm::Class::FromIl2CppType((Il2CppType*)type.m_value);
+            klass = vm::Class::FromIl2CppType((Il2CppType*)type);
             if (il2cpp_class_get_generic_type_definition(methodInfo->declaring_type) != il2cpp_class_get_generic_type_definition(klass))
                 return NULL;
 
@@ -55,7 +55,7 @@ namespace Reflection
         return NULL;
     }
 
-    void* /* System.Reflection.MethodBody */ MethodBase::GetMethodBodyInternal(Il2CppIntPtr handle)
+    void* /* System.Reflection.MethodBody */ MethodBase::GetMethodBodyInternal(intptr_t handle)
     {
         NOT_SUPPORTED_IL2CPP(MethodBase::GetMethodBodyInternal, "This icall is not supported by il2cpp.");
 
@@ -113,14 +113,14 @@ namespace Reflection
         return klass->methods[offset];
     }
 
-    Il2CppReflectionMethod* MethodBase::GetMethodFromHandleInternalType_native(Il2CppIntPtr method_handle, Il2CppIntPtr type_handle, bool genericCheck)
+    Il2CppReflectionMethod* MethodBase::GetMethodFromHandleInternalType_native(intptr_t method_handle, intptr_t type_handle, bool genericCheck)
     {
         Il2CppReflectionMethod *res = NULL;
         Il2CppClass *klass;
-        const MethodInfo *method = (const MethodInfo*)method_handle.m_value;
-        if (type_handle.m_value && genericCheck)
+        const MethodInfo *method = (const MethodInfo*)method_handle;
+        if (type_handle && genericCheck)
         {
-            klass = il2cpp_class_from_il2cpp_type((Il2CppType*)type_handle.m_value);
+            klass = il2cpp_class_from_il2cpp_type((Il2CppType*)type_handle);
             if (il2cpp_class_get_generic_type_definition(method->declaring_type) != il2cpp_class_get_generic_type_definition(klass))
                 return NULL;
 
@@ -131,8 +131,8 @@ namespace Reflection
                     return NULL;
             }
         }
-        else if (type_handle.m_value)
-            klass = il2cpp_class_from_il2cpp_type((Il2CppType*)type_handle.m_value);
+        else if (type_handle)
+            klass = il2cpp_class_from_il2cpp_type((Il2CppType*)type_handle);
         else
             klass = method->declaring_type;
 

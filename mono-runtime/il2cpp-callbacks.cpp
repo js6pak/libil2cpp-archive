@@ -14,6 +14,7 @@
 #include "object-internals.h"
 #include <iterator>
 #include "os/Thread.h"
+#include "os/c-api/Allocator.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
@@ -179,21 +180,21 @@ MonoObject* il2cpp_mono_runtime_invoke(MonoMethod *method, void *obj, void **par
     }
 
     if (mono_class_is_nullable(mono_unity_method_get_class(method)))
-        target = mono_value_box(mono_domain_get(), mono_unity_class_get_castclass(mono_unity_method_get_class(method)), target);
+        target = mono_value_box(g_MonoDomain, mono_unity_class_get_castclass(mono_unity_method_get_class(method)), target);
     else if (target != NULL && mono_class_is_valuetype(mono_unity_method_get_class(method)))
         target = il2cpp_mono_fake_box(target);
 
     try
     {
         if (strcmp(mono_unity_method_get_name(method), ".ctor") == 0)
-            mono_runtime_class_init_full(mono_class_vtable(mono_domain_get(), mono_unity_method_get_class(method)), error);
+            mono_runtime_class_init_full(il2cpp_mono_class_vtable(g_MonoDomain, mono_unity_method_get_class(method)), error);
         void *retVal = ((InvokerMethod)mono_unity_method_get_invoke_pointer(method))((Il2CppMethodPointer)mono_unity_method_get_method_pointer(method), method, target, newParams);
 
         std::vector<int>::const_iterator end = byRefParams.end();
         for (std::vector<int>::const_iterator it = byRefParams.begin(); it != end; ++it)
         {
             MonoClass *paramSigClass = mono_unity_signature_get_class_for_param(mono_method_signature(method), *it);
-            params[*it] = mono_value_box(mono_domain_get(), paramSigClass, newParamsVec[*it]);
+            params[*it] = mono_value_box(g_MonoDomain, paramSigClass, newParamsVec[*it]);
         }
 
         return mono_unity_method_convert_return_type_if_needed(method, retVal);
@@ -280,6 +281,8 @@ void il2cpp_install_callbacks()
 {
     MonoRuntimeCallbacks callbacks;
 
+    g_MonoDomain = mono_domain_get();
+
     memset(&callbacks, 0, sizeof(callbacks));
     callbacks.get_vtable_trampoline = il2cpp_get_vtable_trampoline;
     callbacks.get_imt_trampoline = il2cpp_get_imt_trampoline;
@@ -288,6 +291,7 @@ void il2cpp_install_callbacks()
     callbacks.create_jump_trampoline = il2cpp_mono_create_jump_trampoline;
     callbacks.create_ftnptr = il2cpp_mono_create_ftnptr;
     callbacks.get_runtime_build_info = il2cpp_mono_get_runtime_build_info;
+    callbacks.create_delegate_trampoline = il2cpp_mono_delegate_trampoline;
 
     mono_install_callbacks(&callbacks);
 
@@ -300,10 +304,10 @@ void il2cpp_install_callbacks()
     cbs.mono_current_thread_has_handle_block_guard = il2cpp_current_thread_has_handle_block_guard;
     mono_install_eh_callbacks(&cbs);
 
-    mono_unity_domain_install_finalize_runtime_invoke(mono_domain_get(), il2cpp_mono_finalize_runtime_invoke);
-    mono_unity_domain_install_capture_context_runtime_invoke(mono_domain_get(), il2cpp_mono_capture_context_runtime_invoke);
-    mono_unity_domain_install_capture_context_method(mono_domain_get(), (void*)il2cpp_mono_dummy_callback);
-    mono_install_delegate_trampoline(il2cpp_mono_delegate_trampoline);
+    mono_unity_domain_install_finalize_runtime_invoke(g_MonoDomain, il2cpp_mono_finalize_runtime_invoke);
+    mono_unity_domain_install_capture_context_runtime_invoke(g_MonoDomain, il2cpp_mono_capture_context_runtime_invoke);
+    mono_unity_domain_install_capture_context_method(g_MonoDomain, (void*)il2cpp_mono_dummy_callback);
+    //mono_install_delegate_trampoline(il2cpp_mono_delegate_trampoline);
 
     MonoThreadInfoRuntimeCallbacks ticallbacks;
     memset(&ticallbacks, 0, sizeof(ticallbacks));
@@ -314,10 +318,10 @@ void il2cpp_install_callbacks()
 
 void il2cpp_mono_runtime_init()
 {
-    MonoDomain* domain = mono_domain_get();
-    mono_runtime_init(domain, mono_thread_start_cb, mono_thread_attach_cb);
+    register_allocator(mono_unity_alloc);
+    mono_runtime_init(g_MonoDomain, mono_thread_start_cb, mono_thread_attach_cb);
     mono_threads_install_cleanup(mono_thread_cleanup_cb);
-    mono_thread_attach(domain);
+    mono_thread_attach(g_MonoDomain);
     mono_class_set_allow_gc_aware_layout(false);
 
     mono_add_internal_call("System.Diagnostics.StackFrame::get_frame_info", (void*)mono::icalls::mscorlib::System::Diagnostics::StackFrame::get_frame_info);
@@ -334,7 +338,7 @@ static void MonoSetConfigStr(const std::string& executablePath)
     std::string appBase = il2cpp::utils::PathUtils::DirectoryName(executablePath);
     std::string configFileName = il2cpp::utils::PathUtils::Basename(executablePath);
     configFileName.append(".config");
-    mono_domain_set_config(mono_domain_get(), appBase.c_str(), configFileName.c_str());
+    mono_domain_set_config(g_MonoDomain, appBase.c_str(), configFileName.c_str());
 }
 
 void il2cpp_mono_set_config_utf16(const Il2CppChar* executablePath)

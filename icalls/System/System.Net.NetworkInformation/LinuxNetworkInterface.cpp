@@ -16,14 +16,14 @@ namespace Net
 {
 namespace NetworkInformation
 {
-    int32_t LinuxNetworkInterface::GetInterfaceAddresses(Il2CppIntPtr* ifap)
+    int32_t LinuxNetworkInterface::GetInterfaceAddresses(intptr_t* ifap)
     {
-        return _monodroid_getifaddrs(reinterpret_cast<_monodroid_ifaddrs**>(&ifap->m_value));
+        return _monodroid_getifaddrs(reinterpret_cast<_monodroid_ifaddrs**>(ifap));
     }
 
-    void LinuxNetworkInterface::FreeInterfaceAddresses(Il2CppIntPtr ifap)
+    void LinuxNetworkInterface::FreeInterfaceAddresses(intptr_t ifap)
     {
-        _monodroid_freeifaddrs(static_cast<_monodroid_ifaddrs*>(ifap.m_value));
+        _monodroid_freeifaddrs(reinterpret_cast<_monodroid_ifaddrs*>(ifap));
     }
 
     void LinuxNetworkInterface::InitializeInterfaceAddresses()

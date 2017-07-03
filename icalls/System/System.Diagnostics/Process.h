@@ -33,24 +33,24 @@ namespace Diagnostics
     public:
         static Il2CppArray* GetProcesses_internal();
         static int32_t GetPid_internal();
-        static bool CreateProcess_internal(void* /* System.Diagnostics.ProcessStartInfo */ startInfo, Il2CppIntPtr _stdin, Il2CppIntPtr _stdout, Il2CppIntPtr _stderr, ProcInfo* proc_info);
-        static int64_t ExitTime_internal(Il2CppIntPtr handle);
-        static Il2CppArray* GetModules_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle);
-        static int32_t GetPriorityClass(Il2CppIntPtr handle, int32_t* error);
+        static bool CreateProcess_internal(void* /* System.Diagnostics.ProcessStartInfo */ startInfo, intptr_t _stdin, intptr_t _stdout, intptr_t _stderr, ProcInfo* proc_info);
+        static int64_t ExitTime_internal(intptr_t handle);
+        static Il2CppArray* GetModules_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle);
+        static int32_t GetPriorityClass(intptr_t handle, int32_t* error);
         static int64_t GetProcessData(int32_t pid, int32_t data_type, int32_t* error);
-        static Il2CppIntPtr GetProcess_internal(int32_t pid);
-        static bool GetWorkingSet_internal(Il2CppIntPtr handle, int32_t* min, int32_t* max);
-        static bool Kill_internal(Il2CppIntPtr handle, int32_t signo);
-        static Il2CppString* ProcessName_internal(Il2CppIntPtr handle);
-        static void Process_free_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle);
-        static bool SetPriorityClass(Il2CppIntPtr handle, int32_t priority, int32_t* error);
-        static bool SetWorkingSet_internal(Il2CppIntPtr handle, int32_t min, int32_t max, bool use_min);
+        static intptr_t GetProcess_internal(int32_t pid);
+        static bool GetWorkingSet_internal(intptr_t handle, int32_t* min, int32_t* max);
+        static bool Kill_internal(intptr_t handle, int32_t signo);
+        static Il2CppString* ProcessName_internal(intptr_t handle);
+        static void Process_free_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle);
+        static bool SetPriorityClass(intptr_t handle, int32_t priority, int32_t* error);
+        static bool SetWorkingSet_internal(intptr_t handle, int32_t min, int32_t max, bool use_min);
         static bool ShellExecuteEx_internal(void* /* System.Diagnostics.ProcessStartInfo */ startInfo, ProcInfo* proc_info);
-        static int64_t StartTime_internal(Il2CppIntPtr handle);
-        static int64_t Times(Il2CppIntPtr handle, int32_t type);
-        static bool WaitForExit_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle, int32_t ms);
-        static bool WaitForInputIdle_internal(void* /* System.Diagnostics.Process */ self, Il2CppIntPtr handle, int32_t ms);
-        static int32_t ExitCode_internal(Il2CppIntPtr handle);
+        static int64_t StartTime_internal(intptr_t handle);
+        static int64_t Times(intptr_t handle, int32_t type);
+        static bool WaitForExit_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle, int32_t ms);
+        static bool WaitForInputIdle_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle, int32_t ms);
+        static int32_t ExitCode_internal(intptr_t handle);
     };
 } /* namespace Diagnostics */
 } /* namespace System */
