@@ -551,11 +551,11 @@ void threadpool_ms_io_cleanup (void)
 		cleanup();
 }
 
-void ves_icall_System_IOSelector_Add (Il2CppIntPtr handle, Il2CppIOSelectorJob *job)
+void ves_icall_System_IOSelector_Add (intptr_t handle, Il2CppIOSelectorJob *job)
 {
 	ThreadPoolIOUpdate *update;
 
-	IL2CPP_ASSERT(handle.m_value >= 0);
+	IL2CPP_ASSERT(handle >= 0);
 
 	IL2CPP_ASSERT((job->operation == EVENT_IN) ^ (job->operation == EVENT_OUT));
 	IL2CPP_ASSERT(job->callback);
@@ -571,7 +571,7 @@ void ves_icall_System_IOSelector_Add (Il2CppIntPtr handle, Il2CppIOSelectorJob *
 
 	update = update_get_new ();
 
-	il2cpp::os::SocketHandleWrapper socketHandle(il2cpp::os::PointerToSocketHandle(handle.m_value));
+	il2cpp::os::SocketHandleWrapper socketHandle(il2cpp::os::PointerToSocketHandle(reinterpret_cast<void*>(handle)));
 
 	update->type = UPDATE_ADD;
 	update->data.add.fd = (int)socketHandle.GetSocket()->GetDescriptor();
@@ -583,9 +583,9 @@ void ves_icall_System_IOSelector_Add (Il2CppIntPtr handle, Il2CppIOSelectorJob *
 	threadpool_io->updates_lock.Unlock();
 }
 
-void ves_icall_System_IOSelector_Remove (Il2CppIntPtr handle)
+void ves_icall_System_IOSelector_Remove (intptr_t handle)
 {
-	il2cpp::os::SocketHandleWrapper socketHandle(il2cpp::os::PointerToSocketHandle(handle.m_value));
+	il2cpp::os::SocketHandleWrapper socketHandle(il2cpp::os::PointerToSocketHandle(reinterpret_cast<void*>(handle)));
 	threadpool_ms_io_remove_socket ((int)socketHandle.GetSocket()->GetDescriptor());
 }
 
@@ -612,12 +612,12 @@ void threadpool_ms_io_remove_socket (int fd)
 
 #else
 
-void ves_icall_System_IOSelector_Add (Il2CppIntPtr handle, Il2CppIOSelectorJob *job)
+void ves_icall_System_IOSelector_Add (intptr_t handle, Il2CppIOSelectorJob *job)
 {
 	IL2CPP_ASSERT(0 && "Should not be called");
 }
 
-void ves_icall_System_IOSelector_Remove (Il2CppIntPtr handle)
+void ves_icall_System_IOSelector_Remove (intptr_t handle)
 {
 	IL2CPP_ASSERT(0 && "Should not be called");
 }

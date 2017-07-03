@@ -19,10 +19,10 @@ namespace CompilerServices
     {
     public:
         static Il2CppObject* GetObjectValue(Il2CppObject* obj);
-        static void RunClassConstructor(Il2CppIntPtr type);
-        static void RunModuleConstructor(Il2CppIntPtr module);
+        static void RunClassConstructor(intptr_t type);
+        static void RunModuleConstructor(intptr_t module);
         static int get_OffsetToStringData(void);
-        static void InitializeArray(Il2CppArray* arr, Il2CppIntPtr ptr);
+        static void InitializeArray(Il2CppArray* arr, intptr_t ptr);
 
 #if NET_4_0
         static bool SufficientExecutionStack();

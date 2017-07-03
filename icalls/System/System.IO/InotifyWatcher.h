@@ -31,9 +31,9 @@ namespace IO
     class LIBIL2CPP_CODEGEN_API InotifyWatcher
     {
     public:
-        static Il2CppIntPtr RemoveWatch(Il2CppIntPtr fd, int32_t wd);
-        static int32_t AddWatch(Il2CppIntPtr fd, Il2CppString* name, InotifyMask mask);
-        static Il2CppIntPtr GetInotifyInstance();
+        static intptr_t RemoveWatch(intptr_t fd, int32_t wd);
+        static int32_t AddWatch(intptr_t fd, Il2CppString* name, InotifyMask mask);
+        static intptr_t GetInotifyInstance();
     };
 } /* namespace IO */
 } /* namespace System */

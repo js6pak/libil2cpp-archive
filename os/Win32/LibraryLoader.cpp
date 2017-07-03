@@ -41,6 +41,7 @@ namespace os
     {
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
+        HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
     };
 
 #if !IL2CPP_TARGET_WINDOWS_DESKTOP
@@ -111,6 +112,12 @@ namespace os
                 // We've reached the end of hardcoded library name
                 // It's a match if we're at the end of desired library name too
                 return i + 1 == desiredLibraryNameLength;
+            }
+            else if (i == desiredLibraryNameLength - 1)
+            {
+                // We've reached the end of desired library name
+                // It's a match if we're at the end of hardcoded library name too
+                return hardcodedLibraryName[i + 1] == 0;
             }
         }
 

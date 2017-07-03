@@ -11,25 +11,25 @@ namespace mscorlib
 {
 namespace System
 {
-    int64_t SizedReference::GetApproximateSizeOfSizedRef(Il2CppIntPtr h)
+    int64_t SizedReference::GetApproximateSizeOfSizedRef(intptr_t h)
     {
         NOT_IMPLEMENTED_ICALL(SizedReference::GetApproximateSizeOfSizedRef);
         IL2CPP_UNREACHABLE;
     }
 
-    Il2CppIntPtr SizedReference::CreateSizedRef(Il2CppObject* o)
+    intptr_t SizedReference::CreateSizedRef(Il2CppObject* o)
     {
         NOT_IMPLEMENTED_ICALL(SizedReference::CreateSizedRef);
         IL2CPP_UNREACHABLE;
     }
 
-    Il2CppObject* SizedReference::GetTargetOfSizedRef(Il2CppIntPtr h)
+    Il2CppObject* SizedReference::GetTargetOfSizedRef(intptr_t h)
     {
         NOT_IMPLEMENTED_ICALL(SizedReference::GetTargetOfSizedRef);
         IL2CPP_UNREACHABLE;
     }
 
-    void SizedReference::FreeSizedRef(Il2CppIntPtr h)
+    void SizedReference::FreeSizedRef(intptr_t h)
     {
         NOT_IMPLEMENTED_ICALL(SizedReference::FreeSizedRef);
         IL2CPP_UNREACHABLE;

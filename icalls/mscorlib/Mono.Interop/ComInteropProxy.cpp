@@ -11,12 +11,12 @@ namespace Mono
 {
 namespace Interop
 {
-    void ComInteropProxy::AddProxy(Il2CppIntPtr pItf, mscorlib_Mono_Interop_ComInteropProxy * proxy)
+    void ComInteropProxy::AddProxy(intptr_t pItf, mscorlib_Mono_Interop_ComInteropProxy * proxy)
     {
         NOT_IMPLEMENTED_ICALL(ComInteropProxy::AddProxy);
     }
 
-    mscorlib_Mono_Interop_ComInteropProxy* ComInteropProxy::FindProxy(Il2CppIntPtr pItf)
+    mscorlib_Mono_Interop_ComInteropProxy* ComInteropProxy::FindProxy(intptr_t pItf)
     {
         NOT_IMPLEMENTED_ICALL(ComInteropProxy::FindProxy);
         return 0;

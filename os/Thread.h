@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 #include "os/ErrorCodes.h"
 #include "os/Handle.h"
 #include "os/Event.h"
@@ -125,7 +126,8 @@ namespace os
         CleanupFunc m_CleanupFunc;
         void* m_CleanupFuncArg;
 
-        Thread(ThreadImpl* thread);
+        Thread(ThreadImpl* thread)
+            : m_Thread(thread) {}
 
         static void RunWrapper(void* arg);
     };

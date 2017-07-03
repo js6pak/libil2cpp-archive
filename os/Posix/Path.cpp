@@ -63,6 +63,11 @@ namespace os
         return std::string("/tmp");
 #endif
     }
+
+    bool Path::IsAbsolute(const std::string& path)
+    {
+        return path[0] == '/';
+    }
 }
 }
 

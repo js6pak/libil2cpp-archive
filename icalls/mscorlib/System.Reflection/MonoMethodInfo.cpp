@@ -18,11 +18,11 @@ namespace System
 {
 namespace Reflection
 {
-    void MonoMethodInfo::get_method_info(Il2CppIntPtr methodPtr, Il2CppMethodInfo *info)
+    void MonoMethodInfo::get_method_info(intptr_t methodPtr, Il2CppMethodInfo *info)
     {
         NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethodInfo::get_method_info, "Audit and look over commented code. Work in progress.");
 
-        MethodInfo* method = (MethodInfo*)methodPtr.m_value;
+        MethodInfo* method = (MethodInfo*)methodPtr;
         //MonoMethodSignature* sig;
 
         //sig = mono_method_signature (method);
@@ -47,13 +47,13 @@ namespace Reflection
         //info->callconv |= (sig->hasthis << 5) | (sig->explicit_this << 6);
     }
 
-    Il2CppArray * MonoMethodInfo::get_parameter_info(Il2CppIntPtr methodPtr, Il2CppReflectionMethod *member)
+    Il2CppArray * MonoMethodInfo::get_parameter_info(intptr_t methodPtr, Il2CppReflectionMethod *member)
     {
-        MethodInfo* method = (MethodInfo*)methodPtr.m_value;
+        MethodInfo* method = (MethodInfo*)methodPtr;
         return il2cpp::vm::Reflection::GetParamObjects(method, member->reftype ? Class::FromIl2CppType(member->reftype->type) : NULL);
     }
 
-    void* /* System.Reflection.Emit.UnmanagedMarshal */ MonoMethodInfo::get_retval_marshal(Il2CppIntPtr handle)
+    void* /* System.Reflection.Emit.UnmanagedMarshal */ MonoMethodInfo::get_retval_marshal(intptr_t handle)
     {
         NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethodInfo::get_retval_marshal, "This icall is not supported by il2cpp.");
 
@@ -61,9 +61,9 @@ namespace Reflection
     }
 
 #if NET_4_0
-    int32_t MonoMethodInfo::get_method_attributes(Il2CppIntPtr methodPtr)
+    int32_t MonoMethodInfo::get_method_attributes(intptr_t methodPtr)
     {
-        MethodInfo* method = (MethodInfo*)methodPtr.m_value;
+        MethodInfo* method = (MethodInfo*)methodPtr;
         return method->flags;
     }
 

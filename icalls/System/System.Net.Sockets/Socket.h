@@ -205,41 +205,47 @@ namespace Sockets
     class LIBIL2CPP_CODEGEN_API Socket
     {
     public:
-        static Il2CppIntPtr Accept(Il2CppIntPtr, int32_t*, bool);
-        static int32_t Available(Il2CppIntPtr, int32_t*);
-        static void Bind(Il2CppIntPtr, Il2CppSocketAddress*, int32_t*);
-        static void Blocking(Il2CppIntPtr, bool, int32_t*);
-        static void Close(Il2CppIntPtr, int32_t*);
-        static void Connect(Il2CppIntPtr, Il2CppSocketAddress*, int32_t*);
-        static void Disconnect(Il2CppIntPtr, bool, int32_t*);
-        static void GetSocketOptionArray(Il2CppIntPtr, SocketOptionLevel, SocketOptionName, Il2CppArray**, int32_t*);
-        static void GetSocketOptionObj(Il2CppIntPtr, SocketOptionLevel, SocketOptionName, Il2CppObject**, int32_t*);
-        static void Listen(Il2CppIntPtr, int32_t, int32_t*);
-        static Il2CppSocketAddress* LocalEndPoint(Il2CppIntPtr, int32_t*);
-        static bool Poll(Il2CppIntPtr, SelectMode, int32_t, int32_t*);
-        static int32_t ReceiveArray(Il2CppIntPtr, Il2CppArray*, SocketFlags, int32_t*);
-        static int32_t Receive(Il2CppIntPtr, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*);
-        static int32_t RecvFrom(Il2CppIntPtr, Il2CppArray*, int32_t, int32_t, SocketFlags, Il2CppSocketAddress**, int32_t*);
-        static Il2CppSocketAddress* RemoteEndPoint(Il2CppIntPtr, int32_t*);
+        static intptr_t Accept(intptr_t, int32_t*, bool);
+        static int32_t Available(intptr_t, int32_t*);
+        static void Bind(intptr_t, Il2CppSocketAddress*, int32_t*);
+        static void Blocking(intptr_t, bool, int32_t*);
+        static void Close(intptr_t, int32_t*);
+        static void Connect(intptr_t, Il2CppSocketAddress*, int32_t*);
+        static void Disconnect(intptr_t, bool, int32_t*);
+        static void GetSocketOptionArray(intptr_t, SocketOptionLevel, SocketOptionName, Il2CppArray**, int32_t*);
+        static void GetSocketOptionObj(intptr_t, SocketOptionLevel, SocketOptionName, Il2CppObject**, int32_t*);
+        static void Listen(intptr_t, int32_t, int32_t*);
+        static Il2CppSocketAddress* LocalEndPoint(intptr_t, int32_t*);
+        static bool Poll(intptr_t, SelectMode, int32_t, int32_t*);
+        static int32_t ReceiveArray(intptr_t, Il2CppArray*, SocketFlags, int32_t*);
+        static int32_t Receive(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*);
+        static int32_t RecvFrom(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, Il2CppSocketAddress**, int32_t*);
+        static Il2CppSocketAddress* RemoteEndPoint(intptr_t, int32_t*);
         static void Select(Il2CppArray**, int32_t, int32_t*);
-        static bool SendFile(Il2CppIntPtr, Il2CppString*, Il2CppArray*, Il2CppArray*, TransmitFileOptions);
-        static int32_t SendTo(Il2CppIntPtr, Il2CppArray*, int32_t, int32_t, SocketFlags, Il2CppSocketAddress*, int32_t*);
-        static int32_t SendArray(Il2CppIntPtr, Il2CppArray*, SocketFlags, int32_t*);
-        static int32_t Send(Il2CppIntPtr, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*);
-        static void SetSocketOption(Il2CppIntPtr, SocketOptionLevel, SocketOptionName, Il2CppObject*, Il2CppArray*, int32_t, int32_t*);
-        static void Shutdown(Il2CppIntPtr, SocketShutdown, int32_t*);
-        static Il2CppIntPtr Socket_internal(Il2CppObject * self, AddressFamily, SocketType, ProtocolType, int32_t*);
-        static int32_t WSAIoctl(Il2CppIntPtr, int32_t, Il2CppArray*, Il2CppArray*, int32_t*);
+        static bool SendFile(intptr_t, Il2CppString*, Il2CppArray*, Il2CppArray*, TransmitFileOptions);
+        static int32_t SendTo(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, Il2CppSocketAddress*, int32_t*);
+        static int32_t SendArray(intptr_t, Il2CppArray*, SocketFlags, int32_t*);
+        static int32_t Send(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*);
+        static void SetSocketOption(intptr_t, SocketOptionLevel, SocketOptionName, Il2CppObject*, Il2CppArray*, int32_t, int32_t*);
+        static void Shutdown(intptr_t, SocketShutdown, int32_t*);
+        static intptr_t Socket_internal(Il2CppObject * self, AddressFamily, SocketType, ProtocolType, int32_t*);
+        static int32_t WSAIoctl(intptr_t, int32_t, Il2CppArray*, Il2CppArray*, int32_t*);
 #if NET_4_0
-        static bool SendFile_internal(Il2CppIntPtr sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags);
+        static bool SendFile_internal(intptr_t sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags, int32_t* error, bool blocking);
         static bool SupportsPortReuse(ProtocolType proto);
-        static int32_t IOControl_internal(Il2CppIntPtr sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error);
-        static int32_t ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress** sockaddr, int32_t* error);
-        static int32_t SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress* sa, int32_t* error);
-        static Il2CppSocketAddress* LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error);
-        static Il2CppSocketAddress* RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error);
+        static int32_t IOControl_internal(intptr_t sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error);
+        static int32_t ReceiveFrom_internal(intptr_t sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress** sockaddr, int32_t* error, bool blocking);
+        static int32_t SendTo_internal(intptr_t sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress* sa, int32_t* error, bool blocking);
+        static Il2CppSocketAddress* LocalEndPoint_internal(intptr_t socket, int32_t family, int32_t* error);
+        static Il2CppSocketAddress* RemoteEndPoint_internal(intptr_t socket, int32_t family, int32_t* error);
         static void cancel_blocking_socket_operation(Il2CppObject* thread);
-        static void Connect_internal(Il2CppIntPtr sock, Il2CppSocketAddress* sa, int32_t* error);
+        static void Connect_internal(intptr_t sock, Il2CppSocketAddress* sa, int32_t* error, bool blocking);
+
+        static int32_t ReceiveArray40(intptr_t, Il2CppArray*, SocketFlags, int32_t*, bool);
+        static int32_t Receive40(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*, bool);
+        static int32_t SendArray40(intptr_t, Il2CppArray*, SocketFlags, int32_t*, bool);
+        static int32_t Send40(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*, bool);
+        static bool IsProtocolSupported_internal(int32_t networkInterface);
 #endif
     };
 } /* namespace Sockets */

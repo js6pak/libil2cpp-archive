@@ -15,10 +15,10 @@ namespace System
     class LIBIL2CPP_CODEGEN_API SizedReference
     {
     public:
-        static int64_t GetApproximateSizeOfSizedRef(Il2CppIntPtr h);
-        static Il2CppIntPtr CreateSizedRef(Il2CppObject* o);
-        static Il2CppObject* GetTargetOfSizedRef(Il2CppIntPtr h);
-        static void FreeSizedRef(Il2CppIntPtr h);
+        static int64_t GetApproximateSizeOfSizedRef(intptr_t h);
+        static intptr_t CreateSizedRef(Il2CppObject* o);
+        static Il2CppObject* GetTargetOfSizedRef(intptr_t h);
+        static void FreeSizedRef(intptr_t h);
     };
 } // namespace System
 } // namespace mscorlib

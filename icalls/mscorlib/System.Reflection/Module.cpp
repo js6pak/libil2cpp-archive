@@ -40,10 +40,10 @@ namespace Reflection
         return il2cpp::vm::String::New("00000000-0000-0000-0000-000000000000");
     }
 
-    Il2CppIntPtr Module::GetHINSTANCE(mscorlib_System_Reflection_Module * thisPtr)
+    intptr_t Module::GetHINSTANCE(mscorlib_System_Reflection_Module * thisPtr)
     {
         NOT_IMPLEMENTED_ICALL(Module::GetHINSTANCE);
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 
     int32_t Module::get_MetadataToken(Il2CppReflectionModule* self)
@@ -51,7 +51,7 @@ namespace Reflection
         return vm::Module::GetToken(self->image);
     }
 
-    int32_t Module::GetMDStreamVersion(Il2CppIntPtr module_handle)
+    int32_t Module::GetMDStreamVersion(intptr_t module_handle)
     {
         NOT_SUPPORTED_IL2CPP(Module::GetMDStreamVersion, "This icall is not supported by il2cpp.");
 
@@ -65,49 +65,49 @@ namespace Reflection
         return 0;
     }
 
-    Il2CppIntPtr Module::ResolveTypeToken(Il2CppIntPtr module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
+    intptr_t Module::ResolveTypeToken(intptr_t module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
     {
         NOT_SUPPORTED_IL2CPP(Module::ResolveTypeToken, "This icall is not supported by il2cpp.");
 
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 
-    Il2CppIntPtr Module::ResolveMethodToken(Il2CppIntPtr module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
+    intptr_t Module::ResolveMethodToken(intptr_t module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
     {
         NOT_SUPPORTED_IL2CPP(Module::ResolveMethodToken, "This icall is not supported by il2cpp.");
 
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 
-    Il2CppIntPtr Module::ResolveFieldToken(Il2CppIntPtr module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
+    intptr_t Module::ResolveFieldToken(intptr_t module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
     {
         NOT_SUPPORTED_IL2CPP(Module::ResolveFieldToken, "This icall is not supported by il2cpp.");
 
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 
-    Il2CppString* Module::ResolveStringToken(Il2CppIntPtr module, int32_t token, ResolveTokenError* error)
+    Il2CppString* Module::ResolveStringToken(intptr_t module, int32_t token, ResolveTokenError* error)
     {
         NOT_SUPPORTED_IL2CPP(Module::ResolveStringToken, "This icall is not supported by il2cpp.");
 
         return 0;
     }
 
-    void* /* System.Reflection.MemberInfo */ Module::ResolveMemberToken(Il2CppIntPtr module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
+    void* /* System.Reflection.MemberInfo */ Module::ResolveMemberToken(intptr_t module, int32_t token, Il2CppArray* type_args, Il2CppArray* method_args, ResolveTokenError* error)
     {
         NOT_SUPPORTED_IL2CPP(Module::ResolveMemberToken, "This icall is not supported by il2cpp.");
 
         return 0;
     }
 
-    Il2CppArray* Module::ResolveSignature(Il2CppIntPtr module, int32_t metadataToken, ResolveTokenError* error)
+    Il2CppArray* Module::ResolveSignature(intptr_t module, int32_t metadataToken, ResolveTokenError* error)
     {
         NOT_SUPPORTED_IL2CPP(Module::ResolveSignature, "This icall is not supported by il2cpp.");
 
         return 0;
     }
 
-    void Module::GetPEKind(Il2CppIntPtr module, PortableExecutableKinds* peKind, ImageFileMachine* machine)
+    void Module::GetPEKind(intptr_t module, PortableExecutableKinds* peKind, ImageFileMachine* machine)
     {
         NOT_SUPPORTED_IL2CPP(Module::GetPEKind, "This icall is not supported by il2cpp.");
     }

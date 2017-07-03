@@ -40,50 +40,50 @@ namespace Runtime
 {
 namespace InteropServices
 {
-    int32_t Marshal::AddRefInternal(Il2CppIntPtr pUnk)
+    int32_t Marshal::AddRefInternal(intptr_t pUnk)
     {
-        return static_cast<Il2CppIUnknown*>(pUnk.m_value)->AddRef();
+        return static_cast<Il2CppIUnknown*>((void*)pUnk)->AddRef();
     }
 
-    Il2CppIntPtr Marshal::AllocCoTaskMem(int32_t size)
+    intptr_t Marshal::AllocCoTaskMem(int32_t size)
     {
-        Il2CppIntPtr result;
-        result.m_value = MarshalAlloc::Allocate(size);
+        intptr_t result;
+        result = (intptr_t)MarshalAlloc::Allocate(size);
         return result;
     }
 
-    Il2CppIntPtr Marshal::AllocHGlobal(Il2CppIntPtr size)
+    intptr_t Marshal::AllocHGlobal(intptr_t size)
     {
-        Il2CppIntPtr result;
-        result.m_value = MarshalAlloc::AllocateHGlobal((size_t)size.m_value);
+        intptr_t result;
+        result = (intptr_t)MarshalAlloc::AllocateHGlobal((size_t)size);
         return result;
     }
 
-    void Marshal::copy_from_unmanaged(Il2CppIntPtr source, int startIndex, Il2CppArray * destination, int length)
+    void Marshal::copy_from_unmanaged(intptr_t source, int startIndex, Il2CppArray * destination, int length)
     {
         uint32_t element_size = (uint32_t)il2cpp_array_element_size(destination->klass);
-        memcpy(il2cpp_array_addr_with_size(destination, element_size, startIndex), source.m_value, length * element_size);
+        memcpy(il2cpp_array_addr_with_size(destination, element_size, startIndex), reinterpret_cast<void*>(source), length * element_size);
     }
 
-    void Marshal::copy_to_unmanaged(Il2CppArray * source, int32_t startIndex, Il2CppIntPtr destination, int32_t length)
+    void Marshal::copy_to_unmanaged(Il2CppArray * source, int32_t startIndex, intptr_t destination, int32_t length)
     {
         uint32_t element_size = (uint32_t)il2cpp_array_element_size(source->klass);
-        memcpy(destination.m_value, il2cpp_array_addr_with_size(source, element_size, startIndex), length * element_size);
+        memcpy(reinterpret_cast<void*>(destination), il2cpp_array_addr_with_size(source, element_size, startIndex), length * element_size);
     }
 
-    void Marshal::FreeBSTR(Il2CppIntPtr ptr)
+    void Marshal::FreeBSTR(intptr_t ptr)
     {
         NOT_SUPPORTED_IL2CPP(Marshal::StringToBSTR, "BSTR icalls are not supported.");
     }
 
-    void Marshal::FreeCoTaskMem(Il2CppIntPtr ptr)
+    void Marshal::FreeCoTaskMem(intptr_t ptr)
     {
-        MarshalAlloc::Free(ptr.m_value);
+        MarshalAlloc::Free(reinterpret_cast<void*>(ptr));
     }
 
-    void Marshal::FreeHGlobal(Il2CppIntPtr hglobal)
+    void Marshal::FreeHGlobal(intptr_t hglobal)
     {
-        MarshalAlloc::FreeHGlobal(hglobal.m_value);
+        MarshalAlloc::FreeHGlobal(reinterpret_cast<void*>(hglobal));
     }
 
     bool Marshal::IsComObject(Il2CppObject* o)
@@ -91,10 +91,10 @@ namespace InteropServices
         return o->klass->is_import_or_windows_runtime;
     }
 
-    Il2CppIntPtr Marshal::GetCCW(Il2CppObject* o, Il2CppReflectionType * T)
+    intptr_t Marshal::GetCCW(Il2CppObject* o, Il2CppReflectionType * T)
     {
         NOT_SUPPORTED_IL2CPP(Marshal::GetCCW, "COM icalls are not supported.");
-        return Il2CppIntPtr::Zero;
+        return 0;
     }
 
     int32_t Marshal::GetComSlotForMethodInfoInternal(mscorlib_System_Reflection_MemberInfo * m)
@@ -103,63 +103,63 @@ namespace InteropServices
         return 0;
     }
 
-    Il2CppDelegate* Marshal::GetDelegateForFunctionPointerInternal(Il2CppIntPtr ptr, Il2CppReflectionType* t)
+    Il2CppDelegate* Marshal::GetDelegateForFunctionPointerInternal(intptr_t ptr, Il2CppReflectionType* t)
     {
         Il2CppClass* delegateType = il2cpp::vm::Class::FromIl2CppType(t->type);
-        return PlatformInvoke::MarshalFunctionPointerToDelegate(ptr.m_value, delegateType);
+        return PlatformInvoke::MarshalFunctionPointerToDelegate(reinterpret_cast<void*>(ptr), delegateType);
     }
 
-    Il2CppIntPtr Marshal::GetFunctionPointerForDelegateInternal(Il2CppDelegate* d)
+    intptr_t Marshal::GetFunctionPointerForDelegateInternal(Il2CppDelegate* d)
     {
         return vm::PlatformInvoke::MarshalDelegate(d);
     }
 
-    Il2CppIntPtr Marshal::GetIDispatchForObjectInternal(Il2CppObject* o)
+    intptr_t Marshal::GetIDispatchForObjectInternal(Il2CppObject* o)
     {
         NOT_SUPPORTED_IL2CPP(Marshal::GetIDispatchForObjectInternal, "COM icalls are not supported.");
-        return Il2CppIntPtr::Zero;
+        return 0;
     }
 
-    Il2CppIntPtr Marshal::GetIUnknownForObjectInternal(Il2CppObject* o)
+    intptr_t Marshal::GetIUnknownForObjectInternal(Il2CppObject* o)
     {
         NOT_SUPPORTED_IL2CPP(Marshal::GetIUnknownForObjectInternal, "This icall is not supported by il2cpp. Use the il2cpp_codegen_com_get_iunknown_for_object intrinsic instead.");
-        return Il2CppIntPtr::Zero;
+        return 0;
     }
 
-    Il2CppObject* Marshal::GetObjectForCCW(Il2CppIntPtr pUnk)
+    Il2CppObject* Marshal::GetObjectForCCW(intptr_t pUnk)
     {
-        if (pUnk.m_value == NULL)
+        if (pUnk == 0)
             return NULL;
 
-        return RCW::GetOrCreateFromIUnknown(static_cast<Il2CppIUnknown*>(pUnk.m_value), il2cpp_defaults.il2cpp_com_object_class);
+        return RCW::GetOrCreateFromIUnknown(reinterpret_cast<Il2CppIUnknown*>(pUnk), il2cpp_defaults.il2cpp_com_object_class);
     }
 
-    Il2CppString* Marshal::PtrToStringBSTR(Il2CppIntPtr ptr)
+    Il2CppString* Marshal::PtrToStringBSTR(intptr_t ptr)
     {
         NOT_SUPPORTED_IL2CPP(Marshal::PtrToStringBSTR, "COM icalls are not supported.");
         return 0;
     }
 
-    Il2CppString* Marshal::PtrToStringAnsi_mscorlib_System_String_mscorlib_System_IntPtr(Il2CppIntPtr ptr)
+    Il2CppString* Marshal::PtrToStringAnsi_mscorlib_System_String_mscorlib_System_IntPtr(intptr_t ptr)
     {
-        char* value = (char*)ptr.m_value;
+        char* value = (char*)ptr;
         if (value == NULL)
             return NULL;
         return String::New(value);
     }
 
-    Il2CppString* Marshal::PtrToStringAnsi_mscorlib_System_String_mscorlib_System_IntPtr_mscorlib_System_Int32(Il2CppIntPtr ptr, int32_t len)
+    Il2CppString* Marshal::PtrToStringAnsi_mscorlib_System_String_mscorlib_System_IntPtr_mscorlib_System_Int32(intptr_t ptr, int32_t len)
     {
-        char* value = (char*)ptr.m_value;
+        char* value = (char*)ptr;
         if (value == NULL)
             Exception::Raise(Exception::GetArgumentNullException("ptr"));
 
         return String::NewLen(value, len);
     }
 
-    Il2CppString* Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr(Il2CppIntPtr ptr)
+    Il2CppString* Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr(intptr_t ptr)
     {
-        Il2CppChar* value = static_cast<Il2CppChar*>(ptr.m_value);
+        Il2CppChar* value = reinterpret_cast<Il2CppChar*>(ptr);
         if (value == NULL)
             return NULL;
 
@@ -172,18 +172,18 @@ namespace InteropServices
         return String::NewUtf16(value, len);
     }
 
-    Il2CppString* Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr_mscorlib_System_Int32(Il2CppIntPtr ptr, int32_t len)
+    Il2CppString* Marshal::PtrToStringUni_mscorlib_System_String_mscorlib_System_IntPtr_mscorlib_System_Int32(intptr_t ptr, int32_t len)
     {
-        Il2CppChar* value = static_cast<Il2CppChar*>(ptr.m_value);
+        Il2CppChar* value = reinterpret_cast<Il2CppChar*>(ptr);
         if (value == NULL)
             Exception::Raise(Exception::GetArgumentNullException("ptr"));
 
         return String::NewUtf16(value, len);
     }
 
-    Il2CppObject* Marshal::PtrToStructure(Il2CppIntPtr ptr, Il2CppReflectionType* structureType)
+    Il2CppObject* Marshal::PtrToStructure(intptr_t ptr, Il2CppReflectionType* structureType)
     {
-        if (ptr.m_value == NULL)
+        if (ptr == 0)
             return NULL;
 
         if (structureType == NULL)
@@ -207,11 +207,11 @@ namespace InteropServices
                 typedef void (*Constructor)(Il2CppObject*);
                 Constructor ctor = reinterpret_cast<Constructor>(Class::GetMethodFromName(type, ".ctor", 0)->methodPointer);
                 ctor(result);
-                utils::MarshalingUtils::MarshalStructFromNative(ptr.m_value, result, type->interopData);
+                utils::MarshalingUtils::MarshalStructFromNative(reinterpret_cast<void*>(ptr), result, type->interopData);
             }
             else
             {
-                utils::MarshalingUtils::MarshalStructFromNative(ptr.m_value, Object::Unbox(result), type->interopData);
+                utils::MarshalingUtils::MarshalStructFromNative(reinterpret_cast<void*>(ptr), Object::Unbox(result), type->interopData);
             }
 
             return result;
@@ -228,7 +228,7 @@ namespace InteropServices
             if (!type->enumtype)
             {
                 Il2CppObject* result = Object::New(type);
-                memcpy(Object::Unbox(result), ptr.m_value, type->native_size);
+                memcpy(Object::Unbox(result), reinterpret_cast<void*>(ptr), type->native_size);
                 return result;
             }
         }
@@ -242,9 +242,9 @@ namespace InteropServices
         return NULL;
     }
 
-    void Marshal::PtrToStructureObject(Il2CppIntPtr ptr, Il2CppObject* structure)
+    void Marshal::PtrToStructureObject(intptr_t ptr, Il2CppObject* structure)
     {
-        if (ptr.m_value == NULL)
+        if (ptr == 0)
             return;
 
         if (structure == NULL)
@@ -260,7 +260,7 @@ namespace InteropServices
 
         if (type->interopData != NULL && type->interopData->pinvokeMarshalFromNativeFunction != NULL)
         {
-            utils::MarshalingUtils::MarshalStructFromNative(ptr.m_value, structure, type->interopData);
+            utils::MarshalingUtils::MarshalStructFromNative(reinterpret_cast<void*>(ptr), structure, type->interopData);
             return;
         }
 
@@ -270,46 +270,46 @@ namespace InteropServices
         Exception::Raise(Exception::GetArgumentException("structure", "The specified structure must be blittable or have layout information."));
     }
 
-    int32_t Marshal::QueryInterfaceInternal(Il2CppIntPtr pUnk, mscorlib_System_Guid * iid, Il2CppIntPtr* ppv)
+    int32_t Marshal::QueryInterfaceInternal(intptr_t pUnk, mscorlib_System_Guid * iid, intptr_t* ppv)
     {
         NOT_SUPPORTED_IL2CPP(Marshal::QueryInterfaceInternal, "COM icalls are not supported.");
         return 0;
     }
 
     template<typename T>
-    static inline T ReadValue(Il2CppIntPtr ptr, int32_t offset)
+    static inline T ReadValue(intptr_t ptr, int32_t offset)
     {
-        return *reinterpret_cast<T*>(static_cast<uint8_t*>(ptr.m_value) + offset);
+        return *reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(ptr) + offset);
     }
 
-    uint8_t Marshal::ReadByte(Il2CppIntPtr ptr, int32_t ofs)
+    uint8_t Marshal::ReadByte(intptr_t ptr, int32_t ofs)
     {
         return ReadValue<uint8_t>(ptr, ofs);
     }
 
-    int16_t Marshal::ReadInt16(Il2CppIntPtr ptr, int32_t ofs)
+    int16_t Marshal::ReadInt16(intptr_t ptr, int32_t ofs)
     {
         return ReadValue<int16_t>(ptr, ofs);
     }
 
-    int32_t Marshal::ReadInt32(Il2CppIntPtr ptr, int32_t ofs)
+    int32_t Marshal::ReadInt32(intptr_t ptr, int32_t ofs)
     {
         return ReadValue<int32_t>(ptr, ofs);
     }
 
-    int64_t Marshal::ReadInt64(Il2CppIntPtr ptr, int32_t ofs)
+    int64_t Marshal::ReadInt64(intptr_t ptr, int32_t ofs)
     {
         return ReadValue<int64_t>(ptr, ofs);
     }
 
-    Il2CppIntPtr Marshal::ReadIntPtr(Il2CppIntPtr ptr, int32_t ofs)
+    intptr_t Marshal::ReadIntPtr(intptr_t ptr, int32_t ofs)
     {
-        return ReadValue<Il2CppIntPtr>(ptr, ofs);
+        return ReadValue<intptr_t>(ptr, ofs);
     }
 
-    int32_t Marshal::ReleaseInternal(Il2CppIntPtr pUnk)
+    int32_t Marshal::ReleaseInternal(intptr_t pUnk)
     {
-        return static_cast<Il2CppIUnknown*>(pUnk.m_value)->Release();
+        return reinterpret_cast<Il2CppIUnknown*>(pUnk)->Release();
     }
 
     int32_t Marshal::ReleaseComObjectInternal(Il2CppObject* co)
@@ -357,47 +357,43 @@ namespace InteropServices
         return 0;
     }
 
-    Il2CppIntPtr Marshal::StringToBSTR(Il2CppString* s)
+    intptr_t Marshal::StringToBSTR(Il2CppString* s)
     {
         NOT_SUPPORTED_IL2CPP(Marshal::StringToBSTR, "BSTR icalls are not supported.");
-        return Il2CppIntPtr::Zero;
+        return 0;
     }
 
-    Il2CppIntPtr Marshal::StringToHGlobalUni(Il2CppString* s)
+    intptr_t Marshal::StringToHGlobalUni(Il2CppString* s)
     {
         if (s == NULL)
-            return Il2CppIntPtr::Zero;
+            return 0;
 
         int32_t size = utils::StringUtils::GetLength(s);
         const Il2CppChar* utf16 = utils::StringUtils::GetChars(s);
         size_t bytes = (size + 1) * 2;
         Il2CppChar* cstr = static_cast<Il2CppChar*>(MarshalAlloc::AllocateHGlobal(bytes));
         memcpy(cstr, utf16, bytes);
-        Il2CppIntPtr result;
-        result.m_value = cstr;
-        return result;
+        return reinterpret_cast<intptr_t>(cstr);
     }
 
-    Il2CppIntPtr Marshal::StringToHGlobalAnsi(Il2CppString* s)
+    intptr_t Marshal::StringToHGlobalAnsi(Il2CppString* s)
     {
         if (s == NULL)
-            return Il2CppIntPtr::Zero;
+            return 0;
 
         const Il2CppChar* utf16 = utils::StringUtils::GetChars(s);
         std::string str = il2cpp::utils::StringUtils::Utf16ToUtf8(utf16);
         char *cstr = (char*)MarshalAlloc::AllocateHGlobal(str.size() + 1);
         strcpy(cstr, str.c_str());
-        Il2CppIntPtr result;
-        result.m_value = cstr;
-        return result;
+        return reinterpret_cast<intptr_t>(cstr);
     }
 
-    void Marshal::StructureToPtr(Il2CppObject* structure, Il2CppIntPtr ptr, bool deleteOld)
+    void Marshal::StructureToPtr(Il2CppObject* structure, intptr_t ptr, bool deleteOld)
     {
         if (structure == NULL)
             Exception::Raise(Exception::GetArgumentNullException("structure"));
 
-        if (ptr.m_value == NULL)
+        if (ptr == 0)
             Exception::Raise(Exception::GetArgumentNullException("ptr"));
 
         Il2CppClass* type = structure->klass;
@@ -405,10 +401,10 @@ namespace InteropServices
         if (type->interopData != NULL && type->interopData->pinvokeMarshalToNativeFunction != NULL)
         {
             if (deleteOld)
-                utils::MarshalingUtils::MarshalFreeStruct(ptr.m_value, type->interopData);
+                utils::MarshalingUtils::MarshalFreeStruct(reinterpret_cast<void*>(ptr), type->interopData);
 
             void* objectPtr = (type->byval_arg->type == IL2CPP_TYPE_CLASS) ? structure : Object::Unbox(structure);
-            utils::MarshalingUtils::MarshalStructToNative(objectPtr, ptr.m_value, type->interopData);
+            utils::MarshalingUtils::MarshalStructToNative(objectPtr, reinterpret_cast<void*>(ptr), type->interopData);
             return;
         }
 
@@ -419,7 +415,7 @@ namespace InteropServices
             // StructureToPtr is supposed to throw on strings and enums
             if (!type->enumtype && type->byval_arg->type != IL2CPP_TYPE_STRING)
             {
-                memcpy(ptr.m_value, Object::Unbox(structure), type->native_size);
+                memcpy(reinterpret_cast<void*>(ptr), Object::Unbox(structure), type->native_size);
                 return;
             }
         }
@@ -440,39 +436,39 @@ namespace InteropServices
     }
 
     template<typename T>
-    static inline void WriteValue(Il2CppIntPtr ptr, int32_t offset, T value)
+    static inline void WriteValue(intptr_t ptr, int32_t offset, T value)
     {
-        *reinterpret_cast<T*>(static_cast<uint8_t*>(ptr.m_value) + offset) = value;
+        *reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(ptr) + offset) = value;
     }
 
-    void Marshal::WriteByte(Il2CppIntPtr ptr, int32_t ofs, uint8_t val)
+    void Marshal::WriteByte(intptr_t ptr, int32_t ofs, uint8_t val)
     {
         WriteValue(ptr, ofs, val);
     }
 
-    void Marshal::WriteInt16(Il2CppIntPtr ptr, int32_t ofs, int16_t val)
+    void Marshal::WriteInt16(intptr_t ptr, int32_t ofs, int16_t val)
     {
         WriteValue(ptr, ofs, val);
     }
 
-    void Marshal::WriteInt32(Il2CppIntPtr ptr, int32_t ofs, int32_t val)
+    void Marshal::WriteInt32(intptr_t ptr, int32_t ofs, int32_t val)
     {
         WriteValue(ptr, ofs, val);
     }
 
-    void Marshal::WriteInt64(Il2CppIntPtr ptr, int32_t ofs, int64_t val)
+    void Marshal::WriteInt64(intptr_t ptr, int32_t ofs, int64_t val)
     {
         WriteValue(ptr, ofs, val);
     }
 
-    void Marshal::WriteIntPtr(Il2CppIntPtr ptr, int32_t ofs, Il2CppIntPtr val)
+    void Marshal::WriteIntPtr(intptr_t ptr, int32_t ofs, intptr_t val)
     {
         WriteValue(ptr, ofs, val);
     }
 
-    void Marshal::DestroyStructure(Il2CppIntPtr ptr, Il2CppReflectionType* structureType)
+    void Marshal::DestroyStructure(intptr_t ptr, Il2CppReflectionType* structureType)
     {
-        if (ptr.m_value == NULL)
+        if (ptr == 0)
             Exception::Raise(Exception::GetArgumentNullException("ptr"));
 
         if (structureType == NULL)
@@ -482,7 +478,7 @@ namespace InteropServices
 
         // If cleanup function exists, it will call it and return true
         // In that case, we're done.
-        if (utils::MarshalingUtils::MarshalFreeStruct(ptr.m_value, type->interopData))
+        if (utils::MarshalingUtils::MarshalFreeStruct(reinterpret_cast<void*>(ptr), type->interopData))
             return;
 
         if (type->is_generic)
@@ -518,7 +514,7 @@ namespace InteropServices
         return numToRound + multiple - remainder;
     }
 
-    Il2CppIntPtr Marshal::OffsetOf(Il2CppReflectionType* t, Il2CppString* fieldName)
+    intptr_t Marshal::OffsetOf(Il2CppReflectionType* t, Il2CppString* fieldName)
     {
         std::string fieldNameToFind = utils::StringUtils::Utf16ToUtf8(fieldName->chars);
         Il2CppClass* type = Class::FromIl2CppType(t->type);
@@ -584,9 +580,7 @@ namespace InteropServices
                 break;
         }
 
-        Il2CppIntPtr offsetPtr;
-        offsetPtr.m_value = (void*)(offset);
-        return offsetPtr;
+        return static_cast<intptr_t>(offset);
     }
 
     void Marshal::Prelink(Il2CppReflectionMethod* m)
@@ -599,33 +593,27 @@ namespace InteropServices
         NOT_SUPPORTED_IL2CPP(Marshal::PrelinkAll, "This icall is not supported by il2cpp.");
     }
 
-    Il2CppIntPtr Marshal::ReAllocCoTaskMem(Il2CppIntPtr ptr, int32_t size)
+    intptr_t Marshal::ReAllocCoTaskMem(intptr_t ptr, int32_t size)
     {
-        Il2CppIntPtr result;
-        result.m_value = MarshalAlloc::ReAlloc(ptr.m_value, size);
-        return result;
+        return reinterpret_cast<intptr_t>(MarshalAlloc::ReAlloc(reinterpret_cast<void*>(ptr), size));
     }
 
-    Il2CppIntPtr Marshal::ReAllocHGlobal(Il2CppIntPtr ptr, Il2CppIntPtr size)
+    intptr_t Marshal::ReAllocHGlobal(intptr_t ptr, intptr_t size)
     {
-        if (ptr.m_value == NULL)
+        if (ptr == 0)
             Exception::RaiseOutOfMemoryException();
 
-        Il2CppIntPtr result;
-        result.m_value = MarshalAlloc::ReAllocHGlobal(ptr.m_value, (size_t)size.m_value);
-        return result;
+        return reinterpret_cast<intptr_t>(MarshalAlloc::ReAllocHGlobal(reinterpret_cast<void*>(ptr), (size_t)size));
     }
 
-    Il2CppIntPtr Marshal::UnsafeAddrOfPinnedArrayElement(Il2CppArray* arr, int32_t index)
+    intptr_t Marshal::UnsafeAddrOfPinnedArrayElement(Il2CppArray* arr, int32_t index)
     {
-        Il2CppIntPtr address;
-        address.m_value = il2cpp_array_addr_with_size(arr, il2cpp_array_element_size(arr->klass), index);
-        return address;
+        return reinterpret_cast<intptr_t>(il2cpp_array_addr_with_size(arr, il2cpp_array_element_size(arr->klass), index));
     }
 
 #if NET_4_0
 
-    Il2CppIntPtr Marshal::BufferToBSTR(Il2CppArray* ptr, int32_t slen)
+    intptr_t Marshal::BufferToBSTR(Il2CppArray* ptr, int32_t slen)
     {
         NOT_IMPLEMENTED_ICALL(Marshal::BufferToBSTR);
         IL2CPP_UNREACHABLE;
@@ -637,17 +625,25 @@ namespace InteropServices
         IL2CPP_UNREACHABLE;
     }
 
-    Il2CppIntPtr Marshal::GetRawIUnknownForComObjectNoAddRef(Il2CppObject* o)
+    intptr_t Marshal::GetRawIUnknownForComObjectNoAddRef(Il2CppObject* o)
     {
         IL2CPP_ASSERT(o->klass->is_import_or_windows_runtime);
 
-        Il2CppIntPtr result = { static_cast<Il2CppComObject*>(o)->identity };
-        return result;
+        return reinterpret_cast<intptr_t>(static_cast<Il2CppComObject*>(o)->identity);
     }
 
     Il2CppObject* Marshal::GetNativeActivationFactory(Il2CppObject* type)
     {
         NOT_IMPLEMENTED_ICALL(Marshal::GetNativeActivationFactory);
+        IL2CPP_UNREACHABLE;
+    }
+
+#endif
+
+#if NET_4_0
+    intptr_t Marshal::AllocCoTaskMemSize(intptr_t sizet)
+    {
+        NOT_IMPLEMENTED_ICALL(Marshal::AllocCoTaskMemSize);
         IL2CPP_UNREACHABLE;
     }
 

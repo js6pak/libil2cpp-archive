@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "os/File.h"
-#include "os/OSGlobalEnums.h"
+#include "os/c-api/OSGlobalEnums.h"
 
 namespace il2cpp
 {
