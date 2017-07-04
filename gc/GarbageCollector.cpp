@@ -74,7 +74,7 @@ namespace gc
 #if IL2CPP_SUPPORT_THREADS
 
     static bool s_StopFinalizer = false;
-    static il2cpp::os::Thread s_FinalizerThread;
+    static il2cpp::os::Thread* s_FinalizerThread;
     static Il2CppThread* s_FinalizerThreadObject;
     static Semaphore s_FinalizerSemaphore(0, 32767);
     static Event s_FinalizersThreadStartedEvent;
@@ -83,7 +83,7 @@ namespace gc
     static void FinalizerThread(void* arg)
     {
         s_FinalizerThreadObject = il2cpp::vm::Thread::Attach(Domain::GetCurrent());
-        s_FinalizerThread.SetName("GC Finalizer");
+        s_FinalizerThread->SetName("GC Finalizer");
 
         s_FinalizersThreadStartedEvent.Set();
 
@@ -117,17 +117,20 @@ namespace gc
     {
         GarbageCollector::InvokeFinalizers();
 #if IL2CPP_SUPPORT_THREADS
-        s_FinalizerThread.Run(&FinalizerThread, NULL);
+        s_FinalizerThread = new il2cpp::os::Thread;
+        s_FinalizerThread->Run(&FinalizerThread, NULL);
         s_FinalizersThreadStartedEvent.Wait();
 #endif
     }
 
-    void GarbageCollector::Uninitialize()
+    void GarbageCollector::UninitializeFinalizers()
     {
 #if IL2CPP_SUPPORT_THREADS
         s_StopFinalizer = true;
         NotifyFinalizers();
-        s_FinalizerThread.Join();
+        s_FinalizerThread->Join();
+        delete s_FinalizerThread;
+        s_FinalizerThread = NULL;
 #endif
     }
 
