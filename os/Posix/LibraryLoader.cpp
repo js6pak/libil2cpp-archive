@@ -72,6 +72,10 @@ namespace os
 
         std::string libPath = utils::StringUtils::Printf("%s/%s", dirName.c_str(), name);
         handle = dlopen(libPath.c_str(), RTLD_LAZY);
+
+        // Fallback to just using the name. This might be a system dylib.
+        if (handle == NULL)
+            handle = dlopen(name, RTLD_LAZY);
 #else
         handle = dlopen(name, RTLD_LAZY);
 #endif
