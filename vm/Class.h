@@ -73,6 +73,7 @@ namespace vm
         static bool IsInflated(const Il2CppClass *klass);
         static bool IsSubclassOf(Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces);
         static bool IsValuetype(const Il2CppClass *klass);
+        static bool IsBlittable(const Il2CppClass *klass);
         static bool HasDefaultConstructor(Il2CppClass* klass);
         static int GetFlags(const Il2CppClass *klass);
         static bool IsAbstract(const Il2CppClass *klass);
@@ -139,7 +140,7 @@ namespace vm
         static void SetupTypeHierarchy(Il2CppClass *klass);
         static void SetupInterfaces(Il2CppClass *klass);
 
-        static const dynamic_array<Il2CppClass*>& GetStaticFieldData();
+        static const il2cpp::utils::dynamic_array<Il2CppClass*>& GetStaticFieldData();
 
         static size_t GetBitmapSize(const Il2CppClass* klass);
         static void GetBitmap(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit);

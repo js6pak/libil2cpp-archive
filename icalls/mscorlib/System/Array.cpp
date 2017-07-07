@@ -3,6 +3,7 @@
 #include "object-internals.h"
 #include "class-internals.h"
 #include "icalls/mscorlib/System/Array.h"
+#include "utils/Exception.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -314,7 +315,7 @@ namespace System
 
     static void ThrowInvalidCast(const Il2CppClass* a, const Il2CppClass* b)
     {
-        Exception::Raise(Exception::GetInvalidCastException(Exception::FormatInvalidCastException(b, a).c_str()));
+        Exception::Raise(Exception::GetInvalidCastException(utils::Exception::FormatInvalidCastException(b, a).c_str()));
     }
 
     union WidenedValueUnion
@@ -505,7 +506,7 @@ namespace System
         if (!Class::IsValuetype(elementClass))
         {
             if (!Object::IsInst(value, elementClass))
-                Exception::Raise(Exception::GetInvalidCastException(Exception::FormatInvalidCastException(thisPtr->klass->element_class, value->klass).c_str()));
+                Exception::Raise(Exception::GetInvalidCastException(utils::Exception::FormatInvalidCastException(thisPtr->klass->element_class, value->klass).c_str()));
             il2cpp_array_setref(thisPtr, index, value);
             return;
         }

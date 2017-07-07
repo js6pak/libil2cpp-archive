@@ -114,13 +114,13 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
 
 #   include "ExtendedAtomicOps-arm.h"
 
-#elif UNITY_WIIU
+#elif PLATFORM_WIIU
 
 #   include "ExtendedAtomicOps-ppc.h"
 
-#elif UNITY_PSP2
+#elif PLATFORM_PSVITA
 
-#   include "PlatformDependent/PSP2Player/Source/Threads/PlatformExtendedAtomicOps.h"
+#   include "PlatformExtendedAtomicOps.h"
 
 #elif (defined(__ppc64__) || defined(_ARCH_PPC64)) && (defined(__clang__) || defined(__GNUC__))
 

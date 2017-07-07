@@ -44,20 +44,10 @@ namespace vm
         return s_EmptyString;
     }
 
-    int32_t String::GetLength(Il2CppString* str)
-    {
-        return str->length;
-    }
-
-    Il2CppChar* String::GetChars(Il2CppString* str)
-    {
-        return str->chars;
-    }
-
     int32_t String::GetHash(Il2CppString* str)
     {
-        const Il2CppChar* p = GetChars(str);
-        int i, len = GetLength(str);
+        const Il2CppChar* p = utils::StringUtils::GetChars(str);
+        int i, len = utils::StringUtils::GetLength(str);
         uint32_t h = 0;
 
         for (i = 0; i < len; i++)
@@ -93,7 +83,7 @@ namespace vm
         s = NewSize(len);
         IL2CPP_ASSERT(s != NULL);
 
-        memcpy(String::GetChars(s), text, len * 2);
+        memcpy(utils::StringUtils::GetChars(s), text, len * 2);
 
         return s;
     }
@@ -175,7 +165,7 @@ namespace vm
         if (s_InternedStringMap->TryGetValue(internedString, &value))
             return value;
 
-        internedString.chars = String::GetChars(str);
+        internedString.chars = utils::StringUtils::GetChars(str);
         s_InternedStringMap->Add(internedString, str);
 
         return str;

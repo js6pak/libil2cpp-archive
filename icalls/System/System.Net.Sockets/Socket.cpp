@@ -1052,7 +1052,7 @@ namespace Sockets
         if (!socketHandle.IsValid())
             return false;
 
-        const Il2CppChar* ustr = vm::String::GetChars(filename);
+        const Il2CppChar* ustr = utils::StringUtils::GetChars(filename);
         const std::string str = utils::StringUtils::Utf16ToUtf8(ustr);
 
         // Note: for now they map 1-1
@@ -1205,41 +1205,6 @@ namespace Sockets
         return len;
     }
 
-#if IL2CPP_SUPPORT_IPV6
-    static os::IPv6Address ipaddress_to_ipv6_addr(Il2CppObject *ipaddr)
-    {
-        FieldInfo* numbersFieldInfo = vm::Class::GetFieldFromName(ipaddr->klass, "m_Numbers");
-        IL2CPP_ASSERT(numbersFieldInfo);
-        Il2CppArray* data = (Il2CppArray*)vm::Field::GetValueObject(numbersFieldInfo, ipaddr);
-
-        os::IPv6Address ipv6;
-        for (int i = 0; i < 8; i++)
-        {
-            uint16_t s = il2cpp_array_get(data, uint16_t, i);
-            ipv6.addr[2 * i] = (s >> 8) & 0xff;
-            ipv6.addr[2 * i + 1] = s & 0xff;
-        }
-
-        return ipv6;
-    }
-
-    static void GetAddressAndInterfaceFromObject(Il2CppObject* object, const char* groupField, const char* interfaceField,
-        os::IPv6Address& ipv6, uint64_t& interfaceOffset)
-    {
-        FieldInfo* groupFieldInfo = vm::Class::GetFieldFromName(object->klass, groupField);
-        IL2CPP_ASSERT(groupFieldInfo);
-        Il2CppObject* address = vm::Field::GetValueObject(groupFieldInfo, object);
-
-        if (address)
-            ipv6 = ipaddress_to_ipv6_addr(address);
-
-        FieldInfo* interfaceFieldInfo = vm::Class::GetFieldFromName(object->klass, interfaceField);
-        IL2CPP_ASSERT(interfaceFieldInfo);
-        vm::Field::GetValue(object, interfaceFieldInfo, &interfaceOffset);
-    }
-
-#endif // IL2CPP_SUPPORT_IPV6
-
     void Socket::SetSocketOption(Il2CppIntPtr socket, SocketOptionLevel level, SocketOptionName name, Il2CppObject *obj_val, Il2CppArray *byte_val, int32_t int_val, int32_t *error)
     {
         *error = 0;
@@ -1280,39 +1245,19 @@ namespace Sockets
                 case kSocketOptionNameAddMembership:
                 case kSocketOptionNameDropMembership:
                 {
-#if IL2CPP_SUPPORT_IPV6
-                    if (system_level == (os::SocketOptionLevel)kSocketOptionLevelIPv6)
-                    {
-                        os::IPv6Address ipv6 = { { 0 } };
-                        uint64_t interfaceOffset;
-#if NET_4_0
-                        GetAddressAndInterfaceFromObject(obj_val, "m_Group", "m_Interface", ipv6, interfaceOffset);
-#else
-                        GetAddressAndInterfaceFromObject(obj_val, "group", "ifIndex", ipv6, interfaceOffset);
-#endif // NET_4_0
-                        status = socketHandle->SetSocketOptionMembership(system_level, system_name, ipv6, interfaceOffset);
-                    }
-                    else if (system_level == (os::SocketOptionLevel)kSocketOptionLevelIP)
-#endif // IL2CPP_SUPPORT_IPV6
-                    {
-                        FieldInfo *group_field_info = vm::Class::GetFieldFromName(obj_val->klass, "group");
-#if NET_4_0
-                        FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "localAddress");
-#else
-                        FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "local");
-#endif
+                    FieldInfo *group_field_info = vm::Class::GetFieldFromName(obj_val->klass, "group");
+                    FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "local");
 
-                        Il2CppObject* group_obj = vm::Field::GetValueObject(group_field_info, obj_val);
-                        Il2CppObject* local_obj = vm::Field::GetValueObject(local_field_info, obj_val);
+                    Il2CppObject* group_obj = vm::Field::GetValueObject(group_field_info, obj_val);
+                    Il2CppObject* local_obj = vm::Field::GetValueObject(local_field_info, obj_val);
 
-                        const FieldInfo *group_address_field_info = vm::Class::GetFieldFromName(group_obj->klass, "m_Address");
-                        const FieldInfo *local_address_field_info = vm::Class::GetFieldFromName(local_obj->klass, "m_Address");
+                    const FieldInfo *group_address_field_info = vm::Class::GetFieldFromName(group_obj->klass, "m_Address");
+                    const FieldInfo *local_address_field_info = vm::Class::GetFieldFromName(local_obj->klass, "m_Address");
 
-                        const uint32_t group_address = *((uint32_t*)(uint64_t*)((char*)group_obj + group_address_field_info->offset));
-                        const uint32_t local_address = *((uint32_t*)(uint64_t*)((char*)local_obj + local_address_field_info->offset));
+                    const uint32_t group_address = *((uint32_t*)(uint64_t*)((char*)group_obj + group_address_field_info->offset));
+                    const uint32_t local_address = *((uint32_t*)(uint64_t*)((char*)local_obj + local_address_field_info->offset));
 
-                        status = socketHandle->SetSocketOptionMembership(system_level, system_name, group_address, local_address);
-                    }
+                    status = socketHandle->SetSocketOptionMembership(system_level, system_name, group_address, local_address);
                 }
 
                 break;
@@ -1425,9 +1370,7 @@ namespace Sockets
 #if NET_4_0
     bool Socket::SendFile_internal(Il2CppIntPtr sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::SendFile_internal);
-        IL2CPP_UNREACHABLE;
-        return false;
+        return SendFile(sock, filename, pre_buffer, post_buffer, static_cast<TransmitFileOptions>(flags));
     }
 
     bool Socket::SupportsPortReuse(ProtocolType proto)
@@ -1444,32 +1387,26 @@ namespace Sockets
         return 0;
     }
 
-    int32_t Socket::ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject** sockaddr, int32_t* error)
+    int32_t Socket::ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress** sockaddr, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::ReceiveFrom_internal);
-        IL2CPP_UNREACHABLE;
-        return 0;
+        return RecvFrom(sock, buffer, offset, count, static_cast<SocketFlags>(flags), sockaddr, error);
     }
 
-    int32_t Socket::SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject* sa, int32_t* error)
+    int32_t Socket::SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress* sa, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::SendTo_internal);
-        IL2CPP_UNREACHABLE;
-        return 0;
+        return SendTo(sock, buffer, offset, count, static_cast<SocketFlags>(flags), sa, error);
     }
 
-    Il2CppObject* Socket::LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+    Il2CppSocketAddress* Socket::LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::LocalEndPoint_internal);
-        IL2CPP_UNREACHABLE;
-        return NULL;
+        // We should be able to ignore the family, as the socket should already have that information.
+        return LocalEndPoint(socket, error);
     }
 
-    Il2CppObject* Socket::RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+    Il2CppSocketAddress* Socket::RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::RemoteEndPoint_internal);
-        IL2CPP_UNREACHABLE;
-        return NULL;
+        // We should be able to ignore the family, as the socket should already have that information.
+        return RemoteEndPoint(socket, error);
     }
 
     void Socket::cancel_blocking_socket_operation(Il2CppObject* thread)

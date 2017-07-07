@@ -102,7 +102,8 @@ enum Il2CppRGCTXDataType
     IL2CPP_RGCTX_DATA_INVALID,
     IL2CPP_RGCTX_DATA_TYPE,
     IL2CPP_RGCTX_DATA_CLASS,
-    IL2CPP_RGCTX_DATA_METHOD
+    IL2CPP_RGCTX_DATA_METHOD,
+    IL2CPP_RGCTX_DATA_ARRAY,
 };
 
 struct Il2CppRGCTXDefinition
@@ -301,6 +302,9 @@ struct Il2CppImageDefinition
     TypeDefinitionIndex typeStart;
     uint32_t typeCount;
 
+    TypeDefinitionIndex exportedTypeStart;
+    uint32_t exportedTypeCount;
+
     MethodIndex entryPointIndex;
     uint32_t token;
 };
@@ -413,5 +417,48 @@ struct Il2CppGlobalMetadataHeader
     int32_t unresolvedVirtualCallParameterRangesCount;
     int32_t windowsRuntimeTypeNamesOffset; // Il2CppWindowsRuntimeTypeNamePair
     int32_t windowsRuntimeTypeNamesSize;
+    int32_t exportedTypeDefinitionsOffset; // TypeDefinitionIndex
+    int32_t exportedTypeDefinitionsCount;
 };
 #pragma pack(pop, p1)
+
+#if RUNTIME_MONO
+
+#pragma pack(push, p1,4)
+struct Il2CppGlobalMonoMetadataHeader
+{
+    int32_t sanity;
+    int32_t version;
+    int32_t stringOffset; // string data for metadata
+    int32_t stringCount;
+    int32_t methodInfoMappingOffset; // hash -> MonoMethodInfo mapping
+    int32_t methodInfoMappingCount;
+    int32_t genericMethodInfoMappingOffset; // hash -> generic MonoMethodInfo mapping
+    int32_t genericMethodInfoMappingCount;
+    int32_t rgctxIndicesOffset; // runtime generic context indices
+    int32_t rgctxIndicesCount;
+    int32_t rgctxInfoOffset; // runtime generic context info
+    int32_t rgctxInfoCount;
+    int32_t monoStringOffset; // mono strings
+    int32_t monoStringCount;
+    int32_t methodMetadataOffset; // method metadata
+    int32_t methodMetadataCount;
+    int32_t genericArgumentIndicesOffset; // generic argument indices
+    int32_t genericArgumentIndicesCount;
+    int32_t typeTableOffset; // type table
+    int32_t typeTableCount;
+    int32_t fieldTableOffset; // field table
+    int32_t fieldTableCount;
+    int32_t methodIndexTableOffset; // method index table
+    int32_t methodIndexTableCount;
+    int32_t genericMethodIndexTableOffset; // generic method index table
+    int32_t genericMethodIndexTableCount;
+    int32_t metaDataUsageListsTableOffset; // meta data usage lists table
+    int32_t metaDataUsageListsTableCount;
+    int32_t metaDataUsagePairsTableOffset; // meta data usage pairs table
+    int32_t metaDataUsagePairsTableCount;
+    int32_t assemblyNameTableOffset; // assembly names
+    int32_t assemblyNameTableCount;
+};
+#pragma pack(pop, p1)
+#endif

@@ -11,6 +11,7 @@
 #include "os/Mutex.h"
 #include "os/Path.h"
 #include "utils/Memory.h"
+#include "utils/Runtime.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/AssemblyName.h"
@@ -71,7 +72,7 @@ namespace Reflection
 
     Il2CppReflectionType* Assembly::InternalGetType(Il2CppReflectionAssembly *assembly, mscorlib_System_Reflection_Module *, Il2CppString* name, bool throwOnError, bool ignoreCase)
     {
-        std::string str = utils::StringUtils::Utf16ToUtf8(String::GetChars(name));
+        std::string str = utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(name));
 
         il2cpp::vm::TypeNameParseInfo info;
         il2cpp::vm::TypeNameParser parser(str, info, false);
@@ -329,7 +330,7 @@ namespace Reflection
         // Our implementation is going to behave a bit different.  We can't actually load any assembly.  If we didn't know about the assembly at conversion time,
         // then we won't be able to do anything.
         // On the other hand, if the name of the assembly matches the name of an assembly that we converted, then lets return the assembly that we know about.
-        std::string utf8Path = utils::StringUtils::Utf16ToUtf8(vm::String::GetChars(assemblyFile));
+        std::string utf8Path = utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(assemblyFile));
         std::string fileName = utils::PathUtils::BasenameNoExtension(utf8Path);
 
         const Il2CppAssembly* foundAssembly = MetadataCache::GetAssemblyByName(fileName);
@@ -368,7 +369,7 @@ namespace Reflection
 
     static void* LoadResourceFile(Il2CppReflectionAssembly* assembly)
     {
-        std::string resourcesDirectory = utils::PathUtils::Combine(il2cpp::vm::Runtime::GetDataDir(), utils::StringView<char>("Resources"));
+        std::string resourcesDirectory = utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("Resources"));
 
         std::string resourceFileName(MetadataCache::GetImageFromIndex(assembly->assembly->imageIndex)->name);
         resourceFileName += "-resources.dat";
@@ -376,7 +377,7 @@ namespace Reflection
         std::string resourceFilePath = utils::PathUtils::Combine(resourcesDirectory, resourceFileName);
 
         int error = 0;
-        os::FileHandle* handle = os::File::Open(resourceFilePath, os::File::kFileModeOpen, os::File::kFileAccessRead, os::File::kFileShareRead, os::File::kFileOptionsNone, &error);
+        os::FileHandle* handle = os::File::Open(resourceFilePath, kFileModeOpen, kFileAccessRead, kFileShareRead, kFileOptionsNone, &error);
         if (error != 0)
             return NULL;
 

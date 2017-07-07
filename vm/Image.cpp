@@ -13,6 +13,7 @@
 #include "utils/HashUtils.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
+#include "vm-utils/VmStringUtils.h"
 
 using il2cpp::utils::HashUtils;
 using il2cpp::utils::StringUtils;
@@ -150,6 +151,17 @@ namespace vm
 
     static os::FastMutex s_ClassFromNameMutex;
 
+// This must be called when the s_ClassFromNameMutex is held.
+    static void AddTypeToNametoClassHashTable(Il2CppNameToTypeDefinitionIndexHashTable* hashTable, TypeDefinitionIndex typeIndex)
+    {
+        const Il2CppTypeDefinition* typeDefinition = MetadataCache::GetTypeDefinitionFromIndex(typeIndex);
+        // don't add nested types
+        if (typeDefinition->declaringTypeIndex != kTypeIndexInvalid)
+            return;
+
+        hashTable->insert(std::make_pair(std::make_pair(MetadataCache::GetStringFromIndex(typeDefinition->namespaceIndex), MetadataCache::GetStringFromIndex(typeDefinition->nameIndex)), typeIndex));
+    }
+
     Il2CppClass* Image::ClassFromName(const Il2CppImage* image, const char* namespaze, const char *name)
     {
         if (!image->nameToClassHashTable)
@@ -161,13 +173,14 @@ namespace vm
                 for (uint32_t index = 0; index < image->typeCount; index++)
                 {
                     TypeDefinitionIndex typeIndex = image->typeStart + index;
-                    const Il2CppTypeDefinition* typeDefinition = MetadataCache::GetTypeDefinitionFromIndex(typeIndex);
+                    AddTypeToNametoClassHashTable(image->nameToClassHashTable, typeIndex);
+                }
 
-                    // don't add nested types
-                    if (typeDefinition->declaringTypeIndex != kTypeIndexInvalid)
-                        continue;
-
-                    image->nameToClassHashTable->insert(std::make_pair(std::make_pair(MetadataCache::GetStringFromIndex(typeDefinition->namespaceIndex), MetadataCache::GetStringFromIndex(typeDefinition->nameIndex)), typeIndex));
+                for (uint32_t index = 0; index < image->exportedTypeCount; index++)
+                {
+                    TypeDefinitionIndex typeIndex = MetadataCache::GetExportedTypeFromIndex(image->exportedTypeStart + index);
+                    if (typeIndex != kTypeIndexInvalid)
+                        AddTypeToNametoClassHashTable(image->nameToClassHashTable, typeIndex);
                 }
             }
         }
@@ -215,7 +228,7 @@ namespace vm
         }
         else
         {
-            utils::StringUtils::CaseInsensitiveComparer comparer;
+            utils::VmStringUtils::CaseInsensitiveComparer comparer;
             return comparer(left, right);
         }
     }
@@ -228,6 +241,24 @@ namespace vm
             if (type->declaringType == declaringType && StringsMatch(namespaze, type->namespaze, ignoreCase) && StringsMatch(name, type->name, ignoreCase))
             {
                 return type;
+            }
+        }
+
+        return NULL;
+    }
+
+    static Il2CppClass* FindExportedClassMatching(const Il2CppImage* image, const char* namespaze, const char *name, Il2CppClass* declaringType, bool ignoreCase)
+    {
+        for (uint32_t i = 0; i < image->exportedTypeCount; i++)
+        {
+            TypeDefinitionIndex typeIndex = MetadataCache::GetExportedTypeFromIndex(image->exportedTypeStart + i);
+            if (typeIndex != kTypeIndexInvalid)
+            {
+                Il2CppClass* type = MetadataCache::GetTypeInfoFromTypeDefinitionIndex(typeIndex);
+                if (type->declaringType == declaringType && StringsMatch(namespaze, type->namespaze, ignoreCase) && StringsMatch(name, type->name, ignoreCase))
+                {
+                    return type;
+                }
             }
         }
 
@@ -248,10 +279,16 @@ namespace vm
 
     Il2CppClass* Image::FromTypeNameParseInfo(const Il2CppImage* image, const TypeNameParseInfo &info, bool ignoreCase)
     {
-        Il2CppClass *parent_class = FindClassMatching(image, info.ns().c_str(), info.name().c_str(), NULL, ignoreCase);
+        const char* ns = info.ns().c_str();
+        const char* name = info.name().c_str();
+        Il2CppClass *parent_class = FindClassMatching(image, ns, name, NULL, ignoreCase);
 
         if (parent_class == NULL)
-            return NULL;
+        {
+            parent_class = FindExportedClassMatching(image, ns, name, NULL, ignoreCase);
+            if (parent_class == NULL)
+                return NULL;
+        }
 
         std::vector<std::string>::const_iterator it = info.nested().begin();
 

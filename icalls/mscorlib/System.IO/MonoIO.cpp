@@ -4,10 +4,10 @@
 #include "os/Directory.h"
 #include "os/ErrorCodes.h"
 #include "os/File.h"
-#include "os/Path.h"
 #include "utils/PathUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
+#include "vm/Path.h"
 #include "vm/String.h"
 #include "vm/Exception.h"
 #include "utils/Memory.h"
@@ -241,7 +241,7 @@ namespace IO
 
     bool MonoIO::SetFileAttributes(Il2CppString* path, FileAttributes attrs, MonoIOError* error)
     {
-        return il2cpp::os::File::SetFileAttributes(il2cpp::utils::StringUtils::Utf16ToUtf8(path->chars), (il2cpp::os::File::FileAttributes)attrs, error);
+        return il2cpp::os::File::SetFileAttributes(il2cpp::utils::StringUtils::Utf16ToUtf8(path->chars), (UnityPalFileAttributes)attrs, error);
     }
 
     bool MonoIO::Flush(Il2CppIntPtr handle, MonoIOError* error)
@@ -283,9 +283,9 @@ namespace IO
 // This is never called from Mono.
     int32_t MonoIO::GetTempPath(Il2CppString** path)
     {
-        const std::string tempPath(il2cpp::os::Path::GetTempPath());
+        const std::string tempPath(il2cpp::vm::Path::GetTempPath());
         *path = vm::String::New(tempPath.c_str());
-        return vm::String::GetLength(*path);
+        return utils::StringUtils::GetLength(*path);
     }
 
     bool MonoIO::CreatePipe40(Il2CppIntPtr* read_handle, Il2CppIntPtr* write_handle, MonoIOError* error)
@@ -307,6 +307,12 @@ namespace IO
         il2cpp::os::FileHandle* tpHandle = (il2cpp::os::FileHandle*)target_process_handle.m_value;
         il2cpp::os::FileHandle** tHandle = (il2cpp::os::FileHandle**)&target_handle->m_value;
         return il2cpp::os::File::DuplicateHandle(spHandle, sHandle, tpHandle, tHandle, access, inherit, options, error);
+    }
+
+    bool MonoIO::RemapPath(Il2CppString* path, Il2CppString** newPath)
+    {
+        *newPath = NULL;
+        return false;
     }
 
 #if NET_4_0
@@ -346,7 +352,7 @@ namespace IO
 
         // Allocate result string
         Il2CppString* result = vm::String::NewSize(static_cast<int32_t>(directoryNameIl2CppChars.Length() + fileNameIl2CppChars.Length() + 1));
-        Il2CppChar* targetBuffer = vm::String::GetChars(result);
+        Il2CppChar* targetBuffer = utils::StringUtils::GetChars(result);
 
         // Copy in directory name
         memcpy(targetBuffer, directoryNameIl2CppChars.Str(), sizeof(Il2CppChar) * directoryNameIl2CppChars.Length());

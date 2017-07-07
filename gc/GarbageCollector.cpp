@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "object-internals.h"
+#include "il2cpp-vm-support.h"
 #include "GarbageCollector.h"
 #include "os/Event.h"
 #include "os/Mutex.h"
@@ -74,7 +75,7 @@ namespace gc
 #if IL2CPP_SUPPORT_THREADS
 
     static bool s_StopFinalizer = false;
-    static il2cpp::os::Thread* s_FinalizerThread;
+    static il2cpp::os::Thread s_FinalizerThread;
     static Il2CppThread* s_FinalizerThreadObject;
     static Semaphore s_FinalizerSemaphore(0, 32767);
     static Event s_FinalizersThreadStartedEvent;
@@ -83,7 +84,7 @@ namespace gc
     static void FinalizerThread(void* arg)
     {
         s_FinalizerThreadObject = il2cpp::vm::Thread::Attach(Domain::GetCurrent());
-        s_FinalizerThread->SetName("GC Finalizer");
+        s_FinalizerThread.SetName("GC Finalizer");
 
         s_FinalizersThreadStartedEvent.Set();
 
@@ -117,20 +118,17 @@ namespace gc
     {
         GarbageCollector::InvokeFinalizers();
 #if IL2CPP_SUPPORT_THREADS
-        s_FinalizerThread = new il2cpp::os::Thread;
-        s_FinalizerThread->Run(&FinalizerThread, NULL);
+        s_FinalizerThread.Run(&FinalizerThread, NULL);
         s_FinalizersThreadStartedEvent.Wait();
 #endif
     }
 
-    void GarbageCollector::UninitializeFinalizers()
+    void GarbageCollector::Uninitialize()
     {
 #if IL2CPP_SUPPORT_THREADS
         s_StopFinalizer = true;
         NotifyFinalizers();
-        s_FinalizerThread->Join();
-        delete s_FinalizerThread;
-        s_FinalizerThread = NULL;
+        s_FinalizerThread.Join();
 #endif
     }
 
@@ -310,7 +308,7 @@ namespace gc
 
         Il2CppIUnknown* result;
         il2cpp_hresult_t hr = comCallableWrapper->QueryInterface(iid, reinterpret_cast<void**>(&result));
-        Exception::RaiseIfFailed(hr, true);
+        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
         return result;
     }
 

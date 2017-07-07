@@ -445,8 +445,8 @@ namespace vm
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Thread name can only be set once."));
 
         // Store name.
-        thread->GetInternalThread()->name_len = String::GetLength(name);
-        thread->GetInternalThread()->name = il2cpp::utils::StringUtils::StringDuplicate(String::GetChars(name), thread->GetInternalThread()->name_len);
+        thread->GetInternalThread()->name_len = utils::StringUtils::GetLength(name);
+        thread->GetInternalThread()->name = il2cpp::utils::StringUtils::StringDuplicate(utils::StringUtils::GetChars(name), thread->GetInternalThread()->name_len);
 
         // Hand over to OS layer, if thread has been started already.
         if (thread->GetInternalThread()->handle)
@@ -466,8 +466,8 @@ namespace vm
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Thread name can only be set once."));
 
         // Store name.
-        thread->name_len = String::GetLength(name);
-        thread->name = il2cpp::utils::StringUtils::StringDuplicate(String::GetChars(name), thread->name_len);
+        thread->name_len = utils::StringUtils::GetLength(name);
+        thread->name = il2cpp::utils::StringUtils::StringDuplicate(utils::StringUtils::GetChars(name), thread->name_len);
 
         // Hand over to OS layer, if thread has been started already.
         if (thread->handle)

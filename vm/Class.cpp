@@ -54,7 +54,7 @@ namespace il2cpp
 {
 namespace vm
 {
-    static dynamic_array<Il2CppClass*> s_staticFieldData;
+    static il2cpp::utils::dynamic_array<Il2CppClass*> s_staticFieldData;
     static int32_t s_FinalizerSlot = -1;
     static int32_t s_GetHashCodeSlot = -1;
 
@@ -744,6 +744,11 @@ namespace vm
     bool Class::IsValuetype(const Il2CppClass *klass)
     {
         return klass->valuetype;
+    }
+
+    bool Class::IsBlittable(const Il2CppClass *klass)
+    {
+        return klass->is_blittable;
     }
 
     enum FieldLayoutKind
@@ -1767,7 +1772,7 @@ namespace vm
         }
     }
 
-    const dynamic_array<Il2CppClass*>& Class::GetStaticFieldData()
+    const il2cpp::utils::dynamic_array<Il2CppClass*>& Class::GetStaticFieldData()
     {
         return s_staticFieldData;
     }

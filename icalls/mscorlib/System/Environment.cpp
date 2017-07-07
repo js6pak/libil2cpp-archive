@@ -10,13 +10,13 @@
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
-#include "vm/Environment.h"
 #include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Exception.h"
 
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
+#include "utils/Environment.h"
 
 namespace il2cpp
 {
@@ -69,8 +69,8 @@ namespace System
     {
         Il2CppArray *res;
         int i;
-        int num_main_args = vm::Environment::GetNumMainArgs();
-        const std::vector<UTF16String>& mainArgs = vm::Environment::GetMainArgs();
+        int num_main_args = utils::Environment::GetNumMainArgs();
+        const std::vector<UTF16String>& mainArgs = utils::Environment::GetMainArgs();
 
         Il2CppClass *klass = il2cpp::vm::Class::GetArrayClass(il2cpp_defaults.string_class, 1);
         res = (Il2CppArray*)il2cpp::vm::Array::NewSpecific(klass, num_main_args);
@@ -103,11 +103,11 @@ namespace System
 
     void Environment::InternalSetEnvironmentVariable(Il2CppString* variable, Il2CppString* value)
     {
-        const std::string variableStr(utils::StringUtils::Utf16ToUtf8(vm::String::GetChars(variable)));
+        const std::string variableStr(utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(variable)));
 
-        const bool clearValue = value == NULL || vm::String::GetLength(value) == 0 || vm::String::GetChars(0) == 0;
+        const bool clearValue = value == NULL || utils::StringUtils::GetLength(value) == 0 || utils::StringUtils::GetChars(0) == 0;
 
-        const std::string valueStr = clearValue ? std::string() : utils::StringUtils::Utf16ToUtf8(vm::String::GetChars(value));
+        const std::string valueStr = clearValue ? std::string() : utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(value));
 
         il2cpp::os::Environment::SetEnvironmentVariable(variableStr, valueStr);
     }
@@ -131,7 +131,7 @@ namespace System
 
     Il2CppString * Environment::internalGetEnvironmentVariable(Il2CppString *name)
     {
-        const std::string nameStr(utils::StringUtils::Utf16ToUtf8(vm::String::GetChars(name)));
+        const std::string nameStr(utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(name)));
         const std::string variable(il2cpp::os::Environment::GetEnvironmentVariable(nameStr));
 
         return variable.empty() ? NULL : il2cpp::vm::String::New(variable.c_str());

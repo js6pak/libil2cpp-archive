@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include <stdint.h>
 #include "BlobReader.h"
-#include "MemoryRead.h"
+#include "utils/MemoryRead.h"
 #include "object-internals.h"
 #include "il2cpp-vm-support.h"
 

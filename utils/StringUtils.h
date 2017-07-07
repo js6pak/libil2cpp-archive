@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 //
 // Copyright(c) Unity Technologies, Microsoft Corporation
 //
@@ -47,11 +47,8 @@ public:
 	static char* StringDuplicate (const char *strSource);
 	static Il2CppChar* StringDuplicate (const Il2CppChar* strSource, size_t length);
 	static bool EndsWith(const std::string& string, const std::string& suffix);
-	static Il2CppChar Utf16ToLower(Il2CppChar c);
-	static bool CaseSensitiveEquals(Il2CppString* left, const char* right);
-	static bool CaseSensitiveEquals(const char* left, const char* right);
-	static bool CaseInsensitiveEquals(Il2CppString* left, const char* right);
-	static bool CaseInsensitiveEquals(const char* left, const char* right);
+    static Il2CppChar* GetChars(Il2CppString* str);
+    static int32_t GetLength(Il2CppString* str);
 
 #if IL2CPP_TARGET_WINDOWS
 	static inline std::string NativeStringToUtf8(const Il2CppNativeString& nativeStr)
@@ -93,22 +90,6 @@ public:
 
 		return length;
 	}
-
-	struct CaseSensitiveComparer
-	{
-		bool operator()(const std::string& left, const std::string& right) const;
-		bool operator()(const std::string& left, const char* right) const;
-		bool operator()(const char* left, const std::string& right) const;
-		bool operator()(const char* left, const char* right) const;
-	};
-
-	struct CaseInsensitiveComparer
-	{
-		bool operator()(const std::string& left, const std::string& right) const;
-		bool operator()(const std::string& left, const char* right) const;
-		bool operator()(const char* left, const std::string& right) const;
-		bool operator()(const char* left, const char* right) const;
-	};
 
 	// Taken from github.com/Microsoft/referencesource/blob/master/mscorlib/system/string.cs
 	template <typename CharType>
