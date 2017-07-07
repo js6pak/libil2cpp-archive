@@ -1370,9 +1370,7 @@ namespace Sockets
 #if NET_4_0
     bool Socket::SendFile_internal(Il2CppIntPtr sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::SendFile_internal);
-        IL2CPP_UNREACHABLE;
-        return false;
+        return SendFile(sock, filename, pre_buffer, post_buffer, static_cast<TransmitFileOptions>(flags));
     }
 
     bool Socket::SupportsPortReuse(ProtocolType proto)
@@ -1389,32 +1387,26 @@ namespace Sockets
         return 0;
     }
 
-    int32_t Socket::ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject** sockaddr, int32_t* error)
+    int32_t Socket::ReceiveFrom_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress** sockaddr, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::ReceiveFrom_internal);
-        IL2CPP_UNREACHABLE;
-        return 0;
+        return RecvFrom(sock, buffer, offset, count, static_cast<SocketFlags>(flags), sockaddr, error);
     }
 
-    int32_t Socket::SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppObject* sa, int32_t* error)
+    int32_t Socket::SendTo_internal(Il2CppIntPtr sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress* sa, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::SendTo_internal);
-        IL2CPP_UNREACHABLE;
-        return 0;
+        return SendTo(sock, buffer, offset, count, static_cast<SocketFlags>(flags), sa, error);
     }
 
-    Il2CppObject* Socket::LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+    Il2CppSocketAddress* Socket::LocalEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::LocalEndPoint_internal);
-        IL2CPP_UNREACHABLE;
-        return NULL;
+        // We should be able to ignore the family, as the socket should already have that information.
+        return LocalEndPoint(socket, error);
     }
 
-    Il2CppObject* Socket::RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
+    Il2CppSocketAddress* Socket::RemoteEndPoint_internal(Il2CppIntPtr socket, int32_t family, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::RemoteEndPoint_internal);
-        IL2CPP_UNREACHABLE;
-        return NULL;
+        // We should be able to ignore the family, as the socket should already have that information.
+        return RemoteEndPoint(socket, error);
     }
 
     void Socket::cancel_blocking_socket_operation(Il2CppObject* thread)
