@@ -335,12 +335,15 @@ namespace vm
         os::Socket::Cleanup();
         String::CleanupEmptyString();
 
-        il2cpp::gc::GarbageCollector::Uninitialize();
+        il2cpp::gc::GarbageCollector::UninitializeFinalizers();
 
         // after the gc cleanup so the finalizer thread can unregister itself
         Thread::UnInitialize();
 
         os::Thread::Shutdown();
+
+        // We need to do this after thread shut down because it is freeing GC fixed memory
+        il2cpp::gc::GarbageCollector::UninitializeGC();
 
         // This needs to happen after no managed code can run anymore, including GC finalizers
         os::LibraryLoader::CleanupLoadedLibraries();
