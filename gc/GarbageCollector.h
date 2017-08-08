@@ -25,7 +25,8 @@ namespace gc
         static void InitializeFinalizer();
         static bool IsFinalizerThread(Il2CppThread* thread);
         static int32_t GetGeneration(void* addr);
-        static void Uninitialize();
+        static void UninitializeFinalizers();
+        static void UninitializeGC();
         static void NotifyFinalizers();
         static void RunFinalizer(void *obj, void *data);
         static void RegisterFinalizerForNewObject(Il2CppObject* obj);
