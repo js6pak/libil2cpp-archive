@@ -5,6 +5,7 @@
 #include "class-internals.h"
 #include "os/Socket.h"
 #include "os/Mutex.h"
+#include "os/Thread.h"
 #include "utils/StringUtils.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
@@ -1409,10 +1410,15 @@ namespace Sockets
         return RemoteEndPoint(socket, error);
     }
 
+    static void STDCALL
+    abort_apc(void* param)
+    {
+    }
+
     void Socket::cancel_blocking_socket_operation(Il2CppObject* thread)
     {
-        NOT_IMPLEMENTED_ICALL(Socket::cancel_blocking_socket_operation);
-        IL2CPP_UNREACHABLE;
+        Il2CppThread* t = reinterpret_cast<Il2CppThread*>(thread);
+        t->internal_thread->handle->QueueUserAPC(abort_apc, NULL);
     }
 
     void Socket::Connect_internal(Il2CppIntPtr sock, Il2CppSocketAddress* sa, int32_t* error)
