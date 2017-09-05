@@ -1093,6 +1093,17 @@ inline Il2CppObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* async
 #endif
 }
 
+inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(Il2CppClass* genericClass)
+{
+    IL2CPP_ASSERT(genericClass->generic_class);
+    return genericClass->generic_class->context.class_inst;
+}
+
+inline Il2CppClass* il2cpp_codegen_inflate_generic_class(Il2CppClass* genericClassDefinition, const Il2CppGenericInst* genericInst)
+{
+    return il2cpp::vm::Class::GetInflatedGenericInstanceClass(genericClassDefinition, genericInst);
+}
+
 inline void il2cpp_codegen_write_to_stdout(const char* str)
 {
     il2cpp::utils::Output::WriteToStdout(str);

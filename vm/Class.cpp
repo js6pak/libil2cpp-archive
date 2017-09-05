@@ -1479,11 +1479,14 @@ namespace vm
 
     Il2CppClass* Class::GetInflatedGenericInstanceClass(Il2CppClass* klass, const metadata::Il2CppTypeVector& types)
     {
+        return GetInflatedGenericInstanceClass(klass, MetadataCache::GetGenericInst(types));
+    }
+
+    Il2CppClass* Class::GetInflatedGenericInstanceClass(Il2CppClass* klass, const Il2CppGenericInst* genericInst)
+    {
         IL2CPP_ASSERT(Class::IsGeneric(klass));
 
-        const Il2CppGenericInst* inst = MetadataCache::GetGenericInst(types);
-        Il2CppGenericClass* gclass = GenericMetadata::GetGenericClass(klass, inst);
-
+        Il2CppGenericClass* gclass = GenericMetadata::GetGenericClass(klass, genericInst);
         return GenericClass::GetClass(gclass);
     }
 
