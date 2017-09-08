@@ -69,8 +69,10 @@ static void RegisterAPIFunction(const char* name, void* symbol)
 void il2cpp_api_register_symbols(void)
 {
     #define DO_API(r, n, p) RegisterAPIFunction(#n, (void*)n);
+    #define DO_API_NO_RETURN(r, n, p) DO_API(r, n, p)
     #include "il2cpp-api-functions.h"
     #undef DO_API
+    #undef DO_API_NO_RETURN
 }
 
 void* il2cpp_api_lookup_symbol(const char* name)
