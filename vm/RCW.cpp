@@ -299,6 +299,7 @@ namespace vm
             // Current list of unboxable classes:
             //     Windows.Foundation.IReference`1<T>
             //     System.Collections.Generic.KeyValuePair`2<K, V>
+            //     System.Uri
             Il2CppObject* reboxed = ReboxIfBoxed(comObject, objectClass);
             if (reboxed != NULL)
                 return reboxed;
