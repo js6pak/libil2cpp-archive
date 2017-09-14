@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "BlobReader.h"
 #include "utils/MemoryRead.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "il2cpp-vm-support.h"
 
 namespace il2cpp

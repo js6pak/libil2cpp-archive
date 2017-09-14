@@ -2,18 +2,18 @@
 
 #include <stdint.h>
 #include "il2cpp-config.h"
-#include "blob.h"
-#include "class-internals.h"
+#include "il2cpp-blob.h"
+#include "il2cpp-class-internals.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "utils/dynamic_array.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "Exception.h"
 #include "Type.h"
 
 #if NET_4_0
 #include "vm/MetadataCache.h"
-#include "tabledefs.h"
+#include "il2cpp-tabledefs.h"
 #endif
 
 
@@ -26,7 +26,6 @@ struct MethodInfo;
 struct Il2CppImage;
 struct Il2CppReflectionType;
 struct Il2CppType;
-struct Il2CppDebugTypeInfo;
 struct Il2CppGenericContainer;
 struct Il2CppGenericContext;
 struct Il2CppGenericParameter;
@@ -86,8 +85,8 @@ namespace vm
         static bool HasAttribute(Il2CppClass *klass, Il2CppClass *attr_class);
         static bool IsEnum(const Il2CppClass *klass);
         static const Il2CppImage* GetImage(Il2CppClass* klass);
-        static const Il2CppDebugTypeInfo *GetDebugInfo(const Il2CppClass *klass);
         static const char *GetAssemblyName(const Il2CppClass *klass);
+        static const char *GetAssemblyNameNoExtension(const Il2CppClass *klass);
 
     public:
         //internal

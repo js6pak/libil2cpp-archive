@@ -27,7 +27,7 @@ static int32_t cpu_info_usage(void* prev)
 {
     // Note : Implementing CpuInfo on all platforms will be challenging, so for now we are going to cheat
     // and always say it's low
-#if IL2CPP_ENABLE_CPU_INFO
+#if !IL2CPP_USE_GENERIC_CPU_INFO
     return il2cpp::os::CpuInfo::Usage(prev);
 #else
     return CPU_USAGE_LOW;

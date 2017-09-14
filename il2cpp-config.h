@@ -50,8 +50,12 @@
     #define INTPTR_MAX 2147483647
 #endif
 
-#ifndef IL2CPP_METHOD_ATTR
-#define IL2CPP_METHOD_ATTR
+#if IL2CPP_TARGET_DARWIN
+    #define IL2CPP_METHOD_ATTR
+// the following gives more accurate managed stack traces, but may cause linker errors on ARMv7 builds
+// #define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT,__managed,regular,pure_instructions")))
+#else
+    #define IL2CPP_METHOD_ATTR
 #endif
 
 #if defined(_MSC_VER)
@@ -61,8 +65,12 @@
 #endif
 
 #if IL2CPP_COMPILER_MSVC
+#ifndef STDCALL
 #define STDCALL __stdcall
+#endif STDCALL
+#ifndef CDECL
 #define CDECL __cdecl
+#endif
 #else
 #define STDCALL
 #define CDECL
@@ -192,11 +200,7 @@
     #define IL2CPP_ZERO_LEN_ARRAY 0
 #endif
 
-#if defined(_MSC_VER)
-    #define IL2CPP_HAS_CXX_CONSTEXPR (_MSC_VER >= 1900)
-#else
-    #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
-#endif
+#define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
 
 /* clang specific __has_builtin check */
 #ifndef __has_builtin
@@ -284,14 +288,6 @@ typedef uint32_t Il2CppMethodSlot;
     #define IL2CPP_DIR_SEPARATOR '/'    /* forward slash */
 #endif
 
-#ifndef IL2CPP_DEBUGGER_ENABLED
-    #define IL2CPP_DEBUGGER_ENABLED 0
-#endif
-
-#ifndef IL2CPP_DEBUGGER_LOG
-    #define IL2CPP_DEBUGGER_LOG 0
-#endif
-
 #ifndef IL2CPP_DISABLE_FULL_MESSAGES
     #define IL2CPP_DISABLE_FULL_MESSAGES    1
 #endif
@@ -315,6 +311,10 @@ typedef uint32_t Il2CppMethodSlot;
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
+#endif
+
+#ifndef IL2CPP_USE_GENERIC_FILE
+#define IL2CPP_USE_GENERIC_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_DARWIN)
 #endif
 
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
@@ -360,7 +360,7 @@ const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
 
 const int ipv6AddressSize = 16;
-#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_SWITCH
+#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
@@ -448,9 +448,9 @@ const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #endif
 
 #if IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2
-#define IL2CPP_ENABLE_CPU_INFO 0
+#define IL2CPP_USE_GENERIC_CPU_INFO 1
 #else
-#define IL2CPP_ENABLE_CPU_INFO 1
+#define IL2CPP_USE_GENERIC_CPU_INFO 0
 #endif
 
 #define IL2CPP_CAN_CHECK_EXECUTABLE IL2CPP_TARGET_WINDOWS || (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4)

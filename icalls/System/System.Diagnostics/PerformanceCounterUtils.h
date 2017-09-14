@@ -1,6 +1,6 @@
 #pragma once
 
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 
 namespace il2cpp
 {

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include "il2cpp-config.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 
 struct mscorlib_System_Runtime_InteropServices_DllImportAttribute;
 struct mscorlib_System_Reflection_MethodInfo;

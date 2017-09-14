@@ -3,12 +3,8 @@
 #include "vm/AssemblyName.h"
 #include "vm/MetadataCache.h"
 #include "vm/Runtime.h"
-#include "tabledefs.h"
-#include "class-internals.h"
-
-#if IL2CPP_DEBUGGER_ENABLED
-    #include "il2cpp-debugger.h"
-#endif
+#include "il2cpp-tabledefs.h"
+#include "il2cpp-class-internals.h"
 
 #include <vector>
 #include <string>
@@ -114,12 +110,6 @@ namespace vm
 
     void Assembly::Initialize()
     {
-        for (AssemblyVector::const_iterator assembly = s_Assemblies.begin(); assembly != s_Assemblies.end(); ++assembly)
-        {
-#if IL2CPP_DEBUGGER_ENABLED
-            il2cpp_debugger_notify_assembly_load(*assembly);
-#endif
-        }
     }
 } /* namespace vm */
 } /* namespace il2cpp */

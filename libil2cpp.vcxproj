@@ -482,7 +482,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -505,7 +505,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -528,7 +528,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -551,7 +551,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -574,7 +574,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=0;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -597,7 +597,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=0;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -620,7 +620,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=0;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -643,7 +643,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=0;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -666,7 +666,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -689,7 +689,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -712,7 +712,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=0;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -735,7 +735,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=0;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -758,7 +758,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;IL2CPP_DEBUGGER_LOG=1;IL2CPP_UNIT_TESTS_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;IL2CPP_UNIT_TESTS_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -781,7 +781,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;IL2CPP_DEBUGGER_LOG=1;IL2CPP_UNIT_TESTS_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;IL2CPP_UNIT_TESTS_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -804,7 +804,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_DEBUG;_LIB;IL2CPP_DEBUGGER_ENABLED=1;IL2CPP_DEBUGGER_LOG=1;IL2CPP_UNIT_TESTS_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;IL2CPP_UNIT_TESTS_ENABLED=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -829,7 +829,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -851,7 +851,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -873,7 +873,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -895,7 +895,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -917,7 +917,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -939,7 +939,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -961,7 +961,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -983,7 +983,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -1005,7 +1005,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -1027,7 +1027,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -1049,7 +1049,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -1071,7 +1071,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINDOWS_SDK_BUILD_VERSION=10240;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_LIB;NET_4_0=1;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\..\external\boehmgc\include;.\;..\libmono</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
@@ -1093,37 +1093,6 @@
     <ClInclude Include="codegen\il2cpp-codegen-il2cpp.h" />
     <ClInclude Include="codegen\il2cpp-codegen-mono.h" />
     <ClInclude Include="codegen\il2cpp-codegen.h" />
-    <ClInclude Include="debugger\agent.h" />
-    <ClInclude Include="debugger\command-line-parser.h" />
-    <ClInclude Include="debugger\common.h" />
-    <ClInclude Include="debugger\data-buffer.h" />
-    <ClInclude Include="debugger\event-request.h" />
-    <ClInclude Include="debugger\id-bank.h" />
-    <ClInclude Include="debugger\il2cpp-api-test-forwarder.h" />
-    <ClInclude Include="debugger\meta.h" />
-    <ClInclude Include="debugger\protocol\commands\app-domain.h" />
-    <ClInclude Include="debugger\protocol\commands\array-ref.h" />
-    <ClInclude Include="debugger\protocol\commands\assembly.h" />
-    <ClInclude Include="debugger\protocol\commands\event-request.h" />
-    <ClInclude Include="debugger\protocol\commands\event.h" />
-    <ClInclude Include="debugger\protocol\commands\internal-error.h" />
-    <ClInclude Include="debugger\protocol\commands\method.h" />
-    <ClInclude Include="debugger\protocol\commands\module.h" />
-    <ClInclude Include="debugger\protocol\commands\object-ref.h" />
-    <ClInclude Include="debugger\protocol\commands\stack-frame.h" />
-    <ClInclude Include="debugger\protocol\commands\string-ref.h" />
-    <ClInclude Include="debugger\protocol\commands\thread.h" />
-    <ClInclude Include="debugger\protocol\commands\type.h" />
-    <ClInclude Include="debugger\protocol\commands\vm.h" />
-    <ClInclude Include="debugger\protocol\events.h" />
-    <ClInclude Include="debugger\protocol\globals.h" />
-    <ClInclude Include="debugger\protocol\protocol-utils.h" />
-    <ClInclude Include="debugger\protocol\protocol.h" />
-    <ClInclude Include="debugger\protocol\utils.h" />
-    <ClInclude Include="debugger\thread-data.h" />
-    <ClInclude Include="debugger\transport-tcp.h" />
-    <ClInclude Include="debugger\transport.h" />
-    <ClInclude Include="debugger\variant.h" />
     <ClInclude Include="externals\MonoPosixHelper.h" />
     <ClInclude Include="external\google\sparsehash\densehashtable.h" />
     <ClInclude Include="external\google\sparsehash\dense_hash_map.h" />
@@ -1289,7 +1258,6 @@
     <ClInclude Include="il2cpp-api-types.h" />
     <ClInclude Include="il2cpp-api.h" />
     <ClInclude Include="il2cpp-config.h" />
-    <ClInclude Include="il2cpp-debugger.h" />
     <ClInclude Include="il2cpp-metadata.h" />
     <ClInclude Include="il2cpp-string-types.h" />
     <ClInclude Include="il2cpp-vm-support.h" />
@@ -1331,14 +1299,18 @@
     <ClInclude Include="os\c-api\Atomic-c-api.h" />
     <ClInclude Include="os\c-api\COM-c-api.h" />
     <ClInclude Include="os\c-api\ConditionVariable-c-api.h" />
+    <ClInclude Include="os\c-api\Console-c-api.h" />
     <ClInclude Include="os\c-api\CpuInfo-c-api.h" />
     <ClInclude Include="os\c-api\Cryptography-c-api.h" />
     <ClInclude Include="os\c-api\Debug-c-api.h" />
     <ClInclude Include="os\c-api\Directory-c-api.h" />
     <ClInclude Include="os\c-api\Environment-c-api.h" />
     <ClInclude Include="os\c-api\Error-c-api.h" />
+    <ClInclude Include="os\c-api\Event-c-api.h" />
     <ClInclude Include="os\c-api\File-c-api.h" />
+    <ClInclude Include="os\c-api\Handle-c-api.h" />
     <ClInclude Include="os\c-api\il2cpp-config-platforms.h" />
+    <ClInclude Include="os\c-api\LibraryLoader-c-api.h" />
     <ClInclude Include="os\c-api\Locale-c-api.h" />
     <ClInclude Include="os\c-api\Memory-c-api.h" />
     <ClInclude Include="os\c-api\MemoryMappedFile-c-api.h" />
@@ -1349,10 +1321,12 @@
     <ClInclude Include="os\c-api\Path-c-api.h" />
     <ClInclude Include="os\c-api\Posix\AtomicImpl-c-api.h" />
     <ClInclude Include="os\c-api\Process-c-api.h" />
+    <ClInclude Include="os\c-api\Semaphore-c-api.h" />
     <ClInclude Include="os\c-api\Thread-c-api.h" />
     <ClInclude Include="os\c-api\ThreadLocalValue-c-api.h" />
     <ClInclude Include="os\c-api\Time-c-api.h" />
     <ClInclude Include="os\c-api\TimeZone-c-api.h" />
+    <ClInclude Include="os\c-api\WaitStatus-c-api.h" />
     <ClInclude Include="os\c-api\Win32\AtomicImpl-c-api.h" />
     <ClInclude Include="os\c-api\Win32\WindowsHeaders.h" />
     <ClInclude Include="os\ConditionVariable.h" />
@@ -1517,46 +1491,6 @@
   <ItemGroup>
     <ClCompile Include="char-conversions.cpp" />
     <ClCompile Include="class-internals.cpp" />
-    <ClCompile Include="debugger\agent.cpp" />
-    <ClCompile Include="debugger\command-line-parser.cpp" />
-    <ClCompile Include="debugger\data-buffer.cpp" />
-    <ClCompile Include="debugger\event-request.cpp" />
-    <ClCompile Include="debugger\handlers\app-domain.cpp" />
-    <ClCompile Include="debugger\handlers\array-ref.cpp" />
-    <ClCompile Include="debugger\handlers\assembly.cpp" />
-    <ClCompile Include="debugger\handlers\event-request.cpp" />
-    <ClCompile Include="debugger\handlers\event.cpp" />
-    <ClCompile Include="debugger\handlers\internal-error.cpp" />
-    <ClCompile Include="debugger\handlers\method.cpp" />
-    <ClCompile Include="debugger\handlers\module.cpp" />
-    <ClCompile Include="debugger\handlers\object-ref.cpp" />
-    <ClCompile Include="debugger\handlers\stack-frame.cpp" />
-    <ClCompile Include="debugger\handlers\string-ref.cpp" />
-    <ClCompile Include="debugger\handlers\thread.cpp" />
-    <ClCompile Include="debugger\handlers\type.cpp" />
-    <ClCompile Include="debugger\handlers\vm.cpp" />
-    <ClCompile Include="debugger\id-brank.cpp" />
-    <ClCompile Include="debugger\il2cpp-api-test-forwarder.cpp" />
-    <ClCompile Include="debugger\protocol\commands\app-domain.cpp" />
-    <ClCompile Include="debugger\protocol\commands\array-ref.cpp" />
-    <ClCompile Include="debugger\protocol\commands\assembly.cpp" />
-    <ClCompile Include="debugger\protocol\commands\event-request.cpp" />
-    <ClCompile Include="debugger\protocol\commands\event.cpp" />
-    <ClCompile Include="debugger\protocol\commands\internal-error.cpp" />
-    <ClCompile Include="debugger\protocol\commands\method.cpp" />
-    <ClCompile Include="debugger\protocol\commands\module.cpp" />
-    <ClCompile Include="debugger\protocol\commands\object-ref.cpp" />
-    <ClCompile Include="debugger\protocol\commands\stack-frame.cpp" />
-    <ClCompile Include="debugger\protocol\commands\string-ref.cpp" />
-    <ClCompile Include="debugger\protocol\commands\thread.cpp" />
-    <ClCompile Include="debugger\protocol\commands\type.cpp" />
-    <ClCompile Include="debugger\protocol\commands\vm.cpp" />
-    <ClCompile Include="debugger\protocol\events.cpp" />
-    <ClCompile Include="debugger\protocol\protocol.cpp" />
-    <ClCompile Include="debugger\protocol\utils.cpp" />
-    <ClCompile Include="debugger\thread-data.cpp" />
-    <ClCompile Include="debugger\transport-tcp.cpp" />
-    <ClCompile Include="debugger\variant.cpp" />
     <ClCompile Include="externals\MonoPosixHelper.cpp" />
     <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c" />
     <ClCompile Include="gc\GarbageCollector.cpp" />
@@ -1701,7 +1635,6 @@
     <ClCompile Include="icalls\System\System.Net\Dns.cpp" />
     <ClCompile Include="icalls\System\System.Threading\Semaphore.cpp" />
     <ClCompile Include="icalls\System\System\IOSelector.cpp" />
-    <ClCompile Include="il2cpp-debugger.cpp" />
     <ClCompile Include="gc\BoehmGC.cpp" />
     <ClCompile Include="gc\GCHandle.cpp" />
     <ClCompile Include="gc\NullGC.cpp" />
@@ -1735,17 +1668,22 @@
     <ClCompile Include="os\c-api\Allocator.cpp" />
     <ClInclude Include="os\c-api\COM.cpp" />
     <ClInclude Include="os\c-api\ConditionVariable.cpp" />
+    <ClInclude Include="os\c-api\Console.cpp" />
     <ClInclude Include="os\c-api\CpuInfo.cpp" />
     <ClInclude Include="os\c-api\Cryptography.cpp" />
     <ClCompile Include="os\c-api\Environment.cpp" />
+    <ClCompile Include="os\c-api\Event.cpp" />
+    <ClCompile Include="os\c-api\Handle.cpp" />
     <ClCompile Include="os\c-api\Memory.cpp" />
     <ClCompile Include="os\c-api\Mutex.cpp" />
+    <ClCompile Include="os\c-api\Semaphore.cpp" />
     <ClCompile Include="os\c-api\Thread.cpp" />
     <ClCompile Include="os\ConditionVariable.cpp" />
     <ClInclude Include="os\c-api\Debug.cpp" />
     <ClInclude Include="os\c-api\Directory.cpp" />
     <ClCompile Include="os\c-api\Error.cpp" />
     <ClCompile Include="os\c-api\File.cpp" />
+    <ClCompile Include="os\c-api\LibraryLoader.cpp" />
     <ClCompile Include="os\c-api\Locale.cpp" />
     <ClCompile Include="os\c-api\MemoryMappedFile.cpp" />
     <ClCompile Include="os\c-api\Messages.cpp" />
@@ -1758,12 +1696,14 @@
     <ClCompile Include="os\Debug.cpp" />
     <ClCompile Include="os\Error.cpp" />
     <ClCompile Include="os\Event.cpp" />
+    <ClCompile Include="os\Generic\CpuInfo.cpp" />
     <ClCompile Include="os\Generic\Environment.cpp" />
     <ClCompile Include="os\Generic\Initialize.cpp" />
     <ClCompile Include="os\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Generic\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Generic\SocketImpl.cpp" />
     <ClCompile Include="os\Generic\WindowsRuntime.cpp" />
+    <ClCompile Include="os\Handle.cpp" />
     <ClCompile Include="os\Messages.cpp" />
     <ClCompile Include="os\OSX\Image.cpp" />
     <ClCompile Include="os\OSX\Process.cpp" />

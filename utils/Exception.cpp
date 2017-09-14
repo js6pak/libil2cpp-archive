@@ -1,6 +1,6 @@
 #include "utils/Exception.h"
 #include "utils/StringUtils.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 
 namespace il2cpp
 {

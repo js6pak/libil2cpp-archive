@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
-#include "object-internals.h"
-#include "class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-class-internals.h"
 #include "il2cpp-vm-support.h"
 #include "gc/GCHandle.h"
 #include "metadata/GenericMetadata.h"

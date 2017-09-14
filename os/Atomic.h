@@ -8,9 +8,6 @@ namespace il2cpp
 {
 namespace os
 {
-// On Windows, MemoryBarrier is defined as a macro on x64. Conflicts with MemoryBarrier in Atomic.h.
-#undef MemoryBarrier
-
     class Atomic : public il2cpp::utils::NonCopyable
     {
     public:
@@ -20,7 +17,7 @@ namespace os
         // Add and Add64 return the *result* of the addition, not the old value! (i.e. they work like
         // InterlockedAdd and __sync_add_and_fetch).
 
-        static inline void MemoryBarrier();
+        static inline void FullMemoryBarrier();
 
         static inline int32_t Add(volatile int32_t* location1, int32_t value)
         {
@@ -158,7 +155,7 @@ namespace il2cpp
 {
 namespace os
 {
-    inline void Atomic::MemoryBarrier()
+    inline void Atomic::FullMemoryBarrier()
     {
         // Do nothing.
     }

@@ -26,7 +26,7 @@
 #include "vm/String.h"
 #include "vm/Type.h"
 #include "vm/Array.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "mono-structs.h"
 #include <limits>
 
@@ -509,7 +509,7 @@ namespace Reflection
         std::vector<EmbeddedResourceRecord> resourceRecords = GetResourceRecords(assembly);
         if (std::find_if(resourceRecords.begin(), resourceRecords.end(), ResourceNameMatcher(utils::StringUtils::Utf16ToUtf8(name->chars))) != resourceRecords.end())
         {
-            info->location = RESOURCE_LOCATION_EMBEDDED | RESOURCE_LOCATION_IN_MANIFEST;
+            info->location = IL2CPP_RESOURCE_LOCATION_EMBEDDED | IL2CPP_RESOURCE_LOCATION_IN_MANIFEST;
 
             NOT_IMPLEMENTED_ICALL_NO_ASSERT(Assembly::GetManifestResourceInfoInternal, "We have not yet implemented file or assembly resources.");
 

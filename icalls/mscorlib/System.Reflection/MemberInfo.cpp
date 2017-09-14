@@ -2,7 +2,7 @@
 
 #include "icalls/mscorlib/System.Reflection/MemberInfo.h"
 #include "vm/Exception.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Reflection.h"
 #include "vm/Field.h"
 #include "vm/Property.h"

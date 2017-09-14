@@ -1,7 +1,7 @@
 #if NET_4_0
 
 #include "il2cpp-config.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "il2cpp-api.h"
 #include "EventInfo.h"
 #include "vm/Class.h"

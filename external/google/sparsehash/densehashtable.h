@@ -404,7 +404,7 @@ class dense_hashtable {
 
     Assert(!table);                  // must set before first use
     // num_buckets was set in constructor even though table was NULL
-	table = _Alval.allocate(num_buckets);
+  table = _Alval.allocate(num_buckets);
     Assert(table);
     fill_range_with_empty(table, table + num_buckets);
   }
@@ -426,7 +426,7 @@ class dense_hashtable {
  private:
   // This is the smallest size a hashtable can be without being too crowded
   // If you like, you can give a min #buckets as well as a min #elts
-  size_type min_size(size_type num_elts, size_type min_buckets_wanted) {
+  size_type min_size(size_type num_elts, size_type min_buckets_wanted) const {
     size_type sz = HT_MIN_BUCKETS;             // min buckets allowed
     while ( sz < min_buckets_wanted || num_elts >= sz * HT_OCCUPANCY_FLT )
       sz *= 2;
@@ -434,7 +434,9 @@ class dense_hashtable {
   }
 
   // Used after a string of deletes
-  void maybe_shrink() {
+  // Returns true if actually resized.
+  bool maybe_shrink() {
+  bool did_resize = false;
     Assert(num_elements >= num_deleted);
     Assert((bucket_count() & (bucket_count()-1)) == 0); // is a power of two
     Assert(bucket_count() >= HT_MIN_BUCKETS);
@@ -447,18 +449,22 @@ class dense_hashtable {
         sz /= 2;                            // stay a power of 2
       dense_hashtable tmp(*this, sz);       // Do the actual resizing
       swap(tmp);                            // now we are tmp
+    did_resize = true;
     }
     consider_shrink = false;                // because we just considered it
+  return did_resize;
   }
 
   // We'll let you resize a hashtable -- though this makes us copy all!
   // When you resize, you say, "make it big enough for this many more elements"
-  void resize_delta(size_type delta, size_type min_buckets_wanted = 0) {
+  // Returns true if actually resized.
+  bool resize_delta(size_type delta, size_type min_buckets_wanted = 0) {
+  bool did_resize = false;
     if ( consider_shrink )                   // see if lots of deletes happened
-      maybe_shrink();
+      did_resize = maybe_shrink();
     if ( bucket_count() > min_buckets_wanted &&
          (num_elements + delta) <= enlarge_threshold )
-      return;                                // we're ok as we are
+      return did_resize;                     // we're ok as we are
 
     // Sometimes, we need to resize just to get rid of all the
     // "deleted" buckets that are clogging up the hashtable.  So when
@@ -473,7 +479,9 @@ class dense_hashtable {
                                            min_buckets_wanted);
       dense_hashtable tmp(*this, resize_to);
       swap(tmp);                             // now we are tmp
+    did_resize = true;
     }
+  return did_resize;
   }
 
   // Increase number of buckets, assuming value_type has trivial copy
@@ -482,17 +490,17 @@ class dense_hashtable {
   // capture that using type_traits, so we pretend that move(x, y) is
   // equivalent to "x.~T(); new(x) T(y);" which is pretty much
   // correct, if a bit conservative.)
-	void expand_array(size_t resize_to, dense_hash_map_traits::true_type) {
-		value_type* new_table = _Alval.allocate(resize_to);
-		Assert(new_table);
-		if(table)
-		{
-			std::uninitialized_copy(table, table + num_buckets, new_table);
-			_Alval.deallocate(table, num_buckets);
-		}
-		fill_range_with_empty(new_table + num_buckets, new_table + resize_to);
-		table = new_table;
-		Assert(table);
+  void expand_array(size_t resize_to, dense_hash_map_traits::true_type) {
+    value_type* new_table = _Alval.allocate(resize_to);
+    Assert(new_table);
+    if(table)
+    {
+      std::uninitialized_copy(table, table + num_buckets, new_table);
+      _Alval.deallocate(table, num_buckets);
+    }
+    fill_range_with_empty(new_table + num_buckets, new_table + resize_to);
+    table = new_table;
+    Assert(table);
   }
 
   // Increase number of buckets, without special assumptions about value_type.
@@ -552,7 +560,7 @@ class dense_hashtable {
     if ( consider_shrink || req_elements == 0 )
       maybe_shrink();
     if ( req_elements > num_elements )
-      return resize_delta(req_elements - num_elements, 0);
+      resize_delta(req_elements - num_elements, 0);
   }
 
 
@@ -636,18 +644,18 @@ class dense_hashtable {
     if (table)
       destroy_buckets(0, num_buckets);
 
-	size_type old_bucket_count = num_buckets;
-	num_buckets = min_size(0,0);          // our new size
+  size_type old_bucket_count = num_buckets;
+  num_buckets = min_size(0,0);          // our new size
     reset_thresholds();
-	value_type* new_table = _Alval.allocate(num_buckets);
-	Assert(new_table);
-	if(table)
-		_Alval.deallocate(table, old_bucket_count);
-	table = new_table;
-	Assert(table);
-	fill_range_with_empty(table, table + num_buckets);
-	num_elements = 0;
-	num_deleted = 0;
+  value_type* new_table = _Alval.allocate(num_buckets);
+  Assert(new_table);
+  if(table)
+    _Alval.deallocate(table, old_bucket_count);
+  table = new_table;
+  Assert(table);
+  fill_range_with_empty(table, table + num_buckets);
+  num_elements = 0;
+  num_deleted = 0;
   }
 
   // Clear the table without resizing it.
@@ -670,10 +678,10 @@ class dense_hashtable {
   // if object is not found; 2nd is ILLEGAL_BUCKET if it is.
   // Note: because of deletions where-to-insert is not trivial: it's the
   // first deleted bucket we see, as long as we don't find the key later
-  pair<size_type, size_type> find_position(const key_type &key) const {
+  pair<size_type, size_type> find_position_with_hash(const key_type &key, size_type hash_) const {
     size_type num_probes = 0;              // how many times we've probed
     const size_type bucket_count_minus_one = bucket_count() - 1;
-    size_type bucknum = hash(key) & bucket_count_minus_one;
+    size_type bucknum = hash_ & bucket_count_minus_one;
     size_type insert_pos = ILLEGAL_BUCKET; // where we would insert
     while ( 1 ) {                          // probe until something happens
       if ( test_empty(bucknum) ) {         // bucket is empty
@@ -695,6 +703,9 @@ class dense_hashtable {
     }
   }
 
+  pair<size_type, size_type> find_position(const key_type &key) const {
+    return find_position_with_hash(key, hash(key));
+  }
  public:
   iterator find(const key_type& key) {
     if ( size() == 0 ) return end();
@@ -758,11 +769,121 @@ class dense_hashtable {
   }
 
  public:
+  
+  // Returns true in the first element of the pair if the insertion of <delta> elements would cause the table to be recreated,
+  // either due to growing or shrinking. The second element of the pair indicates the new size, if resizing.
+  pair<bool, size_type> would_resize(size_type delta = 1, size_type min_buckets_wanted = 0) const {
+  if (consider_shrink && // Make sure the condition after this is identical to the one in maybe_resize()
+    (num_elements - num_deleted) < shrink_threshold &&
+    bucket_count() > HT_MIN_BUCKETS) {
+
+    size_type sz = bucket_count() / 2;    // find how much we should shrink
+    while (sz > HT_MIN_BUCKETS &&
+      (num_elements - num_deleted) < sz * HT_EMPTY_FLT)
+      sz /= 2;                            // stay a power of 2
+
+    return pair<bool, size_type>(true, sz); // Would shrink
+  }
+
+  // Make sure this code is kept identical to the one in resize_delta()
+  if (bucket_count() > min_buckets_wanted &&
+    (num_elements + delta) <= enlarge_threshold)
+    return pair<bool, size_type>(false, 0); // we're ok as we are
+
+                        // Sometimes, we need to resize just to get rid of all the
+                        // "deleted" buckets that are clogging up the hashtable.  So when
+                        // deciding whether to resize, count the deleted buckets (which
+                        // are currently taking up room).  But later, when we decide what
+                        // size to resize to, *don't* count deleted buckets, since they
+                        // get discarded during the resize.
+  const size_type needed_size = min_size(num_elements + delta,
+    min_buckets_wanted);
+  if (needed_size > bucket_count()) {
+    const size_type resize_to = min_size(num_elements - num_deleted + delta,
+      min_buckets_wanted);
+
+    return pair<bool, size_type>(true, resize_to);
+  }
+
+  return pair<bool, size_type>(false, 0);
+  }
+ 
   // This is the normal insert routine, used by the outside world
   pair<iterator, bool> insert(const value_type& obj) {
     resize_delta(1);                      // adding an object, grow if need be
     return insert_noresize(obj);
   }
+  
+  // Same as insert above, but doesn't overwrite if a value already exists.
+  pair<iterator, bool> find_or_insert(const value_type& obj) {
+    const key_type &key = get_key(obj);
+    size_type hash_ = hash(key);
+    pair<size_type, size_type> pos = find_position_with_hash(key, hash_);
+    if (pos.first != ILLEGAL_BUCKET) {      // object was already there
+      return pair<iterator, bool>(iterator(this, table + pos.first,
+        table + num_buckets, false),
+        false);          // false: we didn't insert
+    }
+    else {
+      // If we resize here, need to search position again
+      if (resize_delta(1)) {
+        pos = find_position_with_hash(key, hash_);
+      }
+
+      // pos.second says where to put it
+      if (test_deleted(pos.second)) {      // just replace if it's been del.
+        const_iterator delpos(this, table + pos.second,              // shrug:
+          table + num_buckets, false);// shouldn't need const
+        clear_deleted(delpos);
+        Assert(num_deleted > 0);
+        --num_deleted;                       // used to be, now it isn't
+      }
+      else {
+        ++num_elements;                      // replacing an empty bucket
+      }
+      // The value is left uninitialized here.
+      set_value(&table[pos.second], obj);
+      return pair<iterator, bool>(iterator(this, table + pos.second,
+        table + num_buckets, false),
+        true);           // true: we did insert
+    }
+  }
+
+  // Same as find_or_insert, but fails (returns pair(end(), false)) if it would have to resize the map.
+  pair<iterator, bool> find_or_insert_noresize(const value_type& obj) {
+    const key_type &key = get_key(obj);
+    size_type hash_ = hash(key);
+    pair<size_type, size_type> pos = find_position_with_hash(key, hash_);
+    if (pos.first != ILLEGAL_BUCKET) {      // object was already there
+      return pair<iterator, bool>(iterator(this, table + pos.first,
+        table + num_buckets, false),
+        false);          // false: we didn't insert
+    }
+    else {
+      // If we would have to resize, fail.
+      if (would_resize(1).first) {
+        return pair<iterator, bool>(end(), false);
+      }
+
+      // pos.second says where to put it
+      if (test_deleted(pos.second)) {      // just replace if it's been del.
+        const_iterator delpos(this, table + pos.second,              // shrug:
+          table + num_buckets, false);// shouldn't need const
+        clear_deleted(delpos);
+        Assert(num_deleted > 0);
+        --num_deleted;                       // used to be, now it isn't
+      }
+      else {
+        ++num_elements;                      // replacing an empty bucket
+      }
+      // The value is left uninitialized here.
+      set_value(&table[pos.second], obj);
+      return pair<iterator, bool>(iterator(this, table + pos.second,
+        table + num_buckets, false),
+        true);           // true: we did insert
+    }
+  }
+
 
   // When inserting a lot at a time, we specialize on the type of iterator
   template <class InputIterator>

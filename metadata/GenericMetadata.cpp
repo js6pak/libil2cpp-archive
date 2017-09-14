@@ -18,8 +18,8 @@
 #include "utils/StringUtils.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
-#include "class-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-tabledefs.h"
 #include <sstream>
 #include <vector>
 

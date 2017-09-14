@@ -1,11 +1,11 @@
 #include "il2cpp-config.h"
 #include "icalls/mscorlib/System/Type.h"
 #include "icalls/mscorlib/System/MonoType.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "il2cpp-api.h"
 #include <sstream>
-#include "tabledefs.h"
+#include "il2cpp-tabledefs.h"
 #include "metadata/GenericMetadata.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "vm/Array.h"
@@ -439,7 +439,7 @@ namespace System
         }
     }
 
-    GenericParameterAttributes Type::GetGenericParameterAttributes(Il2CppReflectionType* type)
+    Il2CppGenericParameterAttributes Type::GetGenericParameterAttributes(Il2CppReflectionType* type)
     {
         const Il2CppGenericParameter* genericParameter = vm::Type::GetGenericParameter(type->type);
         if (genericParameter->ownerIndex == kGenericContainerIndexInvalid)

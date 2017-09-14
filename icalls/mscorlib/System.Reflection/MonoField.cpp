@@ -9,8 +9,8 @@
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "vm/Exception.h"
-#include "class-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "vm-utils/BlobReader.h"
 
 using namespace il2cpp::vm;
@@ -50,6 +50,7 @@ namespace Reflection
         FieldInfo* fieldInfo = field->field;
         Il2CppClass* fieldType = Class::FromIl2CppType(fieldInfo->type);
 
+#ifndef NET_4_0 //This check is done in managed code in .NET 4.5+
         if (value != NULL && !Class::IsAssignableFrom(fieldType, value->klass))
         {
             Exception::Raise(Exception::GetArgumentException("value",
@@ -58,6 +59,7 @@ namespace Reflection
                         Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
                         ).c_str()));
         }
+#endif
 
         uint8_t* fieldAddress;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <object-internals.h>
+#include <il2cpp-object-internals.h>
 #include "StringView.h"
 #include "vm/Exception.h"
 #include "vm/WindowsRuntime.h"

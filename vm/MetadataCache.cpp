@@ -3,8 +3,8 @@
 
 #include <map>
 #include <limits>
-#include "class-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
 #include "metadata/ArrayMetadata.h"
 #include "metadata/GenericMetadata.h"
@@ -36,7 +36,6 @@
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataLoader.h"
 #include "vm/MetadataLock.h"
-#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/String.h"
 #include "vm/Type.h"
@@ -1021,11 +1020,6 @@ const Il2CppFieldDefaultValue* MetadataCache::GetFieldDefaultValueForField(const
 
 const Il2CppParameterDefaultValue * il2cpp::vm::MetadataCache::GetParameterDefaultValueForParameter(const MethodInfo* method, const ParameterInfo* parameter)
 {
-    if (Method::IsGenericInstance(method))
-        method = GetGenericMethodDefinition(method);
-
-    IL2CPP_ASSERT(!Method::IsGenericInstance(method));
-
     if (method->methodDefinition == NULL)
         return NULL;
 
