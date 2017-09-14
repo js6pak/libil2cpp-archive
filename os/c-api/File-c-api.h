@@ -48,6 +48,7 @@ int32_t UnityPalClose(UnityPalFileHandle* handle, int *error);
 int32_t UnityPalSetFileTime(UnityPalFileHandle* handle, int64_t creation_time, int64_t last_access_time, int64_t last_write_time, int* error);
 int64_t UnityPalGetLength(UnityPalFileHandle* handle, int *error);
 int32_t UnityPalSetLength(UnityPalFileHandle* handle, int64_t length, int *error);
+int32_t UnityPalTruncate(UnityPalFileHandle* handle, int *error);
 int64_t UnityPalSeek(UnityPalFileHandle* handle, int64_t offset, int origin, int *error);
 int UnityPalRead(UnityPalFileHandle* handle, char *dest, int count, int *error);
 int32_t UnityPalWrite(UnityPalFileHandle* handle, const char* buffer, int count, int *error);

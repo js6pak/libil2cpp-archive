@@ -15,9 +15,9 @@
 #include "vm/Reflection.h"
 #include "vm/String.h"
 #include "vm/Type.h"
-#include "class-internals.h"
-#include "object-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "vm/Array.h"
 
 static char* copy_name(const char* name)

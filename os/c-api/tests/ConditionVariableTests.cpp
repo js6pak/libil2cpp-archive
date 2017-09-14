@@ -14,7 +14,6 @@ SUITE(ConditionVariable)
         ConditionVariableFixture()
         {
             il2cpp::os::Thread::Init();
-            localObject = NULL;
             localObject = UnityPalConditionVariableNew();
             localFastMutex = NULL;
             localFastMutex = UnityPalFastMutexNew();
@@ -24,7 +23,6 @@ SUITE(ConditionVariable)
         {
             UnityPalConditionVariableDelete(localObject);
             UnityPalFastMutexDelete(localFastMutex);
-            il2cpp::os::Thread::Shutdown();
         }
 
         UnityPalConditionVariable* localObject;

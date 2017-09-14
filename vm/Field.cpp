@@ -9,9 +9,9 @@
 #include "vm/String.h"
 #include "vm/Type.h"
 #include <memory>
-#include "class-internals.h"
-#include "object-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "utils/MemoryRead.h"
 #include "vm-utils/BlobReader.h"
 

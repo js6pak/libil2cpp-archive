@@ -11,7 +11,6 @@ struct ParameterInfo;
 struct Il2CppString;
 struct Il2CppType;
 struct Il2CppClass;
-struct Il2CppDebugMethodInfo;
 
 namespace il2cpp
 {
@@ -26,13 +25,11 @@ namespace vm
         static bool IsGeneric(const MethodInfo *method);
         static bool IsInflated(const MethodInfo *method);
         static bool IsInstance(const MethodInfo *method);
-        static bool IsGenericInstance(const MethodInfo *method);
         static uint32_t GetParamCount(const MethodInfo *method);
         static const Il2CppType* GetParam(const MethodInfo *method, uint32_t index);
         static Il2CppClass* GetClass(const MethodInfo *method);
         static bool HasAttribute(const MethodInfo *method, Il2CppClass *attr_class);
         static Il2CppClass *GetDeclaringType(const MethodInfo* method);
-        static const Il2CppDebugMethodInfo *GetDebugInfo(const MethodInfo *method);
         static uint32_t GetImplementationFlags(const MethodInfo *method);
         static uint32_t GetFlags(const MethodInfo *method);
         static uint32_t GetToken(const MethodInfo *method);

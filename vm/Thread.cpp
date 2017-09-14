@@ -18,14 +18,10 @@
 #include "gc/GCHandle.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include <algorithm>
 #include <map>
-
-#if IL2CPP_DEBUGGER_ENABLED
-#include "../il2cpp-debugger.h"
-#endif
 
 using namespace il2cpp::os;
 using il2cpp::gc::GarbageCollector;
@@ -130,10 +126,6 @@ namespace vm
         Register(thread);
         AdjustStaticData();
 
-#if IL2CPP_DEBUGGER_ENABLED
-        il2cpp_debugger_notify_thread_attach(thread);
-#endif
-
         // Sync thread name.
         if (thread->GetInternalThread()->name)
         {
@@ -164,10 +156,6 @@ namespace vm
 
         if (!GarbageCollector::UnregisterThread())
             IL2CPP_ASSERT(0 && "GarbageCollector::UnregisterThread failed");
-
-#if IL2CPP_DEBUGGER_ENABLED
-        il2cpp_debugger_notify_thread_detach(thread);
-#endif
 
         Unregister(thread);
         FreeThreadStaticData(thread);
@@ -746,9 +734,9 @@ namespace vm
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetThreadStateException("Unable to reset abort because no abort was requested."));
     }
 
-    void Thread::MemoryBarrier()
+    void Thread::FullMemoryBarrier()
     {
-        os::Atomic::MemoryBarrier();
+        os::Atomic::FullMemoryBarrier();
     }
 
     int32_t Thread::GetNewManagedId()

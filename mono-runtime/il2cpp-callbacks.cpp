@@ -10,8 +10,8 @@
 #include "../libmono/vm/MetadataCache.h"
 #include "il2cpp-callbacks.h"
 #include "il2cpp-mono-support.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include <iterator>
 #include "os/Thread.h"
 #include "os/c-api/Allocator.h"
@@ -41,7 +41,7 @@ static void mono_thread_attach_cb(intptr_t tid, void* stack_start)
     mono::vm::StackTrace::InitializeStackTracesForCurrentThread();
 }
 
-static void mono_thread_cleanup_cb(intptr_t tid)
+static void mono_thread_cleanup_cb(MonoNativeThreadId tid)
 {
     //assert(tid == il2cpp::os::Thread::CurrentThreadId());
     //mono::vm::StackTrace::CleanupStackTracesForCurrentThread();

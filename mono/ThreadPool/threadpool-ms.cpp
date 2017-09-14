@@ -40,7 +40,7 @@
 #include "mono/ThreadPool/ThreadPoolMacros.h"
 #include "mono/ThreadPool/ThreadPoolMonitorThread.h"
 #include "mono/ThreadPool/ThreadPoolWorkerThread.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "os/CpuInfo.h"
 #include "os/Environment.h"
 #include "os/Mutex.h"
@@ -135,13 +135,7 @@ mono_method_call_message_new(MethodInfo *method, void* *params, MethodInfo *invo
 
 static void* cpu_info_create()
 {
-	// Note : Implementing CpuInfo on all platforms will be challenging, so for now we are going to cheat
-	// and not actually calculate the usage
-#if IL2CPP_ENABLE_CPU_INFO
 	return il2cpp::os::CpuInfo::Create();
-#else
-	return NULL;
-#endif
 }
 
 static void initialize(void* arg)
@@ -242,7 +236,7 @@ static void cleanup (void)
 	g_ThreadPool->active_threads_lock.Lock();
 	working_threads = g_ThreadPool->working_threads;
 	g_ThreadPool->active_threads_lock.Unlock();
-	
+
 	/* stop all threadpool->working_threads */
 	for (i = 0; i < working_threads.size(); ++i)
 		worker_kill (working_threads[i]);
@@ -649,7 +643,7 @@ static bool heuristic_should_adjust (void)
 static void heuristic_adjust (void)
 {
 	IL2CPP_ASSERT(g_ThreadPool);
-	
+
 	if (g_ThreadPool->heuristic_lock.TryLock()) {
 		int32_t completions = il2cpp::vm::Atomic::Exchange (&g_ThreadPool->heuristic_completions, 0);
 		int64_t sample_end = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
@@ -680,7 +674,7 @@ void threadpool_ms_cleanup (void)
 	#ifndef DISABLE_SOCKETS
 		threadpool_ms_io_cleanup ();
 	#endif
-	
+
 	if (lazy_init_status.IsSet())
 		cleanup();
 }
@@ -696,13 +690,13 @@ Il2CppAsyncResult* threadpool_ms_begin_invoke (Il2CppDomain *domain, Il2CppObjec
 	lazy_initialize ();
 
 	MethodInfo *invoke = (MethodInfo*)il2cpp::vm::Class::GetMethodFromName(method->declaring_type, "Invoke", -1);
-	
+
 	message = mono_method_call_message_new (method, params, invoke, (params != NULL) ? (&async_callback) : NULL, (params != NULL) ? (&state) : NULL);
 
 	IL2CPP_OBJECT_SETREF (async_call, msg, message);
 	IL2CPP_OBJECT_SETREF (async_call, state, state);
 
-	if (async_callback) 
+	if (async_callback)
 	{
 		IL2CPP_OBJECT_SETREF (async_call, cb_method, (MethodInfo*)il2cpp::vm::Runtime::GetDelegateInvoke(il2cpp::vm::Object::GetClass((Il2CppObject*)async_callback)));
 		IL2CPP_OBJECT_SETREF (async_call, cb_target, async_callback);
@@ -746,7 +740,7 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 	if (ares->completed) 
 	{
 		il2cpp_monitor_exit((Il2CppObject *) ares);
-	} 
+	}
 	else 
 	{
 

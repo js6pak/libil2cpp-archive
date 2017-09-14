@@ -798,9 +798,76 @@ SUITE(File)
         il2cpp::os::File::Close(handle, &error);
 
 
-        // Tthey dont have to be exact, just in the ballpark
+        // They dont have to be exact, just in the ballpark
         CHECK_EQUAL(class_fileStat.last_write_time / 1000000L, api_fileStat.last_write_time / 1000000L);
     }
+
+#if !IL2CPP_USE_GENERIC_FILE
+    struct TruncateFixture
+    {
+        TruncateFixture()
+        {
+            handle  = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
+            WriteSomeCharactersToTestFile(handle);
+        }
+
+        ~TruncateFixture()
+        {
+            CleanupTestFile(handle);
+        }
+
+        il2cpp::os::FileHandle* handle;
+        int error;
+        int64_t length;
+    };
+
+    TEST_FIXTURE(TruncateFixture, TruncateReturnsTrue)
+    {
+        length = UnityPalGetLength(handle, &error);
+        UnityPalSeek(handle, 5, 0, &error);
+        CHECK(UnityPalTruncate(handle, &error));
+    }
+
+    TEST_FIXTURE(TruncateFixture, TruncateFileReturnsCleanErrorCode)
+    {
+        UnityPalSeek(handle, 5, 0, &error);
+        UnityPalTruncate(handle, &error);
+        CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
+    }
+
+    TEST_FIXTURE(TruncateFixture, TruncateFileSize14TruncatesToSize5Successfully)
+    {
+        UnityPalSeek(handle, 5, 0, &error);
+        UnityPalTruncate(handle, &error);
+        int64_t length = UnityPalGetLength(handle, &error);
+        CHECK_EQUAL(5, length);
+    }
+
+    TEST_FIXTURE(TruncateFixture, TruncateFileSize14TruncatesToSize20Successfully)
+    {
+        UnityPalSeek(handle, 20, 0, &error);
+        UnityPalTruncate(handle, &error);
+        int64_t length = UnityPalGetLength(handle, &error);
+        CHECK_EQUAL(20, length);
+    }
+
+    TEST(TruncateBadFileReturnsError)
+    {
+        int error;
+        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
+        CleanupTestFile(handle);
+        UnityPalTruncate(handle, &error);
+        CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
+    }
+
+    TEST(TruncateBadFileReturnsFalse)
+    {
+        int error;
+        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
+        CleanupTestFile(handle);
+        CHECK(!UnityPalTruncate(handle, &error));
+    }
+#endif // IL2CPP_USE_GENERIC_FILE
 
 // The utime function returns -1 on PS4. I'm not sure why.
 #if !IL2CPP_TARGET_PS4

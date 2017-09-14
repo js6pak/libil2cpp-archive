@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include "il2cpp-vm-support.h"
 #include "os/MarshalStringAlloc.h"
 #include "os/WindowsRuntime.h"
 #include "vm/Array.h"
@@ -11,15 +10,15 @@
 #include "vm/String.h"
 #include "Image.h"
 #include "../utils/StringUtils.h"
-#include "tabledefs.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 
 namespace il2cpp
 {
 namespace vm
 {
-    NORETURN void Exception::Raise(Il2CppException* ex, MethodInfo* lastManagedFrame)
+    NORETURN void Exception::Raise(Il2CppException* ex)
     {
         if (ex->trace_ips == NULL)
         {
@@ -29,24 +28,13 @@ namespace vm
             // Getting the stack trace again here will lose the frames between the original throw
             // and the finally or catch block.
             const StackFrames& frames = *StackTrace::GetStackFrames();
-
-            Il2CppArray* ips = NULL;
-            size_t numberOfFrames = frames.size();
-            if (numberOfFrames == 0 && lastManagedFrame != NULL)
+            size_t i = frames.size() - 1;
+            Il2CppArray* ips = Array::New(il2cpp_defaults.int_class, (il2cpp_array_size_t)frames.size());
+            for (StackFrames::const_iterator iter = frames.begin(); iter != frames.end(); ++iter, --i)
             {
-                // We didn't get any call stack. If we have one frame from codegen, use it.
-                ips = Array::New(il2cpp_defaults.int_class, 1);
-                il2cpp_array_set(ips, const MethodInfo*, 0, lastManagedFrame);
-            }
-            else
-            {
-                size_t i = numberOfFrames - 1;
-                ips = Array::New(il2cpp_defaults.int_class, numberOfFrames);
-                for (StackFrames::const_iterator iter = frames.begin(); iter != frames.end(); ++iter, --i)
-                    il2cpp_array_set(ips, const MethodInfo*, i, (*iter).method);
+                il2cpp_array_set(ips, const MethodInfo*, i, (*iter).method);
             }
 
-            IL2CPP_ASSERT(ips != NULL);
             IL2CPP_OBJECT_SETREF(ex, trace_ips, ips);
         }
 

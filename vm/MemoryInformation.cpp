@@ -9,9 +9,9 @@
 #include "vm/MetadataCache.h"
 #include "vm/Type.h"
 #include "utils/Memory.h"
-#include "class-internals.h"
-#include "object-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-tabledefs.h"
 
 #include <map>
 #include <limits>
