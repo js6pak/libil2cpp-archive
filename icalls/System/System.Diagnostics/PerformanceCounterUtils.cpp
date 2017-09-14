@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 
 #include "PerformanceCounterUtils.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "vm/String.h"

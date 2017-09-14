@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "icalls/mscorlib/System/GC.h"
 #include "gc/GarbageCollector.h"
 #include "vm/Exception.h"

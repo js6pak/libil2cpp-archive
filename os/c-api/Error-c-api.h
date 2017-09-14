@@ -10,7 +10,7 @@ typedef il2cpp::os::ErrorCode UnityPalErrorCode;
 
 typedef int32_t UnityPalErrorCode;
 
-#endif //__cplusplus
+#endif
 
 
 #if defined(__cplusplus)

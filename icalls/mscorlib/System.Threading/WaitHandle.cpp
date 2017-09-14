@@ -41,21 +41,7 @@ namespace Threading
 
         vm::ThreadStateSetter state(vm::kThreadStateWaitSleepJoin);
 
-        int timeWaitedMs = 0;
-        while (ms == -1 || timeWaitedMs <= ms)
-        {
-            int32_t numberOfOsHandles = (int32_t)osWaitHandles.size();
-            for (int32_t i = 0; i < numberOfOsHandles; ++i)
-            {
-                if (osWaitHandles[i]->Wait(0))
-                    return i;
-            }
-
-            os::Thread::Sleep(m_waitIntervalMs, true);
-            timeWaitedMs += m_waitIntervalMs;
-        }
-
-        return 258; // WAIT_TIMEOUT value
+        return os::Handle::WaitAny(osWaitHandles, ms);
     }
 
     bool WaitHandle::WaitOne_internal(Il2CppObject* unused, intptr_t handlePtr, int32_t ms, bool exitContext)
@@ -70,7 +56,7 @@ namespace Threading
         if (ms == -1)
             return handle->Wait();
 
-        return handle->Wait(ms);
+        return handle->Wait((uint32_t)ms);
     }
 
     bool WaitHandle::WaitAll_internal(Il2CppArray* handles, int32_t ms, bool exitContext)
@@ -79,28 +65,7 @@ namespace Threading
 
         vm::ThreadStateSetter state(vm::kThreadStateWaitSleepJoin);
 
-        int timeWaitedMs = 0;
-        while (ms == -1 || timeWaitedMs <= ms)
-        {
-            size_t numberOfOsHandles = osWaitHandles.size();
-            std::vector<os::Handle*> signaledHandles;
-            for (size_t i = 0; i < numberOfOsHandles; ++i)
-            {
-                if (osWaitHandles[i]->Wait(0))
-                    signaledHandles.push_back(osWaitHandles[i]);
-            }
-
-            if (signaledHandles.size() == numberOfOsHandles)
-                return true; // All handles have been signaled
-
-            for (size_t i = 0; i < signaledHandles.size(); ++i)
-                osWaitHandles.erase(std::remove(osWaitHandles.begin(), osWaitHandles.end(), signaledHandles[i]), osWaitHandles.end());
-
-            os::Thread::Sleep(m_waitIntervalMs, true);
-            timeWaitedMs += m_waitIntervalMs;
-        }
-
-        return false; // Timed out waiting for all handles to be signaled
+        return os::Handle::WaitAll(osWaitHandles, ms);
     }
 
     bool WaitHandle::SignalAndWait_Internal(intptr_t toSignal, intptr_t toWaitOn, int32_t ms, bool exitContext)

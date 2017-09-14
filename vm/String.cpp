@@ -11,8 +11,8 @@
 #include "utils/StringUtils.h"
 #include <string>
 #include <memory.h>
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 
 namespace il2cpp
 {

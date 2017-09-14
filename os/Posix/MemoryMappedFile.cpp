@@ -37,6 +37,19 @@ namespace os
         return address;
     }
 
+    void* MemoryMappedFile::Map(int fd, size_t length, size_t offset)
+    {
+        os::FastAutoLock lock(&s_Mutex);
+
+        void* address = mmap(NULL, length, PROT_READ, MAP_FILE | MAP_PRIVATE, fd, offset);
+        if ((intptr_t)address == -1)
+            return NULL;
+
+        s_MappedAddressToMappedLength[address] = length;
+
+        return address;
+    }
+
     void MemoryMappedFile::Unmap(void* address, size_t length)
     {
         os::FastAutoLock lock(&s_Mutex);

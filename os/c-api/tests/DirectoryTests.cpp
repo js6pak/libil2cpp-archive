@@ -403,7 +403,7 @@ SUITE(Directory)
     TEST_FIXTURE(FileSytemEntriesFixture, GetFileSystemEntriesReturnsThreeEntires)
     {
 #if IL2CPP_TARGET_PS4
-        const int expectedNumEntries = 6; // PS4 has the test exectuable, src, and test.map files in the current directory as well.
+        const int expectedNumEntries = 9; // PS4 has the test exectuable, src, test.map, and test.prx files in the current directory as well.
 #else
         const int expectedNumEntries = 3;
 #endif

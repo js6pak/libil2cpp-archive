@@ -5,8 +5,8 @@
 #include "vm/Object.h"
 #include "vm/Type.h"
 #include "vm/Runtime.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 
 namespace il2cpp
 {

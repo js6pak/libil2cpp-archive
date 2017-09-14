@@ -126,8 +126,7 @@ namespace os
         CleanupFunc m_CleanupFunc;
         void* m_CleanupFuncArg;
 
-        Thread(ThreadImpl* thread)
-            : m_Thread(thread) {}
+        Thread(ThreadImpl* thread);
 
         static void RunWrapper(void* arg);
     };

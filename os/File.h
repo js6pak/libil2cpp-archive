@@ -55,6 +55,7 @@ namespace os
         static void Lock(FileHandle* handle,  int64_t position, int64_t length, int* error);
         static void Unlock(FileHandle* handle,  int64_t position, int64_t length, int* error);
         static bool IsExecutable(const std::string& path);
+        static bool Truncate(FileHandle* handle, int *error);
 
         static bool DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
             FileHandle** target_handle, int access, int inherit, int options, int* error);

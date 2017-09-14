@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 #include "gc/GCHandle.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "GarbageCollector.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"

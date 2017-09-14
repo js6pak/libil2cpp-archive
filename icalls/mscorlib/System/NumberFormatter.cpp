@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 #include "icalls/mscorlib/System/NumberFormatter.h"
-#include "number-formatter.h"
+#include "il2cpp-number-formatter.h"
 
 namespace il2cpp
 {

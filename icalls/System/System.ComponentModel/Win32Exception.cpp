@@ -8,8 +8,8 @@
 #include "os/ErrorCodes.h"
 #include "os/Messages.h"
 
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "utils/StringUtils.h"
 
 namespace il2cpp

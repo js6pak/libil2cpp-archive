@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include <memory>
 #include "icalls/mscorlib/System/Buffer.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"

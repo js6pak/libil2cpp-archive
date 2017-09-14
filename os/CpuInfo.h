@@ -1,6 +1,5 @@
 #pragma once
 #if NET_4_0
-#if IL2CPP_ENABLE_CPU_INFO
 #include <stdint.h>
 
 namespace il2cpp
@@ -25,5 +24,4 @@ namespace os
     };
 }
 }
-#endif  // IL2CPP_ENABLE_CPU_INFO
 #endif  // NET_4_0

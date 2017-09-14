@@ -17,10 +17,10 @@
 #include "vm/Thread.h"
 #include "vm/Type.h"
 
-#include "tabledefs.h"
+#include "il2cpp-tabledefs.h"
 #include "il2cpp-string-types.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "il2cpp-api.h"
 
 #include <map>
@@ -186,6 +186,8 @@ namespace System
 
     bool AppDomain::InternalIsFinalizingForUnload(int32_t domain_id)
     {
+        NOT_SUPPORTED_IL2CPP(AppDomain::InternalIsFinalizingForUnload, "This icall is not supported by il2cpp.");
+
         return false;
     }
 

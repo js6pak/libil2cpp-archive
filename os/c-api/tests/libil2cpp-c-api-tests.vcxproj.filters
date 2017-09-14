@@ -63,6 +63,9 @@
     <ClCompile Include="ConditionVariableTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ConsoleTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CpuInfoTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -79,6 +82,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibraryLoaderTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LocaleTests.cpp">
@@ -258,6 +264,9 @@
     <ClCompile Include="..\ConditionVariable.cpp">
       <Filter>libil2cpp\os\c-api</Filter>
     </ClCompile>
+    <ClCompile Include="..\Console.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
     <ClCompile Include="..\CpuInfo.cpp">
       <Filter>libil2cpp\os\c-api</Filter>
     </ClCompile>
@@ -271,6 +280,9 @@
       <Filter>libil2cpp\os\c-api</Filter>
     </ClCompile>
     <ClCompile Include="..\File.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LibraryLoader.cpp">
       <Filter>libil2cpp\os\c-api</Filter>
     </ClCompile>
     <ClCompile Include="..\Locale.cpp">
@@ -569,6 +581,27 @@
     </ClCompile>
     <ClCompile Include="MessagesTests.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Generic\CpuInfo.cpp">
+      <Filter>libil2cpp\os\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="EventTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Event.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Handle.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="SemaphoreTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Semaphore.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Handle.cpp">
+      <Filter>libil2cpp\os</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -884,6 +917,9 @@
     <ClInclude Include="..\ConditionVariable-c-api.h">
       <Filter>libil2cpp\os\c-api</Filter>
     </ClInclude>
+    <ClInclude Include="..\Console-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
     <ClInclude Include="..\CpuInfo-c-api.h">
       <Filter>libil2cpp\os\c-api</Filter>
     </ClInclude>
@@ -897,6 +933,9 @@
       <Filter>libil2cpp\os\c-api</Filter>
     </ClInclude>
     <ClInclude Include="..\File-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LibraryLoader-c-api.h">
       <Filter>libil2cpp\os\c-api</Filter>
     </ClInclude>
     <ClInclude Include="..\Locale-c-api.h">
@@ -1033,6 +1072,15 @@
     </ClInclude>
     <ClInclude Include="PathHelper.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Event-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Handle-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Semaphore-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

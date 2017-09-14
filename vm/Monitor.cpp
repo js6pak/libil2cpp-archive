@@ -1,5 +1,5 @@
 #include "il2cpp-config.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Monitor.h"
 
 #if IL2CPP_SUPPORT_THREADS
@@ -420,7 +420,7 @@ namespace vm
 
                 ////TODO: adjust wait time if we have a Wait() failure and before going another round
 
-                if (waitStatus == os::kWaitStatusTimeout)
+                if (waitStatus == kWaitStatusTimeout)
                 {
                     // Wait failed. Get us off the list.
                     int newNumWaitingThreads = installedMonitor->RemoveCurrentThreadFromReadyList();
@@ -609,11 +609,11 @@ namespace vm
 
         // Wait for pulse (if we either have a timeout or are supposed to
         // wait infinitely).
-        os::WaitStatus pulseWaitStatus = os::kWaitStatusSuccess;
+        os::WaitStatus pulseWaitStatus = kWaitStatusSuccess;
         Il2CppException* exceptionThrownDuringWait = NULL;
         if (timeoutMilliseconds != 0)
         {
-            pulseWaitStatus = os::kWaitStatusFailure;
+            pulseWaitStatus = kWaitStatusFailure;
             try
             {
                 vm::ThreadStateSetter state(vm::kThreadStateWaitSleepJoin);
@@ -624,7 +624,7 @@ namespace vm
                 // Exception occurred during wait. Remember exception but continue with reacquisition
                 // and cleanup. We re-throw later.
                 exceptionThrownDuringWait = exception.ex;
-                pulseWaitStatus = os::kWaitStatusFailure;
+                pulseWaitStatus = kWaitStatusFailure;
             }
         }
 
@@ -662,7 +662,7 @@ namespace vm
 
         ////TODO: According to MSDN, the timeout indicates whether we reacquired the lock in time
         ////    and not just whether the pulse came in time. Thus the current code is imprecise.
-        return (pulseWaitStatus != os::kWaitStatusTimeout);
+        return (pulseWaitStatus != kWaitStatusTimeout);
     }
 
     bool Monitor::IsAcquired(Il2CppObject* object)

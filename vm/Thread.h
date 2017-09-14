@@ -98,7 +98,7 @@ namespace vm
         static ThreadState GetState(Il2CppThread *thread);
         static void ClrState(Il2CppThread* thread, ThreadState clr);
 
-        static void MemoryBarrier();
+        static void FullMemoryBarrier();
 
         static int32_t GetNewManagedId();
 

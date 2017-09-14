@@ -322,16 +322,6 @@ namespace os
         return kWaitStatusFailure;
     }
 
-#if IL2CPP_SUPPORT_IPV6
-    WaitStatus SocketImpl::SetSocketOptionMembership(SocketOptionLevel level, SocketOptionName name, IPv6Address ipv6, uint64_t interfaceOffset)
-    {
-        SOCKET_NOT_IMPLEMENTED
-
-        return kWaitStatusFailure;
-    }
-
-#endif
-
     WaitStatus SocketImpl::SendFile(const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options)
     {
         SOCKET_NOT_IMPLEMENTED

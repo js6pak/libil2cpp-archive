@@ -16,6 +16,7 @@
 #include "vm/Exception.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
+#include "il2cpp-vm-support.h"
 
 #include <stdint.h>
 
@@ -345,6 +346,20 @@ namespace os
         return size.QuadPart;
     }
 
+#if !IL2CPP_USE_GENERIC_FILE
+    bool File::Truncate(FileHandle* handle, int *error)
+    {
+        *error = kErrorCodeSuccess;
+        if (!::SetEndOfFile((HANDLE)handle))
+        {
+            *error = Win32ErrorToErrorCode(::GetLastError());
+            return false;
+        }
+        return true;
+    }
+
+#endif // IL2CPP_USE_GENERIC_FILE
+
     bool File::SetLength(FileHandle* handle, int64_t length, int *error)
     {
         *error = kErrorCodeSuccess;
@@ -403,6 +418,10 @@ namespace os
         if (!::ReadFile(handle, dest, count, &bytesRead, NULL))
             *error = Win32ErrorToErrorCode(::GetLastError());
 
+#if IL2CPP_ENABLE_PROFILER
+        IL2CPP_VM_PROFILE_FILEIO(IL2CPP_PROFILE_FILEIO_READ, count);
+#endif
+
         return bytesRead;
     }
 
@@ -418,6 +437,9 @@ namespace os
             *error = GetLastError ();
             return -1;
         }*/
+#if IL2CPP_ENABLE_PROFILER
+        IL2CPP_VM_PROFILE_FILEIO(IL2CPP_PROFILE_FILEIO_WRITE, count);
+#endif
 
         return written;
     }

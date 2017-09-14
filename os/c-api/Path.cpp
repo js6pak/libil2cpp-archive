@@ -1,3 +1,4 @@
+#include "il2cpp-config.h"
 #include "os/Path.h"
 #include "utils/PathUtils.h"
 #include "Allocator.h"

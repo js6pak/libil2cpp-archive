@@ -1,5 +1,5 @@
 #include "il2cpp-config.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "Il2CppGenericContextCompare.h"
 #include "Il2CppGenericInstCompare.h"
 

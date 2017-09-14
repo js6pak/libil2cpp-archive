@@ -20,8 +20,8 @@
 #include "utils/Memory.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
-#include "class-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-tabledefs.h"
 #include <sstream>
 #include <vector>
 #include <limits>

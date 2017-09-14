@@ -81,7 +81,29 @@ int32_t UnityPalDeleteFile(const char* path, int *error)
 
 int32_t UnityPalReplaceFile(const char* sourceFileName, const char* destinationFileName, const char* destinationBackupFileName, int32_t ignoreMetadataErrors, int* error)
 {
-    return il2cpp::os::File::ReplaceFile(sourceFileName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors, error);
+    // It is legal for any of these paramteres to be NULL, need
+    // to check to prevent bad NULL ptr issues.
+
+    std::string source;
+    std::string dest;
+    std::string destbackup;
+
+    if (sourceFileName != NULL)
+    {
+        source = sourceFileName;
+    }
+
+    if (destinationFileName != NULL)
+    {
+        dest = destinationFileName;
+    }
+
+    if (destinationBackupFileName != NULL)
+    {
+        destbackup = destinationBackupFileName;
+    }
+
+    return il2cpp::os::File::ReplaceFile(source, dest, destbackup, ignoreMetadataErrors, error);
 }
 
 UnityPalFileHandle* UnityPalOpen(const char* path, int openMode, int accessMode, int shareMode, int options, int *error)
@@ -110,6 +132,11 @@ int32_t UnityPalSetFileTime(UnityPalFileHandle* handle, int64_t creation_time, i
 int64_t UnityPalGetLength(UnityPalFileHandle* handle, int *error)
 {
     return il2cpp::os::File::GetLength(handle, error);
+}
+
+int32_t UnityPalTruncate(UnityPalFileHandle* handle, int *error)
+{
+    return il2cpp::os::File::Truncate(handle, error);
 }
 
 int32_t UnityPalSetLength(UnityPalFileHandle* handle, int64_t length, int *error)

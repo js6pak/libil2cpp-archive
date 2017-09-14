@@ -33,17 +33,15 @@ SUITE(Path)
     }
 
 #if !IL2CPP_TARGET_PS4 // PS4 doesn't have an executable path concept - it returns an empty string.
-    TEST(GetExecutablePathSanity)
+    TEST(GetExecutablePathIsEmpty)
     {
         // Path will never be the same depeding on user, platform,machine etc.  Check if the string is
         // at least a few chars long
         CHECK(strlen(UnityPalGetExecutablePath()) > 5);
     }
 #else
-    TEST(GetExecutablePathSanity)
+    TEST(GetExecutablePathIsEmpty)
     {
-        // Path will never be the same depeding on user, platform,machine etc.  Check if the string is
-        // at least a few chars long
         CHECK_EQUAL(UnityPalGetExecutablePath(), "");
     }
 #endif

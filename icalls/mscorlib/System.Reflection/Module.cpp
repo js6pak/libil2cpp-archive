@@ -5,7 +5,7 @@
 #include "vm/Module.h"
 #include "vm/Image.h"
 #include "vm/Array.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
 
