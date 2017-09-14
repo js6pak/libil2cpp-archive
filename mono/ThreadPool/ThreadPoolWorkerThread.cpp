@@ -113,7 +113,7 @@ static ThreadPoolDomain* domain_get_next(ThreadPoolDomain *current)
     len = (unsigned int)g_ThreadPool->domains.size();
     if (len > 0)
     {
-        unsigned int i, current_idx = -1;
+        unsigned int i, current_idx = ~0u;
         if (current)
         {
             for (i = 0; i < len; ++i)
@@ -124,7 +124,7 @@ static ThreadPoolDomain* domain_get_next(ThreadPoolDomain *current)
                     break;
                 }
             }
-            IL2CPP_ASSERT(current_idx >= 0);
+            IL2CPP_ASSERT(current_idx != ~0u);
         }
         for (i = current_idx + 1; i < len + current_idx + 1; ++i)
         {

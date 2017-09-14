@@ -1,6 +1,6 @@
 #if NET_4_0
 #include "il2cpp-config.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "il2cpp-api.h"
 #include "AsyncResult.h"
 #include "vm/Runtime.h"

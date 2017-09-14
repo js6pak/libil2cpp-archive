@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 #include "icalls/mscorlib/System/ArgIterator.h"
-#include "tabledefs.h"
+#include "il2cpp-tabledefs.h"
 #include "vm/Exception.h"
 
 namespace il2cpp

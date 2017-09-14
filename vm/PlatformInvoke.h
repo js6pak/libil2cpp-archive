@@ -1,9 +1,9 @@
 #pragma once
 
 #include "il2cpp-config.h"
-#include "blob.h"
-#include "metadata.h"
-#include "object-internals.h"
+#include "il2cpp-blob.h"
+#include "il2cpp-runtime-metadata.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/MarshalAlloc.h"

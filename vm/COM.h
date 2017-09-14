@@ -1,6 +1,6 @@
 #pragma once
 
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "il2cpp-vm-support.h"
 #include "os/COM.h"
 #include "vm/Exception.h"

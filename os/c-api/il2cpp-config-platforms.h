@@ -1,24 +1,5 @@
 #pragma once
 
-#include <assert.h>
-
-#if defined(__aarch64__) && defined(__arm__)
-#error We assume both __aarch64__ and __arm__ cannot be defined at tha same time.
-#endif
-
-#if defined(__aarch64__)
-#define IL2CPP_TARGET_ARM64 1
-#define IL2CPP_TARGET_ARMV7 0
-#elif defined(__arm__)
-#define IL2CPP_TARGET_ARM64 0
-#define IL2CPP_TARGET_ARMV7 1
-#else
-#define IL2CPP_TARGET_ARM64 0
-#define IL2CPP_TARGET_ARMV7 0
-#endif
-
-#define IL2CPP_BINARY_SECTION_NAME ".il2cpp"
-
 #if defined(SN_TARGET_PSP2)
 #define IL2CPP_TARGET_PSP2 1
 #define _UNICODE 1
@@ -46,17 +27,6 @@
 #if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR || TARGET_TVOS_SIMULATOR
 #define IL2CPP_TARGET_IOS 1
 #endif
-
-#if IL2CPP_TARGET_IOS && !IL2CPP_TARGET_ARMV7
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
-#endif
-
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
-// The following gives managed stack traces (even with bitcode App Store submission), but may cause linker
-// errors on ARMv7 builds.
-#define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT," IL2CPP_BINARY_SECTION_NAME ",regular,pure_instructions")))
-#endif
-
 #elif defined(__ANDROID__)
 #define IL2CPP_TARGET_ANDROID 1
 #elif defined(EMSCRIPTEN)
@@ -132,10 +102,6 @@
 #define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_TIZEN)
 
 #define IL2CPP_SUPPORT_THREADS !IL2CPP_TARGET_JAVASCRIPT
-
-#ifndef IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#endif
 
 #if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
 #include <crtdbg.h>

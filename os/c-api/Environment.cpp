@@ -1,3 +1,4 @@
+#include "il2cpp-config.h"
 #include "os/Environment.h"
 #include "os/c-api/Environment-c-api.h"
 #include "Allocator.h"

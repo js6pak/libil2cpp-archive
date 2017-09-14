@@ -1,5 +1,5 @@
 #include "il2cpp-config.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "il2cpp-string-types.h"
 #include "il2cpp-vm-support.h"
 #include "os/WindowsRuntime.h"

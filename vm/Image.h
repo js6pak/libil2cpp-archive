@@ -71,6 +71,7 @@ namespace vm
         static void CacheResourceData(EmbeddedResourceRecord record, void* data);
         static void* GetCachedResourceData(const Il2CppImage* image, const std::string& name);
         static void ClearCachedResourceData();
+        static void InitNestedTypes(const Il2CppImage *image);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -2,6 +2,7 @@
 
 #if defined(__cplusplus)
 #include "os/Mutex.h"
+#include "os/WaitStatus.h"
 typedef il2cpp::os::Mutex UnityPalMutex;
 typedef il2cpp::os::MutexHandle UnityPalMutexHandle;
 typedef il2cpp::os::FastMutex UnityPalFastMutex;
@@ -22,7 +23,7 @@ UnityPalMutex* UnityPalMutexNew(int32_t initiallyOwned);
 void UnityPalMutexDelete(UnityPalMutex* mutex);
 void UnityPalMutexLock(UnityPalMutex* mutex, int32_t interruptible);
 int32_t UnityPalMutexTryLock(UnityPalMutex* mutex, uint32_t milliseconds, int32_t interruptible);
-void UnityPalMutexUnlock(UnityPalMutex*);
+void UnityPalMutexUnlock(UnityPalMutex* mutex);
 
 UnityPalMutexHandle* UnityPalMutexHandleNew(UnityPalMutex* mutex);
 void UnityPalMutexHandleDelete(UnityPalMutexHandle* mutex);

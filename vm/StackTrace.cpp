@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include "StackTrace.h"
-#include "il2cpp-debugger.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "os/Event.h"
 #include "os/StackTrace.h"
 #include "os/Thread.h"
@@ -80,25 +79,12 @@ namespace vm
         inline void PushFrame(Il2CppStackFrameInfo& frame)
         {
             GetStackFramesRaw()->push_back(frame);
-
-#if IL2CPP_DEBUGGER_ENABLED
-            il2cpp_debugger_method_entry(frame);
-#endif
         }
 
         inline void PopFrame()
         {
             StackFrames* stackFrames = GetStackFramesRaw();
-
-#if IL2CPP_DEBUGGER_ENABLED
-            Il2CppStackFrameInfo frame = stackFrames->back();
-#endif
-
             stackFrames->pop_back();
-
-#if IL2CPP_DEBUGGER_ENABLED
-            il2cpp_debugger_method_exit(frame);
-#endif
         }
     };
 

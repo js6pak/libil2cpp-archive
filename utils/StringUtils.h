@@ -32,153 +32,154 @@ namespace il2cpp
 {
 namespace utils
 {
-
-class LIBIL2CPP_CODEGEN_API StringUtils
-{
-public:
-	static std::string Printf (const char* format, ...);
-	static std::string NPrintf (const char* format, size_t max_n, ...);
-	static std::string Utf16ToUtf8 (const Il2CppChar* utf16String);
-	static std::string Utf16ToUtf8(const Il2CppChar* utf16String, int maximumSize);
-	static std::string Utf16ToUtf8(const UTF16String& utf16String);
-	static UTF16String Utf8ToUtf16(const char* utf8String);
-	static UTF16String Utf8ToUtf16(const char* utf8String, size_t length);
-	static UTF16String Utf8ToUtf16(const std::string& utf8String);
-	static char* StringDuplicate (const char *strSource);
-	static Il2CppChar* StringDuplicate (const Il2CppChar* strSource, size_t length);
-	static bool EndsWith(const std::string& string, const std::string& suffix);
-    static Il2CppChar* GetChars(Il2CppString* str);
-    static int32_t GetLength(Il2CppString* str);
+    class LIBIL2CPP_CODEGEN_API StringUtils
+    {
+    public:
+        static std::string Printf(const char* format, ...);
+        static std::string NPrintf(const char* format, size_t max_n, ...);
+        static std::string Utf16ToUtf8(const Il2CppChar* utf16String);
+        static std::string Utf16ToUtf8(const Il2CppChar* utf16String, int maximumSize);
+        static std::string Utf16ToUtf8(const UTF16String& utf16String);
+        static UTF16String Utf8ToUtf16(const char* utf8String);
+        static UTF16String Utf8ToUtf16(const char* utf8String, size_t length);
+        static UTF16String Utf8ToUtf16(const std::string& utf8String);
+        static char* StringDuplicate(const char *strSource);
+        static Il2CppChar* StringDuplicate(const Il2CppChar* strSource, size_t length);
+        static bool EndsWith(const std::string& string, const std::string& suffix);
+        static Il2CppChar* GetChars(Il2CppString* str);
+        static int32_t GetLength(Il2CppString* str);
 
 #if IL2CPP_TARGET_WINDOWS
-	static inline std::string NativeStringToUtf8(const Il2CppNativeString& nativeStr)
-	{
-		IL2CPP_ASSERT(nativeStr.length() < static_cast<size_t>(std::numeric_limits<int>::max()));
-		return Utf16ToUtf8(nativeStr.c_str(), static_cast<int>(nativeStr.length()));
-	}
-	static inline Il2CppNativeString Utf8ToNativeString(const std::string str)
-	{
-		IL2CPP_ASSERT(str.length() < static_cast<size_t>(std::numeric_limits<int>::max()));
-		return Utf8ToUtf16(str.c_str(), str.length());
-	}
+        static inline std::string NativeStringToUtf8(const Il2CppNativeString& nativeStr)
+        {
+            IL2CPP_ASSERT(nativeStr.length() < static_cast<size_t>(std::numeric_limits<int>::max()));
+            return Utf16ToUtf8(nativeStr.c_str(), static_cast<int>(nativeStr.length()));
+        }
+
+        static inline Il2CppNativeString Utf8ToNativeString(const std::string str)
+        {
+            IL2CPP_ASSERT(str.length() < static_cast<size_t>(std::numeric_limits<int>::max()));
+            return Utf8ToUtf16(str.c_str(), str.length());
+        }
+
 #else
-	static inline std::string NativeStringToUtf8(Il2CppNativeString nativeStr)
-	{
-		return nativeStr;
-	}
-	static inline Il2CppNativeString Utf8ToNativeString(const std::string str)
-	{
-		return str;
-	}
+        static inline std::string NativeStringToUtf8(Il2CppNativeString nativeStr)
+        {
+            return nativeStr;
+        }
+
+        static inline Il2CppNativeString Utf8ToNativeString(const std::string str)
+        {
+            return str;
+        }
+
 #endif
 
-	template <typename CharType, size_t N>
-	static inline size_t LiteralLength(const CharType (&str)[N])
-	{
-		return N - 1;
-	}
+        template<typename CharType, size_t N>
+        static inline size_t LiteralLength(const CharType(&str)[N])
+        {
+            return N - 1;
+        }
 
-	template <typename CharType>
-	static size_t StrLen(const CharType* str)
-	{
-		size_t length = 0;
-		while (*str)
-		{
-			str++;
-			length++;
-		}
+        template<typename CharType>
+        static size_t StrLen(const CharType* str)
+        {
+            size_t length = 0;
+            while (*str)
+            {
+                str++;
+                length++;
+            }
 
-		return length;
-	}
+            return length;
+        }
 
-	// Taken from github.com/Microsoft/referencesource/blob/master/mscorlib/system/string.cs
-	template <typename CharType>
-	static inline size_t Hash (const CharType *str, size_t length)
-	{
-		IL2CPP_ASSERT(length <= static_cast<size_t>(std::numeric_limits<int>::max()));
+        // Taken from github.com/Microsoft/referencesource/blob/master/mscorlib/system/string.cs
+        template<typename CharType>
+        static inline size_t Hash(const CharType *str, size_t length)
+        {
+            IL2CPP_ASSERT(length <= static_cast<size_t>(std::numeric_limits<int>::max()));
 
-		size_t hash1 = 5381;
-		size_t hash2 = hash1;
-		size_t i = 0;
+            size_t hash1 = 5381;
+            size_t hash2 = hash1;
+            size_t i = 0;
 
-		CharType c;
-		const CharType* s = str;
-		while (true)
-		{
-			if (i++ >= length)
-				break;
-			c = s[0];
-			hash1 = ((hash1 << 5) + hash1) ^ c;
-			if (i++ >= length)
-				break;
-			c = s[1];
-			hash2 = ((hash2 << 5) + hash2) ^ c;
-			s += 2;
-		}
+            CharType c;
+            const CharType* s = str;
+            while (true)
+            {
+                if (i++ >= length)
+                    break;
+                c = s[0];
+                hash1 = ((hash1 << 5) + hash1) ^ c;
+                if (i++ >= length)
+                    break;
+                c = s[1];
+                hash2 = ((hash2 << 5) + hash2) ^ c;
+                s += 2;
+            }
 
-		return hash1 + (hash2 * 1566083941);
-	}
+            return hash1 + (hash2 * 1566083941);
+        }
 
-	template <typename CharType>
-	static inline size_t Hash (const CharType *str)
-	{
-		size_t hash1 = 5381;
-		size_t hash2 = hash1;
+        template<typename CharType>
+        static inline size_t Hash(const CharType *str)
+        {
+            size_t hash1 = 5381;
+            size_t hash2 = hash1;
 
-		CharType c;
-		const CharType* s = str;
-		while ((c = s[0]) != 0)
-		{
-			hash1 = ((hash1 << 5) + hash1) ^ c;
-			c = s[1];
-			if (c == 0)
-				break;
-			hash2 = ((hash2 << 5) + hash2) ^ c;
-			s += 2;
-		}
+            CharType c;
+            const CharType* s = str;
+            while ((c = s[0]) != 0)
+            {
+                hash1 = ((hash1 << 5) + hash1) ^ c;
+                c = s[1];
+                if (c == 0)
+                    break;
+                hash2 = ((hash2 << 5) + hash2) ^ c;
+                s += 2;
+            }
 
-		return hash1 + (hash2 * 1566083941);
-	}
+            return hash1 + (hash2 * 1566083941);
+        }
 
-	template <typename StringType>
-	struct StringHasher
-	{
-		typedef typename StringType::value_type CharType;
+        template<typename StringType>
+        struct StringHasher
+        {
+            typedef typename StringType::value_type CharType;
 
-		size_t operator()(const StringType& value) const
-		{
-			return Hash(value.c_str(), value.length());
-		}
-	};
+            size_t operator()(const StringType& value) const
+            {
+                return Hash(value.c_str(), value.length());
+            }
+        };
 
-	template <typename CharType>
-	struct StringHasher<const CharType*>
-	{
-		size_t operator()(const CharType* value) const
-		{
-			return Hash(value);
-		}
-	};
-};
-
-
+        template<typename CharType>
+        struct StringHasher<const CharType*>
+        {
+            size_t operator()(const CharType* value) const
+            {
+                return Hash(value);
+            }
+        };
+    };
 } /* utils */
 } /* il2cpp */
 
 // Assumes str is not NULL
 #if defined(_MSC_VER)
 #define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
-	il2cpp::utils::StringView<Il2CppNativeChar> variableName(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length);
+    il2cpp::utils::StringView<Il2CppNativeChar> variableName(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length);
 #define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
-	il2cpp::utils::StringView<Il2CppChar> variableName(str, wcslen(str));
+    il2cpp::utils::StringView<Il2CppChar> variableName(str, wcslen(str));
 #define DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
-	il2cpp::utils::StringView<Il2CppChar> variableName(str);
+    il2cpp::utils::StringView<Il2CppChar> variableName(str);
 #else
 #define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
-	Il2CppNativeString variableName##_native_string_storage = il2cpp::utils::StringUtils::Utf16ToUtf8(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length); \
-	il2cpp::utils::StringView<Il2CppNativeChar> variableName(variableName##_native_string_storage.c_str(), variableName##_native_string_storage.length());
+    Il2CppNativeString variableName##_native_string_storage = il2cpp::utils::StringUtils::Utf16ToUtf8(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length); \
+    il2cpp::utils::StringView<Il2CppNativeChar> variableName(variableName##_native_string_storage.c_str(), variableName##_native_string_storage.length());
 #define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
-	UTF16String variableName##_utf16String = il2cpp::utils::StringUtils::Utf8ToUtf16(str); \
-	il2cpp::utils::StringView<Il2CppChar> variableName(variableName##_utf16String);
+    UTF16String variableName##_utf16String = il2cpp::utils::StringUtils::Utf8ToUtf16(str); \
+    il2cpp::utils::StringView<Il2CppChar> variableName(variableName##_utf16String);
 #define DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS
 #endif

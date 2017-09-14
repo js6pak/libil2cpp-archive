@@ -3,8 +3,8 @@
 #include <string>
 #include <sstream>
 #include "icalls/mscorlib/System.Reflection/MonoMethod.h"
-#include "tabledefs.h"
-#include "class-internals.h"
+#include "il2cpp-tabledefs.h"
+#include "il2cpp-class-internals.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "vm/Array.h"
 #include "vm/Class.h"

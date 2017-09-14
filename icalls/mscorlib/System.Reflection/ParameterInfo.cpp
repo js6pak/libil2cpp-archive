@@ -2,8 +2,8 @@
 
 #include "icalls/mscorlib/System.Reflection/ParameterInfo.h"
 #include "vm/Exception.h"
-#include "object-internals.h"
-#include "class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-class-internals.h"
 
 namespace il2cpp
 {

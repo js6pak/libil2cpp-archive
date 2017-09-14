@@ -19,24 +19,28 @@
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) isGeneric ? GenericMethodFromIndex(methodIndex) : MethodFromIndex(methodIndex)
     #define IL2CPP_VM_SHUTDOWN() do { if (mono_runtime_try_shutdown()) mono_runtime_quit(); } while(0)
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
+    #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (mono_profiler_get_events () & MONO_PROFILE_FILEIO) mono_profiler_fileio (kind, count);
+
 typedef MonoString VmString;
 typedef MonoMethod VmMethod;
 #elif RUNTIME_NONE // OS layer compiled with no runtime
-    #define IL2CPP_VM_RAISE_EXCEPTION(exception) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
-    #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
-    #define IL2CPP_VM_RAISE_IF_FAILED(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
+    #define IL2CPP_VM_RAISE_EXCEPTION(exception) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
+    #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
+    #define IL2CPP_VM_RAISE_IF_FAILED(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_STRING_EMPTY() NULL
     #define IL2CPP_VM_STRING_NEW_UTF16(value, length) NULL
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) NULL
-    #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
+    #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
-    #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
+    #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
+    #define IL2CPP_VM_PROFILE_FILEIO(kind, count) NULL
 #else // Assume the libil2cpp runtime
     #include "vm/Exception.h"
     #include "vm/MetadataCache.h"
     #include "vm/StackTrace.h"
     #include "vm/String.h"
+    #include "vm/Profiler.h"
     #define IL2CPP_VM_RAISE_EXCEPTION(exception) il2cpp::vm::Exception::Raise(exception)
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) il2cpp::vm::Exception::Raise(hresult, defaultToCOMException)
     #define IL2CPP_VM_RAISE_IF_FAILED(hresult, defaultToCOMException) il2cpp::vm::Exception::RaiseIfFailed(hresult, defaultToCOMException)
@@ -47,6 +51,8 @@ typedef MonoMethod VmMethod;
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex (methodIndex)
     #define IL2CPP_VM_SHUTDOWN() il2cpp_shutdown()
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) vm::CCW::GetOrCreate(reinterpret_cast<Il2CppObject*>(ex), Il2CppIUnknown::IID)
+    #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (il2cpp::vm::Profiler::ProfileFileIO()) il2cpp::vm::Profiler::FileIO(kind, count);
+
 typedef Il2CppString VmString;
 typedef MethodInfo VmMethod;
 #endif

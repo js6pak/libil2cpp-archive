@@ -1,5 +1,5 @@
 #include "il2cpp-api.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 
 #include "vm/Array.h"
 #include "vm/Assembly.h"
@@ -32,16 +32,12 @@
 #include "utils/Runtime.h"
 #include "utils/Environment.h"
 
-#if IL2CPP_DEBUGGER_ENABLED
-    #include "il2cpp-debugger.h"
-    #include "vm/Debug.h"
-#endif
-
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
 
 #include <locale.h>
 #include <fstream>
+#include <string>
 
 using namespace il2cpp::vm;
 using il2cpp::utils::Memory;
@@ -92,11 +88,6 @@ void il2cpp_init(const char* domain_name)
     // Use environment's default locale
     setlocale(LC_ALL, "");
 
-#if IL2CPP_DEBUGGER_ENABLED
-    if (!il2cpp_debugger_agent_is_initialized())
-        il2cpp_debugger_agent_init();
-#endif
-
     // NOTE(gab): the runtime_version needs to change once we
     // will support multiple runtimes.
     // For now we default to the one used by unity and don't
@@ -105,10 +96,6 @@ void il2cpp_init(const char* domain_name)
     Runtime::Init(domain_name, "v4.0.30319");
 #else
     Runtime::Init(domain_name, "v2.0.50727");
-#endif
-
-#if IL2CPP_DEBUGGER_ENABLED
-    il2cpp_debugger_notify_vm_start();
 #endif
 }
 
@@ -119,15 +106,7 @@ void il2cpp_init_utf16(const Il2CppChar* domain_name)
 
 void il2cpp_shutdown()
 {
-#if IL2CPP_DEBUGGER_ENABLED
-    il2cpp_debugger_notify_vm_death();
-#endif
-
     Runtime::Shutdown();
-
-#if IL2CPP_DEBUGGER_ENABLED
-    il2cpp_debugger_agent_dispose();
-#endif
 }
 
 void il2cpp_set_config_dir(const char *config_path)
@@ -437,7 +416,7 @@ const Il2CppImage* il2cpp_class_get_image(Il2CppClass* klass)
 
 const char *il2cpp_class_get_assemblyname(const Il2CppClass *klass)
 {
-    return Class::GetAssemblyName(klass);
+    return Class::GetAssemblyNameNoExtension(klass);
 }
 
 // testing only
@@ -823,6 +802,11 @@ void il2cpp_profiler_install_gc(Il2CppProfileGCFunc callback, Il2CppProfileGCRes
     Profiler::InstallGC(callback, heap_resize_callback);
 }
 
+void il2cpp_profiler_install_fileio(Il2CppProfileFileIOFunc callback)
+{
+    Profiler::InstallFileIO(callback);
+}
+
 #endif
 
 // property
@@ -1162,107 +1146,3 @@ void il2cpp_register_log_callback(Il2CppLogCallback method)
 {
     il2cpp::utils::Logging::SetLogCallback(method);
 }
-
-#if IL2CPP_DEBUGGER_ENABLED
-// debug
-const Il2CppDebugTypeInfo* il2cpp_debug_get_class_info(const Il2CppClass *klass)
-{
-    return Class::GetDebugInfo(klass);
-}
-
-const Il2CppDebugDocument* il2cpp_debug_class_get_document(const Il2CppDebugTypeInfo* info)
-{
-    return Debug::GetDocument(info);
-}
-
-const char* il2cpp_debug_document_get_filename(const Il2CppDebugDocument* document)
-{
-    return Debug::DocumentGetFilename(document);
-}
-
-const char* il2cpp_debug_document_get_directory(const Il2CppDebugDocument* document)
-{
-    return Debug::DocumentGetDirectory(document);
-}
-
-const Il2CppDebugMethodInfo* il2cpp_debug_get_method_info(const MethodInfo *method)
-{
-    return Method::GetDebugInfo(method);
-}
-
-const Il2CppDebugDocument* il2cpp_debug_method_get_document(const Il2CppDebugMethodInfo* info)
-{
-    return Debug::GetDocument(info);
-}
-
-const int32_t* il2cpp_debug_method_get_offset_table(const Il2CppDebugMethodInfo* info)
-{
-    return Debug::GetOffsetTable(info);
-}
-
-size_t il2cpp_debug_method_get_code_size(const Il2CppDebugMethodInfo* info)
-{
-    return Debug::GetCodeSize(info);
-}
-
-void il2cpp_debug_update_frame_il_offset(int32_t il_offset)
-{
-    Debug::UpdateFrameIlOffset(il_offset);
-}
-
-const Il2CppDebugLocalsInfo **il2cpp_debug_method_get_locals_info(const Il2CppDebugMethodInfo* info)
-{
-    return Debug::GetLocalsInfo(info);
-}
-
-const Il2CppClass *il2cpp_debug_local_get_type(const Il2CppDebugLocalsInfo *info)
-{
-    return Debug::GetType(info);
-}
-
-const char *il2cpp_debug_local_get_name(const Il2CppDebugLocalsInfo *info)
-{
-    return Debug::GetName(info);
-}
-
-uint32_t il2cpp_debug_local_get_start_offset(const Il2CppDebugLocalsInfo *info)
-{
-    return Debug::GetStartOffset(info);
-}
-
-uint32_t il2cpp_debug_local_get_end_offset(const Il2CppDebugLocalsInfo *info)
-{
-    return Debug::GetEndOffset(info);
-}
-
-Il2CppObject *il2cpp_debug_method_get_param_value(const Il2CppStackFrameInfo *info, uint32_t position)
-{
-    return Debug::GetParamValue(info, position);
-}
-
-Il2CppObject *il2cpp_debug_frame_get_local_value(const Il2CppStackFrameInfo *info, uint32_t position)
-{
-    return Debug::GetLocalValue(info, position);
-}
-
-void *il2cpp_debug_method_get_breakpoint_data_at(const Il2CppDebugMethodInfo* info, int64_t uid, int32_t offset)
-{
-    return Debug::GetBreakpointDataAt(info, uid, offset);
-}
-
-void il2cpp_debug_method_set_breakpoint_data_at(const Il2CppDebugMethodInfo* info, uint64_t location, void *data)
-{
-    Debug::SetBreakpointDataAt(info, location, data);
-}
-
-void il2cpp_debug_method_clear_breakpoint_data(const Il2CppDebugMethodInfo* info)
-{
-    Debug::ClearBreakpointData(info);
-}
-
-void il2cpp_debug_method_clear_breakpoint_data_at(const Il2CppDebugMethodInfo* info, uint64_t location)
-{
-    Debug::ClearBreakpointDataAt(info, location);
-}
-
-#endif

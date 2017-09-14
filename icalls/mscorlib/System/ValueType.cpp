@@ -1,9 +1,9 @@
 #include "il2cpp-config.h"
 #include <memory>
 #include "icalls/mscorlib/System/ValueType.h"
-#include "tabledefs.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "gc/WriteBarrier.h"
 #include "utils/StringUtils.h"
 #include "vm/Array.h"

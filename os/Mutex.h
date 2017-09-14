@@ -41,6 +41,8 @@ namespace os
         virtual ~MutexHandle() { delete m_Mutex; }
         virtual bool Wait() { m_Mutex->Lock(true); return true; }
         virtual bool Wait(uint32_t ms) { return m_Mutex->TryLock(ms, true); }
+        virtual WaitStatus Wait(bool interruptible) { m_Mutex->Lock(interruptible); return kWaitStatusSuccess; }
+        virtual WaitStatus Wait(uint32_t ms, bool interruptible) { return m_Mutex->TryLock(ms, interruptible) ? kWaitStatusSuccess : kWaitStatusFailure; }
         virtual void Signal() { m_Mutex->Unlock(); }
         Mutex* Get() { return m_Mutex; }
 

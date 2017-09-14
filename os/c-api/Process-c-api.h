@@ -8,7 +8,7 @@ typedef il2cpp::os::ProcessHandle UnityPalProcessHandle;
 
 typedef struct UnityPalProcessHandle UnityPalProcessHandle;
 
-#endif //__cplusplus
+#endif
 
 #if defined(__cplusplus)
 extern "C"

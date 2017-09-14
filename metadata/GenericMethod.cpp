@@ -15,8 +15,8 @@
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "utils/Il2CppHashMap.h"
-#include "class-internals.h"
-#include "metadata.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-runtime-metadata.h"
 #include <sstream>
 
 using il2cpp::metadata::GenericMetadata;
