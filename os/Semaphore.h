@@ -32,6 +32,8 @@ namespace os
         virtual ~SemaphoreHandle() { delete m_Semaphore; }
         virtual bool Wait() { m_Semaphore->Wait(true); return true; }
         virtual bool Wait(uint32_t ms) { return m_Semaphore->Wait(ms, true) != kWaitStatusTimeout; }
+        virtual WaitStatus Wait(bool interruptible) { return m_Semaphore->Wait(interruptible); }
+        virtual WaitStatus Wait(uint32_t ms, bool interruptible) { return m_Semaphore->Wait(ms, interruptible); }
         virtual void Signal() { m_Semaphore->Post(1, NULL); }
         Semaphore& Get() { return *m_Semaphore; }
 

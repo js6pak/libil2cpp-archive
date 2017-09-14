@@ -23,7 +23,7 @@ namespace vm
         static int64_t Exchange64(volatile int64_t* dest, int64_t exchange);
         static void* ExchangePointer(void* volatile* dest, void* exchange);
         static int64_t Read64(volatile int64_t* addr);
-        static void MemoryBarrier();
+        static void FullMemoryBarrier();
 
         static inline uint32_t Add(volatile uint32_t* location1, uint32_t value)
         {

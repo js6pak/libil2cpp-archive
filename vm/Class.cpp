@@ -26,9 +26,9 @@
 #include "vm/Thread.h"
 #include "vm/Type.h"
 #include "vm/Object.h"
-#include "class-internals.h"
-#include "object-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
@@ -37,10 +37,6 @@
 #include <memory.h>
 #include <algorithm>
 #include <limits>
-
-#if IL2CPP_DEBUGGER_ENABLED
-    #include "il2cpp-debugger.h"
-#endif
 
 using il2cpp::metadata::ArrayMetadata;
 using il2cpp::metadata::FieldLayout;
@@ -1433,12 +1429,6 @@ namespace vm
         if (!Class::IsGeneric(klass))
             SetupGCDescriptor(klass);
 
-#if IL2CPP_DEBUGGER_ENABLED
-        // Gab: not sure this is the best place to put the typeload event notification,
-        // we probably want to send a typeload event for all the know types at startup.
-        il2cpp_debugger_notify_type_load(klass);
-#endif
-
         if (klass->generic_class)
         {
             const Il2CppTypeDefinition* typeDefinition = GenericClass::GetTypeDefinition(klass->generic_class)->typeDefinition;
@@ -1777,15 +1767,6 @@ namespace vm
         return s_staticFieldData;
     }
 
-    const Il2CppDebugTypeInfo *Class::GetDebugInfo(const Il2CppClass *klass)
-    {
-#if IL2CPP_DEBUGGER_ENABLED
-        return klass->debug_info;
-#else
-        return NULL;
-#endif
-    }
-
     const size_t kWordSize = (8 * sizeof(size_t));
 
     static inline void set_bit(size_t* bitmap, size_t index)
@@ -1809,6 +1790,11 @@ namespace vm
     const char *Class::GetAssemblyName(const Il2CppClass *klass)
     {
         return klass->image->name;
+    }
+
+    const char *Class::GetAssemblyNameNoExtension(const Il2CppClass *klass)
+    {
+        return klass->image->nameNoExt;
     }
 
     void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset)

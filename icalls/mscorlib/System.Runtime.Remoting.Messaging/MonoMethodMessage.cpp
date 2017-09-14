@@ -1,8 +1,8 @@
 #include "il2cpp-config.h"
 #include "il2cpp-api.h"
-#include "class-internals.h"
-#include "object-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "icalls/mscorlib/System.Runtime.Remoting.Messaging/MonoMethodMessage.h"
 #include "vm/Exception.h"
 #include "vm/Atomic.h"
@@ -66,7 +66,7 @@ namespace Messaging
         IL2CPP_OBJECT_SETREF(this_obj, arg_types, arr);
 
         this_obj->async_result = NULL;
-        this_obj->call_type = CallType_Sync;
+        this_obj->call_type = Il2Cpp_CallType_Sync;
 
         il2cpp::utils::dynamic_array<const char*> names(method->method->parameters_count);
 

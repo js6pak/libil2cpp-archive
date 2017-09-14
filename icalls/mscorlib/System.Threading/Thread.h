@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Thread.h"
 #include "il2cpp-config.h"
 

@@ -13,11 +13,11 @@
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/Type.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "gc/gc_wrapper.h"
 #include "gc/GarbageCollector.h"
-#include "tabledefs.h"
+#include "il2cpp-tabledefs.h"
 
 #if IL2CPP_GC_BOEHM
 #define ALLOC_PTRFREE(obj, vt, size) do { (obj) = (Il2CppObject*)GC_MALLOC_ATOMIC ((size)); (obj)->klass = (vt); (obj)->monitor = NULL;} while (0)

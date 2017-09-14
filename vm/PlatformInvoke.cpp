@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 
-#include "object-internals.h"
-#include "class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-class-internals.h"
 #include "il2cpp-vm-support.h"
 #include "PlatformInvoke.h"
 #include "Exception.h"
@@ -9,6 +9,7 @@
 #include "MetadataCache.h"
 #include "Object.h"
 #include "Method.h"
+#include "Runtime.h"
 #include "Type.h"
 #include "os/LibraryLoader.h"
 #include "os/MarshalStringAlloc.h"
@@ -416,9 +417,11 @@ namespace vm
         const MethodInfo* method = utils::NativeDelegateMethodCache::GetNativeDelegate(nativeFunctionPointer);
         if (method == NULL)
         {
+            const MethodInfo* invoke = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
             MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC(1, sizeof(MethodInfo));
             newMethod->methodPointer = nativeFunctionPointer;
             newMethod->invoker_method = NULL;
+            newMethod->parameters_count = invoke->parameters_count;
             utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }

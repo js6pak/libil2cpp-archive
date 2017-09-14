@@ -1,7 +1,9 @@
 #pragma once
 
 #include <stdint.h>
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #define WIN32_LEAN_AND_MEAN 1
 #define INC_OLE2 1
 #include <Windows.h>

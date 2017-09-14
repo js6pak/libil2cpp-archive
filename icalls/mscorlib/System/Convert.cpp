@@ -2,8 +2,8 @@
 #include <ctype.h>
 #include "icalls/mscorlib/System/Convert.h"
 #include "il2cpp-api.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Array.h"
 #include "vm/Image.h"
 #include "vm/Exception.h"

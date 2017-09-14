@@ -155,6 +155,7 @@ DO_API(void, il2cpp_profiler_set_events, (Il2CppProfileFlags events));
 DO_API(void, il2cpp_profiler_install_enter_leave, (Il2CppProfileMethodFunc enter, Il2CppProfileMethodFunc fleave));
 DO_API(void, il2cpp_profiler_install_allocation, (Il2CppProfileAllocFunc callback));
 DO_API(void, il2cpp_profiler_install_gc, (Il2CppProfileGCFunc callback, Il2CppProfileGCResizeFunc heap_resize_callback));
+DO_API(void, il2cpp_profiler_install_fileio, (Il2CppProfileFileIOFunc callback));
 
 #endif
 
@@ -242,27 +243,3 @@ DO_API(void, il2cpp_set_find_plugin_callback, (Il2CppSetFindPlugInCallback metho
 
 // Logging
 DO_API(void, il2cpp_register_log_callback, (Il2CppLogCallback method));
-
-#if IL2CPP_DEBUGGER_ENABLED
-// debug
-DO_API(const Il2CppDebugTypeInfo*, il2cpp_debug_get_class_info, (const Il2CppClass * klass));
-DO_API(const Il2CppDebugDocument*, il2cpp_debug_class_get_document, (const Il2CppDebugTypeInfo * info));
-DO_API(const char*, il2cpp_debug_document_get_filename, (const Il2CppDebugDocument * document));
-DO_API(const char*, il2cpp_debug_document_get_directory, (const Il2CppDebugDocument * document));
-DO_API(const Il2CppDebugMethodInfo*, il2cpp_debug_get_method_info, (const MethodInfo * method));
-DO_API(const Il2CppDebugDocument*, il2cpp_debug_method_get_document, (const Il2CppDebugMethodInfo * info));
-DO_API(const int32_t*, il2cpp_debug_method_get_offset_table, (const Il2CppDebugMethodInfo * info));
-DO_API(size_t, il2cpp_debug_method_get_code_size, (const Il2CppDebugMethodInfo * info));
-DO_API(void, il2cpp_debug_update_frame_il_offset, (int32_t il_offset));
-DO_API(const Il2CppDebugLocalsInfo**, il2cpp_debug_method_get_locals_info, (const Il2CppDebugMethodInfo * info));
-DO_API(const Il2CppClass*, il2cpp_debug_local_get_type, (const Il2CppDebugLocalsInfo * info));
-DO_API(const char*, il2cpp_debug_local_get_name, (const Il2CppDebugLocalsInfo * info));
-DO_API(uint32_t, il2cpp_debug_local_get_start_offset, (const Il2CppDebugLocalsInfo * info));
-DO_API(uint32_t, il2cpp_debug_local_get_end_offset, (const Il2CppDebugLocalsInfo * info));
-DO_API(Il2CppObject*, il2cpp_debug_method_get_param_value, (const Il2CppStackFrameInfo * info, uint32_t position));
-DO_API(Il2CppObject*, il2cpp_debug_frame_get_local_value, (const Il2CppStackFrameInfo * info, uint32_t position));
-DO_API(void*, il2cpp_debug_method_get_breakpoint_data_at, (const Il2CppDebugMethodInfo * info, int64_t uid, int32_t offset));
-DO_API(void, il2cpp_debug_method_set_breakpoint_data_at, (const Il2CppDebugMethodInfo * info, uint64_t location, void *data));
-DO_API(void, il2cpp_debug_method_clear_breakpoint_data, (const Il2CppDebugMethodInfo * info));
-DO_API(void, il2cpp_debug_method_clear_breakpoint_data_at, (const Il2CppDebugMethodInfo * info, uint64_t location));
-#endif

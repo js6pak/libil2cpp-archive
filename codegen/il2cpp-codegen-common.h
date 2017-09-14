@@ -9,10 +9,9 @@
 #include <math.h>
 #include <vector>
 
-#include "object-internals.h"
-#include "class-internals.h"
-#include "tabledefs.h"
-#include "icallincludes.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-tabledefs.h"
 
 #include "vm/PlatformInvoke.h"
 #include "vm/StackTrace.h"
@@ -44,12 +43,8 @@ REAL_NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
 }
 
 #if IL2CPP_COMPILER_MSVC
-#define STDCALL __stdcall
-#define CDECL __cdecl
 #define DEFAULT_CALL STDCALL
 #else
-#define STDCALL
-#define CDECL
 #define DEFAULT_CALL
 #endif
 
@@ -117,6 +112,11 @@ inline bool il2cpp_codegen_check_mul_overflow_i64(int64_t a, int64_t b, int64_t 
     return ua != 0 && ub > c / ua;
 }
 
+inline bool il2cpp_codegen_check_mul_oveflow_u64(uint64_t a, uint64_t b)
+{
+    return b != 0 && (a * b) / b != a;
+}
+
 inline int32_t il2cpp_codegen_abs(uint32_t value)
 {
     return abs(static_cast<int32_t>(value));
@@ -165,11 +165,9 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     if(__leave_target == Offset) \
         goto Target;
 
-
-
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message) \
     do {\
-        il2cpp_codegen_raise_exception((Il2CppCodeGenException*)message, (MethodInfo*)lastManagedFrame);\
+        il2cpp_codegen_raise_exception((Exception_t*)message);\
         il2cpp_codegen_no_return();\
     } while (0)
 
@@ -213,10 +211,53 @@ inline REAL_NORETURN void il2cpp_codegen_abort()
     il2cpp_codegen_no_return();
 }
 
-#ifdef _MSC_VER
-#define IL2CPP_DISABLE_OPTIMIZATIONS __pragma(optimize("", off))
-#define IL2CPP_ENABLE_OPTIMIZATIONS __pragma(optimize("", on))
-#else
-#define IL2CPP_DISABLE_OPTIMIZATIONS __attribute__ ((optnone))
-#define IL2CPP_ENABLE_OPTIMIZATIONS
-#endif
+inline bool il2cpp_codegen_check_add_overflow(int64_t left, int64_t right)
+{
+    return (right >= 0 && left > kIl2CppInt64Max - right) ||
+        (left < 0 && right < kIl2CppInt64Min - left);
+}
+
+inline bool il2cpp_codegen_check_sub_overflow(int64_t left, int64_t right)
+{
+    return (right >= 0 && left < kIl2CppInt64Min + right) ||
+        (right < 0 && left > kIl2CppInt64Max + right);
+}
+
+template<bool, class T, class U>
+struct pick_first;
+
+template<class T, class U>
+struct pick_first<true, T, U>
+{
+    typedef T type;
+};
+
+template<class T, class U>
+struct pick_first<false, T, U>
+{
+    typedef U type;
+};
+
+template<class T, class U>
+struct pick_bigger
+{
+    typedef typename pick_first<(sizeof(T) >= sizeof(U)), T, U>::type type;
+};
+
+template<typename T, typename U>
+inline typename pick_bigger<T, U>::type il2cpp_codegen_multiply(T left, U right)
+{
+    return left * right;
+}
+
+template<typename T, typename U>
+inline typename pick_bigger<T, U>::type il2cpp_codegen_add(T left, U right)
+{
+    return left + right;
+}
+
+template<typename T, typename U>
+inline typename pick_bigger<T, U>::type il2cpp_codegen_subtract(T left, U right)
+{
+    return left - right;
+}

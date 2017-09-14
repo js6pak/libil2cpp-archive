@@ -6,6 +6,14 @@
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
 
+
+#if defined(RUNTIME_MONO)
+extern "C"
+{
+#include <mono/metadata/unity-utils.h>
+}
+#endif
+
 namespace il2cpp
 {
 namespace utils

@@ -10,7 +10,7 @@ typedef il2cpp::os::ThreadLocalValue UnityPalThreadLocalValue;
 
 typedef struct UnityPalThreadLocalValue UnityPalThreadLocalValue;
 
-#endif //__cplusplus
+#endif
 
 #if defined(__cplusplus)
 extern "C"

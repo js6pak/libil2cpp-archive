@@ -1,5 +1,5 @@
 #include "il2cpp-config.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 
 #if _MSC_VER
 

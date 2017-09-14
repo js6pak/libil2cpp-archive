@@ -9,7 +9,7 @@ namespace il2cpp
 {
 namespace os
 {
-    inline void Atomic::MemoryBarrier()
+    inline void Atomic::FullMemoryBarrier()
     {
         __sync_synchronize();
     }

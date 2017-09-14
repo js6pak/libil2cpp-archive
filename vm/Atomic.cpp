@@ -71,9 +71,9 @@ namespace vm
         return os::Atomic::Read64(addr);
     }
 
-    void Atomic::MemoryBarrier()
+    void Atomic::FullMemoryBarrier()
     {
-        os::Atomic::MemoryBarrier();
+        os::Atomic::FullMemoryBarrier();
     }
 } /* namespace vm */
 } /* namespace il2pp */

@@ -1,5 +1,5 @@
 #include "VmStringUtils.h"
-#include "../object-internals.h"
+#include "../il2cpp-object-internals.h"
 #include "../char-conversions.h"
 #include "utils/Functional.h"
 #include "utils/StringUtils.h"

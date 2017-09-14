@@ -2,7 +2,7 @@
 
 #if IL2CPP_TARGET_WINDOWS
 
-#include "metadata.h"
+#include "il2cpp-runtime-metadata.h"
 #include "os/Mutex.h"
 #include "os/LibraryLoader.h"
 #include "os/Image.h"
@@ -153,6 +153,11 @@ namespace os
 
     void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
     {
+        return LoadDynamicLibrary(nativeDynamicLibrary, 0);
+    }
+
+    void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, int flags)
+    {
         if (nativeDynamicLibrary.IsEmpty())
             return (HMODULE)Image::GetImageBase();
 
@@ -250,6 +255,25 @@ namespace os
         {
             FreeLibrary(it->second);
         }
+    }
+
+    bool LibraryLoader::CloseLoadedLibrary(void*& dynamicLibrary)
+    {
+        if (dynamicLibrary == NULL)
+            return false;
+
+        os::FastAutoLock lock(&s_NativeDllCacheMutex);
+
+        for (DllCacheIterator it = s_NativeDllCache.begin(); it != s_NativeDllCache.end(); it++)
+        {
+            if (it->second == dynamicLibrary)
+            {
+                FreeLibrary(it->second);
+                s_NativeDllCache.erase(it);
+                return true;
+            }
+        }
+        return false;
     }
 }
 }

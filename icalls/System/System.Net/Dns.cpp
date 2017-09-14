@@ -2,8 +2,8 @@
 
 #include "icalls/System/System.Net/Dns.h"
 
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Array.h"
 #include "vm/String.h"
 #include "os/Socket.h"
@@ -51,7 +51,7 @@ namespace Net
             ++it;
         }
 
-        return (result != os::kWaitStatusFailure);
+        return (result != kWaitStatusFailure);
     }
 
     bool Dns::GetHostByName(Il2CppString* host, Il2CppString** h_name, Il2CppArray** h_aliases, Il2CppArray** h_addr_list)
@@ -85,14 +85,14 @@ namespace Net
             ++it;
         }
 
-        return (result != os::kWaitStatusFailure);
+        return (result != kWaitStatusFailure);
     }
 
     bool Dns::GetHostName(Il2CppString** name)
     {
         std::string host_name;
 
-        *name = (os::Socket::GetHostName(host_name) != os::kWaitStatusFailure)
+        *name = (os::Socket::GetHostName(host_name) != kWaitStatusFailure)
             ? vm::String::New(host_name.c_str())
             : NULL;
 

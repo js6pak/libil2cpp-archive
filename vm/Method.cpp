@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include "vm/Method.h"
-#include "tabledefs.h"
-#include "class-internals.h"
+#include "il2cpp-tabledefs.h"
+#include "il2cpp-class-internals.h"
 #include "vm/Class.h"
 #include "vm/MetadataCache.h"
 #include "vm/Object.h"
@@ -35,11 +35,6 @@ namespace vm
     bool Method::IsInflated(const MethodInfo *method)
     {
         return method->is_inflated;
-    }
-
-    bool Method::IsGenericInstance(const MethodInfo *method)
-    {
-        return method->is_inflated && !method->is_generic;
     }
 
     bool Method::IsInstance(const MethodInfo *method)
@@ -78,15 +73,6 @@ namespace vm
     bool Method::HasAttribute(const MethodInfo *method, Il2CppClass *attr_class)
     {
         return Reflection::HasAttribute(method, attr_class);
-    }
-
-    const Il2CppDebugMethodInfo *Method::GetDebugInfo(const MethodInfo *method)
-    {
-#if IL2CPP_DEBUGGER_ENABLED
-        return method->debug_info;
-#else
-        return NULL;
-#endif
     }
 
     uint32_t Method::GetImplementationFlags(const MethodInfo *method)

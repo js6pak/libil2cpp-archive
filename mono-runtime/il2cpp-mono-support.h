@@ -4,6 +4,7 @@
 
 #include "il2cpp-metadata.h"
 #include <vector>
+#include <string>
 
 struct MethodInfo;
 struct VirtualInvokeData;

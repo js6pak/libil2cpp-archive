@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include <string>
-#include "object-internals.h"
-#include "class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-class-internals.h"
 #include "icalls/mscorlib/System/MonoEnumInfo.h"
 #include "vm/Array.h"
 #include "vm/Class.h"

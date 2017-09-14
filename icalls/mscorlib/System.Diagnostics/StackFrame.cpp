@@ -2,7 +2,7 @@
 #include "icalls/mscorlib/System.Diagnostics/StackFrame.h"
 #include "vm/Reflection.h"
 #include "vm/StackTrace.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 
 using namespace il2cpp::vm;
 

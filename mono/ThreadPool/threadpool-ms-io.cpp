@@ -26,7 +26,7 @@
 #include "mono/ThreadPool/threadpool-ms.h"
 #include "mono/ThreadPool/threadpool-ms-io.h"
 #include "mono/ThreadPool/threadpool-ms-io-poll.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "os/ConditionVariable.h"
 #include "os/Mutex.h"
 #include "os/Socket.h"
@@ -150,7 +150,7 @@ static void selector_thread_wakeup (void)
 			break;
 		}
 
-		if (status == il2cpp::os::kWaitStatusFailure)
+		if (status == kWaitStatusFailure)
 			break;
 	}
 }
@@ -164,7 +164,7 @@ static void selector_thread_wakeup_drain_pipes (void)
 		il2cpp::os::WaitStatus status = threadpool_io->wakeup_pipes[0]->Receive(buffer, 128, il2cpp::os::kSocketFlagsNone, &received);
 		if (received == 0)
 			break;
-		if (status == il2cpp::os::kWaitStatusFailure)
+		if (status == kWaitStatusFailure)
 			break;
 	}
 }
@@ -454,9 +454,9 @@ static void wakeup_pipes_init(void)
 
 	threadpool_io->wakeup_pipes[1] = new il2cpp::os::Socket(NULL);
 	il2cpp::os::WaitStatus status = threadpool_io->wakeup_pipes[1]->Create(il2cpp::os::kAddressFamilyInterNetwork, il2cpp::os::kSocketTypeStream, il2cpp::os::kProtocolTypeTcp);
-	IL2CPP_ASSERT(status != il2cpp::os::kWaitStatusFailure);
+	IL2CPP_ASSERT(status != kWaitStatusFailure);
 
-	if (serverSock.Bind("127.0.0.1", 0) == il2cpp::os::kWaitStatusFailure)
+	if (serverSock.Bind("127.0.0.1", 0) == kWaitStatusFailure)
 	{
 		serverSock.Close();
 		IL2CPP_ASSERT(0 && "wakeup_pipes_init: bind () failed");
@@ -464,30 +464,30 @@ static void wakeup_pipes_init(void)
 
 	il2cpp::os::EndPointInfo info;
 	memset(&info, 0x00, sizeof(il2cpp::os::EndPointInfo));
-	if (serverSock.GetLocalEndPointInfo(info) == il2cpp::os::kWaitStatusFailure)
+	if (serverSock.GetLocalEndPointInfo(info) == kWaitStatusFailure)
 	{
 		serverSock.Close();
 		IL2CPP_ASSERT(0 && "wakeup_pipes_init: getsockname () failed");
 	}
 
-	if (serverSock.Listen(1024) == il2cpp::os::kWaitStatusFailure)
+	if (serverSock.Listen(1024) == kWaitStatusFailure)
 	{
 		serverSock.Close();
 		IL2CPP_ASSERT(0 && "wakeup_pipes_init: listen () failed");
 	}
 
-	if (threadpool_io->wakeup_pipes[1]->Connect(info.data.inet.address, info.data.inet.port) == il2cpp::os::kWaitStatusFailure)
+	if (threadpool_io->wakeup_pipes[1]->Connect(info.data.inet.address, info.data.inet.port) == kWaitStatusFailure)
 	{
 		serverSock.Close();
 		IL2CPP_ASSERT(0 && "wakeup_pipes_init: connect () failed");
 	}
 
 	status = serverSock.Accept(&threadpool_io->wakeup_pipes[0]);
-	IL2CPP_ASSERT(status != il2cpp::os::kWaitStatusFailure);
+	IL2CPP_ASSERT(status != kWaitStatusFailure);
 
 	status = threadpool_io->wakeup_pipes[0]->SetBlocking(false);
 
-	if (status == il2cpp::os::kWaitStatusFailure)
+	if (status == kWaitStatusFailure)
 	{
 		threadpool_io->wakeup_pipes[0]->Close();
 		serverSock.Close();
@@ -576,7 +576,7 @@ void ves_icall_System_IOSelector_Add (intptr_t handle, Il2CppIOSelectorJob *job)
 	update->type = UPDATE_ADD;
 	update->data.add.fd = (int)socketHandle.GetSocket()->GetDescriptor();
 	update->data.add.job = job;
-	il2cpp::os::Atomic::MemoryBarrier(); /* Ensure this is safely published before we wake up the selector */
+	il2cpp::os::Atomic::FullMemoryBarrier(); /* Ensure this is safely published before we wake up the selector */
 
 	selector_thread_wakeup ();
 
@@ -601,7 +601,7 @@ void threadpool_ms_io_remove_socket (int fd)
 	update = update_get_new ();
 	update->type = UPDATE_REMOVE_SOCKET;
 	update->data.add.fd = fd;
-	il2cpp::os::Atomic::MemoryBarrier(); /* Ensure this is safely published before we wake up the selector */
+	il2cpp::os::Atomic::FullMemoryBarrier(); /* Ensure this is safely published before we wake up the selector */
 
 	selector_thread_wakeup ();
 

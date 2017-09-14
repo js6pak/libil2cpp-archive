@@ -35,6 +35,8 @@ namespace os
         virtual ~EventHandle() { delete m_Event; }
         virtual bool Wait() { m_Event->Wait(true); return true; }
         virtual bool Wait(uint32_t ms) { return m_Event->Wait(ms, true) != kWaitStatusTimeout; }
+        virtual WaitStatus Wait(bool interruptible) { return m_Event->Wait(interruptible); }
+        virtual WaitStatus Wait(uint32_t ms, bool interruptible) { return m_Event->Wait(ms, interruptible); }
         virtual void Signal() { m_Event->Set(); }
         Event& Get() { return *m_Event; }
 

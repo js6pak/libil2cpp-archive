@@ -5,7 +5,7 @@
 #include "il2cpp-config.h"
 #include "Assembly.h"
 #include "metadata/Il2CppTypeVector.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 
 struct MethodInfo;
 struct Il2CppClass;

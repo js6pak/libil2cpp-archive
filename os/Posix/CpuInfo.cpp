@@ -1,6 +1,6 @@
 #if NET_4_0
 #include "il2cpp-config.h"
-#if IL2CPP_ENABLE_CPU_INFO
+#if !IL2CPP_USE_GENERIC_CPU_INFO
 
 #if IL2CPP_TARGET_POSIX
 

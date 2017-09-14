@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../blob.h"
+#include "../il2cpp-blob.h"
 
 namespace il2cpp
 {

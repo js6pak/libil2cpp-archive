@@ -11,7 +11,7 @@ typedef il2cpp::os::Directory::FindHandle UnityPalFindHandle;
 
 typedef struct UnityPalFindHandle UnityPalFindHandle;
 
-#endif //__cplusplus
+#endif
 
 #if defined(__cplusplus)
 extern "C"

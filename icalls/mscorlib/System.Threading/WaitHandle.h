@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "il2cpp-config.h"
 
 struct Il2CppArray;

@@ -74,52 +74,6 @@
     <ClCompile Include="vm\Domain.cpp">
       <Filter>vm</Filter>
     </ClCompile>
-    <ClCompile Include="il2cpp-debugger.cpp" />
-    <ClCompile Include="debugger\agent.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\transport-tcp.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\data-buffer.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\id-brank.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\event-request.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\utils.cpp">
-      <Filter>debugger\protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\protocol.cpp">
-      <Filter>debugger\protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\events.cpp">
-      <Filter>debugger\protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\app-domain.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\event.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\event-request.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\internal-error.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\vm.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\app-domain.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\array-ref.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
     <ClCompile Include="os\Win32\Memory.cpp">
       <Filter>os\Win32</Filter>
     </ClCompile>
@@ -174,79 +128,13 @@
     <ClCompile Include="os\Posix\EventImpl.cpp">
       <Filter>os\Posix</Filter>
     </ClCompile>
-    <ClCompile Include="debugger\handlers\assembly.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\event.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\event-request.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\internal-error.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\method.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\module.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\object-ref.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\stack-frame.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\string-ref.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\thread.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\type.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\handlers\vm.cpp">
-      <Filter>debugger\handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\object-ref.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\type.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\thread.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\assembly.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
     <ClCompile Include="vm\Debug.cpp">
       <Filter>vm</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\method.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\module.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\array-ref.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\stack-frame.cpp">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\protocol\commands\string-ref.cpp">
-      <Filter>debugger\protocol\commands</Filter>
     </ClCompile>
     <ClCompile Include="icalls\System\System.Diagnostics\Stopwatch.cpp">
       <Filter>icalls\System\System.Diagnostics</Filter>
     </ClCompile>
     <ClCompile Include="class-internals.cpp" />
-    <ClCompile Include="debugger\variant.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
     <ClCompile Include="os\Posix\Directory.cpp">
       <Filter>os\Posix</Filter>
     </ClCompile>
@@ -402,15 +290,6 @@
     </ClCompile>
     <ClCompile Include="gc\WriteBarrier.cpp">
       <Filter>gc</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\thread-data.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\command-line-parser.cpp">
-      <Filter>debugger</Filter>
-    </ClCompile>
-    <ClCompile Include="debugger\il2cpp-api-test-forwarder.cpp">
-      <Filter>debugger</Filter>
     </ClCompile>
     <ClCompile Include="os\Win32\Environment.cpp">
       <Filter>os\Win32</Filter>
@@ -868,10 +747,16 @@
     <ClCompile Include="utils\Exception.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="os\c-api\Console.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
     <ClCompile Include="os\c-api\Error.cpp">
       <Filter>os\c-api</Filter>
     </ClCompile>
     <ClCompile Include="os\c-api\File.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\LibraryLoader.cpp">
       <Filter>os\c-api</Filter>
     </ClCompile>
     <ClCompile Include="os\c-api\Locale.cpp">
@@ -922,9 +807,6 @@
     <ClCompile Include="os\c-api\Mutex.cpp">
       <Filter>os\c-api</Filter>
     </ClCompile>
-    <ClCompile Include="os\c-api\ConditionVariable.cpp">
-      <Filter>os\c-api</Filter>
-    </ClCompile>
     <ClCompile Include="os\c-api\Environment.cpp">
       <Filter>os\c-api</Filter>
     </ClCompile>
@@ -933,6 +815,21 @@
     </ClCompile>
     <ClCompile Include="os\c-api\Thread.cpp">
       <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Generic\CpuInfo.cpp">
+      <Filter>os\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\Handle.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\Event.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\Semaphore.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Handle.cpp">
+      <Filter>os</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1771,6 +1668,9 @@
     <ClInclude Include="os\c-api\ConditionVariable-c-api.h">
       <Filter>os\c-api</Filter>
     </ClInclude>
+    <ClInclude Include="os\c-api\Console-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
     <ClInclude Include="os\c-api\CpuInfo-c-api.h">
       <Filter>os\c-api</Filter>
     </ClInclude>
@@ -1787,6 +1687,9 @@
       <Filter>os\c-api</Filter>
     </ClInclude>
     <ClInclude Include="os\c-api\File-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\LibraryLoader-c-api.h">
       <Filter>os\c-api</Filter>
     </ClInclude>
     <ClInclude Include="os\c-api\Locale-c-api.h">
@@ -1875,6 +1778,24 @@
     <ClInclude Include="os\c-api\Posix\AtomicImpl-c-api.h">
       <Filter>os\c-api\Posix</Filter>
     </ClInclude>
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\ConditionVariable.cpp" />
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\Handle-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Event-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\Semaphore-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\WaitStatus-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Allocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1983,73 +1904,6 @@
       <Filter>vm</Filter>
     </ClInclude>
     <ClInclude Include="il2cpp-api-types.h" />
-    <ClInclude Include="il2cpp-debugger.h" />
-    <ClInclude Include="debugger\agent.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\common.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\transport.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\transport-tcp.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\data-buffer.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\id-bank.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\event-request.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\protocol.h">
-      <Filter>debugger\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\globals.h">
-      <Filter>debugger\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\utils.h">
-      <Filter>debugger\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\events.h">
-      <Filter>debugger\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\app-domain.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\array-ref.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\assembly.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\event.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\event-request.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\internal-error.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\method.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\module.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\object-ref.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\stack-frame.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\string-ref.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
     <ClInclude Include="os\ThreadLocalValue.h">
       <Filter>os</Filter>
     </ClInclude>
@@ -2116,23 +1970,8 @@
     <ClInclude Include="os\Win32\AtomicImpl.h">
       <Filter>os\Win32</Filter>
     </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\thread.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\type.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\commands\vm.h">
-      <Filter>debugger\protocol\commands</Filter>
-    </ClInclude>
     <ClInclude Include="vm\Debug.h">
       <Filter>vm</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\meta.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\protocol\protocol-utils.h">
-      <Filter>debugger\protocol</Filter>
     </ClInclude>
     <ClInclude Include="icalls\System\System.Diagnostics\Stopwatch.h">
       <Filter>icalls\System\System.Diagnostics</Filter>
@@ -2140,20 +1979,8 @@
     <ClInclude Include="os\Cryptography.h">
       <Filter>os</Filter>
     </ClInclude>
-    <ClInclude Include="debugger\variant.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
     <ClInclude Include="os\Environment.h">
       <Filter>os</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\thread-data.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\command-line-parser.h">
-      <Filter>debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="debugger\il2cpp-api-test-forwarder.h">
-      <Filter>debugger</Filter>
     </ClInclude>
     <ClInclude Include="icalls\mscorlib\Mono\Runtime.h">
       <Filter>icalls\mscorlib\Mono</Filter>
@@ -2504,18 +2331,6 @@
     </Filter>
     <Filter Include="gc">
       <UniqueIdentifier>{a4e50a2b-8cc0-4b94-8ce4-61f0f0bda60a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="debugger">
-      <UniqueIdentifier>{aea99ed3-49d2-479a-a165-8a9df63c1eae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="debugger\protocol">
-      <UniqueIdentifier>{fee96542-a7ef-456a-a3d5-54d524c39258}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="debugger\protocol\commands">
-      <UniqueIdentifier>{89a08caa-c0c1-440d-b1f9-e9285efbb85c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="debugger\handlers">
-      <UniqueIdentifier>{9c670285-c3d2-486a-8589-95e815a581b6}</UniqueIdentifier>
     </Filter>
     <Filter Include="icalls\System">
       <UniqueIdentifier>{d0df3daa-3047-43fb-9090-cf76f5b7f8dc}</UniqueIdentifier>

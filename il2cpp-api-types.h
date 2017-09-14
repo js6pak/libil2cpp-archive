@@ -24,13 +24,6 @@ struct Il2CppString;
 struct Il2CppThread;
 struct Il2CppAsyncResult;
 
-#if IL2CPP_DEBUGGER_ENABLED
-struct Il2CppDebugDocument;
-struct Il2CppDebugTypeInfo;
-struct Il2CppDebugMethodInfo;
-struct Il2CppDebugLocalsInfo;
-#endif
-
 enum Il2CppProfileFlags
 {
     IL2CPP_PROFILE_NONE = 0,
@@ -52,8 +45,15 @@ enum Il2CppProfileFlags
     IL2CPP_PROFILE_STATISTICAL      = 1 << 15,
     IL2CPP_PROFILE_METHOD_EVENTS    = 1 << 16,
     IL2CPP_PROFILE_MONITOR_EVENTS   = 1 << 17,
-    IL2CPP_PROFILE_IOMAP_EVENTS = 1 << 18, /* this should likely be removed, too */
-    IL2CPP_PROFILE_GC_MOVES = 1 << 19
+    IL2CPP_PROFILE_IOMAP_EVENTS     = 1 << 18, /* this should likely be removed, too */
+    IL2CPP_PROFILE_GC_MOVES         = 1 << 19,
+    IL2CPP_PROFILE_FILEIO           = 1 << 20
+};
+
+enum Il2CppProfileFileIOKind
+{
+    IL2CPP_PROFILE_FILEIO_WRITE = 0,
+    IL2CPP_PROFILE_FILEIO_READ
 };
 
 enum Il2CppGCEvent
@@ -90,14 +90,6 @@ enum Il2CppStat
     //IL2CPP_STAT_MAJOR_GC_TIME_USECS
 };
 
-enum StackFrameType
-{
-    FRAME_TYPE_MANAGED = 0,
-    FRAME_TYPE_DEBUGGER_INVOKE = 1,
-    FRAME_TYPE_MANAGED_TO_NATIVE = 2,
-    FRAME_TYPE_SENTINEL = 3
-};
-
 enum Il2CppRuntimeUnhandledExceptionPolicy
 {
     IL2CPP_UNHANDLED_POLICY_LEGACY,
@@ -107,24 +99,7 @@ enum Il2CppRuntimeUnhandledExceptionPolicy
 struct Il2CppStackFrameInfo
 {
     const MethodInfo *method;
-
-#if IL2CPP_DEBUGGER_ENABLED
-    int32_t id;
-    StackFrameType type;
-    uint32_t il_offset;
-    void *this_ptr;
-    void **params;
-    uint32_t params_count;
-    void **locals;
-    uint32_t locals_count;
-#endif
 };
-
-#if defined(RUNTIME_MONO)
-
-#include "mono-api.h"
-
-#endif // defined(RUNTIME_MONO)
 
 typedef struct
 {
@@ -167,6 +142,7 @@ typedef void (*Il2CppProfileMethodFunc) (Il2CppProfiler* prof, const MethodInfo 
 typedef void (*Il2CppProfileAllocFunc) (Il2CppProfiler* prof, Il2CppObject *obj, Il2CppClass *klass);
 typedef void (*Il2CppProfileGCFunc) (Il2CppProfiler* prof, Il2CppGCEvent event, int generation);
 typedef void (*Il2CppProfileGCResizeFunc) (Il2CppProfiler* prof, int64_t new_size);
+typedef void (*Il2CppProfileFileIOFunc) (Il2CppProfiler* prof, Il2CppProfileFileIOKind kind, int count);
 
 typedef const Il2CppNativeChar* (*Il2CppSetFindPlugInCallback)(const Il2CppNativeChar*);
 typedef void (*Il2CppLogCallback)(const char*);

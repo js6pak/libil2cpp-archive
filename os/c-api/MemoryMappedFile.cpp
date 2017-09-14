@@ -22,4 +22,14 @@ void UnityPalMemoryMappedFileUnmapWithParams(void* address, size_t length)
 {
     il2cpp::os::MemoryMappedFile::Unmap(address, length);
 }
+
+void* UnityPalMemoryMappedFileMapWithFileDescriptor(int fd, size_t length, size_t offset)
+{
+#if IL2CPP_TARGET_POSIX
+    return il2cpp::os::MemoryMappedFile::Map(fd, length, offset);
+#else
+    IL2CPP_ASSERT(false && "mmap with file descriptor not supported");
+    return NULL;
+#endif
+}
 }
