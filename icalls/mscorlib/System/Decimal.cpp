@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
-#include "object-internals.h"
-#include "class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-class-internals.h"
 #include "icalls/mscorlib/System/Decimal.h"
 #include "utils/StringUtils.h"
 #include "vm/Exception.h"
@@ -920,11 +920,7 @@ typedef union
 
 static const SPLIT64    ten_to_eighteen = { 1000000000000000000ULL };
 
-#if IL2CPP_BYTE_ORDER == IL2CPP_BIG_ENDIAN
 const Il2CppDouble_double ds2to64 = { { 0, IL2CPP_DOUBLE_BIAS + 65, 0, 0 } };
-#else
-const Il2CppDouble_double ds2to64 = { { 0, 0, IL2CPP_DOUBLE_BIAS + 65, 0 } };
-#endif
 
 //
 // Data tables

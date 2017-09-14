@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils/dynamic_array.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 
 struct GPtrArray
 {

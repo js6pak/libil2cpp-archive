@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 
 #include "icalls/mscorlib/System/ConsoleDriver.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "os/Console.h"
 #include "os/File.h"
 #include "vm/Array.h"

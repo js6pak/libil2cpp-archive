@@ -1,7 +1,7 @@
 #pragma once
 #include "il2cpp-metadata.h"
 
-struct MonoMethodInfo
+struct MonoMethodInfoMetadata
 {
     int64_t hash;
     int32_t invoker_index;

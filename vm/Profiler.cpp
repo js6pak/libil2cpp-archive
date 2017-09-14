@@ -21,6 +21,8 @@ namespace vm
 
         Il2CppProfileGCFunc gcEventCallback;
         Il2CppProfileGCResizeFunc gcHeapResizeCallback;
+
+        Il2CppProfileFileIOFunc fileioCallback;
     };
 
     typedef il2cpp::utils::dynamic_array<ProfilerDesc*> ProfilersVec;
@@ -68,7 +70,12 @@ namespace vm
         s_profilers.back()->gcHeapResizeCallback = heap_resize_callback;
     }
 
-#if IL2CPP_ENABLE_PROFILER
+    void Profiler::InstallFileIO(Il2CppProfileFileIOFunc callback)
+    {
+        if (!s_profilers.size())
+            return;
+        s_profilers.back()->fileioCallback = callback;
+    }
 
     void Profiler::Allocation(Il2CppObject *obj, Il2CppClass *klass)
     {
@@ -115,7 +122,14 @@ namespace vm
         }
     }
 
-#endif
+    void Profiler::FileIO(Il2CppProfileFileIOKind kind, int count)
+    {
+        for (ProfilersVec::const_iterator iter = s_profilers.begin(); iter != s_profilers.end(); iter++)
+        {
+            if (((*iter)->events & IL2CPP_PROFILE_FILEIO) && (*iter)->fileioCallback)
+                (*iter)->fileioCallback((*iter)->profiler, kind, count);
+        }
+    }
 } /* namespace vm */
 } /* namespace il2cpp */
 

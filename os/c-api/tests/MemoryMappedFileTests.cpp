@@ -8,6 +8,11 @@
 #include "../File-c-api.h"
 #include "PathHelper.h"
 
+#if IL2CPP_TARGET_POSIX
+#include <fcntl.h>
+#include <unistd.h>
+#endif
+
 static const char* TEST_FILE_NAME = CURRENT_DIRECTORY("MEM_MAP_TEST_FILE");
 static const char* TEST_STRING = "THIS IS A TEST\r\nSTRING TO \r\nBE USED IN A \r\nMEMORY MAPPED FILE\r\n";
 
@@ -131,6 +136,32 @@ SUITE(MemoryMappedFile)
         apiAddress = UnityPalMemoryMappedFileMapWithParams(handle, length, offset);
         CHECK_NOT_NULL(apiAddress);
     }
+
+#if IL2CPP_TARGET_POSIX
+    TEST_FIXTURE(MapTestsWithParamsFixture, MapWithFileDescriptorReturnsAValidPointer)
+    {
+        int fd = open(TEST_FILE_NAME, O_RDONLY);
+        apiAddress = UnityPalMemoryMappedFileMapWithFileDescriptor(fd, length, offset);
+        CHECK_NOT_NULL(apiAddress);
+        close(fd);
+    }
+
+    TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithFileDescriptorPointerHasMatchingCharactersAsFile)
+    {
+        int fd = open(TEST_FILE_NAME, O_RDONLY);
+        apiAddress = UnityPalMemoryMappedFileMapWithFileDescriptor(fd, length, offset);
+        CHECK_EQUAL(0, strncmp("THIS IS", (const char*)apiAddress, length));
+        close(fd);
+    }
+
+    TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithFileDescriptorPointerHasMatchingSizeAsFile)
+    {
+        int fd = open(TEST_FILE_NAME, O_RDONLY);
+        apiAddress = UnityPalMemoryMappedFileMapWithFileDescriptor(fd, length, offset);
+        CHECK_EQUAL(strlen(TEST_STRING), strlen((const char*)apiAddress));
+        close(fd);
+    }
+#endif
 
     TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithParamsPointerHasMatchingCharactersAsFile)
     {

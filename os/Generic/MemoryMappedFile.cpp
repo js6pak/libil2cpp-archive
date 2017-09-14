@@ -45,6 +45,15 @@ namespace os
     {
         IL2CPP_FREE(address);
     }
+
+#if IL2CPP_TARGET_POSIX
+    void* MemoryMappedFile::Map(int fd, size_t length, size_t offset)
+    {
+        // Not Supported
+        return NULL;
+    }
+
+#endif
 }
 }
 #endif

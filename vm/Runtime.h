@@ -5,7 +5,7 @@
 #include <string>
 #include "il2cpp-config.h"
 #include "il2cpp-metadata.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "metadata/GenericMethod.h"
 #include "vm/Exception.h"
 #include "vm/Class.h"

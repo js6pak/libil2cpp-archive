@@ -22,6 +22,9 @@ namespace os
 
         static void* Map(FileHandle* file, size_t length, size_t offset);
         static void Unmap(void* address, size_t length);
+#if IL2CPP_TARGET_POSIX
+        static void* Map(int fd, size_t length, size_t offset);
+#endif
     };
 }
 }

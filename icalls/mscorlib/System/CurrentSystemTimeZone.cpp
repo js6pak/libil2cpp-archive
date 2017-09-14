@@ -1,8 +1,8 @@
 #include "il2cpp-config.h"
 #include <string>
 #include "icalls/mscorlib/System/CurrentSystemTimeZone.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Array.h"
 #include "vm/Exception.h"
 #include "vm/String.h"

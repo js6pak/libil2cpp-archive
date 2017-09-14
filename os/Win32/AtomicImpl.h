@@ -9,9 +9,7 @@ namespace il2cpp
 {
 namespace os
 {
-// MemoryBarrier is defined as a macro on x64 and as a function on x86.
-#undef MemoryBarrier
-    inline void Atomic::MemoryBarrier()
+    inline void Atomic::FullMemoryBarrier()
     {
 #if defined(_AMD64_)
         ::__faststorefence();

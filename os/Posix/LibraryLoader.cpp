@@ -12,8 +12,9 @@
 #include <string>
 #include <set>
 
-#include "metadata.h"
+#include "il2cpp-runtime-metadata.h"
 #include "os/LibraryLoader.h"
+#include "os/Mutex.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
@@ -26,6 +27,7 @@ namespace os
 {
     static std::set<void*> s_NativeHandlesOpen;
     typedef std::set<void*>::const_iterator OpenHandleIterator;
+    os::FastMutex s_NativeHandlesOpenMutex;
 
     struct LibraryNamePrefixAndSuffix
     {
@@ -55,7 +57,7 @@ namespace os
 // the values it returns, and we don't call dlcose from the C# level. See the
 // comments in the integration test code for more details.
 
-    static void* LoadLibraryWithName(const char* name)
+    static void* LoadLibraryWithName(const char* name, int flags)
     {
 #ifdef VERBOSE_OUTPUT
         printf("Trying name: %s\n", name);
@@ -71,13 +73,13 @@ namespace os
         }
 
         std::string libPath = utils::StringUtils::Printf("%s/%s", dirName.c_str(), name);
-        handle = dlopen(libPath.c_str(), RTLD_LAZY);
+        handle = dlopen(libPath.c_str(), flags);
 
         // Fallback to just using the name. This might be a system dylib.
         if (handle == NULL)
-            handle = dlopen(name, RTLD_LAZY);
+            handle = dlopen(name, flags);
 #else
-        handle = dlopen(name, RTLD_LAZY);
+        handle = dlopen(name, flags);
 #endif
 
         if (handle != NULL)
@@ -90,13 +92,13 @@ namespace os
         return NULL;
     }
 
-    static void* CheckLibraryVariations(const char* name)
+    static void* CheckLibraryVariations(const char* name, int flags)
     {
         int numberOfVariations = sizeof(LibraryNamePrefixAndSuffixVariations) / sizeof(LibraryNamePrefixAndSuffixVariations[0]);
         for (int i = 0; i < numberOfVariations; ++i)
         {
             std::string libraryName = LibraryNamePrefixAndSuffixVariations[i].prefix + name + LibraryNamePrefixAndSuffixVariations[i].suffix;
-            void* handle = LoadLibraryWithName(libraryName.c_str());
+            void* handle = LoadLibraryWithName(libraryName.c_str(), flags);
             if (handle != NULL)
                 return handle;
         }
@@ -111,18 +113,23 @@ namespace os
 
     void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
     {
+        return LoadDynamicLibrary(nativeDynamicLibrary, RTLD_LAZY);
+    }
+
+    void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, int flags)
+    {
 #ifdef VERBOSE_OUTPUT
         printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.Str());
 #endif
 
         if (nativeDynamicLibrary.IsEmpty())
-            return LoadLibraryWithName(NULL);
+            return LoadLibraryWithName(NULL, flags);
 
         StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
-        void* handle = LoadLibraryWithName(libraryName);
+        void* handle = LoadLibraryWithName(libraryName, flags);
 
         if (handle == NULL)
-            handle = CheckLibraryVariations(libraryName);
+            handle = CheckLibraryVariations(libraryName, flags);
 
         if (handle == NULL)
         {
@@ -133,10 +140,11 @@ namespace os
                 memcpy(nativeDynamicLibraryWithoutExtension, libraryName, lengthWithoutDotDll);
                 nativeDynamicLibraryWithoutExtension[lengthWithoutDotDll] = 0;
 
-                handle = CheckLibraryVariations(nativeDynamicLibraryWithoutExtension);
+                handle = CheckLibraryVariations(nativeDynamicLibraryWithoutExtension, flags);
             }
         }
 
+        os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         if (handle != NULL)
             s_NativeHandlesOpen.insert(handle);
 
@@ -202,10 +210,27 @@ namespace os
 
     void LibraryLoader::CleanupLoadedLibraries()
     {
+        os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         for (OpenHandleIterator it = s_NativeHandlesOpen.begin(); it != s_NativeHandlesOpen.end(); it++)
         {
             dlclose(*it);
         }
+    }
+
+    bool LibraryLoader::CloseLoadedLibrary(void*& dynamicLibrary)
+    {
+        if (dynamicLibrary == NULL)
+            return false;
+
+        os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
+        OpenHandleIterator it = s_NativeHandlesOpen.find(dynamicLibrary);
+        if (it != s_NativeHandlesOpen.end())
+        {
+            dlclose(*it);
+            s_NativeHandlesOpen.erase(it);
+            return true;
+        }
+        return false;
     }
 }
 }

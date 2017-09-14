@@ -2,8 +2,8 @@
 
 #include <cassert>
 
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 
 #include "il2cpp-mapping.h"
 #include "il2cpp-mono-support.h"
@@ -217,8 +217,12 @@ static void* MarshalInvokerMethod(Il2CppMethodPointer func, const MonoMethod* me
     return (MonoObject*)params[1];
 }
 
+static il2cpp::os::FastMutex s_MonoMethodFunctionPointerInitializationMutex;
+
 void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoError* error)
 {
+    il2cpp::os::FastAutoLock lock(&s_MonoMethodFunctionPointerInitializationMutex);
+
     bool* isSpecialMarshalingMethod = NULL;
     assert(method != NULL);
 
@@ -241,7 +245,7 @@ void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoErr
         //char *newMethodName = mono_method_get_name_full(sharedMethod, true, false, MONO_TYPE_NAME_FORMAT_IL);
 
         uint64_t hash = mono_unity_method_get_hash(sharedMethod, true);
-        const MonoMethodInfo *methodInfo = mono::vm::MetadataCache::GetMonoGenericMethodInfoFromMethodHash(hash);
+        const MonoMethodInfoMetadata *methodInfo = mono::vm::MetadataCache::GetMonoGenericMethodInfoFromMethodHash(hash);
 
         if (methodInfo)
         {
@@ -264,7 +268,7 @@ void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoErr
     else
     {
         uint64_t hash = mono_unity_method_get_hash(method, true);
-        const MonoMethodInfo *methodInfo = mono::vm::MetadataCache::GetMonoMethodInfoFromMethodHash(hash);
+        const MonoMethodInfoMetadata *methodInfo = mono::vm::MetadataCache::GetMonoMethodInfoFromMethodHash(hash);
 
         if (methodInfo)
         {

@@ -1,5 +1,5 @@
 #include "vm/Module.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 
 namespace il2cpp
 {

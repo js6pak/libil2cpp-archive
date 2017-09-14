@@ -2,7 +2,7 @@
 
 #include "icalls/mscorlib/Mono.Globalization.Unicode/Normalization.h"
 #include "vm/Exception.h"
-#include "normalization-tables.h"
+#include "il2cpp-normalization-tables.h"
 
 namespace il2cpp
 {

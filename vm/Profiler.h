@@ -19,6 +19,7 @@ namespace vm
         static void InstallEnterLeave(Il2CppProfileMethodFunc enter, Il2CppProfileMethodFunc fleave);
         static void InstallAllocation(Il2CppProfileAllocFunc callback);
         static void InstallGC(Il2CppProfileGCFunc callback, Il2CppProfileGCResizeFunc heap_resize_callback);
+        static void InstallFileIO(Il2CppProfileFileIOFunc callback);
 
 // internal
     public:
@@ -27,12 +28,18 @@ namespace vm
         static void MethodExit(const MethodInfo *method);
         static void GCEvent(Il2CppGCEvent eventType);
         static void GCHeapResize(int64_t newSize);
+        static void FileIO(Il2CppProfileFileIOKind kind, int count);
 
         static Il2CppProfileFlags s_profilerEvents;
 
         static inline bool ProfileAllocations()
         {
             return (s_profilerEvents & IL2CPP_PROFILE_ALLOCATIONS) != 0;
+        }
+
+        static inline bool ProfileFileIO()
+        {
+            return (s_profilerEvents & IL2CPP_PROFILE_FILEIO) != 0;
         }
 
     private:

@@ -129,7 +129,7 @@ poll_mark_bad_fds(std::vector<il2cpp::os::PollRequest> *poll_fds, int poll_fds_s
 
         il2cpp::os::WaitStatus status = il2cpp::os::Socket::Poll((*poll_fds)[i], 0, &result, &error);
 
-        if (status == il2cpp::os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             if ((il2cpp::os::SocketError)error == il2cpp::os::kInvalidHandle)
             {
@@ -159,7 +159,7 @@ int poll_event_wait(void (*callback)(int fd, int events, void* user_data), void*
 
     il2cpp::gc::GarbageCollector::SetSkipThread(false);
 
-    if (ready == -1 || status == il2cpp::os::kWaitStatusFailure)
+    if (ready == -1 || status == kWaitStatusFailure)
     {
         /*
          * Apart from EINTR, we only check EBADF, for the rest:

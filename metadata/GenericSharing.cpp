@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include "metadata/GenericSharing.h"
 #include "vm/Type.h"
-#include "metadata.h"
+#include "il2cpp-runtime-metadata.h"
 
 using il2cpp::vm::Type;
 

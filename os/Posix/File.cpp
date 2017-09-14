@@ -919,6 +919,36 @@ namespace os
         return true;
     }
 
+#if !IL2CPP_USE_GENERIC_FILE
+    bool File::Truncate(FileHandle* handle, int *error)
+    {
+        off_t currentPosition = lseek(handle->fd, (off_t)0, SEEK_CUR);
+        int32_t ret = 0;
+        *error = kErrorCodeSuccess;
+
+        if (currentPosition == -1)
+        {
+            *error = FileErrnoToErrorCode(errno);
+            return false;
+        }
+
+        do
+        {
+            ret = ftruncate(handle->fd, currentPosition);
+        }
+        while (ret == -1 && errno == EINTR);
+
+        if (ret == -1)
+        {
+            *error = FileErrnoToErrorCode(errno);
+            return false;
+        }
+
+        return true;
+    }
+
+#endif // IL2CPP_USE_GENERIC_FILE
+
     int64_t File::Seek(FileHandle* handle, int64_t offset, int origin, int *error)
     {
         if (handle->type != kFileTypeDisk)
@@ -982,6 +1012,9 @@ namespace os
             return 0;
         }
 
+#if IL2CPP_ENABLE_PROFILER
+        IL2CPP_VM_PROFILE_FILEIO(IL2CPP_PROFILE_FILEIO_READ, count);
+#endif
         return ret;
     }
 
@@ -1007,6 +1040,9 @@ namespace os
             return 0;
         }
 
+#if IL2CPP_ENABLE_PROFILER
+        IL2CPP_VM_PROFILE_FILEIO(IL2CPP_PROFILE_FILEIO_WRITE, count);
+#endif
         return ret;
     }
 

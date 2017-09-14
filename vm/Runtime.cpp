@@ -31,9 +31,9 @@
 #include "vm/Object.h"
 #include <string>
 #include <map>
-#include "class-internals.h"
-#include "object-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
 #include "vm/InternalCalls.h"
 #include "utils/Collections.h"
@@ -46,10 +46,6 @@
 #include "mono/ThreadPool/threadpool-ms.h"
 #include "mono/ThreadPool/threadpool-ms-io.h"
 //#include "icalls/mscorlib/System.Reflection/Assembly.h"
-
-#if IL2CPP_DEBUGGER_ENABLED
-    #include "il2cpp-debugger.h"
-#endif
 
 using il2cpp::metadata::GenericMethod;
 using il2cpp::utils::StringUtils;
@@ -123,7 +119,6 @@ namespace vm
 
         s_FrameworkVersion = framework_version_for(runtime_version);
 
-        os::Image::Initialize();
         os::Thread::Init();
 
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
@@ -226,7 +221,9 @@ namespace vm
         DEFAULTS_INIT_TYPE(mono_parameter_info_class, "System.Reflection", "MonoParameterInfo", Il2CppReflectionParameter);
 #endif
         DEFAULTS_INIT_TYPE(module_class, "System.Reflection", "Module", Il2CppReflectionModule);
+#if !UNITY_AOT
         DEFAULTS_INIT_TYPE(marshal_class, "System.Reflection.Emit", "UnmanagedMarshal", Il2CppReflectionMarshal);
+#endif
         DEFAULTS_INIT_TYPE(pointer_class, "System.Reflection", "Pointer", Il2CppReflectionPointer);
         DEFAULTS_INIT_TYPE(exception_class, "System", "Exception", Il2CppException);
         DEFAULTS_INIT_TYPE(system_exception_class, "System", "SystemException", Il2CppSystemException);
@@ -249,6 +246,8 @@ namespace vm
         il2cpp_defaults.threadpool_perform_wait_callback_method = (MethodInfo*)vm::Class::GetMethodFromName(
                 il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
 #endif
+
+        Image::InitNestedTypes(il2cpp_defaults.corlib);
 
         const Il2CppAssembly* systemDll = Assembly::Load("System");
         if (systemDll != NULL)
@@ -281,11 +280,6 @@ namespace vm
         domain->domain_id = 1; // Only have a single domain ATM.
 
         domain->friendly_name = basepath(filename);
-
-#if IL2CPP_DEBUGGER_ENABLED
-        // The current thread needs to be attached before sending any debugger event.
-        il2cpp_debugger_notify_appdomain_create(domain);
-#endif
 
         LastError::InitializeLastErrorThreadStatic();
 
@@ -335,12 +329,15 @@ namespace vm
         os::Socket::Cleanup();
         String::CleanupEmptyString();
 
-        il2cpp::gc::GarbageCollector::Uninitialize();
+        il2cpp::gc::GarbageCollector::UninitializeFinalizers();
 
         // after the gc cleanup so the finalizer thread can unregister itself
         Thread::UnInitialize();
 
         os::Thread::Shutdown();
+
+        // We need to do this after thread shut down because it is freeing GC fixed memory
+        il2cpp::gc::GarbageCollector::UninitializeGC();
 
         // This needs to happen after no managed code can run anymore, including GC finalizers
         os::LibraryLoader::CleanupLoadedLibraries();
