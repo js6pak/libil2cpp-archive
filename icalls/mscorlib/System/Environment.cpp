@@ -163,9 +163,7 @@ namespace System
 
     bool Environment::get_HasShutdownStarted()
     {
-        NOT_SUPPORTED_IL2CPP(Environment::get_HasShutdownStarted, "This icall is not supported by il2cpp.");
-
-        return false;
+        return vm::Runtime::IsShuttingDown();
     }
 
     Il2CppString* Environment::get_EmbeddingHostName()
