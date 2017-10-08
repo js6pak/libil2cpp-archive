@@ -442,6 +442,11 @@ typedef uint32_t Il2CppMethodSlot;
     #define IL2CPP_USE_GENERIC_SOCKET_IMPL  (!IL2CPP_TARGET_POSIX || IL2CPP_TARGET_JAVASCRIPT) &&  (!IL2CPP_TARGET_SWITCH)
 #endif
 
+/* set by platforms that require special handling of SIGPIPE signalling during socket sends */
+#ifndef IL2CPP_USE_SEND_NOSIGNAL
+    #define IL2CPP_USE_SEND_NOSIGNAL 0
+#endif
+
 #define IL2CPP_USE_GENERIC_ENVIRONMENT  (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 
 #define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
