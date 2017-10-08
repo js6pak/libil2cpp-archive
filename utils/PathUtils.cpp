@@ -23,6 +23,17 @@ namespace PathUtils
 
         return base.substr(0, pos);
     }
+
+    std::string PathNoExtension(const std::string& path)
+    {
+        const size_t pos = path.rfind('.');
+
+        // No extension.
+        if (pos == std::string::npos)
+            return path;
+
+        return path.substr(0, pos);
+    }
 }
 } /* utils */
 } /* il2cpp */
