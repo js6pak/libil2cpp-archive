@@ -1264,7 +1264,7 @@ namespace os
     {
         *len = 0;
 
-        const int32_t c_flags = convert_socket_flags(flags);
+        int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
         {
@@ -1272,11 +1272,15 @@ namespace os
             return kWaitStatusFailure;
         }
 
+#if IL2CPP_USE_SEND_NOSIGNAL
+        c_flags |= MSG_NOSIGNAL;
+#endif
+
         int32_t ret = 0;
 
         do
         {
-            ret = (int32_t)send(_fd, (void*)data, count, flags);
+            ret = (int32_t)send(_fd, (void*)data, count, c_flags);
         }
         while (ret == -1 && errno == EINTR);
 
@@ -1293,7 +1297,7 @@ namespace os
 
     WaitStatus SocketImpl::SendArray(WSABuf *wsabufs, int32_t count, int32_t *sent, SocketFlags flags)
     {
-        const int32_t c_flags = convert_socket_flags(flags);
+        int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
         {
@@ -1311,6 +1315,10 @@ namespace os
             hdr.msg_iov[i].iov_base = wsabufs[i].buffer;
             hdr.msg_iov[i].iov_len  = wsabufs[i].length;
         }
+
+#if IL2CPP_USE_SEND_NOSIGNAL
+        c_flags |= MSG_NOSIGNAL;
+#endif
 
         int32_t ret = 0;
 
@@ -1393,13 +1401,17 @@ namespace os
 
     WaitStatus SocketImpl::SendToInternal(struct sockaddr *sa, int32_t sa_size, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
     {
-        const int32_t c_flags = convert_socket_flags(flags);
+        int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
         {
             _saved_error = kWSAeopnotsupp;
             return kWaitStatusFailure;
         }
+
+#if IL2CPP_USE_SEND_NOSIGNAL
+        c_flags |= MSG_NOSIGNAL;
+#endif
 
         int32_t ret = 0;
 
