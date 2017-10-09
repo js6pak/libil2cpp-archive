@@ -1,20 +1,25 @@
 #if ENABLE_UNIT_TESTS
 
+#include "il2cpp-config.h"
+
 #include "UnitTest++.h"
 
 #include "../../File.h"
 #include "../../Process.h"
 #include "../File-c-api.h"
+#include "PathHelper.h"
 
-static const char* TEST_FILE_NAME = "TESTFILE2";
-static const char* DUPLICATE_TEST_FILE_NAME = "DUP_TESTFILE2";
-static const char* BACKUP_TEST_FILE_NAME = "BACKUP_TESTFILE2";
+static const char* TEST_FILE_NAME_WITHOUT_PATH = "TESTFILE2";
+static const char* TEST_FILE_NAME = CURRENT_DIRECTORY("TESTFILE2");
+static const char* DUPLICATE_TEST_FILE_NAME = CURRENT_DIRECTORY("DUP_TESTFILE2");
+static const char* BACKUP_TEST_FILE_NAME = CURRENT_DIRECTORY("BACKUP_TESTFILE2");
 static const int64_t TEST_FILE_LENGTH = 1234567891L;
+static const char* TEST_STRING = "THIS IS A TEST";
 
-static il2cpp::os::FileHandle*  PrepareTestFile()
+static il2cpp::os::FileHandle* PrepareTestFile()
 {
     int error;
-    il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, 1, 0, 0, 0, &error);
+    il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &error);
 
     return handle;
 }
@@ -28,52 +33,53 @@ static void CleanupTestFile(il2cpp::os::FileHandle* handle)
 
 static void WriteSomeCharactersToTestFile(il2cpp::os::FileHandle* handle)
 {
-    static const char* buffer = "THIS IS A TEST\0";
+    static const char* buffer = TEST_STRING;
     int error;
 
     il2cpp::os::File::Write(handle, buffer, (int)strlen(buffer), &error);
 }
 
-SUITE(FileTests)
+SUITE(File)
 {
-    TEST(FileIsAttyWithValidButNoTTY)
+    struct FileFixture
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
+        FileFixture()
+        {
+            handle = PrepareTestFile();
+        }
 
-        bool result = UnityPalIsatty(handle);
+        ~FileFixture()
+        {
+            CleanupTestFile(handle);
+        }
 
-        CleanupTestFile(handle);
+        il2cpp::os::FileHandle* handle;
+    };
 
-        CHECK_MSG(!result, "A normal is a TTY, which is not expected.");
+    TEST_FIXTURE(FileFixture, FileIsAttyWithValidButNoTTY_ReturnsFalse)
+    {
+        CHECK_MSG(!UnityPalIsatty(handle), "A normal is a TTY, which is not expected.");
     }
 
     TEST(FileIsAttyMatchesClass)
     {
         il2cpp::os::FileHandle* handle = il2cpp::os::File::GetStdInput();
 
-        bool result = UnityPalIsatty(handle);
-
-        CHECK_EQUAL(il2cpp::os::File::Isatty(handle), UnityPalIsatty(handle));
+        CHECK_EQUAL((int32_t)il2cpp::os::File::Isatty(handle), UnityPalIsatty(handle));
     }
 
-    TEST(FileIsAttyWithValidButNoTTYMatchesClass)
+    TEST_FIXTURE(FileFixture, FileIsAttyWithValidButNoTTYMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-
-        bool result = UnityPalIsatty(handle);
-
-        CHECK_EQUAL(il2cpp::os::File::Isatty(handle), UnityPalIsatty(handle));
-
-        CleanupTestFile(handle);
+        CHECK_EQUAL((int32_t)il2cpp::os::File::Isatty(handle), UnityPalIsatty(handle));
     }
 
-    TEST(FileOpenTestNoError)
+    TEST(FileOpenNoError_ReturnsNonNullHandle)
     {
-        const char* FILE_NAME = "TESTFILE2";
+        const char* FILE_NAME = CURRENT_DIRECTORY("TESTFILE2");
         int error;
         UnityPalFileHandle* handle = NULL;
 
-        handle = UnityPalOpen(FILE_NAME, 1, 0, 0, 0, &error);
+        handle = UnityPalOpen(FILE_NAME, kFileModeCreateNew, 0, 0, 0, &error);
 
         CHECK_NOT_NULL(handle);
 
@@ -81,52 +87,62 @@ SUITE(FileTests)
         il2cpp::os::File::DeleteFile(FILE_NAME, &error);
     }
 
-    TEST(FileOpenTestWithError)
+    TEST(FileOpenWithError)
     {
         int error = 0;
         UnityPalFileHandle* handle = NULL;
-        handle = UnityPalOpen("", 1, 0, 0, 0, &error);
+        handle = UnityPalOpen(CURRENT_DIRECTORY("file_does_not_exist"), kFileModeOpen, 0, 0, 0, &error);
 
+#if IL2CPP_TARGET_PS4
         CHECK_EQUAL(il2cpp::os::kErrorCodePathNotFound, error);
+#else
+        CHECK_EQUAL(il2cpp::os::kErrorCodeFileNotFound, error);
+#endif
     }
 
-    TEST(FileOpenWithErrorMatchesClassTest)
+    TEST(FileOpenWithEmptyPath_ReturnsNull)
+    {
+        int unused = 0;
+        CHECK_NULL(UnityPalOpen("", kFileModeCreateNew, 0, 0, 0, &unused));
+    }
+
+    TEST(FileOpenWithFileThatDoesNotExist_ReturnsNull)
+    {
+        int unused = 0;
+        CHECK_NULL(UnityPalOpen("file_that_does_not_exist", kFileModeOpen, 0, 0, 0, &unused));
+    }
+
+    TEST(FileOpenWithErrorMatchesClass)
     {
         int api_error = 0;
         UnityPalFileHandle* api_handle = NULL;
         int class_error = 0;
         UnityPalFileHandle* class_handle = NULL;
 
-        api_handle = UnityPalOpen("", 1, 0, 0, 0, &api_error);
-        class_handle = il2cpp::os::File::Open("", 1, 0, 0, 0, &class_error);
+        api_handle = UnityPalOpen(CURRENT_DIRECTORY("file_does_not_exist"), kFileModeOpen, 0, 0, 0, &api_error);
+        class_handle = il2cpp::os::File::Open(CURRENT_DIRECTORY("file_does_not_exist"), kFileModeOpen, 0, 0, 0, &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(GetStdInputTest)
+    TEST(GetStdInput_IsNotNull)
     {
         CHECK_NOT_NULL(UnityPalGetStdInput());
     }
 
-    TEST(GetStdOutputTest)
+    TEST(GetStdOutput_IsNotNull)
     {
         CHECK_NOT_NULL(UnityPalGetStdOutput());
     }
 
-    TEST(GetStdErrorTest)
+    TEST(GetStdError_IsNotNull)
     {
         CHECK_NOT_NULL(UnityPalGetStdError());
     }
 
-    TEST(GetFileTypeNormalTest)
+    TEST_FIXTURE(FileFixture, GetFileTypeNormal_IsDisk)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-
-        FileType testFileType = UnityPalGetFileType(handle);
-
-        CleanupTestFile(handle);
-
-        CHECK_EQUAL(kFileTypeDisk, testFileType);
+        CHECK_EQUAL(kFileTypeDisk, UnityPalGetFileType(handle));
     }
 
     TEST(GetFileTypeMatchesClass)
@@ -134,28 +150,22 @@ SUITE(FileTests)
         CHECK_EQUAL(il2cpp::os::File::GetFileType(UnityPalGetStdError()), UnityPalGetFileType(UnityPalGetStdError()));
     }
 
-    TEST(GetFileTypeErrorEqualsClass)
+    TEST_FIXTURE(FileFixture, GetFileTypeErrorMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        CleanupTestFile(handle);
         CHECK_EQUAL(il2cpp::os::File::GetFileType(handle), UnityPalGetFileType(handle));
     }
 
-    TEST(GetFileAttributesCleanErrorTest)
+    TEST_FIXTURE(FileFixture, GetFileAttributesCleanError)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
 
         UnityPalFileAttributes attributes = UnityPalGetFileAttributes(TEST_FILE_NAME, &error);
 
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
-
-        CleanupTestFile(handle);
     }
 
-    TEST(GetFileAttributesCleanErrorMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileAttributesCleanErrorMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int api_error;
         int class_error;
 
@@ -163,13 +173,10 @@ SUITE(FileTests)
         il2cpp::os::File::GetFileAttributes(TEST_FILE_NAME, &class_error);
 
         CHECK_EQUAL(class_error, api_error);
-
-        CleanupTestFile(handle);
     }
 
-    TEST(GetFileAttributesMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileAttributesMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int api_error;
         int class_error;
 
@@ -177,17 +184,13 @@ SUITE(FileTests)
         UnityPalFileAttributes class_attributes = il2cpp::os::File::GetFileAttributes(TEST_FILE_NAME, &class_error);
 
         CHECK_EQUAL(class_attributes, api_attributes);
-
-        CleanupTestFile(handle);
     }
 
-    TEST(GetFileAttributesWithBadPath)
+    TEST(GetFileAttributesWithBadPath_ReturnsNegativeOne)
     {
         int error;
 
-        UnityPalFileAttributes attributes = UnityPalGetFileAttributes("sf&236732q#", &error);
-
-        CHECK_EQUAL(-1, attributes);
+        CHECK_EQUAL(-1, UnityPalGetFileAttributes(CURRENT_DIRECTORY("sf&236732q#"), &error));
     }
 
     TEST(GetFileAttributesWithBadPathMatchesClass)
@@ -195,25 +198,19 @@ SUITE(FileTests)
         int api_error;
         int class_error;
 
-        UnityPalFileAttributes api_attributes = UnityPalGetFileAttributes("#23sfs#", &api_error);
-        UnityPalFileAttributes class_attributes = il2cpp::os::File::GetFileAttributes("#23sfs#", &class_error);
+        UnityPalFileAttributes api_attributes = UnityPalGetFileAttributes(CURRENT_DIRECTORY("#23sfs#"), &api_error);
+        UnityPalFileAttributes class_attributes = il2cpp::os::File::GetFileAttributes(CURRENT_DIRECTORY("#23sfs#"), &class_error);
 
         CHECK_EQUAL(class_attributes, api_attributes);
     }
 
-    TEST(SetFileAttributesNormalResultTest)
+    TEST_FIXTURE(FileFixture, SetFileAttributesNormalResult_ReturnsTrue)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
-
-        bool result = UnityPalSetFileAttributes(TEST_FILE_NAME, kFileAttributeTemporary, &error);
-
-        CleanupTestFile(handle);
-
-        CHECK(result);
+        CHECK(UnityPalSetFileAttributes(TEST_FILE_NAME, kFileAttributeTemporary, &error));
     }
 
-    TEST(SetFileAttributesNormalErrorTest)
+    TEST(SetFileAttributesNormalError)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -225,35 +222,30 @@ SUITE(FileTests)
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(SetFileAttributesBadResultTest)
+    TEST(SetFileAttributesBadResult_ReturnsFalse)
     {
         int error;
 
-        bool result = UnityPalSetFileAttributes("234232345$$", kFileAttributeTemporary, &error);
-
-        CHECK(!result);
+        CHECK(!UnityPalSetFileAttributes(CURRENT_DIRECTORY("234232345$$"), kFileAttributeTemporary, &error));
     }
 
-    TEST(SetFileAttributesBadErrorTest)
+    TEST(SetFileAttributesBadError)
     {
         int error;
 
-        UnityPalSetFileAttributes("234232345$$", kFileAttributeTemporary, &error);
+        UnityPalSetFileAttributes(CURRENT_DIRECTORY("234232345$$"), kFileAttributeTemporary, &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(SetFileAttributesNormalResultMatchesClassTest)
+    TEST_FIXTURE(FileFixture, SetFileAttributesNormalResultMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
 
-        CHECK_EQUAL(il2cpp::os::File::SetFileAttributes(TEST_FILE_NAME, kFileAttributeTemporary, &error), UnityPalSetFileAttributes(TEST_FILE_NAME, kFileAttributeTemporary, &error));
-
-        CleanupTestFile(handle);
+        CHECK_EQUAL((int32_t)il2cpp::os::File::SetFileAttributes(TEST_FILE_NAME, kFileAttributeTemporary, &error), UnityPalSetFileAttributes(TEST_FILE_NAME, kFileAttributeTemporary, &error));
     }
 
-    TEST(SetFileAttributesNormalAttributeReadMatchesClassTest)
+    TEST(SetFileAttributesNormalAttributeReadMatchesClass)
     {
         il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
@@ -270,198 +262,155 @@ SUITE(FileTests)
         CHECK_EQUAL(api_attributes, class_attributes);
     }
 
-    TEST(SetFileAttributesBadResultMatchesClassTest)
+    TEST(SetFileAttributesBadResultMatchesClass)
     {
         int error;
-        CHECK_EQUAL(il2cpp::os::File::SetFileAttributes("234232345$$", kFileAttributeTemporary, &error), UnityPalSetFileAttributes("234232345$$", kFileAttributeTemporary, &error));
+        CHECK_EQUAL((int32_t)il2cpp::os::File::SetFileAttributes(CURRENT_DIRECTORY("234232345$$"), kFileAttributeTemporary, &error), UnityPalSetFileAttributes(CURRENT_DIRECTORY("234232345$$"), kFileAttributeTemporary, &error));
     }
 
-    TEST(SetFileAttributesBadErrorMatchesClassTest)
+    TEST(SetFileAttributesBadErrorMatchesClass)
     {
         int api_error;
         int class_error;
 
-        UnityPalSetFileAttributes("234232345$$", kFileAttributeTemporary, &api_error);
-        il2cpp::os::File::SetFileAttributes("234232345$$", kFileAttributeTemporary, &class_error);
+        UnityPalSetFileAttributes(CURRENT_DIRECTORY("234232345$$"), kFileAttributeTemporary, &api_error);
+        il2cpp::os::File::SetFileAttributes(CURRENT_DIRECTORY("234232345$$"), kFileAttributeTemporary, &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(GetFileStatNormalResultTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalResult_ReturnsTrue)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
-
-        bool result = UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-
-        CleanupTestFile(handle);
-
-        CHECK(result);
+        CHECK(UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error));
     }
 
-    TEST(GetFileStatNormalErrorTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalError)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
 
-        CleanupTestFile(handle);
-
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(GetFileStatBadResultTest)
+    TEST(GetFileStatBadResult_ReturnsFalse)
     {
         int error;
         UnityPalFileStat fileStat;
 
-        bool result = UnityPalGetFileStat("#Q23423", &fileStat, &error);
-
-        CHECK(!result);
+        CHECK(!UnityPalGetFileStat(CURRENT_DIRECTORY("#Q23423"), &fileStat, &error));
     }
 
-    TEST(GetFileStatBadErrorTest)
+    TEST(GetFileStatBadError)
     {
         int error;
         UnityPalFileStat fileStat;
 
-        UnityPalGetFileStat("#Q23423", &fileStat, &error);
+        UnityPalGetFileStat(CURRENT_DIRECTORY("#Q23423"), &fileStat, &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
 
-    TEST(GetFileStatNormalNameTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalName)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
 
-        CleanupTestFile(handle);
-
-        CHECK_EQUAL(0, strcmp(fileStat.name.c_str(), TEST_FILE_NAME));
+        CHECK_EQUAL(TEST_FILE_NAME_WITHOUT_PATH, fileStat.name);
     }
 
-    TEST(GetFileStatNormalLengthTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalLength)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-
-        CleanupTestFile(handle);
 
         CHECK_EQUAL(0, fileStat.length);
     }
 
-    TEST(GetFileStatNormalCreationTimeTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalCreationTime)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-
-        CleanupTestFile(handle);
 
         CHECK(fileStat.creation_time > 100000000);
     }
 
-    TEST(GetFileStatNormalLastAccessTimeTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalLastAccessTime)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-
-        CleanupTestFile(handle);
 
         CHECK(fileStat.last_access_time > 100000000);
     }
 
-    TEST(GetFileStatNormalLastWriteTimeTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalLastWriteTime)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-
-        CleanupTestFile(handle);
 
         CHECK(fileStat.last_write_time > 100000000);
     }
 
-    TEST(GetFileStatNormalResultMatchesClassTest)
-    {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        int error;
-        UnityPalFileStat fileStat;
-
-        CHECK_EQUAL(il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &fileStat, &error), UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error));
-
-        CleanupTestFile(handle);
-    }
-
-    TEST(GetFileStatNormalErrorMatchesClassTest)
-    {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        int api_error;
-        int class_error;
-        UnityPalFileStat fileStat;
-
-        UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &api_error);
-        il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &fileStat, &class_error);
-
-        CleanupTestFile(handle);
-
-        CHECK_EQUAL(class_error, api_error);
-    }
-
-    TEST(GetFileStatBadResultMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalResultMatchesClass)
     {
         int error;
-        UnityPalFileStat fileStat;
+        UnityPalFileStat apiStat;
+        il2cpp::os::FileStat classStat;
 
-        CHECK_EQUAL(il2cpp::os::File::GetFileStat("#Q23423", &fileStat, &error), UnityPalGetFileStat("#Q23423", &fileStat, &error));
+        CHECK_EQUAL((int32_t)il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classStat, &error), UnityPalGetFileStat(TEST_FILE_NAME, &apiStat, &error));
     }
 
-    TEST(GetFileStatBadErrorMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalErrorMatchesClass)
     {
-        int api_error;
-        int class_error;
-        UnityPalFileStat fileStat;
+        int apiError;
+        int classError;
+        UnityPalFileStat apiStat;
+        il2cpp::os::FileStat classStat;
 
-        UnityPalGetFileStat("#Q23423", &fileStat, &api_error);
-        il2cpp::os::File::GetFileStat("#Q23423", &fileStat, &class_error);
+        UnityPalGetFileStat(TEST_FILE_NAME, &apiStat, &apiError);
+        il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classStat, &classError);
 
-        CHECK_EQUAL(class_error, api_error);
+        CHECK_EQUAL(classError, apiError);
     }
 
-
-    TEST(GetFileStatNormalNameMatchesClassTest)
+    TEST(GetFileStatBadResultMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
-        UnityPalFileStat fileStat;
+        UnityPalFileStat apiStat;
+        il2cpp::os::FileStat classStat;
 
-        UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-
-        CleanupTestFile(handle);
-
-        CHECK_EQUAL(0, strcmp(fileStat.name.c_str(), TEST_FILE_NAME));
+        CHECK_EQUAL((int32_t)il2cpp::os::File::GetFileStat(CURRENT_DIRECTORY("#Q23423"), &classStat, &error), UnityPalGetFileStat(CURRENT_DIRECTORY("#Q23423"), &apiStat, &error));
     }
 
-    TEST(GetFileStatNormalAttributesMatchesClassTest)
+    TEST(GetFileStatBadErrorMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
+        int apiError;
+        int classError;
+        UnityPalFileStat apiStat;
+        il2cpp::os::FileStat classStat;
+
+        UnityPalGetFileStat(CURRENT_DIRECTORY("#Q23423"), &apiStat, &apiError);
+        il2cpp::os::File::GetFileStat(CURRENT_DIRECTORY("#Q23423"), &classStat, &classError);
+
+        CHECK_EQUAL(classError, apiError);
+    }
+
+    TEST_FIXTURE(FileFixture, GetFileStatNormalNameMatchesClass)
+    {
         int error;
         UnityPalFileStat apiFileStat;
         il2cpp::os::FileStat classFileStat;
@@ -469,59 +418,59 @@ SUITE(FileTests)
         UnityPalGetFileStat(TEST_FILE_NAME, &apiFileStat, &error);
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classFileStat, &error);
 
-        CleanupTestFile(handle);
+        CHECK_EQUAL(classFileStat.name, apiFileStat.name);
+    }
+
+    TEST_FIXTURE(FileFixture, GetFileStatNormalAttributesMatchesClass)
+    {
+        int error;
+        UnityPalFileStat apiFileStat;
+        il2cpp::os::FileStat classFileStat;
+
+        UnityPalGetFileStat(TEST_FILE_NAME, &apiFileStat, &error);
+        il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classFileStat, &error);
 
         CHECK_EQUAL(classFileStat.attributes, apiFileStat.attributes);
     }
 
-    TEST(GetFileStatNormalLengthMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalLengthMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat apiFileStat;
         il2cpp::os::FileStat classFileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &apiFileStat, &error);
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classFileStat, &error);
-
-        CleanupTestFile(handle);
 
         CHECK_EQUAL(classFileStat.length, apiFileStat.length);
     }
 
-    TEST(GetFileStatNormalCreationTimeMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalCreationTimeMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat apiFileStat;
         il2cpp::os::FileStat classFileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &apiFileStat, &error);
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classFileStat, &error);
-
-        CleanupTestFile(handle);
 
         CHECK_EQUAL(classFileStat.creation_time, apiFileStat.creation_time);
     }
 
-    TEST(GetFileStatNormalLastAccessTimeMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalLastAccessTimeMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat apiFileStat;
         il2cpp::os::FileStat classFileStat;
 
         UnityPalGetFileStat(TEST_FILE_NAME, &apiFileStat, &error);
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classFileStat, &error);
-
-        CleanupTestFile(handle);
 
         CHECK_EQUAL(classFileStat.last_access_time, apiFileStat.last_access_time);
     }
 
-    TEST(GetFileStatNormalLastWriteTimeMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetFileStatNormalLastWriteTimeMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat apiFileStat;
         il2cpp::os::FileStat classFileStat;
@@ -529,71 +478,58 @@ SUITE(FileTests)
         UnityPalGetFileStat(TEST_FILE_NAME, &apiFileStat, &error);
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &classFileStat, &error);
 
-        CleanupTestFile(handle);
-
         CHECK_EQUAL(classFileStat.last_write_time, apiFileStat.last_write_time);
     }
 
-    TEST(CopyFileNormalResultTest)
+    TEST_FIXTURE(FileFixture, CopyFileNormalResult_ReturnsTrue)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
 
-        bool result = UnityPalCopyFile(TEST_FILE_NAME, DUPLICATE_TEST_FILE_NAME, true, &error);
+        bool copyResult = UnityPalCopyFile(TEST_FILE_NAME, DUPLICATE_TEST_FILE_NAME, true, &error);
         UnityPalDeleteFile(DUPLICATE_TEST_FILE_NAME, &error);
 
-        CleanupTestFile(handle);
-
-        CHECK(result);
+        CHECK(copyResult);
     }
 
-    TEST(CopyFileNormalErrorTest)
+    TEST_FIXTURE(FileFixture, CopyFileNormalError)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
 
         UnityPalCopyFile(TEST_FILE_NAME, DUPLICATE_TEST_FILE_NAME, true, &error);
         UnityPalDeleteFile(DUPLICATE_TEST_FILE_NAME, &error);
 
-        CleanupTestFile(handle);
-
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
 
-    TEST(CopyFileBadResultTest)
+    TEST(CopyFileBadResult_ReturnsFalse)
     {
         int error;
-        bool result = UnityPalCopyFile("#453453", "#sdfsdw3", true, &error);
-
-        CHECK(!result);
+        CHECK(!UnityPalCopyFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), true, &error));
     }
 
-    TEST(CopyFileBadErrorTest)
+    TEST(CopyFileBadError)
     {
         int error;
-        UnityPalCopyFile("#453453", "#sdfsdw3", true, &error);
+        UnityPalCopyFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), true, &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(CopyFileNormalStatTest)
+    TEST_FIXTURE(FileFixture, CopyFileNormalStat)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalCopyFile(TEST_FILE_NAME, DUPLICATE_TEST_FILE_NAME, true, &error);
         UnityPalGetFileStat(DUPLICATE_TEST_FILE_NAME, &fileStat, &error);
         UnityPalDeleteFile(DUPLICATE_TEST_FILE_NAME, &error);
-        CleanupTestFile(handle);
 
         CHECK(fileStat.last_write_time > 100000000);
     }
 
-    TEST(CopyFileNormalResultMatchesClassTest)
+    TEST_FIXTURE(FileFixture, CopyFileNormalResultMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
 
         bool api_result = UnityPalCopyFile(TEST_FILE_NAME, DUPLICATE_TEST_FILE_NAME, true, &error);
@@ -602,14 +538,11 @@ SUITE(FileTests)
         bool class_result = il2cpp::os::File::CopyFile(TEST_FILE_NAME, DUPLICATE_TEST_FILE_NAME, true, &error);
         il2cpp::os::File::DeleteFile(DUPLICATE_TEST_FILE_NAME, &error);
 
-        CleanupTestFile(handle);
-
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(CopyFileNormalErrorMatchesClassTest)
+    TEST_FIXTURE(FileFixture, CopyFileNormalErrorMatchesClass)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int api_error;
         int class_error;
 
@@ -618,44 +551,40 @@ SUITE(FileTests)
         il2cpp::os::File::CopyFile(TEST_FILE_NAME, DUPLICATE_TEST_FILE_NAME, true, &class_error);
         il2cpp::os::File::DeleteFile(DUPLICATE_TEST_FILE_NAME, &class_error);
 
-        CleanupTestFile(handle);
-
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(CopyFileBadResultMatchesClassTest)
+    TEST(CopyFileBadResultMatchesClass)
     {
         int error;
-        CHECK_EQUAL(il2cpp::os::File::CopyFile("#453453", "#sdfsdw3", true, &error), UnityPalCopyFile("#453453", "#sdfsdw3", true, &error));
+        CHECK_EQUAL((int32_t)il2cpp::os::File::CopyFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), true, &error), UnityPalCopyFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), true, &error));
     }
 
-    TEST(CopyFileBadErrorMatchesClassTest)
+    TEST(CopyFileBadErrorMatchesClass)
     {
         int api_error;
         int class_error;
-        UnityPalCopyFile("#453453", "#sdfsdw3", true, &api_error);
-        il2cpp::os::File::CopyFile("#453453", "#sdfsdw3", true, &class_error);
+        UnityPalCopyFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), true, &api_error);
+        il2cpp::os::File::CopyFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), true, &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(MoveFileBadResultTest)
+    TEST(MoveFileBadResult_ReturnsFalse)
     {
         int error;
-        bool result = UnityPalMoveFile("#453453", "#sdfsdw3", &error);
-
-        CHECK(!result);
+        CHECK(!UnityPalMoveFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), &error));
     }
 
-    TEST(MoveFileBadErrorTest)
+    TEST(MoveFileBadError)
     {
         int error;
-        UnityPalMoveFile("#453453", "#sdfsdw3", &error);
+        UnityPalMoveFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(MoveFileNormalResultMatchesClassTest)
+    TEST(MoveFileNormalResultMatchesClass)
     {
         il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
@@ -672,7 +601,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(MoveFileNormalErrorMatchesClassTest)
+    TEST(MoveFileNormalErrorMatchesClass)
     {
         il2cpp::os::FileHandle* handle = PrepareTestFile();
         int api_error;
@@ -689,78 +618,67 @@ SUITE(FileTests)
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(MoveFileBadResultMatchesClassTest)
+    TEST(MoveFileBadResultMatchesClass)
     {
         int error;
-        CHECK_EQUAL(il2cpp::os::File::MoveFile("#453453", "#sdfsdw3", &error), UnityPalMoveFile("#453453", "#sdfsdw3", &error));
+        CHECK_EQUAL((int32_t)il2cpp::os::File::MoveFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), &error), UnityPalMoveFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), &error));
     }
 
-    TEST(MoveFileBadErrorMatchesClassTest)
+    TEST(MoveFileBadErrorMatchesClass)
     {
         int api_error;
         int class_error;
-        UnityPalMoveFile("#453453", "#sdfsdw3", &api_error);
-        il2cpp::os::File::MoveFile("#453453", "#sdfsdw3", &class_error);
+        UnityPalMoveFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), &api_error);
+        il2cpp::os::File::MoveFile(CURRENT_DIRECTORY("#453453"), CURRENT_DIRECTORY("#sdfsdw3"), &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(DeleteFileNormalResultTest)
+    TEST_FIXTURE(FileFixture, DeleteFileNormalResult_ReturnsTrue)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
-
-        bool result = UnityPalDeleteFile(TEST_FILE_NAME, &error);
-
-        CleanupTestFile(handle);
-
-        CHECK(result);
+        CHECK(UnityPalDeleteFile(TEST_FILE_NAME, &error));
     }
 
-    TEST(DeleteFileNormalErrorTest)
+    TEST_FIXTURE(FileFixture, DeleteFileNormalError)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
 
         UnityPalDeleteFile(TEST_FILE_NAME, &error);
-
-        CleanupTestFile(handle);
 
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
 
-    TEST(DeleteFileBadResultTest)
+    TEST(DeleteFileBadResult_ReturnsFalse)
     {
         int error;
-        bool result = UnityPalDeleteFile("#453453", &error);
-
-        CHECK(!result);
+        CHECK(!UnityPalDeleteFile(CURRENT_DIRECTORY("#453453"), &error));
     }
 
 
-    TEST(DeleteFileBadErrorTest)
+    TEST(DeleteFileBadError)
     {
         int error;
-        UnityPalDeleteFile("#453453", &error);
+        UnityPalDeleteFile(CURRENT_DIRECTORY("#453453"), &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(DeleteFileNormalStatTest)
+    TEST_FIXTURE(FileFixture, DeleteFileNormalStat)
     {
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
         UnityPalFileStat fileStat;
 
         UnityPalDeleteFile(TEST_FILE_NAME, &error);
-        UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-        CleanupTestFile(handle);
 
-        CHECK(fileStat.last_write_time < 1);
+        error = il2cpp::os::kErrorCodeSuccess;
+        UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
+
+        CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(DeleteFileNormalResultMatchesClassTest)
+    TEST(DeleteFileNormalResultMatchesClass)
     {
         il2cpp::os::FileHandle* handle = PrepareTestFile();
         int error;
@@ -774,7 +692,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(DeleteFileNormalErrorMatchesClassTest)
+    TEST(DeleteFileNormalErrorMatchesClass)
     {
         il2cpp::os::FileHandle* handle = PrepareTestFile();
         int api_error;
@@ -789,34 +707,28 @@ SUITE(FileTests)
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(DeleteFileBadResultMatchesClassTest)
+    TEST(DeleteFileBadResultMatchesClass)
     {
         int error;
-        CHECK_EQUAL(il2cpp::os::File::DeleteFile("#453453", &error), UnityPalDeleteFile("#453453", &error));
+        CHECK_EQUAL((int32_t)il2cpp::os::File::DeleteFile(CURRENT_DIRECTORY("#453453"), &error), UnityPalDeleteFile(CURRENT_DIRECTORY("#453453"), &error));
     }
 
-    TEST(DeleteFileBadErrorMatchesClassTest)
+    TEST(DeleteFileBadErrorMatchesClass)
     {
         int api_error;
         int class_error;
-        UnityPalDeleteFile("#453453", &api_error);
-        il2cpp::os::File::DeleteFile("#453453", &class_error);
+        UnityPalDeleteFile(CURRENT_DIRECTORY("#453453"), &api_error);
+        il2cpp::os::File::DeleteFile(CURRENT_DIRECTORY("#453453"), &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(ReplaceFileTest)
-    {
-        // TODO Figure out how to test
-        // Replace File does not seem to work in libil2cpp
-    }
-
-    TEST(OpenFileNormalResultTest)
+    TEST(OpenFileNormalResult_ReturnsNonNullHandle)
     {
         int error;
         UnityPalFileHandle* handle = NULL;
 
-        handle =  UnityPalOpen(TEST_FILE_NAME, 1, 0, 0, 0, &error);
+        handle =  UnityPalOpen(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &error);
 
         CHECK_NOT_NULL(handle);
 
@@ -824,12 +736,12 @@ SUITE(FileTests)
         il2cpp::os::File::DeleteFile(TEST_FILE_NAME, &error);
     }
 
-    TEST(OpenFileNormalErrorTest)
+    TEST(OpenFileNormalError)
     {
         int error;
         UnityPalFileHandle* handle = NULL;
 
-        handle = UnityPalOpen(TEST_FILE_NAME, 1, 0, 0, 0, &error);
+        handle = UnityPalOpen(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &error);
 
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
 
@@ -837,13 +749,13 @@ SUITE(FileTests)
         il2cpp::os::File::DeleteFile(TEST_FILE_NAME, &error);
     }
 
-    TEST(OpenFileNormalStatTest)
+    TEST(OpenFileNormalStat)
     {
         int error;
         UnityPalFileStat fileStat;
         UnityPalFileHandle* handle = NULL;
 
-        handle = UnityPalOpen(TEST_FILE_NAME, 1, 0, 0, 0, &error);
+        handle = UnityPalOpen(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &error);
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
         il2cpp::os::File::Close(handle, &error);
         il2cpp::os::File::DeleteFile(TEST_FILE_NAME, &error);
@@ -851,37 +763,37 @@ SUITE(FileTests)
         CHECK(fileStat.last_write_time > 1);
     }
 
-    TEST(OpenFileNormalErrorMatchesClassTest)
+    TEST(OpenFileNormalErrorMatchesClass)
     {
         int error;
         int api_error;
         int class_error;
         UnityPalFileHandle* handle = NULL;
 
-        handle = UnityPalOpen(TEST_FILE_NAME, 1, 0, 0, 0, &api_error);
+        handle = UnityPalOpen(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &api_error);
         il2cpp::os::File::Close(handle, &error);
         il2cpp::os::File::DeleteFile(TEST_FILE_NAME, &error);
 
-        handle = il2cpp::os::File::Open(TEST_FILE_NAME, 1, 0, 0, 0, &class_error);
+        handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &class_error);
         il2cpp::os::File::Close(handle, &error);
         il2cpp::os::File::DeleteFile(TEST_FILE_NAME, &error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(OpenFileNormalStatMatchesClassTest)
+    TEST(OpenFileNormalStatMatchesClass)
     {
         int error;
         UnityPalFileStat api_fileStat;
         il2cpp::os::FileStat class_fileStat;
         UnityPalFileHandle* handle = NULL;
 
-        handle = UnityPalOpen(TEST_FILE_NAME, 1, 0, 0, 0, &error);
+        handle = UnityPalOpen(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &error);
         UnityPalGetFileStat(TEST_FILE_NAME, &api_fileStat, &error);
         il2cpp::os::File::Close(handle, &error);
         il2cpp::os::File::DeleteFile(TEST_FILE_NAME, &error);
 
-        handle = il2cpp::os::File::Open(TEST_FILE_NAME, 1, 0, 0, 0, &error);
+        handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeCreateNew, 0, 0, 0, &error);
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &class_fileStat, &error);
         il2cpp::os::File::Close(handle, &error);
 
@@ -890,31 +802,21 @@ SUITE(FileTests)
         CHECK_EQUAL(class_fileStat.last_write_time / 1000000L, api_fileStat.last_write_time / 1000000L);
     }
 
-    TEST(SetFileTimeNormalTest)
+// The utime function returns -1 on PS4. I'm not sure why.
+#if !IL2CPP_TARGET_PS4
+    TEST(SetFileTimeNormal)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate,  kFileAccessReadWrite, 0, 0, &error);
         UnityPalFileStat fileStat;
-        bool result = UnityPalSetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
+        bool setFileTimeResult = UnityPalSetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
         UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
         CleanupTestFile(handle);
 
-        CHECK(result);
+        CHECK(setFileTimeResult);
     }
-/*
-    TEST(SetFileTimeNormalStatTest)
-    {
-        int error;
-        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
-        UnityPalFileStat fileStat;
-        bool result = UnityPalSetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
-        UnityPalGetFileStat(TEST_FILE_NAME, &fileStat, &error);
-        CleanupTestFile(handle);
 
-        CHECK(fileStat.creation_time == 131360602701336952 && fileStat.last_write_time == 131360602701336952 && fileStat.last_access_time == 131360602701336952);
-    }
-*/
-    TEST(SetFileTimeNormalErrorTest)
+    TEST(SetFileTimeNormalError)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -923,12 +825,12 @@ SUITE(FileTests)
 
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
+#endif
 
-    TEST(SetFileTimeNormalMatchesClassTest)
+    TEST(SetFileTimeNormalMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
-        UnityPalFileStat fileStat;
         bool api_result = UnityPalSetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
         bool class_result = il2cpp::os::File::SetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
 
@@ -937,25 +839,42 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(SetFileTimeNormalStatMatchesClassTest)
+    struct SetFileTimeNormalStatFixture
     {
-        int error;
-        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
+        SetFileTimeNormalStatFixture()
+        {
+            int error;
+            il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
+
+            UnityPalSetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
+            UnityPalGetFileStat(TEST_FILE_NAME, &api_fileStat, &error);
+
+            il2cpp::os::File::SetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
+            il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &class_fileStat, &error);
+
+            CleanupTestFile(handle);
+        }
+
         UnityPalFileStat api_fileStat;
-        UnityPalFileStat class_fileStat;
+        il2cpp::os::FileStat class_fileStat;
+    };
 
-        UnityPalSetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
-        UnityPalGetFileStat(TEST_FILE_NAME, &api_fileStat, &error);
-
-        il2cpp::os::File::SetFileTime(handle, 131360602701336952, 131360602701336952, 131360602701336952, &error);
-        il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &class_fileStat, &error);
-
-        CleanupTestFile(handle);
-
-        CHECK(api_fileStat.creation_time == class_fileStat.creation_time && api_fileStat.last_write_time == class_fileStat.last_write_time && api_fileStat.last_access_time == class_fileStat.last_access_time);
+    TEST_FIXTURE(SetFileTimeNormalStatFixture, CreationTimeMatchesClass)
+    {
+        CHECK_EQUAL(class_fileStat.creation_time, api_fileStat.creation_time);
     }
 
-    TEST(SetFileTimeNormalErrorMatchesClassTest)
+    TEST_FIXTURE(SetFileTimeNormalStatFixture, LastWriteTimeMatchesClass)
+    {
+        CHECK_EQUAL(class_fileStat.last_write_time, api_fileStat.last_write_time);
+    }
+
+    TEST_FIXTURE(SetFileTimeNormalStatFixture, LastAccessTimeMatchesClass)
+    {
+        CHECK_EQUAL(class_fileStat.last_access_time, api_fileStat.last_access_time);
+    }
+
+    TEST(SetFileTimeNormalErrorMatchesClass)
     {
         int error;
         int api_error;
@@ -970,7 +889,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(GetLengthNormalTest)
+    TEST(GetLengthNormal)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -981,27 +900,23 @@ SUITE(FileTests)
         CHECK_EQUAL(14, length);
     }
 
-    TEST(GetLengthZeroTest)
+    TEST_FIXTURE(FileFixture, GetLengthZero)
     {
         int error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        int64_t length = UnityPalGetLength(handle, &error);
-        CleanupTestFile(handle);
-
-        CHECK_EQUAL(0, length);
+        CHECK_EQUAL(0, UnityPalGetLength(handle, &error));
     }
 
-    TEST(GetLengthBadFileErrorTest)
+    TEST(GetLengthBadFileError)
     {
         int error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        CleanupTestFile(handle);
-        UnityPalGetLength(handle, &error);
+        il2cpp::os::FileHandle* closedHandle = PrepareTestFile();
+        CleanupTestFile(closedHandle);
+        UnityPalGetLength(closedHandle, &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(GetLengthNormalMatchesClassTest)
+    TEST(GetLengthNormalMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1013,42 +928,40 @@ SUITE(FileTests)
         CHECK_EQUAL(class_length, api_length);
     }
 
-    TEST(GetLengthZeroMatchesClassTest)
+    TEST_FIXTURE(FileFixture, GetLengthZeroMatchesClass)
     {
         int error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
         int64_t api_length = UnityPalGetLength(handle, &error);
         int64_t class_length = il2cpp::os::File::GetLength(handle, &error);
-        CleanupTestFile(handle);
 
         CHECK_EQUAL(class_length, api_length);
     }
 
-    TEST(GetLengthBadFileErrorMatchesClassTest)
+    TEST(GetLengthBadFileErrorMatchesClass)
     {
         int api_error;
         int class_error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        CleanupTestFile(handle);
-        UnityPalGetLength(handle, &api_error);
-        il2cpp::os::File::GetLength(handle, &class_error);
+        il2cpp::os::FileHandle* closedHandle = PrepareTestFile();
+        CleanupTestFile(closedHandle);
+        UnityPalGetLength(closedHandle, &api_error);
+        il2cpp::os::File::GetLength(closedHandle, &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(SetLengthNormalResultTest)
+    TEST(SetLengthNormalResult)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
 
-        bool result = UnityPalSetLength(handle, TEST_FILE_LENGTH, &error);
+        bool setLengthResult = UnityPalSetLength(handle, TEST_FILE_LENGTH, &error);
 
         CleanupTestFile(handle);
 
-        CHECK(result);
+        CHECK(setLengthResult);
     }
 
-    TEST(SetLengthNormalGetLengthTest)
+    TEST(SetLengthNormalGetLength)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1060,29 +973,27 @@ SUITE(FileTests)
         CHECK_EQUAL(TEST_FILE_LENGTH, length);
     }
 
-    TEST(SetLengthBadResultTest)
+    TEST(SetLengthBadResult_ReturnsFalse)
     {
         int error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        CleanupTestFile(handle);
+        il2cpp::os::FileHandle* closedHandle = PrepareTestFile();
+        CleanupTestFile(closedHandle);
 
-        bool result = UnityPalSetLength(handle, TEST_FILE_LENGTH, &error);
-
-        CHECK(!result);
+        CHECK(!UnityPalSetLength(closedHandle, TEST_FILE_LENGTH, &error));
     }
 
-    TEST(SetLengthBadErrorTest)
+    TEST(SetLengthBadError)
     {
         int error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        CleanupTestFile(handle);
+        il2cpp::os::FileHandle* closedHandle = PrepareTestFile();
+        CleanupTestFile(closedHandle);
 
-        UnityPalSetLength(handle, TEST_FILE_LENGTH, &error);
+        UnityPalSetLength(closedHandle, TEST_FILE_LENGTH, &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(SetLengthNormalResultMatchesClassTest)
+    TEST(SetLengthNormalResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1097,7 +1008,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(SetLengthNormalGetLengthMatchesClassTest)
+    TEST(SetLengthNormalGetLengthMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1114,32 +1025,32 @@ SUITE(FileTests)
         CHECK_EQUAL(class_length, api_length);
     }
 
-    TEST(SetLengthBadResultMatchesClassTest)
+    TEST(SetLengthBadResultMatchesClass)
     {
         int error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        CleanupTestFile(handle);
+        il2cpp::os::FileHandle* closedHandle = PrepareTestFile();
+        CleanupTestFile(closedHandle);
 
-        bool api_result = UnityPalSetLength(handle, TEST_FILE_LENGTH, &error);
-        bool class_result = il2cpp::os::File::SetLength(handle, TEST_FILE_LENGTH, &error);
+        bool api_result = UnityPalSetLength(closedHandle, TEST_FILE_LENGTH, &error);
+        bool class_result = il2cpp::os::File::SetLength(closedHandle, TEST_FILE_LENGTH, &error);
 
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(SetLengthBadErrorMatchesClassTest)
+    TEST(SetLengthBadErrorMatchesClass)
     {
         int api_error;
         int class_error;
-        il2cpp::os::FileHandle* handle = PrepareTestFile();
-        CleanupTestFile(handle);
+        il2cpp::os::FileHandle* closedHandle = PrepareTestFile();
+        CleanupTestFile(closedHandle);
 
-        UnityPalSetLength(handle, TEST_FILE_LENGTH, &api_error);
-        il2cpp::os::File::SetLength(handle, TEST_FILE_LENGTH, &class_error);
+        UnityPalSetLength(closedHandle, TEST_FILE_LENGTH, &api_error);
+        il2cpp::os::File::SetLength(closedHandle, TEST_FILE_LENGTH, &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(SeekNormalResultTest)
+    TEST(SeekNormalResult)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1151,7 +1062,7 @@ SUITE(FileTests)
         CHECK_EQUAL(10, result);
     }
 
-    TEST(SeekNormalBufferTest)
+    TEST(SeekNormalBuffer)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1166,7 +1077,7 @@ SUITE(FileTests)
         CHECK_EQUAL(0, strncmp("TEST", buffer, 4));
     }
 
-    TEST(SeekBadErrorTest)
+    TEST(SeekBadError)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1177,7 +1088,7 @@ SUITE(FileTests)
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(SeekNormalResultMatchesClassTest)
+    TEST(SeekNormalResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1195,7 +1106,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(SeekNormalBufferMatchesClassTest)
+    TEST(SeekNormalBufferMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1220,7 +1131,7 @@ SUITE(FileTests)
         CHECK_EQUAL(0, strncmp(class_buffer, api_buffer, 4));
     }
 
-    TEST(SeekBadErrorMatchesClassTest)
+    TEST(SeekBadErrorMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1231,7 +1142,7 @@ SUITE(FileTests)
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(ReadNormalResultTest)
+    TEST(ReadNormalResult)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1245,7 +1156,7 @@ SUITE(FileTests)
         CHECK_EQUAL(14, result);
     }
 
-    TEST(ReadNormalBufferTest)
+    TEST(ReadNormalBuffer)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1256,10 +1167,10 @@ SUITE(FileTests)
         UnityPalRead(handle, buffer, 16, &error);
         CleanupTestFile(handle);
 
-        CHECK_EQUAL(0, strncmp("THIS IS A TEST", buffer, 14));
+        CHECK_EQUAL(0, strncmp(TEST_STRING, buffer, 14));
     }
 
-    TEST(ReadBadResultTest)
+    TEST(ReadBadResult)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1270,7 +1181,7 @@ SUITE(FileTests)
         CHECK(!result);
     }
 
-    TEST(ReadBadErrorTest)
+    TEST(ReadBadError)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1281,7 +1192,7 @@ SUITE(FileTests)
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(ReadNormalResultMatchesClassTest)
+    TEST(ReadNormalResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1302,7 +1213,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(ReadNormalBufferMatchesClassTest)
+    TEST(ReadNormalBufferMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1325,7 +1236,7 @@ SUITE(FileTests)
     }
 
 
-    TEST(ReadBadResultMatchesClassTest)
+    TEST(ReadBadResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1339,7 +1250,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(ReadBadErrorMatchesClassTest)
+    TEST(ReadBadErrorMatchesClass)
     {
         int error;
         int api_error;
@@ -1356,12 +1267,12 @@ SUITE(FileTests)
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(WriteNormalResultTest)
+    TEST(WriteNormalResult)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
 
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
 
         int32_t result = UnityPalWrite(handle, buffer, 14, &error);
         CleanupTestFile(handle);
@@ -1369,12 +1280,12 @@ SUITE(FileTests)
         CHECK_EQUAL(14, result);
     }
 
-    TEST(WriteNormalErrorTest)
+    TEST(WriteNormalError)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
 
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
 
         UnityPalWrite(handle, buffer, 14, &error);
         CleanupTestFile(handle);
@@ -1382,12 +1293,12 @@ SUITE(FileTests)
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(WriteNormalBufferCheckTest)
+    TEST(WriteNormalBufferCheck)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
 
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
         UnityPalWrite(handle, buffer, 14, &error);
 
         char read_buffer[16];
@@ -1395,15 +1306,15 @@ SUITE(FileTests)
         il2cpp::os::File::Read(handle, read_buffer, 16, &error);
         CleanupTestFile(handle);
 
-        CHECK_EQUAL(0, strncmp("THIS IS A TEST", buffer, 14));
+        CHECK_EQUAL(0, strncmp(TEST_STRING, buffer, 14));
     }
 
-    TEST(WriteBadResultTest)
+    TEST(WriteBadResult)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
         CleanupTestFile(handle);
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
 
         int32_t result = UnityPalWrite(handle, buffer, 14, &error);
 
@@ -1411,12 +1322,12 @@ SUITE(FileTests)
         CHECK_EQUAL(0, result);
     }
 
-    TEST(WriteNormalResultMatchesClassTest)
+    TEST(WriteNormalResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
 
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
 
         int32_t api_result = UnityPalWrite(handle, buffer, 14, &error);
         int32_t class_result = il2cpp::os::File::Write(handle, buffer, 14, &error);
@@ -1426,12 +1337,12 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(WriteNormalBufferCheckMatchesClassTest)
+    TEST(WriteNormalBufferCheckMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
 
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
         UnityPalWrite(handle, buffer, 14, &error);
 
         char api_read_buffer[16];
@@ -1450,12 +1361,12 @@ SUITE(FileTests)
         CHECK_EQUAL(0, strncmp(class_read_buffer, api_read_buffer, 14));
     }
 
-    TEST(WriteBadResultMatchesClassTest)
+    TEST(WriteBadResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
         CleanupTestFile(handle);
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
 
         int32_t api_result = UnityPalWrite(handle, buffer, 14, &error);
         int32_t class_result = il2cpp::os::File::Write(handle, buffer, 14, &error);
@@ -1463,7 +1374,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(WriteBadErrorMatchesClassTest)
+    TEST(WriteBadErrorMatchesClass)
     {
         int error;
         int api_error;
@@ -1471,7 +1382,7 @@ SUITE(FileTests)
 
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, 1, 1, 0, 0, &error);
         CleanupTestFile(handle);
-        static const char* buffer = "THIS IS A TEST\0";
+        static const char* buffer = TEST_STRING;
 
         UnityPalWrite(handle, buffer, 14, &api_error);
         il2cpp::os::File::Write(handle, buffer, 14, &class_error);
@@ -1479,19 +1390,19 @@ SUITE(FileTests)
         CHECK_EQUAL(api_error, class_error);
     }
 
-    TEST(FlushNormalResultTest)
+    TEST(FlushNormalResult_ReturnsTrue)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
         WriteSomeCharactersToTestFile(handle);
 
-        bool result = UnityPalFlush(handle, &error);
+        bool flushResult = UnityPalFlush(handle, &error);
         CleanupTestFile(handle);
 
-        CHECK(result);
+        CHECK(flushResult);
     }
 
-    TEST(FlushNormalErrorTest)
+    TEST(FlushNormalError)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1503,19 +1414,17 @@ SUITE(FileTests)
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-    TEST(FlushBadResultTest)
+    TEST(FlushBadResult_ReturnsFalse)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
         WriteSomeCharactersToTestFile(handle);
         CleanupTestFile(handle);
 
-        bool result = UnityPalFlush(handle, &error);
-
-        CHECK(!result);
+        CHECK(!UnityPalFlush(handle, &error));
     }
 
-    TEST(FlushBadErrorTest)
+    TEST(FlushBadError)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1528,7 +1437,7 @@ SUITE(FileTests)
     }
 
 
-    TEST(FlushNormalResultMatchesClassTest)
+    TEST(FlushNormalResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1542,7 +1451,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(FlushNormalErrorMatchesClassTest)
+    TEST(FlushNormalErrorMatchesClass)
     {
         int error;
         int api_error;
@@ -1558,7 +1467,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(FlushBadResultMatchesClassTest)
+    TEST(FlushBadResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
@@ -1568,10 +1477,10 @@ SUITE(FileTests)
         bool api_result = UnityPalFlush(handle, &error);
         bool class_result = il2cpp::os::File::Flush(handle, &error);
 
-        CHECK_EQUAL(api_result, class_result);
+        CHECK_EQUAL(class_result, api_result);
     }
 
-    TEST(FlushBadErrorMatchesClassTest)
+    TEST(FlushBadErrorMatchesClass)
     {
         int error;
         int api_error;
@@ -1587,20 +1496,21 @@ SUITE(FileTests)
         CHECK_EQUAL(class_error, api_error);
     }
 
-    TEST(CreatePipeNormalResultTest)
+#if !IL2CPP_TARGET_PS4
+    TEST(CreatePipeNormalResult_ReturnsTrue)
     {
         int error;
         il2cpp::os::FileHandle* read_handle;
         il2cpp::os::FileHandle* write_handle;
 
-        bool result = UnityPalCreatePipe(&read_handle, &write_handle);
+        bool createPipeResult = UnityPalCreatePipe(&read_handle, &write_handle);
         il2cpp::os::File::Close(read_handle, &error);
         il2cpp::os::File::Close(write_handle, &error);
 
-        CHECK(result);
+        CHECK(createPipeResult);
     }
 
-    TEST(CreatePipeNormalBufferTest)
+    TEST(CreatePipeNormalBuffer)
     {
         int error;
         il2cpp::os::FileHandle* read_handle;
@@ -1618,7 +1528,7 @@ SUITE(FileTests)
         CHECK_EQUAL(0, strncmp("THIS", buffer, 4));
     }
 
-    TEST(CreatePipeNormalResultMatchesClassTest)
+    TEST(CreatePipeNormalResultMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* read_handle;
@@ -1635,8 +1545,7 @@ SUITE(FileTests)
         CHECK_EQUAL(class_result, api_result);
     }
 
-
-    TEST(CreatePipeNormalBufferMatchesClassTest)
+    TEST(CreatePipeNormalBufferMatchesClass)
     {
         int error;
         il2cpp::os::FileHandle* api_read_handle;
@@ -1661,6 +1570,65 @@ SUITE(FileTests)
 
         CHECK_EQUAL(0, strncmp(class_buffer, api_buffer, 4));
     }
+#endif
+
+#if IL2CPP_CAN_CHECK_EXECUTABLE
+
+#if !IL2CPP_TARGET_WINDOWS
+#include <sys/stat.h>
+#endif
+
+    struct ExecutableFileFixture
+    {
+        ExecutableFileFixture() : executableFilename("foo.exe"), nonexecutableFilename("foo")
+        {
+            int unused;
+            executableFile = il2cpp::os::File::Open(executableFilename, kFileModeCreate, 0, 0, 0, &unused);
+            nonexecutableFile = il2cpp::os::File::Open(nonexecutableFilename, kFileModeCreate, 0, 0, 0, &unused);
+
+#if !IL2CPP_TARGET_WINDOWS
+            chmod(executableFilename, S_IRUSR | S_IWUSR | S_IXUSR);
+#endif
+        }
+
+        ~ExecutableFileFixture()
+        {
+            int unused;
+            il2cpp::os::File::Close(executableFile, &unused);
+            il2cpp::os::File::DeleteFile(executableFilename, &unused);
+            il2cpp::os::File::Close(nonexecutableFile, &unused);
+            il2cpp::os::File::DeleteFile(nonexecutableFilename, &unused);
+        }
+
+        const char* executableFilename;
+        const char* nonexecutableFilename;
+        il2cpp::os::FileHandle* executableFile;
+        il2cpp::os::FileHandle* nonexecutableFile;
+    };
+
+#if IL2CPP_TARGET_WINDOWS
+    TEST_FIXTURE(ExecutableFileFixture, IsExecutable_ReturnsTrueForFileEndingInExe)
+    {
+        CHECK_MSG(UnityPalIsExecutable(executableFilename), "A file ending in the .exe extension is not reported as executable, which is not expected.");
+    }
+
+    TEST_FIXTURE(ExecutableFileFixture, IsExecutable_ReturnsFalseForFileNotEndingInExe)
+    {
+        CHECK_MSG(!UnityPalIsExecutable(nonexecutableFilename), "A file not ending in the .exe extension is reported as executable, which is not expected.");
+    }
+#else
+    TEST_FIXTURE(ExecutableFileFixture, IsExecutable_ReturnsTrueForFileWithExecutablePermissions)
+    {
+        CHECK_MSG(UnityPalIsExecutable(executableFilename), "A file with executable permissions is not reported as executable, which is not expected.");
+    }
+
+    TEST_FIXTURE(ExecutableFileFixture, IsExecutable_ReturnsFalseForFileWithoutExecutablePermissions)
+    {
+        CHECK_MSG(!UnityPalIsExecutable(nonexecutableFilename), "A file without executable permissions is reported as executable, which is not expected.");
+    }
+#endif
+
+#endif // IL2CPP_CAN_CHECK_EXECUTABLE
 }
 
 #endif // ENABLE_UNIT_TESTS

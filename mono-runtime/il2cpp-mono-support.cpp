@@ -20,8 +20,6 @@
 #include "utils/HashUtils.h"
 #include "os/Mutex.h"
 
-Il2CppIntPtr Il2CppIntPtr::Zero;
-
 extern const Il2CppCodeRegistration g_CodeRegistration IL2CPP_ATTRIBUTE_WEAK;
 extern const Il2CppMethodSpec g_Il2CppMethodSpecTable[] IL2CPP_ATTRIBUTE_WEAK;
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
@@ -47,6 +45,8 @@ static InteropDataMap s_InteropDataMap;
 typedef Il2CppHashMap<MonoClass*, const Il2CppInteropData*, il2cpp::utils::PointerHash<MonoClass> > InteropDataPointerCacheMap;
 static InteropDataPointerCacheMap s_InteropDataPointerCacheMap;
 static il2cpp::os::FastMutex s_InteropPointerCacheMutex;
+
+MonoDomain *g_MonoDomain;
 
 void il2cpp_mono_error_init(MonoError *oerror)
 {
@@ -313,7 +313,7 @@ MonoAssembly* il2cpp_mono_assembly_from_index(AssemblyIndex index)
 MonoAssembly* il2cpp_mono_assembly_from_name(const char* name)
 {
     // First look for the cached assembly in the domain.
-    MonoAssembly* assembly = mono_domain_assembly_open(mono_domain_get(), name);
+    MonoAssembly* assembly = mono_domain_assembly_open(g_MonoDomain, name);
     if (assembly == NULL)
     {
         // If we can't find it, look in the path we've set to find assemblies.
@@ -605,7 +605,7 @@ MonoMethod* GenericMethodFromIndex(MethodIndex index)
 static MonoString* StringFromIndex(StringIndex index)
 {
     const MonoMetadataToken* stringMetadata = mono::vm::MetadataCache::GetMonoStringTokenFromIndex(index);
-    return mono_ldstr(mono_domain_get(), mono_assembly_get_image(il2cpp_mono_assembly_from_index(stringMetadata->assemblyIndex)), mono_metadata_token_index(stringMetadata->token));
+    return mono_ldstr(g_MonoDomain, mono_assembly_get_image(il2cpp_mono_assembly_from_index(stringMetadata->assemblyIndex)), mono_metadata_token_index(stringMetadata->token));
 }
 
 void il2cpp_mono_initialize_method_metadata(uint32_t index)
@@ -670,20 +670,11 @@ void il2cpp_mono_raise_execution_engine_exception_if_method_is_not_found(MonoMet
     }
 }
 
-std::vector<uintptr_t> il2cpp_to_mono_array_dimensions(il2cpp_array_size_t* il2cppDimensions, int32_t numberOfElements)
-{
-    std::vector<uintptr_t> monoDimensions(numberOfElements);
-    for (int32_t i = 0; i < numberOfElements; ++i)
-        monoDimensions[i] = il2cppDimensions[i];
-
-    return monoDimensions;
-}
-
-Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, MonoObject* state)
+Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(MonoDelegate* delegate, void** params, MonoDelegate* asyncCallback, MonoObject* state)
 {
     int numParams = mono_signature_get_param_count(mono_method_signature((MonoMethod*)delegate->method));
     MonoObject *nullState = NULL;
-    Il2CppDelegate *nullCallback = NULL;
+    MonoDelegate *nullCallback = NULL;
 
     std::vector<void*> newParams(numParams + 2);
     for (int i = 0; i < numParams; ++i)
@@ -707,7 +698,7 @@ Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(Il2CppDelegate* delegate, v
     }
 
     MonoError unused;
-    return (Il2CppAsyncResult*)mono_threadpool_ms_begin_invoke(mono_domain_get(), (MonoObject*)delegate, (MonoMethod*)delegate->method, numNewParams != 0 ? &newParams[0] : NULL, &unused);
+    return (Il2CppAsyncResult*)mono_threadpool_begin_invoke(g_MonoDomain, (MonoObject*)delegate, (MonoMethod*)delegate->method, numNewParams != 0 ? &newParams[0] : NULL, &unused);
 }
 
 static void MonoArrayGetGenericValue(MonoArray* array, int32_t pos, void* value)
@@ -726,7 +717,7 @@ MonoObject* il2cpp_mono_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void
     MonoError unused;
     MonoObject *exc = NULL;
     MonoArray *mono_out_args = NULL;
-    MonoObject *retVal = (MonoObject*)mono_threadpool_ms_end_invoke((MonoAsyncResult*)asyncResult, &mono_out_args, &exc, &unused);
+    MonoObject *retVal = (MonoObject*)mono_threadpool_end_invoke((MonoAsyncResult*)asyncResult, &mono_out_args, &exc, &unused);
 
     if (exc)
         mono_raise_exception((MonoException*)exc);
@@ -742,7 +733,7 @@ MonoObject* il2cpp_mono_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void
 MonoArray* MonoArrayNew(MonoClass* elementType, uintptr_t length)
 {
     MonoError unused;
-    return mono_array_new_specific_checked(mono_class_vtable(mono_domain_get(), mono_array_class_get(elementType, 1)), length, &unused);
+    return mono_array_new_specific_checked(il2cpp_mono_class_vtable(g_MonoDomain, mono_array_class_get(elementType, 1)), length, &unused);
 }
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
@@ -779,7 +770,7 @@ void RegisterAllManagedMethods()
 void RuntimeInit(MonoClass* klass)
 {
     MonoError error;
-    mono_runtime_class_init_full(mono_class_vtable(mono_domain_get(), klass), &error);
+    mono_runtime_class_init_full(il2cpp_mono_class_vtable(g_MonoDomain, klass), &error);
     if (!il2cpp_mono_error_ok(&error))
         mono_error_raise_exception(&error);
 }
@@ -794,6 +785,30 @@ std::string il2cpp_mono_format_exception(const MonoException *exc)
         return exception_namespace + "." + exception_type + ": " + mono_string_to_utf8(message);
     else
         return exception_namespace + "." + exception_type;
+}
+
+void* il2cpp_mono_get_static_field_address(MonoClass *klass, MonoClassField *field)
+{
+    MonoVTable *vt = il2cpp_mono_class_vtable(g_MonoDomain, klass);
+    return (char*)vt->vtable[vt->klass->vtable_size] + field->offset;
+}
+
+void* il2cpp_mono_get_thread_static_field_address(MonoClass *klass, MonoClassField *field)
+{
+    MonoVTable *vt = il2cpp_mono_class_vtable(g_MonoDomain, klass);
+    return mono_unity_get_field_address(NULL, vt, field);
+}
+
+MonoVTable* il2cpp_mono_class_vtable(MonoDomain *domain, MonoClass *klass)
+{
+    MonoClassRuntimeInfo *runtime_info;
+
+    runtime_info = klass->runtime_info;
+    if (runtime_info)
+        return runtime_info->domain_vtables[0];
+
+    MonoError unused;
+    return mono_class_vtable_full(domain, klass, &unused);
 }
 
 extern "C"

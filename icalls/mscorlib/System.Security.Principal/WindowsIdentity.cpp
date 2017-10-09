@@ -14,30 +14,30 @@ namespace Security
 {
 namespace Principal
 {
-    Il2CppString* WindowsIdentity::GetTokenName(Il2CppIntPtr token)
+    Il2CppString* WindowsIdentity::GetTokenName(intptr_t token)
     {
         NOT_IMPLEMENTED_ICALL(WindowsIdentity::GetTokenName);
         return 0;
     }
 
-    Il2CppIntPtr WindowsIdentity::GetCurrentToken()
+    intptr_t WindowsIdentity::GetCurrentToken()
     {
         NOT_IMPLEMENTED_ICALL(WindowsIdentity::GetCurrentToken);
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 
-    Il2CppArray* WindowsIdentity::_GetRoles(Il2CppIntPtr token)
+    Il2CppArray* WindowsIdentity::_GetRoles(intptr_t token)
     {
         NOT_SUPPORTED_IL2CPP(WindowsIdentity::_GetRoles, "This icall is not supported by il2cpp.");
 
         return 0;
     }
 
-    Il2CppIntPtr WindowsIdentity::GetUserToken(Il2CppString* username)
+    intptr_t WindowsIdentity::GetUserToken(Il2CppString* username)
     {
         NOT_SUPPORTED_IL2CPP(WindowsIdentity::GetUserToken, "This icall is not supported by il2cpp.");
 
-        return Il2CppIntPtr();
+        return intptr_t();
     }
 } /* namespace Principal */
 } /* namespace Security */

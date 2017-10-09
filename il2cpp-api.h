@@ -14,7 +14,9 @@ IL2CPP_EXPORT void* il2cpp_api_lookup_symbol(const char* name);
 
 extern "C"
 {
-#define DO_API(r, n, p)   IL2CPP_EXPORT r n p;
+#define DO_API(r, n, p)             IL2CPP_EXPORT r n p;
+#define DO_API_NO_RETURN(r, n, p)   IL2CPP_EXPORT NORETURN r n p;
 #include "il2cpp-api-functions.h"
 #undef DO_API
+#undef DO_API_NORETURN
 }

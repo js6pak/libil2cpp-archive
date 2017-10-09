@@ -15,15 +15,14 @@ namespace System
 {
 namespace Threading
 {
-    void InternalThread::Thread_free_internal(Il2CppInternalThread* _this, Il2CppIntPtr handle)
+    void InternalThread::Thread_free_internal(Il2CppInternalThread* _this)
     {
         delete _this->synch_cs;
         _this->synch_cs = NULL;
 
         IL2CPP_FREE(_this->name);
 
-        delete static_cast<il2cpp::os::Thread*>(handle.m_value);
-        handle.m_value = NULL;
+        delete reinterpret_cast<il2cpp::os::Thread*>(_this->handle);
     }
 } // namespace Threading
 } // namespace System

@@ -1,45 +1,14 @@
 #include "il2cpp-config.h"
 #include "MarshalAlloc.h"
 #include "os/MarshalAlloc.h"
-#include "os/ThreadLocalValue.h"
-#include "vm/Exception.h"
-#include <deque>
-#include <vector>
 
 namespace il2cpp
 {
 namespace vm
 {
 #if _DEBUG
-    static os::ThreadLocalValue s_Allocations;
-
-    static os::FastMutex s_AllocationStorageMutex;
-    static std::deque<std::vector<std::map<void*, size_t> > > s_AllocationStorage;
-
-    static std::vector<std::map<void*, size_t> >& GetAllocationsForCurrentThread()
-    {
-        std::vector<std::map<void*, size_t> >* ptr = NULL;
-        s_Allocations.GetValue(reinterpret_cast<void**>(&ptr));
-        if (ptr == NULL)
-        {
-            os::FastAutoLock lock(&s_AllocationStorageMutex);
-            s_AllocationStorage.push_back(std::vector<std::map<void*, size_t> >());
-            ptr = &s_AllocationStorage.back();
-            s_Allocations.SetValue(ptr);
-        }
-
-        return *ptr;
-    }
-
-    static std::map<void*, size_t>* GetAllocationsForCurrentFrame()
-    {
-        std::vector<std::map<void*, size_t> >& currentThreadAllocations = GetAllocationsForCurrentThread();
-        if (currentThreadAllocations.size() > 0)
-            return &currentThreadAllocations.back();
-
-        return NULL;
-    }
-
+    static os::FastMutex s_Mutex; // Locking only necessary in a debug build.
+    static std::map<void*, size_t> s_Allocations;
 #endif
 
     void* MarshalAlloc::Allocate(size_t size)
@@ -47,9 +16,8 @@ namespace vm
         void* ptr = os::MarshalAlloc::Allocate(size);
 
 #if _DEBUG
-        std::map<void*, size_t>* allocations = GetAllocationsForCurrentFrame();
-        if (allocations != NULL)
-            (*allocations)[ptr] = size;
+        os::FastAutoLock lock(&s_Mutex);
+        s_Allocations[ptr] = size;
 #endif
 
         return ptr;
@@ -60,18 +28,14 @@ namespace vm
         void* realloced = os::MarshalAlloc::ReAlloc(ptr, size);
 
 #if _DEBUG
-        std::map<void*, size_t>* allocations = GetAllocationsForCurrentFrame();
-        if (allocations != NULL)
+        os::FastAutoLock lock(&s_Mutex);
+        if (ptr != NULL && ptr != realloced)
         {
-            if (ptr != NULL && ptr != realloced)
-            {
-                std::map<void*, size_t>::iterator found = allocations->find(ptr);
-                IL2CPP_ASSERT(found != allocations->end() && "Invalid call to MarshalAlloc::ReAlloc. The pointer is not in the allocation list.");
-                allocations->erase(found);
-            }
-
-            (*allocations)[realloced] = size;
+            std::map<void*, size_t>::iterator found = s_Allocations.find(ptr);
+            IL2CPP_ASSERT(found != s_Allocations.end() && "Invalid call to MarshalAlloc::ReAlloc. The pointer is not in the allocation list.");
+            s_Allocations.erase(found);
         }
+        s_Allocations[realloced] = size;
 #endif
 
         return realloced;
@@ -80,13 +44,10 @@ namespace vm
     void MarshalAlloc::Free(void* ptr)
     {
 #if _DEBUG
-        std::map<void*, size_t>* allocations = GetAllocationsForCurrentFrame();
-        if (allocations != NULL)
-        {
-            std::map<void*, size_t>::iterator found = allocations->find(ptr);
-            if (found != allocations->end()) // It might not be necessarily allocated by us, e.g. we might be freeing memory that's returned from native P/Invoke call
-                allocations->erase(found);
-        }
+        os::FastAutoLock lock(&s_Mutex);
+        std::map<void*, size_t>::iterator found = s_Allocations.find(ptr);
+        if (found != s_Allocations.end()) // It might not be necessarily allocated by us, e.g. we might be freeing memory that's returned from native P/Invoke call
+            s_Allocations.erase(found);
 #endif
 
         os::MarshalAlloc::Free(ptr);
@@ -112,27 +73,16 @@ namespace vm
 
 #if _DEBUG
 
-    void MarshalAlloc::PushAllocationFrame()
-    {
-        GetAllocationsForCurrentThread().push_back(std::map<void*, size_t>());
-    }
-
-    void MarshalAlloc::PopAllocationFrame()
-    {
-        GetAllocationsForCurrentThread().pop_back();
-    }
-
     bool MarshalAlloc::HasUnfreedAllocations()
     {
-        std::map<void*, size_t>* allocations = GetAllocationsForCurrentFrame();
-        return allocations != NULL && allocations->size() > 0;
+        os::FastAutoLock lock(&s_Mutex);
+        return s_Allocations.size() != 0;
     }
 
     void MarshalAlloc::ClearAllTrackedAllocations()
     {
-        std::map<void*, size_t>* allocations = GetAllocationsForCurrentFrame();
-        if (allocations != NULL)
-            allocations->clear();
+        os::FastAutoLock lock(&s_Mutex);
+        s_Allocations.clear();
     }
 
 #endif

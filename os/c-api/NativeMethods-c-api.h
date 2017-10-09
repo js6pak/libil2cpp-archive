@@ -8,8 +8,8 @@ extern "C"
 {
 #endif
 
-bool UnityPalNativeCloseProcess(UnityPalProcessHandle* handle);
-bool UnityPalNativeGetExitCodeProcess(UnityPalProcessHandle* handle, int32_t* exitCode);
+int32_t UnityPalNativeCloseProcess(UnityPalProcessHandle* handle);
+int32_t UnityPalNativeGetExitCodeProcess(UnityPalProcessHandle* handle, int32_t* exitCode);
 int32_t UnityPalNativeGetCurrentProcessId();
 UnityPalProcessHandle* UnityPalNativeGetCurrentProcess();
 

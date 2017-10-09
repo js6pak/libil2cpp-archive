@@ -58,9 +58,9 @@ namespace Threading
         return 258; // WAIT_TIMEOUT value
     }
 
-    bool WaitHandle::WaitOne_internal(Il2CppObject* unused, Il2CppIntPtr handlePtr, int32_t ms, bool exitContext)
+    bool WaitHandle::WaitOne_internal(Il2CppObject* unused, intptr_t handlePtr, int32_t ms, bool exitContext)
     {
-        il2cpp::os::Handle* handle = (il2cpp::os::Handle*)handlePtr.m_value;
+        il2cpp::os::Handle* handle = (il2cpp::os::Handle*)handlePtr;
 
         vm::ThreadStateSetter state(vm::kThreadStateWaitSleepJoin);
 
@@ -103,16 +103,16 @@ namespace Threading
         return false; // Timed out waiting for all handles to be signaled
     }
 
-    bool WaitHandle::SignalAndWait_Internal(Il2CppIntPtr toSignal, Il2CppIntPtr toWaitOn, int32_t ms, bool exitContext)
+    bool WaitHandle::SignalAndWait_Internal(intptr_t toSignal, intptr_t toWaitOn, int32_t ms, bool exitContext)
     {
-        os::Handle* toSignalOsHandle = (os::Handle*)toSignal.m_value;
+        os::Handle* toSignalOsHandle = (os::Handle*)toSignal;
         toSignalOsHandle->Signal();
 
         return WaitOne_internal(NULL, toWaitOn, ms, exitContext);
     }
 
 #if NET_4_0
-    int32_t WaitHandle::SignalAndWait_Internal40(Il2CppIntPtr toSignal, Il2CppIntPtr toWaitOn, int32_t ms)
+    int32_t WaitHandle::SignalAndWait_Internal40(intptr_t toSignal, intptr_t toWaitOn, int32_t ms)
     {
         return SignalAndWait_Internal(toSignal, toWaitOn, ms, false) ? 0 : 1;
     }
@@ -127,7 +127,7 @@ namespace Threading
         return WaitAny_internal(handles, ms, false);
     }
 
-    int32_t WaitHandle::WaitOne_internal40(Il2CppIntPtr handle, int32_t ms)
+    int32_t WaitHandle::WaitOne_internal40(intptr_t handle, int32_t ms)
     {
         return WaitOne_internal(NULL, handle, ms, false) ? 0 : 258;
     }

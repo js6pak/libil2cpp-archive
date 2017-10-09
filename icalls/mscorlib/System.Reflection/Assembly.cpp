@@ -27,6 +27,7 @@
 #include "vm/Type.h"
 #include "vm/Array.h"
 #include "class-internals.h"
+#include "mono-structs.h"
 #include <limits>
 
 
@@ -266,7 +267,7 @@ namespace Reflection
         return arr;
     }
 
-    bool Assembly::LoadPermissions(mscorlib_System_Reflection_Assembly * a, Il2CppIntPtr* minimum, int32_t* minLength, Il2CppIntPtr* optional, int32_t* optLength, Il2CppIntPtr* refused, int32_t* refLength)
+    bool Assembly::LoadPermissions(mscorlib_System_Reflection_Assembly * a, intptr_t* minimum, int32_t* minLength, intptr_t* optional, int32_t* optLength, intptr_t* refused, int32_t* refLength)
     {
         NOT_IMPLEMENTED_ICALL(Assembly::LoadPermissions);
         return false;
@@ -322,6 +323,14 @@ namespace Reflection
     {
         NOT_SUPPORTED_IL2CPP(Assembly::InternalGetAssemblyName, "This icall is not supported by il2cpp.");
     }
+
+#if NET_4_0
+    void Assembly::InternalGetAssemblyName40(Il2CppString* assemblyFile, Il2CppMonoAssemblyName* aname, Il2CppString** codebase)
+    {
+        NOT_SUPPORTED_IL2CPP(Assembly::InternalGetAssemblyName, "This icall is not supported by il2cpp.");
+    }
+
+#endif
 
     Il2CppReflectionAssembly* Assembly::LoadFrom(Il2CppString* assemblyFile, bool refonly)
     {
@@ -510,7 +519,7 @@ namespace Reflection
         return false;
     }
 
-    Il2CppIntPtr Assembly::GetManifestResourceInternal(Il2CppReflectionAssembly* assembly, Il2CppString* name, int* size, Il2CppReflectionModule** module)
+    intptr_t Assembly::GetManifestResourceInternal(Il2CppReflectionAssembly* assembly, Il2CppString* name, int* size, Il2CppReflectionModule** module)
     {
         std::vector<EmbeddedResourceRecord> resourceRecords = GetResourceRecords(assembly);
         std::vector<EmbeddedResourceRecord>::iterator resource = std::find_if(resourceRecords.begin(), resourceRecords.end(), ResourceNameMatcher(utils::StringUtils::Utf16ToUtf8(name->chars)));
@@ -518,12 +527,12 @@ namespace Reflection
         {
             *module = vm::Reflection::GetModuleObject(MetadataCache::GetImageFromIndex(assembly->assembly->imageIndex));
             *size = resource->size;
-            Il2CppIntPtr result;
-            result.m_value = LoadResourceData(assembly, *resource);
+            intptr_t result;
+            result = (intptr_t)LoadResourceData(assembly, *resource);
             return result;
         }
 
-        return Il2CppIntPtr::Zero;
+        return 0;
     }
 
     int32_t Assembly::MonoDebugger_GetMethodToken(void* /* System.Reflection.MethodBase */ method)
@@ -550,6 +559,24 @@ namespace Reflection
     Il2CppString* Assembly::GetAotId()
     {
         return NULL;
+    }
+
+#endif
+
+#if NET_4_0
+    intptr_t Assembly::InternalGetReferencedAssemblies(Il2CppReflectionAssembly* module)
+    {
+        VoidPtrArray assemblyPointers;
+        vm::AssemblyNameVector referencedAssemblies;
+        vm::Assembly::GetReferencedAssemblies(module->assembly, &referencedAssemblies);
+        for (vm::AssemblyNameVector::const_iterator aname = referencedAssemblies.begin(); aname != referencedAssemblies.end(); ++aname)
+        {
+            Il2CppMonoAssemblyName* monoAssemblyName = (Il2CppMonoAssemblyName*)IL2CPP_MALLOC_ZERO(sizeof(Il2CppMonoAssemblyName));
+            il2cpp::vm::AssemblyName::FillNativeAssemblyName(*(*aname), monoAssemblyName);
+            assemblyPointers.push_back(monoAssemblyName);
+        }
+
+        return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(assemblyPointers));
     }
 
 #endif
