@@ -446,6 +446,11 @@ typedef uint32_t Il2CppMethodSlot;
     #define IL2CPP_USE_GENERIC_SOCKET_IMPL  (!IL2CPP_TARGET_POSIX || IL2CPP_TARGET_JAVASCRIPT) &&  (!IL2CPP_TARGET_SWITCH)
 #endif
 
+/* set by platforms that require special handling of SIGPIPE signalling during socket sends */
+#ifndef IL2CPP_USE_SEND_NOSIGNAL
+    #define IL2CPP_USE_SEND_NOSIGNAL 0
+#endif
+
 #define IL2CPP_USE_GENERIC_ENVIRONMENT  (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 
 #define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
@@ -499,7 +504,7 @@ const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
 
 const int ipv6AddressSize = 16;
-#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
+#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_SWITCH
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
