@@ -2001,6 +2001,15 @@ namespace os
         return kWaitStatusFailure;
     }
 
+#if IL2CPP_SUPPORT_IPV6
+    WaitStatus SocketImpl::SetSocketOptionMembership(SocketOptionLevel level, SocketOptionName name, IPv6Address ipv6, uint64_t interfaceOffset)
+    {
+        IL2CPP_VM_NOT_SUPPORTED(SocketImpl::SetSocketOptionMembership, "We don't have IPv6 support on Windows yet.");
+        return kWaitStatusFailure;
+    }
+
+#endif
+
     WaitStatus SocketImpl::SetSocketOptionInternal(int32_t level, int32_t name, const void *value, int32_t len)
     {
         const void *real_val = value;
