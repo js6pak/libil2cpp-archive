@@ -22,6 +22,8 @@ namespace vm
         static void FreeHGlobal(void* ptr);
 
 #if _DEBUG
+        static void PushAllocationFrame();
+        static void PopAllocationFrame();
         static bool HasUnfreedAllocations();
         static void ClearAllTrackedAllocations();
 #endif
