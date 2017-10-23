@@ -500,7 +500,7 @@ const uintptr_t kIl2CppUIntPtrMax = kIl2CppUInt32Max;
 #endif
 
 const int ipv6AddressSize = 16;
-#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4
+#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_SWITCH
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
