@@ -13,7 +13,7 @@ UNITY_PLATFORM_BEGIN_NAMESPACE;
 
     #define ATOMIC_HAS_QUEUE    1
 
-#elif defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (defined(__clang__) || defined(__GNUC__) || defined(SN_TARGET_PSP2))
+#elif defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (!UNITY_STV_API) && (defined(__clang__) || defined(__GNUC__) || defined(SN_TARGET_PSP2))
 
     #define ATOMIC_HAS_QUEUE    1
 
