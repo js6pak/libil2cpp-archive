@@ -8,6 +8,7 @@
 #include "gc/GarbageCollector.h"
 #include "metadata/FieldLayout.h"
 #include "vm/Array.h"
+#include "vm/CCW.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
@@ -73,7 +74,7 @@ namespace InteropServices
 
     void Marshal::FreeBSTR(intptr_t ptr)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::StringToBSTR, "BSTR icalls are not supported.");
+        vm::PlatformInvoke::MarshalFreeBString(reinterpret_cast<Il2CppChar*>(ptr));
     }
 
     void Marshal::FreeCoTaskMem(intptr_t ptr)
@@ -88,18 +89,50 @@ namespace InteropServices
 
     bool Marshal::IsComObject(Il2CppObject* o)
     {
+        if (o == NULL)
+            vm::Exception::Raise(vm::Exception::GetArgumentNullException("o"));
+
         return o->klass->is_import_or_windows_runtime;
     }
 
-    intptr_t Marshal::GetCCW(Il2CppObject* o, Il2CppReflectionType * T)
+    intptr_t Marshal::GetCCW(Il2CppObject* o, Il2CppReflectionType* T)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::GetCCW, "COM icalls are not supported.");
-        return 0;
+        if (o == NULL)
+            vm::Exception::Raise(vm::Exception::GetArgumentNullException("o"));
+
+        if (T == NULL)
+            vm::Exception::Raise(vm::Exception::GetArgumentNullException("T"));
+
+        Il2CppClass* klass = vm::Class::FromIl2CppType(T->type);
+
+        if (!vm::Class::IsInterface(klass))
+        {
+            DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(parameter, IL2CPP_NATIVE_STRING("T"));
+            DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(message, IL2CPP_NATIVE_STRING("The T parameter is not an interface."));
+            vm::Exception::Raise(vm::Exception::GetArgumentException(parameter, message));
+        }
+
+        if (vm::Class::IsGeneric(klass))
+        {
+            DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(parameter, IL2CPP_NATIVE_STRING("T"));
+            DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(message, IL2CPP_NATIVE_STRING("The T parameter is a generic type."));
+            vm::Exception::Raise(vm::Exception::GetArgumentException(parameter, message));
+        }
+
+        const Il2CppInteropData* interopData = klass->interopData;
+        if (interopData == NULL || interopData->guid == NULL)
+        {
+            DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(parameter, IL2CPP_NATIVE_STRING("T"));
+            DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(message, IL2CPP_NATIVE_STRING("The specified type must be visible from COM."));
+            vm::Exception::Raise(vm::Exception::GetArgumentException(parameter, message));
+        }
+
+        return reinterpret_cast<intptr_t>(vm::CCW::GetOrCreate(o, *interopData->guid));
     }
 
     int32_t Marshal::GetComSlotForMethodInfoInternal(mscorlib_System_Reflection_MemberInfo * m)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::GetComSlotForMethodInfoInternal, "COM icalls are not supported.");
+        NOT_SUPPORTED_IL2CPP(Marshal::GetComSlotForMethodInfoInternal, "Not implemented.");
         return 0;
     }
 
@@ -116,7 +149,7 @@ namespace InteropServices
 
     intptr_t Marshal::GetIDispatchForObjectInternal(Il2CppObject* o)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::GetIDispatchForObjectInternal, "COM icalls are not supported.");
+        NOT_SUPPORTED_IL2CPP(Marshal::GetIDispatchForObjectInternal, "Not implemented.");
         return 0;
     }
 
@@ -136,8 +169,10 @@ namespace InteropServices
 
     Il2CppString* Marshal::PtrToStringBSTR(intptr_t ptr)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::PtrToStringBSTR, "COM icalls are not supported.");
-        return 0;
+        if (ptr == 0)
+            vm::Exception::Raise(vm::Exception::GetArgumentNullException("ptr"));
+
+        return vm::PlatformInvoke::MarshalCppBStringToCSharpStringResult(reinterpret_cast<const Il2CppChar*>(ptr));
     }
 
     Il2CppString* Marshal::PtrToStringAnsi_mscorlib_System_String_mscorlib_System_IntPtr(intptr_t ptr)
@@ -272,8 +307,8 @@ namespace InteropServices
 
     int32_t Marshal::QueryInterfaceInternal(intptr_t pUnk, mscorlib_System_Guid * iid, intptr_t* ppv)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::QueryInterfaceInternal, "COM icalls are not supported.");
-        return 0;
+        Il2CppIUnknown* unknown = reinterpret_cast<Il2CppIUnknown*>(pUnk);
+        return unknown->QueryInterface(reinterpret_cast<Il2CppGuid&>(*iid), reinterpret_cast<void**>(ppv));
     }
 
     template<typename T>
@@ -359,8 +394,7 @@ namespace InteropServices
 
     intptr_t Marshal::StringToBSTR(Il2CppString* s)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::StringToBSTR, "BSTR icalls are not supported.");
-        return 0;
+        return reinterpret_cast<intptr_t>(vm::PlatformInvoke::MarshalCSharpStringToCppBString(s));
     }
 
     intptr_t Marshal::StringToHGlobalUni(Il2CppString* s)
@@ -583,14 +617,15 @@ namespace InteropServices
         return static_cast<intptr_t>(offset);
     }
 
+    // We _could_ implement these two if we wanted - we'd just need to init their metadata
     void Marshal::Prelink(Il2CppReflectionMethod* m)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::Prelink, "This icall is not supported by il2cpp.");
+        NOT_SUPPORTED_IL2CPP(Marshal::Prelink, "Not implemented.");
     }
 
     void Marshal::PrelinkAll(Il2CppReflectionType* c)
     {
-        NOT_SUPPORTED_IL2CPP(Marshal::PrelinkAll, "This icall is not supported by il2cpp.");
+        NOT_SUPPORTED_IL2CPP(Marshal::PrelinkAll, "Not implemented.");
     }
 
     intptr_t Marshal::ReAllocCoTaskMem(intptr_t ptr, int32_t size)

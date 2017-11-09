@@ -32,6 +32,15 @@ namespace il2cpp
 {
 namespace vm
 {
+    /* number of sub elements of an array to process before recursing
+    * we take a depth first approach to use stack space rather than re-allocating
+    * processing array which requires restarting world to ensure allocator lock is not held
+    */
+    const int kArrayElementsPerChunk = 256;
+
+    /* how far we recurse processing array elements before we stop. Prevents stack overflow */
+    const int kMaxTraverseRecursionDepth = 128;
+
     struct LivenessState
     {
         LivenessState(Il2CppClass* filter, uint32_t maxCount, Liveness::register_object_callback callback, void*callback_userdata, Liveness::WorldChangedCallback onWorldStarted, Liveness::WorldChangedCallback onWorldStopped);
@@ -45,12 +54,18 @@ namespace vm
         static void TraverseGenericObject(Il2CppObject* object, LivenessState* state);
         static void TraverseObject(Il2CppObject* object, LivenessState* state);
         static void TraverseGCDescriptor(Il2CppObject* object, LivenessState* state);
-        static void TraverseObjectInternal(Il2CppObject* object, bool isStruct, Il2CppClass* klass, LivenessState* state);
+        static bool TraverseObjectInternal(Il2CppObject* object, bool isStruct, Il2CppClass* klass, LivenessState* state);
         static void TraverseArray(Il2CppArray* array, LivenessState* state);
-        static void AddProcessObject(Il2CppObject* object, LivenessState* state);
+        static bool AddProcessObject(Il2CppObject* object, LivenessState* state);
         static bool ShouldProcessValue(Il2CppObject* val, Il2CppClass* filter);
         static bool FieldCanContainReferences(FieldInfo* field);
         void SafeGrowArray(custom_growable_array* array);
+
+        static bool ShouldTraverseObjects(size_t index, int32_t recursion_depth)
+        {
+            // Add kArrayElementsPerChunk objects at a time and then traverse
+            return ((index + 1) & (kArrayElementsPerChunk - 1)) == 0 && recursion_depth < kMaxTraverseRecursionDepth;
+        }
 
         int32_t                first_index_in_all_objects;
         custom_growable_array* all_objects;
@@ -65,6 +80,7 @@ namespace vm
         Liveness::register_object_callback filter_callback;
         Liveness::WorldChangedCallback onWorldStarted;
         Liveness::WorldChangedCallback onWorldStopped;
+        int32_t               traverse_depth; // track recursion. Prevent stack overflow by limiting recurion
     };
 
     LivenessState::LivenessState(Il2CppClass* filter, uint32_t maxCount, Liveness::register_object_callback callback, void*callback_userdata, Liveness::WorldChangedCallback onWorldStarted, Liveness::WorldChangedCallback onWorldStopped) :
@@ -122,12 +138,14 @@ namespace vm
     {
         Il2CppObject* object = NULL;
 
+        traverse_depth++;
         while (process_array->size() > 0)
         {
             object = process_array->back();
             process_array->pop_back();
             TraverseGenericObject(object, this);
         }
+        traverse_depth--;
     }
 
     void LivenessState::FilterObjects()
@@ -193,17 +211,18 @@ namespace vm
         }
     }
 
-    void LivenessState::TraverseObjectInternal(Il2CppObject* object, bool isStruct, Il2CppClass* klass, LivenessState* state)
+    bool LivenessState::TraverseObjectInternal(Il2CppObject* object, bool isStruct, Il2CppClass* klass, LivenessState* state)
     {
         FieldInfo *field;
         Il2CppClass *p;
+        bool added_objects = false;
 
         IL2CPP_ASSERT(object);
 
         if (!klass->initialized)
         {
             IL2CPP_ASSERT(isStruct);
-            return;
+            return false;
         }
 
         // subtract the added offset for the vtable. This is added to the offset even though it is a struct
@@ -228,10 +247,10 @@ namespace vm
                     if (Type::IsGenericInstance(field->type))
                     {
                         IL2CPP_ASSERT(field->type->data.generic_class->cached_class);
-                        TraverseObjectInternal((Il2CppObject*)offseted, true, field->type->data.generic_class->cached_class, state);
+                        added_objects |= TraverseObjectInternal((Il2CppObject*)offseted, true, field->type->data.generic_class->cached_class, state);
                     }
                     else
-                        TraverseObjectInternal((Il2CppObject*)offseted, true, Type::GetClass(field->type), state);
+                        added_objects |= TraverseObjectInternal((Il2CppObject*)offseted, true, Type::GetClass(field->type), state);
                     continue;
                 }
 
@@ -243,10 +262,12 @@ namespace vm
                 {
                     Il2CppObject* val = NULL;
                     Field::GetValue(object, field, &val);
-                    AddProcessObject(val, state);
+                    added_objects |= AddProcessObject(val, state);
                 }
             }
         }
+
+        return added_objects;
     }
 
     void LivenessState::TraverseArray(Il2CppArray* array, LivenessState* state)
@@ -279,35 +300,39 @@ namespace vm
         array_length = Array::GetLength(array);
         if (element_class->valuetype)
         {
+            size_t items_processed = 0;
             elementClassSize = Class::GetArrayElementSize(element_class);
             for (i = 0; i < array_length; i++)
             {
                 Il2CppObject* object = (Il2CppObject*)il2cpp_array_addr_with_size(array, (int32_t)elementClassSize, i);
-                TraverseObjectInternal(object, 1, element_class, state);
+                if (TraverseObjectInternal(object, 1, element_class, state))
+                    items_processed++;
 
                 // Add 64 objects at a time and then traverse
-                if (((i + 1) & 63) == 0)
+                if (ShouldTraverseObjects(items_processed, state->traverse_depth))
                     state->TraverseObjects();
             }
         }
         else
         {
+            size_t items_processed = 0;
             for (i = 0; i < array_length; i++)
             {
                 Il2CppObject* val =  il2cpp_array_get(array, Il2CppObject*, i);
-                AddProcessObject(val, state);
+                if (AddProcessObject(val, state))
+                    items_processed++;
 
                 // Add 64 objects at a time and then traverse
-                if (((i + 1) & 63) == 0)
+                if (ShouldTraverseObjects(items_processed, state->traverse_depth))
                     state->TraverseObjects();
             }
         }
     }
 
-    void LivenessState::AddProcessObject(Il2CppObject* object, LivenessState* state)
+    bool LivenessState::AddProcessObject(Il2CppObject* object, LivenessState* state)
     {
         if (!object || IS_MARKED(object))
-            return;
+            return false;
 
         bool has_references = GET_CLASS(object)->has_references;
         if (has_references || ShouldProcessValue(object, state->filter))
@@ -324,7 +349,10 @@ namespace vm
             if (state->process_array->size() == state->process_array->capacity())
                 state->SafeGrowArray(state->process_array);
             state->process_array->push_back(object);
+            return true;
         }
+
+        return false;
     }
 
     bool LivenessState::ShouldProcessValue(Il2CppObject* val, Il2CppClass* filter)
