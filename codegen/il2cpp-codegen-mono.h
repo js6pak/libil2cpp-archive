@@ -579,14 +579,13 @@ private:
 };
 
 #if _DEBUG
-inline void il2cpp_codegen_check_marshalling_allocations()
+struct ScopedMarshallingAllocationCheck
 {
-}
+};
 
-inline void il2cpp_codegen_clear_all_tracked_marshalling_allocations()
+struct ScopedMarshalingAllocationClearer
 {
-}
-
+};
 #endif
 
 inline void NullCheck(void* this_ptr)
@@ -595,7 +594,9 @@ inline void NullCheck(void* this_ptr)
         return;
 
     mono_raise_exception(mono_get_exception_null_reference());
+#if !IL2CPP_TARGET_IOS
     il2cpp_codegen_no_return();
+#endif
 }
 
 inline void DivideByZeroCheck(int64_t denominator)
@@ -604,7 +605,9 @@ inline void DivideByZeroCheck(int64_t denominator)
         return;
 
     mono_raise_exception(mono_get_exception_divide_by_zero());
+#if !IL2CPP_TARGET_IOS
     il2cpp_codegen_no_return();
+#endif
 }
 
 inline void Initobj(RuntimeClass* type, void* data)
@@ -975,4 +978,10 @@ inline bool il2cpp_codegen_is_import_or_windows_runtime(const RuntimeObject *obj
 inline std::string il2cpp_codegen_format_exception(const RuntimeException* ex)
 {
     return il2cpp_mono_format_exception(ex);
+}
+
+inline intptr_t il2cpp_codegen_get_com_interface_for_object(RuntimeObject* object, Type_t* type)
+{
+    assert(0 && "Not implemented yet.");
+    return 0;
 }

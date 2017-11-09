@@ -312,7 +312,9 @@ inline void NullCheck(void* this_ptr)
         return;
 
     il2cpp::vm::Exception::RaiseNullReferenceException();
+#if !IL2CPP_TARGET_IOS
     il2cpp_codegen_no_return();
+#endif
 }
 
 // OpCode.Box
@@ -338,7 +340,7 @@ inline void* UnBox(RuntimeObject* obj, RuntimeClass* expectedBoxedClass)
         return il2cpp::vm::Object::Unbox(obj);
 
     RaiseInvalidCastException(obj, expectedBoxedClass);
-    il2cpp_codegen_no_return();
+    return NULL;
 }
 
 inline void UnBoxNullable(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* storage)
@@ -682,16 +684,41 @@ private:
 };
 
 #if _DEBUG
-inline void il2cpp_codegen_check_marshalling_allocations()
+struct ScopedMarshallingAllocationFrame
 {
-    if (il2cpp::vm::MarshalAlloc::HasUnfreedAllocations())
-        il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Error in marshaling allocation. Some memory has been leaked."));
-}
+    ScopedMarshallingAllocationFrame()
+    {
+        il2cpp::vm::MarshalAlloc::PushAllocationFrame();
+    }
 
-inline void il2cpp_codegen_clear_all_tracked_marshalling_allocations()
+    ~ScopedMarshallingAllocationFrame()
+    {
+        il2cpp::vm::MarshalAlloc::PopAllocationFrame();
+    }
+};
+
+struct ScopedMarshallingAllocationCheck
 {
-    il2cpp::vm::MarshalAlloc::ClearAllTrackedAllocations();
-}
+    ~ScopedMarshallingAllocationCheck()
+    {
+        if (il2cpp::vm::MarshalAlloc::HasUnfreedAllocations())
+            il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Error in marshaling allocation. Some memory has been leaked."));
+    }
+
+private:
+    ScopedMarshallingAllocationFrame m_AllocationFrame;
+};
+
+struct ScopedMarshalingAllocationClearer
+{
+    ~ScopedMarshalingAllocationClearer()
+    {
+        il2cpp::vm::MarshalAlloc::ClearAllTrackedAllocations();
+    }
+
+private:
+    ScopedMarshallingAllocationFrame m_AllocationFrame;
+};
 
 #endif
 
@@ -701,7 +728,9 @@ inline void DivideByZeroCheck(int64_t denominator)
         return;
 
     il2cpp::vm::Exception::RaiseDivideByZeroException();
+#if !IL2CPP_TARGET_IOS
     il2cpp_codegen_no_return();
+#endif
 }
 
 inline void Initobj(RuntimeClass* type, void* data)
@@ -990,4 +1019,9 @@ inline bool il2cpp_codegen_is_import_or_windows_runtime(const RuntimeObject *obj
 inline std::string il2cpp_codegen_format_exception(const RuntimeException* ex)
 {
     return il2cpp::utils::Exception::FormatException(ex);
+}
+
+inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object, Type_t* type)
+{
+    return il2cpp::icalls::mscorlib::System::Runtime::InteropServices::Marshal::GetCCW(object, reinterpret_cast<Il2CppReflectionType*>(type));
 }

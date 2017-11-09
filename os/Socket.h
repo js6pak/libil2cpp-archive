@@ -146,6 +146,7 @@ namespace os
         kSocketOptionNameExpedited              = 2,
         kSocketOptionNameNoChecksum             = 1,
         kSocketOptionNameChecksumCoverage       = 20,
+        kSocketOptionNameIPv6Only               = 27,
 
 // #if NET_2_0
         kSocketOptionNameHopLimit               = 21,
@@ -195,6 +196,13 @@ namespace os
         PollFlags events;
         PollFlags revents;
     };
+
+#if IL2CPP_SUPPORT_IPV6
+    struct IPv6Address
+    {
+        uint8_t addr[16];
+    };
+#endif
 
 // TODO: this should really be UNIX_PATH_MAX or SUN_LEN(n)
 #define END_POINT_MAX_PATH_LEN  255
@@ -315,6 +323,9 @@ namespace os
         WaitStatus SetSocketOptionLinger(SocketOptionLevel level, SocketOptionName name, bool enabled, int32_t seconds);
         WaitStatus SetSocketOptionArray(SocketOptionLevel level, SocketOptionName name, const uint8_t *buffer, int32_t length);
         WaitStatus SetSocketOptionMembership(SocketOptionLevel level, SocketOptionName name, uint32_t group_address, uint32_t local_address);
+#if IL2CPP_SUPPORT_IPV6
+        WaitStatus SetSocketOptionMembership(SocketOptionLevel level, SocketOptionName name, IPv6Address ipv6, uint64_t interfaceOffset);
+#endif
 
         WaitStatus SendFile(const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options);
 
