@@ -11,6 +11,7 @@ namespace utils
 namespace PathUtils
 {
     std::string BasenameNoExtension(const std::string& path);
+    std::string PathNoExtension(const std::string& path);
 
     template<typename CharType>
     std::basic_string<CharType> Basename(const utils::StringView<CharType>& path)
