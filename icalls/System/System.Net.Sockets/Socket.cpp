@@ -214,6 +214,9 @@ namespace Sockets
 
         if (info.family == os::kAddressFamilyInterNetwork)
         {
+#if NET_4_0
+            socket_address->m_Size = 8;
+#endif
             socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 8);
 
             const uint16_t port = info.data.inet.port;
@@ -232,6 +235,9 @@ namespace Sockets
         {
             const int32_t path_len = (int32_t)strlen(info.data.path);
 
+#if NET_4_0
+            socket_address->m_Size = 3 + path_len;
+#endif
             socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 3 + path_len);
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
@@ -244,6 +250,9 @@ namespace Sockets
         }
         else if (info.family == os::kAddressFamilyInterNetworkV6)
         {
+#if NET_4_0
+            socket_address->m_Size = 28;
+#endif
             socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 28);
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
@@ -625,8 +634,13 @@ namespace Sockets
 
                 *obj_val = vm::Object::New(System_Net_Sockets_LingerOption);
 
+#if NET_4_0
+                const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "enabled");
+                const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "lingerTime");
+#else
                 const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "enabled");
                 const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "seconds");
+#endif
 
                 *((bool*)((char*)(*obj_val) + enabled_field_info->offset)) = (first ? 1 : 0);
                 *((int32_t*)((char*)(*obj_val) + seconds_field_info->offset)) = second;
@@ -1267,8 +1281,13 @@ namespace Sockets
             {
                 case kSocketOptionNameLinger:
                 {
+#if NET_4_0
+                    const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(obj_val->klass, "enabled");
+                    const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(obj_val->klass, "lingerTime");
+#else
                     const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(obj_val->klass, "enabled");
                     const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(obj_val->klass, "seconds");
+#endif
 
                     const bool enabled = *((bool*)((char*)obj_val + enabled_field_info->offset));
                     const int32_t seconds = *((int32_t*)((char*)obj_val + seconds_field_info->offset));
