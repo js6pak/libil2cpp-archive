@@ -957,3 +957,8 @@ inline std::string il2cpp_codegen_format_exception(const RuntimeException* ex)
 {
     return il2cpp::utils::Exception::FormatException(ex);
 }
+
+inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object, Type_t* type)
+{
+    return il2cpp::icalls::mscorlib::System::Runtime::InteropServices::Marshal::GetCCW(object, reinterpret_cast<Il2CppReflectionType*>(type));
+}
