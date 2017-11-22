@@ -945,8 +945,9 @@ namespace vm
         NOT_SUPPORTED_IL2CPP(ThreadPool::Shutdown, "vm::ThreadPool is not supported in .NET 4.5, use threadpool-ms instead");
 #else
         g_SocketPollingThread->Terminate();
-        delete g_SocketPollingThread;
-        g_SocketPollingThread = NULL;
+        // avoid cleaning up until we properly handle race condition from other threads queueing jobs
+        // delete g_SocketPollingThread;
+        // g_SocketPollingThread = NULL;
 #endif
     }
 
