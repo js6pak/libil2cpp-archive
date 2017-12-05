@@ -29,6 +29,7 @@
 #include "utils/Il2CppHashSet.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
+#include "utils/PathUtils.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
@@ -182,6 +183,11 @@ void MetadataCache::Initialize()
         const Il2CppImageDefinition* imageDefinition = imagesDefinitions + imageIndex;
         Il2CppImage* image = s_ImagesTable + imageIndex;
         image->name = GetStringFromIndex(imageDefinition->nameIndex);
+
+        std::string nameNoExt = utils::PathUtils::PathNoExtension(image->name);
+        image->nameNoExt = (char*)IL2CPP_CALLOC(nameNoExt.size() + 1, sizeof(char));
+        strcpy(const_cast<char*>(image->nameNoExt), nameNoExt.c_str());
+
         image->assemblyIndex = imageDefinition->assemblyIndex;
         image->typeStart = imageDefinition->typeStart;
         image->typeCount = imageDefinition->typeCount;
