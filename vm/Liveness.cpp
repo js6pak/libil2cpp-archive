@@ -6,9 +6,9 @@
 #include "vm/Field.h"
 #include "vm/Liveness.h"
 #include "vm/Type.h"
-#include "tabledefs.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 
 typedef il2cpp::utils::dynamic_array<Il2CppObject*> custom_growable_array;
 

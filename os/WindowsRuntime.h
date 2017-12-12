@@ -1,6 +1,6 @@
 #pragma once
 
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "utils/StringView.h"
 
 namespace il2cpp

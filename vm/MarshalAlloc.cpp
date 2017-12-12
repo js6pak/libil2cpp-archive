@@ -4,7 +4,6 @@
 #include "os/ThreadLocalValue.h"
 #include "vm/Exception.h"
 #include <deque>
-#include <vector>
 
 namespace il2cpp
 {

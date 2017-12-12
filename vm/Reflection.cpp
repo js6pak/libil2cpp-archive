@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
-#include "class-internals.h"
-#include "object-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "mono-structs.h"
 #include "gc/GCHandle.h"
 #include "metadata/Il2CppTypeCompare.h"
@@ -580,11 +580,7 @@ namespace vm
         if (parameter->PositionImpl == -1)
             return NULL;
 
-        const MethodInfo* methodWithParameterAttributeInformation = method->method;
-        if (method->method->is_inflated)
-            methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
-
-        const ::ParameterInfo* info = &methodWithParameterAttributeInformation->parameters[parameter->PositionImpl];
+        const ::ParameterInfo* info = &method->method->parameters[parameter->PositionImpl];
         return MetadataCache::GenerateCustomAttributesCache(info->customAttributeIndex);
     }
 
@@ -599,11 +595,7 @@ namespace vm
         if (parameter->PositionImpl == -1)
             return NULL;
 
-        const MethodInfo* methodWithParameterAttributeInformation = method->method;
-        if (method->method->is_inflated)
-            methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
-
-        const ::ParameterInfo* info = &methodWithParameterAttributeInformation->parameters[parameter->PositionImpl];
+        const ::ParameterInfo* info = &method->method->parameters[parameter->PositionImpl];
         return MetadataCache::GenerateCustomAttributeTypeCache(info->customAttributeIndex);
     }
 

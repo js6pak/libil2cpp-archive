@@ -1,8 +1,8 @@
 #include "il2cpp-config.h"
 
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "il2cpp-api.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -633,14 +633,12 @@ namespace vm
 
     void SocketPollingThread::Terminate()
     {
-        // Workaround on POSIX while we don't have proper thread abortion.
-#if IL2CPP_TARGET_POSIX
+#if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_POSIX
         if (!g_SocketPollingThread->thread)
             return;
 
 #if !IL2CPP_USE_SOCKET_MULTIPLEX_IO
-        char message = kMessageTerminate;
-        write(writePipe, &message, 1);
+        WritePipe(writePipe, static_cast<char>(kMessageTerminate));
 #endif
 
         g_SocketPollingThread->thread->Join();
@@ -849,7 +847,7 @@ namespace vm
 #else
             asyncCall->msg = (Il2CppMethodMessage*)exception;
 #endif
-            os::Atomic::MemoryBarrier();
+            os::Atomic::FullMemoryBarrier();
             asyncResult->completed = true;
 
             // Invoke callback, if we have one.

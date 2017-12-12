@@ -3,7 +3,7 @@
 #if NET_4_0
 
 #include "Activator.h"
-#include "metadata.h"
+#include "il2cpp-runtime-metadata.h"
 #include "MonoType.h"
 #include "RuntimeType.h"
 #include "Type.h"
@@ -18,7 +18,7 @@
 #include "utils/StringUtils.h"
 #include "il2cpp-api.h"
 #include "icalls/mscorlib/System/MonoType.h"
-#include "tabledefs.h"
+#include "il2cpp-tabledefs.h"
 #include "mono-structs.h"
 
 

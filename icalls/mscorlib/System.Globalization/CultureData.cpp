@@ -4,8 +4,8 @@
 #include "CultureInfoInternals.h"
 #include "CultureInfoTables.h"
 #include "il2cpp-api.h"
-#include "object-internals.h"
-#include "class-internals.h"
+#include "il2cpp-object-internals.h"
+#include "il2cpp-class-internals.h"
 #include "vm/Array.h"
 
 namespace il2cpp

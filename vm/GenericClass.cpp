@@ -8,8 +8,8 @@
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
 #include "vm/MetadataLock.h"
-#include "class-internals.h"
-#include "metadata.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-runtime-metadata.h"
 
 using il2cpp::metadata::GenericMetadata;
 using il2cpp::os::FastAutoLock;

@@ -1,10 +1,10 @@
 #if NET_4_0
 #include "il2cpp-config.h"
 #include "CalendarData.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 #include "CultureInfoTables.h"
 #include "il2cpp-api.h"
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "vm/Array.h"
 #include "vm/String.h"
 #include <string>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <stdint.h>
 
 struct FileHandle;
 struct Il2CppArray;

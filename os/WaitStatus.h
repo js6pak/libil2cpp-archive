@@ -1,14 +1,11 @@
 #pragma once
 
+#include "os/c-api/WaitStatus-c-api.h"
+
 namespace il2cpp
 {
 namespace os
 {
-    enum WaitStatus
-    {
-        kWaitStatusSuccess = 0,
-        kWaitStatusFailure,
-        kWaitStatusTimeout,
-    };
+    typedef UnityPalWaitStatus WaitStatus;
 }
 }

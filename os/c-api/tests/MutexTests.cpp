@@ -132,7 +132,7 @@ SUITE(Mutex)
         if (lockedCAPI)
             UnityPalMutexHandleSignal(handle);
 
-        bool lockedCPPAPI = handle->Wait(0);
+        bool lockedCPPAPI = handle->Wait(0U);
         if (lockedCPPAPI)
             handle->Signal();
         CHECK_EQUAL(lockedCPPAPI, lockedCAPI);

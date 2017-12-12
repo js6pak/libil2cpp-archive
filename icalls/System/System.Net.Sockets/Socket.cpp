@@ -2,7 +2,7 @@
 
 #include "icalls/System/System.Net.Sockets/Socket.h"
 
-#include "class-internals.h"
+#include "il2cpp-class-internals.h"
 #include "os/Socket.h"
 #include "os/Mutex.h"
 #include "os/Thread.h"
@@ -326,7 +326,7 @@ namespace Sockets
         {
             const os::WaitStatus status = socketHandle->Accept(&new_sock);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -354,7 +354,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->Available(&available);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = socketHandle->GetLastError();
             return 0;
@@ -413,7 +413,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->Bind(address, port);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyUnix)
@@ -433,7 +433,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->Bind(path);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -445,7 +445,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->Bind(address, scope, port);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -464,7 +464,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->SetBlocking(block);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
     }
 
@@ -521,7 +521,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->Connect(address, port);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyUnix)
@@ -541,7 +541,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->Connect(path);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -553,7 +553,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->Connect(address, scope, port);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -572,7 +572,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->Disconnect(reuse);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
     }
 
@@ -592,7 +592,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->GetSocketOption(system_level, system_name, buffer, &length);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
     }
 
@@ -612,7 +612,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->GetSocketOptionFull(system_level, system_name, &first, &second);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = socketHandle->GetLastError();
             return;
@@ -666,7 +666,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->Listen(backlog);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
     }
 
@@ -713,7 +713,7 @@ namespace Sockets
         int32_t results = 0;
         const os::WaitStatus result = os::Socket::Poll(requests, timeout, &results, error);
 
-        if (result == os::kWaitStatusFailure || results == 0)
+        if (result == kWaitStatusFailure || results == 0)
             return false;
 
         return (requests[0].revents != os::kPollFlagsNone);
@@ -735,7 +735,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->ReceiveArray(wsabufs, count, &len, c_flags);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = socketHandle->GetLastError();
             return 0;
@@ -762,7 +762,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->Receive(data, count, c_flags, &len);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
 
         return len;
@@ -812,7 +812,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->RecvFrom(address, port, data, count, c_flags, &len, info);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyUnix)
@@ -832,7 +832,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->RecvFrom(path, data, count, c_flags, &len, info);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -844,7 +844,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->RecvFrom(address, scope, port, data, count, c_flags, &len, info);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -869,7 +869,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->GetLocalEndPointInfo(info);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = socketHandle->GetLastError();
             return NULL;
@@ -894,7 +894,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->GetRemoteEndPointInfo(info);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = socketHandle->GetLastError();
             return NULL;
@@ -972,7 +972,7 @@ namespace Sockets
         int32_t results = 0;
         const os::WaitStatus result = os::Socket::Poll(requests, timeout, &results, error);
 
-        if (result == os::kWaitStatusFailure)
+        if (result == kWaitStatusFailure)
         {
             *sockets = NULL;
             return;
@@ -1074,7 +1074,7 @@ namespace Sockets
         const os::TransmitFileOptions o_flags = (os::TransmitFileOptions)flags;
         const os::WaitStatus status = socketHandle->SendFile(str.c_str(), &t_buffers, o_flags);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             // TODO: mono stores socketHandle->GetLastError into a threadlocal global variable
             // that can be retrieved later by other icalls.
@@ -1127,7 +1127,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->SendTo(address, port, data, count, c_flags, &len);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyUnix)
@@ -1147,7 +1147,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->SendTo(path, data, count, c_flags, &len);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -1159,7 +1159,7 @@ namespace Sockets
 
             const os::WaitStatus status = socketHandle->SendTo(address, scope, port, data, count, c_flags, &len);
 
-            if (status == os::kWaitStatusFailure)
+            if (status == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -1187,7 +1187,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->SendArray(wsabufs, count, &sent, c_flags);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = socketHandle->GetLastError();
             return 0;
@@ -1214,7 +1214,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->Send(data, count, c_flags, &len);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
 
         return len;
@@ -1266,7 +1266,7 @@ namespace Sockets
         AUTO_ACQUIRE_SOCKET;
         RETURN_IF_SOCKET_IS_INVALID();
 
-        os::WaitStatus status = os::kWaitStatusFailure;
+        os::WaitStatus status = kWaitStatusFailure;
 
         if (byte_val != NULL)
         {
@@ -1303,7 +1303,7 @@ namespace Sockets
 #if IL2CPP_SUPPORT_IPV6
                     if (system_level == (os::SocketOptionLevel)kSocketOptionLevelIPv6)
                     {
-                        os::IPv6Address ipv6 = { { 0 } };
+                        os::IPv6Address ipv6 = {{0}};
                         uint64_t interfaceOffset;
 #if NET_4_0
                         GetAddressAndInterfaceFromObject(obj_val, "m_Group", "m_Interface", ipv6, interfaceOffset);
@@ -1345,7 +1345,7 @@ namespace Sockets
         else
             status = socketHandle->SetSocketOption(system_level, system_name, int_val);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
     }
 
@@ -1358,7 +1358,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->Shutdown(how);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
             *error = socketHandle->GetLastError();
     }
 
@@ -1394,7 +1394,7 @@ namespace Sockets
 
         const os::WaitStatus status = sock->Create(n_family, n_type, n_protocol);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = sock->GetLastError();
 
@@ -1433,7 +1433,7 @@ namespace Sockets
 
         const os::WaitStatus status = socketHandle->Ioctl(code, in_buffer, in_length, out_buffer, out_length, &output_bytes);
 
-        if (status == os::kWaitStatusFailure)
+        if (status == kWaitStatusFailure)
         {
             *error = socketHandle->GetLastError();
             return -1;

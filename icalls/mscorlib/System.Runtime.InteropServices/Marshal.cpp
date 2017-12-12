@@ -2,8 +2,8 @@
 
 #include "icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
 
-#include "class-internals.h"
-#include "tabledefs.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-tabledefs.h"
 
 #include "gc/GarbageCollector.h"
 #include "metadata/FieldLayout.h"

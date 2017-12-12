@@ -92,7 +92,7 @@ namespace vm
             klass = il2cpp_array_class_get(il2cpp_defaults.object_class, 1);
             IL2CPP_ASSERT(klass);
 
-            os::Atomic::MemoryBarrier();
+            os::Atomic::FullMemoryBarrier();
             object_array_klass = klass;
         }
 

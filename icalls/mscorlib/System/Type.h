@@ -1,13 +1,13 @@
 #pragma once
 
 #include "il2cpp-config.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 
 struct mscorlib_System_Reflection_Assembly;
 struct mscorlib_System_Reflection_Module;
 struct mscorlib_System_Reflection_MethodInfo;
 
-typedef int32_t GenericParameterAttributes;
+typedef int32_t Il2CppGenericParameterAttributes;
 
 namespace il2cpp
 {
@@ -21,7 +21,7 @@ namespace System
     {
     public:
         static bool EqualsInternal(Il2CppReflectionType* left, Il2CppReflectionType* right);
-        static GenericParameterAttributes GetGenericParameterAttributes(Il2CppReflectionType* type);
+        static Il2CppGenericParameterAttributes GetGenericParameterAttributes(Il2CppReflectionType* type);
         static Il2CppArray* GetGenericParameterConstraints_impl(Il2CppReflectionType* type);
         static int32_t GetGenericParameterPosition(Il2CppReflectionType* type);
         static Il2CppReflectionType* GetGenericTypeDefinition_impl(Il2CppReflectionType*);

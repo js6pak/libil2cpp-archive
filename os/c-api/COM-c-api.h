@@ -1,8 +1,5 @@
 #pragma once
 
-
-//#include <stdint.h>
-
 #if defined(__cplusplus)
 
 #include "os/COM.h"
@@ -21,7 +18,7 @@ typedef struct UnityPalIl2CppVariant UnityPalIl2CppVariant;
 typedef struct UnityPalIl2CppSafeArray UnityPalIl2CppSafeArray;
 typedef struct UnityPalIl2CppSafeArrayBound UnityPalIl2CppSafeArrayBound;
 
-#endif //__cplusplus
+#endif
 
 #if defined(__cplusplus)
 extern "C"

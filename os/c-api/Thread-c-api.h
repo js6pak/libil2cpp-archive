@@ -7,6 +7,7 @@ extern "C"
 {
 #endif
 
+void UnityPalThreadInitialize();
 void UnityPalSleep(uint32_t milliseconds);
 
 #if defined(__cplusplus)

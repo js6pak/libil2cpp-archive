@@ -2,7 +2,7 @@
 #if NET_4_0
 
 #include "il2cpp-config.h"
-#include "object-internals.h"
+#include "il2cpp-object-internals.h"
 
 struct Il2CppIOSelectorJob;
 

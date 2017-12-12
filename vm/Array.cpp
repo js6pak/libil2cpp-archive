@@ -5,8 +5,8 @@
 #include "vm/Exception.h"
 #include "vm/Object.h"
 #include "vm/Profiler.h"
-#include "class-internals.h"
-#include "object-internals.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include <assert.h>
 #include <memory>
 
