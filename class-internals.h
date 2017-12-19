@@ -483,6 +483,7 @@ struct Il2CppDomain
 struct Il2CppImage
 {
     const char* name;
+    const char* nameNoExt;
     AssemblyIndex assemblyIndex;
 
     TypeDefinitionIndex typeStart;
