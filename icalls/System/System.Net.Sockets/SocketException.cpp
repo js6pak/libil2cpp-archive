@@ -18,7 +18,7 @@ namespace Sockets
 {
     int32_t SocketException::WSAGetLastError()
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(SocketException::WSAGetLastError, "Ignore this for now");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(SocketException::WSAGetLastError, "Ignore this for now");
 
         return (int32_t)os::Error::GetLastError();
     }

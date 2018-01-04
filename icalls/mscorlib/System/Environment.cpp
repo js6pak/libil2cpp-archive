@@ -26,7 +26,6 @@ namespace mscorlib
 {
 namespace System
 {
-    static int32_t exitcode = 0;
     static bool socket_security_enabled = false;
 
     static Il2CppArray* ToIl2CppArray(const std::vector<std::string>& strings)
@@ -114,7 +113,7 @@ namespace System
 
     void Environment::internalBroadcastSettingChange()
     {
-        NOT_IMPLEMENTED_ICALL(Environment::internalBroadcastSettingChange);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::internalBroadcastSettingChange);
     }
 
     Il2CppString * Environment::GetMachineConfigPath(void)
@@ -146,6 +145,9 @@ namespace System
     {
 #ifdef _MSC_VER
         return 2;
+#elif NET_4_0 && IL2CPP_TARGET_DARWIN
+        // new Mono expects distinct platform value for OSX/iOS
+        return 6;
 #else
         return 4;
 #endif
@@ -153,12 +155,12 @@ namespace System
 
     int32_t Environment::get_ExitCode()
     {
-        return exitcode;
+        return vm::Runtime::GetExitCode();
     }
 
     void Environment::set_ExitCode(int32_t value)
     {
-        exitcode = value;
+        vm::Runtime::SetExitCode(value);
     }
 
     bool Environment::get_HasShutdownStarted()
@@ -178,13 +180,15 @@ namespace System
 
     void Environment::Exit(int32_t exitCode)
     {
+        set_ExitCode(exitCode);
+        il2cpp::vm::Runtime::Shutdown();
         il2cpp::os::Environment::Exit(exitCode);
     }
 
     Il2CppString* Environment::internalGetGacPath()
     {
         // Not used by the runtime. Used only by the Mono compiler (mcs).
-        NOT_IMPLEMENTED_ICALL(Environment::internalGetGacPatH);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::internalGetGacPatH);
 
         return 0;
     }
@@ -222,7 +226,7 @@ namespace System
 
     Il2CppString* Environment::get_bundled_machine_config()
     {
-        NOT_IMPLEMENTED_ICALL(Environment::get_bundled_machine_config);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::get_bundled_machine_config);
         IL2CPP_UNREACHABLE;
     }
 

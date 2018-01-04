@@ -25,8 +25,8 @@
 #include <sys/types.h>
 #include <string>
 
-#define INVALID_FILE_HANDLE     (FileHandle*)-1;
-#define INVALID_FILE_ATTRIBUTES (UnityPalFileAttributes)((uint32_t)-1);
+#define INVALID_FILE_HANDLE     (FileHandle*)-1
+#define INVALID_FILE_ATTRIBUTES (UnityPalFileAttributes)((uint32_t)-1)
 #define TIME_ZERO               116444736000000000ULL
 
 namespace il2cpp
@@ -992,6 +992,12 @@ namespace os
 
     int File::Read(FileHandle* handle, char *dest, int count, int *error)
     {
+        if (handle == NULL || handle == INVALID_FILE_HANDLE)
+        {
+            *error = kErrorCodeInvalidHandle;
+            return 0;
+        }
+
         if ((handle->accessMode & kFileAccessRead) == 0)
         {
             *error = kErrorCodeAccessDenied;
@@ -1153,7 +1159,7 @@ namespace os
     bool File::DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
         FileHandle** target_handle, int access, int inhert, int options, int* error)
     {
-        NOT_IMPLEMENTED_ICALL(File::DuplicateHandle);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(File::DuplicateHandle);
         return false;
     }
 

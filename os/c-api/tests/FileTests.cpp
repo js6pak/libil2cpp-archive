@@ -1239,11 +1239,9 @@ SUITE(File)
 
     TEST(ReadBadResult)
     {
-        int error;
-        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
-        CleanupTestFile(handle);
+        int usused;
         char buffer[16];
-        int64_t result = UnityPalRead(handle, buffer, 16, &error);
+        int64_t result = UnityPalRead(NULL, buffer, 16, &usused);
 
         CHECK(!result);
     }
@@ -1251,10 +1249,8 @@ SUITE(File)
     TEST(ReadBadError)
     {
         int error;
-        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
-        CleanupTestFile(handle);
         char buffer[16];
-        UnityPalRead(handle, buffer, 16, &error);
+        UnityPalRead(NULL, buffer, 16, &error);
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
@@ -1305,31 +1301,24 @@ SUITE(File)
 
     TEST(ReadBadResultMatchesClass)
     {
-        int error;
-        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
-        CleanupTestFile(handle);
-
+        int unused;
         char buffer[16];
 
-        int64_t api_result = UnityPalRead(handle, buffer, 14, &error);
-        int64_t class_result = il2cpp::os::File::Read(handle, buffer, 14, &error);
+        int64_t api_result = UnityPalRead(NULL, buffer, 14, &unused);
+        int64_t class_result = il2cpp::os::File::Read(NULL, buffer, 14, &unused);
 
         CHECK_EQUAL(class_result, api_result);
     }
 
     TEST(ReadBadErrorMatchesClass)
     {
-        int error;
         int api_error;
         int class_error;
 
-        il2cpp::os::FileHandle* handle = il2cpp::os::File::Open(TEST_FILE_NAME, kFileModeOpenOrCreate, kFileAccessReadWrite, 0, 0, &error);
-        CleanupTestFile(handle);
-
         char buffer[16];
 
-        UnityPalRead(handle, buffer, 14, &api_error);
-        il2cpp::os::File::Read(handle, buffer, 14, &class_error);
+        UnityPalRead(NULL, buffer, 14, &api_error);
+        il2cpp::os::File::Read(NULL, buffer, 14, &class_error);
 
         CHECK_EQUAL(class_error, api_error);
     }

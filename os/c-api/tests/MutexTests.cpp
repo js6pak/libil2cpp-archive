@@ -1,7 +1,7 @@
 #if ENABLE_UNIT_TESTS
 
 #include "UnitTest++.h"
-#include "il2cpp-config.h"
+#include "os/c-api/il2cpp-config-platforms.h"
 #include "../Mutex-c-api.h"
 #include "../../Mutex.h"
 #include "../../Thread.h"

@@ -844,7 +844,7 @@ static void buildIEEE754Double(double* pd, int sign, int texp, uint64_t mantisse
 
     *p = (((uint64_t)sign) << 63) | (((uint64_t)((1023 + texp) & 0x7ff)) << 52) | mantisse;
 
-    NOT_IMPLEMENTED_NO_ASSERT(buildIEEE754Double, "Endianess is not being considered");
+    IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(buildIEEE754Double, "Endianess is not being considered");
 }
 
 #else // NET_4_0
@@ -920,11 +920,7 @@ typedef union
 
 static const SPLIT64    ten_to_eighteen = { 1000000000000000000ULL };
 
-#if IL2CPP_BYTE_ORDER == IL2CPP_BIG_ENDIAN
 const Il2CppDouble_double ds2to64 = { { 0, IL2CPP_DOUBLE_BIAS + 65, 0, 0 } };
-#else
-const Il2CppDouble_double ds2to64 = { { 0, 0, IL2CPP_DOUBLE_BIAS + 65, 0 } };
-#endif
 
 //
 // Data tables
@@ -3154,7 +3150,7 @@ namespace System
 
     int32_t Decimal::decimal2string(il2cpp_decimal_repr* val, int32_t digits, int32_t decimals, Il2CppArray* bufDigits, int32_t bufSize, int32_t* decPos, int32_t* sign)
     {
-        NOT_IMPLEMENTED_ICALL(Decimal::decimal2string);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Decimal::decimal2string);
 
         return 0;
     }

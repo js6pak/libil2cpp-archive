@@ -56,6 +56,9 @@ namespace vm
         static const char *GetBundledMachineConfig();
         static void RegisterBundledMachineConfig(const char *config_xml);
 
+        static int32_t GetExitCode();
+        static void SetExitCode(int32_t value);
+
     private:
         static void CallUnhandledExceptionDelegate(Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppException* exc);
         static Il2CppObject* CreateUnhandledExceptionEventArgs(Il2CppException* exc);

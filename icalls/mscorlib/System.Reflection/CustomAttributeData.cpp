@@ -14,7 +14,7 @@ namespace Reflection
 {
     void CustomAttributeData::ResolveArgumentsInternal(Il2CppObject* ctor, Il2CppObject* assembly, intptr_t data, uint32_t data_length, Il2CppArray** ctorArgs, Il2CppArray** namedArgs)
     {
-        NOT_IMPLEMENTED_ICALL(CustomAttributeData::ResolveArgumentsInternal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(CustomAttributeData::ResolveArgumentsInternal);
         IL2CPP_UNREACHABLE;
     }
 } // namespace Reflection

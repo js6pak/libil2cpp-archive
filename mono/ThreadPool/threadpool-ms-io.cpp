@@ -13,14 +13,11 @@
 
 #ifndef DISABLE_SOCKETS
 
-#define IL2CPP_USE_PIPES_FOR_WAKEUP !(IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2)
-
-#if !IL2CPP_USE_PIPES_FOR_WAKEUP
+#if IL2CPP_PLATFORM_WIN32
 #include "os/Win32/WindowsHeaders.h"
 #else
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
 #endif
 
 #include <vector>
@@ -90,11 +87,7 @@ typedef struct {
 	int updates_size;
 	il2cpp::os::FastMutex updates_lock;
 	il2cpp::os::ConditionVariable updates_cond;
-#if IL2CPP_USE_PIPES_FOR_WAKEUP
-	int32_t wakeup_pipes [2];
-#else
 	il2cpp::os::Socket* wakeup_pipes [2];
-#endif
 } ThreadPoolIO;
 
 static il2cpp::utils::OnceFlag lazy_init_io_status;
@@ -147,13 +140,6 @@ static void selector_thread_wakeup (void)
 
 	for (;;)
 	{
-#if IL2CPP_USE_PIPES_FOR_WAKEUP
-		int32_t written = write (threadpool_io->wakeup_pipes [1], &msg, 1);
-		if (written == 1)
-			break;
-		if (written == -1)
-			break;
-#else
 		int32_t written = 0;
 		const il2cpp::os::WaitStatus status = threadpool_io->wakeup_pipes[1]->Send((const uint8_t*)&msg, 1, il2cpp::os::kSocketFlagsNone, &written);
 		if (written == 1)
@@ -166,32 +152,20 @@ static void selector_thread_wakeup (void)
 
 		if (status == kWaitStatusFailure)
 			break;
-#endif
 	}
 }
 
 static void selector_thread_wakeup_drain_pipes (void)
 {
 	uint8_t buffer [128];
-	int32_t received;
 
 	for (;;) {
-#if IL2CPP_USE_PIPES_FOR_WAKEUP
-		received = read (threadpool_io->wakeup_pipes [0], buffer, sizeof (buffer));
-		if (received == 0)
-			break;
-		if (received == -1) {
-			if (errno != EINTR && errno != EAGAIN)
-				IL2CPP_ASSERT(0 && "selector_thread_wakeup_drain_pipes: read () failed");
-			break;
-		}
-#else
+		int32_t received;
 		il2cpp::os::WaitStatus status = threadpool_io->wakeup_pipes[0]->Receive(buffer, 128, il2cpp::os::kSocketFlagsNone, &received);
 		if (received == 0)
 			break;
 		if (status == kWaitStatusFailure)
 			break;
-#endif
 	}
 }
 
@@ -240,7 +214,7 @@ static void filter_jobs_for_domain (void* key, void* value, void* user_data)
 	//}
 
 	//mono_g_hash_table_replace (states, key, list);
-	NOT_IMPLEMENTED("TODO");
+	IL2CPP_NOT_IMPLEMENTED("TODO");
 }
 
 static void wait_callback (int fd, int events, void* user_data)
@@ -250,11 +224,7 @@ static void wait_callback (int fd, int events, void* user_data)
 	if (il2cpp::vm::Runtime::IsShuttingDown ())
 		return;
 
-#if IL2CPP_USE_PIPES_FOR_WAKEUP
-	if (fd == threadpool_io->wakeup_pipes [0]) {
-#else
 	if (fd == threadpool_io->wakeup_pipes [0]->GetDescriptor()) {
-#endif
 		//mono_trace (G_LOG_LEVEL_DEBUG, MONO_TRACE_IO_THREADPOOL, "io threadpool: wke");
 		selector_thread_wakeup_drain_pipes ();
 	} else {
@@ -478,12 +448,6 @@ static ThreadPoolIOUpdate* update_get_new (void)
 
 static void wakeup_pipes_init(void)
 {
-#if IL2CPP_USE_PIPES_FOR_WAKEUP
-	if (pipe (threadpool_io->wakeup_pipes) == -1)
-		IL2CPP_ASSERT(0 && "wakeup_pipes_init: pipe () failed");
-	if (fcntl (threadpool_io->wakeup_pipes [0], F_SETFL, O_NONBLOCK) == -1)
-		IL2CPP_ASSERT(0 && "wakeup_pipes_init: fcntl () failed");
-#else
 	il2cpp::os::Socket serverSock(NULL);
 
 	serverSock.Create(il2cpp::os::kAddressFamilyInterNetwork, il2cpp::os::kSocketTypeStream, il2cpp::os::kProtocolTypeTcp);
@@ -526,11 +490,10 @@ static void wakeup_pipes_init(void)
 	if (status == kWaitStatusFailure)
 	{
 		threadpool_io->wakeup_pipes[0]->Close();
-		IL2CPP_ASSERT(0 && "wakeup_pipes_init: SetBlocking () failed");
+		serverSock.Close();
 	}
 
 	serverSock.Close();
-#endif
 }
 
 static bool lazy_is_initialized()
@@ -559,11 +522,7 @@ static void initialize(void* args)
 
 	wakeup_pipes_init ();
 
-#if IL2CPP_USE_PIPES_FOR_WAKEUP
-	if (!threadpool_io->backend.init ((int)threadpool_io->wakeup_pipes [0]))
-#else
 	if (!threadpool_io->backend.init ((int)threadpool_io->wakeup_pipes [0]->GetDescriptor()))
-#endif
 		IL2CPP_ASSERT(0 && "initialize: backend->init () failed");
 
 	if (!il2cpp::vm::Thread::CreateInternal(selector_thread, NULL, true, SMALL_STACK))
@@ -596,7 +555,7 @@ void ves_icall_System_IOSelector_Add (intptr_t handle, Il2CppIOSelectorJob *job)
 {
 	ThreadPoolIOUpdate *update;
 
-	IL2CPP_ASSERT(handle >= 0);
+	IL2CPP_ASSERT(handle != 0);
 
 	IL2CPP_ASSERT((job->operation == EVENT_IN) ^ (job->operation == EVENT_OUT));
 	IL2CPP_ASSERT(job->callback);

@@ -33,7 +33,9 @@ namespace os
         return result;
 #elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID
         char path[PATH_MAX];
-        char dest[PATH_MAX];
+        char dest[PATH_MAX + 1];
+        //readlink does not null terminate
+        memset(dest, 0, PATH_MAX + 1);
         struct stat info;
         pid_t pid = getpid();
         sprintf(path, "/proc/%d/exe", pid);

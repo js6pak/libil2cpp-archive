@@ -46,6 +46,7 @@ namespace utils
         static char* StringDuplicate(const char *strSource);
         static Il2CppChar* StringDuplicate(const Il2CppChar* strSource, size_t length);
         static bool EndsWith(const std::string& string, const std::string& suffix);
+        static bool StartsWith(const std::string& string, const std::string& prefix);
         static Il2CppChar* GetChars(Il2CppString* str);
         static int32_t GetLength(Il2CppString* str);
 
@@ -170,6 +171,8 @@ namespace utils
 #if defined(_MSC_VER)
 #define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
     il2cpp::utils::StringView<Il2CppNativeChar> variableName(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length);
+#define DECLARE_IL2CPP_CHAR_PTR_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
+    il2cpp::utils::StringView<Il2CppNativeChar> variableName(str, il2cpp::utils::StringUtils::StrLen (str));
 #define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
     il2cpp::utils::StringView<Il2CppChar> variableName(str, wcslen(str));
 #define DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
@@ -177,6 +180,9 @@ namespace utils
 #else
 #define DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
     Il2CppNativeString variableName##_native_string_storage = il2cpp::utils::StringUtils::Utf16ToUtf8(reinterpret_cast<Il2CppString*>(str)->chars, reinterpret_cast<Il2CppString*>(str)->length); \
+    il2cpp::utils::StringView<Il2CppNativeChar> variableName(variableName##_native_string_storage.c_str(), variableName##_native_string_storage.length());
+#define DECLARE_IL2CPP_CHAR_PTR_AS_STRING_VIEW_OF_NATIVE_CHARS(variableName, str) \
+    Il2CppNativeString variableName##_native_string_storage = il2cpp::utils::StringUtils::Utf16ToUtf8(str, il2cpp::utils::StringUtils::StrLen (str)); \
     il2cpp::utils::StringView<Il2CppNativeChar> variableName(variableName##_native_string_storage.c_str(), variableName##_native_string_storage.length());
 #define DECLARE_NATIVE_C_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(variableName, str) \
     UTF16String variableName##_utf16String = il2cpp::utils::StringUtils::Utf8ToUtf16(str); \

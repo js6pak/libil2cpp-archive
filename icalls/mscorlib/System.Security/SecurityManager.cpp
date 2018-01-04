@@ -14,13 +14,13 @@ namespace Security
 {
     bool SecurityManager::get_CheckExecutionRights()
     {
-        NOT_IMPLEMENTED_ICALL(SecurityManager::get_CheckExecutionRights);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SecurityManager::get_CheckExecutionRights);
         return false;
     }
 
     bool SecurityManager::GetLinkDemandSecurity(mscorlib_System_Reflection_MethodBase * method, mscorlib_System_Security_RuntimeDeclSecurityActions * _____cdecl, mscorlib_System_Security_RuntimeDeclSecurityActions * mdecl)
     {
-        NOT_IMPLEMENTED_ICALL(SecurityManager::GetLinkDemandSecurity);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SecurityManager::GetLinkDemandSecurity);
         return false;
     }
 

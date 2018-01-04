@@ -42,7 +42,7 @@ namespace Threading
 
     intptr_t Mutex::OpenMutex_internal(Il2CppString* name, MutexRights rights, MonoIOError* error)
     {
-        NOT_IMPLEMENTED_ICALL(Mutex::OpenMutex_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Mutex::OpenMutex_internal);
 
         return intptr_t();
     }

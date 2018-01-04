@@ -1,7 +1,6 @@
 #if ENABLE_UNIT_TESTS
 
 #include "UnitTest++.h"
-#include "il2cpp-config.h"
 #include "../Semaphore-c-api.h"
 #include "../../Semaphore.h"
 #include "../../Event.h"

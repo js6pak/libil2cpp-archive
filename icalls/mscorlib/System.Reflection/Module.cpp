@@ -42,7 +42,7 @@ namespace Reflection
 
     intptr_t Module::GetHINSTANCE(mscorlib_System_Reflection_Module * thisPtr)
     {
-        NOT_IMPLEMENTED_ICALL(Module::GetHINSTANCE);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Module::GetHINSTANCE);
         return intptr_t();
     }
 

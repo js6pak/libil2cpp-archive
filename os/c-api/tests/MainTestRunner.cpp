@@ -52,4 +52,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 #endif
 
+#if IL2CPP_TARGET_ANDROID
+//Needed to correct linker error since we don't compile with the GC that has the sig wrappers
+extern "C"
+{
+extern int __real_sigaction(int signum, const struct sigaction *action, struct sigaction *old_action);
+int __wrap_sigaction(int signum, const struct sigaction *action, struct sigaction *old_action)
+{
+    return __real_sigaction(signum, action, old_action);
+}
+}
+#endif
+
 #endif // ENABLE_UNIT_TESTS
