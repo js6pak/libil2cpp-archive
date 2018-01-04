@@ -19,7 +19,9 @@
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) isGeneric ? GenericMethodFromIndex(methodIndex) : MethodFromIndex(methodIndex)
     #define IL2CPP_VM_SHUTDOWN() do { if (mono_runtime_try_shutdown()) mono_runtime_quit(); } while(0)
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
-    #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (mono_profiler_get_events () & MONO_PROFILE_FILEIO) mono_profiler_fileio (kind, count);
+//    #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (mono_profiler_get_events () & MONO_PROFILE_FILEIO) mono_profiler_fileio (kind, count);
+// FIXME fix profiler under mono
+    #define IL2CPP_VM_PROFILE_FILEIO(kind, count)
 
 typedef MonoString VmString;
 typedef MonoMethod VmMethod;

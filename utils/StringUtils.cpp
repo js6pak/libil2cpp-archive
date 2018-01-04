@@ -44,11 +44,6 @@ namespace utils
         if (n == -1)
             return NULL;
 
-        // The v*printf methods might put a trailing NUL character, which should not not be in a
-        // std::string, so strip it out.
-        if (!ret.empty() && ret[ret.size() - 1] == '\0')
-            ret = ret.substr(0, ret.size() - 1);
-
         return ret;
     }
 
@@ -86,11 +81,6 @@ namespace utils
 
         if (n == -1)
             return NULL;
-
-        // The v*printf methods might put a trailing NUL character, which should not not be in a
-        // std::string, so strip it out.
-        if (!ret.empty() && ret[ret.size() - 1] == '\0')
-            ret = ret.substr(0, ret.size() - 1);
 
         return ret;
     }
@@ -159,7 +149,7 @@ namespace utils
         if ((result = (char*)IL2CPP_MALLOC(length)))
 #if IL2CPP_COMPILER_MSVC
             strcpy_s(result, length, strSource);
-#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN
+#elif IL2CPP_TARGET_LINUX
             strncpy(result, strSource, length);
 #else
             strlcpy(result, strSource, length);
@@ -186,6 +176,12 @@ namespace utils
             return false;
 
         return string.rfind(suffix.c_str(), stringLength - suffixLength, suffixLength) != std::string::npos;
+    }
+
+    bool StringUtils::StartsWith(const std::string& string, const std::string& prefix)
+    {
+        std::string::size_type position = string.find(prefix);
+        return position != std::string::npos && position == 0;
     }
 
     Il2CppChar* StringUtils::GetChars(Il2CppString* str)

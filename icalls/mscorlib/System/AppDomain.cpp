@@ -242,7 +242,7 @@ namespace System
 #if NET_4_0
     void AppDomain::DoUnhandledException(Il2CppObject* _this, Il2CppException* e)
     {
-        NOT_IMPLEMENTED_ICALL(AppDomain::DoUnhandledException);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(AppDomain::DoUnhandledException);
         IL2CPP_UNREACHABLE;
     }
 

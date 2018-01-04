@@ -1,4 +1,5 @@
 #if ENABLE_UNIT_TESTS
+#include "os/c-api/il2cpp-config-platforms.h"
 #if NET_4_0
 
 #include "UnitTest++.h"
@@ -6,8 +7,7 @@
 #include "../CpuInfo-c-api.h"
 #include "../../CpuInfo.h"
 
-#include "il2cpp-config.h"
-#if !IL2CPP_USE_GENERIC_CPU_INFO
+#if IL2CPP_PLATFORM_SUPPORTS_CPU_INFO
 
 SUITE(CpuInfo)
 {
@@ -22,7 +22,7 @@ SUITE(CpuInfo)
     }
 }
 
-#endif // !IL2CPP_USE_GENERIC_CPU_INFO
+#endif // IL2CPP_PLATFORM_SUPPORTS_CPU_INFO
 
 #endif // NET_4_0
 #endif // ENABLE_UNIT_TESTS

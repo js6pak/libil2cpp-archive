@@ -61,7 +61,7 @@ namespace Reflection
 #if NET_4_0
     Il2CppObject* MonoPropertyInfo::get_default_value(Il2CppReflectionProperty* prop)
     {
-        NOT_IMPLEMENTED_ICALL(MonoPropertyInfo::get_default_value);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoPropertyInfo::get_default_value);
         IL2CPP_UNREACHABLE;
         return NULL;
     }

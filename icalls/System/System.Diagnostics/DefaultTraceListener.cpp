@@ -15,7 +15,7 @@ namespace Diagnostics
 {
     void DefaultTraceListener::WriteWindowsDebugString(Il2CppString* message)
     {
-        NOT_IMPLEMENTED_ICALL(DefaultTraceListener::WriteWindowsDebugString);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(DefaultTraceListener::WriteWindowsDebugString);
     }
 } /* namespace Diagnostics */
 } /* namespace System */

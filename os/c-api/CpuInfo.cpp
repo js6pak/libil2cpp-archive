@@ -1,5 +1,3 @@
-#include "il2cpp-config.h"
-
 #if NET_4_0
 #include "os/CpuInfo.h"
 #include "os/c-api/CpuInfo-c-api.h"

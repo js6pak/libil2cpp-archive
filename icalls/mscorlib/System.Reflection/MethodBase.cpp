@@ -39,7 +39,7 @@ namespace Reflection
             // See the VerifyTwoArgumentGetMethodFromHandleWithGenericType for the failing test. Once we have support for inflating methods
             // we can implement this case as well and make that test pass.
             if (methodInfo->declaring_type != klass)
-                NOT_IMPLEMENTED_ICALL(MethodBase::GetMethodFromHandleInternalType);
+                IL2CPP_NOT_IMPLEMENTED_ICALL(MethodBase::GetMethodFromHandleInternalType);
         }
         else
         {
@@ -86,7 +86,7 @@ namespace Reflection
                 }
                 else if (klass->genericContainerIndex != kGenericContainerIndexInvalid)
                 {
-                    NOT_IMPLEMENTED(il2cpp_method_get_equivalent_method: generic_container_case);
+                    IL2CPP_NOT_IMPLEMENTED(il2cpp_method_get_equivalent_method: generic_container_case);
                     //const Il2CppGenericContainer *genericContainer = il2cpp::vm::MetadataCache::GetGenericContainerFromIndex(klass->genericContainerIndex);
                     //newCtx.class_inst = genericContainer->context.class_inst;
                 }

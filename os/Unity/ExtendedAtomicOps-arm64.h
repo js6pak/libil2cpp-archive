@@ -7,10 +7,6 @@
 #   define ASM_REL         "dmb    ish\n\t"
 #endif
 
-static inline void atomic_pause()
-{
-}
-
 static inline void atomic_thread_fence(memory_order_relaxed_t)
 {
 }

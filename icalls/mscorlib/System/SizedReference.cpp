@@ -13,25 +13,25 @@ namespace System
 {
     int64_t SizedReference::GetApproximateSizeOfSizedRef(intptr_t h)
     {
-        NOT_IMPLEMENTED_ICALL(SizedReference::GetApproximateSizeOfSizedRef);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SizedReference::GetApproximateSizeOfSizedRef);
         IL2CPP_UNREACHABLE;
     }
 
     intptr_t SizedReference::CreateSizedRef(Il2CppObject* o)
     {
-        NOT_IMPLEMENTED_ICALL(SizedReference::CreateSizedRef);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SizedReference::CreateSizedRef);
         IL2CPP_UNREACHABLE;
     }
 
     Il2CppObject* SizedReference::GetTargetOfSizedRef(intptr_t h)
     {
-        NOT_IMPLEMENTED_ICALL(SizedReference::GetTargetOfSizedRef);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SizedReference::GetTargetOfSizedRef);
         IL2CPP_UNREACHABLE;
     }
 
     void SizedReference::FreeSizedRef(intptr_t h)
     {
-        NOT_IMPLEMENTED_ICALL(SizedReference::FreeSizedRef);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SizedReference::FreeSizedRef);
         IL2CPP_UNREACHABLE;
     }
 } // namespace System

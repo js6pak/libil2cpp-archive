@@ -1,5 +1,5 @@
 #if NET_4_0
-#include "il2cpp-config.h"
+#include "os/c-api/il2cpp-config-platforms.h"
 #include "os/c-api/ConditionVariable-c-api.h"
 #include "os/c-api/Mutex-c-api.h"
 #include "os/ConditionVariable.h"

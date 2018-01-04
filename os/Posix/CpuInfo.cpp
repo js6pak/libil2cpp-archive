@@ -1,6 +1,6 @@
 #if NET_4_0
-#include "il2cpp-config.h"
-#if !IL2CPP_USE_GENERIC_CPU_INFO
+#include "os/c-api/il2cpp-config-platforms.h"
+#if IL2CPP_PLATFORM_SUPPORTS_CPU_INFO
 
 #if IL2CPP_TARGET_POSIX
 
@@ -12,6 +12,7 @@
 #include "os/Environment.h"
 
 
+#include <sys/resource.h>
 #include <sys/param.h>
 #if IL2CPP_TARGET_DARWIN
 #include <sys/sysctl.h>
@@ -20,8 +21,9 @@
 #include <time.h>
 #include <errno.h>
 
-#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN
+#if IL2CPP_TARGET_LINUX
 #include <sys/time.h>
+#include <sys/resource.h>
 #endif
 
 struct Il2CppCpuUsageState

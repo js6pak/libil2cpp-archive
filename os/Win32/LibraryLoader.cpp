@@ -9,8 +9,9 @@
 #include "vm/PlatformInvoke.h"
 #include "utils/StringUtils.h"
 
+#include <sstream>
+
 #include "WindowsHelpers.h"
-#include "Evntprov.h"
 
 namespace il2cpp
 {
@@ -36,35 +37,11 @@ namespace os
         const HardcodedPInvokeDependencyFunction* functions;
     };
 
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP
-    const HardcodedPInvokeDependencyFunction kAdvapiFunctions[] =
-    {
-#if !IL2CPP_TARGET_XBOXONE
-        HARDCODED_DEPENDENCY_FUNCTION(EventActivityIdControl),
-#endif
-        HARDCODED_DEPENDENCY_FUNCTION(EventRegister),
-        HARDCODED_DEPENDENCY_FUNCTION(EventSetInformation),
-        HARDCODED_DEPENDENCY_FUNCTION(EventUnregister),
-        HARDCODED_DEPENDENCY_FUNCTION(EventWrite),
-#if !IL2CPP_TARGET_XBOXONE
-        HARDCODED_DEPENDENCY_FUNCTION(EventWriteEx),
-        HARDCODED_DEPENDENCY_FUNCTION(EventWriteString),
-        HARDCODED_DEPENDENCY_FUNCTION(EventWriteTransfer),
-#endif
-    };
-#endif
-
     const HardcodedPInvokeDependencyFunction kKernel32Functions[] =
     {
-        HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
-        HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
-        HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
-    };
-
-    const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
-    {
-        HARDCODED_DEPENDENCY_FUNCTION(GetNetworkParams),
+        HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
+        HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
     };
 
 #if !IL2CPP_TARGET_WINDOWS_DESKTOP
@@ -91,12 +68,10 @@ namespace os
 // All these come without ".dll" extension!
     const HardcodedPInvokeDependencyLibrary kHardcodedPInvokeDependencies[] =
     {
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP // Some of these functions are win8+
-        HARDCODED_DEPENDENCY_LIBRARY(L"advapi32", kAdvapiFunctions),
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP // These functions are win7+
         HARDCODED_DEPENDENCY_LIBRARY(L"api-ms-win-core-timezone-l1-1-0", kTimezoneFunctions),
 #endif
         HARDCODED_DEPENDENCY_LIBRARY(L"kernel32", kKernel32Functions),
-        HARDCODED_DEPENDENCY_LIBRARY(L"iphlpapi", kiphlpapiFunctions),
 #if IL2CPP_TARGET_WINRT // Win8+, plus needs to be looked up dynamically on Xbox One
         HARDCODED_DEPENDENCY_LIBRARY(L"wintypes", kWinTypesFunctions),
 #endif

@@ -7,7 +7,7 @@
 #include <map>
 #include <pthread.h>
 
-#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN
+#if IL2CPP_TARGET_LINUX
 #include <sys/prctl.h>
 #endif
 
@@ -119,7 +119,7 @@ namespace os
 
 #if IL2CPP_TARGET_DARWIN
         pthread_setname_np(name.c_str());
-#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_TIZEN || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
+#elif IL2CPP_TARGET_LINUX || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
         pthread_setname_np(m_Handle, name.c_str());
 #endif
     }
@@ -243,9 +243,8 @@ namespace os
 
     static void CleanupThreadIfCanceled(void* arg)
     {
-        Thread::ThreadCleanupFunc cleanupFunc = s_CleanupFunc;
-        if (cleanupFunc)
-            cleanupFunc(arg);
+        if (s_CleanupFunc)
+            s_CleanupFunc(arg);
     }
 
     void ThreadImpl::SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction)

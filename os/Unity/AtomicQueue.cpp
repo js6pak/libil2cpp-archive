@@ -1656,27 +1656,4 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
 
 #endif
 
-void AtomicList::Relax()
-{
-#if defined(_MSC_VER)
-    YieldProcessor();
-#elif defined(__x86_64__) || defined(_M_X64)
-    __asm__ __volatile__ ("pause" ::: "memory");
-#elif defined(__x86__) || defined(__i386__) || defined(_M_IX86)
-    __asm__ __volatile__ ("rep; nop" ::: "memory");
-#elif PLATFORM_N3DS
-    __asm__ __volatile__ ("yield");
-#elif PLATFORM_SWITCH
-    // The embedded asm for arm64 seems to be ignored(!) by Switch's compiler. So, we do something different.
-    NXAtomicListRelax();
-#elif (defined(__arm64__) || defined(__aarch64__) || (defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)))) && (defined(__clang__) || defined(__GNUC__))
-    // could be interesting to use wfe/sev instead of a semaphore
-    __asm__ __volatile__ ("yield");
-#elif PLATFORM_PSVITA
-    // There is no yield on Vita but we can give the scheduler a "kick" by delaying the thread (sleeping), not ideal but the best we can do for now.
-    PSP2AtomicListRelax();
-#else
-#endif
-}
-
 UNITY_PLATFORM_END_NAMESPACE;

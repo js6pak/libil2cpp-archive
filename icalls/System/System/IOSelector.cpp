@@ -12,13 +12,13 @@ namespace System
 {
     void IOSelector::Add(intptr_t handle, Il2CppObject* job)
     {
-        NOT_IMPLEMENTED_ICALL(IOSelector::Add);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(IOSelector::Add);
         IL2CPP_UNREACHABLE;
     }
 
     void IOSelector::Remove(intptr_t handle)
     {
-        NOT_IMPLEMENTED_ICALL(IOSelector::Remove);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(IOSelector::Remove);
         IL2CPP_UNREACHABLE;
     }
 } // namespace System

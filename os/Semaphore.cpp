@@ -1,5 +1,3 @@
-#include "il2cpp-config.h"
-
 #include "os/Semaphore.h"
 #include "os/Atomic.h"
 #if IL2CPP_TARGET_WINDOWS

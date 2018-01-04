@@ -14,6 +14,7 @@ namespace System
     {
     public:
         static bool HasInstantiation(Il2CppReflectionRuntimeType* type);
+        static bool HasReferences(Il2CppReflectionRuntimeType* type);
         static bool IsArray(Il2CppReflectionRuntimeType* type);
         static bool IsByRef(Il2CppReflectionRuntimeType* type);
         static bool IsComObject(Il2CppReflectionRuntimeType* type);

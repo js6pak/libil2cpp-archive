@@ -37,11 +37,6 @@ namespace vm
         return method->is_inflated;
     }
 
-    bool Method::IsGenericInstance(const MethodInfo *method)
-    {
-        return method->is_inflated && !method->is_generic;
-    }
-
     bool Method::IsInstance(const MethodInfo *method)
     {
         return !(method->flags & METHOD_ATTRIBUTE_STATIC);
@@ -50,6 +45,13 @@ namespace vm
     uint32_t Method::GetParamCount(const MethodInfo *method)
     {
         return method->parameters_count;
+    }
+
+    uint32_t Method::GetGenericParamCount(const MethodInfo *method)
+    {
+        if (IsGeneric(method) && method->genericContainer != NULL)
+            return method->genericContainer->type_argc;
+        return 0;
     }
 
     const Il2CppType* Method::GetParam(const MethodInfo *method, uint32_t index)

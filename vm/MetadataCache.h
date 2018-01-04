@@ -6,6 +6,10 @@
 #include "Assembly.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "il2cpp-class-internals.h"
+#include "utils/dynamic_array.h"
+#include "os/Mutex.h"
+
+#define THREAD_LOCAL_STATIC_MASK (int32_t)0x80000000
 
 struct MethodInfo;
 struct Il2CppClass;
@@ -28,6 +32,7 @@ namespace vm
 
         static void Initialize();
         static void InitializeGCSafe();
+        static void InitializeAllMethodMetadata();
 
         static Il2CppClass* GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
         static const MethodInfo* GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const Il2CppGenericContext* context);
@@ -93,7 +98,9 @@ namespace vm
         static const Il2CppParameterDefinition* GetParameterDefinitionFromIndex(ParameterIndex index);
 
         // returns the compiler computer field offset for type definition fields
-        static int32_t GetFieldOffsetFromIndex(TypeIndex typeIndex, int32_t fieldIndexInType);
+        static int32_t GetFieldOffsetFromIndexLocked(TypeIndex typeIndex, int32_t fieldIndexInType, FieldInfo* field, const il2cpp::os::FastAutoLock& lock);
+        static int32_t GetThreadLocalStaticOffsetForField(FieldInfo* field);
+        static void AddThreadLocalStaticOffsetForFieldLocked(FieldInfo* field, int32_t offset, const il2cpp::os::FastAutoLock& lock);
 
         static int32_t GetReferenceAssemblyIndexIntoAssemblyTable(int32_t referencedAssemblyTableIndex);
 
@@ -111,6 +118,7 @@ namespace vm
         static void InitializeStringLiteralTable();
         static void InitializeGenericMethodTable();
         static void InitializeWindowsRuntimeTypeNamesTables();
+        static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages);
     };
 } // namespace vm
 } // namespace il2cpp

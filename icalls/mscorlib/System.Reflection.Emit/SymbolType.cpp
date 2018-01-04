@@ -16,7 +16,7 @@ namespace Emit
 {
     void SymbolType::create_unmanaged_type(Il2CppObject* type)
     {
-        NOT_IMPLEMENTED_ICALL(SymbolType::create_unmanaged_type);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SymbolType::create_unmanaged_type);
         IL2CPP_UNREACHABLE;
     }
 } // namespace Emit
