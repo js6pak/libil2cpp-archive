@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 
 #if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
-#if WINDOWS_SDK_BUILD_VERSION < 16299
 
 #include "os/Win32/WindowsHeaders.h"
 #include "Win32ApiSharedEmulation.h"
@@ -51,63 +50,8 @@ BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize)
 
 #undef ERROR_CHECK
 
-    unsigned int sourceLength;
-    auto sourceBuffer = displayName.GetRawBuffer(&sourceLength);
-
-    // NetBIOS caps at 15 characters, not including the null terminator
-    DWORD finalSize = sourceLength > 15 ? 15 : sourceLength;
-
-    // Cap at the first period
-    for (DWORD i = 0; i < finalSize; ++i)
-        if (sourceBuffer[i] == '.')
-            finalSize = i;
-
-    // Error and return the size if the buffer is not large enough
-    if (finalSize + 1 > *nSize)
-    {
-        SetLastError(ERROR_BUFFER_OVERFLOW);
-        *nSize = finalSize + 1;
-        return FALSE;
-    }
-
-    if (lpBuffer != nullptr)
-    {
-        memset(lpBuffer, 0, *nSize);
-
-        // Copy the characters and make them uppercase
-        for (DWORD i = 0; i < finalSize; ++i)
-            lpBuffer[i] = toupper(sourceBuffer[i]);
-
-        *nSize = finalSize;
-
-        return TRUE;
-    }
-
-    *nSize = finalSize;
-    return FALSE;
+    return CopyHStringToBuffer(displayName, lpBuffer, nSize);
 }
 } // extern "C"
 
-#endif // WINDOWS_SDK_BUILD_VERSION < 16299
-
-#if WINDOWS_SDK_BUILD_VERSION < 15063
-
-#include "os/Win32/WindowsHeaders.h"
-#include "Win32ApiSharedEmulation.h"
-
-extern "C"
-{
-DWORD WINAPI GetNetworkParams(PFIXED_INFO pFixedInfo, PULONG pOutBufLen)
-{
-    if (*pOutBufLen < sizeof(FIXED_INFO))
-    {
-        *pOutBufLen = sizeof(FIXED_INFO);
-        return ERROR_BUFFER_OVERFLOW;
-    }
-    memset(pFixedInfo, 0, sizeof(FIXED_INFO));
-    return ERROR_NOT_SUPPORTED;
-}
-} // extern "C"
-
-#endif // WINDOWS_SDK_BUILD_VERSION < 15063
-#endif // IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+#endif

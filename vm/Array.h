@@ -15,6 +15,7 @@ namespace vm
     class LIBIL2CPP_CODEGEN_API Array
     {
     public:
+        static Il2CppArray* Clone(Il2CppArray* arr);
         static int32_t GetElementSize(const Il2CppClass *klass);
         static uint32_t GetLength(Il2CppArray* array);
         static uint32_t GetByteLength(Il2CppArray* array);

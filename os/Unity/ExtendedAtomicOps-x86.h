@@ -7,15 +7,6 @@
 #   include <emmintrin.h>
 #endif
 
-static inline void atomic_pause()
-{
-#if defined(_MSC_VER)
-    _mm_pause();
-#else
-    __asm__ __volatile__ ("rep; nop");
-#endif
-}
-
 static inline void atomic_thread_fence(memory_order_relaxed_t)
 {
 }

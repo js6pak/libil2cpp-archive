@@ -12,25 +12,25 @@ namespace Console
 {
     int32_t InternalKeyAvailable(int32_t ms_timeout)
     {
-        NOT_IMPLEMENTED_ICALL(Console::InternalKeyAvailable);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Console::InternalKeyAvailable);
         return 0;
     }
 
     bool SetBreak(bool wantBreak)
     {
-        NOT_IMPLEMENTED_ICALL(Console::SetBreak);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Console::SetBreak);
         return false;
     }
 
     bool SetEcho(bool wantEcho)
     {
-        NOT_IMPLEMENTED_ICALL(Console::SetEcho);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Console::SetEcho);
         return false;
     }
 
     bool TtySetup(const std::string& keypadXmit, const std::string& teardown, uint8_t* control_characters, int32_t** size)
     {
-        NOT_IMPLEMENTED_ICALL(Console::TtySetup);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Console::TtySetup);
         return false;
     }
 }

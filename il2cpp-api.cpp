@@ -31,6 +31,9 @@
 #include "utils/StringUtils.h"
 #include "utils/Runtime.h"
 #include "utils/Environment.h"
+#if IL2CPP_MONO_DEBUGGER
+#include "vm-utils/Debugger.h"
+#endif
 
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
@@ -394,6 +397,11 @@ const Il2CppType* il2cpp_class_get_type(Il2CppClass *klass)
     return Class::GetType(klass);
 }
 
+uint32_t il2cpp_class_get_type_token(Il2CppClass *klass)
+{
+    return klass->token;
+}
+
 bool il2cpp_class_has_attribute(Il2CppClass *klass, Il2CppClass *attr_class)
 {
     return Class::HasAttribute(klass, attr_class);
@@ -417,6 +425,11 @@ const Il2CppImage* il2cpp_class_get_image(Il2CppClass* klass)
 const char *il2cpp_class_get_assemblyname(const Il2CppClass *klass)
 {
     return Class::GetAssemblyNameNoExtension(klass);
+}
+
+int il2cpp_class_get_rank(const Il2CppClass *klass)
+{
+    return klass->rank;
 }
 
 // testing only
@@ -451,7 +464,6 @@ bool il2cpp_stats_dump_to_file(const char *path)
     fs << "Generic class count: " << il2cpp_stats_get_value(IL2CPP_STAT_GENERIC_CLASS_COUNT) << "\n";
 
     fs.close();
-
 
     return true;
 }
@@ -1048,24 +1060,28 @@ void il2cpp_thread_walk_frame_stack(Il2CppThread *thread, Il2CppFrameWalkFunc fu
     return StackTrace::WalkThreadFrameStack(thread, func, user_data);
 }
 
-bool il2cpp_current_thread_get_top_frame(Il2CppStackFrameInfo& frame)
+bool il2cpp_current_thread_get_top_frame(Il2CppStackFrameInfo* frame)
 {
-    return StackTrace::GetTopStackFrame(frame);
+    IL2CPP_ASSERT(frame);
+    return StackTrace::GetTopStackFrame(*frame);
 }
 
-bool il2cpp_thread_get_top_frame(Il2CppThread* thread, Il2CppStackFrameInfo& frame)
+bool il2cpp_thread_get_top_frame(Il2CppThread* thread, Il2CppStackFrameInfo* frame)
 {
-    return StackTrace::GetThreadTopStackFrame(thread, frame);
+    IL2CPP_ASSERT(frame);
+    return StackTrace::GetThreadTopStackFrame(thread, *frame);
 }
 
-bool il2cpp_current_thread_get_frame_at(int32_t offset, Il2CppStackFrameInfo& frame)
+bool il2cpp_current_thread_get_frame_at(int32_t offset, Il2CppStackFrameInfo* frame)
 {
-    return StackTrace::GetStackFrameAt(offset, frame);
+    IL2CPP_ASSERT(frame);
+    return StackTrace::GetStackFrameAt(offset, *frame);
 }
 
-bool il2cpp_thread_get_frame_at(Il2CppThread* thread, int32_t offset, Il2CppStackFrameInfo& frame)
+bool il2cpp_thread_get_frame_at(Il2CppThread* thread, int32_t offset, Il2CppStackFrameInfo* frame)
 {
-    return StackTrace::GetThreadStackFrameAt(thread, offset, frame);
+    IL2CPP_ASSERT(frame);
+    return StackTrace::GetThreadStackFrameAt(thread, offset, *frame);
 }
 
 int32_t il2cpp_current_thread_get_stack_depth()
@@ -1102,6 +1118,16 @@ char* il2cpp_type_get_name(const Il2CppType *type)
     memcpy(buffer, name.c_str(), name.length() + 1);
 
     return buffer;
+}
+
+bool il2cpp_type_is_byref(const Il2CppType *type)
+{
+    return type->byref;
+}
+
+bool il2cpp_type_equals(const Il2CppType* type, const Il2CppType *otherType)
+{
+    return Type::IsEqualToType(type, otherType);
 }
 
 // image
@@ -1146,4 +1172,12 @@ void il2cpp_set_find_plugin_callback(Il2CppSetFindPlugInCallback method)
 void il2cpp_register_log_callback(Il2CppLogCallback method)
 {
     il2cpp::utils::Logging::SetLogCallback(method);
+}
+
+// Debugger
+void il2cpp_debugger_set_agent_options(const char* options)
+{
+#if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::SetAgentOptions(options);
+#endif
 }

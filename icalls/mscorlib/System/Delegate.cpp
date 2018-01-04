@@ -60,7 +60,7 @@ namespace System
 
     Il2CppObject* Delegate::GetVirtualMethod_internal(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(Delegate::GetVirtualMethod_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Delegate::GetVirtualMethod_internal);
         IL2CPP_UNREACHABLE;
         return NULL;
     }

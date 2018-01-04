@@ -21,10 +21,6 @@
 
 #endif
 
-static inline void atomic_pause()
-{
-}
-
 static inline void atomic_thread_fence(memory_order_relaxed_t)
 {
 }

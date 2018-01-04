@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include <string>
+#include <sstream>
 #include "icalls/mscorlib/System.Reflection/MonoMethod.h"
 #include "il2cpp-tabledefs.h"
 #include "il2cpp-class-internals.h"
@@ -155,7 +156,7 @@ namespace Reflection
 
     Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2CppObject * thisPtr, Il2CppArray * params, Il2CppObject * * exc)
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethod::InternalInvoke, "Audit and look over commented code. Work in progress.");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethod::InternalInvoke, "Audit and look over commented code. Work in progress.");
 /*
      * Invoke from reflection is supposed to always be a virtual call (the API
      * is stupid), mono_runtime_invoke_*() calls the provided method, allowing
@@ -329,7 +330,7 @@ namespace Reflection
 
         if (methodContext->class_inst)
         {
-            NOT_IMPLEMENTED_ICALL(MonoMethod::GetGenericMethodDefinition_impl);
+            IL2CPP_NOT_IMPLEMENTED_ICALL(MonoMethod::GetGenericMethodDefinition_impl);
         }
 
         return il2cpp::vm::Reflection::GetMethodObject(const_cast<MethodInfo*>(methodDefinition), NULL);
@@ -338,7 +339,7 @@ namespace Reflection
 #if NET_4_0
     int32_t MonoMethod::get_core_clr_security_level(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(MonoMethod::get_core_clr_security_level);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoMethod::get_core_clr_security_level);
         IL2CPP_UNREACHABLE;
         return 0;
     }

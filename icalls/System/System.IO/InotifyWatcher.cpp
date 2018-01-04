@@ -15,21 +15,21 @@ namespace IO
 {
     intptr_t InotifyWatcher::GetInotifyInstance()
     {
-        NOT_IMPLEMENTED_ICALL(InotifyWatcher::GetInotifyInstance);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(InotifyWatcher::GetInotifyInstance);
 
         return intptr_t();
     }
 
     int32_t InotifyWatcher::AddWatch(intptr_t fd, Il2CppString* name, InotifyMask mask)
     {
-        NOT_IMPLEMENTED_ICALL(InotifyWatcher::AddWatch);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(InotifyWatcher::AddWatch);
 
         return 0;
     }
 
     intptr_t InotifyWatcher::RemoveWatch(intptr_t fd, int32_t wd)
     {
-        NOT_IMPLEMENTED_ICALL(InotifyWatcher::RemoveWatch);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(InotifyWatcher::RemoveWatch);
 
         return intptr_t();
     }

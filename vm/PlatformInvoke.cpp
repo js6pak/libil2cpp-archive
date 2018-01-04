@@ -14,6 +14,7 @@
 #include "os/LibraryLoader.h"
 #include "os/MarshalStringAlloc.h"
 #include "utils/Memory.h"
+#include "utils/StringViewStream.h"
 #include "utils/StringUtils.h"
 #include "vm-utils/NativeDelegateMethodCache.h"
 #include "vm-utils/VmStringUtils.h"
@@ -421,7 +422,6 @@ namespace vm
             newMethod->methodPointer = nativeFunctionPointer;
             newMethod->invoker_method = NULL;
             newMethod->parameters_count = invoke->parameters_count;
-            newMethod->slot = kInvalidIl2CppMethodSlot;
             utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }

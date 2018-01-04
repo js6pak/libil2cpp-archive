@@ -40,25 +40,25 @@ namespace os
 
     std::vector<std::string> Environment::GetEnvironmentVariableNames()
     {
-        NOT_IMPLEMENTED_ICALL(Environment::GetEnvironmentVariableNames);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::GetEnvironmentVariableNames);
         return std::vector<std::string>();
     }
 
     std::string Environment::GetHomeDirectory()
     {
-        NOT_IMPLEMENTED_ICALL(Environment::GetHomeDirectory);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::GetHomeDirectory);
         return std::string();
     }
 
     std::vector<std::string> Environment::GetLogicalDrives()
     {
-        NOT_IMPLEMENTED_ICALL(Environment::GetLogicalDrives);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::GetLogicalDrives);
         return std::vector<std::string>();
     }
 
     void Environment::Exit(int result)
     {
-        NOT_IMPLEMENTED_ICALL(Environment::Exit);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::Exit);
     }
 
     NORETURN void Environment::Abort()

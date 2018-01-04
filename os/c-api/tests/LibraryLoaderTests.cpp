@@ -15,6 +15,9 @@
 #if IL2CPP_TARGET_PS4
 static const char* POSIX_DL_NAME = "/app0/test.prx";
 static const char* POSIX_FUNC_NAME = "prx_func";
+#elif IL2CPP_TARGET_LINUX
+static const char* POSIX_DL_NAME = "libm.so.6";
+static const char* POSIX_FUNC_NAME = "abs";
 #else
 static const char* POSIX_DL_NAME = "libm";
 static const char* POSIX_FUNC_NAME = "abs";

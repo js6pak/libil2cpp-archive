@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <ctype.h>
 
+#include "metadata/Il2CppTypeCompare.h"
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"
 #include "vm/AssemblyName.h"
@@ -607,7 +608,7 @@ namespace vm
 
                 if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(elementClass->image->assemblyIndex);
+                    const Il2CppAssembly *ta = elementClass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
 
@@ -630,7 +631,7 @@ namespace vm
 
                 if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(elementClass->image->assemblyIndex);
+                    const Il2CppAssembly *ta = elementClass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
                 break;
@@ -651,7 +652,7 @@ namespace vm
 
                 if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(Class::FromIl2CppType(type->data.type)->image->assemblyIndex);
+                    const Il2CppAssembly *ta = Class::FromIl2CppType(type->data.type)->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
                 break;
@@ -742,7 +743,7 @@ namespace vm
 
                 if ((format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED) && (type->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(klass->image->assemblyIndex);
+                    const Il2CppAssembly *ta = klass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
                 break;
@@ -845,6 +846,11 @@ namespace vm
             res = Array::New(arrType, 0);
         }
         return res;
+    }
+
+    bool Type::IsEqualToType(const Il2CppType *type, const Il2CppType *otherType)
+    {
+        return ::il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(type, otherType);
     }
 
     uint32_t Type::GetToken(const Il2CppType *type)

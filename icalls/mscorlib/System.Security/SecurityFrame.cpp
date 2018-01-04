@@ -14,7 +14,7 @@ namespace Security
 {
     Il2CppArray * SecurityFrame::_GetSecurityStack(int32_t skip)
     {
-        NOT_IMPLEMENTED_ICALL(SecurityManager::get_CheckExecutionRights);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(SecurityManager::get_CheckExecutionRights);
         return 0;
     }
 

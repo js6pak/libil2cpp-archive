@@ -84,7 +84,7 @@ namespace metadata
                 return 0;
         }
 
-        NOT_IMPLEMENTED(Il2CppTypeEqualityComparer::compare);
+        IL2CPP_NOT_IMPLEMENTED(Il2CppTypeEqualityComparer::compare);
         return Compare(static_cast<const void*>(t1), static_cast<const void*>(t2));
     }
 

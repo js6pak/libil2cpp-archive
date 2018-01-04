@@ -13,12 +13,12 @@ namespace Interop
 {
     void ComInteropProxy::AddProxy(intptr_t pItf, mscorlib_Mono_Interop_ComInteropProxy * proxy)
     {
-        NOT_IMPLEMENTED_ICALL(ComInteropProxy::AddProxy);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(ComInteropProxy::AddProxy);
     }
 
     mscorlib_Mono_Interop_ComInteropProxy* ComInteropProxy::FindProxy(intptr_t pItf)
     {
-        NOT_IMPLEMENTED_ICALL(ComInteropProxy::FindProxy);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(ComInteropProxy::FindProxy);
         return 0;
     }
 } /* namespace Interop */

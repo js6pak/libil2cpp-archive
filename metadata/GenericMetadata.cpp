@@ -20,6 +20,7 @@
 #include "vm/MetadataCache.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-tabledefs.h"
+#include <sstream>
 #include <vector>
 
 using namespace il2cpp::vm;

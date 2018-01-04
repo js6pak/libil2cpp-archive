@@ -1,18 +1,18 @@
-#include "il2cpp-config.h"
 #include "mono-structs.h"
-#include "utils/Memory.h"
+#include "os/c-api/il2cpp-config-platforms.h"
+#include "os/c-api/Allocator.h"
 
 GPtrArray* void_ptr_array_to_gptr_array(const VoidPtrArray& array)
 {
     GPtrArray *pRetVal;
 
-    pRetVal = (GPtrArray*)IL2CPP_MALLOC(sizeof(GPtrArray));
+    pRetVal = (GPtrArray*)Allocator::Allocate(sizeof(GPtrArray));
 
     pRetVal->len = (unsigned int)array.size();
     if (pRetVal->len > 0)
     {
         size_t numBytes = sizeof(void*) * pRetVal->len;
-        pRetVal->pdata = IL2CPP_MALLOC(numBytes);
+        pRetVal->pdata = Allocator::Allocate(numBytes);
         memcpy(pRetVal->pdata, array.data(), numBytes);
     }
     else
@@ -25,7 +25,7 @@ GPtrArray* void_ptr_array_to_gptr_array(const VoidPtrArray& array)
 
 GPtrArray* empty_gptr_array()
 {
-    GPtrArray *pRetVal = (GPtrArray*)IL2CPP_MALLOC(sizeof(GPtrArray));
+    GPtrArray *pRetVal = (GPtrArray*)Allocator::Allocate(sizeof(GPtrArray));
     pRetVal->len = 0;
     pRetVal->pdata = NULL;
     return pRetVal;

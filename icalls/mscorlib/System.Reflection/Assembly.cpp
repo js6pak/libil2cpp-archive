@@ -50,19 +50,19 @@ namespace Reflection
 
     Il2CppString*  Assembly::get_location(Il2CppReflectionAssembly *assembly)
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(Assembly::get_location, "Assembly::get_location is not functional on il2cpp");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Assembly::get_location, "Assembly::get_location is not functional on il2cpp");
         return vm::String::New("");
     }
 
     Il2CppReflectionAssembly* Assembly::GetEntryAssembly()
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(Assembly::GetEntryAssembly, "In the case of Unity this is always NULL. For a normal exe this is the assembly with Main.");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Assembly::GetEntryAssembly, "In the case of Unity this is always NULL. For a normal exe this is the assembly with Main.");
         return NULL;
     }
 
     Il2CppReflectionAssembly* Assembly::GetExecutingAssembly()
     {
-        return vm::Reflection::GetAssemblyObject(MetadataCache::GetAssemblyFromIndex(vm::Image::GetExecutingImage()->assemblyIndex));
+        return vm::Reflection::GetAssemblyObject(vm::Image::GetExecutingImage()->assembly);
     }
 
 #define CHECK_IF_NULL(v)    \
@@ -269,13 +269,13 @@ namespace Reflection
 
     bool Assembly::LoadPermissions(mscorlib_System_Reflection_Assembly * a, intptr_t* minimum, int32_t* minLength, intptr_t* optional, int32_t* optLength, intptr_t* refused, int32_t* refLength)
     {
-        NOT_IMPLEMENTED_ICALL(Assembly::LoadPermissions);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Assembly::LoadPermissions);
         return false;
     }
 
     Il2CppReflectionAssembly* Assembly::GetCallingAssembly()
     {
-        return vm::Reflection::GetAssemblyObject(MetadataCache::GetAssemblyFromIndex(Image::GetCallingImage()->assemblyIndex));
+        return vm::Reflection::GetAssemblyObject(Image::GetCallingImage()->assembly);
     }
 
     Il2CppString* Assembly::get_code_base(Il2CppReflectionAssembly * assembly, bool escaped)
@@ -511,7 +511,7 @@ namespace Reflection
         {
             info->location = IL2CPP_RESOURCE_LOCATION_EMBEDDED | IL2CPP_RESOURCE_LOCATION_IN_MANIFEST;
 
-            NOT_IMPLEMENTED_ICALL_NO_ASSERT(Assembly::GetManifestResourceInfoInternal, "We have not yet implemented file or assembly resources.");
+            IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Assembly::GetManifestResourceInfoInternal, "We have not yet implemented file or assembly resources.");
 
             return true;
         }

@@ -53,8 +53,6 @@ namespace System
         static Il2CppArray* GetFieldsByName(Il2CppReflectionType* _this, Il2CppString* name, int, Il2CppReflectionType* reflectedType);
         static int GetArrayRank(Il2CppReflectionType* type);
         static Il2CppArray* GetConstructors_internal(Il2CppReflectionType* type, int32_t bflags, Il2CppReflectionType* reftype);
-        static void* /* System.Reflection.ConstructorInfo */ GetCorrespondingInflatedConstructor(void* /* System.MonoType */ self, void* /* System.Reflection.ConstructorInfo */ genericInfo);
-        static mscorlib_System_Reflection_MethodInfo* GetCorrespondingInflatedMethod(Il2CppReflectionMonoType* , Il2CppReflectionMonoType*);
         static Il2CppReflectionType* GetElementType(Il2CppReflectionType* type);
         static Il2CppArray* GetEvents_internal(Il2CppReflectionType* thisPtr, int32_t bindingFlags, Il2CppReflectionType* type);
         static Il2CppArray* GetEventsByName(Il2CppReflectionType* _this, Il2CppString* name, int bindingFlags, Il2CppReflectionType* reflectedType);

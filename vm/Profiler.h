@@ -42,6 +42,8 @@ namespace vm
             return (s_profilerEvents & IL2CPP_PROFILE_FILEIO) != 0;
         }
 
+        static void Shutdown();
+
     private:
     };
 

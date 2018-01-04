@@ -13,7 +13,7 @@ namespace System
 {
     void RuntimeFieldHandle::SetValueDirect(Il2CppObject* field, Il2CppObject* fieldType, void* pTypedRef, Il2CppObject* value, Il2CppObject* contextType)
     {
-        NOT_IMPLEMENTED_ICALL(RuntimeFieldHandle::SetValueDirect);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeFieldHandle::SetValueDirect);
         IL2CPP_UNREACHABLE;
     }
 
