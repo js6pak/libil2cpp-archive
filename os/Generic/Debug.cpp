@@ -1,7 +1,7 @@
-#include "il2cpp-config.h"
-
 // Generic implementation for platforms that don't have this implemented
-#if !IL2CPP_ISDEBUGGERPRESENT_IMPLEMENTED
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !IL2CPP_PLATFORM_SUPPORTS_DEBUGGER_PRESENT
 
 #include "os/Debug.h"
 

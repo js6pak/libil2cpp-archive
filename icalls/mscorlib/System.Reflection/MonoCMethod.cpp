@@ -23,7 +23,7 @@ namespace Reflection
 #if NET_4_0
     int32_t MonoCMethod::get_core_clr_security_level(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(MonoCMethod::get_core_clr_security_level);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoCMethod::get_core_clr_security_level);
         IL2CPP_UNREACHABLE;
         return 0;
     }

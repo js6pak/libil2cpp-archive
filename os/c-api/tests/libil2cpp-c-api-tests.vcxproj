@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -193,7 +193,6 @@
     <ClCompile Include="..\..\..\utils\StringUtils.cpp" />
     <ClCompile Include="..\..\Android\StackTrace.cpp" />
     <ClCompile Include="..\..\ConditionVariable.cpp" />
-    <ClCompile Include="..\..\Debug.cpp" />
     <ClCompile Include="..\..\Error.cpp" />
     <ClCompile Include="..\..\Event.cpp" />
     <ClCompile Include="..\..\Generic\COM.cpp" />
@@ -203,6 +202,7 @@
     <ClCompile Include="..\..\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="..\..\Generic\MemoryMappedFile.cpp" />
     <ClCompile Include="..\..\Generic\SocketImpl.cpp" />
+    <ClCompile Include="..\..\Generic\TimeZoneInfo.cpp" />
     <ClCompile Include="..\..\Generic\WindowsRuntime.cpp" />
     <ClCompile Include="..\..\Handle.cpp" />
     <ClCompile Include="..\..\Messages.cpp" />
@@ -314,6 +314,7 @@
     <ClCompile Include="..\ThreadLocalValue.cpp" />
     <ClCompile Include="..\Time.cpp" />
     <ClCompile Include="..\TimeZone.cpp" />
+    <ClCompile Include="..\TimeZoneInfo.cpp" />
     <ClCompile Include="COMTests.cpp" />
     <ClCompile Include="ConditionVariableTests.cpp" />
     <ClCompile Include="ConsoleTests.cpp" />
@@ -338,6 +339,7 @@
     <ClCompile Include="SemaphoreTests.cpp" />
     <ClCompile Include="ThreadLocalValueTests.cpp" />
     <ClCompile Include="TimeTests.cpp" />
+    <ClCompile Include="TimeZoneInfoTests.cpp" />
     <ClCompile Include="TimeZoneTests.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -454,6 +456,7 @@
     <ClInclude Include="..\..\ThreadLocalValue.h" />
     <ClInclude Include="..\..\Time.h" />
     <ClInclude Include="..\..\TimeZone.h" />
+    <ClInclude Include="..\..\TimeZoneInfo.h" />
     <ClInclude Include="..\..\WaitStatus.h" />
     <ClInclude Include="..\..\Win32\AtomicImpl.h" />
     <ClInclude Include="..\..\Win32\ConditionVariableImpl.h" />
@@ -497,6 +500,7 @@
     <ClInclude Include="..\ThreadLocalValue-c-api.h" />
     <ClInclude Include="..\Time-c-api.h" />
     <ClInclude Include="..\TimeZone-c-api.h" />
+    <ClInclude Include="..\TimeZoneInfo-c-api.h" />
     <ClInclude Include="..\Win32\AtomicImpl-c-api.h" />
     <ClInclude Include="..\Win32\WindowsHeaders.h" />
     <ClInclude Include="PathHelper.h" />

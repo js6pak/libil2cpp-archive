@@ -21,7 +21,7 @@ namespace System
 {
     bool CurrentSystemTimeZone::GetTimeZoneData(int year, Il2CppArray** data, Il2CppArray** names)
     {
-        NOT_IMPLEMENTED_NO_ASSERT(CurrentSystemTimeZone::GetTimeZoneData, "Check arguments and write barriers");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(CurrentSystemTimeZone::GetTimeZoneData, "Check arguments and write barriers");
         int64_t dataTemp[4] = {0};
         std::string namesTemp[2];
         IL2CPP_CHECK_ARG_NULL(data);

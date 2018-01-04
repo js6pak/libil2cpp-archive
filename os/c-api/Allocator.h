@@ -23,6 +23,7 @@ class Allocator
 public:
     static void* Allocate(size_t size);
     static char* CopyToAllocatedStringBuffer(const std::string& input);
+    static char* CopyToAllocatedStringBuffer(const char* input);
 };
 
 #endif

@@ -227,7 +227,7 @@ namespace System
     {
         Il2CppClass* klass = Class::FromIl2CppType(type->type);
 
-        return il2cpp::vm::Reflection::GetAssemblyObject(MetadataCache::GetAssemblyFromIndex(klass->image->assemblyIndex));
+        return il2cpp::vm::Reflection::GetAssemblyObject(klass->image->assembly);
     }
 
     int MonoType::get_attributes(Il2CppReflectionType *type)
@@ -366,12 +366,6 @@ namespace System
             il2cpp_array_setref(res, i, (Il2CppObject*)Reflection::GetMethodObject(tmp_vec[i].first, tmp_vec[i].second));
 
         return res;
-    }
-
-    mscorlib_System_Reflection_MethodInfo *  MonoType::GetCorrespondingInflatedMethod(Il2CppReflectionMonoType *, Il2CppReflectionMonoType *)
-    {
-        NOT_SUPPORTED_IL2CPP(MonoType::GetCorrespondingInflatedMethod, "This icall is only used by System.Reflection.Emit.TypeBuilder.");
-        return 0;
     }
 
     Il2CppReflectionType* MonoType::GetElementType(Il2CppReflectionType * type)
@@ -890,12 +884,6 @@ namespace System
         NOT_SUPPORTED_IL2CPP(MonoType::type_from_obj, "This icall is only used by System.MonoType constructor, which throws NotImplementedException right after this call.");
     }
 
-    void* /* System.Reflection.ConstructorInfo */ MonoType::GetCorrespondingInflatedConstructor(void* /* System.MonoType */ self, void* /* System.Reflection.ConstructorInfo */ genericInfo)
-    {
-        NOT_SUPPORTED_IL2CPP(MonoType::GetCorrespondingInflatedConstructor, "This icall is only used by System.Reflection.Emit.TypeBuilder.");
-        return 0;
-    }
-
     static inline bool CheckNestedTypeMatch(Il2CppClass* nestedType, BindingFlags bindingFlags)
     {
         uint32_t accessFlag = (nestedType->flags & TYPE_ATTRIBUTE_VISIBILITY_MASK) == TYPE_ATTRIBUTE_NESTED_PUBLIC ? BFLAGS_Public : BFLAGS_NonPublic;
@@ -996,7 +984,7 @@ namespace System
 
     void* /* System.Reflection.MethodBase */ MonoType::get_DeclaringMethod(void* /* System.MonoType */ self)
     {
-        NOT_IMPLEMENTED_ICALL(MonoType::get_DeclaringMethod);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoType::get_DeclaringMethod);
 
         return 0;
     }

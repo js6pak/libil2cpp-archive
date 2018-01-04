@@ -1,12 +1,14 @@
 #if NET_4_0
-#include "il2cpp-config.h"
+#include "os/c-api/il2cpp-config-platforms.h"
 
 #include "os/Mutex.h"
 #include "os/ConditionVariable.h"
 #if IL2CPP_THREADS_WIN32
 #include "os/Win32/ConditionVariableImpl.h"
-#else
+#elif IL2CPP_THREADS_PTHREAD
 #include "os/Posix/ConditionVariableImpl.h"
+#else
+#include "os/ConditionVariableImpl.h"
 #endif
 
 

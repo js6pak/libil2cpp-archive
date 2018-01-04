@@ -57,6 +57,10 @@ namespace vm
         static void KillAllBackgroundThreadsAndWaitForForegroundThreads();
         static Il2CppThread* Main();
         static bool IsVmThread(Il2CppThread *thread);
+        static uint64_t GetId(Il2CppThread *thread);
+#if NET_4_0
+        static uint64_t GetId(Il2CppInternalThread* thread);
+#endif
 
         static void RequestInterrupt(Il2CppThread* thread);
         static void CheckCurrentThreadForInterruptAndThrowIfNecessary();
@@ -66,6 +70,7 @@ namespace vm
         static void ResetAbort(Il2CppThread* thread);
 #if NET_4_0
         static bool RequestAbort(Il2CppInternalThread* thread);
+        static void ResetAbort(Il2CppInternalThread* thread);
         static void SetPriority(Il2CppThread* thread, int32_t priority);
         static int32_t GetPriority(Il2CppThread* thread);
 #endif
@@ -81,6 +86,10 @@ namespace vm
         static int32_t AllocThreadStaticData(int32_t size);
         static void FreeThreadStaticData(Il2CppThread *thread);
         static void* GetThreadStaticData(int32_t offset);
+        static void* GetThreadStaticDataForThread(int32_t offset, Il2CppThread* thread);
+#if NET_4_0
+        static void* GetThreadStaticDataForThread(int32_t offset, Il2CppInternalThread* thread);
+#endif
 
         static void Register(Il2CppThread *thread);
         static void Unregister(Il2CppThread *thread);
@@ -122,6 +131,23 @@ namespace vm
 
     private:
         static Il2CppThread* s_MainThread;
+    };
+
+    class ThreadAttacher : il2cpp::utils::NonCopyable
+    {
+    public:
+        ThreadAttacher(Il2CppDomain *domain)
+        {
+            m_Thread = Thread::Attach(domain);
+        }
+
+        ~ThreadAttacher()
+        {
+            Thread::Detach(m_Thread);
+        }
+
+    private:
+        Il2CppThread* m_Thread;
     };
 
     class ThreadStateSetter : il2cpp::utils::NonCopyable

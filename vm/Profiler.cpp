@@ -130,6 +130,15 @@ namespace vm
                 (*iter)->fileioCallback((*iter)->profiler, kind, count);
         }
     }
+
+    void Profiler::Shutdown()
+    {
+        for (ProfilersVec::iterator iter = s_profilers.begin(); iter != s_profilers.end(); iter++)
+        {
+            if ((*iter)->shutdownCallback)
+                (*iter)->shutdownCallback((*iter)->profiler);
+        }
+    }
 } /* namespace vm */
 } /* namespace il2cpp */
 

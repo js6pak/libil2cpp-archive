@@ -6,6 +6,7 @@
 #include "os/ErrorCodes.h"
 #include "os/WaitStatus.h"
 
+#include <stdint.h>
 #include <semaphore.h>
 
 namespace il2cpp

@@ -22,6 +22,7 @@
 #include "utils/StringUtils.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-tabledefs.h"
+#include <sstream>
 #include <vector>
 #include <limits>
 
@@ -497,7 +498,7 @@ namespace metadata
     Il2CppClass* ArrayMetadata::GetBoundedArrayClass(Il2CppClass* elementClass, uint32_t rank, bool bounded)
     {
         FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
-        NOT_IMPLEMENTED_NO_ASSERT(ArrayMetadata::GetBoundedArrayClass, "Use more granular lock for looking up arrays, but then handle race between lookup, construction, and caching");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(ArrayMetadata::GetBoundedArrayClass, "Use more granular lock for looking up arrays, but then handle race between lookup, construction, and caching");
 
         IL2CPP_ASSERT(rank <= 255);
 

@@ -55,7 +55,7 @@ namespace CompilerServices
         size *= ARRAY_LENGTH_AS_INT32(array->max_length);
         field_data = Field::GetData(field_handle);
 
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(RuntimeHelpers::InitializeArray, "Check type size");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(RuntimeHelpers::InitializeArray, "Check type size");
         //int align;
         //if (size > mono_type_size (field_handle->type, &align)) {
         //  MonoException *exc = mono_get_exception_argument("field_handle",
@@ -63,7 +63,7 @@ namespace CompilerServices
         //  mono_raise_exception (exc);
         //}
 
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(RuntimeHelpers::InitializeArray, "Ignoring Endianess");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(RuntimeHelpers::InitializeArray, "Ignoring Endianess");
         memcpy(il2cpp_array_addr(array, char, 0), field_data, size);
     }
 
@@ -93,7 +93,9 @@ namespace CompilerServices
 #if NET_4_0
     bool RuntimeHelpers::SufficientExecutionStack()
     {
-        return true;
+        NOT_SUPPORTED_IL2CPP(RuntimeHelpers::SufficientExecutionStack, "IL2CPP does not support dynamic code generation.");
+        IL2CPP_UNREACHABLE;
+        return false;
     }
 
 #endif

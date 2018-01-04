@@ -65,7 +65,7 @@ namespace vm
 {
     const Il2CppAssembly* Image::GetAssembly(const Il2CppImage* image)
     {
-        return MetadataCache::GetAssemblyFromIndex(image->assemblyIndex);
+        return image->assembly;
     }
 
     typedef il2cpp::vm::StackFrames::const_reverse_iterator StackReverseIterator;

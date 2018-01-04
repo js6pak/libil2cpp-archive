@@ -1,4 +1,4 @@
-#include "il2cpp-config.h"
+#include "os/c-api/il2cpp-config-platforms.h"
 #include "os/c-api/ThreadLocalValue-c-api.h"
 #include "os/ThreadLocalValue.h"
 

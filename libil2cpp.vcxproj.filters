@@ -747,9 +747,6 @@
     <ClCompile Include="utils\Exception.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="os\c-api\Console.cpp">
-      <Filter>os\c-api</Filter>
-    </ClCompile>
     <ClCompile Include="os\c-api\Error.cpp">
       <Filter>os\c-api</Filter>
     </ClCompile>
@@ -831,14 +828,22 @@
     <ClCompile Include="os\Handle.cpp">
       <Filter>os</Filter>
     </ClCompile>
+    <ClCompile Include="os\Generic\TimeZoneInfo.cpp">
+      <Filter>os\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="os\c-api\TimeZoneInfo.cpp">
+      <Filter>os\c-api</Filter>
+    </ClCompile>
     <ClCompile Include="os\Unity\AtomicQueue.cpp">
       <Filter>os\Unity</Filter>
+    </ClCompile>
+    <ClCompile Include="vm-utils\Debugger.cpp">
+      <Filter>vm-utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
     <ClInclude Include="char-conversions.h" />
-    <ClInclude Include="class-internals.h" />
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="number-formatter.h" />
@@ -1450,6 +1455,7 @@
     <ClInclude Include="icalls\System\System.Diagnostics\perfcounters-def.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.h" />
     <ClInclude Include="utils\StringView.h" />
+    <ClInclude Include="utils\StringViewStream.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\Assert.h">
       <Filter>icalls\mscorlib\System.Diagnostics</Filter>
     </ClInclude>
@@ -1798,6 +1804,7 @@
       <Filter>os\c-api</Filter>
     </ClInclude>
     <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="os\c-api\Console.cpp" />
     <ClInclude Include="il2cpp-config-api.h" />
     <ClInclude Include="os\TimeZoneInfo.h">
@@ -1845,7 +1852,6 @@
   <ItemGroup>
     <ClInclude Include="blob.h" />
     <ClInclude Include="char-conversions.h" />
-    <ClInclude Include="class-internals.h" />
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="number-formatter.h" />

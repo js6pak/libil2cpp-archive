@@ -1,5 +1,7 @@
 #pragma once
 
+#include "il2cpp-config.h"
+
 namespace il2cpp
 {
 namespace utils

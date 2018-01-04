@@ -17,19 +17,25 @@
 #include "vm/StackTrace.h"
 #include "vm/PlatformInvoke.h"
 #include "vm/StackTrace.h"
+#include "vm-utils/Debugger.h"
 #include "utils/StringUtils.h"
 #include "utils/StringView.h"
 #include "utils/Exception.h"
 #include "utils/Output.h"
 #include "utils/Runtime.h"
 
-#ifdef _MSC_VER
-#define IL2CPP_DEBUG_BREAK() __debugbreak()
-#else
-#define IL2CPP_DEBUG_BREAK()
-#endif
-
-REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
+// This function exists to help with generation of callstacks for exceptions
+// on iOS and MacOS x64 with clang 6.0 (newer versions of clang don't have this
+// problem on x64). There we call the backtrace function, which does not play nicely
+// with NORETURN, since the compiler eliminates the method prologue code setting up
+// the address of the return frame (which makes sense). So on iOS we need to make
+// the NORETURN define do nothing, then we use this dummy method which has the
+// attribute for clang on iOS defined to prevent clang compiler errors for
+// method that end by throwing a managed exception.
+REAL_NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
+{
+    IL2CPP_UNREACHABLE;
+}
 
 #if IL2CPP_COMPILER_MSVC
 #define DEFAULT_CALL STDCALL
@@ -155,12 +161,19 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
         goto Target;
 
 
-
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
+#if IL2CPP_MONO_DEBUGGER
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message, (MethodInfo*)lastManagedFrame);\
+        il2cpp_codegen_raise_exception((Exception_t*)message, seqPoint);\
         il2cpp_codegen_no_return();\
     } while (0)
+#else
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint) \
+    do {\
+        il2cpp_codegen_raise_exception((Exception_t*)message);\
+        il2cpp_codegen_no_return();\
+    } while (0)
+#endif
 
 
 template<typename T>
@@ -196,7 +209,11 @@ inline void il2cpp_codegen_write_to_stderr(const char* str)
     il2cpp::utils::Output::WriteToStderr(str);
 }
 
-REAL_NORETURN void il2cpp_codegen_abort();
+inline REAL_NORETURN void il2cpp_codegen_abort()
+{
+    il2cpp::utils::Runtime::Abort();
+    il2cpp_codegen_no_return();
+}
 
 inline bool il2cpp_codegen_check_add_overflow(int64_t left, int64_t right)
 {
@@ -249,10 +266,126 @@ inline typename pick_bigger<T, U>::type il2cpp_codegen_subtract(T left, U right)
     return left - right;
 }
 
-#ifdef _MSC_VER
-#define IL2CPP_DISABLE_OPTIMIZATIONS __pragma(optimize("", off))
-#define IL2CPP_ENABLE_OPTIMIZATIONS __pragma(optimize("", on))
-#else
-#define IL2CPP_DISABLE_OPTIMIZATIONS __attribute__ ((optnone))
-#define IL2CPP_ENABLE_OPTIMIZATIONS
+inline void il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
+{
+    memcpy(dest, src, count);
+}
+
+inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
+{
+    memset(ptr, value, num);
+}
+
+#if IL2CPP_MONO_DEBUGGER
+static inline void il2cpp_codegen_register_debugger(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit)
+{
+    il2cpp::utils::Debugger::RegisterMethodInitializationMethod(sequencePointInit, executionContextInit, sourceFileMapInit);
+}
+
 #endif
+
+
+struct Il2CppSequencePointStorage
+{
+public:
+    inline Il2CppSequencePointStorage()
+#if IL2CPP_MONO_DEBUGGER
+        : m_Ptr(il2cpp::utils::Debugger::PushSequencePoint())
+#endif
+    {
+    }
+
+    inline ~Il2CppSequencePointStorage()
+    {
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::Debugger::PopSequencePoint();
+#endif
+    }
+
+    inline void Store(Il2CppSequencePoint* sequencePoint)
+    {
+#if IL2CPP_MONO_DEBUGGER
+        *m_Ptr = sequencePoint;
+#endif
+    }
+
+private:
+#if IL2CPP_MONO_DEBUGGER
+    Il2CppSequencePoint** const m_Ptr;
+#endif
+};
+
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequencePointStorage, Il2CppSequencePoint *sequencePoint, const RuntimeMethod *method, const char *methodName)
+{
+#if IL2CPP_MONO_DEBUGGER
+    if (!sequencePoint)
+        return;
+
+    if (method)
+        sequencePoint->method = method;
+
+    if (methodName)
+    {
+        int infoCount;
+        sequencePoint->executionContextInfos = il2cpp::utils::Debugger::GetMethodExecutionContextInfos(methodName, &infoCount);
+        sequencePoint->executionContextInfoCount = infoCount;
+    }
+
+    if (il2cpp::utils::Debugger::IsSequencePointActive(sequencePoint))
+    {
+        sequencePointStorage.Store(sequencePoint);
+        il2cpp::utils::Debugger::OnBreakPointHit(sequencePoint);
+    }
+#endif
+}
+
+inline Il2CppSequencePoint* il2cpp_codegen_get_sequence_point(size_t id)
+{
+#if IL2CPP_MONO_DEBUGGER
+    return il2cpp::utils::Debugger::GetSequencePoint(id);
+#else
+    return NULL;
+#endif
+}
+
+inline void il2cpp_codegen_add_method_execution_context_info(const char *methodName, const Il2CppMethodExecutionContextInfo& info)
+{
+#if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::AddMethodExecutionContextInfo(methodName, info);
+#endif
+}
+
+inline Il2CppMethodExecutionContextInfo* il2cpp_codegen_get_method_execution_context_infos(const char *methodName, int *count)
+{
+#if IL2CPP_MONO_DEBUGGER
+    return il2cpp::utils::Debugger::GetMethodExecutionContextInfos(methodName, count);
+#else
+    return NULL;
+#endif
+}
+
+class MethodExitSequencePointChecker
+{
+private:
+    Il2CppSequencePoint *m_pSeqPoint;
+    Il2CppSequencePointStorage& m_seqPointStorage;
+    const RuntimeMethod *m_method;
+    const char *m_methodName;
+
+public:
+    MethodExitSequencePointChecker(Il2CppSequencePointStorage& seqPointStorage, size_t seqPointId, const RuntimeMethod *method, const char *methodName) :
+        m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL), m_methodName(methodName)
+    {
+#if IL2CPP_MONO_DEBUGGER
+        m_pSeqPoint = il2cpp_codegen_get_sequence_point(seqPointId);
+        m_method = method;
+#endif
+    }
+
+    ~MethodExitSequencePointChecker()
+    {
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp_codegen_check_sequence_point(m_seqPointStorage, m_pSeqPoint, m_method, m_methodName);
+#endif
+    }
+};

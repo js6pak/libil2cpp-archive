@@ -189,9 +189,6 @@
     <ClCompile Include="..\..\ConditionVariable.cpp">
       <Filter>libil2cpp\os</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Debug.cpp">
-      <Filter>libil2cpp\os</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Error.cpp">
       <Filter>libil2cpp\os</Filter>
     </ClCompile>
@@ -602,6 +599,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Handle.cpp">
       <Filter>libil2cpp\os</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Generic\TimeZoneInfo.cpp">
+      <Filter>libil2cpp\os\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TimeZoneInfo.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeZoneInfoTests.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1080,6 +1086,12 @@
       <Filter>libil2cpp\os\c-api</Filter>
     </ClInclude>
     <ClInclude Include="..\Semaphore-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\TimeZoneInfo.h">
+      <Filter>libil2cpp\os</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TimeZoneInfo-c-api.h">
       <Filter>libil2cpp\os\c-api</Filter>
     </ClInclude>
   </ItemGroup>

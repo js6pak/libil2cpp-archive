@@ -17,63 +17,63 @@ namespace Diagnostics
 {
     int32_t Process::ExitCode_internal(intptr_t handle)
     {
-        NOT_IMPLEMENTED_ICALL(Process::ExitCode_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::ExitCode_internal);
 
         return 0;
     }
 
     int64_t Process::ExitTime_internal(intptr_t handle)
     {
-        NOT_IMPLEMENTED_ICALL(Process::ExitTime_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::ExitTime_internal);
 
         return 0;
     }
 
     bool Process::GetWorkingSet_internal(intptr_t handle, int32_t* min, int32_t* max)
     {
-        NOT_IMPLEMENTED_ICALL(Process::GetWorkingSet_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::GetWorkingSet_internal);
 
         return false;
     }
 
     bool Process::SetWorkingSet_internal(intptr_t handle, int32_t min, int32_t max, bool use_min)
     {
-        NOT_IMPLEMENTED_ICALL(Process::SetWorkingSet_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::SetWorkingSet_internal);
 
         return false;
     }
 
     Il2CppArray* Process::GetModules_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle)
     {
-        NOT_IMPLEMENTED_ICALL(Process::GetModules_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::GetModules_internal);
 
         return 0;
     }
 
     int64_t Process::GetProcessData(int32_t pid, int32_t data_type, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Process::GetProcessData);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::GetProcessData);
 
         return 0;
     }
 
     int32_t Process::GetPriorityClass(intptr_t handle, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Process::GetPriorityClass);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::GetPriorityClass);
 
         return 0;
     }
 
     bool Process::SetPriorityClass(intptr_t handle, int32_t priority, int32_t* error)
     {
-        NOT_IMPLEMENTED_ICALL(Process::SetPriorityClass);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::SetPriorityClass);
 
         return false;
     }
 
     int64_t Process::Times(intptr_t handle, int32_t type)
     {
-        NOT_IMPLEMENTED_ICALL(Process::Times);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::Times);
 
         return 0;
     }
@@ -87,14 +87,14 @@ namespace Diagnostics
 
     int64_t Process::StartTime_internal(intptr_t handle)
     {
-        NOT_IMPLEMENTED_ICALL(Process::StartTime_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::StartTime_internal);
 
         return 0;
     }
 
     bool Process::Kill_internal(intptr_t handle, int32_t signo)
     {
-        NOT_IMPLEMENTED_ICALL(Process::Kill_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::Kill_internal);
 
         return false;
     }
@@ -111,35 +111,35 @@ namespace Diagnostics
 
     Il2CppArray* Process::GetProcesses_internal()
     {
-        NOT_IMPLEMENTED_ICALL(Process::GetProcesses_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::GetProcesses_internal);
 
         return 0;
     }
 
     bool Process::ShellExecuteEx_internal(void* /* System.Diagnostics.ProcessStartInfo */ startInfo, ProcInfo* proc_info)
     {
-        NOT_IMPLEMENTED_ICALL(Process::ShellExecuteEx_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::ShellExecuteEx_internal);
 
         return false;
     }
 
     bool Process::CreateProcess_internal(void* /* System.Diagnostics.ProcessStartInfo */ startInfo, intptr_t _stdin, intptr_t _stdout, intptr_t _stderr, ProcInfo* proc_info)
     {
-        NOT_IMPLEMENTED_ICALL(Process::CreateProcess_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::CreateProcess_internal);
 
         return false;
     }
 
     bool Process::WaitForExit_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle, int32_t ms)
     {
-        NOT_IMPLEMENTED_ICALL(Process::WaitForExit_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::WaitForExit_internal);
 
         return false;
     }
 
     bool Process::WaitForInputIdle_internal(void* /* System.Diagnostics.Process */ self, intptr_t handle, int32_t ms)
     {
-        NOT_IMPLEMENTED_ICALL(Process::WaitForInputIdle_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Process::WaitForInputIdle_internal);
 
         return false;
     }

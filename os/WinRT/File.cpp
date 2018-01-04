@@ -47,7 +47,7 @@ namespace os
 
     bool File::Isatty(FileHandle* fileHandle)
     {
-        NOT_IMPLEMENTED_ICALL(File::IsAtty);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(File::IsAtty);
         return false;
     }
 

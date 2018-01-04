@@ -138,27 +138,6 @@ static void* cpu_info_create()
 	return il2cpp::os::CpuInfo::Create();
 }
 
-
-ThreadPool::ThreadPool() :
-    parked_threads_count(0),
-    worker_creation_current_second(-1),
-    worker_creation_current_count(0),
-    heuristic_completions(0),
-    heuristic_sample_start(0),
-    heuristic_last_dequeue(0),
-    heuristic_last_adjustment(0),
-    heuristic_adjustment_interval(10),
-    limit_worker_min(0),
-    limit_worker_max(0),
-    limit_io_min(0),
-    limit_io_max(0),
-    cpu_usage(0),
-    suspended(false)
-{
-    counters.as_int64_t = 0;
-    cpu_usage_state = cpu_info_create();
-}
-
 static void initialize(void* arg)
 {
 	ThreadPoolHillClimbing *hc;
@@ -169,6 +148,12 @@ static void initialize(void* arg)
 	IL2CPP_ASSERT(!g_ThreadPool);
 	g_ThreadPool = new ThreadPool();
 	IL2CPP_ASSERT(g_ThreadPool);
+
+	g_ThreadPool->parked_threads_count = 0;
+
+	g_ThreadPool->worker_creation_current_second = -1;
+
+	g_ThreadPool->heuristic_adjustment_interval = 10;
 
 	il2cpp::vm::Random::Open();
 
@@ -216,6 +201,10 @@ static void initialize(void* arg)
 #endif
 
 	g_ThreadPool->counters._.max_working = g_ThreadPool->limit_worker_min;
+
+	g_ThreadPool->cpu_usage_state = cpu_info_create();
+
+	g_ThreadPool->suspended = false;
 }
 
 static void lazy_initialize()
@@ -896,7 +885,7 @@ void ves_icall_System_Threading_ThreadPool_NotifyWorkItemProgressNative (void)
 void ves_icall_System_Threading_ThreadPool_ReportThreadStatus (bool is_working)
 {
 	// Mono raises a not implemented exception
-	NOT_IMPLEMENTED_ICALL(ves_icall_System_Threading_ThreadPool_PostQueuedCompletionStatus);
+	IL2CPP_NOT_IMPLEMENTED_ICALL(ves_icall_System_Threading_ThreadPool_PostQueuedCompletionStatus);
 	IL2CPP_UNREACHABLE;
 }
 
@@ -908,7 +897,7 @@ bool ves_icall_System_Threading_ThreadPool_RequestWorkerThread (void)
 bool ves_icall_System_Threading_ThreadPool_PostQueuedCompletionStatus (Il2CppNativeOverlapped *native_overlapped)
 {
 	// Mono raises a not implemented exception
-	NOT_IMPLEMENTED_ICALL(ves_icall_System_Threading_ThreadPool_PostQueuedCompletionStatus);
+	IL2CPP_NOT_IMPLEMENTED_ICALL(ves_icall_System_Threading_ThreadPool_PostQueuedCompletionStatus);
 	IL2CPP_UNREACHABLE;
 }
 

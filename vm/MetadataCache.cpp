@@ -36,7 +36,6 @@
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataLoader.h"
 #include "vm/MetadataLock.h"
-#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/String.h"
 #include "vm/Type.h"
@@ -109,6 +108,9 @@ typedef Il2CppHashMap<il2cpp::utils::dynamic_array<const Il2CppType*>, Il2CppMet
 typedef Il2CppUnresolvedSignatureMap::const_iterator Il2CppUnresolvedSignatureMapIter;
 static Il2CppUnresolvedSignatureMap *s_pUnresolvedSignatureMap;
 
+typedef Il2CppHashMap<FieldInfo*, int32_t, il2cpp::utils::PointerHash<FieldInfo> > Il2CppThreadLocalStaticOffsetHashMap;
+typedef Il2CppThreadLocalStaticOffsetHashMap::iterator Il2CppThreadLocalStaticOffsetHashMapIter;
+static Il2CppThreadLocalStaticOffsetHashMap s_ThreadLocalStaticOffsetMap;
 
 static const Il2CppCodeRegistration * s_Il2CppCodeRegistration;
 static const Il2CppMetadataRegistration * s_Il2CppMetadataRegistration;
@@ -189,7 +191,7 @@ void MetadataCache::Initialize()
         image->nameNoExt = (char*)IL2CPP_CALLOC(nameNoExt.size() + 1, sizeof(char));
         strcpy(const_cast<char*>(image->nameNoExt), nameNoExt.c_str());
 
-        image->assemblyIndex = imageDefinition->assemblyIndex;
+        image->assembly = const_cast<Il2CppAssembly*>(GetAssemblyFromIndex(imageDefinition->assemblyIndex));
         image->typeStart = imageDefinition->typeStart;
         image->typeCount = imageDefinition->typeCount;
         image->exportedTypeStart = imageDefinition->exportedTypeStart;
@@ -340,7 +342,7 @@ const Il2CppGenericContext* MetadataCache::GetMethodGenericContext(const MethodI
 {
     if (!method->is_inflated)
     {
-        NOT_IMPLEMENTED(Image::GetMethodGenericContext);
+        IL2CPP_NOT_IMPLEMENTED(Image::GetMethodGenericContext);
         return NULL;
     }
 
@@ -351,7 +353,7 @@ const MethodInfo* MetadataCache::GetGenericMethodDefinition(const MethodInfo* me
 {
     if (!method->is_inflated)
     {
-        NOT_IMPLEMENTED(Image::GetGenericMethodDefinition);
+        IL2CPP_NOT_IMPLEMENTED(Image::GetGenericMethodDefinition);
         return NULL;
     }
 
@@ -1021,11 +1023,6 @@ const Il2CppFieldDefaultValue* MetadataCache::GetFieldDefaultValueForField(const
 
 const Il2CppParameterDefaultValue * il2cpp::vm::MetadataCache::GetParameterDefaultValueForParameter(const MethodInfo* method, const ParameterInfo* parameter)
 {
-    if (Method::IsGenericInstance(method))
-        method = GetGenericMethodDefinition(method);
-
-    IL2CPP_ASSERT(!Method::IsGenericInstance(method));
-
     if (method->methodDefinition == NULL)
         return NULL;
 
@@ -1102,10 +1099,31 @@ const Il2CppParameterDefinition* MetadataCache::GetParameterDefinitionFromIndex(
     return parameters + index;
 }
 
-int32_t MetadataCache::GetFieldOffsetFromIndex(TypeIndex typeIndex, int32_t fieldIndexInType)
+int32_t MetadataCache::GetFieldOffsetFromIndexLocked(TypeIndex typeIndex, int32_t fieldIndexInType, FieldInfo* field, const FastAutoLock& lock)
 {
     IL2CPP_ASSERT(typeIndex <= s_Il2CppMetadataRegistration->typeDefinitionsSizesCount);
-    return s_Il2CppMetadataRegistration->fieldOffsets[typeIndex][fieldIndexInType];
+    int32_t offset = s_Il2CppMetadataRegistration->fieldOffsets[typeIndex][fieldIndexInType];
+    if (offset < 0)
+    {
+        AddThreadLocalStaticOffsetForFieldLocked(field, offset & ~THREAD_LOCAL_STATIC_MASK, lock);
+        return THREAD_STATIC_FIELD_OFFSET;
+    }
+    return offset;
+}
+
+void MetadataCache::AddThreadLocalStaticOffsetForFieldLocked(FieldInfo* field, int32_t offset, const FastAutoLock& lock)
+{
+    s_ThreadLocalStaticOffsetMap.add(field, offset);
+}
+
+int32_t MetadataCache::GetThreadLocalStaticOffsetForField(FieldInfo* field)
+{
+    IL2CPP_ASSERT(field->offset == THREAD_STATIC_FIELD_OFFSET);
+
+    FastAutoLock lock(&g_MetadataLock);
+    Il2CppThreadLocalStaticOffsetHashMapIter iter = s_ThreadLocalStaticOffsetMap.find(field);
+    IL2CPP_ASSERT(iter != s_ThreadLocalStaticOffsetMap.end());
+    return iter->second;
 }
 
 int32_t MetadataCache::GetReferenceAssemblyIndexIntoAssemblyTable(int32_t referencedAssemblyTableIndex)
@@ -1265,15 +1283,23 @@ FieldInfo* MetadataCache::GetFieldInfoFromIndex(EncodedMethodIndex index)
     return typeInfo->fields + fieldRef->fieldIndex;
 }
 
-void MetadataCache::InitializeMethodMetadata(uint32_t index)
+static bool IsMatchingUsage(Il2CppMetadataUsage usage, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages)
 {
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->metadataUsageListsCount >= 0 && index <= static_cast<uint32_t>(s_GlobalMetadataHeader->metadataUsageListsCount));
+    if (expectedUsages.empty())
+        return true;
 
-    const Il2CppMetadataUsageList* metadataUsageLists = MetadataOffset<const Il2CppMetadataUsageList*>(s_GlobalMetadata, s_GlobalMetadataHeader->metadataUsageListsOffset, index);
+    size_t numberOfExpectedUsages = expectedUsages.size();
+    for (size_t i = 0; i < numberOfExpectedUsages; ++i)
+    {
+        if (expectedUsages[i] == usage)
+            return true;
+    }
 
-    uint32_t start = metadataUsageLists->start;
-    uint32_t count = metadataUsageLists->count;
+    return false;
+}
 
+void MetadataCache::IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages)
+{
     for (uint32_t i = 0; i < count; i++)
     {
         uint32_t offset = start + i;
@@ -1283,30 +1309,54 @@ void MetadataCache::InitializeMethodMetadata(uint32_t index)
         uint32_t encodedSourceIndex = metadataUsagePairs->encodedSourceIndex;
 
         Il2CppMetadataUsage usage = GetEncodedIndexType(encodedSourceIndex);
-        uint32_t decodedIndex = GetDecodedMethodIndex(encodedSourceIndex);
-        switch (usage)
+        if (IsMatchingUsage(usage, expectedUsages))
         {
-            case kIl2CppMetadataUsageTypeInfo:
-                *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetTypeInfoFromTypeIndex(decodedIndex);
-                break;
-            case kIl2CppMetadataUsageIl2CppType:
-                *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = const_cast<Il2CppType*>(GetIl2CppTypeFromIndex(decodedIndex));
-                break;
-            case kIl2CppMetadataUsageMethodDef:
-            case kIl2CppMetadataUsageMethodRef:
-                *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = const_cast<MethodInfo*>(GetMethodInfoFromIndex(encodedSourceIndex));
-                break;
-            case kIl2CppMetadataUsageFieldInfo:
-                *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetFieldInfoFromIndex(decodedIndex);
-                break;
-            case kIl2CppMetadataUsageStringLiteral:
-                *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetStringLiteralFromIndex(decodedIndex);
-                break;
-            default:
-                NOT_IMPLEMENTED(MetadataCache::InitializeMethodMetadata);
-                break;
+            uint32_t decodedIndex = GetDecodedMethodIndex(encodedSourceIndex);
+            switch (usage)
+            {
+                case kIl2CppMetadataUsageTypeInfo:
+                    *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetTypeInfoFromTypeIndex(decodedIndex);
+                    break;
+                case kIl2CppMetadataUsageIl2CppType:
+                    *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = const_cast<Il2CppType*>(GetIl2CppTypeFromIndex(decodedIndex));
+                    break;
+                case kIl2CppMetadataUsageMethodDef:
+                case kIl2CppMetadataUsageMethodRef:
+                    *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = const_cast<MethodInfo*>(GetMethodInfoFromIndex(encodedSourceIndex));
+                    break;
+                case kIl2CppMetadataUsageFieldInfo:
+                    *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetFieldInfoFromIndex(decodedIndex);
+                    break;
+                case kIl2CppMetadataUsageStringLiteral:
+                    *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetStringLiteralFromIndex(decodedIndex);
+                    break;
+                default:
+                    IL2CPP_NOT_IMPLEMENTED(MetadataCache::InitializeMethodMetadata);
+                    break;
+            }
         }
     }
+}
+
+void MetadataCache::InitializeAllMethodMetadata()
+{
+    utils::dynamic_array<Il2CppMetadataUsage> onlyAcceptMethodUsages;
+    onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageMethodDef);
+    onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageMethodRef);
+    IntializeMethodMetadataRange(0, s_GlobalMetadataHeader->metadataUsagePairsCount / sizeof(Il2CppMetadataUsagePair), onlyAcceptMethodUsages);
+}
+
+void MetadataCache::InitializeMethodMetadata(uint32_t index)
+{
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->metadataUsageListsCount >= 0 && index <= static_cast<uint32_t>(s_GlobalMetadataHeader->metadataUsageListsCount));
+
+    const Il2CppMetadataUsageList* metadataUsageLists = MetadataOffset<const Il2CppMetadataUsageList*>(s_GlobalMetadata, s_GlobalMetadataHeader->metadataUsageListsOffset, index);
+
+    uint32_t start = metadataUsageLists->start;
+    uint32_t count = metadataUsageLists->count;
+
+    utils::dynamic_array<Il2CppMetadataUsage> acceptAllUsages;
+    IntializeMethodMetadataRange(start, count, acceptAllUsages);
 }
 
 void MetadataCache::WalkPointerTypes(WalkTypesCallback callback, void* context)

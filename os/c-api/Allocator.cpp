@@ -25,3 +25,11 @@ char* Allocator::CopyToAllocatedStringBuffer(const std::string& input)
     buffer[size] = '\0';
     return buffer;
 }
+
+char* Allocator::CopyToAllocatedStringBuffer(const char* input)
+{
+    size_t size = strlen(input);
+    char* buffer = (char*)Allocator::Allocate(size + 1);
+    strcpy(buffer, input);
+    return buffer;
+}

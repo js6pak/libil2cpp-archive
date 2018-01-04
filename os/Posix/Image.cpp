@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_TIZEN
+#if IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID
 
 #if !IL2CPP_TARGET_JAVASCRIPT
 #include <dlfcn.h>
@@ -12,10 +12,6 @@ namespace os
 {
 namespace Image
 {
-    void Initialize()
-    {
-    }
-
     void* GetImageBase()
     {
 #if IL2CPP_TARGET_JAVASCRIPT
