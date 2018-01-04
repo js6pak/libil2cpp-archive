@@ -144,7 +144,7 @@ namespace gc
 
     void GarbageCollector::RunFinalizer(void *obj, void *data)
     {
-        NOT_IMPLEMENTED_NO_ASSERT(GarbageCollector::RunFinalizer, "Compare to mono implementation special cases");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GarbageCollector::RunFinalizer, "Compare to mono implementation special cases");
 
         Il2CppException *exc = NULL;
         Il2CppObject *o;

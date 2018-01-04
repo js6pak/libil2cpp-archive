@@ -13,13 +13,13 @@
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include <iterator>
-#include "os/Image.h"
 #include "os/Thread.h"
 #include "os/c-api/Allocator.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
 #include "utils/utf8-cpp/source/utf8.h"
+#include "vm-utils/Debugger.h"
 #include "vm-utils/NativeSymbol.h"
 
 static void* il2cpp_get_vtable_trampoline(MonoVTable *vtable, int slot_index)
@@ -278,6 +278,14 @@ char* il2cpp_mono_get_runtime_build_info()
     return mono_unity_get_runtime_build_info(__DATE__, __TIME__);
 }
 
+#if IL2CPP_MONO_DEBUGGER
+void il2cpp_debugger_save_thread_context(Il2CppThreadUnwindState* context)
+{
+    il2cpp::utils::Debugger::SaveThreadContext(context);
+}
+
+#endif
+
 void il2cpp_install_callbacks()
 {
     MonoRuntimeCallbacks callbacks;
@@ -293,6 +301,12 @@ void il2cpp_install_callbacks()
     callbacks.create_ftnptr = il2cpp_mono_create_ftnptr;
     callbacks.get_runtime_build_info = il2cpp_mono_get_runtime_build_info;
     callbacks.create_delegate_trampoline = il2cpp_mono_delegate_trampoline;
+#if IL2CPP_MONO_DEBUGGER
+    // These don't exist in the Mono code used by default. We might need to add them (or something similar)
+    // later. I'll comment them out to get the build working for now though.
+    //callbacks.il2cpp_debugger_save_thread_context = il2cpp_debugger_save_thread_context;
+    //callbacks.get_global_breakpoint_state_pointer =il2cpp::utils::Debugger::GetGlobalBreakpointPointer;
+#endif
 
     mono_install_callbacks(&callbacks);
 
@@ -314,7 +328,7 @@ void il2cpp_install_callbacks()
     memset(&ticallbacks, 0, sizeof(ticallbacks));
     ticallbacks.thread_state_init_from_handle = mono_unity_thread_state_init_from_handle;
 
-    mono_threads_runtime_init(&ticallbacks);
+    mono_thread_info_runtime_init(&ticallbacks);
 }
 
 void il2cpp_mono_runtime_init()
@@ -333,7 +347,7 @@ void il2cpp_mono_runtime_init()
     RegisterAllManagedMethods();
     initialize_interop_data_map();
 
-    il2cpp::os::Image::Initialize();
+    mono_profiler_started();
 }
 
 static void MonoSetConfigStr(const std::string& executablePath)
@@ -369,6 +383,20 @@ void il2cpp_mono_set_commandline_arguments_utf16(int argc, const Il2CppChar* con
         cargs[i] = args[i].c_str();
 
     mono_runtime_set_main_args(argc, const_cast<char**>(&cargs[0]));
+
+    for (int i = 0; i < argc; ++i)
+    {
+        /* TODO: uncomment after mono debugger changes merged
+        if (strncmp(args[i].c_str(), "--debugger-agent=", 17) == 0)
+        {
+            mono_debugger_set_il2cpp_breakpoints(g_Il2CppSequencePointCount, (Il2CppSequencePoint**)g_Il2CppSequencePoints);
+            mono_debugger_agent_parse_options((char*)(args[i].c_str() + 17));
+            //opt->mdb_optimizations = TRUE;
+            //enable_debugging = TRUE;
+           il2cpp::utils::Debugger::RegisterCallbacks(breakpoint_callback);
+        }
+        */
+    }
     il2cpp::utils::Environment::SetMainArgs(argv, argc);
 }
 

@@ -290,7 +290,7 @@ namespace Threading
 
     void Thread::FreeLocalSlotValues(int32_t slot, bool use_thread_local)
     {
-        NOT_IMPLEMENTED_ICALL(Thread::FreeLocalSlotValues);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::FreeLocalSlotValues);
     }
 
     mscorlib_System_Globalization_CultureInfo* Thread::GetCachedCurrentCulture(Il2CppThread* thisPtr)
@@ -506,13 +506,13 @@ namespace Threading
 
     Il2CppArray* Thread::ByteArrayToCurrentDomain(Il2CppArray* arr)
     {
-        NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToCurrentDomain);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToCurrentDomain);
         IL2CPP_UNREACHABLE;
     }
 
     Il2CppArray* Thread::ByteArrayToRootDomain(Il2CppArray* arr)
     {
-        NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToRootDomain);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToRootDomain);
         IL2CPP_UNREACHABLE;
     }
 
@@ -533,7 +533,7 @@ namespace Threading
 
     int32_t Thread::SystemMaxStackStize()
     {
-        NOT_IMPLEMENTED_ICALL(Thread::SystemMaxStackStize);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::SystemMaxStackStize);
         IL2CPP_UNREACHABLE;
     }
 
@@ -586,7 +586,7 @@ namespace Threading
 
     void Thread::GetStackTraces(Il2CppArray** threads, Il2CppArray** stack_frames)
     {
-        NOT_IMPLEMENTED_ICALL(Thread::GetStackTraces);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::GetStackTraces);
         IL2CPP_UNREACHABLE;
     }
 
@@ -597,7 +597,7 @@ namespace Threading
 
     void Thread::ResetAbortNative(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(Thread::ResetAbortNative);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::ResetAbortNative);
         IL2CPP_UNREACHABLE;
     }
 

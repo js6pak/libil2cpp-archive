@@ -74,7 +74,7 @@ namespace Diagnostics
 
         const Il2CppStackFrameInfo& info = stack[static_cast<size_t>(index)];
 
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(StackFrame::get_frame_info, "use gc write barrier");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(StackFrame::get_frame_info, "use gc write barrier");
         *method = Reflection::GetMethodObject(info.method, info.method->declaring_type);
 
         return true;

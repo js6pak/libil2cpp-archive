@@ -18,10 +18,19 @@
 #include "gc/GCHandle.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
+#include "vm-utils/Debugger.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include <algorithm>
 #include <map>
+
+
+#if IL2CPP_MONO_DEBUGGER
+
+extern "C" {
+#include <mono/metadata/profiler-private.h>
+}
+#endif
 
 using namespace il2cpp::os;
 using il2cpp::gc::GarbageCollector;
@@ -54,11 +63,6 @@ namespace vm
     thread_cleanup_on_cancel(void* arg)
     {
         Thread::Detach((Il2CppThread*)arg);
-
-#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
-        il2cpp::os::Thread* osThread = ((Il2CppThread*)arg)->GetInternalThread()->handle;
-        osThread->SignalExited();
-#endif
     }
 
     void Thread::Initialize()
@@ -88,6 +92,10 @@ namespace vm
         int temp = 0;
         if (!GarbageCollector::RegisterThread(&temp))
             IL2CPP_ASSERT(0 && "GarbageCollector::RegisterThread failed");
+
+#if IL2CPP_MONO_DEBUGGER
+        utils::Debugger::AllocateThreadStatics();
+#endif
 
         StackTrace::InitializeStackTracesForCurrentThread();
 
@@ -124,12 +132,20 @@ namespace vm
         IL2CPP_ASSERT(thread->GetInternalThread()->handle != NULL);
         IL2CPP_ASSERT(thread->GetInternalThread()->synch_cs != NULL);
 
+#if IL2CPP_MONO_DEBUGGER
+        utils::Debugger::AllocateThreadStatics();
+#endif
+
         s_CurrentThread.SetValue(thread);
 
         Domain::ContextSet(domain->default_context);
 
         Register(thread);
         AdjustStaticData();
+
+#if IL2CPP_MONO_DEBUGGER
+        MONO_PROFILER_RAISE(thread_started, ((uintptr_t)thread->GetInternalThread()->tid));
+#endif
 
         // Sync thread name.
         if (thread->GetInternalThread()->name)
@@ -161,6 +177,10 @@ namespace vm
 
         if (!GarbageCollector::UnregisterThread())
             IL2CPP_ASSERT(0 && "GarbageCollector::UnregisterThread failed");
+
+#if IL2CPP_MONO_DEBUGGER
+        MONO_PROFILER_RAISE(thread_stopped, ((uintptr_t)thread->GetInternalThread()->tid));
+#endif
 
         Unregister(thread);
         FreeThreadStaticData(thread);
@@ -195,6 +215,15 @@ namespace vm
         throw Thread::NativeThreadAbortException();
     }
 
+    static bool IsDebuggerThread(os::Thread* thread)
+    {
+#if IL2CPP_MONO_DEBUGGER
+        return utils::Debugger::IsDebuggerThread(thread);
+#else
+        return false;
+#endif
+    }
+
     void Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads()
     {
 #if IL2CPP_SUPPORT_THREADS
@@ -222,7 +251,7 @@ namespace vm
                 IL2CPP_ASSERT(gcFinalizerThread == NULL && "There seems to be more than one finalizer thread!");
                 gcFinalizerThread = thread;
             }
-            else if (thread != currentThread)
+            else if (thread != currentThread && !IsDebuggerThread(osThread))
             {
                 // If it's a background thread, request it to kill itself.
                 if (GetState(thread) & kThreadStateBackground)
@@ -397,6 +426,25 @@ namespace vm
         IL2CPP_ASSERT(offset >= 0 && static_cast<uint32_t>(offset) < s_ThreadStaticSizes.size());
         return Current()->GetInternalThread()->static_data[offset];
     }
+
+    void* Thread::GetThreadStaticDataForThread(int32_t offset, Il2CppThread* thread)
+    {
+        // No lock. We allocate static_data once with a fixed size so we can read it
+        // safely without a lock here.
+        IL2CPP_ASSERT(offset >= 0 && static_cast<uint32_t>(offset) < s_ThreadStaticSizes.size());
+        return thread->GetInternalThread()->static_data[offset];
+    }
+
+#if NET_4_0
+    void* Thread::GetThreadStaticDataForThread(int32_t offset, Il2CppInternalThread* thread)
+    {
+        // No lock. We allocate static_data once with a fixed size so we can read it
+        // safely without a lock here.
+        IL2CPP_ASSERT(offset >= 0 && static_cast<uint32_t>(offset) < s_ThreadStaticSizes.size());
+        return thread->static_data[offset];
+    }
+
+#endif
 
     void Thread::Register(Il2CppThread *thread)
     {
@@ -612,13 +660,7 @@ namespace vm
                 }
                 catch (Il2CppExceptionWrapper& ex)
                 {
-                    // Only deal with the unhandled exception if the runtime is not
-                    // shutting down. Otherwise, the code to process the unhandled
-                    // exception might fail in unexpected ways, because it needs
-                    // the full runtime available. We've seen this cause crashes
-                    // that are difficult to reproduce locally.
-                    if (!il2cpp::vm::Runtime::IsShuttingDown())
-                        Runtime::UnhandledException(ex.ex);
+                    Runtime::UnhandledException(ex.ex);
                 }
             }
             catch (il2cpp::vm::Thread::NativeThreadAbortException)
@@ -745,6 +787,16 @@ namespace vm
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetThreadStateException("Unable to reset abort because no abort was requested."));
     }
 
+#if NET_4_0
+    void Thread::ResetAbort(Il2CppInternalThread* thread)
+    {
+        il2cpp::vm::Thread::ClrState(thread, kThreadStateAbortRequested);
+        if (thread->abort_exc == NULL)
+            il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetThreadStateException("Unable to reset abort because no abort was requested."));
+    }
+
+#endif
+
     void Thread::FullMemoryBarrier()
     {
         os::Atomic::FullMemoryBarrier();
@@ -754,5 +806,18 @@ namespace vm
     {
         return os::Atomic::Increment(&s_NextManagedThreadId);
     }
+
+    uint64_t Thread::GetId(Il2CppThread* thread)
+    {
+        return thread->GetInternalThread()->tid;
+    }
+
+#if NET_4_0
+    uint64_t Thread::GetId(Il2CppInternalThread* thread)
+    {
+        return thread->tid;
+    }
+
+#endif
 } /* namespace vm */
 } /* namespace il2cpp */

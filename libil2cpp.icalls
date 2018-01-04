@@ -308,9 +308,12 @@ System.IO.InotifyWatcher::RemoveWatch(System.IntPtr,System.Int32) System::System
 // System.IO.MonoIO
 System.IO.MonoIO::Close(System.IntPtr,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Close
 System.IO.MonoIO::CopyFile(System.String,System.String,System.Boolean,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::CopyFile
+System.IO.MonoIO::CopyFile(System.Char*,System.Char*,System.Boolean,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::CopyFile40
 System.IO.MonoIO::CreateDirectory(System.String,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::CreateDirectory
+System.IO.MonoIO::CreateDirectory(System.Char*,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::CreateDirectory40
 System.IO.MonoIO::CreatePipe(System.IntPtr&,System.IntPtr&) mscorlib::System::IO::MonoIO::CreatePipe
 System.IO.MonoIO::DeleteFile(System.String,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::DeleteFile
+System.IO.MonoIO::DeleteFile(System.Char*,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::DeleteFile40
 System.IO.MonoIO::DuplicateHandle(System.IntPtr,System.IntPtr,System.IntPtr,System.IntPtr&,System.Int32,System.Int32,System.Int32) mscorlib::System::IO::MonoIO::DuplicateHandle
 System.IO.MonoIO::Flush(System.IntPtr,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Flush
 System.IO.MonoIO::get_AltDirectorySeparatorChar() mscorlib::System::IO::MonoIO::get_AltDirectorySeparatorChar
@@ -322,20 +325,28 @@ System.IO.MonoIO::get_PathSeparator() mscorlib::System::IO::MonoIO::get_PathSepa
 System.IO.MonoIO::get_VolumeSeparatorChar() mscorlib::System::IO::MonoIO::get_VolumeSeparatorChar
 System.IO.MonoIO::GetCurrentDirectory(System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetCurrentDirectory
 System.IO.MonoIO::GetFileAttributes(System.String,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetFileAttributes
+System.IO.MonoIO::GetFileAttributes(System.Char*,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetFileAttributes40
 System.IO.MonoIO::GetFileStat(System.String,System.IO.MonoIOStat&,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetFileStat
+System.IO.MonoIO::GetFileStat(System.Char*,System.IO.MonoIOStat&,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetFileStat40
 System.IO.MonoIO::GetFileSystemEntries(System.String,System.String,System.Int32,System.Int32,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetFileSystemEntries
 System.IO.MonoIO::GetFileType(System.IntPtr,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetFileType
 System.IO.MonoIO::GetLength(System.IntPtr,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::GetLength
 System.IO.MonoIO::GetTempPath(System.String&) mscorlib::System::IO::MonoIO::GetTempPath
 System.IO.MonoIO::Lock(System.IntPtr,System.Int64,System.Int64,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Lock
 System.IO.MonoIO::MoveFile(System.String,System.String,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::MoveFile
+System.IO.MonoIO::MoveFile(System.Char*,System.Char*,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::MoveFile40
 System.IO.MonoIO::Open(System.String,System.IO.FileMode,System.IO.FileAccess,System.IO.FileShare,System.IO.FileOptions,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Open
+System.IO.MonoIO::Open(System.Char*,System.IO.FileMode,System.IO.FileAccess,System.IO.FileShare,System.IO.FileOptions,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Open40
 System.IO.MonoIO::Read(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Read
 System.IO.MonoIO::RemoveDirectory(System.String,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::RemoveDirectory
+System.IO.MonoIO::RemoveDirectory(System.Char*,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::RemoveDirectory40
 System.IO.MonoIO::ReplaceFile(System.String,System.String,System.String,System.Boolean,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::ReplaceFile
+System.IO.MonoIO::ReplaceFile(System.Char*,System.Char*,System.Char*,System.Boolean,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::ReplaceFile40
 System.IO.MonoIO::Seek(System.IntPtr,System.Int64,System.IO.SeekOrigin,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Seek
 System.IO.MonoIO::SetCurrentDirectory(System.String,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::SetCurrentDirectory
+System.IO.MonoIO::SetCurrentDirectory(System.Char*,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::SetCurrentDirectory40
 System.IO.MonoIO::SetFileAttributes(System.String,System.IO.FileAttributes,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::SetFileAttributes
+System.IO.MonoIO::SetFileAttributes(System.Char*,System.IO.FileAttributes,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::SetFileAttributes40
 System.IO.MonoIO::SetFileTime(System.IntPtr,System.Int64,System.Int64,System.Int64,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::SetFileTime
 System.IO.MonoIO::SetLength(System.IntPtr,System.Int64,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::SetLength
 System.IO.MonoIO::Unlock(System.IntPtr,System.Int64,System.Int64,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Unlock
@@ -349,7 +360,7 @@ System.IO.MonoIO::DumpHandles() mscorlib::System::IO::MonoIO::DumpHandles
 System.IO.MonoIO::RemapPath(System.String,System.String&) mscorlib::System::IO::MonoIO::RemapPath
 System.IO.MonoIO::FindCloseFile(System.IntPtr) mscorlib::System::IO::MonoIO::FindCloseFile
 System.IO.MonoIO::FindNextFile(System.IntPtr,System.String&,System.Int32&,System.Int32&) mscorlib::System::IO::MonoIO::FindNextFile
-System.IO.MonoIO::FindFirstFile(System.String,System.String&,System.Int32&,System.Int32&) mscorlib::System::IO::MonoIO::FindFirstFile
+System.IO.MonoIO::FindFirstFile(System.Char*,System.String&,System.Int32&,System.Int32&) mscorlib::System::IO::MonoIO::FindFirstFile
 
 // System.IO.Path
 System.IO.Path::get_temp_path() mscorlib::System::IO::Path::get_temp_path
@@ -398,8 +409,6 @@ System.MonoType::get_Name() mscorlib::System::MonoType::get_Name
 System.MonoType::get_Namespace() mscorlib::System::MonoType::get_Namespace
 System.MonoType::GetArrayRank() mscorlib::System::MonoType::GetArrayRank
 System.MonoType::GetConstructors_internal(System.Reflection.BindingFlags,System.Type) mscorlib::System::MonoType::GetConstructors_internal
-System.MonoType::GetCorrespondingInflatedConstructor(System.Reflection.ConstructorInfo) mscorlib::System::MonoType::GetCorrespondingInflatedMethod
-System.MonoType::GetCorrespondingInflatedMethod(System.Reflection.MethodInfo) mscorlib::System::MonoType::GetCorrespondingInflatedMethod
 System.MonoType::GetElementType() mscorlib::System::MonoType::GetElementType
 System.MonoType::GetEvents_internal(System.Reflection.BindingFlags,System.Type) mscorlib::System::MonoType::GetEvents_internal
 System.MonoType::GetField(System.String,System.Reflection.BindingFlags) mscorlib::System::MonoType::GetField
@@ -442,18 +451,18 @@ System.Net.Sockets.Socket::Listen_internal(System.IntPtr,System.Int32,System.Int
 System.Net.Sockets.Socket::LocalEndPoint_internal(System.IntPtr,System.Int32&) System::System::Net::Sockets::Socket::LocalEndPoint
 System.Net.Sockets.Socket::Poll_internal(System.IntPtr,System.Net.Sockets.SelectMode,System.Int32,System.Int32&) System::System::Net::Sockets::Socket::Poll
 System.Net.Sockets.Socket::Receive_internal(System.IntPtr,System.Net.Sockets.Socket/WSABUF[],System.Net.Sockets.SocketFlags,System.Int32&) System::System::Net::Sockets::Socket::ReceiveArray
-System.Net.Sockets.Socket::Receive_internal(System.IntPtr,System.Net.Sockets.Socket/WSABUF[],System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::ReceiveArray40
+System.Net.Sockets.Socket::Receive_internal(System.IntPtr,System.Net.Sockets.Socket/WSABUF*,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::ReceiveArray40
 System.Net.Sockets.Socket::Receive_internal(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&) System::System::Net::Sockets::Socket::Receive
-System.Net.Sockets.Socket::Receive_internal(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::Receive40
+System.Net.Sockets.Socket::Receive_internal(System.IntPtr,System.Byte*,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::Receive40
 System.Net.Sockets.Socket::RecvFrom_internal(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Net.SocketAddress&,System.Int32&) System::System::Net::Sockets::Socket::RecvFrom
 System.Net.Sockets.Socket::RemoteEndPoint_internal(System.IntPtr,System.Int32&) System::System::Net::Sockets::Socket::RemoteEndPoint
 System.Net.Sockets.Socket::Select_internal(System.Net.Sockets.Socket[]&,System.Int32,System.Int32&) System::System::Net::Sockets::Socket::Select
 System.Net.Sockets.Socket::SendFile(System.IntPtr,System.String,System.Byte[],System.Byte[],System.Net.Sockets.TransmitFileOptions) System::System::Net::Sockets::Socket::SendFile
 System.Net.Sockets.Socket::SendTo_internal_real(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Net.SocketAddress,System.Int32&) System::System::Net::Sockets::Socket::SendTo
 System.Net.Sockets.Socket::Send_internal(System.IntPtr,System.Net.Sockets.Socket/WSABUF[],System.Net.Sockets.SocketFlags,System.Int32&) System::System::Net::Sockets::Socket::SendArray
-System.Net.Sockets.Socket::Send_internal(System.IntPtr,System.Net.Sockets.Socket/WSABUF[],System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::SendArray40
+System.Net.Sockets.Socket::Send_internal(System.IntPtr,System.Net.Sockets.Socket/WSABUF*,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::SendArray40
 System.Net.Sockets.Socket::Send_internal(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&) System::System::Net::Sockets::Socket::Send
-System.Net.Sockets.Socket::Send_internal(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::Send40
+System.Net.Sockets.Socket::Send_internal(System.IntPtr,System.Byte*,System.Int32,System.Net.Sockets.SocketFlags,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::Send40
 System.Net.Sockets.Socket::SetSocketOption_internal(System.IntPtr,System.Net.Sockets.SocketOptionLevel,System.Net.Sockets.SocketOptionName,System.Object,System.Byte[],System.Int32,System.Int32&) System::System::Net::Sockets::Socket::SetSocketOption
 System.Net.Sockets.Socket::Shutdown_internal(System.IntPtr,System.Net.Sockets.SocketShutdown,System.Int32&) System::System::Net::Sockets::Socket::Shutdown
 System.Net.Sockets.Socket::Socket_internal(System.Net.Sockets.AddressFamily,System.Net.Sockets.SocketType,System.Net.Sockets.ProtocolType,System.Int32&) System::System::Net::Sockets::Socket::Socket_internal
@@ -509,6 +518,7 @@ System.Reflection.AssemblyName::ParseAssemblyName(System.IntPtr,Mono.MonoAssembl
 // System.Reflection.Emit.AssemblyBuilder
 System.Reflection.Emit.AssemblyBuilder::basic_init(System.Reflection.Emit.AssemblyBuilder) mscorlib::System::Reflection::Emit::AssemblyBuilder::basic_init
 System.Reflection.Emit.AssemblyBuilder::InternalAddModule(System.String) mscorlib::System::Reflection::Emit::AssemblyBuilder::InternalAddModule
+System.Reflection.Emit.AssemblyBuilder::UpdateNativeCustomAttributes(System.Reflection.Emit.AssemblyBuilder) mscorlib::System::Reflection::Emit::AssemblyBuilder::UpdateNativeCustomAttributes40
 
 // System.Reflection.Emit.CustomAttributeBuilder
 System.Reflection.Emit.CustomAttributeBuilder::GetBlob(System.Reflection.Assembly,System.Reflection.ConstructorInfo,System.Object[],System.Reflection.PropertyInfo[],System.Object[],System.Reflection.FieldInfo[],System.Object[]) mscorlib::System::Reflection::Emit::CustomAttributeBuilder::GetBlob
@@ -555,7 +565,7 @@ System.Reflection.Emit.TypeBuilder::get_event_info(System.Reflection.Emit.EventB
 System.Reflection.Emit.TypeBuilder::get_IsGenericParameter() mscorlib::System::Reflection::Emit::TypeBuilder::get_IsGenericParameter
 System.Reflection.Emit.TypeBuilder::setup_generic_class() mscorlib::System::Reflection::Emit::TypeBuilder::setup_generic_class
 System.Reflection.Emit.TypeBuilder::setup_internal_class(System.Reflection.Emit.TypeBuilder) mscorlib::System::Reflection::Emit::TypeBuilder::setup_internal_class
-System.Reflection.Emit.TypeBuilder::create_runtime_class(System.Reflection.Emit.TypeBuilder) mscorlib::System::Reflection::Emit::TypeBuilder::create_runtime_class
+System.Reflection.Emit.TypeBuilder::create_runtime_class() mscorlib::System::Reflection::Emit::TypeBuilder::create_runtime_class40
 
 // System.Reflection.FieldInfo
 System.Reflection.FieldInfo::GetTypeModifiers(System.Boolean) mscorlib::System::Reflection::FieldInfo::GetTypeModifiers
@@ -845,6 +855,7 @@ System.Threading.NativeEventCalls::SetEvent_internal(System.IntPtr) mscorlib::Sy
 // System.Threading.Semaphore
 System.Threading.Semaphore::CreateSemaphore_internal(System.Int32,System.Int32,System.String,System.Boolean&) System::System::Threading::Semaphore::CreateSemaphore_internal
 System.Threading.Semaphore::OpenSemaphore_internal(System.String,System.Security.AccessControl.SemaphoreRights,System.IO.MonoIOError&) System::System::Threading::Semaphore::OpenSemaphore_internal
+System.Threading.Semaphore::OpenSemaphore_internal(System.String,System.Security.AccessControl.SemaphoreRights,System.Int32&)  System::System::Threading::Semaphore::OpenSemaphore_internal
 System.Threading.Semaphore::ReleaseSemaphore_internal(System.IntPtr,System.Int32,System.Boolean&) System::System::Threading::Semaphore::ReleaseSemaphore_internal
 System.Threading.Semaphore::CreateSemaphore_internal(System.Int32,System.Int32,System.String,System.Int32&) System::System::Threading::Semaphore::CreateSemaphore_internal40
 System.Threading.Semaphore::ReleaseSemaphore_internal(System.IntPtr,System.Int32,System.Int32&) System::System::Threading::Semaphore::ReleaseSemaphore_internal40
@@ -955,9 +966,7 @@ System.Threading.WaitHandle::WaitAll_internal(System.Threading.WaitHandle[],Syst
 System.Threading.WaitHandle::WaitAny_internal(System.Threading.WaitHandle[],System.Int32,System.Boolean) mscorlib::System::Threading::WaitHandle::WaitAny_internal
 System.Threading.WaitHandle::WaitOne_internal(System.IntPtr,System.Int32,System.Boolean) mscorlib::System::Threading::WaitHandle::WaitOne_internal
 System.Threading.WaitHandle::SignalAndWait_Internal(System.IntPtr,System.IntPtr,System.Int32) mscorlib::System::Threading::WaitHandle::SignalAndWait_Internal40
-System.Threading.WaitHandle::WaitAll_internal(System.Threading.WaitHandle[],System.Int32) mscorlib::System::Threading::WaitHandle::WaitAll_internal40
-System.Threading.WaitHandle::WaitAny_internal(System.Threading.WaitHandle[],System.Int32) mscorlib::System::Threading::WaitHandle::WaitAny_internal40
-System.Threading.WaitHandle::WaitOne_internal(System.IntPtr,System.Int32) mscorlib::System::Threading::WaitHandle::WaitOne_internal40
+System.Threading.WaitHandle::Wait_internal(System.IntPtr*,System.Int32,System.Boolean,System.Int32) mscorlib::System::Threading::WaitHandle::Wait_internal
 
 // System.Type
 System.Type::EqualsInternal(System.Type) mscorlib::System::Type::EqualsInternal
@@ -1035,9 +1044,12 @@ System.RuntimeType::GetFields_native(System.IntPtr,System.Reflection.BindingFlag
 System.RuntimeType::GetMethodsByName_native(System.IntPtr,System.Reflection.BindingFlags,System.Boolean) mscorlib::System::RuntimeType::GetMethodsByName_native
 System.RuntimeType::GetNestedTypes_native(System.IntPtr,System.Reflection.BindingFlags) mscorlib::System::RuntimeType::GetNestedTypes_native
 System.RuntimeType::GetPropertiesByName_native(System.IntPtr,System.Reflection.BindingFlags,System.Boolean) mscorlib::System::RuntimeType::GetPropertiesByName_native
+System.RuntimeType::GetCorrespondingInflatedConstructor(System.Reflection.ConstructorInfo) mscorlib::System::RuntimeType::GetCorrespondingInflatedConstructor
+System.RuntimeType::GetCorrespondingInflatedMethod(System.Reflection.MethodInfo) mscorlib::System::RuntimeType::GetCorrespondingInflatedMethod
 
 // System.RuntimeTypeHandle
 System.RuntimeTypeHandle::HasInstantiation(System.RuntimeType) mscorlib::System::RuntimeTypeHandle::HasInstantiation
+System.RuntimeTypeHandle::HasReferences(System.RuntimeType) mscorlib::System::RuntimeTypeHandle::HasReferences
 System.RuntimeTypeHandle::IsArray(System.RuntimeType) mscorlib::System::RuntimeTypeHandle::IsArray
 System.RuntimeTypeHandle::IsByRef(System.RuntimeType) mscorlib::System::RuntimeTypeHandle::IsByRef
 System.RuntimeTypeHandle::IsComObject(System.RuntimeType) mscorlib::System::RuntimeTypeHandle::IsComObject
@@ -1147,15 +1159,16 @@ Microsoft.Win32.NativeMethods::GetCurrentProcessId() System::Microsoft::Win32::N
 System.Net.NetworkInformation.MacOsIPInterfaceProperties::ParseRouteInfo_internal(System.String,System.String[]&) System::System::Net::NetworkInformation::MacOsIPInterfaceProperties::ParseRouteInfo_internal
 
 // System.Net.Sockets.Socket
-System.Net.Sockets.Socket::SendFile_internal(System.IntPtr,System.String,System.Byte[],System.Byte[],System.Net.Sockets.TransmitFileOptions) System::System::Net::Sockets::Socket::SendFile_internal
+System.Net.Sockets.Socket::SendFile_internal(System.IntPtr,System.String,System.Byte[],System.Byte[],System.Net.Sockets.TransmitFileOptions,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::SendFile_internal
 System.Net.Sockets.Socket::SupportsPortReuse(System.Net.Sockets.ProtocolType) System::System::Net::Sockets::Socket::SupportsPortReuse
 System.Net.Sockets.Socket::IOControl_internal(System.IntPtr,System.Int32,System.Byte[],System.Byte[],System.Int32&) System::System::Net::Sockets::Socket::IOControl_internal
-System.Net.Sockets.Socket::ReceiveFrom_internal(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Net.SocketAddress&,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::ReceiveFrom_internal
-System.Net.Sockets.Socket::SendTo_internal(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Net.SocketAddress,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::SendTo_internal
+System.Net.Sockets.Socket::ReceiveFrom_internal(System.IntPtr,System.Byte*,System.Int32,System.Net.Sockets.SocketFlags,System.Net.SocketAddress&,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::ReceiveFrom_internal
+System.Net.Sockets.Socket::SendTo_internal(System.IntPtr,System.Byte*,System.Int32,System.Net.Sockets.SocketFlags,System.Net.SocketAddress,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::SendTo_internal
 System.Net.Sockets.Socket::LocalEndPoint_internal(System.IntPtr,System.Int32,System.Int32&) System::System::Net::Sockets::Socket::LocalEndPoint_internal
 System.Net.Sockets.Socket::RemoteEndPoint_internal(System.IntPtr,System.Int32,System.Int32&) System::System::Net::Sockets::Socket::RemoteEndPoint_internal
 System.Net.Sockets.Socket::cancel_blocking_socket_operation(System.Threading.Thread) System::System::Net::Sockets::Socket::cancel_blocking_socket_operation
 System.Net.Sockets.Socket::Connect_internal(System.IntPtr,System.Net.SocketAddress,System.Int32&,System.Boolean) System::System::Net::Sockets::Socket::Connect_internal
+System.Net.Sockets.Socket::Duplicate_internal(System.IntPtr,System.Int32,System.IntPtr&,System.IO.MonoIOError&)  System::System::Net::Sockets::Socket::Duplicate_internal
 
 // System.IO.MemoryMappedFiles.MemoryMapImpl
 System.IO.MemoryMappedFiles.MemoryMapImpl::Unmap(System.IntPtr) System::Core::System::IO::MemoryMappedFiles::MemoryMapImpl::Unmap
@@ -1198,6 +1211,7 @@ System.TimeZoneInfo::UseRegistryForTimeZoneInformation() mscorlib::System::TimeZ
 
 // Mono.Net.Security.MonoTlsProviderFactory
 Mono.Net.Security.MonoTlsProviderFactory::IsBtlsSupported() System::Mono::Net::Security::MonoTlsProviderFactory::IsBtlsSupported
+Mono.Net.Security.MonoTlsProviderFactory::GetDefaultProviderForPlatform() System::Mono::Net::Security::MonoTlsProviderFactory::GetDefaultProviderForPlatform
 
 // System.SizedReference
 System.SizedReference::GetApproximateSizeOfSizedRef(System.IntPtr) mscorlib::System::SizedReference::GetApproximateSizeOfSizedRef
@@ -1209,4 +1223,3 @@ System.SizedReference::FreeSizedRef(System.IntPtr) mscorlib::System::SizedRefere
 System.Net.NetworkInformation.LinuxNetworkInterface::GetInterfaceAddresses(System.IntPtr&) System::System::Net::NetworkInformation::LinuxNetworkInterface::GetInterfaceAddresses
 System.Net.NetworkInformation.LinuxNetworkInterface::FreeInterfaceAddresses(System.IntPtr) System::System::Net::NetworkInformation::LinuxNetworkInterface::FreeInterfaceAddresses
 System.Net.NetworkInformation.LinuxNetworkInterface::InitializeInterfaceAddresses() System::System::Net::NetworkInformation::LinuxNetworkInterface::InitializeInterfaceAddresses
-

@@ -116,7 +116,12 @@ namespace vm
     {
         Il2CppObject *o;
         int size;
-        NOT_IMPLEMENTED_NO_ASSERT(Object::Clone, "Finish implementation");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Object::Clone, "Finish implementation");
+
+        if (obj->klass->rank)
+        {
+            return Array::Clone((Il2CppArray*)obj);
+        }
 
         size = obj->klass->instance_size;
         o = Allocate(size, obj->klass);
@@ -233,7 +238,7 @@ namespace vm
 #if (IL2CPP_GC_BOEHM || IL2CPP_GC_NULL)
         return New(klass);
 #else
-        NOT_IMPLEMENTED(Object::NewPinned);
+        IL2CPP_NOT_IMPLEMENTED(Object::NewPinned);
 #endif
     }
 
@@ -241,7 +246,7 @@ namespace vm
     {
         Il2CppObject *o = NULL;
 
-        NOT_IMPLEMENTED_NO_ASSERT(Object::NewAllocSpecific, "We really shouldn't need this initialization");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Object::NewAllocSpecific, "We really shouldn't need this initialization");
         Class::Init(klass);
 
         if (Class::IsNullable(klass))
@@ -326,6 +331,20 @@ namespace vm
             memcpy(storage, Unbox(obj), valueSize);
             *(static_cast<uint8_t*>(storage) + valueSize) = true;
         }
+    }
+
+    void Object::NullableInit(uint8_t* buf, Il2CppObject* value, Il2CppClass* klass)
+    {
+        Il2CppClass *parameterClass = klass->castClass;
+
+        IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[0].type) == parameterClass);
+        IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[1].type) == il2cpp_defaults.boolean_class);
+
+        *(uint8_t*)(buf + klass->fields[1].offset - sizeof(Il2CppObject)) = value ? 1 : 0;
+        if (value)
+            memcpy(buf + klass->fields[0].offset - sizeof(Il2CppObject), Object::Unbox(value), Class::GetValueSize(parameterClass, NULL));
+        else
+            memset(buf + klass->fields[0].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
     }
 } /* namespace vm */
 } /* namespace il2cpp */

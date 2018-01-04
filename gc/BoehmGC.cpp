@@ -6,6 +6,8 @@
 #include "gc_wrapper.h"
 #include "GarbageCollector.h"
 #include "vm/Profiler.h"
+#include "utils/Il2CppHashMap.h"
+#include "utils/HashUtils.h"
 
 static bool s_GCInitialized = false;
 
@@ -19,6 +21,12 @@ static void on_gc_event(GCEventType eventType);
 static void on_heap_resize(GC_word newSize);
 #endif
 
+static GC_push_other_roots_proc default_push_other_roots;
+typedef Il2CppHashMap<char*, char*, il2cpp::utils::PassThroughHash<char*> > RootMap;
+static RootMap s_Roots;
+
+static void push_other_roots(void);
+
 void
 il2cpp::gc::GarbageCollector::Initialize()
 {
@@ -28,6 +36,9 @@ il2cpp::gc::GarbageCollector::Initialize()
     // the GC tracked data structures need ot be manually pushed and marked.
     // Call this before GC_INIT since the initialization logic uses this value.
     GC_set_no_dls(1);
+
+    default_push_other_roots = GC_get_push_other_roots();
+    GC_set_push_other_roots(push_other_roots);
 
 #if IL2CPP_ENABLE_PROFILER
     GC_set_on_event(&on_gc_event);
@@ -299,6 +310,50 @@ size_t il2cpp::gc::GarbageCollector::GetSectionCount()
 void* il2cpp::gc::GarbageCollector::CallWithAllocLockHeld(GCCallWithAllocLockCallback callback, void* user_data)
 {
     return GC_call_with_alloc_lock(callback, user_data);
+}
+
+typedef struct
+{
+    char *start;
+    char *end;
+} RootData;
+
+static void*
+register_root(void* arg)
+{
+    RootData* root_data = (RootData*)arg;
+    s_Roots.insert(std::make_pair(root_data->start, root_data->end));
+    return NULL;
+}
+
+void il2cpp::gc::GarbageCollector::RegisterRoot(char *start, size_t size)
+{
+    RootData root_data;
+    root_data.start = start;
+    /* Boehm root processing requires one byte past end of region to be scanned */
+    root_data.end = start + size + 1;
+    CallWithAllocLockHeld(register_root, &root_data);
+}
+
+static void*
+deregister_root(void* arg)
+{
+    s_Roots.erase((char*)arg);
+    return NULL;
+}
+
+void il2cpp::gc::GarbageCollector::UnregisterRoot(char* start)
+{
+    GC_call_with_alloc_lock(deregister_root, start);
+}
+
+static void
+push_other_roots(void)
+{
+    for (RootMap::iterator iter = s_Roots.begin(); iter != s_Roots.end(); ++iter)
+        GC_push_all(iter->first, iter->second);
+    if (default_push_other_roots)
+        default_push_other_roots();
 }
 
 #endif

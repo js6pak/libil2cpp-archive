@@ -1,5 +1,4 @@
 #include "os/c-api/Handle-c-api.h"
-#include "il2cpp-config.h"
 #include "os/Handle.h"
 #include <vector>
 

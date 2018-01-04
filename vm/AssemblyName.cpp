@@ -198,7 +198,10 @@ namespace vm
         sprintf(buffer, "%d", aname.revision);
         name += buffer;
         name += ", Culture=";
-        name += (aname.cultureIndex != kStringLiteralIndexInvalid ? MetadataCache::GetStringFromIndex(aname.cultureIndex) : "neutral");
+        const char* culture = NULL;
+        if (aname.cultureIndex != kStringLiteralIndexInvalid)
+            culture = MetadataCache::GetStringFromIndex(aname.cultureIndex);
+        name += (culture != NULL && strlen(culture) != 0 ? culture : "neutral");
         name += ", PublicKeyToken=";
         name += (aname.publicKeyToken[0] ? PublicKeyTokenToString(aname.publicKeyToken) : "null");
         name += ((aname.flags & ASSEMBLYREF_RETARGETABLE_FLAG) ? ", Retargetable=Yes" : "");

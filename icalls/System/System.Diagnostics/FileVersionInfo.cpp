@@ -15,7 +15,7 @@ namespace Diagnostics
 {
     void FileVersionInfo::GetVersionInfo_internal(void* /* System.Diagnostics.FileVersionInfo */ self, Il2CppString* fileName)
     {
-        NOT_IMPLEMENTED_ICALL(FileVersionInfo::GetVersionInfo_internal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(FileVersionInfo::GetVersionInfo_internal);
     }
 } /* namespace Diagnostics */
 } /* namespace System */

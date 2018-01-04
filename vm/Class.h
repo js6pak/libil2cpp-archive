@@ -110,6 +110,25 @@ namespace vm
             return GetInterfaceInvokeDataFromVTableSlowPath(obj, itf, slot);
         }
 
+        static FORCE_INLINE const VirtualInvokeData* GetInterfaceInvokeDataFromVTable(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
+        {
+            IL2CPP_ASSERT(klass->initialized);
+            IL2CPP_ASSERT(slot < itf->method_count);
+
+            for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
+            {
+                if (klass->interfaceOffsets[i].interfaceType == itf)
+                {
+                    int32_t offset = klass->interfaceOffsets[i].offset;
+                    IL2CPP_ASSERT(offset != -1);
+                    IL2CPP_ASSERT(offset + slot < klass->vtable_count);
+                    return &klass->vtable[offset + slot];
+                }
+            }
+
+            return GetInterfaceInvokeDataFromVTableSlowPath(klass, itf, slot);
+        }
+
         static bool Init(Il2CppClass *klass);
 
         static Il2CppClass* GetArrayClass(Il2CppClass *element_class, uint32_t rank);
@@ -128,7 +147,6 @@ namespace vm
         static const MethodInfo* GetCCtor(Il2CppClass *klass);
         static const char* GetFieldDefaultValue(const FieldInfo *field, const Il2CppType** type);
         static int GetFieldMarshaledSize(const FieldInfo *field);
-        static int GetFieldMarshaledAlignment(const FieldInfo *field);
         static Il2CppClass* GetPtrClass(const Il2CppType* type);
         static Il2CppClass* GetPtrClass(Il2CppClass* elementClass);
         static bool HasReferences(Il2CppClass *klass);
@@ -169,23 +187,23 @@ namespace vm
             for (int32_t i = 0; i < genericParameterCount; ++i)
             {
                 const Il2CppGenericParameter* genericParameter = MetadataCache::GetGenericParameterFromIndex(genericContainer->genericParameterStart + i);
-                const int32_t parameterVariance = genericParameter->flags & GENERIC_PARAMETER_ATTRIBUTE_VARIANCE_MASK;
+                const int32_t parameterVariance = genericParameter->flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_VARIANCE_MASK;
                 Il2CppClass* genericParameterType = Class::FromIl2CppType(genericInst->type_argv[i]);
                 Il2CppClass* oGenericParameterType = Class::FromIl2CppType(oGenericInst->type_argv[i]);
 
-                if (parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT || Class::IsValuetype(genericParameterType) || Class::IsValuetype(oGenericParameterType))
+                if (parameterVariance == IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT || Class::IsValuetype(genericParameterType) || Class::IsValuetype(oGenericParameterType))
                 {
                     if (genericParameterType != oGenericParameterType)
                         return false;
                 }
-                else if (parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_COVARIANT)
+                else if (parameterVariance == IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_COVARIANT)
                 {
                     if (!Class::IsAssignableFrom(genericParameterType, oGenericParameterType))
                         return false;
                 }
                 else
                 {
-                    IL2CPP_ASSERT(parameterVariance == GENERIC_PARAMETER_ATTRIBUTE_CONTRAVARIANT);
+                    IL2CPP_ASSERT(parameterVariance == IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_CONTRAVARIANT);
                     if (!Class::IsAssignableFrom(oGenericParameterType, genericParameterType))
                         return false;
                 }
@@ -198,6 +216,7 @@ namespace vm
 
         // we don't want this method to get inlined because that makes GetInterfaceInvokeDataFromVTable method itself very large and performance suffers
         static IL2CPP_NO_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot);
+        static IL2CPP_NO_INLINE const VirtualInvokeData* GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -130,7 +130,7 @@ namespace MemoryInformation
                 type.baseOrElementTypeIndex = baseType != NULL ? FindTypeInfoIndexInMap(allTypes, baseType) : -1;
             }
 
-            type.assemblyName = MetadataCache::GetStringFromIndex(MetadataCache::GetAssemblyFromIndex(typeInfo->image->assemblyIndex)->aname.nameIndex);
+            type.assemblyName = MetadataCache::GetStringFromIndex(typeInfo->image->assembly->aname.nameIndex);
 
             std::string typeName = Type::GetName(typeInfo->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL);
             type.name = static_cast<char*>(IL2CPP_CALLOC(typeName.length() + 1, sizeof(char)));

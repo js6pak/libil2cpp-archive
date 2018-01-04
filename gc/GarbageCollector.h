@@ -9,7 +9,7 @@ namespace il2cpp
 {
 namespace gc
 {
-    class GarbageCollector
+    class LIBIL2CPP_CODEGEN_API GarbageCollector
     {
     public:
         static void Collect(int maxGeneration);
@@ -73,6 +73,9 @@ namespace gc
 
         typedef void* (*GCCallWithAllocLockCallback)(void* user_data);
         static void* CallWithAllocLockHeld(GCCallWithAllocLockCallback callback, void* user_data);
+
+        static void RegisterRoot(char *start, size_t size);
+        static void UnregisterRoot(char* start);
 
 #if NET_4_0
         static void SetSkipThread(bool skip);

@@ -4,6 +4,7 @@
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-api.h"
+#include <sstream>
 #include "il2cpp-tabledefs.h"
 #include "metadata/GenericMetadata.h"
 #include "metadata/Il2CppTypeVector.h"
@@ -22,7 +23,6 @@
 #include "utils/StringUtils.h"
 
 #include <vector>
-#include <string>
 
 using namespace il2cpp::vm;
 using il2cpp::metadata::GenericMetadata;
@@ -46,7 +46,7 @@ namespace System
     {
         Il2CppClass *klass;
 
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoType::get_IsGenericTypeDefinition, "Check for custom Type implementations");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoType::get_IsGenericTypeDefinition, "Check for custom Type implementations");
         //if (!IS_MONOTYPE (type))
         //  return FALSE;
 
@@ -61,7 +61,7 @@ namespace System
     {
         Il2CppClass *klass;
 
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoType::get_IsGenericTypeDefinition, "Check for custom Type implementations");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoType::get_IsGenericTypeDefinition, "Check for custom Type implementations");
         //if (!IS_MONOTYPE (type))
         //  return FALSE;
 
@@ -240,7 +240,7 @@ namespace System
 
     bool Type::IsArrayImpl(Il2CppReflectionType *t)
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(Type::IsArrayImpl, "Faulty implementation?");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Type::IsArrayImpl, "Faulty implementation?");
 
         Il2CppClass* typeInfo = Class::FromSystemType(t);
         return typeInfo->rank > 0;
@@ -257,25 +257,25 @@ namespace System
         // Per MSDN: http://msdn.microsoft.com/en-us/library/w0ykk2sw(v=vs.110).aspx
         if (rank > 32)
         {
-            std::string message;
-            message = vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) + " with rank " + utils::StringUtils::Printf("%d", rank) + " has too many dimensions.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
+            std::stringstream message;
+            message << vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) << " with rank " << rank << " has too many dimensions.";
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.str().c_str()));
         }
 
         if (type->type->byref)
         {
-            std::string message;
-            message = "Could not create array type '" + vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) + "'.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
+            std::stringstream message;
+            message << "Could not create array type '" << vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) << "'.";
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.str().c_str()));
         }
 
         const Il2CppClass *klass = Class::FromIl2CppType(type->type);
 
         if ((strcmp(klass->namespaze, "System") == 0 && strcmp(klass->name, "TypedReference") == 0))
         {
-            std::string message;
-            message + "Could not create array type '" + klass->namespaze + "." + klass->name + "[]'.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
+            std::stringstream message;
+            message << "Could not create array type '" << klass->namespaze << "." << klass->name << "[]'.";
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.str().c_str()));
         }
     }
 
@@ -463,7 +463,7 @@ namespace System
 
     void Type::GetPacking(Il2CppReflectionType* type, int32_t* packing, int32_t* size)
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(Type::GetPacking, "In progress, need this function to not assert to test other aspects of StructLayout attribute");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Type::GetPacking, "In progress, need this function to not assert to test other aspects of StructLayout attribute");
         *packing = 8;
         *size = 0;
     }

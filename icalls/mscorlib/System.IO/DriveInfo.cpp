@@ -30,7 +30,7 @@ namespace IO
 #if NET_4_0
     Il2CppString* DriveInfo::GetDriveFormat(Il2CppString* rootPathName)
     {
-        NOT_IMPLEMENTED_ICALL(DriveInfo::GetDriveFormat);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(DriveInfo::GetDriveFormat);
         IL2CPP_UNREACHABLE;
         return NULL;
     }

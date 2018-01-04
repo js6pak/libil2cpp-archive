@@ -234,17 +234,18 @@ namespace Sockets
         static bool SendFile_internal(intptr_t sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags, int32_t* error, bool blocking);
         static bool SupportsPortReuse(ProtocolType proto);
         static int32_t IOControl_internal(intptr_t sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error);
-        static int32_t ReceiveFrom_internal(intptr_t sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress** sockaddr, int32_t* error, bool blocking);
-        static int32_t SendTo_internal(intptr_t sock, Il2CppArray* buffer, int32_t offset, int32_t count, int32_t flags, Il2CppSocketAddress* sa, int32_t* error, bool blocking);
+        static int32_t ReceiveFrom_internal(intptr_t sock, uint8_t* buffer, int32_t count, SocketFlags flags, Il2CppSocketAddress** sockaddr, int32_t* error, bool blocking);
+        static int32_t SendTo_internal(intptr_t sock, uint8_t* buffer, int32_t count, SocketFlags flags, Il2CppSocketAddress* sa, int32_t* error, bool blocking);
         static Il2CppSocketAddress* LocalEndPoint_internal(intptr_t socket, int32_t family, int32_t* error);
         static Il2CppSocketAddress* RemoteEndPoint_internal(intptr_t socket, int32_t family, int32_t* error);
         static void cancel_blocking_socket_operation(Il2CppObject* thread);
         static void Connect_internal(intptr_t sock, Il2CppSocketAddress* sa, int32_t* error, bool blocking);
+        static bool Duplicate_internal(intptr_t handle, int32_t targetProcessId, intptr_t *duplicate_handle, int32_t *werror);
 
-        static int32_t ReceiveArray40(intptr_t, Il2CppArray*, SocketFlags, int32_t*, bool);
-        static int32_t Receive40(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*, bool);
-        static int32_t SendArray40(intptr_t, Il2CppArray*, SocketFlags, int32_t*, bool);
-        static int32_t Send40(intptr_t, Il2CppArray*, int32_t, int32_t, SocketFlags, int32_t*, bool);
+        static int32_t ReceiveArray40(intptr_t, void*, int32_t, SocketFlags, int32_t*, bool);
+        static int32_t Receive40(intptr_t, uint8_t*, int32_t, SocketFlags, int32_t*, bool);
+        static int32_t SendArray40(intptr_t, void*, int32_t, SocketFlags, int32_t*, bool);
+        static int32_t Send40(intptr_t, uint8_t*, int32_t, SocketFlags, int32_t*, bool);
         static bool IsProtocolSupported_internal(int32_t networkInterface);
 #endif
     };

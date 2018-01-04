@@ -21,9 +21,21 @@ namespace mscorlib
 {
 namespace System
 {
-    bool RuntimeTypeHandle::HasInstantiation(Il2CppReflectionRuntimeType* type)
+    bool RuntimeTypeHandle::HasInstantiation(Il2CppReflectionRuntimeType* typeObject)
     {
-        return Type::get_IsGenericType(&type->type);
+        const Il2CppType* type = typeObject->type.type;
+
+        if (type->byref)
+            return false;
+
+        Il2CppClass* klass = vm::Class::FromIl2CppType(type);
+
+        return vm::Class::IsGeneric(klass) || vm::Class::IsInflated(klass);
+    }
+
+    bool RuntimeTypeHandle::HasReferences(Il2CppReflectionRuntimeType* type)
+    {
+        return vm::Class::FromIl2CppType(type->type.type)->has_references;
     }
 
     bool RuntimeTypeHandle::IsArray(Il2CppReflectionRuntimeType* type)

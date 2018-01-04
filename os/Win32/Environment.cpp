@@ -178,20 +178,20 @@ namespace os
 
         return home_directory;
 #else
-        NOT_IMPLEMENTED_ICALL(Environment::GetHomeDirectory);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::GetHomeDirectory);
         return std::string();
 #endif
     }
 
     std::vector<std::string> Environment::GetLogicalDrives()
     {
-        NOT_IMPLEMENTED_ICALL(Environment::GetLogicalDrives);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::GetLogicalDrives);
         return std::vector<std::string>();
     }
 
     void Environment::Exit(int result)
     {
-        NOT_IMPLEMENTED_ICALL(Environment::Exit);
+        ::exit(result);
     }
 
     NORETURN void Environment::Abort()

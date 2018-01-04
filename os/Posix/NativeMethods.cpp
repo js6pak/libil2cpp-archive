@@ -11,14 +11,14 @@ namespace os
 {
     bool NativeMethods::CloseProcess(ProcessHandle* handle)
     {
-        NOT_IMPLEMENTED_ICALL(NativeMethods::CloseProcess);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(NativeMethods::CloseProcess);
         IL2CPP_UNREACHABLE;
         return false;
     }
 
     bool NativeMethods::GetExitCodeProcess(ProcessHandle* handle, int32_t* exitCode)
     {
-        NOT_IMPLEMENTED_ICALL(NativeMethods::GetExitCodeProcess);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(NativeMethods::GetExitCodeProcess);
         IL2CPP_UNREACHABLE;
         return false;
     }

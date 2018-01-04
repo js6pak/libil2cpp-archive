@@ -23,8 +23,6 @@ using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
 using namespace il2cpp::winrt;
 
-#if WINDOWS_SDK_BUILD_VERSION < 16299
-
 struct WideStringHash
 {
 public:
@@ -43,12 +41,8 @@ typedef Il2CppHashMap<std::wstring, std::wstring, WideStringHash> EnvironmentVar
 static EnvironmentVariableMap s_EnvironmentVariables;
 static il2cpp::os::FastMutex s_EnvironmentVariablesMutex;
 
-#endif
-
 extern "C"
 {
-#if WINDOWS_SDK_BUILD_VERSION < 16299
-
 BOOL WINAPI FreeEnvironmentStringsW(LPWCH strings)
 {
     IL2CPP_FREE(strings);
@@ -174,8 +168,6 @@ BOOL WINAPI SetEnvironmentVariableW(LPCWSTR lpName, LPCWSTR lpValue)
 
     return TRUE;
 }
-
-#endif
 
 BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer)
 {
