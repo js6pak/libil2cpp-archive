@@ -20,7 +20,7 @@ namespace Reflection
 {
     void MonoMethodInfo::get_method_info(intptr_t methodPtr, Il2CppMethodInfo *info)
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethodInfo::get_method_info, "Audit and look over commented code. Work in progress.");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethodInfo::get_method_info, "Audit and look over commented code. Work in progress.");
 
         MethodInfo* method = (MethodInfo*)methodPtr;
         //MonoMethodSignature* sig;
@@ -55,7 +55,7 @@ namespace Reflection
 
     void* /* System.Reflection.Emit.UnmanagedMarshal */ MonoMethodInfo::get_retval_marshal(intptr_t handle)
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethodInfo::get_retval_marshal, "This icall is not supported by il2cpp.");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethodInfo::get_retval_marshal, "This icall is not supported by il2cpp.");
 
         return NULL;
     }

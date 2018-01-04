@@ -18,13 +18,13 @@ namespace Contexts
 {
     void Context::RegisterContext(Il2CppObject* ctx)
     {
-        NOT_IMPLEMENTED_ICALL(Context::RegisterContext);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Context::RegisterContext);
         IL2CPP_UNREACHABLE;
     }
 
     void Context::ReleaseContext(Il2CppObject* ctx)
     {
-        NOT_IMPLEMENTED_ICALL(Context::ReleaseContext);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Context::ReleaseContext);
         IL2CPP_UNREACHABLE;
     }
 } // namespace Contexts

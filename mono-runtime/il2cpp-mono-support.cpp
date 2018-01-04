@@ -284,7 +284,7 @@ void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoErr
         {
             // Throw a missing method exception if we did not convert it. Once we know this code works for all runtime invoke cases,
             // we should throw this exception more often. Until then, we will leave theassert below when we don't find a method.
-            mono_error_set_method_load(error, mono_unity_method_get_class(method), mono_unity_method_get_name(method), "This method was not converted ahead-of-time by IL2CPP.");
+            mono_error_set_method_load(error, mono_unity_method_get_class(method), mono_unity_method_get_name(method), NULL, "This method was not converted ahead-of-time by IL2CPP.");
             return;
         }
 
@@ -382,7 +382,7 @@ void il2cpp_mono_get_invoke_data(MonoMethod* method, void* obj, VirtualInvokeDat
     MonoError error;
     il2cpp_mono_method_initialize_function_pointers(target_method, &error);
     if (!il2cpp_mono_error_ok(&error))
-        mono_error_raise_exception(&error);
+        mono_error_raise_exception_deprecated(&error);
     invokeData->methodPtr = (Il2CppMethodPointer)mono_unity_method_get_method_pointer(target_method);
     invokeData->method = target_method;
 }
@@ -394,7 +394,7 @@ void il2cpp_mono_get_virtual_invoke_data(MonoMethod* method, void* obj, VirtualI
     MonoError error;
     il2cpp_mono_method_initialize_function_pointers(target_method, &error);
     if (!il2cpp_mono_error_ok(&error))
-        mono_error_raise_exception(&error);
+        mono_error_raise_exception_deprecated(&error);
     invokeData->methodPtr = (Il2CppMethodPointer)mono_unity_method_get_method_pointer(target_method);
     invokeData->method = target_method;
 }
@@ -406,7 +406,7 @@ void il2cpp_mono_get_interface_invoke_data(MonoMethod* method, void* obj, Virtua
     MonoError error;
     il2cpp_mono_method_initialize_function_pointers(target_method, &error);
     if (!il2cpp_mono_error_ok(&error))
-        mono_error_raise_exception(&error);
+        mono_error_raise_exception_deprecated(&error);
     invokeData->methodPtr = (Il2CppMethodPointer)mono_unity_method_get_method_pointer(target_method);
     invokeData->method = target_method;
 }
@@ -776,7 +776,7 @@ void RuntimeInit(MonoClass* klass)
     MonoError error;
     mono_runtime_class_init_full(il2cpp_mono_class_vtable(g_MonoDomain, klass), &error);
     if (!il2cpp_mono_error_ok(&error))
-        mono_error_raise_exception(&error);
+        mono_error_raise_exception_deprecated(&error);
 }
 
 std::string il2cpp_mono_format_exception(const MonoException *exc)

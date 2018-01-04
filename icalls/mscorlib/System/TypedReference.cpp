@@ -21,14 +21,14 @@ namespace System
 #if NET_4_0
     Il2CppObject* TypedReference::InternalToObject(void* value)
     {
-        NOT_IMPLEMENTED_ICALL(TypedReference::InternalToObject);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(TypedReference::InternalToObject);
         IL2CPP_UNREACHABLE;
         return NULL;
     }
 
     Il2CppTypedRef TypedReference::MakeTypedReferenceInternal(Il2CppObject* target, Il2CppArray* fields)
     {
-        NOT_IMPLEMENTED_ICALL(TypedReference::MakeTypedReferenceInternal);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(TypedReference::MakeTypedReferenceInternal);
         IL2CPP_UNREACHABLE;
         return Il2CppTypedRef();
     }

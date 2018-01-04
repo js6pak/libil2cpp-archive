@@ -10,6 +10,7 @@
 #include "os/Path.h"
 #include "os/Thread.h"
 #include "os/Socket.h"
+#include "os/c-api/Allocator.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -29,6 +30,8 @@
 #include "vm/Type.h"
 #include "vm/String.h"
 #include "vm/Object.h"
+#include "vm-utils/Debugger.h"
+#include "vm/Profiler.h"
 #include <string>
 #include <map>
 #include "il2cpp-class-internals.h"
@@ -47,6 +50,13 @@
 #include "mono/ThreadPool/threadpool-ms-io.h"
 //#include "icalls/mscorlib/System.Reflection/Assembly.h"
 
+#if IL2CPP_MONO_DEBUGGER
+extern "C" {
+#include <mono/metadata/profiler-private.h>
+}
+#endif
+
+
 using il2cpp::metadata::GenericMethod;
 using il2cpp::utils::StringUtils;
 
@@ -60,6 +70,7 @@ namespace vm
 {
     il2cpp::os::FastMutex g_MetadataLock;
 
+    static int32_t exitcode = 0;
     static std::string s_ConfigDir;
     static const char *s_FrameworkVersion = 0;
     static const char *s_BundledMachineConfig = 0;
@@ -119,7 +130,6 @@ namespace vm
 
         s_FrameworkVersion = framework_version_for(runtime_version);
 
-        os::Image::Initialize();
         os::Thread::Init();
 
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
@@ -133,6 +143,8 @@ namespace vm
 
         // Reflection needs GC initialized
         Reflection::Initialize();
+
+        register_allocator(il2cpp::utils::Memory::Malloc);
 
         memset(&il2cpp_defaults, 0, sizeof(Il2CppDefaults));
 
@@ -268,9 +280,16 @@ namespace vm
 
         Class::Init(il2cpp_defaults.string_class);
 
+        os::Socket::Startup();
+
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::Debugger::Init();
+#endif
+
         Il2CppDomain* domain = Domain::GetCurrent();
 
-        Thread::Attach(domain);
+        Il2CppThread* mainThread = Thread::Attach(domain);
+        Thread::SetMain(mainThread);
 
         Il2CppAppDomainSetup* setup = (Il2CppAppDomainSetup*)Object::NewPinned(il2cpp_defaults.appdomain_setup_class);
 
@@ -297,7 +316,6 @@ namespace vm
         InitializeStringEmpty();
 #endif
 
-        os::Socket::Startup();
         g_il2cpp_is_fully_initialized = true;
 
         // Force binary serialization in Mono to use reflection instead of code generation.
@@ -309,11 +327,23 @@ namespace vm
         Domain::ContextSet(domain->default_context);
 
         VerifyApiVersion();
+
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::Debugger::Start();
+#endif
     }
 
     void Runtime::Shutdown()
     {
         shutting_down = true;
+
+#if IL2CPP_ENABLE_PROFILER
+        il2cpp::vm::Profiler::Shutdown();
+#endif
+#if IL2CPP_MONO_DEBUGGER
+        // new mono profiler APIs used by debugger
+        MONO_PROFILER_RAISE(runtime_shutdown_end, ());
+#endif
 
 #if !NET_4_0
         ThreadPool::Shutdown();
@@ -413,7 +443,7 @@ namespace vm
 
     const MethodInfo* Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
     {
-        NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
 
         const Il2CppGenericInst* classInst = NULL;
         if (methodDefinition->is_inflated)
@@ -532,7 +562,7 @@ namespace vm
 
             Field::GetValue((Il2CppObject*)rootDomain->domain, field, &root_appdomain_delegate);
 
-            NOT_IMPLEMENTED_NO_ASSERT(Runtime::UnhandledException, "We don't have runtime version info yet");
+            IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Runtime::UnhandledException, "We don't have runtime version info yet");
             //if (currentDomain != rootDomain && (mono_framework_version () >= 2)) {
             //  Field::GetValue ((Il2CppObject*)currentDomain->domain, field, &current_appdomain_delegate);
             //}
@@ -832,9 +862,19 @@ namespace vm
 #if !NET_4_0
         IL2CPP_ASSERT(value == 82);
 #else
-        IL2CPP_ASSERT(value == 1050001000);
+        IL2CPP_ASSERT(value == 1050900001);
 #endif
 #endif
+    }
+
+    int32_t Runtime::GetExitCode()
+    {
+        return exitcode;
+    }
+
+    void Runtime::SetExitCode(int32_t value)
+    {
+        exitcode = value;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

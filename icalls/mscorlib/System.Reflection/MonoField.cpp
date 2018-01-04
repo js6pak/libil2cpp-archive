@@ -67,7 +67,7 @@ namespace Reflection
         {
             if (fieldInfo->offset == THREAD_STATIC_FIELD_OFFSET)
             {
-                NOT_IMPLEMENTED(Field::StaticSetValue);
+                IL2CPP_NOT_IMPLEMENTED(Field::StaticSetValue);
             }
 
             Runtime::ClassInit(fieldInfo->parent);
@@ -165,14 +165,14 @@ namespace Reflection
 #if NET_4_0
     int32_t MonoField::get_core_clr_security_level(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(MonoField::get_core_clr_security_level);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoField::get_core_clr_security_level);
         IL2CPP_UNREACHABLE;
         return 0;
     }
 
     Il2CppObject* MonoField::ResolveType(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(MonoField::ResolveType);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoField::ResolveType);
         IL2CPP_UNREACHABLE;
         return NULL;
     }

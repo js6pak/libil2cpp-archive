@@ -23,11 +23,17 @@ namespace vm
         static void GetValue(Il2CppObject *obj, FieldInfo *field, void *value);
         static uint32_t GetToken(const FieldInfo *field);
         static Il2CppObject* GetValueObject(FieldInfo *field, Il2CppObject *obj);
+        static Il2CppObject* GetValueObjectForThread(FieldInfo *field, Il2CppObject *obj, Il2CppThread *thread);
         static bool HasAttribute(FieldInfo *field, Il2CppClass *attr_class);
         static bool IsDeleted(FieldInfo *field);
         static void SetValue(Il2CppObject *obj, const FieldInfo *field, void *value);
         static void StaticGetValue(FieldInfo *field, void *value);
+        static void StaticGetValueInternal(FieldInfo *field, void *value, void *threadStaticData);
+#if NET_4_0
+        static void StaticGetValueForThread(FieldInfo *field, void *value, Il2CppInternalThread *thread);
+#endif
         static void StaticSetValue(FieldInfo *field, void *value);
+        static void StaticSetValueForThread(FieldInfo *field, void *value, Il2CppThread *thread);
         static void SetInstanceFieldValueObject(Il2CppObject* objectInstance, FieldInfo* field, Il2CppObject* value);
 
     public:

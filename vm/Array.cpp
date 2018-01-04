@@ -14,6 +14,37 @@ namespace il2cpp
 {
 namespace vm
 {
+    Il2CppArray* Array::Clone(Il2CppArray* arr)
+    {
+        Il2CppClass *typeInfo = arr->klass;
+        const uint32_t elem_size = il2cpp::vm::Array::GetElementSize(typeInfo);
+
+        if (arr->bounds == NULL)
+        {
+            il2cpp_array_size_t len = il2cpp::vm::Array::GetLength(arr);
+            Il2CppArray *clone = (Il2CppArray*)il2cpp::vm::Array::NewFull(typeInfo, &len, NULL);
+            memcpy(il2cpp::vm::Array::GetFirstElementAddress(clone), il2cpp::vm::Array::GetFirstElementAddress(arr), elem_size * len);
+
+            return clone;
+        }
+
+        il2cpp_array_size_t size = elem_size;
+        std::vector<il2cpp_array_size_t> lengths(typeInfo->rank);
+        std::vector<il2cpp_array_size_t> lowerBounds(typeInfo->rank);
+
+        for (int i = 0; i < typeInfo->rank; ++i)
+        {
+            lengths[i] = arr->bounds[i].length;
+            size *= arr->bounds[i].length;
+            lowerBounds[i] = arr->bounds[i].lower_bound;
+        }
+
+        Il2CppArray* clone = il2cpp::vm::Array::NewFull(typeInfo, &lengths[0], &lowerBounds[0]);
+        memcpy(il2cpp::vm::Array::GetFirstElementAddress(clone), il2cpp::vm::Array::GetFirstElementAddress(arr), size);
+
+        return clone;
+    }
+
     int32_t Array::GetElementSize(const Il2CppClass *klass)
     {
         IL2CPP_ASSERT(klass->rank);
@@ -67,8 +98,8 @@ namespace vm
         IL2CPP_ASSERT(klass->initialized);
         IL2CPP_ASSERT(klass->element_class->initialized);
 
-        NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Not checking for overflow");
-        NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Handle allocations with a GC descriptor");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Not checking for overflow");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Handle allocations with a GC descriptor");
 
         if (n > IL2CPP_ARRAY_MAX_INDEX)
         {
@@ -129,8 +160,8 @@ namespace vm
         IL2CPP_ASSERT(array_class->initialized);
         IL2CPP_ASSERT(array_class->element_class->initialized);
 
-        NOT_IMPLEMENTED_NO_ASSERT(Array::NewFull, "IGNORING non-zero based arrays!");
-        NOT_IMPLEMENTED_NO_ASSERT(Array::NewFull, "Handle allocations with a GC descriptor");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Array::NewFull, "IGNORING non-zero based arrays!");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Array::NewFull, "Handle allocations with a GC descriptor");
 
         byte_len = il2cpp_array_element_size(array_class);
         len = 1;

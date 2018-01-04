@@ -1,6 +1,7 @@
 #if NET_4_0
 
 #include "il2cpp-api.h"
+#include "il2cpp-config.h"
 #include "utils/dynamic_array.h"
 #include "vm/ThreadPoolMs.h"
 #include "vm/Domain.h"
@@ -115,6 +116,16 @@ namespace vm
         }
 
         return ret;
+    }
+
+    void ThreadPoolMs::Suspend()
+    {
+        threadpool_ms_suspend();
+    }
+
+    void ThreadPoolMs::Resume()
+    {
+        threadpool_ms_resume();
     }
 } /* namespace vm */
 } /* namespace il2cpp */

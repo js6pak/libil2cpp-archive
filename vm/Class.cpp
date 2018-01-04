@@ -110,7 +110,7 @@ namespace vm
             case IL2CPP_TYPE_PTR:
                 return Class::GetPtrClass(type->data.type);
             case IL2CPP_TYPE_FNPTR:
-                NOT_IMPLEMENTED(Class::FromIl2CppType);
+                IL2CPP_NOT_IMPLEMENTED(Class::FromIl2CppType);
                 return NULL; //mono_fnptr_class_get (type->data.method);
             case IL2CPP_TYPE_SZARRAY:
             {
@@ -127,7 +127,7 @@ namespace vm
             case IL2CPP_TYPE_MVAR:
                 return Class::FromGenericParameter(Type::GetGenericParameter(type));
             default:
-                NOT_IMPLEMENTED(Class::FromIl2CppType);
+                IL2CPP_NOT_IMPLEMENTED(Class::FromIl2CppType);
         }
 
         return NULL;
@@ -610,7 +610,7 @@ namespace vm
             else if (Class::IsNullable(klass))
             {
                 if (Class::IsNullable(oklass))
-                    NOT_IMPLEMENTED(Class::IsAssignableFrom);
+                    IL2CPP_NOT_IMPLEMENTED(Class::IsAssignableFrom);
                 Il2CppClass* nullableArg = Class::GetNullableArgument(klass);
                 return Class::IsAssignableFrom(nullableArg, oklass);
             }
@@ -755,7 +755,7 @@ namespace vm
     };
 
 
-    static void SetupFieldOffsets(FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets)
+    static void SetupFieldOffsetsLocked(FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets, const FastAutoLock& lock)
     {
         IL2CPP_ASSERT(size < std::numeric_limits<uint32_t>::max());
         if (fieldLayoutKind == FIELD_LAYOUT_INSTANCE)
@@ -781,6 +781,7 @@ namespace vm
                 if (fieldLayoutKind == FIELD_LAYOUT_THREADSTATIC)
                 {
                     field->offset = THREAD_STATIC_FIELD_OFFSET;
+                    MetadataCache::AddThreadLocalStaticOffsetForFieldLocked(field, static_cast<int32_t>(fieldOffsets[fieldIndex]), lock);
                     fieldIndex++;
                     continue;
                 }
@@ -897,7 +898,7 @@ namespace vm
             FieldLayout::FieldLayoutData staticLayoutData;
             FieldLayout::FieldLayoutData threadStaticLayoutData;
 
-            FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, klass->packingSize, fieldTypes, layoutData);
+            FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, fieldTypes, layoutData);
 
             instanceSize = layoutData.classSize;
 
@@ -914,8 +915,8 @@ namespace vm
 
             klass->size_inited = true;
 
-            FieldLayout::LayoutFields(0, 0, 1, 0, staticFieldTypes, staticLayoutData);
-            FieldLayout::LayoutFields(0, 0, 1, 0, threadStaticFieldTypes, threadStaticLayoutData);
+            FieldLayout::LayoutFields(0, 0, 1, staticFieldTypes, staticLayoutData);
+            FieldLayout::LayoutFields(0, 0, 1, threadStaticFieldTypes, threadStaticLayoutData);
 
             klass->minimumAlignment = layoutData.minimumAlignment;
             klass->actualSize = static_cast<uint32_t>(layoutData.actualClassSize);
@@ -923,14 +924,11 @@ namespace vm
             size_t staticSize = staticLayoutData.classSize;
             size_t threadStaticSize = threadStaticLayoutData.classSize;
 
-            for (size_t i = 0; i < threadStaticLayoutData.FieldOffsets.size(); ++i)
-                threadStaticLayoutData.FieldOffsets[i] = -1;
-
             if (klass->generic_class)
             {
-                SetupFieldOffsets(FIELD_LAYOUT_INSTANCE, klass, instanceSize, layoutData.FieldOffsets);
-                SetupFieldOffsets(FIELD_LAYOUT_STATIC, klass, staticSize, staticLayoutData.FieldOffsets);
-                SetupFieldOffsets(FIELD_LAYOUT_THREADSTATIC, klass, threadStaticSize, threadStaticLayoutData.FieldOffsets);
+                SetupFieldOffsetsLocked(FIELD_LAYOUT_INSTANCE, klass, instanceSize, layoutData.FieldOffsets, lock);
+                SetupFieldOffsetsLocked(FIELD_LAYOUT_STATIC, klass, staticSize, staticLayoutData.FieldOffsets, lock);
+                SetupFieldOffsetsLocked(FIELD_LAYOUT_THREADSTATIC, klass, threadStaticSize, threadStaticLayoutData.FieldOffsets, lock);
             }
             else
             {
@@ -965,7 +963,7 @@ namespace vm
             klass->thread_static_fields_offset = il2cpp::vm::Thread::AllocThreadStaticData(klass->thread_static_fields_size);
     }
 
-    static void SetupFieldsFromDefinition(Il2CppClass* klass)
+    static void SetupFieldsFromDefinitionLocked(Il2CppClass* klass, const FastAutoLock& lock)
     {
         if (klass->field_count == 0)
         {
@@ -987,7 +985,7 @@ namespace vm
             newField->type = MetadataCache::GetIl2CppTypeFromIndex(fieldDefinition->typeIndex);
             newField->name = MetadataCache::GetStringFromIndex(fieldDefinition->nameIndex);
             newField->parent = klass;
-            newField->offset = MetadataCache::GetFieldOffsetFromIndex(MetadataCache::GetIndexForTypeDefinition(klass), fieldIndex - start);
+            newField->offset = MetadataCache::GetFieldOffsetFromIndexLocked(MetadataCache::GetIndexForTypeDefinition(klass), fieldIndex - start, newField, lock);
             newField->customAttributeIndex = fieldDefinition->customAttributeIndex;
             newField->token = fieldDefinition->token;
 
@@ -1015,7 +1013,7 @@ namespace vm
         }
         else
         {
-            SetupFieldsFromDefinition(klass);
+            SetupFieldsFromDefinitionLocked(klass, lock);
         }
 
         if (!Class::IsGeneric(klass))
@@ -1381,7 +1379,7 @@ namespace vm
         if (klass->initialized)
             return true;
 
-        NOT_IMPLEMENTED_NO_ASSERT(Class::Init, "Audit and compare to mono version");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Class::Init, "Audit and compare to mono version");
 
         klass->init_pending = true;
 
@@ -1593,7 +1591,7 @@ namespace vm
 
             default:
                 // g_error ("unknown type 0x%02x in mono_class_array_element_size", type->type);
-                NOT_IMPLEMENTED_NO_ASSERT(Class::GetArrayElementSize, "Should throw a nice error");
+                IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Class::GetArrayElementSize, "Should throw a nice error");
         }
 
         return -1;
@@ -1705,23 +1703,6 @@ namespace vm
         size_t size = metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).size;
         IL2CPP_ASSERT(size < static_cast<size_t>(std::numeric_limits<int>::max()));
         return static_cast<int>(size);
-    }
-
-    int Class::GetFieldMarshaledAlignment(const FieldInfo *field)
-    {
-        if (MetadataCache::GetFieldMarshaledSizeForField(field) == 0)
-        {
-            // We have no marshaled field size, so ignore marshaled alignment for this field.
-            return 0;
-        }
-
-        if (field->type->type == IL2CPP_TYPE_BOOLEAN)
-            return 4;
-        if (field->type->type == IL2CPP_TYPE_CHAR)
-            return 1;
-
-        uint8_t alignment = il2cpp::metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).alignment;
-        return static_cast<int>(alignment);
     }
 
     Il2CppClass* Class::GetPtrClass(const Il2CppType* type)
@@ -1883,7 +1864,7 @@ namespace vm
                         break;
                     }
                     default:
-                        NOT_IMPLEMENTED(Class::GetClassBitmap);
+                        IL2CPP_NOT_IMPLEMENTED(Class::GetClassBitmap);
                         break;
                 }
             }
@@ -2055,10 +2036,8 @@ namespace vm
         Exception::Raise(il2cpp::vm::Exception::GetMethodAccessException(message.c_str()));
     }
 
-    const VirtualInvokeData& Class::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+    const VirtualInvokeData* Class::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
     {
-        const Il2CppClass* klass = obj->klass;
-
 #if NET_4_0
         if (itf->generic_class != NULL)
         {
@@ -2071,11 +2050,23 @@ namespace vm
                 if (IsGenericClassAssignableFrom(itf, pair->interfaceType, genericContainer))
                 {
                     IL2CPP_ASSERT(pair->offset + slot < klass->vtable_count);
-                    return klass->vtable[pair->offset + slot];
+                    return &klass->vtable[pair->offset + slot];
                 }
             }
         }
 #endif
+
+        return NULL;
+    }
+
+    const VirtualInvokeData& Class::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+    {
+        const Il2CppClass* klass = obj->klass;
+        const VirtualInvokeData* data;
+
+        data = GetInterfaceInvokeDataFromVTableSlowPath(klass, itf, slot);
+        if (data)
+            return *data;
 
         if (klass->is_import_or_windows_runtime)
         {

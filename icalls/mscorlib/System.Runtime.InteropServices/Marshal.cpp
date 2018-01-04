@@ -7,7 +7,6 @@
 
 #include "gc/GarbageCollector.h"
 #include "metadata/FieldLayout.h"
-#include "os/Atomic.h"
 #include "vm/Array.h"
 #include "vm/CCW.h"
 #include "vm/Class.h"
@@ -23,7 +22,9 @@
 #include "vm/Type.h"
 #include "utils/MarshalingUtils.h"
 #include "utils/StringUtils.h"
+#include <sstream>
 #include <string>
+#include <sstream>
 #include <deque>
 
 using namespace il2cpp::vm;
@@ -351,21 +352,17 @@ namespace InteropServices
         // There's a check in mscorlib before calling this internal icall, so assert instead of full check is OK here.
         IL2CPP_ASSERT(co->klass->is_import_or_windows_runtime);
 
-        int32_t newRefCount = os::Atomic::Decrement(&static_cast<Il2CppComObject*>(co)->refCount);
-        if (newRefCount == 0)
-        {
-            // We can't really release the COM object directly, because it might have additional
-            // fields that cache different interfaces. So let's just call its finalizer here.
-            // In order to deal with the fact that this may get called from different threads
-            // at the same time, we (atomically) register a NULL finalizer, and if another finalizer
-            // was already registered, we call it. If there was no finalizer registered, it means
-            // that we lost the race and we should just carry on.
-            gc::GarbageCollector::FinalizerCallback oldFinalizer = gc::GarbageCollector::RegisterFinalizerWithCallback(co, NULL);
-            if (oldFinalizer != NULL)
-                oldFinalizer(co, NULL);
-        }
+        // We can't really release the COM object directly, because it might have additional
+        // fields that cache different interfaces. So let's just call its finalizer here.
+        // In order to deal with the fact that this may get called from different threads
+        // at the same time, we (atomically) register a NULL finalizer, and if another finalizer
+        // was already registered, we call it. If there was no finalizer registered, it means
+        // that we lost the race and we should just carry on.
+        gc::GarbageCollector::FinalizerCallback oldFinalizer = gc::GarbageCollector::RegisterFinalizerWithCallback(co, NULL);
+        if (oldFinalizer != NULL)
+            oldFinalizer(co, NULL);
 
-        return newRefCount;
+        return 0;
     }
 
     int Marshal::SizeOf(Il2CppReflectionType* rtype)
@@ -559,9 +556,9 @@ namespace InteropServices
         FieldInfo* field = vm::Class::GetFieldFromName(type, fieldNameToFind.c_str());
         if (field == NULL || (vm::Field::GetFlags(field) & FIELD_ATTRIBUTE_STATIC))
         {
-            std::string message;
-            message = "Field '" + fieldNameToFind + "' is not a marshaled member of the type '" + type->name + "'";
-            vm::Exception::Raise(vm::Exception::GetArgumentException("fieldName", message.c_str()));
+            std::stringstream message;
+            message << "Field '" << fieldNameToFind << "' is not a marshaled member of the type '" << type->name << "'";
+            vm::Exception::Raise(vm::Exception::GetArgumentException("fieldName", message.str().c_str()));
         }
 
         // Order the base classes so the most base class is first.
@@ -591,11 +588,12 @@ namespace InteropServices
                     if (!Type::IsStruct(previousField->type))
                     {
                         size_t managedOffset = field->offset - previousField->offset;
-                        if (managedOffset != 0) // overlapping fields have a zero offset
+                        if (type->packingSize == 0)
+                            offset += managedOffset;
+                        else if (managedOffset != 0) // overlapping fields have a zero offset
                         {
                             offset += vm::Class::GetFieldMarshaledSize(previousField);
-                            int marshaledFieldAlignment = vm::Class::GetFieldMarshaledAlignment(field);
-                            offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldAlignment : std::min((int)type->packingSize, marshaledFieldAlignment));
+                            offset = RoundUpToMultiple(offset, std::min((int)type->packingSize, vm::Class::GetFieldMarshaledSize(field)));
                         }
                     }
                     else
@@ -652,13 +650,13 @@ namespace InteropServices
 
     intptr_t Marshal::BufferToBSTR(Il2CppArray* ptr, int32_t slen)
     {
-        NOT_IMPLEMENTED_ICALL(Marshal::BufferToBSTR);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::BufferToBSTR);
         IL2CPP_UNREACHABLE;
     }
 
     int32_t Marshal::GetHRForException_WinRT(Il2CppException* e)
     {
-        NOT_IMPLEMENTED_ICALL(Marshal::GetHRForException_WinRT);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::GetHRForException_WinRT);
         IL2CPP_UNREACHABLE;
     }
 
@@ -671,7 +669,7 @@ namespace InteropServices
 
     Il2CppObject* Marshal::GetNativeActivationFactory(Il2CppObject* type)
     {
-        NOT_IMPLEMENTED_ICALL(Marshal::GetNativeActivationFactory);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::GetNativeActivationFactory);
         IL2CPP_UNREACHABLE;
     }
 
@@ -680,7 +678,7 @@ namespace InteropServices
 #if NET_4_0
     intptr_t Marshal::AllocCoTaskMemSize(intptr_t sizet)
     {
-        NOT_IMPLEMENTED_ICALL(Marshal::AllocCoTaskMemSize);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::AllocCoTaskMemSize);
         IL2CPP_UNREACHABLE;
     }
 

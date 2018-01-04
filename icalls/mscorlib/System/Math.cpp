@@ -61,7 +61,7 @@ namespace System
 
     double Math::Log(double x)
     {
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(Math::Log, "Determin what value of NAN to use");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Math::Log, "Determin what value of NAN to use");
 
         if (x == 0)
             return -HUGE_VAL;
