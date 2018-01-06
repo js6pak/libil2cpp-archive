@@ -718,6 +718,11 @@ namespace os
             }
         }
 
+#if IL2CPP_TARGET_DARWIN
+        int32_t value = 1;
+        setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, &value, sizeof(value));
+#endif
+
         // mono_once (&socket_ops_once, socket_ops_init);
 
         // handle = _wapi_handle_new_fd (WAPI_HANDLE_SOCKET, fd, &socket_handle);
