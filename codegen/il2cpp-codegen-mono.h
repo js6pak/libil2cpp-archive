@@ -547,9 +547,6 @@ inline void NullCheck(void* this_ptr)
         return;
 
     mono_raise_exception(mono_get_exception_null_reference());
-#if !IL2CPP_TARGET_IOS
-    il2cpp_codegen_no_return();
-#endif
 }
 
 inline void DivideByZeroCheck(int64_t denominator)
@@ -558,9 +555,6 @@ inline void DivideByZeroCheck(int64_t denominator)
         return;
 
     mono_raise_exception(mono_get_exception_divide_by_zero());
-#if !IL2CPP_TARGET_IOS
-    il2cpp_codegen_no_return();
-#endif
 }
 
 inline void il2cpp_codegen_initobj(void* value, size_t size)
