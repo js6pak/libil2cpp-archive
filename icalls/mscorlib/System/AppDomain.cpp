@@ -186,8 +186,6 @@ namespace System
 
     bool AppDomain::InternalIsFinalizingForUnload(int32_t domain_id)
     {
-        NOT_SUPPORTED_IL2CPP(AppDomain::InternalIsFinalizingForUnload, "This icall is not supported by il2cpp.");
-
         return false;
     }
 
