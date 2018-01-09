@@ -287,9 +287,6 @@ inline void NullCheck(void* this_ptr)
         return;
 
     il2cpp::vm::Exception::RaiseNullReferenceException();
-#if !IL2CPP_TARGET_IOS
-    il2cpp_codegen_no_return();
-#endif
 }
 
 // OpCode.Box
@@ -663,9 +660,6 @@ inline void DivideByZeroCheck(int64_t denominator)
         return;
 
     il2cpp::vm::Exception::RaiseDivideByZeroException();
-#if !IL2CPP_TARGET_IOS
-    il2cpp_codegen_no_return();
-#endif
 }
 
 inline void il2cpp_codegen_initobj(void* value, size_t size)
