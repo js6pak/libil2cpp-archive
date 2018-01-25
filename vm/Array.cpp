@@ -167,7 +167,7 @@ namespace vm
         len = 1;
 
         /* A single dimensional array with a 0 lower bound is the same as an szarray */
-        if (array_class->rank == 1 && ((array_class->byval_arg->type == IL2CPP_TYPE_SZARRAY) || (lower_bounds && lower_bounds[0] == 0)))
+        if (array_class->rank == 1 && ((array_class->byval_arg.type == IL2CPP_TYPE_SZARRAY) || (lower_bounds && lower_bounds[0] == 0)))
         {
             len = lengths[0];
             if (len > IL2CPP_ARRAY_MAX_INDEX) //MONO_ARRAY_MAX_INDEX

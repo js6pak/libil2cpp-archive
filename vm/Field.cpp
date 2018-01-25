@@ -348,7 +348,7 @@ namespace vm
                 }
                 return;
             case IL2CPP_TYPE_GENERICINST:
-                t = GenericClass::GetTypeDefinition(type->data.generic_class)->byval_arg->type;
+                t = GenericClass::GetTypeDefinition(type->data.generic_class)->byval_arg.type;
                 goto handle_enum;
             default:
                 IL2CPP_ASSERT(0);

@@ -589,7 +589,7 @@ namespace vm
                 Il2CppClass* elementClass = Class::GetElementClass(arrayClass);
                 Type::GetNameInternal(
                     str,
-                    elementClass->byval_arg,
+                    &elementClass->byval_arg,
                     format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
                     false);
 
@@ -620,7 +620,7 @@ namespace vm
                 Il2CppClass* elementClass = Class::FromIl2CppType(type->data.type);
                 Type::GetNameInternal(
                     str,
-                    elementClass->byval_arg,
+                    &elementClass->byval_arg,
                     format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
                     false);
 
@@ -674,7 +674,7 @@ namespace vm
                 Il2CppClass* declaringType = Class::GetDeclaringType(klass);
                 if (declaringType)
                 {
-                    Type::GetNameInternal(str, declaringType->byval_arg, format, true);
+                    Type::GetNameInternal(str, &declaringType->byval_arg, format, true);
                     str += (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '.' : '+');
                 }
                 else if (*klass->namespaze)
@@ -808,7 +808,7 @@ namespace vm
             typeInfo = Class::GetDeclaringType(Class::FromIl2CppType(type));
         }
 
-        return typeInfo ? Reflection::GetTypeObject(typeInfo->byval_arg) : NULL;
+        return typeInfo ? Reflection::GetTypeObject(&typeInfo->byval_arg) : NULL;
     }
 
     Il2CppArray* Type::GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray)
@@ -831,7 +831,7 @@ namespace vm
             for (int32_t i = 0; i < container->type_argc; ++i)
             {
                 pklass = Class::FromGenericParameter(GenericContainer::GetGenericParameter(container, i));
-                il2cpp_array_setref(res, i, Reflection::GetTypeObject(pklass->byval_arg));
+                il2cpp_array_setref(res, i, Reflection::GetTypeObject(&pklass->byval_arg));
             }
         }
         else if (klass->generic_class)

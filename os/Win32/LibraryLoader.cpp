@@ -9,8 +9,6 @@
 #include "vm/PlatformInvoke.h"
 #include "utils/StringUtils.h"
 
-#include <sstream>
-
 #include "WindowsHelpers.h"
 
 namespace il2cpp
