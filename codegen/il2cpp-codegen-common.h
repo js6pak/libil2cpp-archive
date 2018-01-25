@@ -32,7 +32,7 @@
 // the NORETURN define do nothing, then we use this dummy method which has the
 // attribute for clang on iOS defined to prevent clang compiler errors for
 // method that end by throwing a managed exception.
-REAL_NORETURN IL2CPP_NO_INLINE static void il2cpp_codegen_no_return()
+REAL_NORETURN IL2CPP_NO_INLINE void inline il2cpp_codegen_no_return()
 {
     IL2CPP_UNREACHABLE;
 }
@@ -162,15 +162,15 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 
 
 #if IL2CPP_MONO_DEBUGGER
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint) \
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint, lastManagedFrame) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message, seqPoint);\
+        il2cpp_codegen_raise_exception((Exception_t*)message, seqPoint, (MethodInfo*)lastManagedFrame);\
         il2cpp_codegen_no_return();\
     } while (0)
 #else
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint) \
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint, lastManagedFrame) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message);\
+        il2cpp_codegen_raise_exception((Exception_t*)message, NULL, (MethodInfo*)lastManagedFrame);\
         il2cpp_codegen_no_return();\
     } while (0)
 #endif
@@ -277,9 +277,9 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
 }
 
 #if IL2CPP_MONO_DEBUGGER
-static inline void il2cpp_codegen_register_debugger(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit)
+static inline void il2cpp_codegen_register_debugger(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit, DebugInfoInitialization methodHeaderInit)
 {
-    il2cpp::utils::Debugger::RegisterMethodInitializationMethod(sequencePointInit, executionContextInit, sourceFileMapInit);
+    il2cpp::utils::Debugger::RegisterMethodInitializationMethod(sequencePointInit, executionContextInit, sourceFileMapInit, methodHeaderInit);
 }
 
 #endif
@@ -305,7 +305,8 @@ public:
     inline void Store(Il2CppSequencePoint* sequencePoint)
     {
 #if IL2CPP_MONO_DEBUGGER
-        *m_Ptr = sequencePoint;
+        if (m_Ptr)
+            *m_Ptr = sequencePoint;
 #endif
     }
 
@@ -352,6 +353,24 @@ inline void il2cpp_codegen_add_method_execution_context_info(const char *methodN
 {
 #if IL2CPP_MONO_DEBUGGER
     il2cpp::utils::Debugger::AddMethodExecutionContextInfo(methodName, info);
+#endif
+}
+
+inline Il2CppMethodHeaderInfo* il2cpp_codegen_add_method_header_info(const char *methodName, int codeSize, int numScopes)
+{
+#if IL2CPP_MONO_DEBUGGER
+    return il2cpp::utils::Debugger::AddMethodHeaderInfo(methodName, codeSize, numScopes);
+#else
+    return NULL;
+#endif
+}
+
+inline const Il2CppMethodHeaderInfo* il2cpp_codegen_get_method_header_info(const char *methodName)
+{
+#if IL2CPP_MONO_DEBUGGER
+    return il2cpp::utils::Debugger::GetMethodHeaderInfo(methodName);
+#else
+    return NULL;
 #endif
 }
 

@@ -101,7 +101,7 @@ typedef enum
     IL2CPP_UNHANDLED_POLICY_CURRENT
 } Il2CppRuntimeUnhandledExceptionPolicy;
 
-typedef struct
+typedef struct Il2CppStackFrameInfo
 {
     const MethodInfo *method;
 } Il2CppStackFrameInfo;

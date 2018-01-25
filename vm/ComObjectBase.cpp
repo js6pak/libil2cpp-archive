@@ -13,7 +13,8 @@ il2cpp_hresult_t STDCALL ComObjectBase::GetRuntimeClassName(Il2CppHString* class
     if (il2cpp_defaults.ireference_class != NULL && !Class::IsInflated(objectClass) && (Class::IsValuetype(objectClass) || objectClass == il2cpp_defaults.string_class))
     {
         // For value types/strings we're supposed to return the name of its boxed representation, i.e. Windows.Foundation.IReference`1<T>
-        const Il2CppGenericInst* inst = MetadataCache::GetGenericInst(&objectClass->byval_arg, 1);
+        const Il2CppType* klass = &objectClass->byval_arg;
+        const Il2CppGenericInst* inst = MetadataCache::GetGenericInst(&klass, 1);
         Il2CppGenericClass* genericClass = metadata::GenericMetadata::GetGenericClass(il2cpp_defaults.ireference_class, inst);
         objectClass = GenericClass::GetClass(genericClass);
     }

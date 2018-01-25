@@ -465,6 +465,7 @@ bool il2cpp_stats_dump_to_file(const char *path)
 
     fs.close();
 
+
     return true;
 }
 
@@ -934,7 +935,7 @@ Il2CppObject* il2cpp_runtime_invoke_convert_args(const MethodInfo *method, void 
     // However, with the introduction of adjustor thunks, our invokees expect us to pass them Il2CppObject*, or at least something that
     // ressembles boxed value type. Since it's not going to access any of the Il2CppObject* fields,
     // it's fine to just subtract sizeof(Il2CppObject) from obj pointer
-    if (method->declaring_type->valuetype)
+    if (method->klass->valuetype)
         obj = static_cast<Il2CppObject*>(obj) - 1;
 
     return Runtime::InvokeConvertArgs(method, obj, params, paramCount, exc);
@@ -947,7 +948,7 @@ Il2CppObject* il2cpp_runtime_invoke(const MethodInfo *method,
     // However, with the introduction of adjustor thunks, our invokees expect us to pass them Il2CppObject*, or at least something that
     // ressembles boxed value type. Since it's not going to access any of the Il2CppObject* fields,
     // it's fine to just subtract sizeof(Il2CppObject) from obj pointer
-    if (method->declaring_type->valuetype)
+    if (method->klass->valuetype)
         obj = static_cast<Il2CppObject*>(obj) - 1;
 
     return Runtime::Invoke(method, obj, params, exc);

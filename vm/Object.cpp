@@ -193,7 +193,7 @@ namespace vm
         if ((method->flags & METHOD_ATTRIBUTE_FINAL) || !(method->flags & METHOD_ATTRIBUTE_VIRTUAL))
             return method;
 
-        Il2CppClass* methodDeclaringType = method->declaring_type;
+        Il2CppClass* methodDeclaringType = method->klass;
         if (!Class::IsInterface(methodDeclaringType))
             return obj->klass->vtable[method->slot].method;
 

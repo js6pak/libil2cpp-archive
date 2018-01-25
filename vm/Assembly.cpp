@@ -24,7 +24,7 @@ namespace vm
     {
         for (AssemblyVector::const_iterator assembly = s_Assemblies.begin(); assembly != s_Assemblies.end(); ++assembly)
         {
-            if (strcmp(MetadataCache::GetStringFromIndex((*assembly)->aname.nameIndex), name) == 0)
+            if (strcmp((*assembly)->aname.name, name) == 0)
                 return *assembly;
         }
 
@@ -33,7 +33,7 @@ namespace vm
 
     Il2CppImage* Assembly::GetImage(const Il2CppAssembly* assembly)
     {
-        return MetadataCache::GetImageFromIndex(assembly->imageIndex);
+        return assembly->image;
     }
 
     void Assembly::GetReferencedAssemblies(const Il2CppAssembly* assembly, AssemblyNameVector* target)
@@ -66,7 +66,7 @@ namespace vm
 
         for (AssemblyVector::const_iterator assembly = s_Assemblies.begin(); assembly != s_Assemblies.end(); ++assembly)
         {
-            if (strcmp(name, MetadataCache::GetStringFromIndex((*assembly)->aname.nameIndex)) == 0)
+            if (strcmp(name, (*assembly)->aname.name) == 0)
                 return *assembly;
         }
 
@@ -95,7 +95,7 @@ namespace vm
         {
             for (AssemblyVector::const_iterator assembly = s_Assemblies.begin(); assembly != s_Assemblies.end(); ++assembly)
             {
-                if (!strcmp(name, MetadataCache::GetImageFromIndex((*assembly)->imageIndex)->name))
+                if (!strcmp(name, (*assembly)->image->name))
                     return *assembly;
             }
 

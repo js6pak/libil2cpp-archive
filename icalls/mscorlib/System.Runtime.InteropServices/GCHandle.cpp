@@ -45,7 +45,7 @@ namespace InteropServices
             // Pointer to first array element
             offset = kIl2CppSizeOfArray;
         }
-        else if (obj->klass->byval_arg->type == IL2CPP_TYPE_STRING)
+        else if (obj->klass->byval_arg.type == IL2CPP_TYPE_STRING)
         {
             // Pointer to first character
             offset = offsetof(Il2CppString, chars);
@@ -70,15 +70,15 @@ namespace InteropServices
             return true;
 
         Il2CppClass* klass = obj->klass;
-        if (klass->byval_arg->type == IL2CPP_TYPE_ARRAY || klass->byval_arg->type == IL2CPP_TYPE_SZARRAY)
+        if (klass->byval_arg.type == IL2CPP_TYPE_ARRAY || klass->byval_arg.type == IL2CPP_TYPE_SZARRAY)
         {
             Il2CppClass* elementClass = klass->element_class;
             return elementClass->is_blittable ||
-                elementClass->byval_arg->type == IL2CPP_TYPE_CHAR || // while "char" and "bool" are not blittable, we can still pin their arrays
-                elementClass->byval_arg->type == IL2CPP_TYPE_BOOLEAN;
+                elementClass->byval_arg.type == IL2CPP_TYPE_CHAR || // while "char" and "bool" are not blittable, we can still pin their arrays
+                elementClass->byval_arg.type == IL2CPP_TYPE_BOOLEAN;
         }
 
-        if (klass->byval_arg->type == IL2CPP_TYPE_CHAR  || klass->byval_arg->type == IL2CPP_TYPE_BOOLEAN || klass->byval_arg->type == IL2CPP_TYPE_STRING)
+        if (klass->byval_arg.type == IL2CPP_TYPE_CHAR  || klass->byval_arg.type == IL2CPP_TYPE_BOOLEAN || klass->byval_arg.type == IL2CPP_TYPE_STRING)
             return true;
 
         return klass->is_blittable;

@@ -282,7 +282,7 @@ typedef struct Il2CppGenericMethodFunctionsDefinitions
 #define PUBLIC_KEY_BYTE_LENGTH 8
 const int kPublicKeyByteLength = PUBLIC_KEY_BYTE_LENGTH;
 
-typedef struct Il2CppAssemblyName
+typedef struct Il2CppAssemblyNameDefinition
 {
     StringIndex nameIndex;
     StringIndex cultureIndex;
@@ -295,8 +295,8 @@ typedef struct Il2CppAssemblyName
     int32_t minor;
     int32_t build;
     int32_t revision;
-    uint8_t publicKeyToken[PUBLIC_KEY_BYTE_LENGTH];
-} Il2CppAssemblyName;
+    uint8_t public_key_token[PUBLIC_KEY_BYTE_LENGTH];
+} Il2CppAssemblyNameDefinition;
 
 typedef struct Il2CppImageDefinition
 {
@@ -313,14 +313,14 @@ typedef struct Il2CppImageDefinition
     uint32_t token;
 } Il2CppImageDefinition;
 
-typedef struct Il2CppAssembly
+typedef struct Il2CppAssemblyDefinition
 {
     ImageIndex imageIndex;
     CustomAttributeIndex customAttributeIndex;
     int32_t referencedAssemblyStart;
     int32_t referencedAssemblyCount;
-    Il2CppAssemblyName aname;
-} Il2CppAssembly;
+    Il2CppAssemblyNameDefinition aname;
+} Il2CppAssemblyDefinition;
 
 typedef struct Il2CppMetadataUsageList
 {
