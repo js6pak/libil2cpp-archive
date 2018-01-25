@@ -127,7 +127,7 @@ namespace Reflection
         FieldInfo* codebaseField = Class::GetFieldFromName(assemblyNameType, "codebase");
 
         if (assemblyNameField != NULL)
-            Field::SetValue(assemblyNameObject, assemblyNameField, String::New(MetadataCache::GetStringFromIndex(assemblyName->nameIndex)));
+            Field::SetValue(assemblyNameObject, assemblyNameField, String::New(assemblyName->name));
 
         if (codebaseField != NULL)
             Field::SetValue(assemblyNameObject, codebaseField, get_code_base(ass, false));
@@ -197,10 +197,10 @@ namespace Reflection
             // Set it to non-null only if public key token is not all zeroes
             for (int i = 0; i < kPublicKeyByteLength; i++)
             {
-                if (assemblyName->publicKeyToken[i] != 0)
+                if (assemblyName->public_key_token[i] != 0)
                 {
                     keyTokenManaged = Array::New(il2cpp_defaults.byte_class, kPublicKeyByteLength);
-                    memcpy(il2cpp::vm::Array::GetFirstElementAddress(keyTokenManaged), assemblyName->publicKeyToken, kPublicKeyByteLength);
+                    memcpy(il2cpp::vm::Array::GetFirstElementAddress(keyTokenManaged), assemblyName->public_key_token, kPublicKeyByteLength);
                     break;
                 }
             }
@@ -282,12 +282,12 @@ namespace Reflection
     {
         std::string executableDirectory = utils::PathUtils::DirectoryName(os::Path::GetExecutablePath());
         std::replace(executableDirectory.begin(), executableDirectory.end(), '\\', '/');
-        return vm::String::New(utils::StringUtils::Printf("file://%s/%s.dll", executableDirectory.c_str(), MetadataCache::GetStringFromIndex(assembly->assembly->aname.nameIndex)).c_str());
+        return vm::String::New(utils::StringUtils::Printf("file://%s/%s.dll", executableDirectory.c_str(), assembly->assembly->aname.name).c_str());
     }
 
     Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* thisPtr, bool exportedOnly)
     {
-        const Il2CppImage* image = MetadataCache::GetImageFromIndex(thisPtr->assembly->imageIndex);
+        const Il2CppImage* image = thisPtr->assembly->image;
         return Module::InternalGetTypes(vm::Reflection::GetModuleObject(image));
     }
 
@@ -300,7 +300,7 @@ namespace Reflection
 
     Il2CppReflectionMethod* Assembly::get_EntryPoint(Il2CppReflectionAssembly* self)
     {
-        const MethodInfo* method = Image::GetEntryPoint(MetadataCache::GetImageFromIndex(self->assembly->imageIndex));
+        const MethodInfo* method = Image::GetEntryPoint(self->assembly->image);
         if (method == NULL)
             return NULL;
 
@@ -380,7 +380,7 @@ namespace Reflection
     {
         std::string resourcesDirectory = utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("Resources"));
 
-        std::string resourceFileName(MetadataCache::GetImageFromIndex(assembly->assembly->imageIndex)->name);
+        std::string resourceFileName(assembly->assembly->image->name);
         resourceFileName += "-resources.dat";
 
         std::string resourceFilePath = utils::PathUtils::Combine(resourcesDirectory, resourceFileName);
@@ -469,7 +469,7 @@ namespace Reflection
             std::vector<char> resourceName(resourceNameSize);
             bytesRead += ReadFromBuffer((uint8_t*)fileBuffer, bytesRead, resourceNameSize, &resourceName[0]);
 
-            resourceRecords.push_back(EmbeddedResourceRecord(MetadataCache::GetImageFromIndex(assembly->assembly->imageIndex), std::string(resourceName.begin(), resourceName.end()), currentResourceDataOffset, resourceDataSize));
+            resourceRecords.push_back(EmbeddedResourceRecord(assembly->assembly->image, std::string(resourceName.begin(), resourceName.end()), currentResourceDataOffset, resourceDataSize));
 
             currentResourceDataOffset += resourceDataSize;
         }
@@ -525,7 +525,7 @@ namespace Reflection
         std::vector<EmbeddedResourceRecord>::iterator resource = std::find_if(resourceRecords.begin(), resourceRecords.end(), ResourceNameMatcher(utils::StringUtils::Utf16ToUtf8(name->chars)));
         if (resource != resourceRecords.end())
         {
-            *module = vm::Reflection::GetModuleObject(MetadataCache::GetImageFromIndex(assembly->assembly->imageIndex));
+            *module = vm::Reflection::GetModuleObject(assembly->assembly->image);
             *size = resource->size;
             intptr_t result;
             result = (intptr_t)LoadResourceData(assembly, *resource);

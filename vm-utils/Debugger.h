@@ -1,8 +1,5 @@
 #pragma once
-#include <stdint.h>
 #include "il2cpp-class-internals.h"
-#include "os/Thread.h"
-#include "os/ThreadLocalValue.h"
 
 struct Il2CppSequencePoint;
 struct Il2CppSequencePointExecutionContext;
@@ -10,6 +7,12 @@ struct Il2CppThreadUnwindState;
 
 typedef void(*DebugInfoInitialization)();
 typedef void(*ThreadCallback)(void*, uintptr_t);
+
+#ifdef __cplusplus
+
+#include <stdint.h>
+#include "os/Thread.h"
+#include "os/ThreadLocalValue.h"
 
 namespace il2cpp
 {
@@ -20,7 +23,7 @@ namespace utils
     {
     public:
         static void SetAgentOptions(const char* options);
-        static void RegisterMethodInitializationMethod(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit);
+        static void RegisterMethodInitializationMethod(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit, DebugInfoInitialization methodHeaderInit);
         static void Init();
         static void Start();
         static void StartDebuggerThread();
@@ -37,11 +40,8 @@ namespace utils
         static void SetIsDebuggerAttached(bool attached);
         static bool IsDebuggerThread(os::Thread* thread);
 
-        static void RegisterThreadStartedCallback(ThreadCallback start);
-        static void RegisterThreadStoppedCallback(ThreadCallback end);
-        static void AllocateThreadStatics();
-        static void ThreadStart(Il2CppThread* thread);
-        static void ThreadEnd(Il2CppThread* thread);
+        static void AllocateThreadLocalData();
+        static void FreeThreadLocalData();
 
         static Il2CppSequencePoint* GetSequencePoint(size_t id);
         static void AddSequencePoint(size_t, const Il2CppSequencePoint&point);
@@ -56,6 +56,8 @@ namespace utils
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
         static bool IsSequencePointActive(Il2CppSequencePoint *seqPoint);
+        static Il2CppMethodHeaderInfo* AddMethodHeaderInfo(const char *methodName, int codeSize, int numScopes);
+        static const Il2CppMethodHeaderInfo* GetMethodHeaderInfo(const char *methodName);
 
     private:
         static os::ThreadLocalValue s_IsGlobalBreakpointActive;
@@ -64,13 +66,15 @@ namespace utils
 #endif // IL2CPP_MONO_DEBUGGER
 }
 }
+#endif //__cplusplus
 
-struct Il2CppSequencePointExecutionContext
+typedef struct Il2CppSequencePointExecutionContext
 {
 #if IL2CPP_MONO_DEBUGGER
     void** values;
 #endif
 
+#ifdef __cplusplus
     Il2CppSequencePointExecutionContext(void** values)
 #if IL2CPP_MONO_DEBUGGER
         : values(values)
@@ -87,4 +91,6 @@ struct Il2CppSequencePointExecutionContext
         il2cpp::utils::Debugger::PopExecutionContext();
 #endif
     }
-};
+
+#endif //__cplusplus
+} Il2CppSequencePointExecutionContext;

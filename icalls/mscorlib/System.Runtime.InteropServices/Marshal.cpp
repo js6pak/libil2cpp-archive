@@ -22,9 +22,7 @@
 #include "vm/Type.h"
 #include "utils/MarshalingUtils.h"
 #include "utils/StringUtils.h"
-#include <sstream>
 #include <string>
-#include <sstream>
 #include <deque>
 
 using namespace il2cpp::vm;
@@ -288,7 +286,7 @@ namespace InteropServices
         Il2CppClass* type = structure->klass;
 
         // This is only legal for classes.
-        if (type->byval_arg->type != IL2CPP_TYPE_CLASS)
+        if (type->byval_arg.type != IL2CPP_TYPE_CLASS)
         {
             Exception::Raise(Exception::GetArgumentException("structure", "The specified structure must be an instance of a formattable class."));
         }
@@ -437,7 +435,7 @@ namespace InteropServices
             if (deleteOld)
                 utils::MarshalingUtils::MarshalFreeStruct(reinterpret_cast<void*>(ptr), type->interopData);
 
-            void* objectPtr = (type->byval_arg->type == IL2CPP_TYPE_CLASS) ? structure : Object::Unbox(structure);
+            void* objectPtr = (type->byval_arg.type == IL2CPP_TYPE_CLASS) ? structure : Object::Unbox(structure);
             utils::MarshalingUtils::MarshalStructToNative(objectPtr, reinterpret_cast<void*>(ptr), type->interopData);
             return;
         }
@@ -447,7 +445,7 @@ namespace InteropServices
         if (type->native_size != -1)
         {
             // StructureToPtr is supposed to throw on strings and enums
-            if (!type->enumtype && type->byval_arg->type != IL2CPP_TYPE_STRING)
+            if (!type->enumtype && type->byval_arg.type != IL2CPP_TYPE_STRING)
             {
                 memcpy(reinterpret_cast<void*>(ptr), Object::Unbox(structure), type->native_size);
                 return;
@@ -556,9 +554,9 @@ namespace InteropServices
         FieldInfo* field = vm::Class::GetFieldFromName(type, fieldNameToFind.c_str());
         if (field == NULL || (vm::Field::GetFlags(field) & FIELD_ATTRIBUTE_STATIC))
         {
-            std::stringstream message;
-            message << "Field '" << fieldNameToFind << "' is not a marshaled member of the type '" << type->name << "'";
-            vm::Exception::Raise(vm::Exception::GetArgumentException("fieldName", message.str().c_str()));
+            std::string message;
+            message = "Field '" + fieldNameToFind + "' is not a marshaled member of the type '" + type->name + "'";
+            vm::Exception::Raise(vm::Exception::GetArgumentException("fieldName", message.c_str()));
         }
 
         // Order the base classes so the most base class is first.

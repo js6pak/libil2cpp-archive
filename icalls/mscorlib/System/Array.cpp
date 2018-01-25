@@ -11,7 +11,6 @@
 #include "vm/Type.h"
 
 #include <vector>
-#include <sstream>
 
 using namespace il2cpp::vm;
 
@@ -160,8 +159,8 @@ namespace System
                 return false;
 
             // derivedtype[] -> basetype[]
-            IL2CPP_ASSERT(Type::IsReference(src_class->byval_arg));
-            IL2CPP_ASSERT(Type::IsReference(dest_class->byval_arg));
+            IL2CPP_ASSERT(Type::IsReference(&src_class->byval_arg));
+            IL2CPP_ASSERT(Type::IsReference(&dest_class->byval_arg));
         }
 
         IL2CPP_ASSERT(il2cpp_array_element_size(dest->klass) == il2cpp_array_element_size(source->klass));
@@ -509,8 +508,8 @@ namespace System
 
         int valueSize = Class::GetInstanceSize(valueClass) - sizeof(Il2CppObject);
 
-        Il2CppTypeEnum elementType = Class::IsEnum(elementClass) ? Class::GetEnumBaseType(elementClass)->type : elementClass->byval_arg->type;
-        Il2CppTypeEnum valueType = Class::IsEnum(valueClass) ? Class::GetEnumBaseType(valueClass)->type : valueClass->byval_arg->type;
+        Il2CppTypeEnum elementType = Class::IsEnum(elementClass) ? Class::GetEnumBaseType(elementClass)->type : elementClass->byval_arg.type;
+        Il2CppTypeEnum valueType = Class::IsEnum(valueClass) ? Class::GetEnumBaseType(valueClass)->type : valueClass->byval_arg.type;
 
         if (elementType == IL2CPP_TYPE_BOOLEAN)
         {

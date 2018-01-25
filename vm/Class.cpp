@@ -149,7 +149,7 @@ namespace vm
 */
     static inline const Il2CppClass* GetReducedType(const Il2CppClass* type)
     {
-        switch (type->byval_arg->type)
+        switch (type->byval_arg.type)
         {
             case IL2CPP_TYPE_I1:
             case IL2CPP_TYPE_U1:
@@ -225,6 +225,7 @@ namespace vm
             return iter->second;
 
         Il2CppClass* klass = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass));
+        klass->klass = klass;
 
         klass->name = MetadataCache::GetStringFromIndex(param->nameIndex);
         klass->namespaze = "";
@@ -239,14 +240,9 @@ namespace vm
 
         klass->flags = TYPE_ATTRIBUTE_PUBLIC;
 
-        Il2CppType* thisArg = (Il2CppType*)MetadataCalloc(1, sizeof(Il2CppType));
-        Il2CppType* byvalArg = (Il2CppType*)MetadataCalloc(1, sizeof(Il2CppType));
-        thisArg->type = byvalArg->type = container->is_method ? IL2CPP_TYPE_MVAR : IL2CPP_TYPE_VAR;
-        thisArg->data.genericParameterIndex = byvalArg->data.genericParameterIndex = MetadataCache::GetIndexForGenericParameter(param);
-        thisArg->byref = true;
-
-        klass->this_arg = thisArg;
-        klass->byval_arg = byvalArg;
+        klass->this_arg.type = klass->byval_arg.type = container->is_method ? IL2CPP_TYPE_MVAR : IL2CPP_TYPE_VAR;
+        klass->this_arg.data.genericParameterIndex = klass->byval_arg.data.genericParameterIndex = MetadataCache::GetIndexForGenericParameter(param);
+        klass->this_arg.byref = true;
 
         klass->instance_size = sizeof(void*);
         klass->thread_static_fields_size = -1;
@@ -269,7 +265,7 @@ namespace vm
             /* SRE or broken types */
             return NULL;
         else
-            return klass->element_class->byval_arg;
+            return &klass->element_class->byval_arg;
     }
 
     const EventInfo* Class::GetEvents(Il2CppClass *klass, void* *iter)
@@ -1070,7 +1066,7 @@ namespace vm
                 newMethod->name = MetadataCache::GetStringFromIndex(methodDefinition->nameIndex);
                 newMethod->methodPointer = MetadataCache::GetMethodPointerFromIndex(methodDefinition->methodIndex);
                 newMethod->invoker_method = MetadataCache::GetMethodInvokerFromIndex(methodDefinition->invokerIndex);
-                newMethod->declaring_type = klass;
+                newMethod->klass = klass;
                 newMethod->return_type = MetadataCache::GetIl2CppTypeFromIndex(methodDefinition->returnType);
 
                 ParameterInfo* parameters = (ParameterInfo*)IL2CPP_CALLOC(methodDefinition->parameterCount, sizeof(ParameterInfo));
@@ -1174,7 +1170,7 @@ namespace vm
                         const Il2CppGenericMethod* genericMethod = GenericMetadata::Inflate(method->genericMethod, context);
                         method = GenericMethod::GetMethod(genericMethod);
                     }
-                    else if (method && Class::IsGeneric(method->declaring_type))
+                    else if (method && Class::IsGeneric(method->klass))
                     {
                         const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(method, context->class_inst, NULL);
                         method = GenericMethod::GetMethod(gmethod);
@@ -1388,7 +1384,7 @@ namespace vm
         if (klass->generic_class)
             InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
 
-        if (klass->byval_arg->type == IL2CPP_TYPE_ARRAY || klass->byval_arg->type == IL2CPP_TYPE_SZARRAY)
+        if (klass->byval_arg.type == IL2CPP_TYPE_ARRAY || klass->byval_arg.type == IL2CPP_TYPE_SZARRAY)
         {
             Il2CppClass *element_class = klass->element_class;
             if (!element_class->initialized)
@@ -1485,7 +1481,7 @@ namespace vm
 
     Il2CppClass* Class::InflateGenericClass(Il2CppClass* klass, Il2CppGenericContext *context)
     {
-        const Il2CppType* inflated = InflateGenericType(klass->byval_arg, context);
+        const Il2CppType* inflated = InflateGenericType(&klass->byval_arg, context);
 
         return FromIl2CppType(inflated);
     }
@@ -1520,7 +1516,7 @@ namespace vm
 
     bool Class::IsInterface(const Il2CppClass *klass)
     {
-        return (klass->flags & TYPE_ATTRIBUTE_INTERFACE) || (klass->byval_arg->type == IL2CPP_TYPE_VAR) || (klass->byval_arg->type == IL2CPP_TYPE_MVAR);
+        return (klass->flags & TYPE_ATTRIBUTE_INTERFACE) || (klass->byval_arg.type == IL2CPP_TYPE_VAR) || (klass->byval_arg.type == IL2CPP_TYPE_MVAR);
     }
 
     bool Class::IsNullable(const Il2CppClass *klass)
@@ -1536,7 +1532,7 @@ namespace vm
 
     int Class::GetArrayElementSize(const Il2CppClass *klass)
     {
-        const Il2CppType *type = klass->byval_arg;
+        const Il2CppType *type = &klass->byval_arg;
 
     handle_enum:
         switch (type->type)
@@ -1583,7 +1579,7 @@ namespace vm
                 return Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
 
             case IL2CPP_TYPE_GENERICINST:
-                type = GenericClass::GetTypeDefinition(type->data.generic_class)->byval_arg;
+                type = &GenericClass::GetTypeDefinition(type->data.generic_class)->byval_arg;
                 goto handle_enum;
 
             case IL2CPP_TYPE_VOID:
@@ -1599,7 +1595,7 @@ namespace vm
 
     const Il2CppType* Class::GetType(Il2CppClass *klass)
     {
-        return klass->byval_arg;
+        return &klass->byval_arg;
     }
 
     const Il2CppType* Class::GetType(Il2CppClass *klass, const TypeNameParseInfo &info)
@@ -1622,7 +1618,7 @@ namespace vm
             if (*it == 0)
             {
                 // byref is always the last modifier, so we can return here.
-                return klass->this_arg;
+                return &klass->this_arg;
             }
 
             if (*it == -1)
@@ -1644,7 +1640,7 @@ namespace vm
         if (klass == NULL)
             return NULL;
 
-        return klass->byval_arg;
+        return &klass->byval_arg;
     }
 
     bool Class::HasAttribute(Il2CppClass *klass, Il2CppClass *attr_class)
@@ -1719,6 +1715,7 @@ namespace vm
             return pointerClass;
 
         pointerClass = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass));
+        pointerClass->klass = pointerClass;
 
         pointerClass->namespaze = elementClass->namespaze;
         pointerClass->name = il2cpp::utils::StringUtils::StringDuplicate(il2cpp::utils::StringUtils::Printf("%s*", elementClass->name).c_str());
@@ -1728,14 +1725,9 @@ namespace vm
         pointerClass->flags = TYPE_ATTRIBUTE_CLASS | (elementClass->flags & TYPE_ATTRIBUTE_VISIBILITY_MASK);
         pointerClass->instance_size = sizeof(void*);
 
-        Il2CppType* this_arg = (Il2CppType*)MetadataCalloc(1, sizeof(Il2CppType));
-        Il2CppType* byval_arg = (Il2CppType*)MetadataCalloc(1, sizeof(Il2CppType));
-        this_arg->type = byval_arg->type = IL2CPP_TYPE_PTR;
-        this_arg->data.type = byval_arg->data.type = elementClass->byval_arg;
-        this_arg->byref = true;
-
-        pointerClass->this_arg = this_arg;
-        pointerClass->byval_arg = byval_arg;
+        pointerClass->this_arg.type = pointerClass->byval_arg.type = IL2CPP_TYPE_PTR;
+        pointerClass->this_arg.data.type = pointerClass->byval_arg.data.type = &elementClass->byval_arg;
+        pointerClass->this_arg.byref = true;
 
         pointerClass->parent = NULL;
         pointerClass->castClass = pointerClass->element_class = elementClass;
@@ -2031,8 +2023,8 @@ namespace vm
     NORETURN static void RaiseExceptionForNotFoundInterface(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
     {
         std::string message;
-        message = "Attempt to access method '" + Type::GetName(itf->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "." + Method::GetName(itf->methods[slot])
-            + "' on type '" + Type::GetName(klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "' failed.";
+        message = "Attempt to access method '" + Type::GetName(&itf->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "." + Method::GetName(itf->methods[slot])
+            + "' on type '" + Type::GetName(&klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "' failed.";
         Exception::Raise(il2cpp::vm::Exception::GetMethodAccessException(message.c_str()));
     }
 
@@ -2081,7 +2073,7 @@ namespace vm
 
                     // Nothing will be referencing these types directly, so we need to initialize them here
                     const VirtualInvokeData& invokeData = itf->vtable[slot];
-                    Init(invokeData.method->declaring_type);
+                    Init(invokeData.method->klass);
                     return invokeData;
                 }
 

@@ -11,7 +11,6 @@
 typedef struct Il2CppClass Il2CppClass;
 typedef struct Il2CppGuid Il2CppGuid;
 typedef struct Il2CppImage Il2CppImage;
-typedef struct Il2CppAssembly Il2CppAssembly;
 typedef struct Il2CppAppDomain Il2CppAppDomain;
 typedef struct Il2CppAppDomainSetup Il2CppAppDomainSetup;
 typedef struct Il2CppDelegate Il2CppDelegate;
@@ -43,9 +42,8 @@ typedef enum Il2CppTypeNameFormat
     IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED
 } Il2CppTypeNameFormat;
 
-extern bool g_il2cpp_is_fully_initialized;
 
-typedef struct
+typedef struct Il2CppDefaults
 {
     Il2CppImage *corlib;
     Il2CppClass *object_class;
@@ -277,15 +275,17 @@ private:
 #endif
     const char* m_name;
     MethodVariableKind m_variableKind;
+    int m_start;
+    int m_end;
 #ifdef __cplusplus
 public:
     Il2CppMethodExecutionContextInfo() :
-        m_type(NULL), m_name(NULL), m_variableKind(kMethodVariableKind_This)
+        m_type(NULL), m_name(NULL), m_variableKind(kMethodVariableKind_This), m_start(0), m_end(0)
     {
     }
 
     Il2CppMethodExecutionContextInfo(const Il2CppMethodExecutionContextInfo& other) :
-        m_type(other.m_type), m_name(other.m_name), m_variableKind(other.m_variableKind)
+        m_type(other.m_type), m_name(other.m_name), m_variableKind(other.m_variableKind), m_start(other.m_start), m_end(other.m_end)
     {
     }
 
@@ -295,9 +295,19 @@ public:
     {
     }
 
+    Il2CppMethodExecutionContextInfo(const MonoType** type, const char* name, MethodVariableKind variableKind, int start, int end) :
+        m_type(type), m_name(name), m_variableKind(variableKind), m_start(start), m_end(end)
+    {
+    }
+
 #else
     Il2CppMethodExecutionContextInfo(const Il2CppType** type, const char* name, MethodVariableKind variableKind) :
-        m_type(type), m_name(name), m_variableKind(variableKind)
+        m_type(type), m_name(name), m_variableKind(variableKind), m_start(0), m_end(0)
+    {
+    }
+
+    Il2CppMethodExecutionContextInfo(const Il2CppType** type, const char* name, MethodVariableKind variableKind, int start, int end) :
+        m_type(type), m_name(name), m_variableKind(variableKind), m_start(start), m_end(end)
     {
     }
 
@@ -308,20 +318,89 @@ public:
         m_type = other.m_type;
         m_name = other.m_name;
         m_variableKind = other.m_variableKind;
+        m_start = other.m_start;
+        m_end = other.m_end;
         return *this;
     }
 
     const char* name() const { return m_name; }
     MethodVariableKind variableKind() const { return m_variableKind; }
+    int start() const { return m_start; }
+    int end() const { return m_end; }
 
 #if RUNTIME_MONO
     const MonoType** type() const { return m_type; }
 #else
     const Il2CppType** type() const { return m_type; }
 #endif
-
 #endif //__cplusplus
 } Il2CppMethodExecutionContextInfo;
+
+typedef struct Il2CppMethodScope
+{
+    int startOffset;
+    int endOffset;
+} Il2CppMethodScope;
+
+typedef struct Il2CppMethodHeaderInfo
+{
+#ifdef __cplusplus
+private:
+#endif //__cplusplus
+    int m_codeSize;
+    int m_numScopes;
+    Il2CppMethodScope *m_scopes;
+
+#ifdef __cplusplus
+public:
+    Il2CppMethodHeaderInfo() :
+        m_codeSize(0), m_numScopes(0), m_scopes(NULL)
+    {
+    }
+
+    Il2CppMethodHeaderInfo(const Il2CppMethodHeaderInfo& other)
+    {
+        *this = other;
+    }
+
+    const Il2CppMethodHeaderInfo& operator=(const Il2CppMethodHeaderInfo& other)
+    {
+        m_codeSize = other.m_codeSize;
+        m_numScopes = other.m_numScopes;
+
+        m_scopes = new Il2CppMethodScope[m_numScopes];
+        for (int i = 0; i < m_numScopes; ++i)
+        {
+            m_scopes[i].startOffset = other.m_scopes[i].startOffset;
+            m_scopes[i].endOffset = other.m_scopes[i].endOffset;
+        }
+
+        return *this;
+    }
+
+    Il2CppMethodHeaderInfo(int codeSize, int numScopes) :
+        m_codeSize(codeSize), m_numScopes(numScopes)
+    {
+        m_scopes = new Il2CppMethodScope[numScopes];
+    }
+
+    ~Il2CppMethodHeaderInfo()
+    {
+        if (m_scopes)
+            delete[] m_scopes;
+    }
+
+    void setScope(int index, int startOffset, int endOffset)
+    {
+        m_scopes[index].startOffset = startOffset;
+        m_scopes[index].endOffset = endOffset;
+    }
+
+    int codeSize() const { return m_codeSize; }
+    int numScopes() const { return m_numScopes; }
+    const Il2CppMethodScope* scopes() const { return m_scopes; }
+#endif //__cplusplus
+} Il2CppMethodHeaderInfo;
 
 typedef struct Hash16
 {
@@ -373,10 +452,13 @@ typedef struct Il2CppSequencePoint
 {
     const Il2CppMethodExecutionContextInfo* executionContextInfos;
     uint32_t executionContextInfoCount;
+    const Il2CppMethodHeaderInfo* header;
 #if RUNTIME_MONO
     const MonoMethod* method;
+    const MonoClass* catchType;
 #else
     const MethodInfo* method;
+    const Il2CppClass* catchType;
 #endif
     const char* const sourceFile;
     Hash16 sourceFileHash;
@@ -386,28 +468,27 @@ typedef struct Il2CppSequencePoint
     const SequencePointKind kind;
     bool isActive;
     uint64_t id;
+    const uint8_t tryDepth;
 
 #ifdef __cplusplus
-    Il2CppSequencePoint() : executionContextInfos(NULL), executionContextInfoCount(0), method(NULL), sourceFile(NULL), lineStart(0), lineEnd(0), columnStart(0), columnEnd(0),
-        ilOffset(0), kind(kSequencePointKind_Normal), isActive(false), id(0)
+    Il2CppSequencePoint() : executionContextInfos(NULL), executionContextInfoCount(0), header(NULL), method(NULL), sourceFile(NULL), lineStart(0), lineEnd(0), columnStart(0), columnEnd(0),
+        ilOffset(0), kind(kSequencePointKind_Normal), isActive(false), id(0), tryDepth(0), catchType(NULL)
     {
     }
 
 #if RUNTIME_MONO
-    Il2CppSequencePoint(const Il2CppMethodExecutionContextInfo* const executionContextInfos_, uint32_t executionContextInfoCount_, const MonoMethod* method_,
+    Il2CppSequencePoint(const Il2CppMethodExecutionContextInfo* const executionContextInfos_, uint32_t executionContextInfoCount_, const Il2CppMethodHeaderInfo* header_, const MonoMethod* method_,
                         const char* const sourceFile_, const Hash16& sourceFileHash_, uint32_t lineStart_, uint32_t lineEnd_, uint32_t columnStart_, uint32_t columnEnd_, int32_t ilOffset_,
-                        SequencePointKind kind_, bool isActive_, uint64_t id_) :
-        executionContextInfos(executionContextInfos_), executionContextInfoCount(executionContextInfoCount_), method(method_), sourceFile(sourceFile_), sourceFileHash(sourceFileHash_),
-        lineStart(lineStart_), lineEnd(lineEnd_), columnStart(columnStart_), columnEnd(columnEnd_), ilOffset(ilOffset_), kind(kind_), isActive(isActive_), id(id_)
-    {
-    }
-
+                        SequencePointKind kind_, bool isActive_, uint64_t id_, uint8_t tryDepth_, const MonoClass *catchType_) :
+        executionContextInfos(executionContextInfos_), executionContextInfoCount(executionContextInfoCount_), header(header_), method(method_), sourceFile(sourceFile_), sourceFileHash(sourceFileHash_),
+        lineStart(lineStart_), lineEnd(lineEnd_), columnStart(columnStart_), columnEnd(columnEnd_), ilOffset(ilOffset_), kind(kind_), isActive(isActive_), id(id_), tryDepth(tryDepth_), catchType(catchType_)
+    {}
 #else
-    Il2CppSequencePoint(const Il2CppMethodExecutionContextInfo* const executionContextInfos_, uint32_t executionContextInfoCount_, const MethodInfo* method_,
+    Il2CppSequencePoint(const Il2CppMethodExecutionContextInfo* const executionContextInfos_, uint32_t executionContextInfoCount_, const Il2CppMethodHeaderInfo* header_, const MethodInfo* method_,
                         const char* const sourceFile_, const Hash16& sourceFileHash_, uint32_t lineStart_, uint32_t lineEnd_, uint32_t columnStart_, uint32_t columnEnd_, int32_t ilOffset_,
-                        SequencePointKind kind_, bool isActive_, uint64_t id_) :
-        executionContextInfos(executionContextInfos_), executionContextInfoCount(executionContextInfoCount_), method(method_), sourceFile(sourceFile_), sourceFileHash(sourceFileHash_),
-        lineStart(lineStart_), lineEnd(lineEnd_), columnStart(columnStart_), columnEnd(columnEnd_), ilOffset(ilOffset_), kind(kind_), isActive(isActive_), id(id_)
+                        SequencePointKind kind_, bool isActive_, uint64_t id_, uint8_t tryDepth_, const Il2CppClass *catchType_) :
+        executionContextInfos(executionContextInfos_), executionContextInfoCount(executionContextInfoCount_), header(header_), method(method_), sourceFile(sourceFile_), sourceFileHash(sourceFileHash_),
+        lineStart(lineStart_), lineEnd(lineEnd_), columnStart(columnStart_), columnEnd(columnEnd_), ilOffset(ilOffset_), kind(kind_), isActive(isActive_), id(id_), tryDepth(tryDepth_), catchType(catchType_)
     {}
 #endif
 #endif //__cplusplus
@@ -426,7 +507,7 @@ typedef struct MethodInfo
     Il2CppMethodPointer methodPointer;
     InvokerMethod invoker_method;
     const char* name;
-    Il2CppClass *declaring_type;
+    Il2CppClass *klass;
     const Il2CppType *return_type;
     const ParameterInfo* parameters;
 
@@ -451,6 +532,7 @@ typedef struct MethodInfo
     uint8_t parameters_count;
     uint8_t is_generic : 1; /* true if method is a generic method definition */
     uint8_t is_inflated : 1; /* true if declaring_type is a generic instance or if method is a generic instance*/
+    uint8_t wrapper_type : 1; /* always zero (MONO_WRAPPER_NONE) needed for the debugger */
 } MethodInfo;
 
 typedef struct Il2CppRuntimeInterfaceOffsetPair
@@ -499,8 +581,8 @@ typedef struct Il2CppClass
     void* gc_desc;
     const char* name;
     const char* namespaze;
-    const Il2CppType* byval_arg;
-    const Il2CppType* this_arg;
+    Il2CppType byval_arg;
+    Il2CppType this_arg;
     Il2CppClass* element_class;
     Il2CppClass* castClass;
     Il2CppClass* declaringType;
@@ -508,6 +590,7 @@ typedef struct Il2CppClass
     Il2CppGenericClass *generic_class;
     const Il2CppTypeDefinition* typeDefinition; // non-NULL for Il2CppClass's constructed from type defintions
     const Il2CppInteropData* interopData;
+    Il2CppClass* klass; // hack to pretend we are a MonoVTable. Points to ourself
     // End always valid fields
 
     // The following fields need initialized before access. This can be done per field or as an aggregate via a call to Class::Init
@@ -600,6 +683,22 @@ typedef struct Il2CppDomain
     void* agent_info;
 } Il2CppDomain;
 
+typedef struct Il2CppAssemblyName
+{
+    const char* name;
+    const char* culture;
+    const char* hash_value;
+    const char* public_key;
+    uint32_t hash_alg;
+    int32_t hash_len;
+    uint32_t flags;
+    int32_t major;
+    int32_t minor;
+    int32_t build;
+    int32_t revision;
+    uint8_t public_key_token[PUBLIC_KEY_BYTE_LENGTH];
+} Il2CppAssemblyName;
+
 typedef struct Il2CppImage
 {
     const char* name;
@@ -620,7 +719,17 @@ typedef struct Il2CppImage
     Il2CppNameToTypeDefinitionIndexHashTable * nameToClassHashTable;
 
     uint32_t token;
+    uint8_t dynamic;
 } Il2CppImage;
+
+typedef struct Il2CppAssembly
+{
+    Il2CppImage* image;
+    CustomAttributeIndex customAttributeIndex;
+    int32_t referencedAssemblyStart;
+    int32_t referencedAssemblyCount;
+    Il2CppAssemblyName aname;
+} Il2CppAssembly;
 
 typedef struct Il2CppCodeGenOptions
 {
