@@ -35,7 +35,7 @@ namespace CompilerServices
         FieldInfo* field_handle = (FieldInfo*)ptr;
         Il2CppClass *klass = array->klass;
         uint32_t size = Array::GetElementSize(klass);
-        const Il2CppType *type = Type::GetUnderlyingType(klass->element_class->byval_arg);
+        const Il2CppType *type = Type::GetUnderlyingType(&klass->element_class->byval_arg);
 
         const char *field_data;
 
@@ -93,9 +93,7 @@ namespace CompilerServices
 #if NET_4_0
     bool RuntimeHelpers::SufficientExecutionStack()
     {
-        NOT_SUPPORTED_IL2CPP(RuntimeHelpers::SufficientExecutionStack, "IL2CPP does not support dynamic code generation.");
-        IL2CPP_UNREACHABLE;
-        return false;
+        return true;
     }
 
 #endif

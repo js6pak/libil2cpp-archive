@@ -167,6 +167,7 @@ namespace vm
         if (!gclass->cached_class)
         {
             Il2CppClass* klass = gclass->cached_class = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass) + (sizeof(VirtualInvokeData) * definition->vtable_count));
+            klass->klass = klass;
 
             klass->name = definition->name;
             klass->namespaze = definition->namespaze;
@@ -180,20 +181,14 @@ namespace vm
             Il2CppGenericContext* context = &klass->generic_class->context;
 
             if (genericTypeDefinition->parent)
-                klass->parent = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(genericTypeDefinition->parent->byval_arg, context, false));
+                klass->parent = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(&genericTypeDefinition->parent->byval_arg, context, false));
 
             if (genericTypeDefinition->declaringType)
-                klass->declaringType = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(genericTypeDefinition->declaringType->byval_arg, context, false));
+                klass->declaringType = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(&genericTypeDefinition->declaringType->byval_arg, context, false));
 
-            Il2CppType* thisArg = (Il2CppType*)MetadataCalloc(1, sizeof(Il2CppType));
-            Il2CppType* byValArg = (Il2CppType*)MetadataCalloc(1, sizeof(Il2CppType));
-
-            thisArg->type = byValArg->type = IL2CPP_TYPE_GENERICINST;
-            thisArg->data.generic_class = byValArg->data.generic_class = gclass;
-            thisArg->byref = true;
-
-            klass->this_arg = thisArg;
-            klass->byval_arg = byValArg;
+            klass->this_arg.type = klass->byval_arg.type = IL2CPP_TYPE_GENERICINST;
+            klass->this_arg.data.generic_class = klass->byval_arg.data.generic_class = gclass;
+            klass->this_arg.byref = true;
 
             klass->event_count = definition->event_count;
             klass->field_count = definition->field_count;
@@ -210,7 +205,7 @@ namespace vm
             klass->native_size = klass->thread_static_fields_offset = -1;
             klass->customAttributeIndex = definition->customAttributeIndex;
             klass->token = definition->token;
-            klass->interopData = MetadataCache::GetInteropDataForType(klass->byval_arg);
+            klass->interopData = MetadataCache::GetInteropDataForType(&klass->byval_arg);
 
             if (Class::IsNullable(klass))
                 klass->element_class = klass->castClass  = Class::GetNullableArgument(klass);

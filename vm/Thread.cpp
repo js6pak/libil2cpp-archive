@@ -93,10 +93,6 @@ namespace vm
         if (!GarbageCollector::RegisterThread(&temp))
             IL2CPP_ASSERT(0 && "GarbageCollector::RegisterThread failed");
 
-#if IL2CPP_MONO_DEBUGGER
-        utils::Debugger::AllocateThreadStatics();
-#endif
-
         StackTrace::InitializeStackTracesForCurrentThread();
 
         // Get/create OS thread representing the current thread. For pre-existing threads such as
@@ -133,7 +129,7 @@ namespace vm
         IL2CPP_ASSERT(thread->GetInternalThread()->synch_cs != NULL);
 
 #if IL2CPP_MONO_DEBUGGER
-        utils::Debugger::AllocateThreadStatics();
+        utils::Debugger::AllocateThreadLocalData();
 #endif
 
         s_CurrentThread.SetValue(thread);
@@ -184,6 +180,10 @@ namespace vm
 
         Unregister(thread);
         FreeThreadStaticData(thread);
+
+#if IL2CPP_MONO_DEBUGGER
+        utils::Debugger::FreeThreadLocalData();
+#endif
 
 #if !NET_4_0
         delete[] thread->GetInternalThread()->serialized_culture_info;

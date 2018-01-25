@@ -19,7 +19,7 @@ namespace vm
 
     Il2CppClass *Method::GetDeclaringType(const MethodInfo* method)
     {
-        return method->declaring_type;
+        return method->klass;
     }
 
     const char* Method::GetName(const MethodInfo *method)
@@ -35,6 +35,11 @@ namespace vm
     bool Method::IsInflated(const MethodInfo *method)
     {
         return method->is_inflated;
+    }
+
+    bool Method::IsGenericInstance(const MethodInfo *method)
+    {
+        return method->is_inflated && !method->is_generic;
     }
 
     bool Method::IsInstance(const MethodInfo *method)
@@ -74,7 +79,7 @@ namespace vm
 
     Il2CppClass* Method::GetClass(const MethodInfo *method)
     {
-        return method->declaring_type;
+        return method->klass;
     }
 
     bool Method::HasAttribute(const MethodInfo *method, Il2CppClass *attr_class)
@@ -247,7 +252,7 @@ namespace vm
     std::string Method::GetFullName(const MethodInfo* method)
     {
         std::string str;
-        str += Type::GetName(method->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+        str += Type::GetName(&method->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
         str += "::";
         str += Method::GetName(method);
 

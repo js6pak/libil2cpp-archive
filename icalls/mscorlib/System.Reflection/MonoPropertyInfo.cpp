@@ -22,13 +22,13 @@ namespace Reflection
     void MonoPropertyInfo::get_property_info(Il2CppReflectionProperty *property, Il2CppPropertyInfo *info, PInfo req_info)
     {
         if ((req_info & PInfo_ReflectedType) != 0)
-            IL2CPP_STRUCT_SETREF(info, parent, vm::Reflection::GetTypeObject(property->klass->byval_arg));
+            IL2CPP_STRUCT_SETREF(info, parent, vm::Reflection::GetTypeObject(&property->klass->byval_arg));
         else if ((req_info & PInfo_DeclaringType) != 0)
         {
 #if !NET_4_0
-            IL2CPP_STRUCT_SETREF(info, parent, vm::Reflection::GetTypeObject(property->property->parent->byval_arg));
+            IL2CPP_STRUCT_SETREF(info, parent, vm::Reflection::GetTypeObject(&property->property->parent->byval_arg));
 #else
-            IL2CPP_STRUCT_SETREF(info, declaringType, vm::Reflection::GetTypeObject(property->property->parent->byval_arg));
+            IL2CPP_STRUCT_SETREF(info, declaringType, vm::Reflection::GetTypeObject(&property->property->parent->byval_arg));
 #endif
         }
 
