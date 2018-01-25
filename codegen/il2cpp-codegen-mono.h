@@ -73,7 +73,7 @@ inline String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView
     return (String_t*)mono_string_new_utf16(g_MonoDomain, (const mono_unichar2*)str.Str(), (int32_t)str.Length());
 }
 
-inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex)
+inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, Il2CppSequencePoint *seqPoint = NULL, MethodInfo* lastManagedFrame = NULL)
 {
     mono_raise_exception((RuntimeException*)ex);
     il2cpp_codegen_no_return();
@@ -252,6 +252,36 @@ inline uint32_t il2cpp_codegen_sizeof(RuntimeClass* klass)
         return sizeof(void*);
 
     return mono_class_instance_size(klass) - sizeof(RuntimeObject);
+}
+
+inline bool il2cpp_codegen_method_is_virtual(RuntimeMethod* method)
+{
+    return method->slot != -1;
+}
+
+inline bool il2cpp_codegen_object_is_of_sealed_type(RuntimeObject* obj)
+{
+    return obj != NULL && mono_class_is_sealed(mono_object_get_class(obj));
+}
+
+inline bool il2cpp_codegen_method_is_generic_instance(RuntimeMethod* method)
+{
+    return unity_mono_method_is_generic(method);
+}
+
+inline bool il2cpp_codegen_method_is_interface_method(RuntimeMethod* method)
+{
+    return MONO_CLASS_IS_INTERFACE(mono_method_get_class(method));
+}
+
+inline uint16_t il2cpp_codegen_method_get_slot(RuntimeMethod* method)
+{
+    return method->slot;
+}
+
+inline RuntimeClass* il2cpp_codegen_method_get_declaring_type(RuntimeMethod* method)
+{
+    return mono_method_get_class(method);
 }
 
 FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_virtual_invoke_data(RuntimeMethod* method, void* obj)
@@ -941,9 +971,9 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(RuntimeObject* objec
 
 inline void il2cpp_codegen_add_sequence_point(size_t id, const Il2CppMethodExecutionContextInfo* const executionContextInfos, uint32_t executionContextInfoCount, const MonoMethod* method,
     const char* const sourceFile, uint8_t h1, uint8_t h2, uint8_t h3, uint8_t h4, uint8_t h5, uint8_t h6, uint8_t h7, uint8_t h8, uint8_t h9, uint8_t h10, uint8_t h11, uint8_t h12, uint8_t h13, uint8_t h14,
-    uint8_t h15, uint8_t h16, uint32_t lineStart, uint32_t lineEnd, uint32_t columnStart, uint32_t columnEnd, int32_t ilOffset, SequencePointKind kind, bool isActive)
+    uint8_t h15, uint8_t h16, uint32_t lineStart, uint32_t lineEnd, uint32_t columnStart, uint32_t columnEnd, int32_t ilOffset, SequencePointKind kind, bool isActive, uint8_t tryDepth, const RuntimeClass *catchType)
 {
 #if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::AddSequencePoint(id, Il2CppSequencePoint(executionContextInfos, executionContextInfoCount, method, sourceFile, Hash16(h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16), lineStart, lineEnd, columnStart, columnEnd, ilOffset, kind, isActive));
+    il2cpp::utils::Debugger::AddSequencePoint(id, Il2CppSequencePoint(executionContextInfos, executionContextInfoCount, method, sourceFile, Hash16(h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16), lineStart, lineEnd, columnStart, columnEnd, ilOffset, kind, isActive, id, tryDepth, catchType));
 #endif
 }

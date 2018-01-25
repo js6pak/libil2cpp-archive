@@ -44,6 +44,11 @@ namespace utils
         if (n == -1)
             return NULL;
 
+        // The v*printf methods might put a trailing NUL character, which should not not be in a
+        // std::string, so strip it out.
+        if (!ret.empty() && ret[ret.size() - 1] == '\0')
+            ret = ret.substr(0, ret.size() - 1);
+
         return ret;
     }
 
@@ -81,6 +86,11 @@ namespace utils
 
         if (n == -1)
             return NULL;
+
+        // The v*printf methods might put a trailing NUL character, which should not not be in a
+        // std::string, so strip it out.
+        if (!ret.empty() && ret[ret.size() - 1] == '\0')
+            ret = ret.substr(0, ret.size() - 1);
 
         return ret;
     }

@@ -32,7 +32,7 @@ namespace Reflection
 
         parent = declaring ? field->field->parent : field->klass;
 
-        return il2cpp::vm::Reflection::GetTypeObject(parent->byval_arg);
+        return il2cpp::vm::Reflection::GetTypeObject(&parent->byval_arg);
     }
 
     int32_t MonoField::GetFieldOffset(Il2CppReflectionField * field)
@@ -55,7 +55,7 @@ namespace Reflection
         {
             Exception::Raise(Exception::GetArgumentException("value",
                     utils::StringUtils::Printf("Object of type '%s' cannot be converted to type '%s'.",
-                        Type::GetName(value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
+                        Type::GetName(&value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
                         Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
                         ).c_str()));
         }

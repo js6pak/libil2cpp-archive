@@ -1441,7 +1441,6 @@
     <ClInclude Include="utils\StringUtils.h" />
     <ClInclude Include="utils\PathUtils.h" />
     <ClInclude Include="utils\StringView.h" />
-    <ClInclude Include="utils\StringViewStream.h" />
     <ClInclude Include="utils\ThreadSafeFreeList.h" />
     <ClInclude Include="utils\MemoryRead.h" />
     <ClInclude Include="utils\utf8-cpp\source\utf8\core.h" />

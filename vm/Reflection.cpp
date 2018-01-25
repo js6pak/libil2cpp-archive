@@ -167,7 +167,7 @@ namespace vm
 #if !NET_4_0
         if (method->is_inflated)
         {
-            refclass = method->declaring_type;
+            refclass = method->klass;
 
             MethodMap::key_type::wrapped_type key(method, refclass);
             MethodMap::data_type value = NULL;
@@ -191,7 +191,7 @@ namespace vm
             gret->base.method = method;
 
             IL2CPP_OBJECT_SETREF(gret, base.name, String::New(method->name));
-            IL2CPP_OBJECT_SETREF(gret, base.reftype, GetTypeObject(refclass->byval_arg));
+            IL2CPP_OBJECT_SETREF(gret, base.reftype, GetTypeObject(&refclass->byval_arg));
 
             ret = &gret->base;
 
@@ -202,7 +202,7 @@ namespace vm
 #endif
 
         if (!refclass)
-            refclass = method->declaring_type;
+            refclass = method->klass;
 
         MethodMap::key_type::wrapped_type key(method, refclass);
         MethodMap::data_type value = NULL;
@@ -223,7 +223,7 @@ namespace vm
         }
         ret = (Il2CppReflectionMethod*)Object::New(klass);
         ret->method = method;
-        IL2CPP_OBJECT_SETREF(ret, reftype, GetTypeObject(refclass->byval_arg));
+        IL2CPP_OBJECT_SETREF(ret, reftype, GetTypeObject(&refclass->byval_arg));
 
         s_MethodMap->Add(key, ret);
 
@@ -320,7 +320,7 @@ namespace vm
 
         Il2CppReflectionMonoEvent* monoEvent = reinterpret_cast<Il2CppReflectionMonoEvent*>(Object::New(monoproperty_klass));
         monoEvent->eventInfo = event;
-        monoEvent->reflectedType = Reflection::GetTypeObject(klass->byval_arg);
+        monoEvent->reflectedType = Reflection::GetTypeObject(&klass->byval_arg);
         result = reinterpret_cast<Il2CppReflectionEvent*>(monoEvent);
 
         s_EventMap->Add(key, result);

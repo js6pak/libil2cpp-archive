@@ -102,7 +102,7 @@ namespace vm
         il2cpp::gc::WriteBarrier::GenericStore(out_args, (Il2CppObject*)arr);
         *exc = NULL;
 
-        ret = vm::Runtime::InvokeArray(method, method->declaring_type->valuetype ? il2cpp_object_unbox(target) : target, method->parameters_count > 0 ? msg->args : NULL, (Il2CppException**)exc);
+        ret = vm::Runtime::InvokeArray(method, method->klass->valuetype ? il2cpp_object_unbox(target) : target, method->parameters_count > 0 ? msg->args : NULL, (Il2CppException**)exc);
 
         for (i = 0, j = 0; i < method->parameters_count; i++)
         {

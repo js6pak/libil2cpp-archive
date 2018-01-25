@@ -19,7 +19,7 @@ namespace Diagnostics
     static bool IsCalledFromSystemDiagnosticsStackTrace(const StackFrames& stack)
     {
         for (StackFrames::const_iterator frame = stack.begin(); frame != stack.end(); ++frame)
-            if (strcmp(frame->method->declaring_type->namespaze, "System.Diagnostics") == 0 && strcmp(frame->method->declaring_type->name, "StackTrace") == 0)
+            if (strcmp(frame->method->klass->namespaze, "System.Diagnostics") == 0 && strcmp(frame->method->klass->name, "StackTrace") == 0)
                 return true;
 
         return false;
@@ -27,8 +27,8 @@ namespace Diagnostics
 
     static bool FrameNeedsSkipped(const Il2CppStackFrameInfo& frame)
     {
-        return strcmp(frame.method->declaring_type->namespaze, "System.Diagnostics") == 0 &&
-            (strcmp(frame.method->declaring_type->name, "StackFrame") == 0 || strcmp(frame.method->declaring_type->name, "StackTrace") == 0);
+        return strcmp(frame.method->klass->namespaze, "System.Diagnostics") == 0 &&
+            (strcmp(frame.method->klass->name, "StackFrame") == 0 || strcmp(frame.method->klass->name, "StackTrace") == 0);
     }
 
     bool StackFrame::get_frame_info(
@@ -75,7 +75,7 @@ namespace Diagnostics
         const Il2CppStackFrameInfo& info = stack[static_cast<size_t>(index)];
 
         IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(StackFrame::get_frame_info, "use gc write barrier");
-        *method = Reflection::GetMethodObject(info.method, info.method->declaring_type);
+        *method = Reflection::GetMethodObject(info.method, info.method->klass);
 
         return true;
     }

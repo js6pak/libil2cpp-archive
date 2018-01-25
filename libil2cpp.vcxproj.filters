@@ -1455,7 +1455,6 @@
     <ClInclude Include="icalls\System\System.Diagnostics\perfcounters-def.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.h" />
     <ClInclude Include="utils\StringView.h" />
-    <ClInclude Include="utils\StringViewStream.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\Assert.h">
       <Filter>icalls\mscorlib\System.Diagnostics</Filter>
     </ClInclude>
@@ -1848,6 +1847,7 @@
     <ClInclude Include="il2cpp-tabledefs.h" />
     <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="vm-utils\Debugger.h" />
+    <ClInclude Include="os\c-api\Allocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />

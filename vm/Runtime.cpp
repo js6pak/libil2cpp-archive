@@ -527,7 +527,7 @@ namespace vm
         method = Class::GetMethodFromName(klass, ".ctor", 0);
         IL2CPP_ASSERT(method != NULL && "ObjectInit; no default constructor for object is found");
 
-        if (method->declaring_type->valuetype)
+        if (method->klass->valuetype)
             object = (Il2CppObject*)Object::Unbox(object);
         Invoke(method, object, NULL, exc);
     }
@@ -594,10 +594,10 @@ namespace vm
 
     static inline Il2CppObject* InvokeConvertThis(const MethodInfo* method, void* thisArg, void** convertedParameters, Il2CppException** exception)
     {
-        Il2CppClass* thisType = method->declaring_type;
+        Il2CppClass* thisType = method->klass;
 
         // If it's not a constructor, just invoke directly
-        if (strcmp(method->name, ".ctor") != 0 || method->declaring_type == il2cpp_defaults.string_class)
+        if (strcmp(method->name, ".ctor") != 0 || method->klass == il2cpp_defaults.string_class)
             return Runtime::Invoke(method, thisArg, convertedParameters, exception);
 
         // If it is a construction, we need to construct a return value and allocate object if needed
@@ -673,7 +673,7 @@ namespace vm
                 {
                     convertedParameters[i] = &parameters[i]; // Reference type passed by reference
                 }
-                else if (parameterType->byval_arg->type == IL2CPP_TYPE_PTR)
+                else if (parameterType->byval_arg.type == IL2CPP_TYPE_PTR)
                 {
                     if (parameters[i] != NULL)
                     {

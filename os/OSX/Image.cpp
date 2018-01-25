@@ -24,7 +24,7 @@ namespace Image
         if (error != -1)
             return NULL;
 
-        path.reserve(size);
+        path.resize(size);
         error = _NSGetExecutablePath(&path[0], &size);
         IL2CPP_ASSERT(error == 0);
         if (error != 0)
