@@ -115,6 +115,10 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
 
 #   include "ExtendedAtomicOps-arm.h"
 
+#elif PLATFORM_WIIU
+
+#   include "ExtendedAtomicOps-ppc.h"
+
 #elif PLATFORM_PSVITA
 
 #   include "PlatformExtendedAtomicOps.h"

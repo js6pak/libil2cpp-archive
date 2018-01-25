@@ -31,7 +31,7 @@ namespace Reflection
         //  mono_raise_exception (mono_loader_error_prepare_exception (mono_loader_get_last_error ()));
         //}
 
-        IL2CPP_STRUCT_SETREF(info, parent, il2cpp::vm::Reflection::GetTypeObject(method->declaring_type->byval_arg));
+        IL2CPP_STRUCT_SETREF(info, parent, il2cpp::vm::Reflection::GetTypeObject(&method->klass->byval_arg));
         if (method->return_type)
             IL2CPP_STRUCT_SETREF(info, ret, il2cpp::vm::Reflection::GetTypeObject(method->return_type));
         info->attrs = method->flags;

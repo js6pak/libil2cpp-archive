@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include <string>
-#include <sstream>
 #include "icalls/mscorlib/System.Reflection/MonoMethod.h"
 #include "il2cpp-tabledefs.h"
 #include "il2cpp-class-internals.h"
@@ -36,7 +35,7 @@ namespace Reflection
     Il2CppReflectionMethod* MonoMethod::get_base_definition(Il2CppReflectionMethod *m)
     {
         const MethodInfo *method = m->method;
-        Il2CppClass *klass = method->declaring_type;
+        Il2CppClass *klass = method->klass;
 
         if (klass == NULL)
             return m;
@@ -54,7 +53,7 @@ namespace Reflection
             klass = parent;
         }
 
-        if (klass == method->declaring_type)
+        if (klass == method->klass)
             return m;
 
         il2cpp::vm::Class::Init(klass);
@@ -148,7 +147,7 @@ namespace Reflection
         {
             const Il2CppGenericParameter *param = GenericContainer::GetGenericParameter(container, i);
             Il2CppClass *pklass = Class::FromGenericParameter(param);
-            il2cpp_array_setref(res, i, il2cpp::vm::Reflection::GetTypeObject(pklass->byval_arg));
+            il2cpp_array_setref(res, i, il2cpp::vm::Reflection::GetTypeObject(&pklass->byval_arg));
         }
 
         return res;
@@ -177,7 +176,7 @@ namespace Reflection
                 //  return NULL;
                 //}
 
-                if (!Object::IsInst(thisPtr, m->declaring_type))
+                if (!Object::IsInst(thisPtr, m->klass))
                 {
                     IL2CPP_ASSERT(0);
                     //mono_gc_wbarrier_generic_store (exc, (MonoObject*) mono_exception_from_name_msg (mono_defaults.corlib, "System.Reflection", "TargetException", "Object does not match target type."));
@@ -204,12 +203,12 @@ namespace Reflection
         }
 
         // TODO: Add check for abstract once types have flags
-        //if ((m->declaring_type->flags & TYPE_ATTRIBUTE_ABSTRACT) && !strcmp (m->name, ".ctor") && !this) {
+        //if ((m->klass->flags & TYPE_ATTRIBUTE_ABSTRACT) && !strcmp (m->name, ".ctor") && !this) {
         //  mono_gc_wbarrier_generic_store (exc, (MonoObject*) mono_exception_from_name_msg (mono_defaults.corlib, "System.Reflection", "TargetException", "Cannot invoke constructor of an abstract class."));
         //  return NULL;
         //}
 
-        if (m->declaring_type->rank && !strcmp(m->name, ".ctor"))
+        if (m->klass->rank && !strcmp(m->name, ".ctor"))
         {
             int i;
             il2cpp_array_size_t *lengths;
@@ -219,20 +218,20 @@ namespace Reflection
             for (i = 0; i < pcount; ++i)
                 lengths[i] = *(il2cpp_array_size_t*)((char*)il2cpp_array_get(params, void*, i) + sizeof(Il2CppObject));
 
-            if (m->declaring_type->rank == pcount)
+            if (m->klass->rank == pcount)
             {
                 /* Only lengths provided. */
                 lower_bounds = NULL;
             }
             else
             {
-                IL2CPP_ASSERT(pcount == (m->declaring_type->rank * 2));
+                IL2CPP_ASSERT(pcount == (m->klass->rank * 2));
                 /* lower bounds are first. */
                 lower_bounds = lengths;
-                lengths += m->declaring_type->rank;
+                lengths += m->klass->rank;
             }
 
-            return (Il2CppObject*)il2cpp::vm::Array::NewFull(m->declaring_type, lengths, lower_bounds);
+            return (Il2CppObject*)il2cpp::vm::Array::NewFull(m->klass, lengths, lower_bounds);
         }
 
         // If a managed exception was thrown, we need raise it here because Runtime::Invoke catches the exception and returns a pointer to it.
@@ -255,7 +254,7 @@ namespace Reflection
     {
         std::string message;
         message += "Failed to construct generic method '";
-        message += Type::GetName(method->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+        message += Type::GetName(&method->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
         message += "::";
         message += Method::GetName(method);
         message += "' with generic arguments [";
@@ -274,7 +273,7 @@ namespace Reflection
     {
         std::string message;
         message += "The method '";
-        message += Type::GetName(method->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+        message += Type::GetName(&method->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
         message += "::";
         message += Method::GetName(method);
         message += "' is not a generic method.";
@@ -353,7 +352,7 @@ namespace Reflection
         // only be called by some GetCustomAttributes(true) calls.  There is only a small difference in the behavior of this method
         // when definition is false.
         const MethodInfo *method2 = method->method;
-        Il2CppClass *klass = method2->declaring_type;
+        Il2CppClass *klass = method2->klass;
 
         if (klass == NULL)
             return method;
@@ -384,7 +383,7 @@ namespace Reflection
             klass = klass->parent;
         }
 
-        if (klass == method2->declaring_type)
+        if (klass == method2->klass)
             return method;
 
         il2cpp::vm::Class::Init(klass);

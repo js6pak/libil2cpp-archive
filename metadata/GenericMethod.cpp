@@ -18,7 +18,7 @@
 #include "utils/Il2CppHashMap.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-runtime-metadata.h"
-#include <sstream>
+#include <string>
 
 using il2cpp::metadata::GenericMetadata;
 using il2cpp::metadata::GenericSharing;
@@ -60,11 +60,11 @@ namespace metadata
             return iter->second;
 
         const MethodInfo* methodDefinition = gmethod->methodDefinition;
-        Il2CppClass* declaringClass = methodDefinition->declaring_type;
+        Il2CppClass* declaringClass = methodDefinition->klass;
         if (gmethod->context.class_inst)
         {
             IL2CPP_ASSERT(!declaringClass->generic_class);
-            Il2CppGenericClass* genericClassDeclaringType = GenericMetadata::GetGenericClass(methodDefinition->declaring_type, gmethod->context.class_inst);
+            Il2CppGenericClass* genericClassDeclaringType = GenericMetadata::GetGenericClass(methodDefinition->klass, gmethod->context.class_inst);
             declaringClass = GenericClass::GetClass(genericClassDeclaringType);
 
             // we may fail if we cannot construct generic type
@@ -78,7 +78,7 @@ namespace metadata
         // if we move lock to only if MethodInfo needs constructed then we need to revisit this since we could return a partially initialized MethodInfo
         s_GenericMethodMap.insert(std::make_pair(gmethod, newMethod));
 
-        newMethod->declaring_type = declaringClass;
+        newMethod->klass = declaringClass;
         newMethod->flags = methodDefinition->flags;
         newMethod->iflags = methodDefinition->iflags;
         newMethod->slot = methodDefinition->slot;
@@ -129,33 +129,33 @@ namespace metadata
 
     static std::string FormatGenericArguments(const Il2CppGenericInst* inst)
     {
-        std::ostringstream sstream;
+        std::string output;
         if (inst)
         {
-            sstream << "<";
+            output.append("<");
             for (size_t i = 0; i < inst->type_argc; ++i)
             {
                 if (i != 0)
-                    sstream << ", ";
-                sstream << Type::GetName(inst->type_argv[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+                    output.append(", ");
+                output.append(Type::GetName(inst->type_argv[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME));
             }
-            sstream << ">";
+            output.append(">");
         }
 
-        return sstream.str();
+        return output;
     }
 
     std::string GenericMethod::GetFullName(const Il2CppGenericMethod* gmethod)
     {
         const MethodInfo* method = gmethod->methodDefinition;
-        std::ostringstream sstream;
-        sstream << Type::GetName(gmethod->methodDefinition->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
-        sstream << FormatGenericArguments(gmethod->context.class_inst);
-        sstream << "::";
-        sstream << Method::GetName(method);
-        sstream << FormatGenericArguments(gmethod->context.method_inst);
+        std::string output;
+        output.append(Type::GetName(&gmethod->methodDefinition->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME));
+        output.append(FormatGenericArguments(gmethod->context.class_inst));
+        output.append("::");
+        output.append(Method::GetName(method));
+        output.append(FormatGenericArguments(gmethod->context.method_inst));
 
-        return sstream.str();
+        return output;
     }
 } /* namespace vm */
 } /* namespace il2cpp */
