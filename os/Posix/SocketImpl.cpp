@@ -314,11 +314,6 @@ namespace os
                             addr_list.push_back(std::string(addr));
                     }
                 }
-
-                free(local_in);
-                free(local_in6);
-
-                return;
             }
 
             free(local_in);
@@ -376,6 +371,9 @@ namespace os
 
         if (info)
             freeaddrinfo(info);
+
+        if (name.empty())
+            name.assign(hostname);
 
         return kWaitStatusSuccess;
     }
@@ -717,6 +715,11 @@ namespace os
                 return kWaitStatusFailure;
             }
         }
+
+#if IL2CPP_TARGET_DARWIN
+        int32_t value = 1;
+        setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, &value, sizeof(value));
+#endif
 
         // mono_once (&socket_ops_once, socket_ops_init);
 
