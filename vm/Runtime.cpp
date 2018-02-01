@@ -862,7 +862,7 @@ namespace vm
 #if !NET_4_0
         IL2CPP_ASSERT(value == 82);
 #else
-        IL2CPP_ASSERT(value == 1050900001);
+        IL2CPP_ASSERT(value == 1051100001);
 #endif
 #endif
     }
