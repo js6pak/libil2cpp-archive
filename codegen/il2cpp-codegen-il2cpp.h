@@ -151,9 +151,9 @@ inline Il2CppCodeGenType* il2cpp_codegen_type_get_object(const RuntimeType* type
     return (Il2CppCodeGenType*)il2cpp::vm::Reflection::GetTypeObject(type);
 }
 
-inline NORETURN void il2cpp_codegen_raise_exception(Il2CppCodeGenException *ex)
+inline NORETURN void il2cpp_codegen_raise_exception(Il2CppCodeGenException *ex, MethodInfo* lastManagedFrame = NULL)
 {
-    il2cpp::vm::Exception::Raise((RuntimeException*)ex);
+    il2cpp::vm::Exception::Raise((RuntimeException*)ex, lastManagedFrame);
 }
 
 inline void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method)
