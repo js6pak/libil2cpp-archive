@@ -26,6 +26,7 @@ namespace vm
         static bool IsGeneric(const MethodInfo *method);
         static bool IsInflated(const MethodInfo *method);
         static bool IsInstance(const MethodInfo *method);
+        static bool IsGenericInstance(const MethodInfo *method);
         static uint32_t GetParamCount(const MethodInfo *method);
         static const Il2CppType* GetParam(const MethodInfo *method, uint32_t index);
         static Il2CppClass* GetClass(const MethodInfo *method);
