@@ -83,7 +83,7 @@ inline Il2CppCodeGenString* il2cpp_codegen_string_new_utf16(const il2cpp::utils:
     return (Il2CppCodeGenString*)mono_string_new_utf16(g_MonoDomain, (const mono_unichar2*)str.Str(), (int32_t)str.Length());
 }
 
-inline NORETURN void il2cpp_codegen_raise_exception(Il2CppCodeGenException *ex)
+inline NORETURN void il2cpp_codegen_raise_exception(Il2CppCodeGenException *ex, MethodInfo* lastManagedFrame = NULL)
 {
     mono_raise_exception((RuntimeException*)ex);
     il2cpp_codegen_no_return();
