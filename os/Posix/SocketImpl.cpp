@@ -314,11 +314,6 @@ namespace os
                             addr_list.push_back(std::string(addr));
                     }
                 }
-
-                free(local_in);
-                free(local_in6);
-
-                return;
             }
 
             free(local_in);
@@ -376,6 +371,9 @@ namespace os
 
         if (info)
             freeaddrinfo(info);
+
+        if (name.empty())
+            name.assign(hostname);
 
         return kWaitStatusSuccess;
     }

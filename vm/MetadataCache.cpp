@@ -36,6 +36,7 @@
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataLoader.h"
 #include "vm/MetadataLock.h"
+#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/String.h"
 #include "vm/Type.h"
@@ -1020,6 +1021,11 @@ const Il2CppFieldDefaultValue* MetadataCache::GetFieldDefaultValueForField(const
 
 const Il2CppParameterDefaultValue * il2cpp::vm::MetadataCache::GetParameterDefaultValueForParameter(const MethodInfo* method, const ParameterInfo* parameter)
 {
+    if (Method::IsGenericInstance(method))
+        method = GetGenericMethodDefinition(method);
+
+    IL2CPP_ASSERT(!Method::IsGenericInstance(method));
+
     if (method->methodDefinition == NULL)
         return NULL;
 
