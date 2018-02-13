@@ -1505,6 +1505,7 @@
   <ItemGroup>
     <ClCompile Include="char-conversions.cpp" />
     <ClCompile Include="class-internals.cpp" />
+    <ClCompile Include="codegen\il2cpp-codegen-common.cpp" />
     <ClCompile Include="externals\MonoPosixHelper.cpp" />
     <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c" />
     <ClCompile Include="gc\GarbageCollector.cpp" />
