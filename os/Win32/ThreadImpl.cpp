@@ -196,7 +196,7 @@ namespace
         return kApartmentStateUnknown;
     }
 
-#if !defined(WINAPI_FAMILY) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
 
     ApartmentState GetApartmentWindowsXp(bool* implicit)
     {
