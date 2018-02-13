@@ -452,6 +452,7 @@ bool il2cpp_stats_dump_to_file(const char *path)
 
     fs.close();
 
+
     return true;
 }
 
