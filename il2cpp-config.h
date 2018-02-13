@@ -216,6 +216,7 @@
 #endif
 
 typedef uint32_t Il2CppMethodSlot;
+const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 /* Debug macros */
 #define STRINGIZE(L)          #L

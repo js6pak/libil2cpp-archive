@@ -165,9 +165,11 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     if(__leave_target == Offset) \
         goto Target;
 
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message) \
+
+
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message);\
+        il2cpp_codegen_raise_exception((Exception_t*)message, (MethodInfo*)lastManagedFrame);\
         il2cpp_codegen_no_return();\
     } while (0)
 
