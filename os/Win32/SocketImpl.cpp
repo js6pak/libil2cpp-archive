@@ -1797,7 +1797,7 @@ namespace os
             // Mono does this as well and the threadpool-ms-io-poll code depends on this behavior
             if (*error == WSAENOTSOCK)
             {
-                *error = os::SocketError::kInvalidHandle;
+                *error = os::kInvalidHandle;
             }
 
             return kWaitStatusFailure;
