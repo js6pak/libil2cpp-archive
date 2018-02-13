@@ -11,7 +11,6 @@
 #include "vm/Type.h"
 
 #include <vector>
-#include <sstream>
 
 using namespace il2cpp::vm;
 

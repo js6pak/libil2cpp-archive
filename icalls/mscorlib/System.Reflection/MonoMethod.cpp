@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
 #include <string>
-#include <sstream>
 #include "icalls/mscorlib/System.Reflection/MonoMethod.h"
 #include "il2cpp-tabledefs.h"
 #include "il2cpp-class-internals.h"

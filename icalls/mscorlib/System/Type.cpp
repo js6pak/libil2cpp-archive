@@ -4,7 +4,6 @@
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-api.h"
-#include <sstream>
 #include "il2cpp-tabledefs.h"
 #include "metadata/GenericMetadata.h"
 #include "metadata/Il2CppTypeVector.h"
@@ -23,6 +22,7 @@
 #include "utils/StringUtils.h"
 
 #include <vector>
+#include <string>
 
 using namespace il2cpp::vm;
 using il2cpp::metadata::GenericMetadata;
@@ -257,25 +257,25 @@ namespace System
         // Per MSDN: http://msdn.microsoft.com/en-us/library/w0ykk2sw(v=vs.110).aspx
         if (rank > 32)
         {
-            std::stringstream message;
-            message << vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) << " with rank " << rank << " has too many dimensions.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.str().c_str()));
+            std::string message;
+            message = vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) + " with rank " + utils::StringUtils::Printf("%d", rank) + " has too many dimensions.";
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
         }
 
         if (type->type->byref)
         {
-            std::stringstream message;
-            message << "Could not create array type '" << vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) << "'.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.str().c_str()));
+            std::string message;
+            message = "Could not create array type '" + vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) + "'.";
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
         }
 
         const Il2CppClass *klass = Class::FromIl2CppType(type->type);
 
         if ((strcmp(klass->namespaze, "System") == 0 && strcmp(klass->name, "TypedReference") == 0))
         {
-            std::stringstream message;
-            message << "Could not create array type '" << klass->namespaze << "." << klass->name << "[]'.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.str().c_str()));
+            std::string message;
+            message + "Could not create array type '" + klass->namespaze + "." + klass->name + "[]'.";
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
         }
     }
 

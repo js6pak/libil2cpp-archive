@@ -93,9 +93,7 @@ namespace CompilerServices
 #if NET_4_0
     bool RuntimeHelpers::SufficientExecutionStack()
     {
-        NOT_IMPLEMENTED_ICALL(RuntimeHelpers::SufficientExecutionStack);
-        IL2CPP_UNREACHABLE;
-        return false;
+        return true;
     }
 
 #endif
