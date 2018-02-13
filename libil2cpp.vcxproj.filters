@@ -840,6 +840,9 @@
     <ClCompile Include="vm-utils\Debugger.cpp">
       <Filter>vm-utils</Filter>
     </ClCompile>
+    <ClCompile Include="codegen\il2cpp-codegen-common.cpp">
+      <Filter>codegen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1847,6 +1850,7 @@
     <ClInclude Include="il2cpp-tabledefs.h" />
     <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="vm-utils\Debugger.h" />
+    <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="os\c-api\Allocator.h" />
   </ItemGroup>
   <ItemGroup>
