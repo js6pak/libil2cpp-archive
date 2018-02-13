@@ -1447,7 +1447,6 @@
     <ClInclude Include="icalls\System\System.Diagnostics\perfcounters-def.h" />
     <ClInclude Include="icalls\System\System.Diagnostics\PerformanceCounterUtils.h" />
     <ClInclude Include="utils\StringView.h" />
-    <ClInclude Include="utils\StringViewStream.h" />
     <ClInclude Include="icalls\mscorlib\System.Diagnostics\Assert.h">
       <Filter>icalls\mscorlib\System.Diagnostics</Filter>
     </ClInclude>
@@ -1796,6 +1795,50 @@
       <Filter>os\c-api</Filter>
     </ClInclude>
     <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\Console.cpp" />
+    <ClInclude Include="il2cpp-config-api.h" />
+    <ClInclude Include="os\TimeZoneInfo.h">
+      <Filter>os</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\TimeZoneInfo-c-api.h">
+      <Filter>os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\Unity\AtomicNode.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\AtomicQueue.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\ExtendedAtomicOps.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-arm.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-arm64.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-clang-gcc.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-x86.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-x86-64.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\ExtendedAtomicTypes.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="os\Unity\UnityPlatformConfigure.h">
+      <Filter>os\Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="il2cpp-class-internals.h" />
+    <ClInclude Include="il2cpp-tabledefs.h" />
+    <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="vm-utils\Debugger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
