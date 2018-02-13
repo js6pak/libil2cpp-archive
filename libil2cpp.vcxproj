@@ -1427,12 +1427,12 @@
     <ClInclude Include="utils\StringUtils.h" />
     <ClInclude Include="utils\PathUtils.h" />
     <ClInclude Include="utils\StringView.h" />
-    <ClInclude Include="utils\StringViewStream.h" />
     <ClInclude Include="utils\ThreadSafeFreeList.h" />
     <ClInclude Include="utils\MemoryRead.h" />
     <ClInclude Include="utils\utf8-cpp\source\utf8\core.h" />
     <ClInclude Include="utils\utf8-cpp\source\utf8\unchecked.h" />
     <ClInclude Include="vm-utils\BlobReader.h" />
+    <ClInclude Include="vm-utils\Debugger.h" />
     <ClInclude Include="vm-utils\NativeDelegateMethodCache.h" />
     <ClInclude Include="vm-utils\NativeSymbol.h" />
     <ClInclude Include="vm-utils\VmStringUtils.h" />
@@ -1678,6 +1678,7 @@
     <ClCompile Include="os\c-api\Mutex.cpp" />
     <ClCompile Include="os\c-api\Semaphore.cpp" />
     <ClCompile Include="os\c-api\Thread.cpp" />
+    <ClCompile Include="os\c-api\TimeZoneInfo.cpp" />
     <ClCompile Include="os\ConditionVariable.cpp" />
     <ClInclude Include="os\c-api\Debug.cpp" />
     <ClInclude Include="os\c-api\Directory.cpp" />
@@ -1702,6 +1703,7 @@
     <ClCompile Include="os\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Generic\MemoryMappedFile.cpp" />
     <ClCompile Include="os\Generic\SocketImpl.cpp" />
+    <ClCompile Include="os\Generic\TimeZoneInfo.cpp" />
     <ClCompile Include="os\Generic\WindowsRuntime.cpp" />
     <ClCompile Include="os\Handle.cpp" />
     <ClCompile Include="os\Messages.cpp" />
@@ -1807,6 +1809,7 @@
     <ClCompile Include="utils\StringUtils.cpp" />
     <ClCompile Include="utils\PathUtils.cpp" />
     <ClCompile Include="vm-utils\BlobReader.cpp" />
+    <ClCompile Include="vm-utils\Debugger.cpp" />
     <ClCompile Include="vm-utils\NativeDelegateMethodCache.cpp" />
     <ClCompile Include="vm-utils\NativeSymbol.cpp" />
     <ClCompile Include="vm-utils\VmStringUtils.cpp" />
