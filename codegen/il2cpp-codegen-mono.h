@@ -83,7 +83,7 @@ inline Il2CppCodeGenString* il2cpp_codegen_string_new_utf16(const il2cpp::utils:
     return (Il2CppCodeGenString*)mono_string_new_utf16(g_MonoDomain, (const mono_unichar2*)str.Str(), (int32_t)str.Length());
 }
 
-inline NORETURN void il2cpp_codegen_raise_exception(Il2CppCodeGenException *ex)
+inline NORETURN void il2cpp_codegen_raise_exception(Il2CppCodeGenException *ex, MethodInfo* lastManagedFrame = NULL)
 {
     mono_raise_exception((RuntimeException*)ex);
     il2cpp_codegen_no_return();
@@ -594,9 +594,6 @@ inline void NullCheck(void* this_ptr)
         return;
 
     mono_raise_exception(mono_get_exception_null_reference());
-#if !IL2CPP_TARGET_IOS
-    il2cpp_codegen_no_return();
-#endif
 }
 
 inline void DivideByZeroCheck(int64_t denominator)
@@ -605,9 +602,6 @@ inline void DivideByZeroCheck(int64_t denominator)
         return;
 
     mono_raise_exception(mono_get_exception_divide_by_zero());
-#if !IL2CPP_TARGET_IOS
-    il2cpp_codegen_no_return();
-#endif
 }
 
 inline void Initobj(RuntimeClass* type, void* data)

@@ -19,7 +19,7 @@ namespace vm
     public:
         static Il2CppException* Get(il2cpp_hresult_t hresult, bool defaultToCOMException);
 
-        static NORETURN void Raise(Il2CppException* ex);
+        static NORETURN void Raise(Il2CppException* ex, MethodInfo* lastManagedFrame = NULL);
         static NORETURN void RaiseOutOfMemoryException();
         static NORETURN void RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg);
         static NORETURN void RaiseNullReferenceException();
