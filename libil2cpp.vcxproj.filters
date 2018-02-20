@@ -1852,6 +1852,7 @@
     <ClInclude Include="vm-utils\Debugger.h" />
     <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="os\c-api\Allocator.h" />
+    <ClInclude Include="os\c-api\Allocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
