@@ -263,3 +263,11 @@ inline typename pick_bigger<T, U>::type il2cpp_codegen_subtract(T left, U right)
 {
     return left - right;
 }
+
+#ifdef _MSC_VER
+#define IL2CPP_DISABLE_OPTIMIZATIONS __pragma(optimize("", off))
+#define IL2CPP_ENABLE_OPTIMIZATIONS __pragma(optimize("", on))
+#else
+#define IL2CPP_DISABLE_OPTIMIZATIONS __attribute__ ((optnone))
+#define IL2CPP_ENABLE_OPTIMIZATIONS
+#endif
