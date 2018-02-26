@@ -74,6 +74,8 @@ private:
     const RuntimeMethod* m_method;
 };
 
+#define IL2CPP_FAKE_BOX_SENTRY (MonitorData*)UINTPTR_MAX
+
 template<typename T>
 struct Il2CppFakeBox : RuntimeObject
 {
@@ -82,10 +84,15 @@ struct Il2CppFakeBox : RuntimeObject
     Il2CppFakeBox(RuntimeClass* boxedType, T* value)
     {
         klass = boxedType;
-        monitor = NULL;
+        monitor = IL2CPP_FAKE_BOX_SENTRY;
         m_Value = *value;
     }
 };
+
+inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
+{
+    return object->monitor == IL2CPP_FAKE_BOX_SENTRY;
+}
 
 // TODO: This file should contain all the functions and type declarations needed for the generated code.
 // Hopefully, we stop including everything in the generated code and know exactly what dependencies we have.
