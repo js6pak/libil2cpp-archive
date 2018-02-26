@@ -5,7 +5,10 @@
 #include "os/Win32/WindowsHeaders.h"
 #include <wrl.h>
 
+#if WINDOWS_SDK_BUILD_VERSION < 16299 // This got readded on Windows 10 Fall Creators Update
 #define MAX_COMPUTERNAME_LENGTH 31
+#define GetComputerName GetComputerNameW
+#endif
 
 namespace il2cpp
 {
@@ -40,10 +43,10 @@ namespace winrt
 }
 }
 
+#if WINDOWS_SDK_BUILD_VERSION < 16299 // These APIs got readded on Windows 10 Fall Creators Update
+
 extern "C"
 {
-#define GetComputerName GetComputerNameW
-
 inline BOOL WINAPI CopyFileW(LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, BOOL bFailIfExists)
 {
     COPYFILE2_EXTENDED_PARAMETERS params;
@@ -71,5 +74,7 @@ inline UINT WINAPI GetACP()
 
 BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize);
 } // extern "C"
+
+#endif
 
 #endif
