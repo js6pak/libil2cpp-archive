@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 
 #if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+#if WINDOWS_SDK_BUILD_VERSION < 16299
 
 #include "os/Win32/WindowsHeaders.h"
 #include "Win32ApiSharedEmulation.h"
@@ -54,4 +55,5 @@ BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize)
 }
 } // extern "C"
 
-#endif
+#endif // WINDOWS_SDK_BUILD_VERSION < 16299
+#endif // IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
