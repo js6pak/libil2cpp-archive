@@ -14,10 +14,6 @@
         #define GC_THREADS 1
     #endif
 
-    #if IL2CPP_TARGET_WINRT
-    #define GC_NOT_DLL
-    #endif
-
     #include "gc.h"
     #include "gc_typed.h"
     #include "gc_mark.h"
