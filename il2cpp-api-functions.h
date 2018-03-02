@@ -207,7 +207,6 @@ DO_API(Il2CppString*, il2cpp_string_intern, (Il2CppString * str));
 DO_API(Il2CppString*, il2cpp_string_is_interned, (Il2CppString * str));
 
 // thread
-DO_API(char*, il2cpp_thread_get_name, (Il2CppThread * thread, uint32_t * len));
 DO_API(Il2CppThread*, il2cpp_thread_current, ());
 DO_API(Il2CppThread*, il2cpp_thread_attach, (Il2CppDomain * domain));
 DO_API(void, il2cpp_thread_detach, (Il2CppThread * thread));
