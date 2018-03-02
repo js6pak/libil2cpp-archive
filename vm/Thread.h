@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <string>
 #include "il2cpp-config.h"
 #include "utils/NonCopyable.h"
 
@@ -46,7 +47,9 @@ namespace vm
     class LIBIL2CPP_CODEGEN_API Thread
     {
     public:
-        static char *GetName(uint32_t *len);
+#if NET_4_0
+        static std::string GetName(Il2CppInternalThread* thread);
+#endif
         static void SetName(Il2CppThread* thread, Il2CppString* name);
         static void SetName(Il2CppInternalThread* thread, Il2CppString* name);
         static Il2CppThread* Current();

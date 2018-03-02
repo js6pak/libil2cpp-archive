@@ -288,15 +288,15 @@ const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #if IL2CPP_MONO_DEBUGGER
 #define DECLARE_SEQ_POINT_STORAGE(name) Il2CppSequencePointStorage name
 #define STORE_SEQ_POINT(storage, seqPointId) (storage).Store(il2cpp_codegen_get_sequence_point(seqPointId))
-#define CHECK_SEQ_POINT(storage, seqPointId, method, methodName) il2cpp_codegen_check_sequence_point((storage), il2cpp_codegen_get_sequence_point(seqPointId), method, methodName)
-#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId, method, methodName) MethodExitSequencePointChecker name(storage, seqPointId, method, methodName)
+#define CHECK_SEQ_POINT(storage, seqPointId, method, methodIndex) il2cpp_codegen_check_sequence_point((storage), il2cpp_codegen_get_sequence_point(seqPointId), method, methodIndex)
+#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId, method, methodIndex) MethodExitSequencePointChecker name(storage, seqPointId, method, methodIndex)
 #define DECLARE_METHOD_EXEC_CTX(itemsVariable, ctxVariable, ...) void* itemsVariable[] = { __VA_ARGS__ }; Il2CppSequencePointExecutionContext ctxVariable(itemsVariable)
 #define DECLARE_METHOD_EXEC_NULL_CTX(ctxVariable) Il2CppSequencePointExecutionContext ctxVariable(NULL)
 #else
 #define DECLARE_SEQ_POINT_STORAGE(name)
 #define STORE_SEQ_POINT(storage, seqPointVar)
-#define CHECK_SEQ_POINT(storage, seqPointVar, method, methodName)
-#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId, method, methodName)
+#define CHECK_SEQ_POINT(storage, seqPointVar, method, methodIndex)
+#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId, method, methodIndex)
 #define DECLARE_METHOD_EXEC_CTX(itemsVariable, ctxVariable, ...)
 #define DECLARE_METHOD_EXEC_NULL_CTX(ctxVariable)
 #endif

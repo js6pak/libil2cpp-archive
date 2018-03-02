@@ -1019,11 +1019,6 @@ Il2CppString* il2cpp_string_is_interned(Il2CppString* str)
 
 // thread
 
-char *il2cpp_thread_get_name(Il2CppThread *thread, uint32_t *len)
-{
-    return Thread::GetName(len);
-}
-
 Il2CppThread *il2cpp_thread_current()
 {
     return Thread::Current();
