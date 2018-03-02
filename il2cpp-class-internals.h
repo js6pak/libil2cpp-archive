@@ -358,32 +358,6 @@ public:
     {
     }
 
-    Il2CppMethodHeaderInfo(const Il2CppMethodHeaderInfo& other)
-    {
-        *this = other;
-    }
-
-    const Il2CppMethodHeaderInfo& operator=(const Il2CppMethodHeaderInfo& other)
-    {
-        m_codeSize = other.m_codeSize;
-        m_numScopes = other.m_numScopes;
-
-        m_scopes = new Il2CppMethodScope[m_numScopes];
-        for (int i = 0; i < m_numScopes; ++i)
-        {
-            m_scopes[i].startOffset = other.m_scopes[i].startOffset;
-            m_scopes[i].endOffset = other.m_scopes[i].endOffset;
-        }
-
-        return *this;
-    }
-
-    Il2CppMethodHeaderInfo(int codeSize, int numScopes) :
-        m_codeSize(codeSize), m_numScopes(numScopes)
-    {
-        m_scopes = new Il2CppMethodScope[numScopes];
-    }
-
     ~Il2CppMethodHeaderInfo()
     {
         if (m_scopes)
@@ -397,7 +371,19 @@ public:
     }
 
     int codeSize() const { return m_codeSize; }
+    void setCodeSize(int codeSize) { m_codeSize = codeSize; }
+
     int numScopes() const { return m_numScopes; }
+    void setNumScopes(int numScopes)
+    {
+        m_numScopes = numScopes;
+
+        if (m_scopes)
+            delete[] m_scopes;
+
+        m_scopes = new Il2CppMethodScope[numScopes];
+    }
+
     const Il2CppMethodScope* scopes() const { return m_scopes; }
 #endif //__cplusplus
 } Il2CppMethodHeaderInfo;
@@ -413,8 +399,7 @@ typedef struct Hash16
 
     Hash16(const Hash16& hash)
     {
-        for (int i = 0; i < 16; ++i)
-            m_hash[i] = hash.m_hash[i];
+        *this = hash;
     }
 
     Hash16(uint8_t h1, uint8_t h2, uint8_t h3, uint8_t h4, uint8_t h5, uint8_t h6, uint8_t h7, uint8_t h8, uint8_t h9, uint8_t h10, uint8_t h11, uint8_t h12, uint8_t h13, uint8_t h14, uint8_t h15, uint8_t h16)
@@ -442,6 +427,14 @@ typedef struct Hash16
         return m_hash[i];
     }
 
+    const Hash16& operator=(const Hash16& hash)
+    {
+        for (int i = 0; i < 16; ++i)
+            m_hash[i] = hash.m_hash[i];
+
+        return *this;
+    }
+
 private:
 #endif
     uint8_t m_hash[16];
@@ -460,37 +453,22 @@ typedef struct Il2CppSequencePoint
     const MethodInfo* method;
     const Il2CppClass* catchType;
 #endif
-    const char* const sourceFile;
+    const char* sourceFile;
     Hash16 sourceFileHash;
-    const int32_t lineStart, lineEnd;
-    const int32_t columnStart, columnEnd;
-    const int32_t ilOffset;
-    const SequencePointKind kind;
-    bool isActive;
-    uint64_t id;
-    const uint8_t tryDepth;
+    int32_t lineStart, lineEnd;
+    int32_t columnStart, columnEnd;
+    int32_t ilOffset;
+    SequencePointKind kind;
+    uint8_t isActive;
+    int id;
+    uint8_t tryDepth;
 
 #ifdef __cplusplus
     Il2CppSequencePoint() : executionContextInfos(NULL), executionContextInfoCount(0), header(NULL), method(NULL), sourceFile(NULL), lineStart(0), lineEnd(0), columnStart(0), columnEnd(0),
-        ilOffset(0), kind(kSequencePointKind_Normal), isActive(false), id(0), tryDepth(0), catchType(NULL)
+        ilOffset(0), kind(kSequencePointKind_Normal), isActive(0), id(0), tryDepth(0), catchType(NULL)
     {
     }
 
-#if RUNTIME_MONO
-    Il2CppSequencePoint(const Il2CppMethodExecutionContextInfo* const executionContextInfos_, uint32_t executionContextInfoCount_, const Il2CppMethodHeaderInfo* header_, const MonoMethod* method_,
-                        const char* const sourceFile_, const Hash16& sourceFileHash_, uint32_t lineStart_, uint32_t lineEnd_, uint32_t columnStart_, uint32_t columnEnd_, int32_t ilOffset_,
-                        SequencePointKind kind_, bool isActive_, uint64_t id_, uint8_t tryDepth_, const MonoClass *catchType_) :
-        executionContextInfos(executionContextInfos_), executionContextInfoCount(executionContextInfoCount_), header(header_), method(method_), sourceFile(sourceFile_), sourceFileHash(sourceFileHash_),
-        lineStart(lineStart_), lineEnd(lineEnd_), columnStart(columnStart_), columnEnd(columnEnd_), ilOffset(ilOffset_), kind(kind_), isActive(isActive_), id(id_), tryDepth(tryDepth_), catchType(catchType_)
-    {}
-#else
-    Il2CppSequencePoint(const Il2CppMethodExecutionContextInfo* const executionContextInfos_, uint32_t executionContextInfoCount_, const Il2CppMethodHeaderInfo* header_, const MethodInfo* method_,
-                        const char* const sourceFile_, const Hash16& sourceFileHash_, uint32_t lineStart_, uint32_t lineEnd_, uint32_t columnStart_, uint32_t columnEnd_, int32_t ilOffset_,
-                        SequencePointKind kind_, bool isActive_, uint64_t id_, uint8_t tryDepth_, const Il2CppClass *catchType_) :
-        executionContextInfos(executionContextInfos_), executionContextInfoCount(executionContextInfoCount_), header(header_), method(method_), sourceFile(sourceFile_), sourceFileHash(sourceFileHash_),
-        lineStart(lineStart_), lineEnd(lineEnd_), columnStart(columnStart_), columnEnd(columnEnd_), ilOffset(ilOffset_), kind(kind_), isActive(isActive_), id(id_), tryDepth(tryDepth_), catchType(catchType_)
-    {}
-#endif
 #endif //__cplusplus
 } Il2CppSequencePoint;
 
