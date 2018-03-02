@@ -266,9 +266,9 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
 }
 
 #if IL2CPP_MONO_DEBUGGER
-static inline void il2cpp_codegen_register_debugger(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit, DebugInfoInitialization methodHeaderInit)
+static inline void il2cpp_codegen_register_debugger_callbacks(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit, DebugInfoInitialization methodHeaderInit)
 {
-    il2cpp::utils::Debugger::RegisterMethodInitializationMethod(sequencePointInit, executionContextInit, sourceFileMapInit, methodHeaderInit);
+    il2cpp::utils::Debugger::RegisterInitializationCallbacks(sequencePointInit, executionContextInit, sourceFileMapInit, methodHeaderInit);
 }
 
 #endif
@@ -305,7 +305,7 @@ private:
 #endif
 };
 
-inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequencePointStorage, Il2CppSequencePoint *sequencePoint, const RuntimeMethod *method, const char *methodName)
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequencePointStorage, Il2CppSequencePoint *sequencePoint, const RuntimeMethod *method, MethodIndex index)
 {
 #if IL2CPP_MONO_DEBUGGER
     if (!sequencePoint)
@@ -314,10 +314,10 @@ inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequ
     if (method)
         sequencePoint->method = method;
 
-    if (methodName)
+    if (index >= 0)
     {
         int infoCount;
-        sequencePoint->executionContextInfos = il2cpp::utils::Debugger::GetMethodExecutionContextInfos(methodName, &infoCount);
+        sequencePoint->executionContextInfos = il2cpp::utils::Debugger::GetMethodExecutionContextInfos(index, &infoCount);
         sequencePoint->executionContextInfoCount = infoCount;
     }
 
@@ -338,35 +338,35 @@ inline Il2CppSequencePoint* il2cpp_codegen_get_sequence_point(size_t id)
 #endif
 }
 
-inline void il2cpp_codegen_add_method_execution_context_info(const char *methodName, const Il2CppMethodExecutionContextInfo& info)
+inline void il2cpp_codegen_add_method_execution_context_info(MethodIndex index, const Il2CppMethodExecutionContextInfo& info)
 {
 #if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::AddMethodExecutionContextInfo(methodName, info);
+    il2cpp::utils::Debugger::AddMethodExecutionContextInfo(index, info);
 #endif
 }
 
-inline Il2CppMethodHeaderInfo* il2cpp_codegen_add_method_header_info(const char *methodName, int codeSize, int numScopes)
+inline Il2CppMethodHeaderInfo* il2cpp_codegen_add_method_header_info(MethodIndex index, int codeSize, int numScopes)
 {
 #if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::AddMethodHeaderInfo(methodName, codeSize, numScopes);
+    return il2cpp::utils::Debugger::AddMethodHeaderInfo(index, codeSize, numScopes);
 #else
     return NULL;
 #endif
 }
 
-inline const Il2CppMethodHeaderInfo* il2cpp_codegen_get_method_header_info(const char *methodName)
+inline const Il2CppMethodHeaderInfo* il2cpp_codegen_get_method_header_info(MethodIndex index)
 {
 #if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::GetMethodHeaderInfo(methodName);
+    return il2cpp::utils::Debugger::GetMethodHeaderInfo(index);
 #else
     return NULL;
 #endif
 }
 
-inline Il2CppMethodExecutionContextInfo* il2cpp_codegen_get_method_execution_context_infos(const char *methodName, int *count)
+inline Il2CppMethodExecutionContextInfo* il2cpp_codegen_get_method_execution_context_infos(MethodIndex index, int *count)
 {
 #if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::GetMethodExecutionContextInfos(methodName, count);
+    return il2cpp::utils::Debugger::GetMethodExecutionContextInfos(index, count);
 #else
     return NULL;
 #endif
@@ -378,11 +378,11 @@ private:
     Il2CppSequencePoint *m_pSeqPoint;
     Il2CppSequencePointStorage& m_seqPointStorage;
     const RuntimeMethod *m_method;
-    const char *m_methodName;
+    MethodIndex m_methodIndex;
 
 public:
-    MethodExitSequencePointChecker(Il2CppSequencePointStorage& seqPointStorage, size_t seqPointId, const RuntimeMethod *method, const char *methodName) :
-        m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL), m_methodName(methodName)
+    MethodExitSequencePointChecker(Il2CppSequencePointStorage& seqPointStorage, size_t seqPointId, const RuntimeMethod *method, MethodIndex methodIndex) :
+        m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL), m_methodIndex(methodIndex)
     {
 #if IL2CPP_MONO_DEBUGGER
         m_pSeqPoint = il2cpp_codegen_get_sequence_point(seqPointId);
@@ -393,7 +393,7 @@ public:
     ~MethodExitSequencePointChecker()
     {
 #if IL2CPP_MONO_DEBUGGER
-        il2cpp_codegen_check_sequence_point(m_seqPointStorage, m_pSeqPoint, m_method, m_methodName);
+        il2cpp_codegen_check_sequence_point(m_seqPointStorage, m_pSeqPoint, m_method, m_methodIndex);
 #endif
     }
 };
