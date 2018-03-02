@@ -468,14 +468,16 @@ namespace vm
         return !GarbageCollector::IsFinalizerThread(thread);
     }
 
-    char *Thread::GetName(uint32_t *len)
+#if NET_4_0
+    std::string Thread::GetName(Il2CppInternalThread* thread)
     {
-        *len = 0;
+        if (thread->name == NULL)
+            return std::string();
 
-        // TODO: not implemented
-
-        return NULL;
+        return utils::StringUtils::Utf16ToUtf8(thread->name);
     }
+
+#endif
 
     void Thread::SetName(Il2CppThread* thread, Il2CppString* name)
     {
