@@ -212,3 +212,11 @@ inline REAL_NORETURN void il2cpp_codegen_abort()
     il2cpp::utils::Runtime::Abort();
     il2cpp_codegen_no_return();
 }
+
+#ifdef _MSC_VER
+#define IL2CPP_DISABLE_OPTIMIZATIONS __pragma(optimize("", off))
+#define IL2CPP_ENABLE_OPTIMIZATIONS __pragma(optimize("", on))
+#else
+#define IL2CPP_DISABLE_OPTIMIZATIONS __attribute__ ((optnone))
+#define IL2CPP_ENABLE_OPTIMIZATIONS
+#endif
