@@ -50,6 +50,8 @@ private:
     const RuntimeMethod* m_method;
 };
 
+#define IL2CPP_FAKE_BOX_SENTRY (MonoThreadsSync*)UINTPTR_MAX
+
 template<typename T>
 struct Il2CppFakeBox : RuntimeObject
 {
@@ -58,10 +60,15 @@ struct Il2CppFakeBox : RuntimeObject
     Il2CppFakeBox(RuntimeClass* boxedType, T* value)
     {
         vtable = il2cpp_mono_class_vtable(g_MonoDomain, boxedType);
-        synchronisation = NULL;
+        synchronisation = IL2CPP_FAKE_BOX_SENTRY;
         m_Value = *value;
     }
 };
+
+inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
+{
+    return object->synchronisation == IL2CPP_FAKE_BOX_SENTRY;
+}
 
 // TODO: This file should contain all the functions and type declarations needed for the generated code.
 // Hopefully, we stop including everything in the generated code and know exactly what dependencies we have.
@@ -74,7 +81,7 @@ inline String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView
     return (String_t*)mono_string_new_utf16(g_MonoDomain, (const mono_unichar2*)str.Str(), (int32_t)str.Length());
 }
 
-inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex)
+inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame = NULL)
 {
     mono_raise_exception((RuntimeException*)ex);
     il2cpp_codegen_no_return();
@@ -253,6 +260,36 @@ inline uint32_t il2cpp_codegen_sizeof(RuntimeClass* klass)
         return sizeof(void*);
 
     return mono_class_instance_size(klass) - sizeof(RuntimeObject);
+}
+
+inline bool il2cpp_codegen_method_is_virtual(RuntimeMethod* method)
+{
+    return method->slot != -1;
+}
+
+inline bool il2cpp_codegen_object_is_of_sealed_type(RuntimeObject* obj)
+{
+    return obj != NULL && mono_class_is_sealed(mono_object_get_class(obj));
+}
+
+inline bool il2cpp_codegen_method_is_generic_instance(RuntimeMethod* method)
+{
+    return unity_mono_method_is_generic(method);
+}
+
+inline bool il2cpp_codegen_method_is_interface_method(RuntimeMethod* method)
+{
+    return MONO_CLASS_IS_INTERFACE(mono_method_get_class(method));
+}
+
+inline uint16_t il2cpp_codegen_method_get_slot(RuntimeMethod* method)
+{
+    return method->slot;
+}
+
+inline RuntimeClass* il2cpp_codegen_method_get_declaring_type(RuntimeMethod* method)
+{
+    return mono_method_get_class(method);
 }
 
 FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_virtual_invoke_data(RuntimeMethod* method, void* obj)

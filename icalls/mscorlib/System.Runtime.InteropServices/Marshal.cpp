@@ -22,9 +22,7 @@
 #include "vm/Type.h"
 #include "utils/MarshalingUtils.h"
 #include "utils/StringUtils.h"
-#include <sstream>
 #include <string>
-#include <sstream>
 #include <deque>
 
 using namespace il2cpp::vm;
@@ -556,9 +554,9 @@ namespace InteropServices
         FieldInfo* field = vm::Class::GetFieldFromName(type, fieldNameToFind.c_str());
         if (field == NULL || (vm::Field::GetFlags(field) & FIELD_ATTRIBUTE_STATIC))
         {
-            std::stringstream message;
-            message << "Field '" << fieldNameToFind << "' is not a marshaled member of the type '" << type->name << "'";
-            vm::Exception::Raise(vm::Exception::GetArgumentException("fieldName", message.str().c_str()));
+            std::string message;
+            message = "Field '" + fieldNameToFind + "' is not a marshaled member of the type '" + type->name + "'";
+            vm::Exception::Raise(vm::Exception::GetArgumentException("fieldName", message.c_str()));
         }
 
         // Order the base classes so the most base class is first.

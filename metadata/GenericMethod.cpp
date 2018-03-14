@@ -17,7 +17,7 @@
 #include "utils/Il2CppHashMap.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-runtime-metadata.h"
-#include <sstream>
+#include <string>
 
 using il2cpp::metadata::GenericMetadata;
 using il2cpp::metadata::GenericSharing;
@@ -119,33 +119,33 @@ namespace metadata
 
     static std::string FormatGenericArguments(const Il2CppGenericInst* inst)
     {
-        std::ostringstream sstream;
+        std::string output;
         if (inst)
         {
-            sstream << "<";
+            output.append("<");
             for (size_t i = 0; i < inst->type_argc; ++i)
             {
                 if (i != 0)
-                    sstream << ", ";
-                sstream << Type::GetName(inst->type_argv[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+                    output.append(", ");
+                output.append(Type::GetName(inst->type_argv[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME));
             }
-            sstream << ">";
+            output.append(">");
         }
 
-        return sstream.str();
+        return output;
     }
 
     std::string GenericMethod::GetFullName(const Il2CppGenericMethod* gmethod)
     {
         const MethodInfo* method = gmethod->methodDefinition;
-        std::ostringstream sstream;
-        sstream << Type::GetName(gmethod->methodDefinition->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
-        sstream << FormatGenericArguments(gmethod->context.class_inst);
-        sstream << "::";
-        sstream << Method::GetName(method);
-        sstream << FormatGenericArguments(gmethod->context.method_inst);
+        std::string output;
+        output.append(Type::GetName(gmethod->methodDefinition->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME));
+        output.append(FormatGenericArguments(gmethod->context.class_inst));
+        output.append("::");
+        output.append(Method::GetName(method));
+        output.append(FormatGenericArguments(gmethod->context.method_inst));
 
-        return sstream.str();
+        return output;
     }
 } /* namespace vm */
 } /* namespace il2cpp */
