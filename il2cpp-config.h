@@ -196,7 +196,11 @@
     #define IL2CPP_ZERO_LEN_ARRAY 0
 #endif
 
-#define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
+#if defined(_MSC_VER)
+    #define IL2CPP_HAS_CXX_CONSTEXPR (_MSC_VER >= 1900)
+#else
+    #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
+#endif
 
 /* clang specific __has_builtin check */
 #ifndef __has_builtin
