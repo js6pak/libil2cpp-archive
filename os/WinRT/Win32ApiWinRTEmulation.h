@@ -4,13 +4,20 @@
 
 extern "C"
 {
+#if WINDOWS_SDK_BUILD_VERSION < 16299 // These APIs got readded on Windows 10 Fall Creators Update
+
 #define CreateEvent CreateEventW
 #define FreeEnvironmentStrings FreeEnvironmentStringsW
 #define GetEnvironmentStrings GetEnvironmentStringsW
 #define GetEnvironmentVariable GetEnvironmentVariableW
 #define GetVersionEx GetVersionExW
-#define GetUserName GetUserNameW
 #define SetEnvironmentVariable SetEnvironmentVariableW
+
+#endif
+
+#define GetUserName GetUserNameW
+
+#if WINDOWS_SDK_BUILD_VERSION < 16299
 
 inline HANDLE WINAPI CreateEventW(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpName)
 {
@@ -21,6 +28,8 @@ inline HANDLE WINAPI CreateEventW(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL 
         flags |= CREATE_EVENT_INITIAL_SET;
     return CreateEventExW(lpEventAttributes, lpName, flags, EVENT_ALL_ACCESS);
 }
+
+#endif
 
 inline HANDLE WINAPI CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
@@ -38,22 +47,30 @@ inline HANDLE WINAPI CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
     return CreateFile2(lpFileName, dwDesiredAccess, dwShareMode, dwCreationDisposition, &extendedParameters);
 }
 
+#if WINDOWS_SDK_BUILD_VERSION < 16299
+
 BOOL WINAPI FreeEnvironmentStringsW(LPWCH strings);
 
 LPWCH WINAPI GetEnvironmentStringsW();
 
 DWORD WINAPI GetEnvironmentVariableW(LPCWSTR lpName, LPWSTR lpBuffer, DWORD nSize);
 
-BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer);
-
 BOOL WINAPI GetVersionExW(LPOSVERSIONINFOW lpVersionInformation);
+
+#endif
+
+BOOL WINAPI GetUserNameW(LPWSTR lpBuffer, LPDWORD pcbBuffer);
 
 inline HMODULE WINAPI LoadLibraryW(LPCWSTR lpLibFileName)
 {
     return LoadPackagedLibrary(lpLibFileName, 0);
 }
 
+#if WINDOWS_SDK_BUILD_VERSION < 16299
+
 BOOL WINAPI SetEnvironmentVariableW(LPCWSTR lpName, LPCWSTR lpValue);
+
+#endif
 
 #define CreateFileMappingW(hFile, lpFileMappingAttributes, flProtect, dwMaximumSizeHigh, dwMaximumSizeLow, lpName) \
     CreateFileMappingFromApp(hFile, lpFileMappingAttributes, flProtect, (static_cast<ULONG64>(dwMaximumSizeHigh) << 32) | dwMaximumSizeLow, lpName);
