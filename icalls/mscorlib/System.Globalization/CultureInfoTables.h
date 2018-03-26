@@ -14,8 +14,14 @@
 #define NUM_REGION_ENTRIES 117
 #endif
 
+#if IL2CPP_HAS_CXX_CONSTEXPR
+#define CONST_TABLE constexpr
+#else
+#define CONST_TABLE const
+#endif
+
 #if !NET_4_0
-static const DateTimeFormatEntry datetime_format_entries[] =
+static CONST_TABLE DateTimeFormatEntry datetime_format_entries[] =
 {
     { 1, 24, 37, 46, 56, 63, 74, 81, 84, { 87, 98, 113, 130, 147, 160, 173 }, { 184, 187, 190, 193, 196, 199, 202 }, { 205, 216, 229, 238, 249, 258, 269, 280, 291, 304, 317, 330, 343 }, { 205, 216, 229, 238, 249, 258, 269, 280, 291, 304, 317, 330, 343 }, 0, 6, 344, 346, { 348, 37 }, { 357, 24 }, { 370, 56 }, { 376, 46 } },
     { 387, 409, 422, 438, 370, 447, 457, 465, 468, { 471, 484, 505, 520, 531, 550, 561 }, { 574, 582, 590, 596, 602, 612, 620 }, { 628, 641, 658, 667, 678, 685, 692, 699, 712, 731, 748, 763, 343 }, { 780, 786, 658, 794, 678, 685, 692, 802, 810, 818, 826, 836, 343 }, 0, 1, 344, 346, { 348, 844, 422 }, { 357, 409 }, { 370 }, { 376, 438 } },
@@ -186,7 +192,7 @@ static const DateTimeFormatEntry datetime_format_entries[] =
     { 1112, 357, 348, 376, 370, 1136, 1146, 1154, 1161, { 1168, 1178, 1188, 1198, 1208, 1218, 1228 }, { 1238, 1242, 1246, 1250, 1254, 1258, 1262 }, { 1266, 1273, 1280, 1287, 1294, 1301, 1308, 1315, 1322, 1329, 1336, 1346, 343 }, { 1266, 1273, 1280, 1287, 1294, 1301, 1308, 1315, 1322, 1329, 1336, 1346, 343 }, 0, 0, 344, 346, { 348 }, { 357 }, { 370 }, { 376 } }
 };
 
-static const NumberFormatEntry number_format_entries[] =
+static CONST_TABLE NumberFormatEntry number_format_entries[] =
 {
     { 17757, 17760, 17757, 17760, 17757, 17760, 0, 17763, 17766, 17770, 17774, 17779, 17783, 17785, 11, 2, 1, 1, 3, 2, 2, 2, { 3, -1, -1, -1, -1 }, { 3, -1, -1, -1, -1 }, { 3, -1, -1, -1, -1 } },
     { 17787, 17789, 17787, 17789, 17787, 17789, 0, 17792, 17766, 17770, 17774, 17779, 17783, 17785, 9, 2, 1, 1, 1, 2, 2, 2, { 3, -1, -1, -1, -1 }, { 3, -1, -1, -1, -1 }, { 3, -1, -1, -1, -1 } },
@@ -357,7 +363,7 @@ static const NumberFormatEntry number_format_entries[] =
     { 17794, 17787, 17794, 17787, 17794, 17787, 0, 17792, 17796, 17770, 17800, 17810, 17783, 17785, 9, 2, 1, 1, 1, 2, 2, 2, { 3, -1, -1, -1, -1 }, { 3, -1, -1, -1, -1 }, { 3, -1, -1, -1, -1 } }
 };
 
-static const CultureInfoEntry culture_entries[] =
+static CONST_TABLE CultureInfoEntry culture_entries[] =
 {
     { 0x0001, 0x007F, 0x0401, -1, 18190, 18193, 18193, 18193, 18200, 18215, 18219, 18190, 0, { 16777216, 0, 0, 0, 0 }, 0, 0, { 1256, 20420, 10004, 720, ';' } },
     { 0x0002, 0x007F, 0x0402, -1, 18223, 18226, 18226, 18226, 18236, 18255, 18259, 18223, 0, { 0, 0, 0, 0, 0 }, 1, 1, { 1251, 20420, 10007, 866, ';' } },
@@ -528,7 +534,7 @@ static const CultureInfoEntry culture_entries[] =
     { 0x7C04, 0x007F, 0x0000, -1, 25842, 20057, 18297, 18297, 18305, 20090, 18316, 18320, 0, { 0, 0, 0, 0, 0 }, 166, 166, { 950, 500, 10002, 950, ',' } }
 };
 
-static const CultureInfoNameEntry culture_name_entries[] =
+static CONST_TABLE CultureInfoNameEntry culture_name_entries[] =
 {
     { 19458, 42 },
     { 25849, 95 },
@@ -699,7 +705,7 @@ static const CultureInfoNameEntry culture_name_entries[] =
     { 26530, 57 }
 };
 
-static const RegionInfoEntry region_entries[] =
+static CONST_TABLE RegionInfoEntry region_entries[] =
 {
     { 0, 0, 25351, 343, 343, 26536, 343, 26557, 26561 },
     { 0, 1, 26589, 343, 343, 26592, 343, 26604, 26608 },
@@ -933,7 +939,7 @@ static const RegionInfoEntry region_entries[] =
     { 0, 229, 25054, 343, 343, 32574, 343, 32583, 32587 }
 };
 
-static const RegionInfoNameEntry region_name_entries[] =
+static CONST_TABLE RegionInfoNameEntry region_name_entries[] =
 {
     { 25351, 0 },
     { 26589, 1 },
@@ -1167,7 +1173,7 @@ static const RegionInfoNameEntry region_name_entries[] =
     { 25054, 229 }
 };
 
-static const char locale_strings[] =
+static CONST_TABLE char locale_strings[] =
 {
     "\0"
     "d MMMM, yyyy h:mm:ss t\0"
@@ -4570,7 +4576,7 @@ static const char locale_strings[] =
 
 #else
 
-static const DateTimeFormatEntry datetime_format_entries[] =
+static CONST_TABLE DateTimeFormatEntry datetime_format_entries[] =
 {
     { 1, 0, 0, { 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 }, { 9, 18, 25, 45, 65, 89, 113, 120, 131, 142, 151, 169, 0 }, { 9, 18, 25, 45, 65, 89, 113, 120, 131, 142, 151, 169, 0 }, { 9, 18, 25, 45, 65, 89, 113, 120, 131, 142, 151, 169, 0 }, { 9, 18, 25, 45, 65, 89, 113, 120, 131, 142, 151, 169, 0 }, 0, 6, 185, 187, { 189, 198, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 209, 222, 0, 0, 0, 0, 0, 0, 0, 0 }, { 242, 251, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 257, 269, 0, 0, 0, 0, 0, 0, 0 }, { 278, 0, 0, 0, 0, 0, 0, 0 } },
     { 289, 296, 307, { 318, 331, 352, 367, 378, 397, 408 }, { 421, 426, 431, 436, 441, 446, 451 }, { 456, 459, 462, 465, 468, 459, 465 }, { 471, 484, 501, 510, 521, 528, 535, 542, 555, 574, 591, 606, 0 }, { 471, 484, 501, 510, 521, 528, 535, 542, 555, 574, 591, 606, 0 }, { 623, 629, 501, 639, 521, 528, 535, 647, 655, 665, 673, 683, 0 }, { 623, 629, 501, 639, 521, 528, 535, 647, 655, 665, 673, 683, 0 }, 2, 1, 691, 187, { 693, 708, 724, 740, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 757, 776, 794, 819, 0, 0, 0, 0, 0, 0 }, { 843, 251, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 848, 269, 0, 0, 0, 0, 0, 0, 0 }, { 856, 0, 0, 0, 0, 0, 0, 0 } },
@@ -4856,7 +4862,7 @@ static const DateTimeFormatEntry datetime_format_entries[] =
 };
 
 
-static const NumberFormatEntry number_format_entries[] =
+static CONST_TABLE NumberFormatEntry number_format_entries[] =
 {
     { 691, 36891, 691, 36891, 36893, 36903, 36906, 36921, 36924, 36934, 2438, 36943, 3, 2, 0, 0, 3, 2, 2, { 3, -1 }, { 3, -1 } },
     { 36891, 36948, 36891, 36948, 36951, 36957, 36959, 36963, 36924, 36934, 2438, 36967, 8, 3, 0, 0, 1, 2, 2, { 3, -1 }, { 3, -1 } },
@@ -5142,7 +5148,7 @@ static const NumberFormatEntry number_format_entries[] =
 };
 
 
-static const CultureInfoEntry culture_entries[] =
+static CONST_TABLE CultureInfoEntry culture_entries[] =
 {
     { 0x0001, 0x007F, 768, -1, 38068, 38071, 38078, 38093, 38097, 38068, 0, { 0, 0, 38101, 0 }, 0, 0, { 1256, 20420, 10004, 720, 1, ';' } },
     { 0x0002, 0x007F, 257, -1, 38129, 38132, 38142, 38161, 38165, 38129, 0, { 38169, 0, 0, 0 }, 1, 1, { 1251, 21025, 10007, 866, 0, ';' } },
@@ -5428,7 +5434,7 @@ static const CultureInfoEntry culture_entries[] =
 };
 
 
-static const CultureInfoNameEntry culture_name_entries[] =
+static CONST_TABLE CultureInfoNameEntry culture_name_entries[] =
 {
     { 40670, 50 },   /* af */
     { 52906, 144 },  /* af-za */
@@ -5714,7 +5720,7 @@ static const CultureInfoNameEntry culture_name_entries[] =
 };
 
 
-static const RegionInfoEntry region_entries[] =
+static CONST_TABLE RegionInfoEntry region_entries[] =
 {
     { 224, 51826, 48865, 48865, 54103, 54124, 38011, 54171, 54175, 54203 },
     { 3, 47503, 54227, 54227, 54231, 54243, 37782, 54262, 54266, 54281 },
@@ -5836,7 +5842,7 @@ static const RegionInfoEntry region_entries[] =
 };
 
 
-static const RegionInfoNameEntry region_name_entries[] =
+static CONST_TABLE RegionInfoNameEntry region_name_entries[] =
 {
     { 51826, 0 },    /* AE */
     { 47503, 1 },    /* AF */
@@ -5958,7 +5964,7 @@ static const RegionInfoNameEntry region_name_entries[] =
 };
 
 
-static const char locale_strings[] =
+static CONST_TABLE char locale_strings[] =
 {
     "\0"
     "dd MMMM\0"
