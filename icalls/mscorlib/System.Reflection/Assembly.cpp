@@ -7,10 +7,10 @@
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 #include "os/File.h"
-#include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "os/Path.h"
 #include "utils/Memory.h"
+#include "utils/MemoryMappedFile.h"
 #include "utils/Runtime.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
@@ -390,12 +390,12 @@ namespace Reflection
         if (error != 0)
             return NULL;
 
-        void* fileBuffer = os::MemoryMappedFile::Map(handle);
+        void* fileBuffer = utils::MemoryMappedFile::Map(handle);
 
         os::File::Close(handle, &error);
         if (error != 0)
         {
-            os::MemoryMappedFile::Unmap(fileBuffer);
+            utils::MemoryMappedFile::Unmap(fileBuffer);
             fileBuffer = NULL;
             return NULL;
         }

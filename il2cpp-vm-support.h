@@ -11,11 +11,14 @@
     #include <cassert>
     #define IL2CPP_VM_RAISE_EXCEPTION(exception) mono_raise_exception(exception)
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) assert(false && "COM exceptions are not implemented yet.")
+    #define IL2CPP_VM_RAISE_UNAUTHORIZED_ACCESS_EXCEPTION(message) mono_raise_exception(mono_exception_from_name_msg(mono_get_corlib (), "System.Security", "UnauthorizedAccessException", message))
+    #define IL2CPP_VM_RAISE_PLATFORM_NOT_SUPPORTED_EXCEPTION(message) mono_raise_exception(mono_exception_from_name_msg(mono_get_corlib (), "System.Security", "PlatformNotSupportedException", message))
     #define IL2CPP_VM_RAISE_IF_FAILED(hresult, defaultToCOMException) assert(false && "COM exceptions are not implemented yet.")
     #define IL2CPP_VM_STRING_EMPTY() mono_string_empty(g_MonoDomain)
     #define IL2CPP_VM_STRING_NEW_UTF16(value, length) mono_string_new_utf16(g_MonoDomain, value, length)
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) mono_string_new_len(g_MonoDomain, value, length);
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason)))
+    #define IL2CPP_VM_NOT_IMPLEMENTED(func) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func)))
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) isGeneric ? GenericMethodFromIndex(methodIndex) : MethodFromIndex(methodIndex)
     #define IL2CPP_VM_SHUTDOWN() do { if (mono_runtime_try_shutdown()) mono_runtime_quit(); } while(0)
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
@@ -28,11 +31,14 @@ typedef MonoMethod VmMethod;
 #elif RUNTIME_NONE // OS layer compiled with no runtime
     #define IL2CPP_VM_RAISE_EXCEPTION(exception) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
+    #define IL2CPP_VM_RAISE_UNAUTHORIZED_ACCESS_EXCEPTION(message) IL2CPP_ASSERT(0 && message)
+    #define IL2CPP_VM_RAISE_PLATFORM_NOT_SUPPORTED_EXCEPTION(message) IL2CPP_ASSERT(0 && message)
     #define IL2CPP_VM_RAISE_IF_FAILED(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_STRING_EMPTY() NULL
     #define IL2CPP_VM_STRING_NEW_UTF16(value, length) NULL
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) NULL
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
+    #define IL2CPP_VM_NOT_IMPLEMENTED(func) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
     #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
@@ -45,11 +51,14 @@ typedef MonoMethod VmMethod;
     #include "vm/Profiler.h"
     #define IL2CPP_VM_RAISE_EXCEPTION(exception) il2cpp::vm::Exception::Raise(exception)
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) il2cpp::vm::Exception::Raise(hresult, defaultToCOMException)
+    #define IL2CPP_VM_RAISE_UNAUTHORIZED_ACCESS_EXCEPTION(message) il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetUnauthorizedAccessException(message))
+    #define IL2CPP_VM_RAISE_PLATFORM_NOT_SUPPORTED_EXCEPTION(message) il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetPlatformNotSupportedException(message))
     #define IL2CPP_VM_RAISE_IF_FAILED(hresult, defaultToCOMException) il2cpp::vm::Exception::RaiseIfFailed(hresult, defaultToCOMException)
     #define IL2CPP_VM_STRING_EMPTY() il2cpp::vm::String::Empty()
     #define IL2CPP_VM_STRING_NEW_UTF16(value, length) il2cpp::vm::String::NewUtf16(value, length)
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) il2cpp::vm::String::NewLen(value, length)
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) NOT_SUPPORTED_IL2CPP(func, reason)
+    #define IL2CPP_VM_NOT_IMPLEMENTED(func) IL2CPP_NOT_IMPLEMENTED_ICALL(func)
     #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex (methodIndex)
     #define IL2CPP_VM_SHUTDOWN() il2cpp_shutdown()
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) vm::CCW::GetOrCreate(reinterpret_cast<Il2CppObject*>(ex), Il2CppIUnknown::IID)

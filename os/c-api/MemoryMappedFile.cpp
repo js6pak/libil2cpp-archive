@@ -1,35 +1,25 @@
-#include "os/MemoryMappedFile.h"
 #include "os/c-api/MemoryMappedFile-c-api.h"
+#include "utils/MemoryMappedFile.h"
 
 extern "C"
 {
 void* UnityPalMemoryMappedFileMap(UnityPalFileHandle* file)
 {
-    return il2cpp::os::MemoryMappedFile::Map(file);
+    return il2cpp::utils::MemoryMappedFile::Map(file);
 }
 
 void UnityPalMemoryMappedFileUnmap(void* address)
 {
-    il2cpp::os::MemoryMappedFile::Unmap(address);
+    il2cpp::utils::MemoryMappedFile::Unmap(address);
 }
 
-void* UnityPalMemoryMappedFileMapWithParams(UnityPalFileHandle* file, size_t length, size_t offset)
+void* UnityPalMemoryMappedFileMapWithParams(UnityPalFileHandle* file, int64_t length, int64_t offset)
 {
-    return il2cpp::os::MemoryMappedFile::Map(file, length, offset);
+    return il2cpp::utils::MemoryMappedFile::Map(file, length, offset);
 }
 
-void UnityPalMemoryMappedFileUnmapWithParams(void* address, size_t length)
+void UnityPalMemoryMappedFileUnmapWithParams(void* address, int64_t length)
 {
-    il2cpp::os::MemoryMappedFile::Unmap(address, length);
-}
-
-void* UnityPalMemoryMappedFileMapWithFileDescriptor(int fd, size_t length, size_t offset)
-{
-#if IL2CPP_TARGET_POSIX
-    return il2cpp::os::MemoryMappedFile::Map(fd, length, offset);
-#else
-    IL2CPP_ASSERT(false && "mmap with file descriptor not supported");
-    return NULL;
-#endif
+    il2cpp::utils::MemoryMappedFile::Unmap(address, length);
 }
 }

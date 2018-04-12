@@ -30,8 +30,6 @@ namespace Diagnostics
 #if IL2CPP_MONO_DEBUGGER
         return utils::Debugger::IsLoggingEnabled();
 #else
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Debugger::IsLogging);
-        IL2CPP_UNREACHABLE;
         return false;
 #endif
     }
@@ -40,9 +38,6 @@ namespace Diagnostics
     {
 #if IL2CPP_MONO_DEBUGGER
         utils::Debugger::Log(level, category, message);
-#else
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Debugger::Log);
-        IL2CPP_UNREACHABLE;
 #endif
     }
 

@@ -56,6 +56,7 @@ SUITE(File)
         il2cpp::os::FileHandle* handle;
     };
 
+#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
     TEST_FIXTURE(FileFixture, FileIsAttyWithValidButNoTTY_ReturnsFalse)
     {
         CHECK_MSG(!UnityPalIsatty(handle), "A normal is a TTY, which is not expected.");
@@ -72,6 +73,7 @@ SUITE(File)
     {
         CHECK_EQUAL((int32_t)il2cpp::os::File::Isatty(handle), UnityPalIsatty(handle));
     }
+#endif
 
     TEST(FileOpenNoError_ReturnsNonNullHandle)
     {
@@ -1552,7 +1554,7 @@ SUITE(File)
         CHECK_EQUAL(class_error, api_error);
     }
 
-#if !IL2CPP_TARGET_PS4
+#if !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
     TEST(CreatePipeNormalResult_ReturnsTrue)
     {
         int error;

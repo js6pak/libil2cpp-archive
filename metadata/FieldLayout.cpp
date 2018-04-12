@@ -5,7 +5,6 @@
 #include "vm/Type.h"
 #include "metadata/FieldLayout.h"
 #include <limits>
-#include <algorithm>
 
 using il2cpp::vm::Class;
 using il2cpp::vm::GenericClass;
@@ -160,7 +159,7 @@ namespace metadata
             offset &= ~(sa.alignment - 1);
 
             data.FieldOffsets.push_back(offset);
-            data.actualClassSize = offset + std::max(sa.size, (size_t)1);
+            data.actualClassSize = offset + sa.size;
             data.minimumAlignment = std::max(data.minimumAlignment, (uint8_t)sa.alignment);
         }
 

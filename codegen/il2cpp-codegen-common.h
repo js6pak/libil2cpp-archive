@@ -265,14 +265,10 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
     memset(ptr, value, num);
 }
 
-#if IL2CPP_MONO_DEBUGGER
-static inline void il2cpp_codegen_register_debugger_callbacks(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit, DebugInfoInitialization methodHeaderInit)
+inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
-    il2cpp::utils::Debugger::RegisterInitializationCallbacks(sequencePointInit, executionContextInit, sourceFileMapInit, methodHeaderInit);
+    il2cpp::utils::Debugger::RegisterMetadata(data);
 }
-
-#endif
-
 
 struct Il2CppSequencePointStorage
 {
@@ -312,14 +308,10 @@ inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequ
         return;
 
     if (method)
-        sequencePoint->method = method;
+        sequencePoint->method_ = method;
 
     if (index >= 0)
-    {
-        int infoCount;
-        sequencePoint->executionContextInfos = il2cpp::utils::Debugger::GetMethodExecutionContextInfos(index, &infoCount);
-        sequencePoint->executionContextInfoCount = infoCount;
-    }
+        sequencePoint->methodIndex = index;
 
     if (il2cpp::utils::Debugger::IsSequencePointActive(sequencePoint))
     {
@@ -333,40 +325,6 @@ inline Il2CppSequencePoint* il2cpp_codegen_get_sequence_point(size_t id)
 {
 #if IL2CPP_MONO_DEBUGGER
     return il2cpp::utils::Debugger::GetSequencePoint(id);
-#else
-    return NULL;
-#endif
-}
-
-inline void il2cpp_codegen_add_method_execution_context_info(MethodIndex index, const Il2CppMethodExecutionContextInfo& info)
-{
-#if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::AddMethodExecutionContextInfo(index, info);
-#endif
-}
-
-inline Il2CppMethodHeaderInfo* il2cpp_codegen_add_method_header_info(MethodIndex index, int codeSize, int numScopes)
-{
-#if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::AddMethodHeaderInfo(index, codeSize, numScopes);
-#else
-    return NULL;
-#endif
-}
-
-inline const Il2CppMethodHeaderInfo* il2cpp_codegen_get_method_header_info(MethodIndex index)
-{
-#if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::GetMethodHeaderInfo(index);
-#else
-    return NULL;
-#endif
-}
-
-inline Il2CppMethodExecutionContextInfo* il2cpp_codegen_get_method_execution_context_infos(MethodIndex index, int *count)
-{
-#if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::GetMethodExecutionContextInfos(index, count);
 #else
     return NULL;
 #endif

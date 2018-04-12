@@ -80,7 +80,8 @@ namespace os
 
         return true;
 #else
-        vm::Exception::Raise(vm::Exception::GetNotSupportedException("Pipes are not supported on WinRT based platforms."));
+        IL2CPP_VM_NOT_SUPPORTED("CreatePipe", "Pipes are not supported on WinRT based platforms.");
+        return false;
 #endif
     }
 
@@ -251,8 +252,14 @@ namespace os
             case kFileAccessWrite:
                 return GENERIC_WRITE;
 
+            case kFileAccessExecute:
+                return GENERIC_EXECUTE;
+
             case kFileAccessReadWrite:
                 return GENERIC_READ | GENERIC_WRITE;
+
+            case kFileAccessReadWriteExecute:
+                return GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE;
 
             default:
                 return 0;
