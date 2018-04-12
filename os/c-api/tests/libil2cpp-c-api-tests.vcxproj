@@ -185,6 +185,7 @@
     <ClCompile Include="..\..\..\utils\Logging.cpp" />
     <ClCompile Include="..\..\..\utils\MarshalingUtils.cpp" />
     <ClCompile Include="..\..\..\utils\Memory.cpp" />
+    <ClCompile Include="..\..\..\utils\MemoryMappedFile.cpp" />
     <ClCompile Include="..\..\..\utils\MemoryPool.cpp" />
     <ClCompile Include="..\..\..\utils\Output.cpp" />
     <ClCompile Include="..\..\..\utils\PathUtils.cpp" />
@@ -311,6 +312,8 @@
     <ClCompile Include="..\Path.cpp" />
     <ClCompile Include="..\Process.cpp" />
     <ClCompile Include="..\Semaphore.cpp" />
+    <ClCompile Include="..\Socket.cpp" />
+    <ClCompile Include="..\Thread.cpp" />
     <ClCompile Include="..\ThreadLocalValue.cpp" />
     <ClCompile Include="..\Time.cpp" />
     <ClCompile Include="..\TimeZone.cpp" />
@@ -337,7 +340,9 @@
     <ClCompile Include="PathTests.cpp" />
     <ClCompile Include="ProcessTests.cpp" />
     <ClCompile Include="SemaphoreTests.cpp" />
+    <ClCompile Include="SocketTests.cpp" />
     <ClCompile Include="ThreadLocalValueTests.cpp" />
+    <ClCompile Include="ThreadTests.cpp" />
     <ClCompile Include="TimeTests.cpp" />
     <ClCompile Include="TimeZoneInfoTests.cpp" />
     <ClCompile Include="TimeZoneTests.cpp" />
@@ -392,6 +397,7 @@
     <ClInclude Include="..\..\..\utils\MarshalingUtils.h" />
     <ClInclude Include="..\..\..\utils\MathUtils.h" />
     <ClInclude Include="..\..\..\utils\Memory.h" />
+    <ClInclude Include="..\..\..\utils\MemoryMappedFile.h" />
     <ClInclude Include="..\..\..\utils\MemoryPool.h" />
     <ClInclude Include="..\..\..\utils\MemoryRead.h" />
     <ClInclude Include="..\..\..\utils\NonCopyable.h" />
@@ -497,6 +503,8 @@
     <ClInclude Include="..\Posix\AtomicImpl-c-api.h" />
     <ClInclude Include="..\Process-c-api.h" />
     <ClInclude Include="..\Semaphore-c-api.h" />
+    <ClInclude Include="..\Socket-c-api.h" />
+    <ClInclude Include="..\Thread-c-api.h" />
     <ClInclude Include="..\ThreadLocalValue-c-api.h" />
     <ClInclude Include="..\Time-c-api.h" />
     <ClInclude Include="..\TimeZone-c-api.h" />

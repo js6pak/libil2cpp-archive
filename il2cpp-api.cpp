@@ -1177,3 +1177,8 @@ void il2cpp_debugger_set_agent_options(const char* options)
     il2cpp::utils::Debugger::SetAgentOptions(options);
 #endif
 }
+
+void il2cpp_unity_install_unitytls_interface(const void* unitytlsInterfaceStruct)
+{
+    il2cpp::vm::Runtime::SetUnityTlsInterface(unitytlsInterfaceStruct);
+}

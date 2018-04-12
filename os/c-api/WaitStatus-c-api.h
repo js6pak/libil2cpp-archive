@@ -8,6 +8,7 @@ typedef enum
 {
     kWaitStatusSuccess = 0,
     kWaitStatusAbandoned = kWaitStatusSuccess + MAXIMUM_WAIT_OBJECTS,
-    kWaitStatusFailure = -1,
+    kWaitStatusAlerted = -1,
     kWaitStatusTimeout = -2,
+    kWaitStatusFailure = -3,
 } UnityPalWaitStatus;

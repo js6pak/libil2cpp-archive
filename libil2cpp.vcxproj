@@ -1260,7 +1260,6 @@
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="il2cpp-class-internals.h" />
     <ClInclude Include="il2cpp-metadata.h" />
-    <ClInclude Include="il2cpp-object-internals.h" />
     <ClInclude Include="il2cpp-string-types.h" />
     <ClInclude Include="il2cpp-tabledefs.h" />
     <ClInclude Include="il2cpp-vm-support.h" />
@@ -1296,6 +1295,7 @@
     <ClInclude Include="mono\ThreadPool\ThreadPoolWorkerThread.h" />
     <ClInclude Include="normalization-tables.h" />
     <ClInclude Include="number-formatter.h" />
+    <ClInclude Include="object-internals.h" />
     <ClInclude Include="os\Atomic.h" />
     <ClInclude Include="os\c-api\Atomic-c-api.h" />
     <ClInclude Include="os\c-api\COM-c-api.h" />
@@ -1323,6 +1323,7 @@
     <ClInclude Include="os\c-api\Posix\AtomicImpl-c-api.h" />
     <ClInclude Include="os\c-api\Process-c-api.h" />
     <ClInclude Include="os\c-api\Semaphore-c-api.h" />
+    <ClInclude Include="os\c-api\Socket-c-api.h" />
     <ClInclude Include="os\c-api\Thread-c-api.h" />
     <ClInclude Include="os\c-api\ThreadLocalValue-c-api.h" />
     <ClInclude Include="os\c-api\Time-c-api.h" />
@@ -1431,6 +1432,7 @@
     <ClInclude Include="utils\MarshalingUtils.h" />
     <ClInclude Include="utils\MathUtils.h" />
     <ClInclude Include="utils\Memory.h" />
+    <ClInclude Include="utils\MemoryMappedFile.h" />
     <ClInclude Include="utils\MemoryPool.h" />
     <ClInclude Include="utils\NativeSymbol.h" />
     <ClInclude Include="utils\NonCopyable.h" />
@@ -1492,7 +1494,6 @@
     <ClInclude Include="vm\RCW.h" />
     <ClInclude Include="vm\Reflection.h" />
     <ClInclude Include="vm\Runtime.h" />
-    <ClInclude Include="vm\ScopedThreadAttacher.h" />
     <ClInclude Include="vm\StackTrace.h" />
     <ClInclude Include="vm\String.h" />
     <ClInclude Include="vm\Thread.h" />
@@ -1671,7 +1672,6 @@
     <ClCompile Include="metadata\Il2CppSignatureHash.cpp" />
     <ClCompile Include="metadata\Il2CppTypeCompare.cpp" />
     <ClCompile Include="metadata\Il2CppTypeHash.cpp" />
-    <ClCompile Include="mono-structs.cpp" />
     <ClCompile Include="mono-runtime\il2cpp-callbacks.cpp" />
     <ClCompile Include="mono-runtime\il2cpp-mono-support.cpp" />
     <ClCompile Include="mono\ThreadPool\threadpool-ms-io-poll.cpp" />
@@ -1692,6 +1692,7 @@
     <ClCompile Include="os\c-api\Memory.cpp" />
     <ClCompile Include="os\c-api\Mutex.cpp" />
     <ClCompile Include="os\c-api\Semaphore.cpp" />
+    <ClCompile Include="os\c-api\Socket.cpp" />
     <ClCompile Include="os\c-api\Thread.cpp" />
     <ClCompile Include="os\c-api\TimeZoneInfo.cpp" />
     <ClCompile Include="os\ConditionVariable.cpp" />
@@ -1755,7 +1756,6 @@
     <ClCompile Include="os\Posix\Time.cpp" />
     <ClCompile Include="os\Posix\TimeZone.cpp" />
     <ClCompile Include="os\Win32\Cryptography.cpp" />
-    <ClCompile Include="os\Win32\DllMain.cpp" />
     <ClCompile Include="os\Win32\Environment.cpp" />
     <ClCompile Include="os\Win32\Encoding.cpp" />
     <ClCompile Include="os\Win32\File.cpp" />
@@ -1819,6 +1819,7 @@
     <ClCompile Include="utils\Logging.cpp" />
     <ClCompile Include="utils\MarshalingUtils.cpp" />
     <ClCompile Include="utils\Memory.cpp" />
+    <ClCompile Include="utils\MemoryMappedFile.cpp" />
     <ClCompile Include="utils\MemoryPool.cpp" />
     <ClCompile Include="utils\Output.cpp" />
     <ClCompile Include="utils\RegisterRuntimeInitializeAndCleanup.cpp" />

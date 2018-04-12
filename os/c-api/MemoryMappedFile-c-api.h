@@ -10,9 +10,8 @@ extern "C"
 void* UnityPalMemoryMappedFileMap(UnityPalFileHandle* file);
 void UnityPalMemoryMappedFileUnmap(void* address);
 
-void* UnityPalMemoryMappedFileMapWithParams(UnityPalFileHandle* file, size_t length, size_t offset);
-void* UnityPalMemoryMappedFileMapWithFileDescriptor(int fd, size_t length, size_t offset);
-void UnityPalMemoryMappedFileUnmapWithParams(void* address, size_t length);
+void* UnityPalMemoryMappedFileMapWithParams(UnityPalFileHandle* file, int64_t length, int64_t offset);
+void UnityPalMemoryMappedFileUnmapWithParams(void* address, int64_t length);
 
 #if defined(__cplusplus)
 }
