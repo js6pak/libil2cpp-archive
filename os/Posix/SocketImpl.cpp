@@ -30,7 +30,7 @@
 #include <sys/poll.h>
 #include <sys/stat.h>
 
-#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID
+#if IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_NOVA
 #include <sys/sendfile.h>
 #endif
 
@@ -41,6 +41,7 @@
 #include "os/Posix/PosixHelpers.h"
 #include "os/Posix/SocketImpl.h"
 #include "os/Posix/ThreadImpl.h"
+#include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "vm/Exception.h"
 
@@ -455,7 +456,7 @@ namespace os
 #endif
     }
 
-    WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list)
+    WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addresses)
     {
         char this_hostname[256] = {0};
 
@@ -469,7 +470,7 @@ namespace os
         }
 
 #if IL2CPP_SUPPORT_IPV6
-        return GetAddressInfo(hostname, add_local_ips, name, addr_list);
+        return GetAddressInfo(hostname, add_local_ips, name, addresses);
 #else
         struct hostent *he = NULL;
         if (*hostname)
@@ -479,11 +480,67 @@ namespace os
             return kWaitStatusFailure;
 
         return (add_local_ips
-                ? hostent_get_info_with_local_ips(he, name, aliases, addr_list)
-                : hostent_get_info(he, name, aliases, addr_list))
+                ? hostent_get_info_with_local_ips(he, name, aliases, addresses)
+                : hostent_get_info(he, name, aliases, addresses))
             ? kWaitStatusSuccess
             : kWaitStatusFailure;
 #endif
+    }
+
+    static bool HasAnyIPv4Addresses(const std::vector<std::string>& addresses)
+    {
+        for (std::vector<std::string>::const_iterator it = addresses.begin(); it != addresses.end(); ++it)
+        {
+            in_addr address;
+            if (inet_pton(AF_INET, it->c_str(), &address))
+                return true;
+        }
+
+        return false;
+    }
+
+    WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, int32_t &family, std::vector<std::string> &aliases, std::vector<void*> &addr_list, int32_t &addr_size)
+    {
+        std::vector<std::string> addresses;
+        WaitStatus result = GetHostByName(host, name, aliases, addresses);
+
+        // If we got an IPv4 address, use that and any others, skipping IPv6 addresses.
+        // We can only return one address size, so we need to choose.
+        if (HasAnyIPv4Addresses(addresses))
+        {
+            addr_size = sizeof(in_addr);
+            family = AF_INET;
+            for (std::vector<std::string>::iterator it = addresses.begin(); it != addresses.end(); ++it)
+            {
+                void* addressLocation = il2cpp::utils::Memory::Malloc(addr_size);
+                in_addr address;
+                if (inet_pton(family, it->c_str(), &address))
+                {
+                    void* addressLocation = il2cpp::utils::Memory::Malloc(addr_size);
+                    memcpy(addressLocation, &address.s_addr, addr_size);
+                    addr_list.push_back(addressLocation);
+                }
+            }
+        }
+#if IL2CPP_SUPPORT_IPV6
+        else
+        {
+            addr_size = sizeof(in6_addr);
+            family = AF_INET6;
+            for (std::vector<std::string>::iterator it = addresses.begin(); it != addresses.end(); ++it)
+            {
+                void* addressLocation = il2cpp::utils::Memory::Malloc(addr_size);
+                in6_addr address;
+                if (inet_pton(family, it->c_str(), &address))
+                {
+                    void* addressLocation = il2cpp::utils::Memory::Malloc(addr_size);
+                    memcpy(addressLocation, &address.s6_addr, addr_size);
+                    addr_list.push_back(addressLocation);
+                }
+            }
+        }
+#endif
+        return result;
     }
 
     WaitStatus SocketImpl::GetHostName(std::string &name)

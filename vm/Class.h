@@ -130,6 +130,7 @@ namespace vm
         }
 
         static bool Init(Il2CppClass *klass);
+        static bool InitFromCodegen(Il2CppClass *klass);
 
         static Il2CppClass* GetArrayClass(Il2CppClass *element_class, uint32_t rank);
         static Il2CppClass* GetBoundedArrayClass(Il2CppClass *element_class, uint32_t rank, bool bounded);

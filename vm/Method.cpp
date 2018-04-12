@@ -27,31 +27,6 @@ namespace vm
         return method->name;
     }
 
-    std::string Method::GetNameWithGenericTypes(const MethodInfo* method)
-    {
-        std::string str;
-
-        str += method->name;
-
-        if (method->is_inflated && method->genericMethod->context.method_inst)
-        {
-            const Il2CppGenericInst *inst = method->genericMethod->context.method_inst;
-
-            str += '<';
-
-            for (unsigned int i = 0; i < inst->type_argc; ++i)
-            {
-                str += Type::GetName(inst->type_argv[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
-                if (i < inst->type_argc - 1)
-                    str += ",";
-            }
-
-            str += '>';
-        }
-
-        return str;
-    }
-
     bool Method::IsGeneric(const MethodInfo *method)
     {
         return method->is_generic;
@@ -279,7 +254,7 @@ namespace vm
         std::string str;
         str += Type::GetName(&method->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
         str += "::";
-        str += Method::GetNameWithGenericTypes(method);
+        str += Method::GetName(method);
 
         return str;
     }

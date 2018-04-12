@@ -42,11 +42,6 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
     };
 
-    const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
-    {
-        HARDCODED_DEPENDENCY_FUNCTION(GetNetworkParams),
-    };
-
 #if !IL2CPP_TARGET_WINDOWS_DESKTOP
     const HardcodedPInvokeDependencyFunction kTimezoneFunctions[] =
     {
@@ -75,7 +70,6 @@ namespace os
         HARDCODED_DEPENDENCY_LIBRARY(L"api-ms-win-core-timezone-l1-1-0", kTimezoneFunctions),
 #endif
         HARDCODED_DEPENDENCY_LIBRARY(L"kernel32", kKernel32Functions),
-        HARDCODED_DEPENDENCY_LIBRARY(L"iphlpapi", kiphlpapiFunctions),
 #if IL2CPP_TARGET_WINRT // Win8+, plus needs to be looked up dynamically on Xbox One
         HARDCODED_DEPENDENCY_LIBRARY(L"wintypes", kWinTypesFunctions),
 #endif
