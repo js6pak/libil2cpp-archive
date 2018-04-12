@@ -56,25 +56,4 @@ BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize)
 } // extern "C"
 
 #endif // WINDOWS_SDK_BUILD_VERSION < 16299
-
-#if WINDOWS_SDK_BUILD_VERSION < 15063
-
-#include "os/Win32/WindowsHeaders.h"
-#include "Win32ApiSharedEmulation.h"
-
-extern "C"
-{
-DWORD WINAPI GetNetworkParams(PFIXED_INFO pFixedInfo, PULONG pOutBufLen)
-{
-    if (*pOutBufLen < sizeof(FIXED_INFO))
-    {
-        *pOutBufLen = sizeof(FIXED_INFO);
-        return ERROR_BUFFER_OVERFLOW;
-    }
-    memset(pFixedInfo, 0, sizeof(FIXED_INFO));
-    return ERROR_NOT_SUPPORTED;
-}
-} // extern "C"
-
-#endif // WINDOWS_SDK_BUILD_VERSION < 15063
 #endif // IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE

@@ -44,8 +44,6 @@ namespace vm
         static bool IsInstance(FieldInfo* field);
         static bool IsNormalStatic(FieldInfo* field);
         static bool IsThreadStatic(FieldInfo* field);
-
-        static void SetValueRaw(const Il2CppType *type, void *dest, void *value, bool deref_pointer);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

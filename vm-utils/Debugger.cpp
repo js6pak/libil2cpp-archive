@@ -35,7 +35,7 @@ void mono_debugger_agent_parse_options(const char *options);
 void mono_debugger_agent_init();
 void mono_debugger_run_debugger_thread_func(void* arg);
 void debugger_agent_single_step_from_context(MonoContext *ctx, uint64_t sequencePointId);
-void mono_debugger_il2cpp_init();
+void mono_debugger_il2cpp_init(const Il2CppDebuggerMetadataRegistration *data);
 void unity_debugger_agent_breakpoint(Il2CppSequencePoint* sequencePoint);
 void mono_debugger_install_runtime_callbacks(MonoDebuggerRuntimeCallbacks* cbs);
 void* il2cpp_alloc(size_t size);
@@ -49,12 +49,7 @@ void mono_debugger_agent_debug_log(int level, Il2CppString *category, Il2CppStri
 int32_t unity_sequence_point_active(Il2CppSequencePoint *seqPoint);
 }
 
-Il2CppMethodHeaderInfo *g_methodHeaderTable;
-Il2CppSequencePoint *g_sequencePointTable;
-int g_numSequencePoints;
-
-typedef il2cpp::utils::dynamic_array<Il2CppMethodExecutionContextInfo> ExecutionContextInfoList;
-ExecutionContextInfoList *g_methodExecutionContextTable;
+static const Il2CppDebuggerMetadataRegistration *g_metadata;
 
 namespace il2cpp
 {
@@ -75,16 +70,9 @@ namespace utils
     typedef Il2CppHashMap<const Il2CppClass*, FileNameList, il2cpp::utils::PointerHash<Il2CppClass> > TypeSourceFileMap;
     static TypeSourceFileMap *s_typeSourceFiles;
 
-    static DebugInfoInitialization s_SequencePointInitializationCallback;
-    static DebugInfoInitialization s_ExecutionContextInitializationCallback;
-    static DebugInfoInitialization s_SourceFileMapInitializationCallback;
-    static DebugInfoInitialization s_MethodHeaderInitializationCallback;
-    void Debugger::RegisterInitializationCallbacks(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit, DebugInfoInitialization methodHeaderInit)
+    void Debugger::RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data)
     {
-        s_SequencePointInitializationCallback = sequencePointInit;
-        s_ExecutionContextInitializationCallback = executionContextInit;
-        s_SourceFileMapInitializationCallback = sourceFileMapInit;
-        s_MethodHeaderInitializationCallback = methodHeaderInit;
+        g_metadata = data;
     }
 
 #if defined(RUNTIME_IL2CPP)
@@ -98,20 +86,11 @@ namespace utils
     static void InitializeMonoSoftDebugger(const char* options)
     {
 #if defined(RUNTIME_IL2CPP)
-        IL2CPP_ASSERT(s_ExecutionContextInitializationCallback);
-        IL2CPP_ASSERT(s_SequencePointInitializationCallback);
-        IL2CPP_ASSERT(s_SourceFileMapInitializationCallback);
-        IL2CPP_ASSERT(s_MethodHeaderInitializationCallback);
-
-        g_methodExecutionContextTable = NULL;
-        g_methodHeaderTable = NULL;
-        g_sequencePointTable = NULL;
-        g_numSequencePoints = 0;
-        s_typeSourceFiles = new TypeSourceFileMap();
-
-        mono_debugger_il2cpp_init();
+        mono_debugger_il2cpp_init(g_metadata);
         mono_debugger_agent_parse_options(options);
         mono_debugger_agent_init();
+
+        s_typeSourceFiles = new TypeSourceFileMap();
 
         MonoDebuggerRuntimeCallbacks cbs;
         cbs.il2cpp_debugger_save_thread_context = Debugger::SaveThreadContext;
@@ -132,17 +111,39 @@ namespace utils
         s_AgentOptions = options;
     }
 
+    void Debugger::InitializeTypeSourceFileMap()
+    {
+        int lastTypeIndex = -1;
+        Il2CppClass *klass = NULL;
+        FileNameList files;
+
+        for (int i = 0; i < g_metadata->numTypeSourceFileEntries; ++i)
+        {
+            Il2CppTypeSourceFilePair& pair = g_metadata->typeSourceFiles[i];
+            const char *file = g_metadata->sequencePointSourceFiles[pair.sourceFileIndex].file;
+            if (pair.klassIndex != lastTypeIndex)
+            {
+                if (klass)
+                    s_typeSourceFiles->add(klass, files);
+
+                klass = il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(pair.klassIndex);
+                lastTypeIndex = pair.klassIndex;
+                files.clear();
+            }
+
+            files.push_back(file);
+        }
+
+        if (files.size() > 0)
+            s_typeSourceFiles->add(klass, files);
+    }
+
     void Debugger::Start()
     {
         if (s_IsDebuggerInitialized)
         {
             vm::MetadataCache::InitializeAllMethodMetadata();
-
-            s_ExecutionContextInitializationCallback();
-            s_MethodHeaderInitializationCallback();
-            s_SequencePointInitializationCallback();
-            s_SourceFileMapInitializationCallback();
-
+            InitializeTypeSourceFileMap();
             InitializeMethodToSequencePointMap();
             Debugger::StartDebuggerThread();
         }
@@ -353,37 +354,13 @@ namespace utils
         }
     }
 
-    Il2CppSequencePoint* Debugger::GetSequencePoint(int id)
+    Il2CppSequencePoint* Debugger::GetSequencePoint(size_t id)
     {
-        if (g_numSequencePoints == 0)
+        if (g_metadata->numSequencePoints == 0)
             return NULL;
 
-        return &g_sequencePointTable[id];
-    }
-
-    void Debugger::AddSequencePoint(int id, const Il2CppMethodExecutionContextInfo* executionContextInfos, uint32_t executionContextInfoCount,
-        const Il2CppMethodHeaderInfo *header, const MethodInfo* method, const char* sourceFile, uint8_t h1, uint8_t h2, uint8_t h3, uint8_t h4,
-        uint8_t h5, uint8_t h6, uint8_t h7, uint8_t h8, uint8_t h9, uint8_t h10, uint8_t h11, uint8_t h12, uint8_t h13, uint8_t h14, uint8_t h15,
-        uint8_t h16, uint32_t lineStart, uint32_t lineEnd, uint32_t columnStart, uint32_t columnEnd, int32_t ilOffset, SequencePointKind kind,
-        bool isActive, uint8_t tryDepth, const Il2CppClass *catchType)
-    {
-        Il2CppSequencePoint& seqPoint = g_sequencePointTable[id];
-        seqPoint.executionContextInfos = executionContextInfos;
-        seqPoint.executionContextInfoCount = executionContextInfoCount;
-        seqPoint.header = header;
-        seqPoint.method = method;
-        seqPoint.sourceFile = sourceFile;
-        seqPoint.sourceFileHash = Hash16(h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16);
-        seqPoint.lineStart = lineStart;
-        seqPoint.lineEnd = lineEnd;
-        seqPoint.columnStart = columnStart;
-        seqPoint.columnEnd = columnEnd;
-        seqPoint.ilOffset = ilOffset;
-        seqPoint.kind = kind;
-        seqPoint.isActive = isActive;
-        seqPoint.tryDepth = tryDepth;
-        seqPoint.catchType = catchType;
-        seqPoint.id = id;
+        Il2CppSequencePointIndex& spIndex = g_metadata->sequencePointIndexes[id];
+        return &g_metadata->sequencePoints[spIndex.tableIndex][spIndex.index];
     }
 
     Il2CppSequencePoint* Debugger::GetSequencePoints(const MethodInfo* method, void**iter)
@@ -449,24 +426,13 @@ namespace utils
     {
         int index = (int)(intptr_t)*iter;
 
-        if (index >= g_numSequencePoints)
+        if (index >= g_metadata->numSequencePoints)
             return NULL;
 
-        Il2CppSequencePoint* retVal = &g_sequencePointTable[index];
+        Il2CppSequencePointIndex& spIndex = g_metadata->sequencePointIndexes[index];
+        Il2CppSequencePoint* retVal = &g_metadata->sequencePoints[spIndex.tableIndex][spIndex.index];
         *iter = (void*)(intptr_t)(index + 1);
         return retVal;
-    }
-
-    void Debugger::AddMethodExecutionContextInfo(MethodIndex index, const Il2CppMethodExecutionContextInfo& info)
-    {
-        g_methodExecutionContextTable[index].push_back(info);
-    }
-
-    Il2CppMethodExecutionContextInfo* Debugger::GetMethodExecutionContextInfos(MethodIndex index, int *count)
-    {
-        ExecutionContextInfoList& infos = g_methodExecutionContextTable[index];
-        *count = static_cast<int>(infos.size());
-        return infos.data();
     }
 
     void Debugger::HandleException(Il2CppException *exc, Il2CppSequencePoint *sequencePoint)
@@ -482,13 +448,15 @@ namespace utils
 
     void Debugger::InitializeMethodToSequencePointMap()
     {
-        for (int i = 0; i < g_numSequencePoints; ++i)
+        for (int i = 0; i < g_metadata->numSequencePoints; ++i)
         {
-            Il2CppSequencePoint& seqPoint = g_sequencePointTable[i];
+            Il2CppSequencePointIndex& spIndex = g_metadata->sequencePointIndexes[i];
+            Il2CppSequencePoint& seqPoint = g_metadata->sequencePoints[spIndex.tableIndex][spIndex.index];
+            const MethodInfo *spMethod = GetSequencePointMethod(&seqPoint);
 
-            if (seqPoint.method != NULL)
+            if (spMethod != NULL)
             {
-                const MethodInfo *method = seqPoint.method;
+                const MethodInfo *method = spMethod;
                 if (method->is_inflated)
                     method = method->genericMethod->methodDefinition;
 
@@ -511,21 +479,6 @@ namespace utils
         {
             SequencePointList *seqPoints = methods->second;
             std::sort(seqPoints->begin(), seqPoints->end(), SequencePointOffsetLess);
-        }
-    }
-
-    void Debugger::AddTypeSourceFile(const Il2CppClass *klass, const char *sourceFile)
-    {
-        TypeSourceFileMap::iterator it = s_typeSourceFiles->find(klass);
-        if (it == s_typeSourceFiles->end())
-        {
-            FileNameList names;
-            names.push_back(sourceFile);
-            s_typeSourceFiles->add(klass, names);
-        }
-        else
-        {
-            it->second.push_back(sourceFile);
         }
     }
 
@@ -564,17 +517,16 @@ namespace utils
         return unity_sequence_point_active(seqPoint);
     }
 
-    Il2CppMethodHeaderInfo* Debugger::AddMethodHeaderInfo(MethodIndex index, int codeSize, int numScopes)
+    const MethodInfo* Debugger::GetSequencePointMethod(Il2CppSequencePoint *seqPoint)
     {
-        Il2CppMethodHeaderInfo& header = g_methodHeaderTable[index];
-        header.setCodeSize(codeSize);
-        header.setNumScopes(numScopes);
-        return &header;
-    }
+        if (seqPoint == NULL)
+            return NULL;
 
-    const Il2CppMethodHeaderInfo* Debugger::GetMethodHeaderInfo(MethodIndex index)
-    {
-        return &g_methodHeaderTable[index];
+        if (seqPoint->method_)
+            return seqPoint->method_;
+
+        seqPoint->method_ = il2cpp::vm::MetadataCache::GetMethodInfoFromIndex(seqPoint->methodMetadataIndex);
+        return seqPoint->method_;
     }
 }
 }

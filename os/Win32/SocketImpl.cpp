@@ -19,6 +19,7 @@
 #include "os/ErrorCodes.h"
 #include "os/Win32/SocketImpl.h"
 #include "utils/StringUtils.h"
+#include "utils/Memory.h"
 
 #include "il2cpp-vm-support.h"
 
@@ -40,7 +41,7 @@ namespace os
         return 0;
     }
 
-    static bool hostent_get_info(struct hostent *he, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list)
+    static bool hostent_get_info(struct hostent *he, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addresses)
     {
         if (he == NULL)
             return false;
@@ -59,7 +60,7 @@ namespace os
             for (int32_t i = 0; he->h_addr_list[i] != NULL; ++i)
             {
                 addr.s_addr = *(u_long*)he->h_addr_list[i];
-                addr_list.push_back(inet_ntoa(addr));
+                addresses.push_back(inet_ntoa(addr));
             }
         }
         // TODO(gab): add support for IPv6
@@ -68,7 +69,7 @@ namespace os
         return true;
     }
 
-    static bool hostent_get_info_with_local_ips(struct hostent *he, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list)
+    static bool hostent_get_info_with_local_ips(struct hostent *he, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addresses)
     {
         int32_t i = 0;
         int32_t nlocal_in = 0;
@@ -89,14 +90,14 @@ namespace os
         if (nlocal_in)
         {
             for (int32_t i = 0; i < nlocal_in; ++i)
-                addr_list.push_back(inet_ntoa(local_in[i]));
+                addresses.push_back(inet_ntoa(local_in[i]));
 
             free(local_in);
         }
         else if (he == NULL)
         {
             // If requesting "" and there are no other interfaces up, MS returns 127.0.0.1
-            addr_list.push_back("127.0.0.1");
+            addresses.push_back("127.0.0.1");
             return true;
         }
 
@@ -108,7 +109,7 @@ namespace os
                 for (int32_t i = 0; he->h_addr_list[i] != NULL; ++i)
                 {
                     addr.s_addr = *(u_long*)he->h_addr_list[i];
-                    addr_list.push_back(inet_ntoa(addr));
+                    addresses.push_back(inet_ntoa(addr));
                 }
             }
             // TODO(gab): add support for IPv6
@@ -175,7 +176,7 @@ namespace os
             : kWaitStatusFailure;
     }
 
-    WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list)
+    WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addresses)
     {
         char this_hostname[256] = {0};
 
@@ -196,10 +197,32 @@ namespace os
             return kWaitStatusFailure;
 
         return (add_local_ips
-                ? hostent_get_info_with_local_ips(he, name, aliases, addr_list)
-                : hostent_get_info(he, name, aliases, addr_list))
+                ? hostent_get_info_with_local_ips(he, name, aliases, addresses)
+                : hostent_get_info(he, name, aliases, addresses))
             ? kWaitStatusSuccess
             : kWaitStatusFailure;
+    }
+
+    WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, int32_t &family, std::vector<std::string> &aliases, std::vector<void*> &addr_list, int32_t &addr_size)
+    {
+        std::vector<std::string> addresses;
+        WaitStatus result = GetHostByName(host, name, aliases, addresses);
+
+        addr_size = sizeof(in_addr);
+        family = AF_INET;
+
+        for (std::vector<std::string>::iterator it = addresses.begin(); it != addresses.end(); ++it)
+        {
+            void* addressLocation = il2cpp::utils::Memory::Malloc(addr_size);
+            in_addr address;
+            if (inet_pton(family, it->c_str(), &address))
+            {
+                memcpy(addressLocation, &address.S_un.S_addr, addr_size);
+                addr_list.push_back(addressLocation);
+            }
+        }
+
+        return result;
     }
 
     void SocketImpl::Startup()

@@ -124,9 +124,14 @@ namespace os
         return SocketImpl::GetHostByAddr(address, name, aliases, addr_list);
     }
 
-    WaitStatus Socket::GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list)
+    WaitStatus Socket::GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addresses)
     {
-        return SocketImpl::GetHostByName(host, name, aliases, addr_list);
+        return SocketImpl::GetHostByName(host, name, aliases, addresses);
+    }
+
+    WaitStatus Socket::GetHostByName(const std::string &host, std::string &name, int32_t &family, std::vector<std::string> &aliases, std::vector<void*> &addr_list, int32_t &addr_size)
+    {
+        return SocketImpl::GetHostByName(host, name, family, aliases, addr_list, addr_size);
     }
 
     Socket::Socket(ThreadStatusCallback thread_status_callback)

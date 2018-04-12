@@ -4,6 +4,7 @@
 
 #include <io.h>
 
+#include "il2cpp-vm-support.h"
 #include "os/File.h"
 #include "os/Win32/WindowsHeaders.h"
 
@@ -47,7 +48,7 @@ namespace os
 
     bool File::Isatty(FileHandle* fileHandle)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(File::IsAtty);
+        IL2CPP_VM_NOT_IMPLEMENTED(File::IsAtty);
         return false;
     }
 

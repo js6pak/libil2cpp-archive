@@ -3,7 +3,7 @@
 #include "UnitTest++.h"
 
 #include "../MemoryMappedFile-c-api.h"
-#include "../../MemoryMappedFile.h"
+#include "../../../utils/MemoryMappedFile.h"
 #include "../../File.h"
 #include "../File-c-api.h"
 #include "PathHelper.h"
@@ -31,8 +31,8 @@ public:
 
     ~MapTestsWithParamsFixture()
     {
-        il2cpp::os::MemoryMappedFile::Unmap(apiAddress, length);
-        il2cpp::os::MemoryMappedFile::Unmap(classAddress, length);
+        il2cpp::utils::MemoryMappedFile::Unmap(apiAddress);
+        il2cpp::utils::MemoryMappedFile::Unmap(classAddress);
         CloseTestFile(handle);
         DeleteTestFile(handle);
         handle = NULL;
@@ -41,8 +41,8 @@ public:
     il2cpp::os::FileHandle* handle;
     void* apiAddress;
     void* classAddress;
-    size_t length;
-    size_t offset;
+    int64_t length;
+    int64_t offset;
 
 private:
     void Initialize()
@@ -51,7 +51,7 @@ private:
         handle = CreateTestFile();
         WriteCharactersToTestFile(handle);
         apiAddress = NULL;
-        classAddress = il2cpp::os::MemoryMappedFile::Map(handle, length, offset);
+        classAddress = il2cpp::utils::MemoryMappedFile::Map(handle, length, offset);
     }
 
     il2cpp::os::FileHandle* CreateTestFile()
@@ -137,36 +137,10 @@ SUITE(MemoryMappedFile)
         CHECK_NOT_NULL(apiAddress);
     }
 
-#if IL2CPP_TARGET_POSIX
-    TEST_FIXTURE(MapTestsWithParamsFixture, MapWithFileDescriptorReturnsAValidPointer)
-    {
-        int fd = open(TEST_FILE_NAME, O_RDONLY);
-        apiAddress = UnityPalMemoryMappedFileMapWithFileDescriptor(fd, length, offset);
-        CHECK_NOT_NULL(apiAddress);
-        close(fd);
-    }
-
-    TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithFileDescriptorPointerHasMatchingCharactersAsFile)
-    {
-        int fd = open(TEST_FILE_NAME, O_RDONLY);
-        apiAddress = UnityPalMemoryMappedFileMapWithFileDescriptor(fd, length, offset);
-        CHECK_EQUAL(0, strncmp("THIS IS", (const char*)apiAddress, length));
-        close(fd);
-    }
-
-    TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithFileDescriptorPointerHasMatchingSizeAsFile)
-    {
-        int fd = open(TEST_FILE_NAME, O_RDONLY);
-        apiAddress = UnityPalMemoryMappedFileMapWithFileDescriptor(fd, length, offset);
-        CHECK_EQUAL(strlen(TEST_STRING), strlen((const char*)apiAddress));
-        close(fd);
-    }
-#endif
-
     TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithParamsPointerHasMatchingCharactersAsFile)
     {
         apiAddress = UnityPalMemoryMappedFileMapWithParams(handle, length, offset);
-        CHECK_EQUAL(0, strncmp("THIS IS", (const char*)apiAddress, length));
+        CHECK_EQUAL(0, strncmp("THIS IS", (const char*)apiAddress, (size_t)length));
     }
 
     TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithParamsPointerHasMatchingSizeAsFile)
@@ -184,7 +158,7 @@ SUITE(MemoryMappedFile)
     TEST_FIXTURE(MapTestsWithParamsFixture, ApiMappedWithParamsPointerCharactersMatchClassMappedPointer)
     {
         apiAddress = UnityPalMemoryMappedFileMapWithParams(handle, length, offset);
-        CHECK_EQUAL(strncmp("THIS IS", (const char*)classAddress, length), strncmp("THIS IS", (const char*)apiAddress, length));
+        CHECK_EQUAL(strncmp("THIS IS", (const char*)classAddress, (size_t)length), strncmp("THIS IS", (const char*)apiAddress, (size_t)length));
     }
 
     TEST_FIXTURE(MapTestsWithParamsFixture, ApiMappedWithParamsLengthMatchesClassMatchedLength)

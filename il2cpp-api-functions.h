@@ -249,3 +249,6 @@ DO_API(void, il2cpp_register_log_callback, (Il2CppLogCallback method));
 
 // Debugger
 DO_API(void, il2cpp_debugger_set_agent_options, (const char* options));
+
+// TLS module
+DO_API(void, il2cpp_unity_install_unitytls_interface, (const void* unitytlsInterfaceStruct));

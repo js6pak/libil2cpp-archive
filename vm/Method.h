@@ -21,7 +21,6 @@ namespace vm
     public:
         static const Il2CppType* GetReturnType(const MethodInfo* method);
         static const char* GetName(const MethodInfo *method);
-        static std::string GetNameWithGenericTypes(const MethodInfo* method);
         static std::string GetFullName(const MethodInfo* method);
         static bool IsGeneric(const MethodInfo *method);
         static bool IsInflated(const MethodInfo *method);
