@@ -5,11 +5,11 @@
 #include "os/Initialize.h"
 #include "os/LibraryLoader.h"
 #include "os/Locale.h"
-#include "os/MemoryMappedFile.h"
 #include "os/Path.h"
 #include "NativeSymbol.h"
 #include "utils/Collections.h"
 #include "utils/PathUtils.h"
+#include "utils/MemoryMappedFile.h"
 #include "utils/Runtime.h"
 #include <string>
 
@@ -61,7 +61,7 @@ namespace utils
             return NULL;
 
         // Note that we won't unmap this file, we'll leave it open the entire lifetime of the process.
-        void* mappedFile = il2cpp::os::MemoryMappedFile::Map(handle);
+        void* mappedFile = utils::MemoryMappedFile::Map(handle);
 
         il2cpp::os::File::Close(handle, &error);
         IL2CPP_ASSERT(error == 0);
@@ -104,14 +104,12 @@ namespace utils
     {
         s_ImageBase = il2cpp::os::Image::GetImageBase();
 
-#if !IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
         void* fileBuffer = LoadSymbolInfoFile();
         if (fileBuffer == NULL)
             return;
 
         s_SymbolCount = *((int32_t*)fileBuffer);
         s_SymbolInfos = (SymbolInfo*)((uint8_t*)fileBuffer + sizeof(s_SymbolCount));
-#endif
     }
 
     static bool CompareEndOfSymbols(const SymbolInfo &a, const SymbolInfo &b)
@@ -126,7 +124,7 @@ namespace utils
         if (!s_TriedToInitializeSymbolInfo)
         {
             // Only attempt to initialize the symbol information once. If it is not present the first time,
-            // it likely won't be there later either. Repeated checking can cause performance problems.
+            // it likely won't be there later either. Repeated chcecking can cause performance problems.
             s_TriedToInitializeSymbolInfo = true;
             InitializeSymbolInfos();
         }
@@ -135,10 +133,6 @@ namespace utils
         if ((void*)nativeMethod < (void*)s_ImageBase)
             return NULL;
 
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
-        if (!il2cpp::os::Image::IsInManagedSection((void*)nativeMethod))
-            return NULL;
-#endif
 
         if (s_SymbolCount > 0)
         {
@@ -176,24 +170,16 @@ namespace utils
         }
         else
         {
-            // Get the first symbol greater than the one we want, because our instruction pointer
-            // probably won't be at the start of the method.
-            NativeMethodMap::iterator methodAfterNativeMethod = s_NativeMethods.upper_bound(nativeMethod);
+            // get the first symbol greater than the one we want
+            NativeMethodMap::iterator iter = s_NativeMethods.upper_bound(nativeMethod);
 
-            // If method are all of the managed methods are in the same custom section of the binary, then assume we
-            // will find the proper method, so the end iterator means we found the last method in this list. If we
-            // don't have custom sections, then we may have actually not found the method. In that case, let's not
-            // return a method we are unsure of.
-#if !IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
-            if (methodAfterNativeMethod == s_NativeMethods.end())
-                return NULL;
-#endif
-
-            // Go back one to get the method we actually want.
-            if (methodAfterNativeMethod != s_NativeMethods.begin())
-                methodAfterNativeMethod--;
-
-            return IL2CPP_VM_METHOD_METADATA_FROM_INDEX(methodAfterNativeMethod->isGeneric, methodAfterNativeMethod->methodIndex);
+            // This will cause it to fail to pickup the last method, but we cannot do anything about it
+            if (iter != s_NativeMethods.begin() && iter != s_NativeMethods.end())
+            {
+                // go back one to get the symbol we actually want
+                iter--;
+                return IL2CPP_VM_METHOD_METADATA_FROM_INDEX(iter->isGeneric, iter->methodIndex);
+            }
         }
 
         return NULL;

@@ -33,7 +33,9 @@ typedef enum
 {
     kFileAccessRead = 0x01,
     kFileAccessWrite = 0x02,
-    kFileAccessReadWrite = kFileAccessRead | kFileAccessWrite
+    kFileAccessExecute = 0x04,
+    kFileAccessReadWrite = kFileAccessRead | kFileAccessWrite,
+    kFileAccessReadWriteExecute = kFileAccessRead | kFileAccessWrite  | kFileAccessExecute
 } FileAccess;
 
 typedef enum

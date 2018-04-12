@@ -77,43 +77,4 @@ BOOL WINAPI GetComputerNameW(LPWSTR lpBuffer, LPDWORD nSize);
 
 #endif
 
-#if WINDOWS_SDK_BUILD_VERSION < 15063
-
-extern "C"
-{
-typedef struct
-{
-    char String[4 * 4];
-} IP_ADDRESS_STRING, *PIP_ADDRESS_STRING, IP_MASK_STRING, *PIP_MASK_STRING;
-
-typedef struct _IP_ADDR_STRING
-{
-    struct _IP_ADDR_STRING* Next;
-    IP_ADDRESS_STRING IpAddress;
-    IP_MASK_STRING IpMask;
-    DWORD Context;
-} IP_ADDR_STRING, *PIP_ADDR_STRING;
-
-#define MAX_HOSTNAME_LEN                128
-#define MAX_DOMAIN_NAME_LEN             128
-#define MAX_SCOPE_ID_LEN                256
-
-typedef struct
-{
-    char            HostName[MAX_HOSTNAME_LEN + 4];
-    char            DomainName[MAX_DOMAIN_NAME_LEN + 4];
-    PIP_ADDR_STRING CurrentDnsServer;
-    IP_ADDR_STRING  DnsServerList;
-    UINT            NodeType;
-    char            ScopeId[MAX_SCOPE_ID_LEN + 4];
-    UINT            EnableRouting;
-    UINT            EnableProxy;
-    UINT            EnableDns;
-} FIXED_INFO, *PFIXED_INFO;
-
-DWORD WINAPI GetNetworkParams(PFIXED_INFO pFixedInfo, PULONG pOutBufLen);
-} // extern "C"
-
-#endif
-
 #endif

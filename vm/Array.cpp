@@ -199,7 +199,7 @@ namespace vm
             /* align */
             //if (CHECK_ADD_OVERFLOW_UN (byte_len, 3))
             //  mono_gc_out_of_memory (MONO_ARRAY_MAX_SIZE);
-            byte_len = (byte_len + 3) & ~3;
+            byte_len = (byte_len + (IL2CPP_SIZEOF_VOID_P - 1)) & ~(IL2CPP_SIZEOF_VOID_P - 1);
             //if (CHECK_ADD_OVERFLOW_UN (byte_len, bounds_size))
             //  mono_gc_out_of_memory (MONO_ARRAY_MAX_SIZE);
             byte_len += bounds_size;

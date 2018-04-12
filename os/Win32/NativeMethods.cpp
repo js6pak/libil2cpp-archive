@@ -4,6 +4,7 @@
 
 #include "WindowsHelpers.h"
 
+#include "il2cpp-vm-support.h"
 #include "os/NativeMethods.h"
 #include "vm/Exception.h"
 
@@ -21,7 +22,8 @@ namespace os
 #if IL2CPP_TARGET_WINDOWS_DESKTOP
         return ::GetExitCodeProcess((HANDLE)handle, (LPDWORD)exitCode);
 #else
-        vm::Exception::Raise(vm::Exception::GetNotSupportedException("Getting process exit code is not supported on WinRT based platforms."));
+        IL2CPP_VM_NOT_SUPPORTED("GetExitCodeProcess", "Getting process exit code is not supported on WinRT based platforms.");
+        return FALSE;
 #endif
     }
 

@@ -75,12 +75,19 @@ namespace vm
     static const char *s_FrameworkVersion = 0;
     static const char *s_BundledMachineConfig = 0;
     static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
+    static const void* s_UnitytlsInterface = NULL;
 
 #define DEFAULTS_INIT(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n);\
     IL2CPP_ASSERT(il2cpp_defaults.field); } while (0)
 
 #define DEFAULTS_INIT_TYPE(field, ns, n, nativetype) do { DEFAULTS_INIT(field, ns, n); \
     IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
+
+#define DEFAULTS_INIT_OPTIONAL(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n); } while (0)
+
+#define DEFAULTS_INIT_TYPE_OPTIONAL(field, ns, n, nativetype) do { DEFAULTS_INIT_OPTIONAL(field, ns, n); \
+    if (il2cpp_defaults.field != NULL) \
+        IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
 
     char* basepath(const char* path)
     {
@@ -130,7 +137,6 @@ namespace vm
 
         s_FrameworkVersion = framework_version_for(runtime_version);
 
-        os::Image::Initialize();
         os::Thread::Init();
 
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
@@ -235,7 +241,9 @@ namespace vm
         DEFAULTS_INIT_TYPE(mono_parameter_info_class, "System.Reflection", "MonoParameterInfo", Il2CppReflectionParameter);
 #endif
         DEFAULTS_INIT_TYPE(module_class, "System.Reflection", "Module", Il2CppReflectionModule);
-
+#if !UNITY_AOT
+        DEFAULTS_INIT_TYPE(marshal_class, "System.Reflection.Emit", "UnmanagedMarshal", Il2CppReflectionMarshal);
+#endif
         DEFAULTS_INIT_TYPE(pointer_class, "System.Reflection", "Pointer", Il2CppReflectionPointer);
         DEFAULTS_INIT_TYPE(exception_class, "System", "Exception", Il2CppException);
         DEFAULTS_INIT_TYPE(system_exception_class, "System", "SystemException", Il2CppSystemException);
@@ -245,7 +253,7 @@ namespace vm
         DEFAULTS_INIT_TYPE(safe_handle_class, "System.Runtime.InteropServices", "SafeHandle", Il2CppSafeHandle);
         DEFAULTS_INIT_TYPE(sort_key_class, "System.Globalization", "SortKey", Il2CppSortKey);
         DEFAULTS_INIT(dbnull_class, "System", "DBNull");
-        DEFAULTS_INIT_TYPE(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
+        DEFAULTS_INIT_TYPE_OPTIONAL(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
         DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
         DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
@@ -414,6 +422,11 @@ namespace vm
         SetConfigStr(executablePathStr);
     }
 
+    void Runtime::SetUnityTlsInterface(const void* unitytlsInterface)
+    {
+        s_UnitytlsInterface = unitytlsInterface;
+    }
+
     const char *Runtime::GetFrameworkVersion()
     {
         return s_FrameworkVersion;
@@ -425,6 +438,11 @@ namespace vm
             return s_ConfigDir;
 
         return utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("etc"));
+    }
+
+    const void* Runtime::GetUnityTlsInterface()
+    {
+        return s_UnitytlsInterface;
     }
 
     const MethodInfo* Runtime::GetDelegateInvoke(Il2CppClass* klass)
@@ -466,7 +484,7 @@ namespace vm
             if (Method::GetClass(method))
                 RaiseExecutionEngineException(Method::GetFullName(method).c_str());
             else
-                RaiseExecutionEngineException(Method::GetNameWithGenericTypes(method).c_str());
+                RaiseExecutionEngineException(Method::GetName(method));
         }
     }
 
@@ -488,6 +506,10 @@ namespace vm
         try
         {
             RaiseExecutionEngineExceptionIfMethodIsNotFound(method);
+
+            if (!Method::IsInstance(method) && method->klass && method->klass->has_cctor && !method->klass->cctor_finished)
+                ClassInit(method->klass);
+
             return (Il2CppObject*)method->invoker_method(method->methodPointer, method, obj, params);
         }
         catch (Il2CppExceptionWrapper& ex)

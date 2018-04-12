@@ -609,6 +609,21 @@
     <ClCompile Include="TimeZoneInfoTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Thread.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Socket.cpp">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\utils\MemoryMappedFile.cpp">
+      <Filter>libil2cpp\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\il2cpp-dependencies\UnitTest++\AssertException.h">
@@ -1093,6 +1108,15 @@
     </ClInclude>
     <ClInclude Include="..\TimeZoneInfo-c-api.h">
       <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thread-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Socket-c-api.h">
+      <Filter>libil2cpp\os\c-api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\utils\MemoryMappedFile.h">
+      <Filter>libil2cpp\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

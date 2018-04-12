@@ -22,6 +22,9 @@ namespace il2cpp
 {
 namespace vm
 {
+    static void
+    set_value(const Il2CppType *type, void *dest, void *value, bool deref_pointer);
+
     const char* Field::GetName(FieldInfo *field)
     {
         return field->name;
@@ -51,7 +54,7 @@ namespace vm
         IL2CPP_ASSERT(!(field->type->attrs & FIELD_ATTRIBUTE_STATIC));
 
         src = (char*)obj + field->offset;
-        SetValueRaw(field->type, value, src, true);
+        set_value(field->type, value, src, true);
     }
 
     uint32_t Field::GetToken(const FieldInfo *field)
@@ -131,7 +134,7 @@ namespace vm
         IL2CPP_ASSERT(!(field->type->attrs & FIELD_ATTRIBUTE_STATIC));
 
         dest = (char*)obj + field->offset;
-        SetValueRaw(field->type, dest, value, false);
+        set_value(field->type, dest, value, false);
     }
 
     void Field::GetDefaultFieldValue(FieldInfo *field, void *value)
@@ -196,7 +199,7 @@ namespace vm
             src = ((char*)field->parent->static_fields) + field->offset;
         }
 
-        SetValueRaw(field->type, value, src, true);
+        set_value(field->type, value, src, true);
     }
 
     void Field::StaticSetValue(FieldInfo *field, void *value)
@@ -225,7 +228,7 @@ namespace vm
             dest = ((char*)field->parent->static_fields) + field->offset;
         }
 
-        SetValueRaw(field->type, dest, value, false);
+        set_value(field->type, dest, value, false);
     }
 
     void Field::SetInstanceFieldValueObject(Il2CppObject* objectInstance, FieldInfo* field, Il2CppObject* value)
@@ -236,7 +239,8 @@ namespace vm
         // Object write barrier needed here
     }
 
-    void Field::SetValueRaw(const Il2CppType *type, void *dest, void *value, bool deref_pointer)
+    static void
+    set_value(const Il2CppType *type, void *dest, void *value, bool deref_pointer)
     {
         int t;
         if (type->byref)

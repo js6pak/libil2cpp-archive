@@ -417,7 +417,7 @@ FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const Runtime
 
 inline RuntimeClass* InitializedTypeInfo(RuntimeClass* klass)
 {
-    il2cpp::vm::Class::Init(klass);
+    il2cpp::vm::Class::InitFromCodegen(klass);
     return klass;
 }
 
@@ -460,7 +460,6 @@ inline void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, void* 
 
 inline RuntimeArray* SZArrayNew(RuntimeClass* arrayType, uint32_t length)
 {
-    il2cpp::vm::Class::Init(arrayType);
     return il2cpp::vm::Array::NewSpecific(arrayType, length);
 }
 
@@ -624,31 +623,24 @@ inline void il2cpp_codegen_marshal_store_last_error()
 class il2cpp_native_wrapper_vm_thread_attacher
 {
 public:
-    il2cpp_native_wrapper_vm_thread_attacher()
-#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
-        : m_AttachedThread(NULL)
-#endif
+    il2cpp_native_wrapper_vm_thread_attacher() :
+        _threadWasAttached(false)
     {
-#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
         if (il2cpp::vm::Thread::Current() == NULL)
-            m_AttachedThread = il2cpp::vm::Thread::Attach(il2cpp::vm::Domain::GetRoot());
-#else
-        il2cpp::vm::Thread::Attach(il2cpp::vm::Domain::GetRoot());
-#endif
+        {
+            il2cpp::vm::Thread::Attach(il2cpp::vm::Domain::GetRoot());
+            _threadWasAttached = true;
+        }
     }
 
     ~il2cpp_native_wrapper_vm_thread_attacher()
     {
-#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
-        if (m_AttachedThread != NULL)
-            il2cpp::vm::Thread::Detach(m_AttachedThread);
-#endif
+        if (_threadWasAttached)
+            il2cpp::vm::Thread::Detach(il2cpp::vm::Thread::Current());
     }
 
 private:
-#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
-    Il2CppThread * m_AttachedThread;
-#endif
+    bool _threadWasAttached;
 };
 
 #if _DEBUG
@@ -996,20 +988,4 @@ inline std::string il2cpp_codegen_format_exception(const RuntimeException* ex)
 inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object, Type_t* type)
 {
     return il2cpp::icalls::mscorlib::System::Runtime::InteropServices::Marshal::GetCCW(object, reinterpret_cast<Il2CppReflectionType*>(type));
-}
-
-inline void il2cpp_codegen_add_sequence_point(int id, const Il2CppMethodExecutionContextInfo* const executionContextInfos, uint32_t executionContextInfoCount, const Il2CppMethodHeaderInfo *header, const MethodInfo* method,
-    const char* const sourceFile, uint8_t h1, uint8_t h2, uint8_t h3, uint8_t h4, uint8_t h5, uint8_t h6, uint8_t h7, uint8_t h8, uint8_t h9, uint8_t h10, uint8_t h11, uint8_t h12, uint8_t h13, uint8_t h14,
-    uint8_t h15, uint8_t h16, uint32_t lineStart, uint32_t lineEnd, uint32_t columnStart, uint32_t columnEnd, int32_t ilOffset, SequencePointKind kind, bool isActive, uint8_t tryDepth, const RuntimeClass *catchType)
-{
-#if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::AddSequencePoint(id, executionContextInfos, executionContextInfoCount, header, method, sourceFile, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, lineStart, lineEnd, columnStart, columnEnd, ilOffset, kind, isActive, tryDepth, catchType);
-#endif
-}
-
-inline void il2cpp_codegen_add_type_source_file(const Il2CppClass *klass, const char *path)
-{
-#if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::AddTypeSourceFile(klass, path);
-#endif
 }
