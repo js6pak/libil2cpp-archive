@@ -18,6 +18,9 @@ Mono.Security.Cryptography.KeyPairPersistence::_IsUserProtected(System.String) m
 Mono.Security.Cryptography.KeyPairPersistence::_ProtectMachine(System.String) mscorlib::Mono::Security::Cryptography::KeyPairPersistence::_ProtectMachine
 Mono.Security.Cryptography.KeyPairPersistence::_ProtectUser(System.String) mscorlib::Mono::Security::Cryptography::KeyPairPersistence::_ProtectUser
 
+// Mono.Unity.UnityTls
+Mono.Unity.UnityTls::GetUnityTlsInterface() mscorlib::Mono::Unity::UnityTls::GetUnityTlsInterface
+
 // System.__ComObject
 System.__ComObject::CreateRCW(System.Type) mscorlib::System::__ComObject::CreateRCW
 System.__ComObject::GetInterfaceInternal(System.Type,System.Boolean) mscorlib::System::__ComObject::GetInterfaceInternal

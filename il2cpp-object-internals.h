@@ -611,7 +611,7 @@ typedef struct Il2CppArgumentException
 // System.TypedReference
 typedef struct Il2CppTypedRef
 {
-    const Il2CppType *type;
+    Il2CppType *type;
     void*  value;
     Il2CppClass *klass;
 } Il2CppTypedRef;
@@ -974,9 +974,15 @@ typedef struct Il2CppRegionInfo
     Il2CppString* iso3name;
     Il2CppString* win3name;
     Il2CppString* english_name;
+#if NET_4_0
+    Il2CppString* native_name;
+#endif
     Il2CppString* currency_symbol;
     Il2CppString* iso_currency_symbol;
     Il2CppString* currency_english_name;
+#if NET_4_0
+    Il2CppString* currency_native_name;
+#endif
 } Il2CppRegionInfo;
 
 // System.Runtime.InteropServices.SafeHandle

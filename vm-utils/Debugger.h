@@ -21,8 +21,8 @@ namespace utils
     class Debugger
     {
     public:
+        static void RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data);
         static void SetAgentOptions(const char* options);
-        static void RegisterInitializationCallbacks(DebugInfoInitialization sequencePointInit, DebugInfoInitialization executionContextInit, DebugInfoInitialization sourceFileMapInit, DebugInfoInitialization methodHeaderInit);
         static void Init();
         static void Start();
         static void StartDebuggerThread();
@@ -38,35 +38,23 @@ namespace utils
         static bool GetIsDebuggerAttached();
         static void SetIsDebuggerAttached(bool attached);
         static bool IsDebuggerThread(os::Thread* thread);
-
         static void AllocateThreadLocalData();
         static void FreeThreadLocalData();
-
-        static Il2CppSequencePoint* GetSequencePoint(int id);
-
-        static void AddSequencePoint(int id, const Il2CppMethodExecutionContextInfo* executionContextInfos, uint32_t executionContextInfoCount,
-            const Il2CppMethodHeaderInfo *header, const MethodInfo* method, const char* sourceFile, uint8_t h1, uint8_t h2, uint8_t h3, uint8_t h4,
-            uint8_t h5, uint8_t h6, uint8_t h7, uint8_t h8, uint8_t h9, uint8_t h10, uint8_t h11, uint8_t h12, uint8_t h13, uint8_t h14, uint8_t h15,
-            uint8_t h16, uint32_t lineStart, uint32_t lineEnd, uint32_t columnStart, uint32_t columnEnd, int32_t ilOffset, SequencePointKind kind,
-            bool isActive, uint8_t tryDepth, const Il2CppClass *catchType);
-
+        static Il2CppSequencePoint* GetSequencePoint(size_t id);
         static Il2CppSequencePoint* GetSequencePoints(void* *iter);
         static Il2CppSequencePoint* GetSequencePoints(const MethodInfo* method, void**iter);
-        static void AddMethodExecutionContextInfo(MethodIndex index, const Il2CppMethodExecutionContextInfo& info);
-        static Il2CppMethodExecutionContextInfo* GetMethodExecutionContextInfos(MethodIndex index, int *count);
         static void HandleException(Il2CppException *exc, Il2CppSequencePoint *sequencePoint);
-        static void AddTypeSourceFile(const Il2CppClass *klass, const char *sourceFile);
         static const char** GetTypeSourceFiles(const Il2CppClass *klass, int& count);
         static void UserBreak();
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
         static bool IsSequencePointActive(Il2CppSequencePoint *seqPoint);
-        static Il2CppMethodHeaderInfo* AddMethodHeaderInfo(MethodIndex index, int codeSize, int numScopes);
-        static const Il2CppMethodHeaderInfo* GetMethodHeaderInfo(MethodIndex index);
+        static const MethodInfo* GetSequencePointMethod(Il2CppSequencePoint *seqPoint);
 
     private:
         static os::ThreadLocalValue s_IsGlobalBreakpointActive;
         static void InitializeMethodToSequencePointMap();
+        static void InitializeTypeSourceFileMap();
     };
 }
 }

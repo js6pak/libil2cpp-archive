@@ -334,7 +334,10 @@ namespace os
         static WaitStatus Poll(PollRequest &request, int32_t timeout, int32_t *result, int32_t *error);
 
         static WaitStatus GetHostName(std::string &name);
-        static WaitStatus GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list);
+        static WaitStatus GetHostByName(const std::string &host, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addresses);
+
+        // The pointers in addr_list are allocated with the il2cpp::utils::Memory::Malloc method. They should he freed by the caller using il2cpp::utils::Memory::Free.
+        static WaitStatus GetHostByName(const std::string &host, std::string &name, int32_t &family, std::vector<std::string> &aliases, std::vector<void*> &addr_list, int32_t &addr_size);
         static WaitStatus GetHostByAddr(const std::string &address, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list);
 
         static void Startup();

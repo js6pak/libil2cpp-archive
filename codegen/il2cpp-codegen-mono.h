@@ -975,12 +975,3 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(RuntimeObject* objec
     assert(0 && "Not implemented yet.");
     return 0;
 }
-
-inline void il2cpp_codegen_add_sequence_point(size_t id, const Il2CppMethodExecutionContextInfo* const executionContextInfos, uint32_t executionContextInfoCount, const MonoMethod* method,
-    const char* const sourceFile, uint8_t h1, uint8_t h2, uint8_t h3, uint8_t h4, uint8_t h5, uint8_t h6, uint8_t h7, uint8_t h8, uint8_t h9, uint8_t h10, uint8_t h11, uint8_t h12, uint8_t h13, uint8_t h14,
-    uint8_t h15, uint8_t h16, uint32_t lineStart, uint32_t lineEnd, uint32_t columnStart, uint32_t columnEnd, int32_t ilOffset, SequencePointKind kind, bool isActive, uint8_t tryDepth, const RuntimeClass *catchType)
-{
-#if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::AddSequencePoint(id, Il2CppSequencePoint(executionContextInfos, executionContextInfoCount, method, sourceFile, Hash16(h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16), lineStart, lineEnd, columnStart, columnEnd, ilOffset, kind, isActive, id, tryDepth, catchType));
-#endif
-}

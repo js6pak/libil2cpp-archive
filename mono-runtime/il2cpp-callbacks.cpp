@@ -187,8 +187,11 @@ MonoObject* il2cpp_mono_runtime_invoke(MonoMethod *method, void *obj, void **par
 
     try
     {
-        if (strcmp(mono_unity_method_get_name(method), ".ctor") == 0)
-            mono_runtime_class_init_full(il2cpp_mono_class_vtable(g_MonoDomain, mono_unity_method_get_class(method)), error);
+        MonoClass *klass = mono_method_get_class(method);
+
+        if (strcmp(mono_unity_method_get_name(method), ".ctor") == 0 || (mono_unity_method_is_static(method) && mono_unity_class_has_cctor(klass)))
+            mono_runtime_class_init_full(il2cpp_mono_class_vtable(g_MonoDomain, klass), error);
+
         void *retVal = ((InvokerMethod)mono_unity_method_get_invoke_pointer(method))((Il2CppMethodPointer)mono_unity_method_get_method_pointer(method), method, target, newParams);
 
         std::vector<int>::const_iterator end = byRefParams.end();

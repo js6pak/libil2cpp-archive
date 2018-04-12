@@ -4,15 +4,14 @@
 
 #include "os/File.h"
 #include "os/TimeZoneInfo.h"
-#include "os/MemoryMappedFile.h"
 #include "os/c-api/Allocator.h"
+#include "utils/MemoryMappedFile.h"
 #include "mono-structs.h"
 #include <sys/system_properties.h>
 #include <stdlib.h>
 #include <string>
 
 using il2cpp::os::FileHandle;
-using il2cpp::os::MemoryMappedFile;
 
 #if IL2CPP_BYTE_ORDER == IL2CPP_BIG_ENDIAN
 #define CONVERT_ENDIANNESS(value) value
@@ -75,7 +74,7 @@ namespace os
         if (!hdl)
             return NULL;
 
-        AndroidTzDataHeader* dataHeader = (AndroidTzDataHeader*)MemoryMappedFile::Map(hdl);
+        AndroidTzDataHeader* dataHeader = (AndroidTzDataHeader*)utils::MemoryMappedFile::Map(hdl);
 
         uint32_t dataHeaderIndexOffset = CONVERT_ENDIANNESS(dataHeader->indexOffset);
         uint32_t dataHeaderDataOffset = CONVERT_ENDIANNESS(dataHeader->dataOffset);
@@ -92,7 +91,7 @@ namespace os
             timezoneIDsArray.push_back(currentName);
         }
 
-        MemoryMappedFile::Unmap(dataHeader);
+        utils::MemoryMappedFile::Unmap(dataHeader);
 
         int err = 0;
         File::Close(hdl, &err);
@@ -132,7 +131,7 @@ namespace os
         if (!hdl)
             return false;
 
-        AndroidTzDataHeader* dataHeader = (AndroidTzDataHeader*)MemoryMappedFile::Map(hdl);
+        AndroidTzDataHeader* dataHeader = (AndroidTzDataHeader*)utils::MemoryMappedFile::Map(hdl);
 
         uint32_t dataHeaderIndexOffset = CONVERT_ENDIANNESS(dataHeader->indexOffset);
         uint32_t dataHeaderDataOffset = CONVERT_ENDIANNESS(dataHeader->dataOffset);
@@ -162,7 +161,7 @@ namespace os
             memcpy(*nativeRawData, tzData, *size);
         }
 
-        MemoryMappedFile::Unmap(dataHeader);
+        utils::MemoryMappedFile::Unmap(dataHeader);
         File::Close(hdl, &err);
 
         return foundEntry;

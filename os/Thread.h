@@ -99,7 +99,6 @@ namespace os
         static void SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction);
         static void RegisterCurrentThreadForCleanup(void* arg);
         static void UnregisterCurrentThreadForCleanup();
-        void SignalExited();
 #endif
 
         static const uint64_t kInvalidThreadId = 0;

@@ -2,7 +2,6 @@
 #include <vector>
 #include <map>
 #include <limits>
-#include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "utils/StringUtils.h"
 #include "vm/Class.h"
@@ -12,6 +11,7 @@
 #include "vm/Type.h"
 #include "utils/HashUtils.h"
 #include "utils/Il2CppHashMap.h"
+#include "utils/MemoryMappedFile.h"
 #include "utils/StringUtils.h"
 #include "vm-utils/VmStringUtils.h"
 
@@ -402,7 +402,7 @@ namespace vm
     {
         os::FastAutoLock lock(&s_Mutex);
         for (std::map<Il2CppReflectionAssembly*, void*>::iterator i = s_CachedMemoryMappedResourceFiles.begin(); i != s_CachedMemoryMappedResourceFiles.end(); ++i)
-            os::MemoryMappedFile::Unmap(i->second);
+            utils::MemoryMappedFile::Unmap(i->second);
 
         s_CachedMemoryMappedResourceFiles.clear();
         s_CachedResourceData.clear();
