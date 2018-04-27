@@ -406,7 +406,6 @@ public:
 #define IL2CPP_ENABLE_OPTIMIZATIONS
 #endif
 
-
 // NativeArray macros
 #define IL2CPP_NATIVEARRAY_GET_ITEM(TElementType, TTField, TIndex) \
     *(reinterpret_cast<TElementType*>(TTField) + TIndex)

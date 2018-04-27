@@ -506,14 +506,14 @@ namespace Threading
 
     Il2CppArray* Thread::ByteArrayToCurrentDomain(Il2CppArray* arr)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToCurrentDomain);
-        IL2CPP_UNREACHABLE;
+        // IL2CPP only has one domain, so just return the same array.
+        return arr;
     }
 
     Il2CppArray* Thread::ByteArrayToRootDomain(Il2CppArray* arr)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::ByteArrayToRootDomain);
-        IL2CPP_UNREACHABLE;
+        // IL2CPP only has one domain, so just return the same array.
+        return arr;
     }
 
     bool Thread::YieldInternal()
