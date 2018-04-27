@@ -32,7 +32,7 @@ namespace Reflection
 
         parent = declaring ? field->field->parent : field->klass;
 
-        return il2cpp::vm::Reflection::GetTypeObject(parent->byval_arg);
+        return il2cpp::vm::Reflection::GetTypeObject(&parent->byval_arg);
     }
 
     int32_t MonoField::GetFieldOffset(Il2CppReflectionField * field)
@@ -55,7 +55,7 @@ namespace Reflection
         {
             Exception::Raise(Exception::GetArgumentException("value",
                     utils::StringUtils::Printf("Object of type '%s' cannot be converted to type '%s'.",
-                        Type::GetName(value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
+                        Type::GetName(&value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
                         Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
                         ).c_str()));
         }
@@ -67,7 +67,7 @@ namespace Reflection
         {
             if (fieldInfo->offset == THREAD_STATIC_FIELD_OFFSET)
             {
-                NOT_IMPLEMENTED(Field::StaticSetValue);
+                IL2CPP_NOT_IMPLEMENTED(Field::StaticSetValue);
             }
 
             Runtime::ClassInit(fieldInfo->parent);
@@ -165,14 +165,14 @@ namespace Reflection
 #if NET_4_0
     int32_t MonoField::get_core_clr_security_level(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(MonoField::get_core_clr_security_level);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoField::get_core_clr_security_level);
         IL2CPP_UNREACHABLE;
         return 0;
     }
 
     Il2CppObject* MonoField::ResolveType(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(MonoField::ResolveType);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(MonoField::ResolveType);
         IL2CPP_UNREACHABLE;
         return NULL;
     }

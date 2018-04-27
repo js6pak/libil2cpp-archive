@@ -14,13 +14,18 @@
 #include "il2cpp-tabledefs.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
+#include "vm-utils/Debugger.h"
 
 namespace il2cpp
 {
 namespace vm
 {
-    NORETURN void Exception::Raise(Il2CppException* ex, MethodInfo* lastManagedFrame)
+    NORETURN void Exception::Raise(Il2CppException* ex, Il2CppSequencePoint *seqPoint, MethodInfo* lastManagedFrame)
     {
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::Debugger::HandleException(ex, seqPoint);
+#endif
+
         if (ex->trace_ips == NULL)
         {
             // Only write the stack trace if there is not one already in the exception.
@@ -53,39 +58,39 @@ namespace vm
         throw Il2CppExceptionWrapper(ex);
     }
 
-    NORETURN void Exception::RaiseOutOfMemoryException()
+    NORETURN void Exception::RaiseOutOfMemoryException(Il2CppSequencePoint *seqPoint)
     {
-        RaiseOutOfMemoryException(utils::StringView<Il2CppChar>::Empty());
+        RaiseOutOfMemoryException(utils::StringView<Il2CppChar>::Empty(), seqPoint);
     }
 
-    NORETURN void Exception::RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg)
+    NORETURN void Exception::RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg, Il2CppSequencePoint *seqPoint)
     {
-        Raise(GetOutOfMemoryException(msg));
+        Raise(GetOutOfMemoryException(msg), seqPoint);
     }
 
-    NORETURN void Exception::RaiseNullReferenceException()
+    NORETURN void Exception::RaiseNullReferenceException(Il2CppSequencePoint *seqPoint)
     {
-        RaiseNullReferenceException(utils::StringView<Il2CppChar>::Empty());
+        RaiseNullReferenceException(utils::StringView<Il2CppChar>::Empty(), seqPoint);
     }
 
-    NORETURN void Exception::RaiseNullReferenceException(const utils::StringView<Il2CppChar>& msg)
+    NORETURN void Exception::RaiseNullReferenceException(const utils::StringView<Il2CppChar>& msg, Il2CppSequencePoint *seqPoint)
     {
-        Raise(GetNullReferenceException(msg));
+        Raise(GetNullReferenceException(msg), seqPoint);
     }
 
-    NORETURN void Exception::RaiseDivideByZeroException()
+    NORETURN void Exception::RaiseDivideByZeroException(Il2CppSequencePoint *seqPoint)
     {
-        Raise(GetDivideByZeroException());
+        Raise(GetDivideByZeroException(), seqPoint);
     }
 
-    NORETURN void Exception::RaiseOverflowException()
+    NORETURN void Exception::RaiseOverflowException(Il2CppSequencePoint *seqPoint)
     {
-        Raise(GetOverflowException());
+        Raise(GetOverflowException(), seqPoint);
     }
 
-    NORETURN void Exception::RaiseArgumentOutOfRangeException(const char* msg)
+    NORETURN void Exception::RaiseArgumentOutOfRangeException(const char* msg, Il2CppSequencePoint *seqPoint)
     {
-        Raise(GetArgumentOutOfRangeException(msg));
+        Raise(GetArgumentOutOfRangeException(msg), seqPoint);
     }
 
     inline static Il2CppException* TryGetExceptionFromRestrictedErrorInfo(Il2CppIRestrictedErrorInfo* errorInfo)
@@ -231,9 +236,9 @@ namespace vm
         }
     }
 
-    NORETURN void Exception::Raise(il2cpp_hresult_t hresult, bool defaultToCOMException)
+    NORETURN void Exception::Raise(il2cpp_hresult_t hresult, bool defaultToCOMException, Il2CppSequencePoint *seqPoint)
     {
-        Raise(Get(hresult, defaultToCOMException));
+        Raise(Get(hresult, defaultToCOMException), seqPoint);
     }
 
     Il2CppException* Exception::FromNameMsg(const Il2CppImage* image, const char *name_space, const char *name, const char *msg)

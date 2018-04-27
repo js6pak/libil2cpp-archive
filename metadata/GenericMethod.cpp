@@ -7,6 +7,7 @@
 #include "os/Mutex.h"
 #include "utils/Memory.h"
 #include "vm/Class.h"
+#include "vm/Exception.h"
 #include "vm/GenericClass.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
@@ -37,24 +38,33 @@ namespace metadata
     typedef Il2CppHashMap<const Il2CppGenericMethod*, MethodInfo*, Il2CppGenericMethodHash, Il2CppGenericMethodCompare> Il2CppGenericMethodMap;
     static Il2CppGenericMethodMap s_GenericMethodMap;
 
+    static void AGenericMethodWhichIsTooDeeplyNestedWasInvoked()
+    {
+        vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
+    }
+
     const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod)
     {
         FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
 
         // This can be NULL only when we have hit the generic recursion depth limit.
         if (gmethod == NULL)
-            return NULL;
+        {
+            MethodInfo* newMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
+            newMethod->methodPointer = AGenericMethodWhichIsTooDeeplyNestedWasInvoked;
+            return newMethod;
+        }
 
         Il2CppGenericMethodMap::const_iterator iter = s_GenericMethodMap.find(gmethod);
         if (iter != s_GenericMethodMap.end())
             return iter->second;
 
         const MethodInfo* methodDefinition = gmethod->methodDefinition;
-        Il2CppClass* declaringClass = methodDefinition->declaring_type;
+        Il2CppClass* declaringClass = methodDefinition->klass;
         if (gmethod->context.class_inst)
         {
             IL2CPP_ASSERT(!declaringClass->generic_class);
-            Il2CppGenericClass* genericClassDeclaringType = GenericMetadata::GetGenericClass(methodDefinition->declaring_type, gmethod->context.class_inst);
+            Il2CppGenericClass* genericClassDeclaringType = GenericMetadata::GetGenericClass(methodDefinition->klass, gmethod->context.class_inst);
             declaringClass = GenericClass::GetClass(genericClassDeclaringType);
 
             // we may fail if we cannot construct generic type
@@ -68,7 +78,7 @@ namespace metadata
         // if we move lock to only if MethodInfo needs constructed then we need to revisit this since we could return a partially initialized MethodInfo
         s_GenericMethodMap.insert(std::make_pair(gmethod, newMethod));
 
-        newMethod->declaring_type = declaringClass;
+        newMethod->klass = declaringClass;
         newMethod->flags = methodDefinition->flags;
         newMethod->iflags = methodDefinition->iflags;
         newMethod->slot = methodDefinition->slot;
@@ -139,7 +149,7 @@ namespace metadata
     {
         const MethodInfo* method = gmethod->methodDefinition;
         std::string output;
-        output.append(Type::GetName(gmethod->methodDefinition->declaring_type->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME));
+        output.append(Type::GetName(&gmethod->methodDefinition->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME));
         output.append(FormatGenericArguments(gmethod->context.class_inst));
         output.append("::");
         output.append(Method::GetName(method));

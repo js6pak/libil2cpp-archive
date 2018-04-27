@@ -65,7 +65,7 @@ namespace vm
 {
     const Il2CppAssembly* Image::GetAssembly(const Il2CppImage* image)
     {
-        return MetadataCache::GetAssemblyFromIndex(image->assemblyIndex);
+        return image->assembly;
     }
 
     typedef il2cpp::vm::StackFrames::const_reverse_iterator StackReverseIterator;
@@ -84,7 +84,7 @@ namespace vm
     {
         for (StackReverseIterator it = first; it != last; it++)
         {
-            Il2CppClass* klass = it->method->declaring_type;
+            Il2CppClass* klass = it->method->klass;
             if (klass->image != NULL && !IsSystemType(klass) && !IsSystemReflectionAssembly(klass))
             {
                 return it;
@@ -101,7 +101,7 @@ namespace vm
 
         if (imageIt != stack.rend())
         {
-            return imageIt->method->declaring_type->image;
+            return imageIt->method->klass->image;
         }
 
         // Fallback to corlib if no image is found
@@ -119,7 +119,7 @@ namespace vm
 
             if (imageIt != stack.rend())
             {
-                return imageIt->method->declaring_type->image;
+                return imageIt->method->klass->image;
             }
         }
 

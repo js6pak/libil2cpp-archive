@@ -20,7 +20,7 @@ namespace Reflection
 {
     void MonoEventInfo::get_event_info(Il2CppReflectionMonoEvent* event, Il2CppReflectionMonoEventInfo* eventInfo)
     {
-        eventInfo->declaringType = vm::Reflection::GetTypeObject(event->eventInfo->parent->byval_arg);
+        eventInfo->declaringType = vm::Reflection::GetTypeObject(&event->eventInfo->parent->byval_arg);
         eventInfo->reflectedType = event->reflectedType;
         eventInfo->name = vm::String::New(event->eventInfo->name);
 

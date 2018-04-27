@@ -240,7 +240,7 @@ static void filter_jobs_for_domain (void* key, void* value, void* user_data)
 	//}
 
 	//mono_g_hash_table_replace (states, key, list);
-	NOT_IMPLEMENTED("TODO");
+	IL2CPP_NOT_IMPLEMENTED("TODO");
 }
 
 static void wait_callback (int fd, int events, void* user_data)
@@ -596,7 +596,7 @@ void ves_icall_System_IOSelector_Add (intptr_t handle, Il2CppIOSelectorJob *job)
 {
 	ThreadPoolIOUpdate *update;
 
-	IL2CPP_ASSERT(handle >= 0);
+	IL2CPP_ASSERT(handle != 0);
 
 	IL2CPP_ASSERT((job->operation == EVENT_IN) ^ (job->operation == EVENT_OUT));
 	IL2CPP_ASSERT(job->callback);

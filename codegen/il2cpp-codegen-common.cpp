@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#include "utils/Runtime.h"
-
 // This function exists to help with generation of callstacks for exceptions
 // on iOS and MacOS x64 with clang 6.0 (newer versions of clang don't have this
 // problem on x64). There we call the backtrace function, which does not play nicely
@@ -13,10 +11,4 @@
 REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return()
 {
     IL2CPP_UNREACHABLE;
-}
-
-REAL_NORETURN void il2cpp_codegen_abort()
-{
-    il2cpp::utils::Runtime::Abort();
-    il2cpp_codegen_no_return();
 }

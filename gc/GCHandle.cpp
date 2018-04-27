@@ -174,7 +174,7 @@ namespace gc
 
 #ifndef HAVE_SGEN_GC
         if (track_resurrection)
-            NOT_IMPLEMENTED(GCHandle::NewWeakref);
+            IL2CPP_NOT_IMPLEMENTED(GCHandle::NewWeakref);
 #endif
 
         return handle;
@@ -253,7 +253,7 @@ namespace gc
 
 #ifndef HAVE_SGEN_GC
         if (type == HANDLE_WEAK_TRACK)
-            NOT_IMPLEMENTED(il2cpp_gchandle_set_target);
+            IL2CPP_NOT_IMPLEMENTED(il2cpp_gchandle_set_target);
 #endif
     }
 
@@ -266,7 +266,7 @@ namespace gc
             return;
 #ifndef HAVE_SGEN_GC
         if (type == HANDLE_WEAK_TRACK)
-            NOT_IMPLEMENTED(GCHandle::Free);
+            IL2CPP_NOT_IMPLEMENTED(GCHandle::Free);
 #endif
 
         lock_handles(handles);

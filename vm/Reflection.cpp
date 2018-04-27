@@ -167,7 +167,7 @@ namespace vm
 #if !NET_4_0
         if (method->is_inflated)
         {
-            refclass = method->declaring_type;
+            refclass = method->klass;
 
             MethodMap::key_type::wrapped_type key(method, refclass);
             MethodMap::data_type value = NULL;
@@ -191,7 +191,7 @@ namespace vm
             gret->base.method = method;
 
             IL2CPP_OBJECT_SETREF(gret, base.name, String::New(method->name));
-            IL2CPP_OBJECT_SETREF(gret, base.reftype, GetTypeObject(refclass->byval_arg));
+            IL2CPP_OBJECT_SETREF(gret, base.reftype, GetTypeObject(&refclass->byval_arg));
 
             ret = &gret->base;
 
@@ -202,7 +202,7 @@ namespace vm
 #endif
 
         if (!refclass)
-            refclass = method->declaring_type;
+            refclass = method->klass;
 
         MethodMap::key_type::wrapped_type key(method, refclass);
         MethodMap::data_type value = NULL;
@@ -223,7 +223,7 @@ namespace vm
         }
         ret = (Il2CppReflectionMethod*)Object::New(klass);
         ret->method = method;
-        IL2CPP_OBJECT_SETREF(ret, reftype, GetTypeObject(refclass->byval_arg));
+        IL2CPP_OBJECT_SETREF(ret, reftype, GetTypeObject(&refclass->byval_arg));
 
         s_MethodMap->Add(key, ret);
 
@@ -254,10 +254,10 @@ namespace vm
         res = (Il2CppReflectionModule*)Object::New(System_Reflection_Module);
 
         res->image = image;
-        IL2CPP_OBJECT_SETREF(res, assembly, (Il2CppReflectionAssembly*)Reflection::GetAssemblyObject(MetadataCache::GetAssemblyFromIndex(image->assemblyIndex)));
+        IL2CPP_OBJECT_SETREF(res, assembly, (Il2CppReflectionAssembly*)Reflection::GetAssemblyObject(image->assembly));
 
         IL2CPP_OBJECT_SETREF(res, fqname, String::New(image->name));
-        NOT_IMPLEMENTED_ICALL_NO_ASSERT(Reflection::GetModuleObject, "Missing Module fields need set");
+        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Reflection::GetModuleObject, "Missing Module fields need set");
         //basename = g_path_get_basename (image->name);
         //IL2CPP_OBJECT_SETREF (res, name, String::New (basename));
         IL2CPP_OBJECT_SETREF(res, name, String::New(image->name));
@@ -320,7 +320,7 @@ namespace vm
 
         Il2CppReflectionMonoEvent* monoEvent = reinterpret_cast<Il2CppReflectionMonoEvent*>(Object::New(monoproperty_klass));
         monoEvent->eventInfo = event;
-        monoEvent->reflectedType = Reflection::GetTypeObject(klass->byval_arg);
+        monoEvent->reflectedType = Reflection::GetTypeObject(&klass->byval_arg);
         result = reinterpret_cast<Il2CppReflectionEvent*>(monoEvent);
 
         s_EventMap->Add(key, result);
@@ -335,8 +335,11 @@ namespace vm
         Il2CppReflectionType* object = NULL;
         if (s_TypeMap->TryGetValue(type, &object))
             return object;
-
+#if NET_4_0
+        Il2CppReflectionType* typeObject = (Il2CppReflectionType*)Object::New(il2cpp_defaults.runtimetype_class);
+#else
         Il2CppReflectionType* typeObject = (Il2CppReflectionType*)Object::New(il2cpp_defaults.monotype_class);
+#endif
         typeObject->type = type;
 
         s_TypeMap->Add(type, typeObject);
@@ -395,7 +398,7 @@ namespace vm
 
         il2cpp::os::FastAutoLock lock(&s_ReflectionICallsMutex);
 
-        NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetParamObjects, "Work in progress!");
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetParamObjects, "Work in progress!");
 
         if (!System_Reflection_ParameterInfo_array)
         {
@@ -463,9 +466,11 @@ namespace vm
 // TODO: move this somewhere else
     bool Reflection::IsType(Il2CppObject *obj)
     {
-        if (obj->klass->image == il2cpp_defaults.corlib)
-            return strcmp(obj->klass->name, "MonoType") == 0 && strcmp(obj->klass->namespaze, "System") == 0;
-        return false;
+#if NET_4_0
+        return (obj->klass == il2cpp_defaults.runtimetype_class);
+#else
+        return (obj->klass == il2cpp_defaults.monotype_class);
+#endif
     }
 
     static bool IsMethod(Il2CppObject *obj)
@@ -576,7 +581,7 @@ namespace vm
         if (method->method->parameters == NULL)
             return NULL;
 
-        NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributesCacheFor, "-1 represents the return value. Need to emit custom attribute information for that.")
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributesCacheFor, "-1 represents the return value. Need to emit custom attribute information for that.")
         if (parameter->PositionImpl == -1)
             return NULL;
 
@@ -595,7 +600,7 @@ namespace vm
         if (method->method->parameters == NULL)
             return NULL;
 
-        NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributeTypeCacheFor, "-1 represents the return value. Need to emit custom attribute information for that.")
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributeTypeCacheFor, "-1 represents the return value. Need to emit custom attribute information for that.")
         if (parameter->PositionImpl == -1)
             return NULL;
 

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <ctype.h>
 
+#include "metadata/Il2CppTypeCompare.h"
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"
 #include "vm/AssemblyName.h"
@@ -588,7 +589,7 @@ namespace vm
                 Il2CppClass* elementClass = Class::GetElementClass(arrayClass);
                 Type::GetNameInternal(
                     str,
-                    elementClass->byval_arg,
+                    &elementClass->byval_arg,
                     format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
                     false);
 
@@ -607,7 +608,7 @@ namespace vm
 
                 if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(elementClass->image->assemblyIndex);
+                    const Il2CppAssembly *ta = elementClass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
 
@@ -619,7 +620,7 @@ namespace vm
                 Il2CppClass* elementClass = Class::FromIl2CppType(type->data.type);
                 Type::GetNameInternal(
                     str,
-                    elementClass->byval_arg,
+                    &elementClass->byval_arg,
                     format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
                     false);
 
@@ -630,7 +631,7 @@ namespace vm
 
                 if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(elementClass->image->assemblyIndex);
+                    const Il2CppAssembly *ta = elementClass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
                 break;
@@ -651,7 +652,7 @@ namespace vm
 
                 if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(Class::FromIl2CppType(type->data.type)->image->assemblyIndex);
+                    const Il2CppAssembly *ta = Class::FromIl2CppType(type->data.type)->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
                 break;
@@ -673,7 +674,7 @@ namespace vm
                 Il2CppClass* declaringType = Class::GetDeclaringType(klass);
                 if (declaringType)
                 {
-                    Type::GetNameInternal(str, declaringType->byval_arg, format, true);
+                    Type::GetNameInternal(str, &declaringType->byval_arg, format, true);
                     str += (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '.' : '+');
                 }
                 else if (*klass->namespaze)
@@ -742,7 +743,7 @@ namespace vm
 
                 if ((format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED) && (type->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
                 {
-                    const Il2CppAssembly *ta = MetadataCache::GetAssemblyFromIndex(klass->image->assemblyIndex);
+                    const Il2CppAssembly *ta = klass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
                 break;
@@ -807,7 +808,7 @@ namespace vm
             typeInfo = Class::GetDeclaringType(Class::FromIl2CppType(type));
         }
 
-        return typeInfo ? Reflection::GetTypeObject(typeInfo->byval_arg) : NULL;
+        return typeInfo ? Reflection::GetTypeObject(&typeInfo->byval_arg) : NULL;
     }
 
     Il2CppArray* Type::GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray)
@@ -830,7 +831,7 @@ namespace vm
             for (int32_t i = 0; i < container->type_argc; ++i)
             {
                 pklass = Class::FromGenericParameter(GenericContainer::GetGenericParameter(container, i));
-                il2cpp_array_setref(res, i, Reflection::GetTypeObject(pklass->byval_arg));
+                il2cpp_array_setref(res, i, Reflection::GetTypeObject(&pklass->byval_arg));
             }
         }
         else if (klass->generic_class)
@@ -845,6 +846,11 @@ namespace vm
             res = Array::New(arrType, 0);
         }
         return res;
+    }
+
+    bool Type::IsEqualToType(const Il2CppType *type, const Il2CppType *otherType)
+    {
+        return ::il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(type, otherType);
     }
 
     uint32_t Type::GetToken(const Il2CppType *type)

@@ -1,5 +1,5 @@
 #include "os/c-api/Mutex-c-api.h"
-#include "il2cpp-config.h"
+#include "os/c-api/il2cpp-config-platforms.h"
 
 extern "C"
 {

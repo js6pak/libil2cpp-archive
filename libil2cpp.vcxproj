@@ -1088,7 +1088,6 @@
   <ItemGroup>
     <ClInclude Include="blob.h" />
     <ClInclude Include="char-conversions.h" />
-    <ClInclude Include="class-internals.h" />
     <ClInclude Include="codegen\il2cpp-codegen-common.h" />
     <ClInclude Include="codegen\il2cpp-codegen-il2cpp.h" />
     <ClInclude Include="codegen\il2cpp-codegen-mono.h" />
@@ -1257,9 +1256,12 @@
     <ClInclude Include="il2cpp-api-functions.h" />
     <ClInclude Include="il2cpp-api-types.h" />
     <ClInclude Include="il2cpp-api.h" />
+    <ClInclude Include="il2cpp-config-api.h" />
     <ClInclude Include="il2cpp-config.h" />
+    <ClInclude Include="il2cpp-class-internals.h" />
     <ClInclude Include="il2cpp-metadata.h" />
     <ClInclude Include="il2cpp-string-types.h" />
+    <ClInclude Include="il2cpp-tabledefs.h" />
     <ClInclude Include="il2cpp-vm-support.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="metadata\ArrayMetadata.h" />
@@ -1295,7 +1297,6 @@
     <ClInclude Include="number-formatter.h" />
     <ClInclude Include="object-internals.h" />
     <ClInclude Include="os\Atomic.h" />
-    <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="os\c-api\Atomic-c-api.h" />
     <ClInclude Include="os\c-api\COM-c-api.h" />
     <ClInclude Include="os\c-api\ConditionVariable-c-api.h" />
@@ -1326,6 +1327,7 @@
     <ClInclude Include="os\c-api\ThreadLocalValue-c-api.h" />
     <ClInclude Include="os\c-api\Time-c-api.h" />
     <ClInclude Include="os\c-api\TimeZone-c-api.h" />
+    <ClInclude Include="os\c-api\TimeZoneInfo-c-api.h" />
     <ClInclude Include="os\c-api\WaitStatus-c-api.h" />
     <ClInclude Include="os\c-api\Win32\AtomicImpl-c-api.h" />
     <ClInclude Include="os\c-api\Win32\WindowsHeaders.h" />
@@ -1376,6 +1378,7 @@
     <ClInclude Include="os\ThreadLocalValue.h" />
     <ClInclude Include="os\Time.h" />
     <ClInclude Include="os\TimeZone.h" />
+    <ClInclude Include="os\TimeZoneInfo.h" />
     <ClInclude Include="os\Unity\AtomicNode.h" />
     <ClInclude Include="os\Unity\AtomicQueue.h" />
     <ClInclude Include="os\Unity\ExtendedAtomicOps-arm.h" />
@@ -1489,7 +1492,6 @@
     <ClInclude Include="vm\RCW.h" />
     <ClInclude Include="vm\Reflection.h" />
     <ClInclude Include="vm\Runtime.h" />
-    <ClInclude Include="vm\ScopedThreadAttacher.h" />
     <ClInclude Include="vm\StackTrace.h" />
     <ClInclude Include="vm\String.h" />
     <ClInclude Include="vm\Thread.h" />
@@ -1502,6 +1504,7 @@
   <ItemGroup>
     <ClCompile Include="char-conversions.cpp" />
     <ClCompile Include="class-internals.cpp" />
+    <ClCompile Include="codegen\il2cpp-codegen-common.cpp" />
     <ClCompile Include="externals\MonoPosixHelper.cpp" />
     <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c" />
     <ClCompile Include="gc\GarbageCollector.cpp" />
@@ -1751,7 +1754,6 @@
     <ClCompile Include="os\Posix\Time.cpp" />
     <ClCompile Include="os\Posix\TimeZone.cpp" />
     <ClCompile Include="os\Win32\Cryptography.cpp" />
-    <ClCompile Include="os\Win32\DllMain.cpp" />
     <ClCompile Include="os\Win32\Environment.cpp" />
     <ClCompile Include="os\Win32\Encoding.cpp" />
     <ClCompile Include="os\Win32\File.cpp" />

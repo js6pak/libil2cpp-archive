@@ -32,21 +32,21 @@ namespace System
 {
     bool RuntimeType::IsTypeExportedToWindowsRuntime(Il2CppObject* type)
     {
-        NOT_IMPLEMENTED_ICALL(RuntimeType::IsTypeExportedToWindowsRuntime);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeType::IsTypeExportedToWindowsRuntime);
         IL2CPP_UNREACHABLE;
         return false;
     }
 
     bool RuntimeType::IsWindowsRuntimeObjectType(Il2CppObject* type)
     {
-        NOT_IMPLEMENTED_ICALL(RuntimeType::IsWindowsRuntimeObjectType);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeType::IsWindowsRuntimeObjectType);
         IL2CPP_UNREACHABLE;
         return false;
     }
 
     int32_t RuntimeType::get_core_clr_security_level(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(RuntimeType::get_core_clr_security_level);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeType::get_core_clr_security_level);
         IL2CPP_UNREACHABLE;
         return 0;
     }
@@ -68,7 +68,7 @@ namespace System
 
     Il2CppObject* RuntimeType::get_DeclaringMethod(Il2CppObject* _this)
     {
-        NOT_IMPLEMENTED_ICALL(RuntimeType::get_DeclaringMethod);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeType::get_DeclaringMethod);
         IL2CPP_UNREACHABLE;
         return NULL;
     }
@@ -316,6 +316,18 @@ namespace System
         }
 
         return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(res_array));
+    }
+
+    void* /* System.Reflection.ConstructorInfo */ RuntimeType::GetCorrespondingInflatedConstructor(void* /* System.MonoType */ self, void* /* System.Reflection.ConstructorInfo */ genericInfo)
+    {
+        NOT_SUPPORTED_IL2CPP(MonoType::GetCorrespondingInflatedConstructor, "This icall is only used by System.Reflection.Emit.TypeBuilder.");
+        return 0;
+    }
+
+    mscorlib_System_Reflection_MethodInfo *  RuntimeType::GetCorrespondingInflatedMethod(Il2CppReflectionMonoType *, Il2CppReflectionMonoType *)
+    {
+        NOT_SUPPORTED_IL2CPP(MonoType::GetCorrespondingInflatedMethod, "This icall is only used by System.Reflection.Emit.TypeBuilder.");
+        return 0;
     }
 } // namespace System
 } // namespace mscorlib

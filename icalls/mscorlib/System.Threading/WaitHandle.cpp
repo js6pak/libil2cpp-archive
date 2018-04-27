@@ -82,19 +82,47 @@ namespace Threading
         return SignalAndWait_Internal(toSignal, toWaitOn, ms, false) ? 0 : 1;
     }
 
-    int32_t WaitHandle::WaitAll_internal40(Il2CppArray* handles, int32_t ms)
+#define MANAGED_WAIT_FAILED 0x7fffffff
+#define MANAGED_WAIT_OBJECT_0 0x00000000
+#define MANAGED_WAIT_TIMEOUT 258
+#define MANAGED_WAIT_ABANDONED_0 0x00000080L
+
+    static int32_t map_native_wait_result_to_managed(UnityPalWaitStatus val, int32_t numobjects)
     {
-        return WaitAll_internal(handles, ms, false) ? 0 : 258;
+        switch (val)
+        {
+            case kWaitStatusSuccess:
+                return MANAGED_WAIT_OBJECT_0 + val;
+            case  kWaitStatusAbandoned:
+                return MANAGED_WAIT_ABANDONED_0 + val;
+            case  kWaitStatusFailure:
+                return MANAGED_WAIT_FAILED;
+            case  kWaitStatusTimeout:
+                return MANAGED_WAIT_TIMEOUT;
+            default:
+                return MANAGED_WAIT_FAILED;
+        }
     }
 
-    int32_t WaitHandle::WaitAny_internal40(Il2CppArray* handles, int32_t ms)
+    int32_t WaitHandle::Wait_internal(void* *handles, int32_t numhandles, bool waitall, int32_t timeouts)
     {
-        return WaitAny_internal(handles, ms, false);
-    }
+        std::vector<os::Handle*> osWaitHandles((os::Handle**)handles, (os::Handle**)handles + numhandles);
 
-    int32_t WaitHandle::WaitOne_internal40(intptr_t handle, int32_t ms)
-    {
-        return WaitOne_internal(NULL, handle, ms, false) ? 0 : 258;
+        vm::ThreadStateSetter state(vm::kThreadStateWaitSleepJoin);
+
+        if (waitall)
+        {
+            if (os::Handle::WaitAll(osWaitHandles, timeouts))
+            {
+                return map_native_wait_result_to_managed(kWaitStatusSuccess, numhandles);
+            }
+            else
+            {
+                return map_native_wait_result_to_managed(kWaitStatusTimeout, numhandles);
+            }
+        }
+        else
+            return os::Handle::WaitAny(osWaitHandles, timeouts);
     }
 
 #endif
