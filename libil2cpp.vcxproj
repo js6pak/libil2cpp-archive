@@ -1297,7 +1297,6 @@
     <ClInclude Include="number-formatter.h" />
     <ClInclude Include="object-internals.h" />
     <ClInclude Include="os\Atomic.h" />
-    <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="os\c-api\Atomic-c-api.h" />
     <ClInclude Include="os\c-api\COM-c-api.h" />
     <ClInclude Include="os\c-api\ConditionVariable-c-api.h" />
