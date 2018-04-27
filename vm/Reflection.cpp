@@ -585,7 +585,11 @@ namespace vm
         if (parameter->PositionImpl == -1)
             return NULL;
 
-        const ::ParameterInfo* info = &method->method->parameters[parameter->PositionImpl];
+        const MethodInfo* methodWithParameterAttributeInformation = method->method;
+        if (method->method->is_inflated)
+            methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
+
+        const ::ParameterInfo* info = &methodWithParameterAttributeInformation->parameters[parameter->PositionImpl];
         return MetadataCache::GenerateCustomAttributesCache(info->customAttributeIndex);
     }
 
@@ -600,7 +604,11 @@ namespace vm
         if (parameter->PositionImpl == -1)
             return NULL;
 
-        const ::ParameterInfo* info = &method->method->parameters[parameter->PositionImpl];
+        const MethodInfo* methodWithParameterAttributeInformation = method->method;
+        if (method->method->is_inflated)
+            methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
+
+        const ::ParameterInfo* info = &methodWithParameterAttributeInformation->parameters[parameter->PositionImpl];
         return MetadataCache::GenerateCustomAttributeTypeCache(info->customAttributeIndex);
     }
 

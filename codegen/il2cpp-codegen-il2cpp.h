@@ -940,6 +940,11 @@ inline RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyn
 #endif
 }
 
+inline bool il2cpp_codegen_delegate_has_invoker(Il2CppDelegate* delegate)
+{
+    return delegate->invoke_impl != NULL;
+}
+
 inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(RuntimeClass* genericClass)
 {
     IL2CPP_ASSERT(genericClass->generic_class);

@@ -373,6 +373,17 @@ namespace vm
 #endif
     }
 
+    // When a delegate is marshalled from native code via Marshal.GetDelegateForFunctionPointer
+    // libil2cpp will create a fake MethodInfo which just has a methodPointer, so the method
+    // can be invoked again later. This fake MethodInfo does not have a methodDefinition, and does
+    // not have a reversePInvokeWrapper. So if other code is trying to marshal it _back_ to native,
+    // we should treat this as a special case, and just return the native function pointer
+    // that was wrapped in the fake MethodInfo.
+    static bool IsFakeDelegateMethodMarshaledFromNativeCode(const MethodInfo* method)
+    {
+        return method->methodDefinition == NULL && method->is_marshaled_from_native;
+    }
+
     intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
         if (d == NULL)
@@ -380,6 +391,9 @@ namespace vm
 
         if (d->method->is_inflated)
             vm::Exception::Raise(vm::Exception::GetNotSupportedException("IL2CPP does not support marshaling delegates that point to generic methods."));
+
+        if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
+            return reinterpret_cast<intptr_t>(d->method->methodPointer);
 
         IL2CPP_ASSERT(d->method->methodDefinition);
 
@@ -422,6 +436,7 @@ namespace vm
             newMethod->invoker_method = NULL;
             newMethod->parameters_count = invoke->parameters_count;
             newMethod->slot = kInvalidIl2CppMethodSlot;
+            newMethod->is_marshaled_from_native = true;
             utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }
