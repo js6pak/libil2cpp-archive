@@ -6,6 +6,7 @@
 #include "il2cpp-object-internals.h"
 #include "gc/WriteBarrier.h"
 #include "utils/StringUtils.h"
+#include "utils/HashUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -89,6 +90,10 @@ namespace System
                     break;
                 case IL2CPP_TYPE_R8:
                     if (*(double*)((uint8_t*)thisPtr + field->offset) != *(double*)((uint8_t*)that + field->offset))
+                        return false;
+                    break;
+                case IL2CPP_TYPE_PTR:
+                    if (*(void**)((uint8_t*)thisPtr + field->offset) != *(void**)((uint8_t*)that + field->offset))
                         return false;
                     break;
                 case IL2CPP_TYPE_STRING:
@@ -175,6 +180,9 @@ namespace System
                         result ^= String::GetHash(s);
                     break;
                 }
+                case IL2CPP_TYPE_PTR:
+                    result ^= il2cpp::utils::HashUtils::AlignedPointerHash(*(void**)((uint8_t*)obj + field->offset));
+                    break;
                 default:
                     if (!values)
                         values = (Il2CppObject**)alloca(sizeof(Il2CppObject*) * Class::GetNumFields(klass));

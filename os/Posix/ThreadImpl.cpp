@@ -126,9 +126,6 @@ namespace os
 
     void ThreadImpl::SetStackSize(size_t newsize)
     {
-        // only makes sense if it's called BEFORE the thread has been created
-        IL2CPP_ASSERT(m_Handle == NULL);
-
         // if newsize is zero we use the per-platform default value for size of stack
         if (newsize == 0)
         {

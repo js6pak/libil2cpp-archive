@@ -29,6 +29,8 @@ namespace os
             return (ProcessHandle*)::GetCurrentProcess();
 
         IL2CPP_VM_RAISE_PLATFORM_NOT_SUPPORTED_EXCEPTION(L"It is not possible to interact with other system processes on current platform.");
+
+        return NULL;
     }
 
     void Process::FreeProcess(ProcessHandle* handle)
@@ -48,6 +50,8 @@ namespace os
         }
 
         IL2CPP_VM_RAISE_PLATFORM_NOT_SUPPORTED_EXCEPTION(L"It is not possible to interact with other system processes on current platform.");
+
+        return std::string();
     }
 }
 }

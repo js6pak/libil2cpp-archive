@@ -1121,6 +1121,11 @@ bool il2cpp_type_is_byref(const Il2CppType *type)
     return type->byref;
 }
 
+uint32_t il2cpp_type_get_attrs(const Il2CppType *type)
+{
+    return type->attrs;
+}
+
 bool il2cpp_type_equals(const Il2CppType* type, const Il2CppType *otherType)
 {
     return Type::IsEqualToType(type, otherType);

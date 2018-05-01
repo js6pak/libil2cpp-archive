@@ -1,4 +1,5 @@
 #pragma once
+#include <limits>
 #include <string>
 
 namespace il2cpp
@@ -83,9 +84,10 @@ namespace utils
             return StringView<CharType>();
         }
 
-        inline size_t RFind(CharType c) const
+        inline size_t Find(CharType c, size_t startIndex = 0) const
         {
-            for (const CharType* ptr = m_String + m_Length - 1; ptr >= m_String; ptr--)
+            const CharType* end = m_String + m_Length;
+            for (const CharType* ptr = m_String + startIndex; ptr < end; ptr++)
             {
                 if (*ptr == c)
                     return ptr - m_String;
@@ -94,9 +96,75 @@ namespace utils
             return NPos();
         }
 
+        inline size_t RFind(CharType c) const
+        {
+            for (const CharType* ptr = m_String + m_Length; ptr-- > m_String;)
+            {
+                if (*ptr == c)
+                    return ptr - m_String;
+            }
+
+            return NPos();
+        }
+
+        inline StringView<CharType> SubStr(size_t startIndex, size_t length)
+        {
+            return StringView<CharType>(*this, startIndex, length);
+        }
+
+        inline StringView<CharType> SubStr(size_t startIndex)
+        {
+            return StringView<CharType>(*this, startIndex, Length() - startIndex);
+        }
+
         inline static size_t NPos()
         {
             return static_cast<size_t>(-1);
+        }
+
+        inline bool TryParseAsInt(int& outResult)
+        {
+            if (Length() == 0)
+                return false;
+
+            int result = 0;
+            bool isNegative = false;
+            const CharType* ptr = m_String;
+            const CharType* end = m_String + m_Length;
+
+            if (ptr[0] == '-')
+            {
+                isNegative = true;
+                ptr++;
+            }
+
+            for (; ptr < end; ptr++)
+            {
+                CharType digit = *ptr;
+                if (digit < '0' || digit > '9')
+                    return false;
+
+                int digitNumeric = digit - '0';
+                if (result > std::numeric_limits<int>::max() / 10)
+                    return false;
+
+                result = result * 10;
+                if (result > std::numeric_limits<int>::max() - digitNumeric)
+                    return false;
+
+                result += digitNumeric;
+            }
+
+            if (isNegative)
+            {
+                outResult = -result;
+            }
+            else
+            {
+                outResult = result;
+            }
+
+            return true;
         }
     };
 

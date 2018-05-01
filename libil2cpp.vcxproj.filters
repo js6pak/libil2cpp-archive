@@ -855,7 +855,6 @@
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="number-formatter.h" />
-    <ClInclude Include="object-internals.h" />
     <ClInclude Include="utils\dynamic_array.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -1865,6 +1864,7 @@
     <ClInclude Include="utils\MemoryMappedFile.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="il2cpp-object-internals.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
