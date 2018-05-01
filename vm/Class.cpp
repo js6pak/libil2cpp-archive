@@ -1925,7 +1925,7 @@ namespace vm
 
 #define CHECK_IF_NULL(v)    \
     if ( (v) == NULL && throwOnError ) \
-        Exception::Raise (Exception::GetTypeLoadException ()); \
+        Exception::Raise (Exception::GetTypeLoadException (info)); \
     if ( (v) == NULL ) \
         return NULL;
 

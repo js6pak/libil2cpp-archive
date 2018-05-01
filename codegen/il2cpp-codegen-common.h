@@ -374,6 +374,9 @@ public:
 #define IL2CPP_NATIVEARRAY_GET_LENGTH(TLengthField) \
    (TLengthField)
 
+// Array Unsafe
+#define IL2CPP_ARRAY_UNSAFE_LOAD(TArray, TIndex) \
+    (TArray)->GetAtUnchecked(static_cast<il2cpp_array_size_t>(TIndex))
 
 inline bool il2cpp_codegen_object_reference_equals(const RuntimeObject *obj1, const RuntimeObject *obj2)
 {
