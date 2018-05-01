@@ -3,6 +3,7 @@
 #include "vm/AssemblyName.h"
 #include "vm/MetadataCache.h"
 #include "vm/Runtime.h"
+#include "vm-utils/VmStringUtils.h"
 #include "il2cpp-tabledefs.h"
 #include "il2cpp-class-internals.h"
 
@@ -63,10 +64,11 @@ namespace vm
     const Il2CppAssembly* Assembly::Load(const char* name)
     {
         const size_t len = strlen(name);
+        utils::VmStringUtils::CaseInsensitiveComparer comparer;
 
         for (AssemblyVector::const_iterator assembly = s_Assemblies.begin(); assembly != s_Assemblies.end(); ++assembly)
         {
-            if (strcmp(name, (*assembly)->aname.name) == 0)
+            if (comparer(name, (*assembly)->aname.name))
                 return *assembly;
         }
 
@@ -95,7 +97,7 @@ namespace vm
         {
             for (AssemblyVector::const_iterator assembly = s_Assemblies.begin(); assembly != s_Assemblies.end(); ++assembly)
             {
-                if (!strcmp(name, (*assembly)->image->name))
+                if (comparer(name, (*assembly)->image->name))
                     return *assembly;
             }
 

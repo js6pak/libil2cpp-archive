@@ -230,6 +230,7 @@ DO_API(int, il2cpp_type_get_type, (const Il2CppType * type));
 DO_API(Il2CppClass*, il2cpp_type_get_class_or_element_class, (const Il2CppType * type));
 DO_API(char*, il2cpp_type_get_name, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_is_byref, (const Il2CppType * type));
+DO_API(uint32_t, il2cpp_type_get_attrs, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_equals, (const Il2CppType * type, const Il2CppType * otherType));
 
 // image

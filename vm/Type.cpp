@@ -16,6 +16,7 @@
 #include "vm/Reflection.h"
 #include "vm/String.h"
 #include "vm/Type.h"
+#include "vm-utils/VmStringUtils.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-tabledefs.h"
@@ -37,7 +38,7 @@ namespace il2cpp
 {
 namespace vm
 {
-    TypeNameParser::TypeNameParser(std::string &name, TypeNameParseInfo &info, bool is_nested) :
+    TypeNameParser::TypeNameParser(const std::string &name, TypeNameParseInfo &info, bool is_nested) :
         _info(info),
         _is_nested(is_nested),
         _accept_assembly_name(true),
@@ -365,6 +366,7 @@ namespace vm
             std::string::const_iterator begin = _p;
             ConsumePropertyIdentifier();
             std::string propertyName(begin, _p);
+            utils::VmStringUtils::CaseInsensitiveComparer propertyNameComparer;
 
             if (!CurrentIs('='))
                 return false;
@@ -376,28 +378,34 @@ namespace vm
             ConsumePropertyValue();
             std::string propertyValue(begin, _p);
 
-            if (propertyName == "Version")
+            if (propertyNameComparer(propertyName, "version"))
             {
                 if (!ParseVersion(propertyValue, _info._assembly_name.major, _info._assembly_name.minor, _info._assembly_name.build, _info._assembly_name.revision))
                     return false;
             }
-            else if (propertyName == "PublicKey")
+            else if (propertyNameComparer(propertyName.c_str(), "publickey"))
             {
-                if (propertyValue != "null")
+                if (!propertyNameComparer(propertyValue, "null"))
                     _info._assembly_name.public_key = propertyValue;
             }
-            else if (propertyName == "PublicKeyToken")
+            else if (propertyNameComparer(propertyName.c_str(), "publickeytoken"))
             {
-                if (propertyValue != "null")
+                if (!propertyNameComparer(propertyValue, "null"))
                 {
                     if ((kPublicKeyTokenLength - 1) != propertyValue.size())
                         return false;
                     strncpy(_info._assembly_name.public_key_token, propertyValue.c_str(), kPublicKeyTokenLength);
                 }
             }
-            else if (propertyName == "Culture")
+            else if (propertyNameComparer(propertyName.c_str(), "culture"))
             {
                 _info._assembly_name.culture = propertyValue;
+            }
+            else if (propertyNameComparer(propertyName.c_str(), "contenttype"))
+            {
+                // If content type is WindowsRuntime, coerse assembly name into WindowsRuntimeMetadata if it's not that (otherwise preserve its casing)
+                if (propertyNameComparer(propertyValue, "windowsruntime") && !propertyNameComparer(_info._assembly_name.name.c_str(), "windowsruntimemetadata"))
+                    _info._assembly_name.name = "WindowsRuntimeMetadata";
             }
             else
             {
