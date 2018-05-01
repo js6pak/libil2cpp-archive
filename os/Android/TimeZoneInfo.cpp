@@ -52,7 +52,7 @@ namespace os
         for (int i = 0; i < sizeof(config_files) / sizeof(config_files[0]); i++)
         {
             int err = 0;
-            FileHandle* hdl = File::Open(config_files[i], kFileModeOpen, kFileAccessRead, kFileShareRead, NULL, &err);
+            FileHandle* hdl = File::Open(config_files[i], kFileModeOpen, kFileAccessRead, kFileShareRead, 0, &err);
 
             if (err)
                 continue;

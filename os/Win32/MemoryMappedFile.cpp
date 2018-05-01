@@ -29,6 +29,8 @@ namespace os
             default:
                 IL2CPP_ASSERT("unknown MemoryMappedFileAccess");
         }
+
+        return MMAP_FILE_ACCESS_READ;
     }
 
     static int ConvertMappedFileAccessToWindowsFileAccess(MemoryMappedFileAccess access)
@@ -50,6 +52,8 @@ namespace os
             default:
                 IL2CPP_ASSERT("unknown MemoryMappedFileAccess");
         }
+
+        return MMAP_FILE_ACCESS_READ;
     }
 
     static MemoryMappedFileError ConvertWindowsErrorToMemoryMappedFileError(DWORD error, MemoryMappedFileError defaultError)

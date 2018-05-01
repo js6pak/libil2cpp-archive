@@ -14,6 +14,8 @@ namespace il2cpp
 {
 namespace vm
 {
+    class TypeNameParseInfo;
+
     class LIBIL2CPP_CODEGEN_API Exception
     {
 // exported
@@ -54,6 +56,9 @@ namespace vm
         static Il2CppException* GetInvalidCastException(const char* msg);
         static Il2CppException* GetInvalidCastException(const utils::StringView<Il2CppChar>& msg);
         static Il2CppException* GetTypeLoadException();
+        static Il2CppException* GetTypeLoadException(const TypeNameParseInfo& typeNameParseInfo);
+        static Il2CppException* GetTypeLoadException(const utils::StringView<char>& namespaze, const utils::StringView<char>& typeName, const utils::StringView<char>& assemblyName);
+        static Il2CppException* GetTypeLoadExceptionForWindowsRuntimeType(const utils::StringView<char>& namespaze, const utils::StringView<char>& typeName);
         static Il2CppException* GetOutOfMemoryException(const utils::StringView<Il2CppChar>& msg);
         static Il2CppException* GetOverflowException();
         static Il2CppException* GetOverflowException(const char* msg);
