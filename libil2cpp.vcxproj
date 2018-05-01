@@ -1260,6 +1260,7 @@
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="il2cpp-class-internals.h" />
     <ClInclude Include="il2cpp-metadata.h" />
+    <ClInclude Include="il2cpp-object-internals.h" />
     <ClInclude Include="il2cpp-string-types.h" />
     <ClInclude Include="il2cpp-tabledefs.h" />
     <ClInclude Include="il2cpp-vm-support.h" />
@@ -1295,7 +1296,6 @@
     <ClInclude Include="mono\ThreadPool\ThreadPoolWorkerThread.h" />
     <ClInclude Include="normalization-tables.h" />
     <ClInclude Include="number-formatter.h" />
-    <ClInclude Include="object-internals.h" />
     <ClInclude Include="os\Atomic.h" />
     <ClInclude Include="os\c-api\Atomic-c-api.h" />
     <ClInclude Include="os\c-api\COM-c-api.h" />

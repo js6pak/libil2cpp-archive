@@ -188,12 +188,6 @@ namespace utils
         return string.rfind(suffix.c_str(), stringLength - suffixLength, suffixLength) != std::string::npos;
     }
 
-    bool StringUtils::StartsWith(const std::string& string, const std::string& prefix)
-    {
-        std::string::size_type position = string.find(prefix);
-        return position != std::string::npos && position == 0;
-    }
-
     Il2CppChar* StringUtils::GetChars(Il2CppString* str)
     {
         return str->chars;
