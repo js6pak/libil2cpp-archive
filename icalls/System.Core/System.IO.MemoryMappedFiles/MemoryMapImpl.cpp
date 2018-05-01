@@ -49,6 +49,8 @@ namespace MemoryMappedFiles
             default:
                 IL2CPP_ASSERT("unknown MemoryMappedFileAccess");
         }
+
+        return kFileAccessRead;
     }
 
     static void CloseFileHandleIfOwned(os::FileHandle* file)

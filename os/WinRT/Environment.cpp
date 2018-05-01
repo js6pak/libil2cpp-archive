@@ -130,6 +130,8 @@ namespace os
             default:
                 IL2CPP_VM_RAISE_UNAUTHORIZED_ACCESS_EXCEPTION(L"Failed getting the path of a special folder: Access Denied.");
         }
+
+        return std::string();
     }
 
 #if NET_4_0

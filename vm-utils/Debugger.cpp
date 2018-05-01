@@ -151,9 +151,9 @@ namespace utils
 
     static bool TryInitializeDebugger(const std::string& options)
     {
-        if (StringUtils::StartsWith(options, "--debugger-agent"))
+        if (StringUtils::StartsWith(StringView<char>(options), "--debugger-agent"))
         {
-            InitializeMonoSoftDebugger(options.substr(options.find("=") + 1).c_str());
+            InitializeMonoSoftDebugger(options.c_str() + options.find("=") + 1);
             return true;
         }
 
