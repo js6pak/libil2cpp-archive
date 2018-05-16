@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 
 #include "icalls/mscorlib/System.Diagnostics/Debugger.h"
-#include "os/Debug.h"
 #include "vm-utils/Debugger.h"
 
 namespace il2cpp
@@ -17,11 +16,7 @@ namespace Diagnostics
 // Until we have il2cpp debugger, return whether a native debugger is attached
     bool Debugger::IsAttached_internal()
     {
-#if IL2CPP_MONO_DEBUGGER
         return utils::Debugger::GetIsDebuggerAttached();
-#else
-        return os::Debug::IsDebuggerPresent();
-#endif
     }
 
 #if NET_4_0
