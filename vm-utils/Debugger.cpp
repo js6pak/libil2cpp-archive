@@ -531,4 +531,20 @@ namespace utils
 }
 }
 
+#else
+
+#include "Debugger.h"
+#include "os/Debug.h"
+
+namespace il2cpp
+{
+namespace utils
+{
+    bool Debugger::GetIsDebuggerAttached()
+    {
+        return os::Debug::IsDebuggerPresent();
+    }
+}
+}
+
 #endif // IL2CPP_MONO_DEBUGGER
