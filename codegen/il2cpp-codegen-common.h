@@ -415,3 +415,9 @@ public:
 
 #define IL2CPP_NATIVEARRAY_GET_LENGTH(TLengthField) \
    (TLengthField)
+
+
+inline bool il2cpp_codegen_object_reference_equals(const RuntimeObject *obj1, const RuntimeObject *obj2)
+{
+    return obj1 == obj2;
+}
