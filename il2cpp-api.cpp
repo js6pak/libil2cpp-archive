@@ -31,9 +31,7 @@
 #include "utils/StringUtils.h"
 #include "utils/Runtime.h"
 #include "utils/Environment.h"
-#if IL2CPP_MONO_DEBUGGER
 #include "vm-utils/Debugger.h"
-#endif
 
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
@@ -1181,6 +1179,11 @@ void il2cpp_debugger_set_agent_options(const char* options)
 #if IL2CPP_MONO_DEBUGGER
     il2cpp::utils::Debugger::SetAgentOptions(options);
 #endif
+}
+
+bool il2cpp_is_debugger_attached()
+{
+    return il2cpp::utils::Debugger::GetIsDebuggerAttached();
 }
 
 void il2cpp_unity_install_unitytls_interface(const void* unitytlsInterfaceStruct)
