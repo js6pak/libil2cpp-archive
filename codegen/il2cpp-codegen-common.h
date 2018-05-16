@@ -267,7 +267,9 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
 
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
+#if IL2CPP_MONO_DEBUGGER
     il2cpp::utils::Debugger::RegisterMetadata(data);
+#endif
 }
 
 struct Il2CppSequencePointStorage
