@@ -467,7 +467,7 @@ namespace vm
             if (Method::GetClass(method))
                 RaiseExecutionEngineException(Method::GetFullName(method).c_str());
             else
-                RaiseExecutionEngineException(Method::GetName(method));
+                RaiseExecutionEngineException(Method::GetNameWithGenericTypes(method).c_str());
         }
     }
 
