@@ -64,6 +64,8 @@ struct ThreadPoolHillClimbing
 
 struct ThreadPool
 {
+    ThreadPool();
+
     ThreadPoolCounter counters;
 
     std::vector<ThreadPoolDomain*> domains;
