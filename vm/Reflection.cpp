@@ -147,6 +147,11 @@ namespace vm
         return res;
     }
 
+    const MethodInfo* Reflection::GetMethod(const Il2CppReflectionMethod* method)
+    {
+        return method->method;
+    }
+
 /*
  * We use the same C representation for methods and constructors, but the type
  * name in C# is different.
