@@ -717,6 +717,11 @@ const Il2CppType* il2cpp_method_get_return_type(const MethodInfo* method)
     return Method::GetReturnType(method);
 }
 
+const MethodInfo* il2cpp_method_get_from_reflection(const Il2CppReflectionMethod *method)
+{
+    return Reflection::GetMethod(method);
+}
+
 Il2CppReflectionMethod* il2cpp_method_get_object(const MethodInfo *method, Il2CppClass *refclass)
 {
     return Reflection::GetMethodObject(method, refclass);
@@ -1108,6 +1113,15 @@ Il2CppClass* il2cpp_type_get_class_or_element_class(const Il2CppType *type)
 char* il2cpp_type_get_name(const Il2CppType *type)
 {
     std::string name = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_IL);
+    char* buffer = static_cast<char*>(il2cpp_alloc(name.length() + 1));
+    memcpy(buffer, name.c_str(), name.length() + 1);
+
+    return buffer;
+}
+
+char* il2cpp_type_get_assembly_qualified_name(const Il2CppType * type)
+{
+    std::string name = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED);
     char* buffer = static_cast<char*>(il2cpp_alloc(name.length() + 1));
     memcpy(buffer, name.c_str(), name.length() + 1);
 
