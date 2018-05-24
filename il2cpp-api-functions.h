@@ -137,6 +137,7 @@ DO_API(void, il2cpp_unity_liveness_calculation_from_statics, (void* state));
 DO_API(const Il2CppType*, il2cpp_method_get_return_type, (const MethodInfo * method));
 DO_API(Il2CppClass*, il2cpp_method_get_declaring_type, (const MethodInfo * method));
 DO_API(const char*, il2cpp_method_get_name, (const MethodInfo * method));
+DO_API(const MethodInfo*, il2cpp_method_get_from_reflection, (const Il2CppReflectionMethod * method));
 DO_API(Il2CppReflectionMethod*, il2cpp_method_get_object, (const MethodInfo * method, Il2CppClass * refclass));
 DO_API(bool, il2cpp_method_is_generic, (const MethodInfo * method));
 DO_API(bool, il2cpp_method_is_inflated, (const MethodInfo * method));
@@ -229,6 +230,8 @@ DO_API(Il2CppObject*, il2cpp_type_get_object, (const Il2CppType * type));
 DO_API(int, il2cpp_type_get_type, (const Il2CppType * type));
 DO_API(Il2CppClass*, il2cpp_type_get_class_or_element_class, (const Il2CppType * type));
 DO_API(char*, il2cpp_type_get_name, (const Il2CppType * type));
+DO_API(char*, il2cpp_type_get_assembly_qualified_name, (const Il2CppType * type));
+
 DO_API(bool, il2cpp_type_is_byref, (const Il2CppType * type));
 DO_API(uint32_t, il2cpp_type_get_attrs, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_equals, (const Il2CppType * type, const Il2CppType * otherType));
