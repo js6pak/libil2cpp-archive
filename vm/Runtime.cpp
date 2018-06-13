@@ -241,9 +241,7 @@ namespace vm
         DEFAULTS_INIT_TYPE(mono_parameter_info_class, "System.Reflection", "MonoParameterInfo", Il2CppReflectionParameter);
 #endif
         DEFAULTS_INIT_TYPE(module_class, "System.Reflection", "Module", Il2CppReflectionModule);
-#if !UNITY_AOT
-        DEFAULTS_INIT_TYPE(marshal_class, "System.Reflection.Emit", "UnmanagedMarshal", Il2CppReflectionMarshal);
-#endif
+
         DEFAULTS_INIT_TYPE(pointer_class, "System.Reflection", "Pointer", Il2CppReflectionPointer);
         DEFAULTS_INIT_TYPE(exception_class, "System", "Exception", Il2CppException);
         DEFAULTS_INIT_TYPE(system_exception_class, "System", "SystemException", Il2CppSystemException);
@@ -258,6 +256,7 @@ namespace vm
         DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
+        DEFAULTS_INIT(system_guid_class, "System", "Guid");
 
 #if NET_4_0
         DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");

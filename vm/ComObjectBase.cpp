@@ -1,11 +1,25 @@
 #include "il2cpp-config.h"
+#include "il2cpp-string-types.h"
 #include "metadata/GenericMetadata.h"
+#include "os/WindowsRuntime.h"
+#include "utils/StringUtils.h"
+#include "vm/Atomic.h"
 #include "vm/Class.h"
+#include "vm/COM.h"
 #include "vm/ComObjectBase.h"
 #include "vm/GenericClass.h"
 #include "vm/MetadataCache.h"
+#include "vm/WeakReference.h"
 
 using namespace il2cpp::vm;
+
+
+il2cpp_hresult_t STDCALL ComObjectBase::GetIids(uint32_t* iidCount, Il2CppGuid** iids)
+{
+    *iidCount = 0;
+    *iids = NULL;
+    return IL2CPP_S_OK;
+}
 
 il2cpp_hresult_t STDCALL ComObjectBase::GetRuntimeClassName(Il2CppHString* className)
 {
@@ -127,4 +141,9 @@ il2cpp_hresult_t ComObjectBase::GetFreeThreadedMarshalerNoAddRef(Il2CppIMarshal*
 
     *destination = freeThreadedMarshaler;
     return IL2CPP_S_OK;
+}
+
+il2cpp_hresult_t STDCALL ComObjectBase::GetWeakReference(Il2CppIWeakReference** weakReference)
+{
+    return WeakReference::Create(GetManagedObjectInline(), weakReference);
 }

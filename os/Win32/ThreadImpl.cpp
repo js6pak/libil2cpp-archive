@@ -3,6 +3,7 @@
 #if !IL2CPP_THREADS_STD && IL2CPP_THREADS_WIN32
 
 #include "ThreadImpl.h"
+#include "os/ThreadLocalValue.h"
 #include "os/Time.h"
 #include "WindowsHelpers.h"
 #include "il2cpp-vm-support.h"
@@ -379,6 +380,41 @@ namespace
     bool ThreadImpl::YieldInternal()
     {
         return SwitchToThread();
+    }
+
+#endif
+
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+
+    static Thread::ThreadCleanupFunc s_ThreadCleanupFunction;
+    static ThreadLocalValue s_ThreadCleanupArguments;
+
+    void ThreadImpl::SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction)
+    {
+        s_ThreadCleanupFunction = cleanupFunction;
+    }
+
+    void ThreadImpl::RegisterCurrentThreadForCleanup(void* arg)
+    {
+        s_ThreadCleanupArguments.SetValue(arg);
+    }
+
+    void ThreadImpl::UnregisterCurrentThreadForCleanup()
+    {
+        s_ThreadCleanupArguments.SetValue(NULL);
+    }
+
+    void ThreadImpl::OnCurrentThreadExiting()
+    {
+        Thread::ThreadCleanupFunc cleanupFunction = s_ThreadCleanupFunction;
+        if (cleanupFunction == NULL)
+            return;
+
+        void* threadCleanupArgument = NULL;
+        s_ThreadCleanupArguments.GetValue(&threadCleanupArgument);
+
+        if (threadCleanupArgument != NULL)
+            cleanupFunction(threadCleanupArgument);
     }
 
 #endif

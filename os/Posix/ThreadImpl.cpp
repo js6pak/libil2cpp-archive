@@ -240,8 +240,9 @@ namespace os
 
     static void CleanupThreadIfCanceled(void* arg)
     {
-        if (s_CleanupFunc)
-            s_CleanupFunc(arg);
+        Thread::ThreadCleanupFunc cleanupFunc = s_CleanupFunc;
+        if (cleanupFunc)
+            cleanupFunc(arg);
     }
 
     void ThreadImpl::SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction)
