@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
+#include "il2cpp-tabledefs.h"
 #include "il2cpp-vm-support.h"
 #include "gc/GCHandle.h"
 #include "metadata/GenericMetadata.h"
@@ -30,6 +31,8 @@ const Il2CppGuid Il2CppIActivationFactory::IID = { 0x00000035, 0x0000, 0x0000, 0
 const Il2CppGuid Il2CppIRestrictedErrorInfo::IID = { 0x82ba7092, 0x4c88, 0x427d, 0xa7, 0xbc, 0x16, 0xdd, 0x93, 0xfe, 0xb6, 0x7e };
 const Il2CppGuid Il2CppILanguageExceptionErrorInfo::IID = { 0x04a2dbf3, 0xdf83, 0x116c, 0x09, 0x46, 0x08, 0x12, 0xab, 0xf6, 0xe0, 0x7d };
 const Il2CppGuid Il2CppIAgileObject::IID = { 0x94ea2b94, 0xe9cc, 0x49e0, 0xc0, 0xff, 0xee, 0x64, 0xca, 0x8f, 0x5b, 0x90 };
+const Il2CppGuid Il2CppIWeakReference::IID = { 0x00000037, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
+const Il2CppGuid Il2CppIWeakReferenceSource::IID = { 0x00000038, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 
 using il2cpp::utils::PointerHash;
 
@@ -290,7 +293,8 @@ namespace vm
         // 3. Figure out the concrete RCW class
         if (!isSealedClassInstance)
         {
-            objectClass = GetClassForRCW(comObject, objectClass);
+            Il2CppClass* fallbackClass = objectClass;
+            objectClass = GetClassForRCW(comObject, fallbackClass);
 
             // If object class is one of the blessed unboxable classes,
             // unbox the object from its windows runtime representation,
@@ -303,6 +307,14 @@ namespace vm
             Il2CppObject* reboxed = ReboxIfBoxed(comObject, objectClass);
             if (reboxed != NULL)
                 return reboxed;
+
+            if (objectClass->byval_arg.type != IL2CPP_TYPE_CLASS ||
+                objectClass->flags & TYPE_ATTRIBUTE_INTERFACE ||
+                objectClass->is_generic)
+            {
+                // We must be able to instantiate the type. If we can't, fallback to a caller passed in type
+                objectClass = fallbackClass;
+            }
         }
 
         IL2CPP_ASSERT(Class::HasParent(objectClass, il2cpp_defaults.il2cpp_com_object_class));

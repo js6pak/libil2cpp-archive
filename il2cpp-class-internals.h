@@ -176,6 +176,8 @@ typedef struct Il2CppDefaults
     Il2CppClass* windows_foundation_iuri_runtime_class_class;
     // System.Uri
     Il2CppClass* system_uri_class;
+    // System.Guid
+    Il2CppClass* system_guid_class;
 } Il2CppDefaults;
 
 extern LIBIL2CPP_CODEGEN_API Il2CppDefaults il2cpp_defaults;
