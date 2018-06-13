@@ -1636,4 +1636,30 @@ struct NOVTABLE Il2CppIAgileObject : Il2CppIUnknown
     static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
     virtual il2cpp_hresult_t STDCALL GetLanguageException(Il2CppIUnknown** languageException) = 0;
 };
+
+struct NOVTABLE Il2CppIWeakReference : Il2CppIUnknown
+{
+    static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+    virtual il2cpp_hresult_t STDCALL Resolve(const Il2CppGuid& iid, Il2CppIInspectable** object) = 0;
+};
+
+struct NOVTABLE Il2CppIWeakReferenceSource : Il2CppIUnknown
+{
+    static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+    virtual il2cpp_hresult_t STDCALL GetWeakReference(Il2CppIWeakReference** weakReference) = 0;
+};
+
 #endif //__cplusplus
+
+enum Il2CppWindowsRuntimeTypeKind
+{
+    kTypeKindPrimitive = 0,
+    kTypeKindMetadata,
+    kTypeKindCustom
+};
+
+struct Il2CppWindowsRuntimeTypeName
+{
+    Il2CppHString typeName;
+    enum Il2CppWindowsRuntimeTypeKind typeKind;
+};

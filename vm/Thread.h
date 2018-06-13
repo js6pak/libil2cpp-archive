@@ -136,23 +136,6 @@ namespace vm
         static Il2CppThread* s_MainThread;
     };
 
-    class ThreadAttacher : il2cpp::utils::NonCopyable
-    {
-    public:
-        ThreadAttacher(Il2CppDomain *domain)
-        {
-            m_Thread = Thread::Attach(domain);
-        }
-
-        ~ThreadAttacher()
-        {
-            Thread::Detach(m_Thread);
-        }
-
-    private:
-        Il2CppThread* m_Thread;
-    };
-
     class ThreadStateSetter : il2cpp::utils::NonCopyable
     {
     public:
