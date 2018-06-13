@@ -447,7 +447,7 @@ namespace vm
 
         Il2CppException* typeLoadException = Exception::GetTypeLoadException(typeLoadExceptionMessage.c_str());
 
-        // If there's no '.' in neither typeName and namespace is not specified, it means there is no namespace specified
+        // If there's no '.' in neither typeName and namespace specified, it means there is no namespace specified
         // Therefore exception information should contain inner exception saying format is not recognized
         if (namespaze.Length() == 0 && typeName.Find('.') == utils::StringView<char>::NPos())
         {

@@ -116,7 +116,7 @@
 #endif
 
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
-#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD)
+#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32)
 
 #define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS IL2CPP_TARGET_WINDOWS
 
@@ -453,3 +453,12 @@ const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #define IL2CPP_DEBUG_BREAK()
 #endif
 #endif
+
+#if defined(__cplusplus)
+
+template<typename Type, size_t Size>
+char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
+
+#define IL2CPP_ARRAY_SIZE(array) (sizeof(*il2cpp_array_size_helper(array)))
+
+#endif // __cplusplus

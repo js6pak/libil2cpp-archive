@@ -169,6 +169,11 @@ namespace os
 #endif
     }
 
+    const Il2CppNativeChar* WindowsRuntime::GetNativeHStringBuffer(Il2CppHString hstring, uint32_t* length)
+    {
+        return GetHStringBuffer(hstring, length);
+    }
+
     Il2CppString* WindowsRuntime::HStringToManagedString(Il2CppHString hstring)
     {
         if (hstring == NULL)
@@ -177,6 +182,66 @@ namespace os
         uint32_t length;
         const wchar_t* ptr = GetHStringBuffer(hstring, &length);
         return IL2CPP_VM_STRING_NEW_UTF16(ptr, length);
+    }
+
+    il2cpp_hresult_t WindowsRuntime::PreallocateHStringBuffer(uint32_t length, Il2CppNativeChar** mutableBuffer, void** bufferHandle)
+    {
+#if LINK_TO_WINDOWSRUNTIME_LIBS
+        return WindowsPreallocateStringBuffer(length, mutableBuffer, reinterpret_cast<HSTRING_BUFFER*>(bufferHandle));
+#else
+        typedef il2cpp_hresult_t (STDAPICALLTYPE * WindowsPreallocateStringBufferFunc)(uint32_t length, Il2CppNativeChar** mutableBuffer, void** bufferHandle);
+        static WindowsPreallocateStringBufferFunc WindowsPreallocateStringBuffer = NULL;
+
+        if (WindowsPreallocateStringBuffer == NULL)
+        {
+            WindowsPreallocateStringBuffer = ResolveAPI<WindowsPreallocateStringBufferFunc>(L"api-ms-win-core-winrt-string-l1-1-0.dll", "WindowsPreallocateStringBuffer");
+
+            if (WindowsPreallocateStringBuffer == NULL)
+                IL2CPP_VM_NOT_SUPPORTED(PreallocateHStringBuffer, "Marshaling HSTRINGs is not supported on current platform.");
+        }
+
+        return WindowsPreallocateStringBuffer(length, mutableBuffer, bufferHandle);
+#endif
+    }
+
+    il2cpp_hresult_t WindowsRuntime::PromoteHStringBuffer(void* bufferHandle, Il2CppHString* hstring)
+    {
+#if LINK_TO_WINDOWSRUNTIME_LIBS
+        return WindowsPromoteStringBuffer(static_cast<HSTRING_BUFFER>(bufferHandle), reinterpret_cast<HSTRING*>(hstring));
+#else
+        typedef il2cpp_hresult_t (STDAPICALLTYPE * WindowsPromoteStringBufferFunc)(void* bufferHandle, Il2CppHString* hstring);
+        static WindowsPromoteStringBufferFunc WindowsPromoteStringBuffer = NULL;
+
+        if (WindowsPromoteStringBuffer == NULL)
+        {
+            WindowsPromoteStringBuffer = ResolveAPI<WindowsPromoteStringBufferFunc>(L"api-ms-win-core-winrt-string-l1-1-0.dll", "WindowsPromoteStringBuffer");
+
+            if (WindowsPromoteStringBuffer == NULL)
+                IL2CPP_VM_NOT_SUPPORTED(PromoteHStringBuffer, "Marshaling HSTRINGs is not supported on current platform.");
+        }
+
+        return WindowsPromoteStringBuffer(bufferHandle, hstring);
+#endif
+    }
+
+    il2cpp_hresult_t WindowsRuntime::DeleteHStringBuffer(void* bufferHandle)
+    {
+#if LINK_TO_WINDOWSRUNTIME_LIBS
+        return WindowsDeleteStringBuffer(static_cast<HSTRING_BUFFER>(bufferHandle));
+#else
+        typedef il2cpp_hresult_t (STDAPICALLTYPE * WindowsDeleteStringBufferFunc)(void* bufferHandle);
+        static WindowsDeleteStringBufferFunc WindowsDeleteStringBuffer = NULL;
+
+        if (WindowsDeleteStringBuffer == NULL)
+        {
+            WindowsDeleteStringBuffer = ResolveAPI<WindowsDeleteStringBufferFunc>(L"api-ms-win-core-winrt-string-l1-1-0.dll", "WindowsDeleteStringBuffer");
+
+            if (WindowsDeleteStringBuffer == NULL)
+                IL2CPP_VM_NOT_SUPPORTED(DeleteHStringBuffer, "Marshaling HSTRINGs is not supported on current platform.");
+        }
+
+        return WindowsDeleteStringBuffer(bufferHandle);
+#endif
     }
 
     Il2CppIRestrictedErrorInfo* WindowsRuntime::GetRestrictedErrorInfo()

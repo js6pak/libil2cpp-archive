@@ -231,7 +231,15 @@ namespace System
                 return NULL;
         }
 
-        const Il2CppType *type = vm::Class::il2cpp_type_from_type_info(info, throwOnError, ignoreCase);
+        vm::TypeSearchFlags searchFlags = kTypeSearchFlagNone;
+
+        if (throwOnError)
+            searchFlags = static_cast<vm::TypeSearchFlags>(searchFlags | kTypeSearchFlagThrowOnError);
+
+        if (ignoreCase)
+            searchFlags = static_cast<vm::TypeSearchFlags>(searchFlags | kTypeSearchFlagIgnoreCase);
+
+        const Il2CppType *type = vm::Class::il2cpp_type_from_type_info(info, searchFlags);
 
         CHECK_IF_NULL(type);
 
