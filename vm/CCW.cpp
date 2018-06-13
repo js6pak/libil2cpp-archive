@@ -47,6 +47,13 @@ namespace vm
                 return IL2CPP_S_OK;
             }
 
+            if (::memcmp(&iid, &Il2CppIWeakReferenceSource::IID, sizeof(Il2CppGuid)) == 0)
+            {
+                *object = static_cast<Il2CppIWeakReferenceSource*>(this);
+                AddRefImpl();
+                return IL2CPP_S_OK;
+            }
+
             *object = NULL;
             return IL2CPP_E_NOINTERFACE;
         }

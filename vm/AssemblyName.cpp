@@ -205,6 +205,9 @@ namespace vm
         name += (aname.public_key_token[0] ? PublicKeyTokenToString(aname.public_key_token) : "null");
         name += ((aname.flags & ASSEMBLYREF_RETARGETABLE_FLAG) ? ", Retargetable=Yes" : "");
 
+        if (strcmp(aname.name, "WindowsRuntimeMetadata") == 0)
+            name += ", ContentType=WindowsRuntime";
+
         return name;
     }
 } /* namespace vm */

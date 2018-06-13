@@ -24,6 +24,7 @@
 #include "vm/RCW.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
+#include "vm/ScopedThreadAttacher.h"
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/ThreadPool.h"
@@ -599,6 +600,25 @@ inline void il2cpp_codegen_marshal_free_hstring(Il2CppHString hstring)
     il2cpp::vm::WindowsRuntime::DeleteHString(hstring);
 }
 
+inline void il2cpp_codegen_marshal_type_to_native(Type_t* type, Il2CppWindowsRuntimeTypeName& nativeType)
+{
+    return il2cpp::vm::WindowsRuntime::MarshalTypeToNative(type != NULL ? reinterpret_cast<Il2CppReflectionType*>(type)->type : NULL, nativeType);
+}
+
+inline Type_t* il2cpp_codegen_marshal_type_from_native(Il2CppWindowsRuntimeTypeName& nativeType)
+{
+    const Il2CppType* type = il2cpp::vm::WindowsRuntime::MarshalTypeFromNative(nativeType);
+    if (type == NULL)
+        return NULL;
+
+    return il2cpp_codegen_type_get_object(type);
+}
+
+inline void il2cpp_codegen_delete_native_type(Il2CppWindowsRuntimeTypeName& nativeType)
+{
+    return il2cpp::vm::WindowsRuntime::DeleteNativeType(nativeType);
+}
+
 inline void il2cpp_codegen_marshal_free(void* ptr)
 {
     il2cpp::vm::PlatformInvoke::MarshalFree(ptr);
@@ -619,29 +639,6 @@ inline void il2cpp_codegen_marshal_store_last_error()
 {
     il2cpp::vm::LastError::StoreLastError();
 }
-
-class il2cpp_native_wrapper_vm_thread_attacher
-{
-public:
-    il2cpp_native_wrapper_vm_thread_attacher() :
-        _threadWasAttached(false)
-    {
-        if (il2cpp::vm::Thread::Current() == NULL)
-        {
-            il2cpp::vm::Thread::Attach(il2cpp::vm::Domain::GetRoot());
-            _threadWasAttached = true;
-        }
-    }
-
-    ~il2cpp_native_wrapper_vm_thread_attacher()
-    {
-        if (_threadWasAttached)
-            il2cpp::vm::Thread::Detach(il2cpp::vm::Thread::Current());
-    }
-
-private:
-    bool _threadWasAttached;
-};
 
 #if _DEBUG
 struct ScopedMarshallingAllocationFrame
