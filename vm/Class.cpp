@@ -57,7 +57,7 @@ namespace vm
 
     static void SetupGCDescriptor(Il2CppClass* klass);
     static void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset);
-    static Il2CppClass* ResolveGenericInstanceType(Il2CppClass*, const il2cpp::vm::TypeNameParseInfo&, bool, bool);
+    static Il2CppClass* ResolveGenericInstanceType(Il2CppClass*, const il2cpp::vm::TypeNameParseInfo&, TypeSearchFlags searchFlags);
     static bool InitLocked(Il2CppClass *klass, const FastAutoLock& lock);
     static void SetupVTable(Il2CppClass *klass, const FastAutoLock& lock);
 
@@ -1631,7 +1631,7 @@ namespace vm
     {
         // Attempt to resolve a generic type definition.
         if (Class::IsGeneric(klass))
-            klass = ResolveGenericInstanceType(klass, info, false, false);
+            klass = ResolveGenericInstanceType(klass, info, kTypeSearchFlagNone);
 
         bool bounded = false;
 
@@ -1924,12 +1924,12 @@ namespace vm
     }
 
 #define CHECK_IF_NULL(v)    \
-    if ( (v) == NULL && throwOnError ) \
+    if ( (v) == NULL && (searchFlags & kTypeSearchFlagThrowOnError) != 0 ) \
         Exception::Raise (Exception::GetTypeLoadException (info)); \
     if ( (v) == NULL ) \
         return NULL;
 
-    static Il2CppClass * resolve_generic_instance_internal(const il2cpp::vm::TypeNameParseInfo &info, Il2CppClass *generic_class, Il2CppTypeVector &generic_arguments, bool throwOnError)
+    static Il2CppClass * resolve_generic_instance_internal(const il2cpp::vm::TypeNameParseInfo &info, Il2CppClass *generic_class, Il2CppTypeVector &generic_arguments, TypeSearchFlags searchFlags)
     {
         Il2CppClass *klass = NULL;
 
@@ -1965,7 +1965,7 @@ namespace vm
         return klass;
     }
 
-    static Il2CppClass* ResolveGenericInstanceType(Il2CppClass* klass, const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
+    static Il2CppClass* ResolveGenericInstanceType(Il2CppClass* klass, const TypeNameParseInfo& info, TypeSearchFlags searchFlags)
     {
         if (info.has_generic_arguments())
         {
@@ -1975,7 +1975,7 @@ namespace vm
             std::vector<TypeNameParseInfo>::const_iterator it = info.type_arguments().begin();
             while (it != info.type_arguments().end())
             {
-                const Il2CppType * generic_argument = Class::il2cpp_type_from_type_info(*it, throwOnError, ignoreCase);
+                const Il2CppType * generic_argument = Class::il2cpp_type_from_type_info(*it, searchFlags);
 
                 CHECK_IF_NULL(generic_argument);
 
@@ -1984,7 +1984,7 @@ namespace vm
                 ++it;
             }
 
-            klass = resolve_generic_instance_internal(info, klass, generic_arguments, throwOnError);
+            klass = resolve_generic_instance_internal(info, klass, generic_arguments, searchFlags);
 
             CHECK_IF_NULL(klass);
         }
@@ -1995,20 +1995,28 @@ namespace vm
         return klass;
     }
 
-    static Il2CppClass* resolve_parse_info_internal(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
+    static Il2CppClass* resolve_parse_info_internal(const TypeNameParseInfo& info, TypeSearchFlags searchFlags)
     {
         Il2CppClass *klass = NULL;
 
         if (info.assembly_name().name.empty())
         {
-            const Il2CppImage* image = Image::GetExecutingImage();
-            klass = Image::FromTypeNameParseInfo(image, info, ignoreCase);
+            const Il2CppImage* image;
+            if (searchFlags & kTypeSearchFlagDontUseExecutingImage)
+            {
+                image = Image::GetCorlib();
+            }
+            else
+            {
+                image = Image::GetExecutingImage();
+            }
 
+            klass = Image::FromTypeNameParseInfo(image, info, searchFlags & kTypeSearchFlagIgnoreCase);
             if (klass == NULL && image != Image::GetCorlib())
             {
                 // Try mscorlib
                 image = (Il2CppImage*)Image::GetCorlib();
-                klass = Image::FromTypeNameParseInfo(image, info, ignoreCase);
+                klass = Image::FromTypeNameParseInfo(image, info, searchFlags & kTypeSearchFlagIgnoreCase);
             }
         }
         else
@@ -2021,19 +2029,19 @@ namespace vm
 
             CHECK_IF_NULL(image);
 
-            klass = Image::FromTypeNameParseInfo(image, info, ignoreCase);
+            klass = Image::FromTypeNameParseInfo(image, info, searchFlags & kTypeSearchFlagIgnoreCase);
         }
 
         return klass;
     }
 
-    const Il2CppType* Class::il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase)
+    const Il2CppType* Class::il2cpp_type_from_type_info(const TypeNameParseInfo& info, TypeSearchFlags searchFlags)
     {
-        Il2CppClass *klass = resolve_parse_info_internal(info, throwOnError, ignoreCase);
+        Il2CppClass *klass = resolve_parse_info_internal(info, searchFlags);
 
         CHECK_IF_NULL(klass);
 
-        klass = ResolveGenericInstanceType(klass, info, throwOnError, ignoreCase);
+        klass = ResolveGenericInstanceType(klass, info, searchFlags);
 
         CHECK_IF_NULL(klass);
 

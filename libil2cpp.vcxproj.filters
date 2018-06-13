@@ -848,6 +848,15 @@
     <ClCompile Include="utils\MemoryMappedFile.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="vm\WeakReference.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
+    <ClCompile Include="vm\ComObjectBase.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Win32\DllMain.cpp">
+      <Filter>os\Win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1865,6 +1874,15 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="il2cpp-object-internals.h" />
+    <ClInclude Include="vm\WeakReference.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\ComObjectBase.h">
+      <Filter>vm</Filter>
+    </ClInclude>
+    <ClInclude Include="vm\ScopedThreadAttacher.h">
+      <Filter>vm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1872,7 +1890,6 @@
     <ClInclude Include="il2cpp-config.h" />
     <ClInclude Include="metadata.h" />
     <ClInclude Include="number-formatter.h" />
-    <ClInclude Include="object-internals.h" />
     <ClInclude Include="tabledefs.h" />
     <ClInclude Include="il2cpp-api.h" />
     <ClInclude Include="vm\Class.h">

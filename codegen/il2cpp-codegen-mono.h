@@ -539,33 +539,39 @@ inline void il2cpp_codegen_marshal_store_last_error()
     mono_marshal_set_last_error();
 }
 
-class il2cpp_native_wrapper_vm_thread_attacher
+namespace il2cpp
 {
-public:
-    il2cpp_native_wrapper_vm_thread_attacher() :
-        _threadWasAttached(false)
+namespace vm
+{
+    class ScopedThreadAttacher
     {
-        if (!mono_thread_is_attached())
+    public:
+        ScopedThreadAttacher() :
+            _threadWasAttached(false)
         {
-            mono_thread_attach(mono_get_root_domain());
-            _threadWasAttached = true;
+            if (!mono_thread_is_attached())
+            {
+                mono_thread_attach(mono_get_root_domain());
+                _threadWasAttached = true;
+            }
         }
-    }
 
-    ~il2cpp_native_wrapper_vm_thread_attacher()
-    {
-        if (_threadWasAttached)
-            mono_thread_detach(mono_thread_current());
-    }
+        ~ScopedThreadAttacher()
+        {
+            if (_threadWasAttached)
+                mono_thread_detach(mono_thread_current());
+        }
 
-private:
-    bool _threadWasAttached;
+    private:
+        bool _threadWasAttached;
 
-    bool mono_thread_is_attached()
-    {
-        return mono_domain_get() != NULL;
-    }
-};
+        bool mono_thread_is_attached()
+        {
+            return mono_domain_get() != NULL;
+        }
+    };
+}
+}
 
 #if _DEBUG
 struct ScopedMarshallingAllocationCheck
