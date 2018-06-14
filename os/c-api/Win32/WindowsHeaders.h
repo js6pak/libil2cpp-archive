@@ -8,6 +8,10 @@
 #include <Windows.h>
 #include <Objidl.h>
 
+#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINRT
+#include <Iphlpapi.h>
+#endif
+
 #if !IL2CPP_TARGET_WINDOWS_DESKTOP
 #include <bcrypt.h>
 #include <roapi.h>

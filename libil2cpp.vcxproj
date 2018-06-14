@@ -1479,6 +1479,7 @@
     <ClInclude Include="vm\RCW.h" />
     <ClInclude Include="vm\Reflection.h" />
     <ClInclude Include="vm\Runtime.h" />
+    <ClInclude Include="vm\ScopedThreadAttacher.h" />
     <ClInclude Include="vm\StackTrace.h" />
     <ClInclude Include="vm\String.h" />
     <ClInclude Include="vm\Thread.h" />
@@ -1739,6 +1740,7 @@
     <ClCompile Include="os\Posix\Time.cpp" />
     <ClCompile Include="os\Posix\TimeZone.cpp" />
     <ClCompile Include="os\Win32\Cryptography.cpp" />
+    <ClCompile Include="os\Win32\DllMain.cpp" />
     <ClCompile Include="os\Win32\Environment.cpp" />
     <ClCompile Include="os\Win32\Encoding.cpp" />
     <ClCompile Include="os\Win32\File.cpp" />
