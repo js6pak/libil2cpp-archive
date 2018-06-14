@@ -54,6 +54,13 @@ namespace os
         static bool YieldInternal();
 #endif
 
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+        static void SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction);
+        static void RegisterCurrentThreadForCleanup(void* arg);
+        static void UnregisterCurrentThreadForCleanup();
+        static void OnCurrentThreadExiting();
+#endif
+
     private:
         HANDLE m_ThreadHandle;
         volatile DWORD m_ThreadId;
