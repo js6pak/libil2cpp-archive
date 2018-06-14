@@ -54,6 +54,11 @@ namespace vm
     thread_cleanup_on_cancel(void* arg)
     {
         Thread::Detach((Il2CppThread*)arg);
+
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+        il2cpp::os::Thread* osThread = ((Il2CppThread*)arg)->GetInternalThread()->handle;
+        osThread->SignalExited();
+#endif
     }
 
     void Thread::Initialize()

@@ -624,24 +624,31 @@ inline void il2cpp_codegen_marshal_store_last_error()
 class il2cpp_native_wrapper_vm_thread_attacher
 {
 public:
-    il2cpp_native_wrapper_vm_thread_attacher() :
-        _threadWasAttached(false)
-    {
-        if (il2cpp::vm::Thread::Current() == NULL)
-        {
-            il2cpp::vm::Thread::Attach(il2cpp::vm::Domain::GetRoot());
-            _threadWasAttached = true;
-        }
-    }
+	il2cpp_native_wrapper_vm_thread_attacher()
+#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+		: m_AttachedThread(NULL)
+#endif
+	{
+#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+		if (il2cpp::vm::Thread::Current() == NULL)
+			m_AttachedThread = il2cpp::vm::Thread::Attach(il2cpp::vm::Domain::GetRoot());
+#else
+		il2cpp::vm::Thread::Attach(il2cpp::vm::Domain::GetRoot());
+#endif
+	}
 
-    ~il2cpp_native_wrapper_vm_thread_attacher()
-    {
-        if (_threadWasAttached)
-            il2cpp::vm::Thread::Detach(il2cpp::vm::Thread::Current());
-    }
+	~il2cpp_native_wrapper_vm_thread_attacher()
+	{
+#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+		if (m_AttachedThread != NULL)
+			il2cpp::vm::Thread::Detach(m_AttachedThread);
+#endif
+	}
 
 private:
-    bool _threadWasAttached;
+#if !IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+	Il2CppThread * m_AttachedThread;
+#endif
 };
 
 #if _DEBUG
