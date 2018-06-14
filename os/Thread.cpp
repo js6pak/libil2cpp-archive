@@ -317,6 +317,11 @@ namespace os
         ThreadImpl::UnregisterCurrentThreadForCleanup();
     }
 
+    void Thread::SignalExited()
+    {
+        m_ThreadExitedEvent.Set();
+    }
+
 #endif
 }
 }
