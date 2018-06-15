@@ -116,7 +116,7 @@
 #endif
 
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
-#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD)
+#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32)
 
 #define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS IL2CPP_TARGET_WINDOWS
 
