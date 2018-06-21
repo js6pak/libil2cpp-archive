@@ -35,12 +35,8 @@
     #define INTPTR_MAX 2147483647
 #endif
 
-#if IL2CPP_TARGET_DARWIN
-    #define IL2CPP_METHOD_ATTR
-// the following gives more accurate managed stack traces, but may cause linker errors on ARMv7 builds
-// #define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT,__managed,regular,pure_instructions")))
-#else
-    #define IL2CPP_METHOD_ATTR
+#ifndef IL2CPP_METHOD_ATTR
+#define IL2CPP_METHOD_ATTR
 #endif
 
 #if defined(_MSC_VER)
@@ -292,12 +288,6 @@ const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
-
-#if defined(__aarch64__)
-#define IL2CPP_TARGET_ARM64 1
-#else
-#define IL2CPP_TARGET_ARM64 0
-#endif
 
 #ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
 #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 ) )
