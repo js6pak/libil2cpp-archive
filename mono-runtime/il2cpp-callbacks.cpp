@@ -13,6 +13,7 @@
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include <iterator>
+#include "os/Image.h"
 #include "os/Thread.h"
 #include "os/c-api/Allocator.h"
 #include "utils/PathUtils.h"
@@ -349,6 +350,8 @@ void il2cpp_mono_runtime_init()
 
     RegisterAllManagedMethods();
     initialize_interop_data_map();
+
+    il2cpp::os::Image::Initialize();
 
     mono_profiler_started();
 }
