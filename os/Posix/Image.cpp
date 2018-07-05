@@ -12,6 +12,10 @@ namespace os
 {
 namespace Image
 {
+    void Initialize()
+    {
+    }
+
     void* GetImageBase()
     {
 #if IL2CPP_TARGET_JAVASCRIPT

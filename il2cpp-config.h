@@ -50,12 +50,8 @@
     #define INTPTR_MAX 2147483647
 #endif
 
-#if IL2CPP_TARGET_DARWIN
-    #define IL2CPP_METHOD_ATTR
-// the following gives more accurate managed stack traces, but may cause linker errors on ARMv7 builds
-// #define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT,__managed,regular,pure_instructions")))
-#else
-    #define IL2CPP_METHOD_ATTR
+#ifndef IL2CPP_METHOD_ATTR
+#define IL2CPP_METHOD_ATTR
 #endif
 
 #if defined(_MSC_VER)
