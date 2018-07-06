@@ -31,7 +31,9 @@ namespace vm
         static void SetConfigDir(const char *path);
         static void SetConfigUtf16(const Il2CppChar* executablePath);
         static void SetConfig(const char* executablePath);
+        static void SetUnityTlsInterface(const void* unitytlsInterface);
         static std::string GetConfigDir();
+        static const void* GetUnityTlsInterface();
         static const char *GetFrameworkVersion();
         static const MethodInfo* GetDelegateInvoke(Il2CppClass* klass);
         static Il2CppObject* DelegateInvoke(Il2CppDelegate *obj, void **params, Il2CppException **exc);

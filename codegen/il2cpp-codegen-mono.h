@@ -539,33 +539,39 @@ inline void il2cpp_codegen_marshal_store_last_error()
     mono_marshal_set_last_error();
 }
 
-class il2cpp_native_wrapper_vm_thread_attacher
+namespace il2cpp
 {
-public:
-    il2cpp_native_wrapper_vm_thread_attacher() :
-        _threadWasAttached(false)
+namespace vm
+{
+    class ScopedThreadAttacher
     {
-        if (!mono_thread_is_attached())
+    public:
+        ScopedThreadAttacher() :
+            _threadWasAttached(false)
         {
-            mono_thread_attach(mono_get_root_domain());
-            _threadWasAttached = true;
+            if (!mono_thread_is_attached())
+            {
+                mono_thread_attach(mono_get_root_domain());
+                _threadWasAttached = true;
+            }
         }
-    }
 
-    ~il2cpp_native_wrapper_vm_thread_attacher()
-    {
-        if (_threadWasAttached)
-            mono_thread_detach(mono_thread_current());
-    }
+        ~ScopedThreadAttacher()
+        {
+            if (_threadWasAttached)
+                mono_thread_detach(mono_thread_current());
+        }
 
-private:
-    bool _threadWasAttached;
+    private:
+        bool _threadWasAttached;
 
-    bool mono_thread_is_attached()
-    {
-        return mono_domain_get() != NULL;
-    }
-};
+        bool mono_thread_is_attached()
+        {
+            return mono_domain_get() != NULL;
+        }
+    };
+}
+}
 
 #if _DEBUG
 struct ScopedMarshallingAllocationCheck
@@ -974,13 +980,4 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(RuntimeObject* objec
 {
     assert(0 && "Not implemented yet.");
     return 0;
-}
-
-inline void il2cpp_codegen_add_sequence_point(size_t id, const Il2CppMethodExecutionContextInfo* const executionContextInfos, uint32_t executionContextInfoCount, const MonoMethod* method,
-    const char* const sourceFile, uint8_t h1, uint8_t h2, uint8_t h3, uint8_t h4, uint8_t h5, uint8_t h6, uint8_t h7, uint8_t h8, uint8_t h9, uint8_t h10, uint8_t h11, uint8_t h12, uint8_t h13, uint8_t h14,
-    uint8_t h15, uint8_t h16, uint32_t lineStart, uint32_t lineEnd, uint32_t columnStart, uint32_t columnEnd, int32_t ilOffset, SequencePointKind kind, bool isActive, uint8_t tryDepth, const RuntimeClass *catchType)
-{
-#if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::AddSequencePoint(id, Il2CppSequencePoint(executionContextInfos, executionContextInfoCount, method, sourceFile, Hash16(h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16), lineStart, lineEnd, columnStart, columnEnd, ilOffset, kind, isActive, id, tryDepth, catchType));
-#endif
 }

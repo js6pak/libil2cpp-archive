@@ -5,11 +5,11 @@
 #include "os/Initialize.h"
 #include "os/LibraryLoader.h"
 #include "os/Locale.h"
-#include "os/MemoryMappedFile.h"
 #include "os/Path.h"
 #include "NativeSymbol.h"
 #include "utils/Collections.h"
 #include "utils/PathUtils.h"
+#include "utils/MemoryMappedFile.h"
 #include "utils/Runtime.h"
 #include <string>
 
@@ -61,7 +61,7 @@ namespace utils
             return NULL;
 
         // Note that we won't unmap this file, we'll leave it open the entire lifetime of the process.
-        void* mappedFile = il2cpp::os::MemoryMappedFile::Map(handle);
+        void* mappedFile = utils::MemoryMappedFile::Map(handle);
 
         il2cpp::os::File::Close(handle, &error);
         IL2CPP_ASSERT(error == 0);

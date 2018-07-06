@@ -974,9 +974,15 @@ typedef struct Il2CppRegionInfo
     Il2CppString* iso3name;
     Il2CppString* win3name;
     Il2CppString* english_name;
+#if NET_4_0
+    Il2CppString* native_name;
+#endif
     Il2CppString* currency_symbol;
     Il2CppString* iso_currency_symbol;
     Il2CppString* currency_english_name;
+#if NET_4_0
+    Il2CppString* currency_native_name;
+#endif
 } Il2CppRegionInfo;
 
 // System.Runtime.InteropServices.SafeHandle
@@ -1630,4 +1636,30 @@ struct NOVTABLE Il2CppIAgileObject : Il2CppIUnknown
     static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
     virtual il2cpp_hresult_t STDCALL GetLanguageException(Il2CppIUnknown** languageException) = 0;
 };
+
+struct NOVTABLE Il2CppIWeakReference : Il2CppIUnknown
+{
+    static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+    virtual il2cpp_hresult_t STDCALL Resolve(const Il2CppGuid& iid, Il2CppIInspectable** object) = 0;
+};
+
+struct NOVTABLE Il2CppIWeakReferenceSource : Il2CppIUnknown
+{
+    static const LIBIL2CPP_CODEGEN_API Il2CppGuid IID;
+    virtual il2cpp_hresult_t STDCALL GetWeakReference(Il2CppIWeakReference** weakReference) = 0;
+};
+
 #endif //__cplusplus
+
+enum Il2CppWindowsRuntimeTypeKind
+{
+    kTypeKindPrimitive = 0,
+    kTypeKindMetadata,
+    kTypeKindCustom
+};
+
+struct Il2CppWindowsRuntimeTypeName
+{
+    Il2CppHString typeName;
+    enum Il2CppWindowsRuntimeTypeKind typeKind;
+};

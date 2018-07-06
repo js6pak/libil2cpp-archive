@@ -119,16 +119,13 @@ namespace os
 
 #if IL2CPP_TARGET_DARWIN
         pthread_setname_np(name.c_str());
-#elif IL2CPP_TARGET_LINUX || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
+#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_NOVA || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
         pthread_setname_np(m_Handle, name.c_str());
 #endif
     }
 
     void ThreadImpl::SetStackSize(size_t newsize)
     {
-        // only makes sense if it's called BEFORE the thread has been created
-        IL2CPP_ASSERT(m_Handle == NULL);
-
         // if newsize is zero we use the per-platform default value for size of stack
         if (newsize == 0)
         {

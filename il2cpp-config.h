@@ -123,7 +123,7 @@
 #define IL2CPP_ENABLE_STACKTRACES 1
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
-#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID)
+#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_NOVA)
 #endif
 
 /* Platforms which use stacktrace sentries */
@@ -274,6 +274,14 @@ const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
 #endif
 
+#ifndef IL2CPP_HAS_CLOSE_EXEC
+#define IL2CPP_HAS_CLOSE_EXEC (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4)
+#endif
+
+#ifndef IL2CPP_HAS_DUP
+#define IL2CPP_HAS_DUP (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4)
+#endif
+
 #ifndef IL2CPP_USE_GENERIC_FILE
 #define IL2CPP_USE_GENERIC_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_DARWIN)
 #endif
@@ -282,7 +290,7 @@ const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
 #ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !defined(__aarch64__) ) )
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 ) )
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
@@ -337,7 +345,7 @@ const int ipv6AddressSize = 16;
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
-#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2)
+#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2 && !IL2CPP_TARGET_NOVA)
 
 #define NO_UNUSED_WARNING(expr) (void)(expr)
 
@@ -435,3 +443,12 @@ const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #define IL2CPP_DEBUG_BREAK()
 #endif
 #endif
+
+#if defined(__cplusplus)
+
+template<typename Type, size_t Size>
+char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
+
+#define IL2CPP_ARRAY_SIZE(array) (sizeof(*il2cpp_array_size_helper(array)))
+
+#endif // __cplusplus

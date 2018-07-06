@@ -75,12 +75,19 @@ namespace vm
     static const char *s_FrameworkVersion = 0;
     static const char *s_BundledMachineConfig = 0;
     static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
+    static const void* s_UnitytlsInterface = NULL;
 
 #define DEFAULTS_INIT(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n);\
     IL2CPP_ASSERT(il2cpp_defaults.field); } while (0)
 
 #define DEFAULTS_INIT_TYPE(field, ns, n, nativetype) do { DEFAULTS_INIT(field, ns, n); \
     IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
+
+#define DEFAULTS_INIT_OPTIONAL(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n); } while (0)
+
+#define DEFAULTS_INIT_TYPE_OPTIONAL(field, ns, n, nativetype) do { DEFAULTS_INIT_OPTIONAL(field, ns, n); \
+    if (il2cpp_defaults.field != NULL) \
+        IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
 
     char* basepath(const char* path)
     {
@@ -245,11 +252,12 @@ namespace vm
         DEFAULTS_INIT_TYPE(safe_handle_class, "System.Runtime.InteropServices", "SafeHandle", Il2CppSafeHandle);
         DEFAULTS_INIT_TYPE(sort_key_class, "System.Globalization", "SortKey", Il2CppSortKey);
         DEFAULTS_INIT(dbnull_class, "System", "DBNull");
-        DEFAULTS_INIT_TYPE(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
+        DEFAULTS_INIT_TYPE_OPTIONAL(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
         DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
         DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
+        DEFAULTS_INIT(system_guid_class, "System", "Guid");
 
 #if NET_4_0
         DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
@@ -414,6 +422,11 @@ namespace vm
         SetConfigStr(executablePathStr);
     }
 
+    void Runtime::SetUnityTlsInterface(const void* unitytlsInterface)
+    {
+        s_UnitytlsInterface = unitytlsInterface;
+    }
+
     const char *Runtime::GetFrameworkVersion()
     {
         return s_FrameworkVersion;
@@ -425,6 +438,11 @@ namespace vm
             return s_ConfigDir;
 
         return utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("etc"));
+    }
+
+    const void* Runtime::GetUnityTlsInterface()
+    {
+        return s_UnitytlsInterface;
     }
 
     const MethodInfo* Runtime::GetDelegateInvoke(Il2CppClass* klass)
@@ -488,6 +506,10 @@ namespace vm
         try
         {
             RaiseExecutionEngineExceptionIfMethodIsNotFound(method);
+
+            if (!Method::IsInstance(method) && method->klass && method->klass->has_cctor && !method->klass->cctor_finished)
+                ClassInit(method->klass);
+
             return (Il2CppObject*)method->invoker_method(method->methodPointer, method, obj, params);
         }
         catch (Il2CppExceptionWrapper& ex)

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "gc/GCHandle.h"
+#include "vm/Atomic.h"
 #include "vm/ComObjectBase.h"
+#include "utils/Memory.h"
 #include "utils/TemplateUtils.h"
 
 namespace il2cpp

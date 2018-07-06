@@ -36,6 +36,14 @@ namespace vm
 {
     class TypeNameParseInfo;
 
+    enum TypeSearchFlags
+    {
+        kTypeSearchFlagNone = 0x0,
+        kTypeSearchFlagIgnoreCase = 0x1,
+        kTypeSearchFlagThrowOnError = 0x2,
+        kTypeSearchFlagDontUseExecutingImage = 0x4
+    };
+
     class LIBIL2CPP_CODEGEN_API Class
     {
     public:
@@ -130,6 +138,7 @@ namespace vm
         }
 
         static bool Init(Il2CppClass *klass);
+        static bool InitFromCodegen(Il2CppClass *klass);
 
         static Il2CppClass* GetArrayClass(Il2CppClass *element_class, uint32_t rank);
         static Il2CppClass* GetBoundedArrayClass(Il2CppClass *element_class, uint32_t rank, bool bounded);
@@ -163,7 +172,7 @@ namespace vm
         static size_t GetBitmapSize(const Il2CppClass* klass);
         static void GetBitmap(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit);
 
-        static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, bool throwOnError, bool ignoreCase);
+        static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, TypeSearchFlags searchFlags);
 
         static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
     private:

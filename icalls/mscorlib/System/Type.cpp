@@ -212,7 +212,7 @@ namespace System
 
 #define CHECK_IF_NULL(v)    \
     if ( (v) == NULL && throwOnError ) \
-        Exception::Raise (Exception::GetTypeLoadException ()); \
+        Exception::Raise (Exception::GetTypeLoadException (info)); \
     if ( (v) == NULL ) \
         return NULL;
 
@@ -231,7 +231,15 @@ namespace System
                 return NULL;
         }
 
-        const Il2CppType *type = vm::Class::il2cpp_type_from_type_info(info, throwOnError, ignoreCase);
+        vm::TypeSearchFlags searchFlags = kTypeSearchFlagNone;
+
+        if (throwOnError)
+            searchFlags = static_cast<vm::TypeSearchFlags>(searchFlags | kTypeSearchFlagThrowOnError);
+
+        if (ignoreCase)
+            searchFlags = static_cast<vm::TypeSearchFlags>(searchFlags | kTypeSearchFlagIgnoreCase);
+
+        const Il2CppType *type = vm::Class::il2cpp_type_from_type_info(info, searchFlags);
 
         CHECK_IF_NULL(type);
 

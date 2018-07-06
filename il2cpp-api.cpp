@@ -31,9 +31,7 @@
 #include "utils/StringUtils.h"
 #include "utils/Runtime.h"
 #include "utils/Environment.h"
-#if IL2CPP_MONO_DEBUGGER
 #include "vm-utils/Debugger.h"
-#endif
 
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
@@ -719,6 +717,11 @@ const Il2CppType* il2cpp_method_get_return_type(const MethodInfo* method)
     return Method::GetReturnType(method);
 }
 
+const MethodInfo* il2cpp_method_get_from_reflection(const Il2CppReflectionMethod *method)
+{
+    return Reflection::GetMethod(method);
+}
+
 Il2CppReflectionMethod* il2cpp_method_get_object(const MethodInfo *method, Il2CppClass *refclass)
 {
     return Reflection::GetMethodObject(method, refclass);
@@ -1116,9 +1119,23 @@ char* il2cpp_type_get_name(const Il2CppType *type)
     return buffer;
 }
 
+char* il2cpp_type_get_assembly_qualified_name(const Il2CppType * type)
+{
+    std::string name = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED);
+    char* buffer = static_cast<char*>(il2cpp_alloc(name.length() + 1));
+    memcpy(buffer, name.c_str(), name.length() + 1);
+
+    return buffer;
+}
+
 bool il2cpp_type_is_byref(const Il2CppType *type)
 {
     return type->byref;
+}
+
+uint32_t il2cpp_type_get_attrs(const Il2CppType *type)
+{
+    return type->attrs;
 }
 
 bool il2cpp_type_equals(const Il2CppType* type, const Il2CppType *otherType)
@@ -1176,4 +1193,14 @@ void il2cpp_debugger_set_agent_options(const char* options)
 #if IL2CPP_MONO_DEBUGGER
     il2cpp::utils::Debugger::SetAgentOptions(options);
 #endif
+}
+
+bool il2cpp_is_debugger_attached()
+{
+    return il2cpp::utils::Debugger::GetIsDebuggerAttached();
+}
+
+void il2cpp_unity_install_unitytls_interface(const void* unitytlsInterfaceStruct)
+{
+    il2cpp::vm::Runtime::SetUnityTlsInterface(unitytlsInterfaceStruct);
 }
