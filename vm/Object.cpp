@@ -206,8 +206,11 @@ namespace vm
             return NULL;
 
         Il2CppClass* objClass = Object::GetClass(obj);
+        if (Class::IsAssignableFrom(klass, objClass))
+            return obj;
+
         if (!objClass->is_import_or_windows_runtime)
-            return Class::IsAssignableFrom(klass, objClass) ? obj : NULL;
+            return NULL;
 
         // check if klass has an interface id
         if (Class::IsInterface(klass) && klass->interopData != NULL)
