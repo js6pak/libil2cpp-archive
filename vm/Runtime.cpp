@@ -123,6 +123,7 @@ namespace vm
 
         s_FrameworkVersion = framework_version_for(runtime_version);
 
+        os::Image::Initialize();
         os::Thread::Init();
 
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
