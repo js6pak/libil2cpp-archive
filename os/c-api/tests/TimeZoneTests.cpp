@@ -1,3 +1,4 @@
+#if !NET_4_0
 #if ENABLE_UNIT_TESTS
 
 #include "il2cpp-config.h"
@@ -6,7 +7,6 @@
 
 #include "../TimeZone-c-api.h"
 #include "../../TimeZone.h"
-
 
 SUITE(TimeZone)
 {
@@ -105,3 +105,4 @@ SUITE(TimeZone)
 }
 
 #endif // ENABLE_UNIT_TESTS
+#endif // !4_0

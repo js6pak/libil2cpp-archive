@@ -105,8 +105,11 @@ System.ConsoleDriver::TtySetup(System.String,System.String,System.Byte[]&,System
 System.Convert::InternalFromBase64CharArray(System.Char[],System.Int32,System.Int32) mscorlib::System::Convert::InternalFromBase64CharArray
 System.Convert::InternalFromBase64String(System.String,System.Boolean) mscorlib::System::Convert::InternalFromBase64String
 
-// System.CurrentSystemTimeZone
+// System.CurrentSystemTimeZone 2.0
 System.CurrentSystemTimeZone::GetTimeZoneData(System.Int32,System.Int64[]&,System.String[]&) mscorlib::System::CurrentSystemTimeZone::GetTimeZoneData
+
+// System.CurrentSystemTimeZone 4.0
+System.CurrentSystemTimeZone::GetTimeZoneData(System.Int32,System.Int64[]&,System.String[]&,System.Boolean&) mscorlib::System::CurrentSystemTimeZone::GetTimeZoneData
 
 // System.ComponentModel.Win32Exception
 System.ComponentModel.Win32Exception::W32ErrorMessage(System.Int32) System::System::ComponentModel::Win32Exception::W32ErrorMessage
