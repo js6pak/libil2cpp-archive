@@ -43,6 +43,14 @@ namespace os
 
 // names[0] - standardName
 // names[1] - daylightName
+#if NET_4_0
+    bool TimeZone::GetTimeZoneData(int32_t year, int64_t data[4], std::string names[2], bool* daylight_inverted)
+    {
+        //On Windows, we should always load timezones in managed
+        return false;
+    }
+
+#else
     bool TimeZone::GetTimeZoneData(int32_t year, int64_t data[4], std::string names[2])
     {
         TIME_ZONE_INFORMATION tz_info;
@@ -103,6 +111,8 @@ namespace os
 
         return 1;
     }
+
+#endif
 }
 }
 

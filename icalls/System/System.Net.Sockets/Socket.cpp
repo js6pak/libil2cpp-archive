@@ -710,6 +710,10 @@ namespace Sockets
 
         requests.push_back(request);
 
+        // The timeout from managed code is in microseconds. Convert it to milliseconds
+        // for the poll implementation.
+        timeout = (timeout >= 0) ? (timeout / 1000) : -1;
+
         int32_t results = 0;
         const os::WaitStatus result = os::Socket::Poll(requests, timeout, &results, error);
 

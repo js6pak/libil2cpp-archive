@@ -19,7 +19,11 @@ namespace mscorlib
 {
 namespace System
 {
+#if NET_4_0
+    bool CurrentSystemTimeZone::GetTimeZoneData(int year, Il2CppArray** data, Il2CppArray** names, bool* daylight_inverted)
+#else
     bool CurrentSystemTimeZone::GetTimeZoneData(int year, Il2CppArray** data, Il2CppArray** names)
+#endif
     {
         IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(CurrentSystemTimeZone::GetTimeZoneData, "Check arguments and write barriers");
         int64_t dataTemp[4] = {0};
@@ -31,8 +35,11 @@ namespace System
         //mono_gc_wbarrier_generic_store (data, Array::New (il2cpp_defaults.int64_class, 4));
         *names = Array::New(il2cpp_defaults.string_class, 2);
         //mono_gc_wbarrier_generic_store (names, Array::New (il2cpp_defaults.string_class, 2));
-
+#if NET_4_0
+        if (!TimeZone::GetTimeZoneData(year, dataTemp, namesTemp, daylight_inverted))
+#else
         if (!TimeZone::GetTimeZoneData(year, dataTemp, namesTemp))
+#endif
             return false;
 
         for (int i = 0; i < 4; i++)
