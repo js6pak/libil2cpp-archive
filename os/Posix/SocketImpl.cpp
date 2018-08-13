@@ -62,102 +62,131 @@ namespace os
         return false;
     }
 
-    static struct in_addr *get_local_ips(int32_t family, int32_t *nips)
+#define IFCONF_BUFF_SIZE 1024
+#ifndef _SIZEOF_ADDR_IFREQ
+#define _SIZEOF_ADDR_IFREQ(ifr) (sizeof (struct ifreq))
+#endif
+
+#define FOREACH_IFR(IFR, IFC) \
+    for (IFR = (IFC).ifc_req;   \
+    ifr < (struct ifreq*)((char*)(IFC).ifc_req + (IFC).ifc_len); \
+    ifr = (struct ifreq*)((char*)(IFR) + _SIZEOF_ADDR_IFREQ (*(IFR))))
+
+    static int address_size_for_family(int family)
     {
-        const int32_t max_ifaces = 50; // 50 interfaces should be enough ...
-
-        *nips = 0;
-
-        if (family != AF_INET)
-            return NULL;
-
-        int32_t addr_size = 0;
-        int32_t offset = 0;
-        if (family == AF_INET)
+        switch (family)
         {
-            addr_size = sizeof(struct in_addr);
-            offset = offsetof(struct sockaddr_in, sin_addr);
+            case AF_INET:
+                return sizeof(struct in_addr);
 #if IL2CPP_SUPPORT_IPV6
-        }
-        else if (family == AF_INET6)
-        {
-            addr_size = sizeof(struct in6_addr);
-            offset = offsetof(struct sockaddr_in6, sin6_addr);
+            case AF_INET6:
+                return sizeof(struct in6_addr);
 #endif
         }
-        else
+        return 0;
+    }
+
+    static void*
+    get_address_from_sockaddr(struct sockaddr *sa)
+    {
+        switch (sa->sa_family)
         {
-            return NULL;
+            case AF_INET:
+                return &((struct sockaddr_in*)sa)->sin_addr;
+#if IL2CPP_SUPPORT_IPV6
+            case AF_INET6:
+                return &((struct sockaddr_in6*)sa)->sin6_addr;
+#endif
         }
+        return NULL;
+    }
 
-        int32_t fd = socket(family, SOCK_STREAM, 0);
-
+    static struct in_addr *get_local_ips(int32_t family, int32_t *interface_count)
+    {
+        int fd;
         struct ifconf ifc;
-        ifc.ifc_len = max_ifaces * sizeof(struct ifreq);
-        ifc.ifc_buf = (char*)malloc(ifc.ifc_len);
-
-        if (ioctl(fd, SIOCGIFCONF, &ifc) < 0)
-        {
-            close(fd);
-            free(ifc.ifc_buf);
-            return NULL;
-        }
-
-        int32_t count = ifc.ifc_len / sizeof(struct ifreq);
-        *nips = count;
-        if (count == 0)
-        {
-            free(ifc.ifc_buf);
-            close(fd);
-            return NULL;
-        }
-
-        int32_t i;
         struct ifreq *ifr;
-        struct ifreq iflags;
+        int if_count = 0;
         bool ignore_loopback = false;
+        void *result = NULL;
+        char *result_ptr;
 
-        for (i = 0, ifr = ifc.ifc_req; i < *nips; i++, ifr++)
-        {
-            strcpy(iflags.ifr_name, ifr->ifr_name);
-            if (ioctl(fd, SIOCGIFFLAGS, &iflags) < 0)
+        *interface_count = 0;
+
+        if (!address_size_for_family(family))
+            return NULL;
+
+        fd = socket(family, SOCK_STREAM, 0);
+        if (fd == -1)
+            return NULL;
+
+        memset(&ifc, 0, sizeof(ifc));
+        ifc.ifc_len = IFCONF_BUFF_SIZE;
+        ifc.ifc_buf = (char*)malloc(IFCONF_BUFF_SIZE);   /* We can't have such huge buffers on the stack. */
+        if (ioctl(fd, SIOCGIFCONF, &ifc) < 0)
+            goto done;
+
+        FOREACH_IFR(ifr, ifc) {
+            struct ifreq iflags;
+
+            //only return addresses of the same type as @family
+            if (ifr->ifr_addr.sa_family != family)
+            {
+                ifr->ifr_name[0] = '\0';
                 continue;
+            }
 
+            strcpy(iflags.ifr_name, ifr->ifr_name);
+
+            //ignore interfaces we can't get props for
+            if (ioctl(fd, SIOCGIFFLAGS, &iflags) < 0)
+            {
+                ifr->ifr_name[0] = '\0';
+                continue;
+            }
+
+            //ignore interfaces that are down
             if ((iflags.ifr_flags & IFF_UP) == 0)
             {
                 ifr->ifr_name[0] = '\0';
                 continue;
             }
 
+            //If we have a non-loopback iface, don't return any loopback
             if ((iflags.ifr_flags & IFF_LOOPBACK) == 0)
+            {
                 ignore_loopback = true;
+                ifr->ifr_name[0] = 1; //1 means non-loopback
+            }
+            else
+            {
+                ifr->ifr_name[0] = 2;  //2 means loopback
+            }
+            ++if_count;
         }
 
-        close(fd);
-
-        uint8_t *result = (uint8_t*)malloc(addr_size * count);
-        uint8_t *tmp_ptr = result;
-
-        for (i = 0, ifr = ifc.ifc_req; i < count; i++, ifr++)
-        {
+        result = (char*)malloc(if_count * address_size_for_family(family));
+        result_ptr = (char*)result;
+        FOREACH_IFR(ifr, ifc) {
             if (ifr->ifr_name[0] == '\0')
+                continue;
+
+            if (ignore_loopback && ifr->ifr_name[0] == 2)
             {
-                (*nips)--;
+                --if_count;
                 continue;
             }
 
-            if (ignore_loopback && is_loopback(family, ((uint8_t*)&ifr->ifr_addr) + offset))
-            {
-                (*nips)--;
-                continue;
-            }
-
-            memcpy(tmp_ptr, ((uint8_t*)&ifr->ifr_addr) + offset, addr_size);
-            tmp_ptr += addr_size;
+            memcpy(result_ptr, get_address_from_sockaddr(&ifr->ifr_addr), address_size_for_family(family));
+            result_ptr += address_size_for_family(family);
         }
+        IL2CPP_ASSERT(result_ptr <= (char*)result + if_count * address_size_for_family(family));
 
+    done:
+        *interface_count = if_count;
         free(ifc.ifc_buf);
-        return (struct in_addr *)result;
+        close(fd);
+        return (struct in_addr*)result;
     }
 
     static bool hostent_get_info(struct hostent *he, std::string &name, std::vector<std::string> &aliases, std::vector<std::string> &addr_list)
@@ -289,6 +318,7 @@ namespace os
     {
         if (add_local_ips)
         {
+            bool any_local_ips_added = false;
             int nlocal_in = 0;
             int nlocal_in6 = 0;
             in_addr* local_in = (struct in_addr *)get_local_ips(AF_INET, &nlocal_in);
@@ -302,6 +332,7 @@ namespace os
                         char addr[16];
                         inet_ntop(AF_INET, &local_in[i], addr, sizeof(addr));
                         addr_list.push_back(std::string(addr));
+                        any_local_ips_added = true;
                     }
                 }
 
@@ -312,13 +343,19 @@ namespace os
                         char addr[48];
                         const char* ret = inet_ntop(AF_INET6, &local_in6[i], addr, sizeof(addr));
                         if (ret != NULL)
+                        {
                             addr_list.push_back(std::string(addr));
+                            any_local_ips_added = true;
+                        }
                     }
                 }
             }
 
             free(local_in);
             free(local_in6);
+
+            if (any_local_ips_added)
+                return;
         }
 
         bool nameSet = false;
