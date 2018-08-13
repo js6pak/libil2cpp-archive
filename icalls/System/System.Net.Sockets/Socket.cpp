@@ -1461,9 +1461,7 @@ namespace Sockets
 
     int32_t Socket::IOControl_internal(intptr_t sock, int32_t ioctl_code, Il2CppArray* input, Il2CppArray* output, int32_t* error)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Socket::IOControl_internal);
-        IL2CPP_UNREACHABLE;
-        return 0;
+        return WSAIoctl(sock, ioctl_code, input, output, error);
     }
 
     int32_t Socket::ReceiveFrom_internal(intptr_t socket, uint8_t* buffer, int32_t count, SocketFlags flags, Il2CppSocketAddress** socket_address, int32_t* error, bool blocking)
