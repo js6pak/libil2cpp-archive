@@ -50,7 +50,7 @@ namespace System
         Il2CppMulticastDelegate *ret = (Il2CppMulticastDelegate*)il2cpp::vm::Object::New(d->object.klass);
 
         Il2CppMethodPointer func = d->method_ptr;
-        il2cpp::vm::Type::ConstructDelegate(&ret->delegate, &d->object, func, d->method);
+        il2cpp::vm::Type::ConstructDelegate(&ret->delegate, NULL, func, d->method);
 
         const MethodInfo* invokeMethod = il2cpp::vm::Runtime::GetDelegateInvoke(d->object.klass);
         ret->delegate.invoke_impl = invokeMethod->invoker_method;
