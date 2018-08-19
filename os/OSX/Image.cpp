@@ -65,18 +65,46 @@ namespace Image
             s_ImageBase = NULL;
     }
 
+#if IL2CPP_SIZEOF_VOID_P == 8
+    typedef section_64 archSectionData_t;
+#else
+    typedef section archSectionData_t;
+#endif
+
+    static const archSectionData_t* SectionDataFor(int imageIndex)
+    {
+        const struct mach_header* header = _dyld_get_image_header(imageIndex);
+#if IL2CPP_SIZEOF_VOID_P == 8
+        return getsectbynamefromheader_64((const struct mach_header_64*)header, "__TEXT", IL2CPP_BINARY_SECTION_NAME);
+#else
+        return getsectbynamefromheader(header, "__TEXT", IL2CPP_BINARY_SECTION_NAME);
+#endif
+    }
+
     static void InitializeManagedSection()
     {
         int imageIndex = GetImageIndex();
         if (imageIndex == -1)
             return;
 
-        const struct mach_header* header = _dyld_get_image_header(imageIndex);
-#if IL2CPP_SIZEOF_VOID_P == 8
-        const section_64* sectionData = getsectbynamefromheader_64((const struct mach_header_64*)header, "__TEXT", IL2CPP_BINARY_SECTION_NAME);
-#else
-        const section* sectionData = getsectbynamefromheader(header, "__TEXT", IL2CPP_BINARY_SECTION_NAME);
-#endif
+        const archSectionData_t* sectionData = SectionDataFor(imageIndex);
+        if (sectionData == NULL)
+        {
+            // We did not find the managed section of the binary in the image where we
+            // think it should live. Maybe Unity is being embedded in another application.
+            // Let's search all of the images and find the first one that has our section
+            // in the binary.
+            //
+            // This won't work correctly if more than one Unity binary is embedded, but we
+            // don't support that case yet.
+            int numberOfImages = _dyld_image_count();
+            imageIndex = 0;
+            while (sectionData == NULL && imageIndex < numberOfImages)
+            {
+                sectionData = SectionDataFor(imageIndex);
+                imageIndex++;
+            }
+        }
 
         s_ManagedSectionStart = (void*)((intptr_t)sectionData->addr + (intptr_t)s_ImageBase);
         s_ManagedSectionEnd = (uint8_t*)s_ManagedSectionStart + sectionData->size;
