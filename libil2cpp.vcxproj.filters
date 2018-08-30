@@ -857,6 +857,9 @@
     <ClCompile Include="os\Win32\DllMain.cpp">
       <Filter>os\Win32</Filter>
     </ClCompile>
+    <ClCompile Include="vm\ScopedThreadAttacher.cpp">
+      <Filter>vm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
