@@ -1874,6 +1874,7 @@
     <ClCompile Include="vm\RCW.cpp" />
     <ClCompile Include="vm\Reflection.cpp" />
     <ClCompile Include="vm\Runtime.cpp" />
+    <ClCompile Include="vm\ScopedThreadAttacher.cpp" />
     <ClCompile Include="vm\StackTrace.cpp" />
     <ClCompile Include="vm\String.cpp" />
     <ClCompile Include="vm\Thread.cpp" />
