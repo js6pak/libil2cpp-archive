@@ -13,6 +13,7 @@
 #include "il2cpp-class-internals.h"
 #include "il2cpp-tabledefs.h"
 
+#include "gc/GarbageCollector.h"
 #include "vm/PlatformInvoke.h"
 #include "vm/StackTrace.h"
 #include "vm/PlatformInvoke.h"
@@ -168,7 +169,7 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 template<typename T>
 inline void Il2CppCodeGenWriteBarrier(T** targetAddress, T* object)
 {
-    // TODO
+    il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)targetAddress);
 }
 
 void il2cpp_codegen_memory_barrier();
@@ -179,6 +180,14 @@ inline T VolatileRead(T* location)
     T result = *location;
     il2cpp_codegen_memory_barrier();
     return result;
+}
+
+template<typename T>
+inline void VolatileWrite(T** location, T* value)
+{
+    il2cpp_codegen_memory_barrier();
+    *location = value;
+    Il2CppCodeGenWriteBarrier(location, value);
 }
 
 template<typename T>
@@ -303,17 +312,11 @@ private:
 #endif
 };
 
-inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequencePointStorage, Il2CppSequencePoint *sequencePoint, const RuntimeMethod *method, MethodIndex index)
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequencePointStorage, Il2CppSequencePoint *sequencePoint)
 {
 #if IL2CPP_MONO_DEBUGGER
     if (!sequencePoint)
         return;
-
-    if (method)
-        sequencePoint->method_ = method;
-
-    if (index >= 0)
-        sequencePoint->methodIndex = index;
 
     if (il2cpp::utils::Debugger::IsSequencePointActive(sequencePoint))
     {
@@ -337,23 +340,20 @@ class MethodExitSequencePointChecker
 private:
     Il2CppSequencePoint *m_pSeqPoint;
     Il2CppSequencePointStorage& m_seqPointStorage;
-    const RuntimeMethod *m_method;
-    MethodIndex m_methodIndex;
 
 public:
-    MethodExitSequencePointChecker(Il2CppSequencePointStorage& seqPointStorage, size_t seqPointId, const RuntimeMethod *method, MethodIndex methodIndex) :
-        m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL), m_methodIndex(methodIndex)
+    MethodExitSequencePointChecker(Il2CppSequencePointStorage& seqPointStorage, size_t seqPointId) :
+        m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL)
     {
 #if IL2CPP_MONO_DEBUGGER
         m_pSeqPoint = il2cpp_codegen_get_sequence_point(seqPointId);
-        m_method = method;
 #endif
     }
 
     ~MethodExitSequencePointChecker()
     {
 #if IL2CPP_MONO_DEBUGGER
-        il2cpp_codegen_check_sequence_point(m_seqPointStorage, m_pSeqPoint, m_method, m_methodIndex);
+        il2cpp_codegen_check_sequence_point(m_seqPointStorage, m_pSeqPoint);
 #endif
     }
 };

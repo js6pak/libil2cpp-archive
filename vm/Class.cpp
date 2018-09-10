@@ -897,7 +897,7 @@ namespace vm
             FieldLayout::FieldLayoutData staticLayoutData;
             FieldLayout::FieldLayoutData threadStaticLayoutData;
 
-            FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, klass->packingSize, fieldTypes, layoutData);
+            FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, fieldTypes, layoutData);
 
             instanceSize = layoutData.classSize;
 
@@ -914,8 +914,8 @@ namespace vm
 
             klass->size_inited = true;
 
-            FieldLayout::LayoutFields(0, 0, 1, 0, staticFieldTypes, staticLayoutData);
-            FieldLayout::LayoutFields(0, 0, 1, 0, threadStaticFieldTypes, threadStaticLayoutData);
+            FieldLayout::LayoutFields(0, 0, 1, staticFieldTypes, staticLayoutData);
+            FieldLayout::LayoutFields(0, 0, 1, threadStaticFieldTypes, threadStaticLayoutData);
 
             klass->minimumAlignment = layoutData.minimumAlignment;
             klass->actualSize = static_cast<uint32_t>(layoutData.actualClassSize);
@@ -985,7 +985,6 @@ namespace vm
             newField->name = MetadataCache::GetStringFromIndex(fieldDefinition->nameIndex);
             newField->parent = klass;
             newField->offset = MetadataCache::GetFieldOffsetFromIndexLocked(MetadataCache::GetIndexForTypeDefinition(klass), fieldIndex - start, newField, lock);
-            newField->customAttributeIndex = fieldDefinition->customAttributeIndex;
             newField->token = fieldDefinition->token;
 
             newField++;
@@ -1080,14 +1079,12 @@ namespace vm
                     newParameter->name = MetadataCache::GetStringFromIndex(parameterDefinition->nameIndex);
                     newParameter->position = paramIndex;
                     newParameter->token = parameterDefinition->token;
-                    newParameter->customAttributeIndex = parameterDefinition->customAttributeIndex;
                     newParameter->parameter_type = MetadataCache::GetIl2CppTypeFromIndex(parameterDefinition->typeIndex);
 
                     newParameter++;
                 }
                 newMethod->parameters = parameters;
 
-                newMethod->customAttributeIndex = methodDefinition->customAttributeIndex;
                 newMethod->flags = methodDefinition->flags;
                 newMethod->iflags = methodDefinition->iflags;
                 newMethod->slot = methodDefinition->slot;
@@ -1265,7 +1262,6 @@ namespace vm
                 if (eventDefinition->raise != kMethodIndexInvalid)
                     newEvent->raise = klass->methods[eventDefinition->raise];
 
-                newEvent->customAttributeIndex = eventDefinition->customAttributeIndex;
                 newEvent->token = eventDefinition->token;
 
                 newEvent++;
@@ -1317,7 +1313,6 @@ namespace vm
                     newProperty->set = klass->methods[propertyDefinition->set];
 
                 newProperty->attrs = propertyDefinition->attrs;
-                newProperty->customAttributeIndex = propertyDefinition->customAttributeIndex;
                 newProperty->token = propertyDefinition->token;
 
                 newProperty++;
