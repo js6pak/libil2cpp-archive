@@ -100,6 +100,5 @@ typedef enum Il2CppCallConvention
 typedef enum Il2CppCharSet
 {
     CHARSET_ANSI,
-    CHARSET_UNICODE,
-    CHARSET_NOT_SPECIFIED
+    CHARSET_UNICODE
 } Il2CppCharSet;

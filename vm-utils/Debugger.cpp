@@ -8,6 +8,7 @@
 #include "os/Thread.h"
 #include "os/c-api/Allocator.h"
 #include "vm/MetadataCache.h"
+#include "vm/Method.h"
 #include "vm/Thread.h"
 #include "utils/Environment.h"
 #include "utils/dynamic_array.h"
@@ -24,8 +25,7 @@ static il2cpp::os::ThreadLocalValue s_ExecutionContexts; // il2cpp::utils::dynam
 
 struct MonoDebuggerRuntimeCallbacks
 {
-    void(*il2cpp_debugger_save_thread_context)(Il2CppThreadUnwindState* context, int frameCountAdjust);
-    void(*il2cpp_debugger_free_thread_context)(Il2CppThreadUnwindState* context);
+    void(*il2cpp_debugger_save_thread_context)(Il2CppThreadUnwindState* context);
     void (*set_global_breakpoint_active)();
 };
 
@@ -48,7 +48,6 @@ void mono_debugger_agent_user_break();
 int32_t mono_debugger_agent_debug_log_is_enabled();
 void mono_debugger_agent_debug_log(int level, Il2CppString *category, Il2CppString *message);
 int32_t unity_sequence_point_active(Il2CppSequencePoint *seqPoint);
-void il2cpp_save_current_thread_context_func_exit();
 }
 
 static const Il2CppDebuggerMetadataRegistration *g_metadata;
@@ -96,7 +95,6 @@ namespace utils
 
         MonoDebuggerRuntimeCallbacks cbs;
         cbs.il2cpp_debugger_save_thread_context = Debugger::SaveThreadContext;
-        cbs.il2cpp_debugger_free_thread_context = Debugger::FreeThreadContext;
         mono_debugger_install_runtime_callbacks(&cbs);
 
         il2cpp::utils::Debugger::RegisterCallbacks(breakpoint_callback);
@@ -197,52 +195,7 @@ namespace utils
 #endif
     }
 
-    void Debugger::SaveThreadContext(Il2CppThreadUnwindState* context, int frameCountAdjust)
-    {
-        if (!s_IsDebuggerInitialized)
-            return;
-
-        IL2CPP_ASSERT(!IsDebuggerThread(os::Thread::GetCurrentThread()));
-
-        il2cpp::utils::dynamic_array<Il2CppSequencePointExecutionContext*>* executionContexts;
-        s_ExecutionContexts.GetValue(reinterpret_cast<void**>(&executionContexts));
-
-        std::deque<Il2CppSequencePoint*>* sequencePoints;
-        s_SequencePoints.GetValue(reinterpret_cast<void**>(&sequencePoints));
-
-        int frameCount = ((int)std::min(executionContexts->size(), sequencePoints->size())) + frameCountAdjust;
-        if (frameCount < 0)
-            frameCount = 0;
-
-        if ((uint32_t)frameCount > context->frameCapacity)
-        {
-            if (context->sequencePoints != NULL)
-            {
-                free(context->sequencePoints);
-                context->sequencePoints = NULL;
-            }
-
-            if (context->executionContexts != NULL)
-            {
-                free(context->executionContexts);
-                context->executionContexts = NULL;
-            }
-
-            context->sequencePoints = (Il2CppSequencePoint**)malloc(frameCount * sizeof(Il2CppSequencePoint*));
-            context->executionContexts = (Il2CppSequencePointExecutionContext**)malloc(frameCount * sizeof(Il2CppSequencePointExecutionContext*));
-            context->frameCapacity = frameCount;
-        }
-
-        context->frameCount = frameCount;
-
-        for (int i = 0; i < frameCount; ++i)
-        {
-            context->sequencePoints[i] = (*sequencePoints)[i];
-            context->executionContexts[i] = (*executionContexts)[i];
-        }
-    }
-
-    void Debugger::FreeThreadContext(Il2CppThreadUnwindState* context)
+    void Debugger::SaveThreadContext(Il2CppThreadUnwindState* context)
     {
         if (!s_IsDebuggerInitialized)
             return;
@@ -250,18 +203,28 @@ namespace utils
         IL2CPP_ASSERT(!IsDebuggerThread(os::Thread::GetCurrentThread()));
 
         if (context->sequencePoints != NULL)
-        {
             free(context->sequencePoints);
-            context->sequencePoints = NULL;
-        }
-
         if (context->executionContexts != NULL)
-        {
             free(context->executionContexts);
-            context->executionContexts = NULL;
-        }
 
-        context->frameCount = 0;
+        il2cpp::utils::dynamic_array<Il2CppSequencePointExecutionContext*>* executionContexts;
+        s_ExecutionContexts.GetValue(reinterpret_cast<void**>(&executionContexts));
+
+        std::deque<Il2CppSequencePoint*>* sequencePoints;
+        s_SequencePoints.GetValue(reinterpret_cast<void**>(&sequencePoints));
+
+        context->frameCount = (uint32_t)std::min(executionContexts->size(), sequencePoints->size());
+        if (context->frameCount > 0)
+        {
+            context->sequencePoints = (Il2CppSequencePoint**)malloc(context->frameCount * sizeof(Il2CppSequencePoint*));
+            context->executionContexts = (Il2CppSequencePointExecutionContext**)malloc(context->frameCount * sizeof(Il2CppSequencePointExecutionContext*));
+
+            for (size_t i = 0; i < context->frameCount; ++i)
+            {
+                context->sequencePoints[i] = (*sequencePoints)[i];
+                context->executionContexts[i] = (*executionContexts)[i];
+            }
+        }
     }
 
     void Debugger::OnBreakPointHit(Il2CppSequencePoint *sequencePoint)
@@ -495,8 +458,8 @@ namespace utils
             if (spMethod != NULL)
             {
                 const MethodInfo *method = spMethod;
-                if (method->is_inflated)
-                    method = method->genericMethod->methodDefinition;
+
+                IL2CPP_ASSERT(!method->is_inflated && "Only open generic methods should have sequence points");
 
                 SequencePointList* list;
                 MethodToSequencePointsMap::iterator existingList = s_methodToSequencePoints.find(method);
@@ -560,25 +523,30 @@ namespace utils
         if (seqPoint == NULL)
             return NULL;
 
-        if (seqPoint->method_)
-            return seqPoint->method_;
+        return il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex(seqPoint->methodDefinitionIndex);
+    }
 
-        seqPoint->method_ = il2cpp::vm::MetadataCache::GetMethodInfoFromIndex(seqPoint->methodMetadataIndex);
-        return seqPoint->method_;
+    void Debugger::GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes)
+    {
+        if (il2cpp::vm::Method::IsInflated(method))
+            method = il2cpp::vm::MetadataCache::GetGenericMethodDefinition(method);
+
+        int methodIndex = il2cpp::vm::MetadataCache::GetIndexForMethodDefinition(method);
+        Il2CppMethodExecutionContextInfoIndex *index = &g_metadata->methodExecutionContextInfoIndexes[methodIndex];
+        if (index->count != -1)
+        {
+            *executionContextInfoCount = index->count;
+            *executionContextInfo = &g_metadata->methodExecutionContextInfos[index->tableIndex][index->startIndex];
+        }
+        else
+        {
+            *executionContextInfoCount = 0;
+            *executionContextInfo = NULL;
+        }
+        *headerInfo = &g_metadata->methodHeaderInfos[methodIndex];
+        *scopes = &g_metadata->methodScopes[(*headerInfo)->startScope];
     }
 }
-}
-
-Il2CppSequencePointExecutionContext::Il2CppSequencePointExecutionContext(void** values)
-    : values(values)
-{
-    il2cpp::utils::Debugger::PushExecutionContext(this);
-}
-
-Il2CppSequencePointExecutionContext::~Il2CppSequencePointExecutionContext()
-{
-    il2cpp::utils::Debugger::PopExecutionContext();
-    il2cpp_save_current_thread_context_func_exit();
 }
 
 #else

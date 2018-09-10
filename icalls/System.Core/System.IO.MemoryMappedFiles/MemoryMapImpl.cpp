@@ -85,14 +85,13 @@ namespace MemoryMappedFiles
         MmapInstance* h = (MmapInstance*)IL2CPP_MALLOC_ZERO(sizeof(MmapInstance));
 
         os::MemoryMappedFileError error = os::NO_MEMORY_MAPPED_FILE_ERROR;
-        int64_t actualOffset = offset;
-        h->address = os::MemoryMappedFile::View((os::FileHandle*)handle, size, offset, (os::MemoryMappedFileAccess)access, &actualOffset, &error);
+        h->address = os::MemoryMappedFile::View((os::FileHandle*)handle, size, offset, (os::MemoryMappedFileAccess)access, &error);
         h->length = (size_t)*size;
 
         if (h->address)
         {
             *mmap_handle = (intptr_t)h;
-            *base_address = (intptr_t)((char*)h->address + (offset - actualOffset));
+            *base_address = (intptr_t)((char*)h->address + offset);
         }
         else
         {
@@ -105,8 +104,7 @@ namespace MemoryMappedFiles
     static os::FileHandle* OpenHandle(os::FileHandle* handle, Il2CppString* mapName, os::MemoryMappedFileMode mode, int64_t* capacity, int32_t access, int32_t options, int32_t* error)
     {
         os::MemoryMappedFileError memoryMappedFileError = os::NO_MEMORY_MAPPED_FILE_ERROR;
-        std::string utf8MapNameString = mapName != NULL ? utils::StringUtils::Utf16ToUtf8(mapName->chars) : std::string();
-        const char* utf8MapName = !utf8MapNameString.empty() ? utf8MapNameString.c_str() : NULL;
+        const char* utf8MapName = mapName != NULL ? utils::StringUtils::Utf16ToUtf8(mapName->chars).c_str() : NULL;
         os::FileHandle* memoryMappedFileData = os::MemoryMappedFile::Create(handle, utf8MapName, mode, capacity, (os::MemoryMappedFileAccess)access, options, &memoryMappedFileError);
 
         *error = (int32_t)memoryMappedFileError;
