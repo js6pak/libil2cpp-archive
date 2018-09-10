@@ -147,9 +147,9 @@ namespace vm
         static Il2CppClass* InflateGenericClass(Il2CppClass* klass, Il2CppGenericContext *context);
         static const Il2CppType* InflateGenericType(const Il2CppType* type, Il2CppGenericContext *context);
 
-        static Il2CppClass* GetArrayClassCached(Il2CppClass *element_class, uint32_t rank, bool bounded)
+        static Il2CppClass* GetArrayClassCached(Il2CppClass *element_class, uint32_t rank)
         {
-            return GetBoundedArrayClass(element_class, rank, bounded);
+            return GetArrayClass(element_class, rank);
         }
 
         static const Il2CppGenericContainer* GetGenericContainer(Il2CppClass *klass);

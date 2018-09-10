@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
+#include "gc/GarbageCollector.h"
 #include "icalls/mscorlib/System.Reflection/MonoField.h"
 #include "utils/StringUtils.h"
 #include "vm/Class.h"
@@ -49,7 +50,6 @@ namespace Reflection
     {
         FieldInfo* fieldInfo = field->field;
         Il2CppClass* fieldType = Class::FromIl2CppType(fieldInfo->type);
-        vm::Class::Init(fieldType);
 
 #ifndef NET_4_0 //This check is done in managed code in .NET 4.5+
         if (value != NULL && !Class::IsAssignableFrom(fieldType, value->klass))
@@ -115,6 +115,7 @@ namespace Reflection
         else
         {
             memcpy(fieldAddress, &value, sizeof(Il2CppObject*));
+            il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)fieldAddress);
         }
     }
 

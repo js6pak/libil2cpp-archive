@@ -33,12 +33,10 @@ namespace utils
         if (error != 0)
             return NULL;
 
-        int64_t actualOffset = offset;
-        void* address = os::MemoryMappedFile::View(mappedFileHandle, &length, offset, (os::MemoryMappedFileAccess)access, &actualOffset, &error);
+        void* address = os::MemoryMappedFile::View(mappedFileHandle, &length, offset, (os::MemoryMappedFileAccess)access, &error);
 
         if (address != NULL)
         {
-            address = (uint8_t*)address + (offset - actualOffset);
             s_MappedAddressToMappedFileObject[address] = mappedFileHandle;
             s_MappedAddressToMappedLength[address] = length;
         }
