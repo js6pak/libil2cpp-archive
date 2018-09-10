@@ -189,10 +189,14 @@ namespace Threading
 
         // use fixed GC memory since we are storing managed object pointers
         StartData* startData = (StartData*)GarbageCollector::AllocateFixed(sizeof(StartData), NULL);
+
         startData->m_Thread = thisPtr;
+        GarbageCollector::SetWriteBarrier((void**)&startData->m_Thread);
         startData->m_Domain = Domain::GetCurrent();
         startData->m_Delegate = start;
+        GarbageCollector::SetWriteBarrier((void**)&startData->m_Delegate);
         startData->m_StartArg = thisPtr->start_obj;
+        GarbageCollector::SetWriteBarrier((void**)&startData->m_StartArg);
         startData->m_Semaphore = new il2cpp::os::Semaphore(0);
 
         il2cpp::os::Thread* thread = new il2cpp::os::Thread();
