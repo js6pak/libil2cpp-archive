@@ -179,7 +179,9 @@ namespace vm
 
     Il2CppClass* Class::FromSystemType(Il2CppReflectionType *type)
     {
-        return Class::FromIl2CppType(type->type);
+        Il2CppClass *klass = Class::FromIl2CppType(type->type);
+        Class::Init(klass);
+        return klass;
     }
 
     static void SetupInterfacesLocked(Il2CppClass* klass, const FastAutoLock& lock)
