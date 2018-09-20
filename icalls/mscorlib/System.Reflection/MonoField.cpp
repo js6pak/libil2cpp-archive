@@ -50,6 +50,7 @@ namespace Reflection
     {
         FieldInfo* fieldInfo = field->field;
         Il2CppClass* fieldType = Class::FromIl2CppType(fieldInfo->type);
+        vm::Class::Init(fieldType);
 
 #ifndef NET_4_0 //This check is done in managed code in .NET 4.5+
         if (value != NULL && !Class::IsAssignableFrom(fieldType, value->klass))
