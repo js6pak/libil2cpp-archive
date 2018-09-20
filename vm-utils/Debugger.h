@@ -32,7 +32,8 @@ namespace utils
         static void PopSequencePoint();
         typedef void (*OnBreakPointHitCallback) (Il2CppSequencePoint* sequencePoint);
         static void RegisterCallbacks(OnBreakPointHitCallback callback);
-        static void SaveThreadContext(Il2CppThreadUnwindState* context);
+        static void SaveThreadContext(Il2CppThreadUnwindState* context, int frameCountAdjust);
+        static void FreeThreadContext(Il2CppThreadUnwindState* context);
         static void OnBreakPointHit(Il2CppSequencePoint *sequencePoint);
         static bool IsGlobalBreakpointActive();
         static bool GetIsDebuggerAttached();
@@ -70,20 +71,8 @@ typedef struct Il2CppSequencePointExecutionContext
     void** locals;
 
 #ifdef __cplusplus
-    Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params,  void** locals)
-        : method(method),
-        thisArg(thisArg),
-        params(params),
-        locals(locals)
-    {
-        il2cpp::utils::Debugger::PushExecutionContext(this);
-    }
-
-    ~Il2CppSequencePointExecutionContext()
-    {
-        il2cpp::utils::Debugger::PopExecutionContext();
-    }
-
+    Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals);
+    ~Il2CppSequencePointExecutionContext();
 #endif //__cplusplus
 } Il2CppSequencePointExecutionContext;
 
@@ -92,4 +81,5 @@ typedef struct Il2CppThreadUnwindState
     Il2CppSequencePoint** sequencePoints;
     Il2CppSequencePointExecutionContext** executionContexts;
     uint32_t frameCount;
+    uint32_t frameCapacity;
 } Il2CppThreadUnwindState;
