@@ -74,8 +74,12 @@ namespace utils
 #if IL2CPP_TARGET_ANDROID
     #if defined(__i386__)
         std::string symbolMapFileName = "SymbolMap-x86";
-    #else
+    #elif defined(__arm__)
         std::string symbolMapFileName = "SymbolMap-ARMv7";
+    #elif defined(__aarch64__)
+        std::string symbolMapFileName = "SymbolMap-ARM64";
+    #else
+        #error Unknown symbol map file name
     #endif
 #else
     #if !IL2CPP_CAN_USE_MULTIPLE_SYMBOL_MAPS

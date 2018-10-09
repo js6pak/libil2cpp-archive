@@ -1376,6 +1376,16 @@
     <ClInclude Include="os\ThreadLocalValue.h" />
     <ClInclude Include="os\Time.h" />
     <ClInclude Include="os\TimeZone.h" />
+    <ClInclude Include="os\Unity\AtomicNode.h" />
+    <ClInclude Include="os\Unity\AtomicQueue.h" />
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-arm.h" />
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-arm64.h" />
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-clang-gcc.h" />
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-x86-64.h" />
+    <ClInclude Include="os\Unity\ExtendedAtomicOps-x86.h" />
+    <ClInclude Include="os\Unity\ExtendedAtomicOps.h" />
+    <ClInclude Include="os\Unity\ExtendedAtomicTypes.h" />
+    <ClInclude Include="os\Unity\UnityPlatformConfigure.h" />
     <ClInclude Include="os\WaitStatus.h" />
     <ClInclude Include="os\Win32\AtomicImpl.h" />
     <ClInclude Include="os\Win32\ConditionVariableImpl.h" />
@@ -1730,6 +1740,7 @@
     <ClCompile Include="os\Posix\Process.cpp" />
     <ClCompile Include="os\Posix\SocketImpl.cpp" />
     <ClCompile Include="os\Socket.cpp" />
+    <ClCompile Include="os\Unity\AtomicQueue.cpp" />
     <ClCompile Include="os\Win32\COM.cpp" />
     <ClCompile Include="os\Win32\ConditionVariableImpl.cpp" />
     <ClCompile Include="os\Win32\Console.cpp" />
