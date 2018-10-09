@@ -77,7 +77,7 @@ namespace os
     int64_t Time::GetTicks100NanosecondsMonotonic()
     {
         struct timeval tv;
-#if defined(CLOCK_MONOTONIC) && !defined(IL2CPP_TARGET_DARWIN)
+#if defined(CLOCK_MONOTONIC) && !IL2CPP_TARGET_DARWIN
         struct timespec tspec;
         static struct timespec tspec_freq = {0};
         static int can_use_clock = 0;

@@ -831,6 +831,9 @@
     <ClCompile Include="os\Handle.cpp">
       <Filter>os</Filter>
     </ClCompile>
+    <ClCompile Include="os\Unity\AtomicQueue.cpp">
+      <Filter>os\Unity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blob.h" />
@@ -1794,7 +1797,6 @@
     <ClInclude Include="os\c-api\WaitStatus-c-api.h">
       <Filter>os\c-api</Filter>
     </ClInclude>
-    <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="os\c-api\Allocator.h" />
     <ClInclude Include="os\c-api\Console.cpp" />
     <ClInclude Include="il2cpp-config-api.h" />

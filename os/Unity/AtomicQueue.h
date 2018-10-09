@@ -9,7 +9,7 @@ UNITY_PLATFORM_BEGIN_NAMESPACE;
 
     #define ATOMIC_HAS_QUEUE    2
 
-#elif defined(__arm64__) && (defined(__clang__) || defined(__GNUC__))
+#elif (defined(__arm64__) || defined(__aarch64__)) && (defined(__clang__) || defined(__GNUC__))
 
     #define ATOMIC_HAS_QUEUE    1
 

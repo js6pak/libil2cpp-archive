@@ -50,7 +50,6 @@ namespace posix
         pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
         pthread_cond_init(&m_Condition, &attr);
         pthread_condattr_destroy(&attr);
-        pthread_cond_init(&m_Condition, NULL);
 #else
         // On OSX and iOS we can use pthread_cond_timedwait_relative_np.
         pthread_cond_init(&m_Condition, NULL);
@@ -135,14 +134,18 @@ namespace posix
                     else
                     {
                         // Timed wait. Can be interrupted by APC or timeout.
-                        uint32_t waitStartTime = Time::GetTicksMillisecondsMonotonic();
+                        const int64_t waitStartTime = Time::GetTicks100NanosecondsMonotonic();
                         timespec timeout = posix::MillisecondsToTimespec(remainingWaitTime);
 
 #if !IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-                        ////NOTE: this codepath has not been tested!
-                        timespec waitStartTimeSpec = posix::MillisecondsToTimespec(waitStartTime);
+                        timespec waitStartTimeSpec = posix::Ticks100NanosecondsToTimespec(waitStartTime);
                         timeout.tv_sec += waitStartTimeSpec.tv_sec;
                         timeout.tv_nsec += waitStartTimeSpec.tv_nsec;
+                        if (timeout.tv_nsec >= 1000000000)
+                        {
+                            timeout.tv_nsec -= 1000000000;
+                            ++timeout.tv_sec;
+                        }
 #endif
 
                         ++m_WaitingThreadCount;
@@ -167,7 +170,7 @@ namespace posix
                         }
 
                         // Update time we have have left to wait.
-                        uint32_t waitTimeThisRound = Time::GetTicksMillisecondsMonotonic() - waitStartTime;
+                        const uint32_t waitTimeThisRound = (Time::GetTicks100NanosecondsMonotonic() - waitStartTime) / 10000;
                         if (waitTimeThisRound > remainingWaitTime)
                             remainingWaitTime = 0;
                         else
