@@ -105,7 +105,7 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
 
 #   include "ExtendedAtomicOps-x86.h"
 
-#elif defined(__arm64__) && (defined(__clang__) || defined(__GNUC__))
+#elif (defined(__arm64__) || defined(__aarch64__)) && (defined(__clang__) || defined(__GNUC__))
 
 #   include "ExtendedAtomicOps-arm64.h"
 #   define UNITY_ATOMIC_INT_OVERLOAD
