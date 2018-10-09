@@ -167,7 +167,7 @@
         #define IL2CPP_SIZEOF_VOID_P 4
     #elif defined(__arm__)
         #define IL2CPP_SIZEOF_VOID_P 4
-    #elif defined(__arm64__)
+    #elif defined(__arm64__) || defined(__aarch64__)
         #define IL2CPP_SIZEOF_VOID_P 8
     #else
         #error invalid windows architecture
