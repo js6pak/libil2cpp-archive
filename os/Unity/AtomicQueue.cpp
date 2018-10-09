@@ -74,7 +74,7 @@ void AtomicStack::Push(AtomicNode* node)
     }
     while (!atomic_compare_exchange_strong_explicit(&_top, &top, newtop, memory_order_release, memory_order_relaxed));
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* top;
     long success;
@@ -194,7 +194,7 @@ void AtomicStack::PushAll(AtomicNode* first, AtomicNode* last)
     }
     while (!atomic_compare_exchange_strong_explicit(&_top, &top, newtop, memory_order_release, memory_order_relaxed));
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* top;
     long success;
@@ -320,7 +320,7 @@ AtomicNode* AtomicStack::Pop()
 
     return node;
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* top = NULL;
     AtomicNode* tmp;
@@ -470,7 +470,7 @@ AtomicNode* AtomicStack::PopAll()
 
     return node;
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* top;
     AtomicNode* tmp;
@@ -661,7 +661,7 @@ void AtomicQueue::Enqueue(AtomicNode* node)
     prev = (AtomicNode*)atomic_exchange_explicit(&_head, (atomic_word)node, memory_order_release);
     atomic_store_explicit(&prev->_next, (atomic_word)node, memory_order_release);
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* head;
     long success;
@@ -769,7 +769,7 @@ void AtomicQueue::EnqueueAll(AtomicNode* first, AtomicNode* last)
     prev = (AtomicNode*)atomic_exchange_explicit(&_head, (atomic_word)last, memory_order_release);
     atomic_store_explicit(&prev->_next, (atomic_word)first, memory_order_release);
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* head;
     long success;
@@ -897,7 +897,7 @@ AtomicNode* AtomicQueue::Dequeue()
 
     return res;
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* tail;
     AtomicNode* tmp;
@@ -1230,7 +1230,7 @@ bool AtomicList::Add(AtomicNode *first, AtomicNode *last, atomic_word tag)
     }
     return res;
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* res;
     AtomicNode* tmp;
@@ -1430,7 +1430,7 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
         return NULL;
     }
 
-#elif defined(__arm64__)
+#elif defined(__arm64__) || defined(__aarch64__)
 
     AtomicNode* res;
     AtomicNode* tmp;
@@ -1669,7 +1669,7 @@ void AtomicList::Relax()
 #elif PLATFORM_SWITCH
     // The embedded asm for arm64 seems to be ignored(!) by Switch's compiler. So, we do something different.
     NXAtomicListRelax();
-#elif (defined(__arm64__) || (defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)))) && (defined(__clang__) || defined(__GNUC__))
+#elif (defined(__arm64__) || defined(__aarch64__) || (defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)))) && (defined(__clang__) || defined(__GNUC__))
     // could be interesting to use wfe/sev instead of a semaphore
     __asm__ __volatile__ ("yield");
 #elif PLATFORM_PSVITA
