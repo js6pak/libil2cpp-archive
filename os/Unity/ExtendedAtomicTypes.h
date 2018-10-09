@@ -51,7 +51,7 @@ union atomic_word2
 };
     #define ATOMIC_HAS_DCAS
 
-#elif defined(__arm64__) && (defined(__clang__) || defined(__GNUC__))
+#elif (defined(__arm64__) || defined(__aarch64__))  && (defined(__clang__) || defined(__GNUC__))
 
 typedef long long atomic_word;
 struct atomic_word2

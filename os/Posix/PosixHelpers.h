@@ -14,6 +14,14 @@ namespace os
 {
 namespace posix
 {
+    inline timespec Ticks100NanosecondsToTimespec(int64_t ticks)
+    {
+        timespec result;
+        result.tv_sec = ticks / 10000000;
+        result.tv_nsec = (ticks % 10000000) * 100;
+        return result;
+    }
+
     inline timespec MillisecondsToTimespec(uint32_t ms)
     {
         timespec result;
