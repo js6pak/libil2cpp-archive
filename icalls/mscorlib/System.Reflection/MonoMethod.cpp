@@ -134,7 +134,7 @@ namespace Reflection
             }
 
             // method is inflated because it's owner is a generic instance type, extract method definition out of the method
-            IL2CPP_ASSERT(methodInfo->is_generic);
+            IL2CPP_ASSERT(methodInfo->is_generic || methodInfo->is_inflated);
             methodInfo = methodInfo->genericMethod->methodDefinition;
         }
 
