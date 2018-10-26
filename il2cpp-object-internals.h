@@ -105,9 +105,9 @@ typedef struct Il2CppArraySize
     ALIGN_TYPE(8) void* vector[IL2CPP_ZERO_LEN_ARRAY];
 } Il2CppArraySize;
 
-const size_t kIl2CppSizeOfArray = (offsetof(Il2CppArraySize, vector));
-const size_t kIl2CppOffsetOfArrayBounds = (offsetof(Il2CppArray, bounds));
-const size_t kIl2CppOffsetOfArrayLength = (offsetof(Il2CppArray, max_length));
+static const size_t kIl2CppSizeOfArray = (offsetof(Il2CppArraySize, vector));
+static const size_t kIl2CppOffsetOfArrayBounds = (offsetof(Il2CppArray, bounds));
+static const size_t kIl2CppOffsetOfArrayLength = (offsetof(Il2CppArray, max_length));
 
 
 // System.String
@@ -678,37 +678,10 @@ typedef struct Il2CppMarshalByRefObject
 } Il2CppMarshalByRefObject;
 
 #ifdef __cplusplus
-struct QICache
-{
-    const Il2CppGuid* iid;
-    Il2CppIUnknown* qiResult;
-};
-
 // System.__Il2CppComObject (dummy type that replaces System.__ComObject)
 struct Il2CppComObject : Il2CppObject
 {
     Il2CppIUnknown* identity;
-
-    QICache qiShortCache[8];
-    QICache* qiLongCache;
-    int32_t qiShortCacheSize;
-    int32_t qiLongCacheSize;
-    int32_t qiLongCacheCapacity;
-
-    // Same native object can be marshaled to managed code several times. If that happens,
-    // we have to marshal it to the same RCW (same Il2CppComObject). We use a map of
-    // IUnknown pointer -> weak GC handles to achieve it, and that works. When managed code
-    // stops referencing the RCW, GC just garbage collects it and the finalizer will clean it
-    // from our map. So far so good, eh?
-    //
-    // Enter Marshal.ReleaseComObject. This beast is designed to release the underlying COM object,
-    // but ONLY after we used N amount of times (where N is the amount of times we marshaled
-    // IUnknown into Il2CppComObject). In order to make it work, we need to implement ref counting.
-    // This ref count gets incremented each time we marshal IUnknown to Il2CppComObject,
-    // and gets decremented when Marshal.ReleaseComObject gets called. Fortunately, since we
-    // live in a world of fairies and garbage collectors, we don't actually have to release it
-    // manually in order for it to get cleaned up automatically in the future.
-    volatile int32_t refCount;
 };
 #endif //__cplusplus
 

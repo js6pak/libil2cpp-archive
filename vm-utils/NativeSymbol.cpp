@@ -12,7 +12,6 @@
 #include "utils/MemoryMappedFile.h"
 #include "utils/Runtime.h"
 #include <string>
-#include <cstdlib>
 
 namespace il2cpp
 {
@@ -53,7 +52,6 @@ namespace utils
     static SymbolInfo* s_SymbolInfos;
     static void* s_ImageBase;
 
-#if !RUNTIME_TINY
     static void* LoadSymbolInfoFileFrom(const std::string& path)
     {
         int error;
@@ -71,13 +69,8 @@ namespace utils
         return mappedFile;
     }
 
-#endif //!RUNTIME_TINY
-
     static void* LoadSymbolInfoFile()
     {
-#if RUNTIME_TINY
-        return NULL;
-#else
 #if IL2CPP_TARGET_ANDROID
     #if defined(__i386__)
         std::string symbolMapFileName = "SymbolMap-x86";
@@ -105,22 +98,20 @@ namespace utils
             return result;
 
         return LoadSymbolInfoFileFrom(il2cpp::utils::PathUtils::Combine(utils::Runtime::GetDataDir(), symbolMapFileName));
-#endif
     }
 
     static void InitializeSymbolInfos()
     {
         s_ImageBase = il2cpp::os::Image::GetImageBase();
 
-        if (!il2cpp::os::Image::ManagedSectionExists())
-        {
-            void* fileBuffer = LoadSymbolInfoFile();
-            if (fileBuffer == NULL)
-                return;
+#if !IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+        void* fileBuffer = LoadSymbolInfoFile();
+        if (fileBuffer == NULL)
+            return;
 
-            s_SymbolCount = *((int32_t*)fileBuffer);
-            s_SymbolInfos = (SymbolInfo*)((uint8_t*)fileBuffer + sizeof(s_SymbolCount));
-        }
+        s_SymbolCount = *((int32_t*)fileBuffer);
+        s_SymbolInfos = (SymbolInfo*)((uint8_t*)fileBuffer + sizeof(s_SymbolCount));
+#endif
     }
 
     static bool CompareEndOfSymbols(const SymbolInfo &a, const SymbolInfo &b)
@@ -129,15 +120,6 @@ namespace utils
     }
 
     static bool s_TriedToInitializeSymbolInfo = false;
-
-    static bool IsInstructionPointerProbablyInManagedMethod(Il2CppMethodPointer managedMethodStart, Il2CppMethodPointer instructionPointer)
-    {
-        const int probableMaximumManagedMethodSizeInBytes = 5000;
-        if (std::abs((intptr_t)managedMethodStart - (intptr_t)instructionPointer) < probableMaximumManagedMethodSizeInBytes)
-            return true;
-
-        return false;
-    }
 
     const VmMethod* NativeSymbol::GetMethodFromNativeSymbol(Il2CppMethodPointer nativeMethod)
     {
@@ -153,11 +135,10 @@ namespace utils
         if ((void*)nativeMethod < (void*)s_ImageBase)
             return NULL;
 
-        if (il2cpp::os::Image::ManagedSectionExists())
-        {
-            if (!il2cpp::os::Image::IsInManagedSection((void*)nativeMethod))
-                return NULL;
-        }
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+        if (!il2cpp::os::Image::IsInManagedSection((void*)nativeMethod))
+            return NULL;
+#endif
 
         if (s_SymbolCount > 0)
         {
@@ -203,14 +184,10 @@ namespace utils
             // will find the proper method, so the end iterator means we found the last method in this list. If we
             // don't have custom sections, then we may have actually not found the method. In that case, let's not
             // return a method we are unsure of.
-            if (!il2cpp::os::Image::ManagedSectionExists())
-            {
-                if (methodAfterNativeMethod == s_NativeMethods.end())
-                    return NULL;
-
-                if (!IsInstructionPointerProbablyInManagedMethod(methodAfterNativeMethod->method, nativeMethod))
-                    return NULL;
-            }
+#if !IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+            if (methodAfterNativeMethod == s_NativeMethods.end())
+                return NULL;
+#endif
 
             // Go back one to get the method we actually want.
             if (methodAfterNativeMethod != s_NativeMethods.begin())

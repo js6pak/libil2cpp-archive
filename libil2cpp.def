@@ -90,6 +90,11 @@ il2cpp_gc_enable
 il2cpp_gc_get_used_size
 il2cpp_gc_get_heap_size
 
+il2cpp_gc_wbarrier_set_field 
+il2cpp_gc_has_strict_wbarriers 
+il2cpp_gc_set_external_allocation_tracker
+il2cpp_gc_set_external_wbarrier_tracker
+
 il2cpp_gchandle_new
 il2cpp_gchandle_new_weakref
 il2cpp_gchandle_get_target
@@ -154,8 +159,5 @@ il2cpp_type_get_name
 il2cpp_type_equals
 
 il2cpp_unity_install_unitytls_interface
-
-DllGetActivationFactory
-DllCanUnloadNow
 
 ____visualizerHelpersPreventLinkerStripping @65535 NONAME DATA

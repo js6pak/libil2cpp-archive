@@ -210,7 +210,7 @@ namespace vm
                 Il2CppGenericMethod gmethod;
                 gmethod.context = method->genericMethod->context;
                 gmethod.methodDefinition = itfMethod;
-                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod);
             }
             else
             {
@@ -226,7 +226,7 @@ namespace vm
             Il2CppGenericMethod gmethod;
             gmethod.context = method->genericMethod->context;
             gmethod.methodDefinition = obj->klass->vtable[method->slot].method;
-            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod);
         }
         else
         {
@@ -252,9 +252,12 @@ namespace vm
             const Il2CppGuid* iid = klass->interopData->guid;
             if (iid != NULL)
             {
-                Il2CppIUnknown* unknown = RCW::QueryInterfaceNoAddRef<false>(static_cast<Il2CppComObject*>(obj), *iid);
+                Il2CppIUnknown* unknown = RCW::QueryInterface<false>(static_cast<Il2CppComObject*>(obj), *iid);
                 if (unknown)
+                {
+                    unknown->Release();
                     return static_cast<Il2CppComObject*>(obj);
+                }
             }
         }
 

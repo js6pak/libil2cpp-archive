@@ -688,37 +688,37 @@ inline MethodBase_t* il2cpp_codegen_get_method_object(const RuntimeMethod* metho
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*, const RuntimeMethod*);
+    typedef Type_t* (*getTypeFuncType)(String_t*);
     MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, assemblyName);
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, NULL);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, NULL);
+        return ((getTypeFuncType)getTypeFunction)(typeName);
     return type;
 }
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool, const RuntimeMethod*);
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool);
     MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, assemblyName);
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, NULL);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, NULL);
+        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError);
     return type;
 }
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool, const RuntimeMethod*);
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool);
     MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, assemblyName);
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase, NULL);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, ignoreCase, NULL);
+        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, ignoreCase);
     return type;
 }
 
@@ -743,20 +743,6 @@ inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* n
 }
 
 // COM
-
-template<typename T>
-inline T* il2cpp_codegen_com_query_interface(Il2CppComObject* rcw)
-{
-    IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
-    return NULL;
-}
-
-template<typename T>
-inline T* il2cpp_codegen_com_query_interface_no_throw(Il2CppComObject* rcw)
-{
-    IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
-    return NULL;
-}
 
 inline void il2cpp_codegen_com_marshal_variant(RuntimeObject* obj, Il2CppVariant* variant)
 {

@@ -1,11 +1,6 @@
-#include "il2cpp-config.h"
-
-#if !IL2CPP_TARGET_WINDOWS
-
-#include "os/Handle.h"
-
 #include <algorithm>
-#include "os/Thread.h"
+#include "Handle.h"
+#include "Thread.h"
 
 namespace il2cpp
 {
@@ -57,5 +52,3 @@ namespace os
     }
 } // namespace os
 } // naemspace il2cpp
-
-#endif

@@ -3,7 +3,9 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
+#endif
 #define INC_OLE2 1
 #include <Windows.h>
 #include <Objidl.h>

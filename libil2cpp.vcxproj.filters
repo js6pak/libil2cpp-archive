@@ -273,6 +273,8 @@
     <ClCompile Include="os\Win32\Path.cpp">
       <Filter>os\Win32</Filter>
     </ClCompile>
+    <ClCompile Include="os\Generic\Process.cpp">
+      <Filter>os\Generic</Filter>
     <ClCompile Include="os\Generic\SocketImpl.cpp">
       <Filter>os\Generic</Filter>
     </ClCompile>
@@ -324,43 +326,40 @@
     <ClCompile Include="os\Win32\StackTrace.cpp">
       <Filter>os\Win32</Filter>
     </ClCompile>
-    <ClCompile Include="externals\MonoPosixHelper.cpp">
-      <Filter>externals</Filter>
-    </ClCompile>
-    <ClCompile Include="external\zlib\adler32.c">
+    <ClCompile Include="..\external\zlib\adler32.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\compress.c">
+    <ClCompile Include="..\external\zlib\compress.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\crc32.c">
+    <ClCompile Include="..\external\zlib\crc32.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\deflate.c">
+    <ClCompile Include="..\external\zlib\deflate.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\gzio.c">
+    <ClCompile Include="..\external\zlib\gzio.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\infback.c">
+    <ClCompile Include="..\external\zlib\infback.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\inffast.c">
+    <ClCompile Include="..\external\zlib\inffast.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\inflate.c">
+    <ClCompile Include="..\external\zlib\inflate.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\inftrees.c">
+    <ClCompile Include="..\external\zlib\inftrees.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\trees.c">
+    <ClCompile Include="..\external\zlib\trees.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\uncompr.c">
+    <ClCompile Include="..\external\zlib\uncompr.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
-    <ClCompile Include="external\zlib\zutil.c">
+    <ClCompile Include="..\external\zlib\zutil.c">
       <Filter>external\zlib</Filter>
     </ClCompile>
     <ClCompile Include="os\Posix\PosixWaitObject.cpp">
@@ -731,7 +730,7 @@
     <ClCompile Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.cpp">
       <Filter>icalls\System\System.Net.NetworkInformation</Filter>
     </ClCompile>
-    <ClCompile Include="external\xamarin-android\xamarin_getifaddrs.c">
+    <ClCompile Include="..\external\xamarin-android\xamarin_getifaddrs.c">
       <Filter>external\xamarin-android</Filter>
     </ClCompile>
     <ClCompile Include="vm\Path.cpp">
@@ -859,6 +858,19 @@
     </ClCompile>
     <ClCompile Include="vm\ScopedThreadAttacher.cpp">
       <Filter>vm</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Generic\SocketBridge.cpp">
+      <Filter>os\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Emscripten\SocketBridge.cpp">
+      <Filter>os\Emscripten</Filter>
+    </ClCompile>
+    <ClCompile Include="mono\MonoPosixHelper.cpp" />
+    <ClCompile Include="os\Lumin\StackTrace.cpp">
+      <Filter>os\Lumin</Filter>
+    </ClCompile>
+    <ClCompile Include="os\Lumin\Process.cpp">
+      <Filter>os\Lumin</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1233,37 +1245,34 @@
     <ClInclude Include="os\StackTrace.h">
       <Filter>os</Filter>
     </ClInclude>
-    <ClInclude Include="externals\MonoPosixHelper.h">
-      <Filter>externals</Filter>
-    </ClInclude>
-    <ClInclude Include="external\zlib\crc32.h">
+    <ClInclude Include="..\external\zlib\crc32.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\deflate.h">
+    <ClInclude Include="..\external\zlib\deflate.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\inffast.h">
+    <ClInclude Include="..\external\zlib\inffast.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\inffixed.h">
+    <ClInclude Include="..\external\zlib\inffixed.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\inflate.h">
+    <ClInclude Include="..\external\zlib\inflate.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\inftrees.h">
+    <ClInclude Include="..\external\zlib\inftrees.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\trees.h">
+    <ClInclude Include="..\external\zlib\trees.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\zconf.h">
+    <ClInclude Include="..\external\zlib\zconf.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\zlib.h">
+    <ClInclude Include="..\external\zlib\zlib.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="external\zlib\zutil.h">
+    <ClInclude Include="..\external\zlib\zutil.h">
       <Filter>external\zlib</Filter>
     </ClInclude>
     <ClInclude Include="os\Posix\PosixHelpers.h">
@@ -1567,16 +1576,16 @@
     <ClInclude Include="metadata\Il2CppSignatureHash.h">
       <Filter>metadata</Filter>
     </ClInclude>
-    <ClInclude Include="external\google\sparsehash\dense_hash_map.h">
+    <ClInclude Include="..\external\google\sparsehash\dense_hash_map.h">
       <Filter>external\google\sparsehash</Filter>
     </ClInclude>
-    <ClInclude Include="external\google\sparsehash\densehashtable.h">
+    <ClInclude Include="..\external\google\sparsehash\densehashtable.h">
       <Filter>external\google\sparsehash</Filter>
     </ClInclude>
-    <ClInclude Include="external\google\sparsehash\type_traits.h">
+    <ClInclude Include="..\external\google\sparsehash\type_traits.h">
       <Filter>external\google\sparsehash</Filter>
     </ClInclude>
-    <ClInclude Include="external\google\sparsehash\dense_hash_set.h">
+    <ClInclude Include="..\external\google\sparsehash\dense_hash_set.h">
       <Filter>external\google\sparsehash</Filter>
     </ClInclude>
     <ClInclude Include="utils\Output.h">
@@ -1664,13 +1673,13 @@
     <ClInclude Include="icalls\System\System.Net.NetworkInformation\LinuxNetworkInterface.h">
       <Filter>icalls\System\System.Net.NetworkInformation</Filter>
     </ClInclude>
-    <ClInclude Include="external\xamarin-android\logger.h">
+    <ClInclude Include="..\external\xamarin-android\logger.h">
       <Filter>external\xamarin-android</Filter>
     </ClInclude>
-    <ClInclude Include="external\xamarin-android\monodroid.h">
+    <ClInclude Include="..\external\xamarin-android\monodroid.h">
       <Filter>external\xamarin-android</Filter>
     </ClInclude>
-    <ClInclude Include="external\xamarin-android\xamarin_getifaddrs.h">
+    <ClInclude Include="..\external\xamarin-android\xamarin_getifaddrs.h">
       <Filter>external\xamarin-android</Filter>
     </ClInclude>
     <ClInclude Include="vm\Path.h">
@@ -2470,9 +2479,6 @@
     </Filter>
     <Filter Include="utils\utf8-cpp">
       <UniqueIdentifier>{68af634a-880a-476d-be5e-8a3bbddcf9c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="externals">
-      <UniqueIdentifier>{6ed1563b-2499-4017-903a-8e8a58ac9d9d}</UniqueIdentifier>
     </Filter>
     <Filter Include="external">
       <UniqueIdentifier>{86a616f5-da91-46be-ad81-de62af32f3fe}</UniqueIdentifier>

@@ -3,9 +3,6 @@
 #include <string>
 #include <stdint.h>
 
-struct FileHandle;
-struct Il2CppArray;
-
 namespace il2cpp
 {
 namespace os

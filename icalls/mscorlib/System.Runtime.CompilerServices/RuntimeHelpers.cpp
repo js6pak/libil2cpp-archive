@@ -11,8 +11,6 @@
 #include "vm/Type.h"
 #include "icalls/mscorlib/System.Runtime.CompilerServices/RuntimeHelpers.h"
 
-using namespace il2cpp::vm;
-
 namespace il2cpp
 {
 namespace icalls
@@ -34,26 +32,26 @@ namespace CompilerServices
     {
         FieldInfo* field_handle = (FieldInfo*)ptr;
         Il2CppClass *klass = array->klass;
-        uint32_t size = Array::GetElementSize(klass);
-        const Il2CppType *type = Type::GetUnderlyingType(&klass->element_class->byval_arg);
+        uint32_t size = vm::Array::GetElementSize(klass);
+        const Il2CppType *type = vm::Type::GetUnderlyingType(&klass->element_class->byval_arg);
 
         const char *field_data;
 
-        if (Type::IsReference(type) || (type->type == IL2CPP_TYPE_VALUETYPE && (!Type::GetClass(type) || Type::GetClass(type)->has_references)))
+        if (vm::Type::IsReference(type) || (type->type == IL2CPP_TYPE_VALUETYPE && (!vm::Type::GetClass(type) || vm::Type::GetClass(type)->has_references)))
         {
-            Il2CppException *exc = Exception::GetArgumentException("array",
+            Il2CppException *exc = vm::Exception::GetArgumentException("array",
                     "Cannot initialize array containing references");
-            Exception::Raise(exc);
+            vm::Exception::Raise(exc);
         }
 
         if (!(field_handle->type->attrs & FIELD_ATTRIBUTE_HAS_FIELD_RVA))
         {
-            Il2CppException *exc = Exception::GetArgumentException("field_handle", "Field doesn't have an RVA");
-            Exception::Raise(exc);
+            Il2CppException *exc = vm::Exception::GetArgumentException("field_handle", "Field doesn't have an RVA");
+            vm::Exception::Raise(exc);
         }
 
         size *= ARRAY_LENGTH_AS_INT32(array->max_length);
-        field_data = Field::GetData(field_handle);
+        field_data = vm::Field::GetData(field_handle);
 
         IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(RuntimeHelpers::InitializeArray, "Check type size");
         //int align;
@@ -79,7 +77,7 @@ namespace CompilerServices
         const Il2CppType* type = reinterpret_cast<const Il2CppType*>(typeIntPtr);
         IL2CPP_CHECK_ARG_NULL(type);
 
-        Il2CppClass* klass = Class::FromIl2CppType(type);
+        Il2CppClass* klass = vm::Class::FromIl2CppType(type);
         //MONO_CHECK_ARG(handle, klass);
 
         il2cpp::vm::Runtime::ClassInit(klass);

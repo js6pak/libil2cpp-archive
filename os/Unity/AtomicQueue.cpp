@@ -1125,7 +1125,7 @@ AtomicQueue* CreateAtomicQueue()
     //seems like UNITY_PLATFORM_NEW shouldn't take an alignment...?
     return UNITY_PLATFORM_NEW(AtomicQueue, kMemThread);
 #else
-    return UNITY_PLATFORM_NEW(AtomicQueue, kMemThread, sizeof(atomic_word));
+    #error "ATOMIC_HAS_DCAS is not defined for this platform nor is a platform dependent implementation available."
 #endif
 }
 
