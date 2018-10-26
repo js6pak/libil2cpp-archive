@@ -15,9 +15,6 @@
 
 #if !NET_4_0
 
-using namespace il2cpp::vm;
-using namespace il2cpp::utils;
-
 namespace il2cpp
 {
 namespace icalls
@@ -28,8 +25,8 @@ namespace System
 {
     void MonoEnumInfo::get_enum_info(Il2CppReflectionType* type, Il2CppEnumInfo* info)
     {
-        IL2CPP_OBJECT_SETREF(info, utype, Reflection::GetTypeObject(Type::GetUnderlyingType(type->type)));
-        vm::Enum::GetEnumValuesAndNames(Class::FromIl2CppType(type->type), &info->values, &info->names);
+        IL2CPP_OBJECT_SETREF(info, utype, vm::Reflection::GetTypeObject(vm::Type::GetUnderlyingType(type->type)));
+        vm::Enum::GetEnumValuesAndNames(vm::Class::FromIl2CppType(type->type), &info->values, &info->names);
     }
 } /* namespace System */
 } /* namespace mscorlib */

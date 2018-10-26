@@ -20,7 +20,7 @@
 #include "vm/StackTrace.h"
 #include "vm-utils/Debugger.h"
 #include "utils/StringUtils.h"
-#include "utils/LeaveTargetStack.h"
+#include "utils/StringView.h"
 #include "utils/Exception.h"
 #include "utils/Output.h"
 #include "utils/Runtime.h"
@@ -122,25 +122,9 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     return llabs(value);
 }
 
-template<typename TInput, typename TOutput, typename TFloat>
-inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
-{
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-    // On ARM, a cast from a floating point to integer value will use
-    // the min or max value if the cast is out of range (instead of
-    // overflowing like x86/x64). So first do a cast to the output
-    // type (which is signed in .NET - the value stack does not have
-    // unsigned types) to try to get the value into a range that will
-    // actually be cast.
-    if (value < 0)
-        return (TOutput)((TInput)(TOutput)value);
-#endif
-    return (TOutput)((TInput)value);
-}
-
 // Exception support macros
 #define IL2CPP_LEAVE(Offset, Target) \
-    __leave_targets.push(Offset); \
+    __leave_target = Offset; \
     goto Target;
 
 #define IL2CPP_END_FINALLY(Id) \
@@ -157,13 +141,13 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
         }
 
 #define IL2CPP_JUMP_TBL(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) { \
-        __leave_targets.pop(); \
+    if(__leave_target == Offset) { \
+        __leave_target = 0; \
         goto Target; \
         }
 
 #define IL2CPP_END_CLEANUP(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) \
+    if(__leave_target == Offset) \
         goto Target;
 
 
@@ -182,10 +166,9 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
 #endif
 
 
-template<typename T>
-inline void Il2CppCodeGenWriteBarrier(T** targetAddress, T* object)
+inline void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object)
 {
-    il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)targetAddress);
+    il2cpp::gc::GarbageCollector::SetWriteBarrier(targetAddress);
 }
 
 void il2cpp_codegen_memory_barrier();
@@ -203,7 +186,7 @@ inline void VolatileWrite(T** location, T* value)
 {
     il2cpp_codegen_memory_barrier();
     *location = value;
-    Il2CppCodeGenWriteBarrier(location, value);
+    Il2CppCodeGenWriteBarrier((void**)location, value);
 }
 
 template<typename T>
@@ -290,31 +273,55 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
     memset(ptr, value, num);
 }
 
-#if IL2CPP_MONO_DEBUGGER
-extern volatile uint32_t g_Il2CppDebuggerCheckPointEnabled;
-#endif
-
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
 #if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::RegisterSequencePointCheck(&g_Il2CppDebuggerCheckPointEnabled);
     il2cpp::utils::Debugger::RegisterMetadata(data);
 #endif
 }
 
-inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, size_t seqPointId)
+struct Il2CppSequencePointStorage
 {
+public:
+    inline Il2CppSequencePointStorage()
 #if IL2CPP_MONO_DEBUGGER
-    if (g_Il2CppDebuggerCheckPointEnabled)
-        il2cpp::utils::Debugger::CheckSequencePoint(executionContext, seqPointId);
+        : m_Ptr(il2cpp::utils::Debugger::PushSequencePoint())
 #endif
-}
+    {
+    }
 
-inline void il2cpp_codegen_check_pause_point()
+    inline ~Il2CppSequencePointStorage()
+    {
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::Debugger::PopSequencePoint();
+#endif
+    }
+
+    inline void Store(Il2CppSequencePoint* sequencePoint)
+    {
+#if IL2CPP_MONO_DEBUGGER
+        if (m_Ptr)
+            *m_Ptr = sequencePoint;
+#endif
+    }
+
+private:
+#if IL2CPP_MONO_DEBUGGER
+    Il2CppSequencePoint** const m_Ptr;
+#endif
+};
+
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequencePointStorage, Il2CppSequencePoint *sequencePoint)
 {
 #if IL2CPP_MONO_DEBUGGER
-    if (g_Il2CppDebuggerCheckPointEnabled)
-        il2cpp::utils::Debugger::CheckPausePoint();
+    if (!sequencePoint)
+        return;
+
+    if (il2cpp::utils::Debugger::IsSequencePointActive(sequencePoint))
+    {
+        sequencePointStorage.Store(sequencePoint);
+        il2cpp::utils::Debugger::OnBreakPointHit(sequencePoint);
+    }
 #endif
 }
 
@@ -330,13 +337,16 @@ inline Il2CppSequencePoint* il2cpp_codegen_get_sequence_point(size_t id)
 class MethodExitSequencePointChecker
 {
 private:
-    size_t m_pSeqPoint;
-    Il2CppSequencePointExecutionContext* m_seqPointStorage;
+    Il2CppSequencePoint *m_pSeqPoint;
+    Il2CppSequencePointStorage& m_seqPointStorage;
 
 public:
-    MethodExitSequencePointChecker(Il2CppSequencePointExecutionContext* seqPointStorage, size_t seqPointId) :
-        m_seqPointStorage(seqPointStorage), m_pSeqPoint(seqPointId)
+    MethodExitSequencePointChecker(Il2CppSequencePointStorage& seqPointStorage, size_t seqPointId) :
+        m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL)
     {
+#if IL2CPP_MONO_DEBUGGER
+        m_pSeqPoint = il2cpp_codegen_get_sequence_point(seqPointId);
+#endif
     }
 
     ~MethodExitSequencePointChecker()
@@ -372,20 +382,4 @@ public:
 inline bool il2cpp_codegen_object_reference_equals(const RuntimeObject *obj1, const RuntimeObject *obj2)
 {
     return obj1 == obj2;
-}
-
-inline bool il2cpp_codegen_platform_is_osx_or_ios()
-{
-    return IL2CPP_TARGET_OSX != 0 || IL2CPP_TARGET_IOS != 0;
-}
-
-inline bool il2cpp_codegen_platform_is_freebsd()
-{
-    // we don't currently support FreeBSD
-    return false;
-}
-
-inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
-{
-    return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
 }

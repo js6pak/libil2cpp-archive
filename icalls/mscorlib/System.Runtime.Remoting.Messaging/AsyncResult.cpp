@@ -40,7 +40,7 @@ namespace Messaging
         {
             il2cpp::os::EventHandle *wait_event = NULL;
 
-            ac->msg->exc = NULL;
+            IL2CPP_OBJECT_SETREF(ac->msg, exc, NULL);
             res = il2cpp::vm::ThreadPoolMs::MessageInvoke((Il2CppObject*)ares->async_delegate->target, ac->msg, &ac->msg->exc, &ac->out_args);
             IL2CPP_OBJECT_SETREF(ac, res, res);
 

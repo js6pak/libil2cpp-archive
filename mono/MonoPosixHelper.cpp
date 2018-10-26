@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "external/zlib/zlib.h"
+#include "../external/zlib/zlib.h"
 
 #define BUFFER_SIZE 4096
 #define ARGUMENT_ERROR -10

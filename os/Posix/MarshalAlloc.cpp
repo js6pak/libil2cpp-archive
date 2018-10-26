@@ -22,21 +22,6 @@ namespace os
     {
         free(ptr);
     }
-
-    void* MarshalAlloc::AllocateHGlobal(size_t size)
-    {
-        return malloc(size);
-    }
-
-    void* MarshalAlloc::ReAllocHGlobal(void* ptr, size_t size)
-    {
-        return realloc(ptr, size);
-    }
-
-    void MarshalAlloc::FreeHGlobal(void* ptr)
-    {
-        free(ptr);
-    }
 } /* namespace os */
 } /* namespace il2cpp*/
 

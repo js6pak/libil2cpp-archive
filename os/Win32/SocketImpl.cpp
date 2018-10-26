@@ -339,9 +339,6 @@ namespace os
                 add_local_ips = true;
         }
 
-#if IL2CPP_SUPPORT_IPV6
-        return GetAddressInfo(hostname, add_local_ips, name, addresses);
-#else
         struct hostent *he = NULL;
         if (*hostname)
             he = gethostbyname(hostname);
@@ -354,7 +351,6 @@ namespace os
                 : hostent_get_info(he, name, aliases, addresses))
             ? kWaitStatusSuccess
             : kWaitStatusFailure;
-#endif
     }
 
     WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, int32_t &family, std::vector<std::string> &aliases, std::vector<void*> &addr_list, int32_t &addr_size)
@@ -557,6 +553,51 @@ namespace os
 
             return kWaitStatusFailure;
         }
+
+        // if (fd >= _wapi_fd_reserve)
+        // {
+        //  WSASetLastError (WSASYSCALLFAILURE);
+        //  closesocket (fd);
+
+        //  return(INVALID_SOCKET);
+        // }
+
+        /* .net seems to set this by default for SOCK_STREAM, not for
+         * SOCK_DGRAM (see bug #36322)
+         *
+         * It seems winsock has a rather different idea of what
+         * SO_REUSEADDR means.  If it's set, then a new socket can be
+         * bound over an existing listening socket.  There's a new
+         * windows-specific option called SO_EXCLUSIVEADDRUSE but
+         * using that means the socket MUST be closed properly, or a
+         * denial of service can occur.  Luckily for us, winsock
+         * behaves as though any other system would when SO_REUSEADDR
+         * is true, so we don't need to do anything else here.  See
+         * bug 53992.
+         */
+        {
+            int32_t v = 1;
+            const int32_t ret = setsockopt((SOCKET)_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(v));
+
+            if (ret == -1)
+            {
+                if (closesocket((SOCKET)_fd) == -1)
+                    StoreLastError();
+
+                return kWaitStatusFailure;
+            }
+        }
+
+        // mono_once (&socket_ops_once, socket_ops_init);
+
+        // handle = _wapi_handle_new_fd (WAPI_HANDLE_SOCKET, fd, &socket_handle);
+        // if (handle == _WAPI_HANDLE_INVALID) {
+        //  g_warning ("%s: error creating socket handle", __func__);
+        //  WSASetLastError (WSASYSCALLFAILURE);
+        //  closesocket (fd);
+
+        //  return(INVALID_SOCKET);
+        // }
 
         _is_valid = true;
 
@@ -1616,7 +1657,11 @@ namespace os
                 break;
 
             case kSocketOptionLevelIP:
+#ifdef SOL_IP
+                *system_level = SOL_IP;
+#else
                 *system_level = IPPROTO_IP;
+#endif
 
                 switch (name)
                 {
@@ -1687,52 +1732,7 @@ namespace os
                         return INVALID_OPTION_NAME;
                 }
                 break;
-#if IL2CPP_SUPPORT_IPV6
-            case kSocketOptionLevelIPv6:
-                *system_level = IPPROTO_IPV6;
 
-                switch (name)
-                {
-                    case kSocketOptionNameMulticastInterface:
-                        *system_name = IPV6_MULTICAST_IF;
-                        break;
-                    case kSocketOptionNameMulticastTimeToLive:
-                        *system_name = IPV6_MULTICAST_HOPS;
-                        break;
-                    case kSocketOptionNameMulticastLoopback:
-                        *system_name = IPV6_MULTICAST_LOOP;
-                        break;
-                    case kSocketOptionNameAddMembership:
-                        *system_name = IPV6_JOIN_GROUP;
-                        break;
-                    case kSocketOptionNameDropMembership:
-                        *system_name = IPV6_LEAVE_GROUP;
-                        break;
-                    case kSocketOptionNamePacketInformation:
-#ifdef HAVE_IPV6_PKTINFO
-                        *system_name = IPV6_PKTINFO;
-                        break;
-#endif
-                    case kSocketOptionNameIPv6Only:
-#ifdef IPV6_V6ONLY
-                        *system_name = IPV6_V6ONLY;
-                        break;
-#endif
-                    case kSocketOptionNameHeaderIncluded:
-                    case kSocketOptionNameIPOptions:
-                    case kSocketOptionNameTypeOfService:
-                    case kSocketOptionNameDontFragment:
-                    case kSocketOptionNameAddSourceMembership:
-                    case kSocketOptionNameDropSourceMembership:
-                    case kSocketOptionNameBlockSource:
-                    case kSocketOptionNameUnblockSource:
-                    // Can't figure out how to map these, so fall
-                    // through
-                    default:
-                        return INVALID_OPTION_NAME;
-                }
-                break;
-#endif // IL2CPP_SUPPORT_IPV6
             case kSocketOptionLevelTcp:
 #ifdef SOL_TCP
                 *system_level = SOL_TCP;
@@ -2326,7 +2326,7 @@ namespace os
             return kWaitStatusFailure;
         }
 
-        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)buffers, options))
+        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)&buffers, options))
         {
             StoreLastError();
 

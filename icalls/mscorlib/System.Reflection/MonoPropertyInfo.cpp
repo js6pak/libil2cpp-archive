@@ -7,8 +7,6 @@
 #include "vm/String.h"
 #include "vm/Exception.h"
 
-using namespace il2cpp::vm;
-
 namespace il2cpp
 {
 namespace icalls

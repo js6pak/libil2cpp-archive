@@ -189,6 +189,7 @@ namespace vm
             {
                 os::FastAutoLock lock(&mutex);
                 queue.push(asyncResult);
+                gc::GarbageCollector::SetWriteBarrier((void**)&queue.back());
             }
 
             // Interrupt polling thread to pick up new request.
@@ -398,6 +399,7 @@ namespace vm
 
             // Push back dummy values to asyncResults and socketHandles so their indices match pollrequest indices
             asyncResults.push_back(NULL);
+            gc::GarbageCollector::SetWriteBarrier((void**)asyncResults.data(), asyncResults.size() * sizeof(Il2CppAsyncResult));
             socketHandles.push_back(os::SocketHandleWrapper());
         }
 #endif
@@ -422,6 +424,7 @@ namespace vm
                 os::SocketHandleWrapper& socketHandle = socketHandles.back();
 
                 asyncResults.push_back(asyncResult);
+                gc::GarbageCollector::SetWriteBarrier((void**)asyncResults.data(), asyncResults.size() * sizeof(Il2CppAsyncResult));
 
                 // Add the request to the list.
                 NativePollRequest pollRequest;
@@ -470,6 +473,7 @@ namespace vm
 
                     pollRequests.erase(pollRequests.begin() + i);
                     asyncResults.erase(asyncResults.begin() + i);
+                    gc::GarbageCollector::SetWriteBarrier((void**)asyncResults.data(), asyncResults.size() * sizeof(Il2CppAsyncResult));
                     socketHandles.erase(socketHandles.begin() + i);
                 }
                 else
@@ -658,6 +662,7 @@ namespace vm
         {
             os::FastAutoLock lock(&mutex);
             queue.push(asyncResult);
+            gc::GarbageCollector::SetWriteBarrier((void**)&queue.back());
             IL2CPP_ASSERT(numIdleThreads >= 0);
             if (queue.size() > static_cast<uint32_t>(numIdleThreads))
                 forceNewThread = true;
@@ -799,7 +804,7 @@ namespace vm
             void** byRefArgs = 0;
             if (byRefArgsCount > 0)
             {
-                asyncCall->out_args = vm::Array::New(il2cpp_defaults.object_class, byRefArgsCount);
+                IL2CPP_OBJECT_SETREF(asyncCall, out_args, vm::Array::New(il2cpp_defaults.object_class, byRefArgsCount));
                 byRefArgs = (void**)il2cpp_array_addr(asyncCall->out_args, Il2CppObject*, 0);
             }
 
@@ -818,12 +823,12 @@ namespace vm
                     if (isValueType)
                     {
                         // Value types are always boxed
-                        byRefArgs[byRefIndex] = il2cpp_object_unbox((Il2CppObject*)argsPtr[i]);
+                        il2cpp_array_setref(asyncCall->out_args, byRefIndex, il2cpp_object_unbox((Il2CppObject*)argsPtr[i]));
                         params[i] = byRefArgs[byRefIndex++];
                     }
                     else
                     {
-                        byRefArgs[byRefIndex] = argsPtr[i];
+                        il2cpp_array_setref(asyncCall->out_args, byRefIndex, argsPtr[i]);
                         params[i] = &byRefArgs[byRefIndex++];
                     }
                 }
@@ -841,11 +846,11 @@ namespace vm
             gc::GCHandle::Free(argsGCHandle);
 
             // Store result.
-            asyncCall->res = result;
+            IL2CPP_OBJECT_SETREF(asyncCall, res, result);
 #if !NET_4_0
-            asyncCall->msg = exception;
+            IL2CPP_OBJECT_SETREF(asyncCall, msg, exception);
 #else
-            asyncCall->msg = (Il2CppMethodMessage*)exception;
+            IL2CPP_OBJECT_SETREF(asyncCall, msg, (Il2CppMethodMessage*)exception);
 #endif
             os::Atomic::FullMemoryBarrier();
             asyncResult->completed = true;
@@ -857,9 +862,9 @@ namespace vm
                 void* args[1] = { asyncResult };
                 il2cpp_runtime_invoke(asyncCallback->method, asyncCallback->target, args, &exception);
 #if !NET_4_0
-                asyncCall->msg = exception;
+                IL2CPP_OBJECT_SETREF(asyncCall, msg, exception);
 #else
-                asyncCall->msg = (Il2CppMethodMessage*)exception;
+                IL2CPP_OBJECT_SETREF(asyncCall, msg, (Il2CppMethodMessage*)exception);
 #endif
             }
 
@@ -1005,8 +1010,8 @@ namespace vm
 #else
         // Create AsyncCall.
         Il2CppAsyncCall* asyncCall = (Il2CppAsyncCall*)il2cpp::vm::Object::New(il2cpp_defaults.async_call_class);
-        asyncCall->cb_target = asyncCallback;
-        asyncCall->state = state;
+        IL2CPP_OBJECT_SETREF(asyncCall, cb_target, asyncCallback);
+        IL2CPP_OBJECT_SETREF(asyncCall, state, state);
 
         // Copy arguments.
         const uint8_t parametersCount = delegate->method->parameters_count;
@@ -1018,12 +1023,12 @@ namespace vm
 
         // Create AsyncResult.
         Il2CppAsyncResult* asyncResult = (Il2CppAsyncResult*)il2cpp::vm::Object::New(il2cpp_defaults.asyncresult_class);
-        asyncResult->async_delegate = delegate;
+        IL2CPP_OBJECT_SETREF(asyncResult, async_delegate, delegate);
 
         // NOTE: we store a GC handle here because .data is an IntPtr on the managed side and it won't be scanned by the GC.
         asyncResult->data = (void*)(uintptr_t)gc::GCHandle::New((Il2CppObject*)args, true);
-        asyncResult->object_data = asyncCall;
-        asyncResult->async_state = state;
+        IL2CPP_OBJECT_SETREF(asyncResult, object_data, asyncCall);
+        IL2CPP_OBJECT_SETREF(asyncResult, async_state, state);
 
         // See which compartment we should process this request with and whether we
         // need to first pipe it through the socket polling stage.
@@ -1034,7 +1039,7 @@ namespace vm
         else if (IsSocketAsyncCall(delegate))
         {
             Il2CppSocketAsyncResult* socketAsyncResult = GetSocketAsyncResult(asyncResult);
-            socketAsyncResult->ares = asyncResult;
+            IL2CPP_OBJECT_SETREF(socketAsyncResult, ares, asyncResult);
 
             // Apparently, using poll/WSAPoll to listen for connect() isn't reliable, so
             // we bypass the polling stage in that case.
@@ -1089,7 +1094,7 @@ namespace vm
         if (!asyncResult->completed)
         {
             if (!asyncResult->handle)
-                asyncResult->handle = WaitHandle::NewManualResetEvent(false);
+                IL2CPP_OBJECT_SETREF(asyncResult, handle, WaitHandle::NewManualResetEvent(false));
             os::Handle* osHandle = WaitHandle::GetPlatformHandle(asyncResult->handle);
 
             il2cpp_monitor_exit(&asyncResult->base);

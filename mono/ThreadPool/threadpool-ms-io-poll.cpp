@@ -80,7 +80,7 @@ void poll_register_fd(int fd, int events, bool is_new)
         poll_fds_capacity *= 2;
         IL2CPP_ASSERT(poll_fds_size <= poll_fds_capacity);
 
-        poll_fds->resize(poll_fds_capacity, il2cpp::os::PollRequest(-1));
+        poll_fds->reserve(poll_fds_capacity);
     }
 
     POLL_INIT_FD(&(*poll_fds)[poll_fds_size - 1], fd, poll_event);

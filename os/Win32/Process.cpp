@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "il2cpp-vm-support.h"
 
 #if IL2CPP_TARGET_WINDOWS_DESKTOP
 

@@ -1,6 +1,7 @@
 #include "vm/Enum.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
+#include "gc/WriteBarrier.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Reflection.h"
@@ -61,13 +62,12 @@ namespace vm
         bool sorted = true;
 
 #if !NET_4_0
-        *values = vm::Array::New(enumType, (il2cpp_array_size_t)nvalues);
+        gc::WriteBarrier::GenericStore(values, vm::Array::New(enumType, (il2cpp_array_size_t)nvalues));
 #else
-        *values = vm::Array::New(il2cpp_defaults.uint64_class, (il2cpp_array_size_t)nvalues);
+        gc::WriteBarrier::GenericStore(values, vm::Array::New(il2cpp_defaults.uint64_class, (il2cpp_array_size_t)nvalues));
         uint64_t field_value, previous_value = 0;
 #endif
-        *names = vm::Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)nvalues);
-        // TODO: write barriers!
+        gc::WriteBarrier::GenericStore(names, vm::Array::New(il2cpp_defaults.string_class, (il2cpp_array_size_t)nvalues));
 
         if (enumType->generic_class)
             enumType = GenericClass::GetTypeDefinition(enumType->generic_class);

@@ -35,6 +35,7 @@
 
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
+#include "gc/WriteBarrierValidation.h"
 
 #include <locale.h>
 #include <fstream>
@@ -84,15 +85,23 @@ void* il2cpp_api_lookup_symbol(const char* name)
 
 #endif // IL2CPP_API_DYNAMIC_NO_DLSYM
 
-void il2cpp_init(const char* domain_name)
+int il2cpp_init(const char* domain_name)
 {
     // Use environment's default locale
     setlocale(LC_ALL, "");
 
-    Runtime::Init(domain_name);
+    // NOTE(gab): the runtime_version needs to change once we
+    // will support multiple runtimes.
+    // For now we default to the one used by unity and don't
+    // allow the callers to change it.
+#if NET_4_0
+    return Runtime::Init(domain_name, "v4.0.30319");
+#else
+    return Runtime::Init(domain_name, "v2.0.50727");
+#endif
 }
 
-void il2cpp_init_utf16(const Il2CppChar* domain_name)
+int il2cpp_init_utf16(const Il2CppChar* domain_name)
 {
     return il2cpp_init(il2cpp::utils::StringUtils::Utf16ToUtf8(domain_name).c_str());
 }
@@ -684,6 +693,29 @@ void il2cpp_gc_wbarrier_set_field(Il2CppObject *obj, void **targetAddress, void 
 {
     *targetAddress = object;
     GarbageCollector::SetWriteBarrier(targetAddress);
+}
+
+bool il2cpp_gc_has_strict_wbarriers()
+{
+#if IL2CPP_ENABLE_STRICT_WRITE_BARRIERS
+    return true;
+#else
+    return false;
+#endif
+}
+
+void il2cpp_gc_set_external_allocation_tracker(void(*func)(void*, size_t, int))
+{
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    il2cpp::gc::WriteBarrierValidation::SetExternalAllocationTracker(func);
+#endif
+}
+
+void il2cpp_gc_set_external_wbarrier_tracker(void(*func)(void**))
+{
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    il2cpp::gc::WriteBarrierValidation::SetExternalWriteBarrierTracker(func);
+#endif
 }
 
 void il2cpp_gchandle_free(uint32_t gchandle)
