@@ -48,11 +48,6 @@ namespace os
     {
         return il2cpp::os::win::WaitForSingleObjectAndAccountForAPCs(m_Event, ms, interruptible);
     }
-
-    void* EventImpl::GetOSHandle()
-    {
-        return (void*)m_Event;
-    }
 }
 }
 

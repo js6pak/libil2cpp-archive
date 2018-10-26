@@ -15,7 +15,7 @@ namespace os
  * Magic number to convert a time which is relative to
  * Jan 1, 1970 into a value which is relative to Jan 1, 0001.
  */
-    const uint64_t EPOCH_ADJUST = ((uint64_t)62135596800LL);
+    const uint64_t TZ_EPOCH_ADJUST = ((uint64_t)62135596800LL);
 
     /*
     * Return's the offset from GMT of a local time.
@@ -118,7 +118,7 @@ namespace os
                     else
                         names[1] = tzone;
 
-                    data[1] = ((int64_t)t1 + EPOCH_ADJUST) * 10000000L;
+                    data[1] = ((int64_t)t1 + TZ_EPOCH_ADJUST) * 10000000L;
                     return true;
                 }
                 else
@@ -128,7 +128,7 @@ namespace os
                     else
                         names[0] = tzone;
 
-                    data[0] = ((int64_t)t1 + EPOCH_ADJUST) * 10000000L;
+                    data[0] = ((int64_t)t1 + TZ_EPOCH_ADJUST) * 10000000L;
                     is_transitioned = 1;
                 }
 
@@ -235,13 +235,13 @@ namespace os
                 if (is_daylight)
                 {
                     names[0] = tzone;
-                    data[1] = ((int64_t)t1 + EPOCH_ADJUST) * 10000000L;
+                    data[1] = ((int64_t)t1 + TZ_EPOCH_ADJUST) * 10000000L;
                     return true;
                 }
                 else
                 {
                     names[1] = tzone;
-                    data[0] = ((int64_t)t1 + EPOCH_ADJUST) * 10000000L;
+                    data[0] = ((int64_t)t1 + TZ_EPOCH_ADJUST) * 10000000L;
                     is_daylight = 1;
                 }
 

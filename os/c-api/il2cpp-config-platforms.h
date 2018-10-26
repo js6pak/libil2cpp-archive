@@ -6,7 +6,7 @@
 #error We assume both __aarch64__ and __arm__ cannot be defined at tha same time.
 #endif
 
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(_M_ARM64)
 #define IL2CPP_TARGET_ARM64 1
 #define IL2CPP_TARGET_ARMV7 0
 #elif defined(__arm__)
@@ -17,30 +17,7 @@
 #define IL2CPP_TARGET_ARMV7 0
 #endif
 
-// Large executables on ARM64 and ARMv7 can cause linker errors.
-// Specifically, the arm instruction set limits the range a branch can
-// take (e.g. 128MB on ARM64). Normally, the linker will insert branch
-// islands to bridge gaps larger than the maximum branch range. However,
-// branch islands only work within a section, not across sections. So if
-// IL2CPP puts managed code into a specific section of the binary, branch
-// isalnds won't work. That means that proejcts with a large executable
-// size may fail to link.
-//
-// Set the define IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND to a value of 1
-// work around this issue.
-//
-// The cost of this define is in correctness of managed stack traces.
-// With this define enabled, managed stack traces maybe not be correct
-// in some cases, because the stack trace generation code must use
-// fuzzy heuristics to detemine if a given instrion pointer is in a
-// managed method.
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-#ifndef IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND 0
-#endif
-#endif
-
-#define IL2CPP_BINARY_SECTION_NAME "il2cpp"
+#define IL2CPP_BINARY_SECTION_NAME ".il2cpp"
 
 #if defined(SN_TARGET_PSP2)
 #define IL2CPP_TARGET_PSP2 1
@@ -53,17 +30,9 @@
 #define UNICODE 1
 #elif defined(_MSC_VER)
 #define IL2CPP_TARGET_WINDOWS 1
-
-#if IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#else
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS !IL2CPP_MONO_DEBUGGER
-#endif
-
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
 #define IL2CPP_PLATFORM_SUPPORTS_DEBUGGER_PRESENT 1
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
-#define IL2CPP_METHOD_ATTR  __declspec(code_seg (IL2CPP_BINARY_SECTION_NAME))
-#endif
+#define IL2CPP_METHOD_ATTR  __declspec(code_seg (".il2cpp"))
 #if defined(_XBOX_ONE)
 #define IL2CPP_TARGET_XBOXONE 1
 #define IL2CPP_PLATFORM_SUPPORTS_DEBUGGER_PRESENT 1
@@ -74,10 +43,6 @@
 #define IL2CPP_TARGET_WINDOWS_DESKTOP 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
-// Windows 7 is the min OS we support, so we cannot link newer APIs
-#define NTDDI_VERSION    0x06010000
-#define _WIN32_WINNT     0x0601
-#define WINVER           0x0601
 #endif
 #define _UNICODE 1
 #define UNICODE 1
@@ -96,35 +61,25 @@
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
 #endif
 
-#if IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#else
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS (!(IL2CPP_TARGET_IOS && IL2CPP_TARGET_ARMV7) && !IL2CPP_MONO_DEBUGGER)
-#endif
-
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS !(IL2CPP_TARGET_IOS && IL2CPP_TARGET_ARMV7)
 #if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+// The following gives managed stack traces (even with bitcode App Store submission), but may cause linker
+// errors on ARMv7 builds.
 #define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT," IL2CPP_BINARY_SECTION_NAME ",regular,pure_instructions")))
 #endif
 
+// because it's android based, __ANDROID__ is *also* defined on Lumin.
+// so we need to check for that *before* we check __ANDROID__ to avoid false
+// positives.
+#elif defined(LUMIN)
+#define IL2CPP_TARGET_LUMIN 1
+#define IL2CCPP_SUPPORTS_PROCESS 1
 #elif defined(__ANDROID__)
 #define IL2CPP_TARGET_ANDROID 1
 #define IL2CPP_PLATFORM_SUPPORTS_TIMEZONEINFO 1
-
-#if IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#else
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS !IL2CPP_MONO_DEBUGGER
-#endif
-
-#define IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE 1
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
-#define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
-#endif
-#elif defined(EMSCRIPTEN)
+#elif defined(__EMSCRIPTEN__)
 #define IL2CPP_TARGET_JAVASCRIPT 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
-#elif defined(NOVA)
-#define IL2CPP_TARGET_NOVA 1
 #elif defined(__linux__)
 #define IL2CPP_TARGET_LINUX 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
@@ -194,7 +149,11 @@
 #define IL2CPP_TARGET_SWITCH 0
 #endif
 
-#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_NOVA)
+#ifndef IL2CPP_TARGET_LUMIN
+#define IL2CPP_TARGET_LUMIN 0
+#endif
+
+#define IL2CPP_TARGET_POSIX (IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_LUMIN)
 
 #define IL2CPP_SUPPORT_THREADS !IL2CPP_TARGET_JAVASCRIPT
 
@@ -227,10 +186,6 @@
 #define IL2CPP_PLATFORM_SUPPORTS_DEBUGGER_PRESENT 0
 #endif
 
-#ifndef IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE
-#define IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE 0
-#endif
-
 #define IL2CPP_USE_STD_THREAD 0
 
 #define IL2CPP_THREADS_STD IL2CPP_USE_STD_THREAD
@@ -246,7 +201,7 @@
     IL2CPP_ASSERT((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
 
     #if defined(_MSC_VER)
-    #if defined(_M_X64)
+    #if defined(_M_X64) || defined(_M_ARM64)
         #define IL2CPP_SIZEOF_VOID_P 8
     #elif defined(_M_IX86) || defined(_M_ARM)
         #define IL2CPP_SIZEOF_VOID_P 4
@@ -258,7 +213,7 @@
         #define IL2CPP_SIZEOF_VOID_P 8
     #elif defined(__i386__)
         #define IL2CPP_SIZEOF_VOID_P 4
-    #elif defined(EMSCRIPTEN)
+    #elif defined(__EMSCRIPTEN__)
         #define IL2CPP_SIZEOF_VOID_P 4
     #elif defined(__arm__)
         #define IL2CPP_SIZEOF_VOID_P 4
@@ -270,5 +225,3 @@
 #else
     #error please define your target architecture size
 #endif
-
-#define NO_UNUSED_WARNING(expr) (void)(expr)

@@ -20,7 +20,6 @@ namespace os
         bool Post(int32_t releaseCount = 1, int32_t* previousCount = NULL);
         WaitStatus Wait(bool interruptible = false);
         WaitStatus Wait(uint32_t ms, bool interruptible = false);
-        void* GetOSHandle();
 
     private:
         SemaphoreImpl* m_Semaphore;
@@ -36,7 +35,6 @@ namespace os
         virtual WaitStatus Wait(bool interruptible) { return m_Semaphore->Wait(interruptible); }
         virtual WaitStatus Wait(uint32_t ms, bool interruptible) { return m_Semaphore->Wait(ms, interruptible); }
         virtual void Signal() { m_Semaphore->Post(1, NULL); }
-        virtual void* GetOSHandle() { return m_Semaphore->GetOSHandle(); }
         Semaphore& Get() { return *m_Semaphore; }
 
     private:

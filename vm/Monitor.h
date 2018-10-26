@@ -57,22 +57,5 @@ namespace vm
     }
 
 #endif
-
-    struct MonitorHolder
-    {
-        MonitorHolder(Il2CppObject* obj) :
-            m_Object(obj)
-        {
-            Monitor::Enter(obj);
-        }
-
-        ~MonitorHolder()
-        {
-            Monitor::Exit(m_Object);
-        }
-
-    private:
-        Il2CppObject* m_Object;
-    };
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -16,6 +16,8 @@ namespace Mono
     {
         IL2CPP_FREE(const_cast<char*>(name->name));
         IL2CPP_FREE(const_cast<char*>(name->culture));
+        IL2CPP_FREE(const_cast<char*>(name->hash_value));
+        IL2CPP_FREE(const_cast<uint8_t*>(name->public_key));
         if (freeStruct)
             IL2CPP_FREE(name);
     }

@@ -1,5 +1,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-class-internals.h"
+#include "gc/GarbageCollector.h"
+#include "gc/WriteBarrier.h"
 #include "icalls/mscorlib/System.IO/MonoIO.h"
 #include "os/Directory.h"
 #include "os/ErrorCodes.h"
@@ -125,7 +127,7 @@ namespace IO
         if (ret)
         {
 #if !NET_4_0
-            stat->name = vm::String::New(fileStat.name.c_str());
+            gc::WriteBarrier::GenericStore(&stat->name, vm::String::New(fileStat.name.c_str()));
 #endif
             stat->attributes = fileStat.attributes;
             stat->length = fileStat.length;
@@ -146,7 +148,7 @@ namespace IO
         if (ret)
         {
 #if !NET_4_0
-            stat->name = vm::String::New(fileStat.name.c_str());
+            gc::WriteBarrier::GenericStore(stat->name, vm::String::New(fileStat.name.c_str()));
 #endif
             stat->attributes = fileStat.attributes;
             stat->length = fileStat.length;
@@ -516,6 +518,7 @@ namespace IO
 
         DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(fileNameNativeUtf16, fileNameNative);
         *fileName = vm::String::NewUtf16(fileNameNativeUtf16);
+        gc::GarbageCollector::SetWriteBarrier((void**)fileName);
         return true;
     }
 
@@ -548,6 +551,7 @@ namespace IO
 
         DECLARE_NATIVE_STRING_AS_STRING_VIEW_OF_IL2CPP_CHARS(fileNameNativeUtf16, fileNameNative);
         *fileName = vm::String::NewUtf16(fileNameNativeUtf16);
+        gc::GarbageCollector::SetWriteBarrier((void**)fileName);
 
         return reinterpret_cast<intptr_t>(findHandle);
     }

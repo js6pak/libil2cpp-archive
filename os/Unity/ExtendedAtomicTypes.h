@@ -87,7 +87,7 @@ typedef int memory_order_t;
 
 #   include "os/ExtendedAtomicTypes.h"
 
-#elif (defined(__arm64__) || defined(__aarch64__)) && (defined(__clang__) || defined(__GNUC__))
+#elif defined(_M_ARM64) || (defined(__arm64__) || defined(__aarch64__)) && (defined(__clang__) || defined(__GNUC__))
 
 typedef long long atomic_word;
 struct atomic_word2
@@ -119,20 +119,6 @@ union atomic_word2
 #   if !defined(_MSC_VER)
 #       define ATOMIC_HAS_LDR
 #   endif
-
-#elif PLATFORM_WINRT && defined(__arm__)
-
-typedef __int32 atomic_word;
-union atomic_word2
-{
-    __int64 v;
-    struct
-    {
-        atomic_word lo;
-        atomic_word hi;
-    };
-};
-#   define ATOMIC_HAS_DCAS
 
 #elif PLATFORM_PSVITA || (PLATFORM_WEBGL && SUPPORT_THREADS)
 

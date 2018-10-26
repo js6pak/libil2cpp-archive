@@ -126,26 +126,6 @@ namespace os
 #endif
     }
 
-    il2cpp_hresult_t WindowsRuntime::DuplicateHString(Il2CppHString hstring, Il2CppHString* duplicated)
-    {
-#if LINK_TO_WINDOWSRUNTIME_LIBS
-        return WindowsDuplicateString(reinterpret_cast<HSTRING>(hstring), reinterpret_cast<HSTRING*>(duplicated));
-#else
-        typedef il2cpp_hresult_t(STDAPICALLTYPE * WindowsDuplicateStringFunc)(Il2CppHString hstring, Il2CppHString* duplicated);
-        static WindowsDuplicateStringFunc WindowsDuplicateString = NULL;
-
-        if (WindowsDuplicateString == NULL)
-        {
-            WindowsDuplicateString = ResolveAPI<WindowsDuplicateStringFunc>(L"api-ms-win-core-winrt-string-l1-1-0.dll", "WindowsDuplicateString");
-
-            if (WindowsDuplicateString == NULL)
-                return IL2CPP_COR_E_PLATFORMNOTSUPPORTED;
-        }
-
-        return WindowsDuplicateString(hstring, duplicated);
-#endif
-    }
-
     il2cpp_hresult_t WindowsRuntime::DeleteHString(Il2CppHString hstring)
     {
         if (hstring == NULL)
@@ -377,8 +357,6 @@ namespace os
             if (RoSetErrorReportingFlags == NULL)
                 return;
         }
-
-        const int RO_ERROR_REPORTING_USESETERRORINFO = 0x00000004;
 #endif
 
         il2cpp_hresult_t hr = RoSetErrorReportingFlags(RO_ERROR_REPORTING_USESETERRORINFO);

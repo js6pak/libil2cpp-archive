@@ -15,15 +15,11 @@
 #include "utils/StringUtils.h"
 #include "vm-utils/VmStringUtils.h"
 
-using il2cpp::utils::HashUtils;
-using il2cpp::utils::StringUtils;
-
-
 struct NamespaceAndNamePairHash
 {
     size_t operator()(const std::pair<const char*, const char*>& pair) const
     {
-        return HashUtils::Combine(StringUtils::Hash(pair.first), StringUtils::Hash(pair.second));
+        return il2cpp::utils::HashUtils::Combine(il2cpp::utils::StringUtils::Hash(pair.first), il2cpp::utils::StringUtils::Hash(pair.second));
     }
 };
 
