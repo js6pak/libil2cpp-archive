@@ -23,7 +23,7 @@ namespace il2cpp
 {
 namespace vm
 {
-    void Exception::PrepareExceptionForThrow(Il2CppException* ex, Il2CppSequencePoint* seqPoint, MethodInfo* lastManagedFrame)
+    NORETURN void Exception::Raise(Il2CppException* ex, Il2CppSequencePoint *seqPoint, MethodInfo* lastManagedFrame)
     {
 #if IL2CPP_MONO_DEBUGGER
         il2cpp::utils::Debugger::HandleException(ex, seqPoint);
@@ -57,11 +57,7 @@ namespace vm
             IL2CPP_ASSERT(ips != NULL);
             IL2CPP_OBJECT_SETREF(ex, trace_ips, ips);
         }
-    }
 
-    NORETURN void Exception::Raise(Il2CppException* ex, Il2CppSequencePoint *seqPoint, MethodInfo* lastManagedFrame)
-    {
-        PrepareExceptionForThrow(ex, seqPoint, lastManagedFrame);
         throw Il2CppExceptionWrapper(ex);
     }
 
@@ -235,9 +231,6 @@ namespace vm
 
                 return GetPlatformNotSupportedException(message);
             }
-
-            case IL2CPP_E_FILE_NOT_FOUND:
-                return GetFileNotFoundException(message);
 
             default:
                 return defaultToCOMException
@@ -461,7 +454,7 @@ namespace vm
             const char kInnerExceptionMessage[] = "The provided identity format is not recognized. (Exception from HRESULT: 0x80132003)";
             Il2CppException* innerException = Exception::GetArgumentException("", kInnerExceptionMessage);
             innerException->hresult = 0x80132003;
-            typeLoadException->inner_ex = innerException;
+            IL2CPP_OBJECT_SETREF(typeLoadException, inner_ex, innerException);
         }
 
         return typeLoadException;
@@ -590,11 +583,6 @@ namespace vm
     Il2CppException* Exception::GetFileLoadException(const char* msg)
     {
         return FromNameMsg(Image::GetCorlib(), "System.IO", "FileLoadException", msg);
-    }
-
-    Il2CppException* Exception::GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg)
-    {
-        return FromNameMsg(Image::GetCorlib(), "System.IO", "FileNotFoundException", msg);
     }
 
     void Exception::StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString)

@@ -166,8 +166,6 @@ typedef struct Il2CppDefaults
 
     // Windows.Foundation.IReference`1<T>
     Il2CppClass* ireference_class;
-    // Windows.Foundation.IReferenceArray`1<T>
-    Il2CppClass* ireferencearray_class;
     // Windows.Foundation.Collections.IKeyValuePair`2<K, V>
     Il2CppClass* ikey_value_pair_class;
     // System.Collections.Generic.KeyValuePair`2<K, V>
@@ -210,7 +208,9 @@ typedef struct CustomAttributesCache
 
 typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
 
-const int THREAD_STATIC_FIELD_OFFSET = -1;
+#ifndef THREAD_STATIC_FIELD_OFFSET
+#define THREAD_STATIC_FIELD_OFFSET -1
+#endif
 
 typedef struct FieldInfo
 {
@@ -310,7 +310,7 @@ typedef struct Il2CppSequencePointSourceFile
 
 typedef struct Il2CppTypeSourceFilePair
 {
-    TypeIndex klassIndex;
+    TypeDefinitionIndex klassIndex;
     int32_t sourceFileIndex;
 } Il2CppTypeSourceFilePair;
 
@@ -486,13 +486,8 @@ typedef struct Il2CppClass
     uint8_t typeHierarchyDepth; // Initialized in SetupTypeHierachy
     uint8_t genericRecursionDepth;
     uint8_t rank;
-    uint8_t minimumAlignment; // Alignment of this type
-    uint8_t naturalAligment; // Alignment of this type without accounting for packing
+    uint8_t minimumAlignment;
     uint8_t packingSize;
-
-    // this is critical for performance of Class::InitFromCodegen. Equals to initialized && !has_initialization_error at all times.
-    // Use Class::UpdateInitializedAndNoError to update
-    uint8_t initialized_and_no_error : 1;
 
     uint8_t valuetype : 1;
     uint8_t initialized : 1;
@@ -543,7 +538,8 @@ typedef struct Il2CppAssemblyName
 {
     const char* name;
     const char* culture;
-    const uint8_t* public_key;
+    const char* hash_value;
+    const char* public_key;
     uint32_t hash_alg;
     int32_t hash_len;
     uint32_t flags;
@@ -594,12 +590,6 @@ typedef struct Il2CppCodeGenOptions
     bool enablePrimitiveValueTypeGenericSharing;
 } Il2CppCodeGenOptions;
 
-typedef struct Il2CppWindowsRuntimeFactoryTableEntry
-{
-    const Il2CppType* type;
-    Il2CppMethodPointer createFactoryFunction;
-} Il2CppWindowsRuntimeFactoryTableEntry;
-
 typedef struct Il2CppCodeRegistration
 {
     uint32_t methodPointersCount;
@@ -616,8 +606,6 @@ typedef struct Il2CppCodeRegistration
     const Il2CppMethodPointer* unresolvedVirtualCallPointers;
     uint32_t interopDataCount;
     Il2CppInteropData* interopData;
-    uint32_t windowsRuntimeFactoryCount;
-    Il2CppWindowsRuntimeFactoryTableEntry* windowsRuntimeFactoryTable;
 } Il2CppCodeRegistration;
 
 typedef struct Il2CppMetadataRegistration

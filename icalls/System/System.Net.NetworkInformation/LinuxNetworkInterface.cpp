@@ -2,7 +2,7 @@
 
 #include "il2cpp-config.h"
 #include "LinuxNetworkInterface.h"
-#include "external/xamarin-android/xamarin_getifaddrs.h"
+#include "../external/xamarin-android/xamarin_getifaddrs.h"
 
 namespace il2cpp
 {

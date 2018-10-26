@@ -25,9 +25,6 @@
 
 #include "gc/Allocator.h"
 
-using il2cpp::metadata::Il2CppTypeEqualityComparer;
-using il2cpp::metadata::Il2CppTypeHash;
-
 template<typename T>
 struct ReflectionMapHash
 {
@@ -64,7 +61,7 @@ typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppReflecti
 typedef ReflectionMap<std::pair<const Il2CppImage*, Il2CppClass*>, Il2CppReflectionModule*> ModuleMap;
 typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppArray*> ParametersMap;
 
-typedef il2cpp::gc::AppendOnlyGCHashMap<const Il2CppType*, Il2CppReflectionType*, Il2CppTypeHash, Il2CppTypeEqualityComparer> TypeMap;
+typedef il2cpp::gc::AppendOnlyGCHashMap<const Il2CppType*, Il2CppReflectionType*, il2cpp::metadata::Il2CppTypeHash, il2cpp::metadata::Il2CppTypeEqualityComparer> TypeMap;
 
 typedef Il2CppHashMap<const Il2CppGenericParameter*, const MonoGenericParameterInfo*, il2cpp::utils::PointerHash<const Il2CppGenericParameter> > MonoGenericParameterMap;
 typedef Il2CppHashMap<const  Il2CppAssembly*, const Il2CppMonoAssemblyName*, il2cpp::utils::PointerHash<const Il2CppAssembly> > MonoAssemblyNameMap;

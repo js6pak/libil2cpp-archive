@@ -4,8 +4,14 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
+#endif
 #define INC_OLE2 1
+//Undefine to fix warning in lump build
+#undef UInt32x32To64
+#undef DECIMAL_NEG
+#undef DECIMAL_SETZERO
 #include <Windows.h>
 
 #if defined(__cplusplus)

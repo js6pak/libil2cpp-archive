@@ -28,10 +28,12 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
+#include "math.h"
 
 #include "il2cpp-api.h"
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
+#include "gc/WriteBarrier.h"
 #include "icalls/mscorlib/System.Threading/ThreadPool.h"
 #include "icalls/mscorlib/System.Runtime.Remoting.Messaging/MonoMethodMessage.h"
 #include "mono/ThreadPool/threadpool-ms.h"
@@ -775,7 +777,7 @@ Il2CppObject* threadpool_ms_end_invoke (Il2CppAsyncResult *ares, Il2CppArray **o
 	ac = (Il2CppAsyncCall*) ares->object_data;
 	IL2CPP_ASSERT(ac);
 	
-	*exc = ((Il2CppMethodMessage*)ac->msg)->exc; /* FIXME: GC add write barrier */
+	il2cpp::gc::WriteBarrier::GenericStore(exc, ((Il2CppMethodMessage*)ac->msg)->exc);
 	*out_args = ac->out_args;
 	return ac->res;
 }

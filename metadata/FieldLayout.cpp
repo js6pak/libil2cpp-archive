@@ -97,10 +97,8 @@ namespace metadata
                 else
                 {
                     uint32_t alignment;
-                    Il2CppClass* klass = Type::GetClass(type);
-                    sa.size = Class::GetValueSize(klass, &alignment);
+                    sa.size = Class::GetValueSize(Type::GetClass(type), &alignment);
                     sa.alignment = alignment;
-                    sa.naturalAlignment = klass->naturalAligment;
                     return sa;
                 }
             case IL2CPP_TYPE_GENERICINST:
@@ -147,35 +145,23 @@ namespace metadata
         return size;
     }
 
-    void FieldLayout::LayoutFields(size_t parentSize, size_t actualParentSize, size_t parentAlignment, uint8_t packing, const metadata::Il2CppTypeVector& fieldTypes, FieldLayoutData& data)
+    void FieldLayout::LayoutFields(size_t parentSize, size_t actualParentSize, size_t parentAlignment, const metadata::Il2CppTypeVector& fieldTypes, FieldLayoutData& data)
     {
         data.classSize = parentSize;
         data.actualClassSize = actualParentSize;
         IL2CPP_ASSERT(parentAlignment <= std::numeric_limits<uint8_t>::max());
         data.minimumAlignment = static_cast<uint8_t>(parentAlignment);
-        data.naturalAlignment = 0;
         for (Il2CppTypeVector::const_iterator iter = fieldTypes.begin(); iter != fieldTypes.end(); ++iter)
         {
             SizeAndAlignment sa = GetTypeSizeAndAlignment(*iter);
-
-            // For fields, we might not want to take the actual alignment of the type - that might account for
-            // packing. When a type is used as a field, we should not care about its alignment with packing,
-            // instead let's use its natural alignment, without reagard for packing. So if it's alignment
-            // is less than the compiler's minimum alignment (4 bytes), lets use the natural alignment if we have it.
-            uint8_t alignment = sa.alignment;
-            if (alignment < 4 && sa.naturalAlignment != 0)
-                alignment = sa.naturalAlignment;
-            if (packing != 0)
-                alignment = std::min(sa.alignment, packing);
             size_t offset = data.actualClassSize;
 
-            offset += alignment - 1;
-            offset &= ~(alignment - 1);
+            offset += sa.alignment - 1;
+            offset &= ~(sa.alignment - 1);
 
             data.FieldOffsets.push_back(offset);
             data.actualClassSize = offset + std::max(sa.size, (size_t)1);
-            data.minimumAlignment = std::max(data.minimumAlignment, alignment);
-            data.naturalAlignment = std::max(data.naturalAlignment, sa.alignment);
+            data.minimumAlignment = std::max(data.minimumAlignment, (uint8_t)sa.alignment);
         }
 
         data.classSize = AlignTo(data.actualClassSize, data.minimumAlignment);

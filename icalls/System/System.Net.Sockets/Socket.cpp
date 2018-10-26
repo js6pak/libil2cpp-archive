@@ -217,7 +217,7 @@ namespace Sockets
 #if NET_4_0
             socket_address->m_Size = 8;
 #endif
-            socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 8);
+            IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 8));
 
             const uint16_t port = info.data.inet.port;
             const uint32_t address = info.data.inet.address;
@@ -238,7 +238,7 @@ namespace Sockets
 #if NET_4_0
             socket_address->m_Size = 3 + path_len;
 #endif
-            socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 3 + path_len);
+            IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 3 + path_len));
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
             il2cpp_array_set(socket_address->data, uint8_t, 1, (family >> 8) & 0xFF);
@@ -253,7 +253,7 @@ namespace Sockets
 #if NET_4_0
             socket_address->m_Size = 28;
 #endif
-            socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 28);
+            IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 28));
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
             il2cpp_array_set(socket_address->data, uint8_t, 1, (family >> 8) & 0xFF);
@@ -974,11 +974,6 @@ namespace Sockets
             return;
 
         int32_t results = 0;
-
-        // The timeout from managed code is in microseconds. Convert it to milliseconds
-        // for the poll implementation.
-        timeout = (timeout >= 0) ? (timeout / 1000) : -1;
-
         const os::WaitStatus result = os::Socket::Poll(requests, timeout, &results, error);
 
         if (result == kWaitStatusFailure)
@@ -1756,17 +1751,7 @@ namespace Sockets
 
     bool Socket::IsProtocolSupported_internal(int32_t networkInterface)
     {
-        // The networkInterface argument is from the
-        // System.Net.NetworkInformation.NetworkInterfaceComponent enum
-        // 0 => IPv4
-        // 1 => IPv6
-#if IL2CPP_SUPPORT_IPV6
-        // This platform supports both IPv6 and IPv4.
         return true;
-#else
-        // This platform only supports IPv4.
-        return networkInterface == 0;
-#endif
     }
 
 #endif

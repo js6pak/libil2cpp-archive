@@ -12,11 +12,6 @@
 #include "WindowsHelpers.h"
 #include "Evntprov.h"
 
-#if WINDOWS_SDK_BUILD_VERSION >= 16299
-#define WINNT // All functions in Evntrace.h are under this define.. Why? I have no idea!
-#include "Evntrace.h"
-#endif
-
 namespace il2cpp
 {
 namespace os
@@ -45,9 +40,6 @@ namespace os
     const HardcodedPInvokeDependencyFunction kAdvapiFunctions[] =
     {
 #if !IL2CPP_TARGET_XBOXONE
-#if WINDOWS_SDK_BUILD_VERSION >= 16299
-        HARDCODED_DEPENDENCY_FUNCTION(EnumerateTraceGuidsEx),
-#endif
         HARDCODED_DEPENDENCY_FUNCTION(EventActivityIdControl),
 #endif
         HARDCODED_DEPENDENCY_FUNCTION(EventRegister),
@@ -65,7 +57,6 @@ namespace os
     const HardcodedPInvokeDependencyFunction kKernel32Functions[] =
     {
         HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
-        HARDCODED_DEPENDENCY_FUNCTION(GetCurrentProcessId),
         HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),

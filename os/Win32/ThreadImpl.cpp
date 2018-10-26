@@ -12,7 +12,7 @@ namespace il2cpp
 {
 namespace os
 {
-    struct StartData
+    struct ThreadImplStartData
     {
         Thread::StartFunc m_StartFunc;
         void* m_StartArg;
@@ -21,7 +21,7 @@ namespace os
 
     static DWORD WINAPI ThreadStartWrapper(LPVOID arg)
     {
-        StartData startData = *(StartData*)arg;
+        ThreadImplStartData startData = *(ThreadImplStartData*)arg;
         free(arg);
         *startData.m_ThreadId = GetCurrentThreadId();
         startData.m_StartFunc(startData.m_StartArg);
@@ -100,7 +100,7 @@ namespace os
         // It might happen that func will start executing and will try to access m_ThreadId before CreateThread gets a chance to assign it.
         // Therefore m_ThreadId is assigned both by this thread and from the newly created thread (race condition could go the other way too).
 
-        StartData* startData = (StartData*)malloc(sizeof(StartData));
+        ThreadImplStartData* startData = (ThreadImplStartData*)malloc(sizeof(ThreadImplStartData));
         startData->m_StartFunc = func;
         startData->m_StartArg = arg;
         startData->m_ThreadId = &m_ThreadId;
@@ -143,11 +143,6 @@ namespace os
     void ThreadImpl::QueueUserAPC(Thread::APCFunc func, void* context)
     {
         ::QueueUserAPC(reinterpret_cast<PAPCFUNC>(func), m_ThreadHandle, reinterpret_cast<ULONG_PTR>(context));
-    }
-
-    int ThreadImpl::GetMaxStackSize()
-    {
-        return INT_MAX;
     }
 
 namespace

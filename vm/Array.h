@@ -63,6 +63,6 @@ IL2CPP_EXPORT int il2cpp_array_element_size(const Il2CppClass *ac);
 #define il2cpp_array_setref(array, index, value)  \
     do {    \
         void* *__p = (void* *) il2cpp_array_addr ((array), void*, (index)); \
-        /* il2cpp_gc_wbarrier_set_arrayref ((array), __p, (MonoObject*)(value));    */\
          *__p = (value);    \
+        il2cpp_gc_wbarrier_set_field((Il2CppObject *)(array), __p, (value));\
     } while (0)
