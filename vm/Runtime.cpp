@@ -13,7 +13,6 @@
 #include "os/c-api/Allocator.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
-#include "vm/COMEntryPoints.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -39,6 +38,8 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
+#include "gc/WriteBarrier.h"
+#include "gc/WriteBarrierValidation.h"
 #include "vm/InternalCalls.h"
 #include "utils/Collections.h"
 #include "utils/Memory.h"
@@ -57,16 +58,9 @@ extern "C" {
 }
 #endif
 
-
-using il2cpp::metadata::GenericMethod;
-using il2cpp::utils::StringUtils;
-
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
-
-static il2cpp::os::FastMutex s_InitLock;
-static int32_t s_RuntimeInitCount;
 
 namespace il2cpp
 {
@@ -131,15 +125,11 @@ namespace vm
 
 #endif
 
-    static void SetConfigStr(const std::string& executablePath);
-
-    bool Runtime::Init(const char* domainName)
+    bool Runtime::Init(const char* filename, const char *runtime_version)
     {
-        os::FastAutoLock lock(&s_InitLock);
-
-        IL2CPP_ASSERT(s_RuntimeInitCount >= 0);
-        if (s_RuntimeInitCount++ > 0)
-            return true;
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+        gc::WriteBarrierValidation::Setup();
+#endif
 
         SanityChecks();
 
@@ -147,15 +137,7 @@ namespace vm
         os::Locale::Initialize();
         MetadataAllocInitialize();
 
-        // NOTE(gab): the runtime_version needs to change once we
-        // will support multiple runtimes.
-        // For now we default to the one used by unity and don't
-        // allow the callers to change it.
-#if NET_4_0
-        s_FrameworkVersion = framework_version_for("v4.0.30319");
-#else
-        s_FrameworkVersion = framework_version_for("v2.0.50727");
-#endif
+        s_FrameworkVersion = framework_version_for(runtime_version);
 
         os::Image::Initialize();
         os::Thread::Init();
@@ -163,11 +145,7 @@ namespace vm
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
 
         if (!MetadataCache::Initialize())
-        {
-            s_RuntimeInitCount--;
             return false;
-        }
-
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
 
@@ -318,7 +296,6 @@ namespace vm
         {
             const Il2CppImage* windowsRuntimeMetadataImage = Assembly::GetImage(windowsRuntimeMetadataAssembly);
             il2cpp_defaults.ireference_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "IReference`1");
-            il2cpp_defaults.ireferencearray_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "IReferenceArray`1");
             il2cpp_defaults.ikey_value_pair_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation.Collections", "IKeyValuePair`2");
             il2cpp_defaults.ikey_value_pair_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation.Collections", "IKeyValuePair`2");
             il2cpp_defaults.windows_foundation_uri_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "Uri");
@@ -341,15 +318,13 @@ namespace vm
         Il2CppAppDomainSetup* setup = (Il2CppAppDomainSetup*)Object::NewPinned(il2cpp_defaults.appdomain_setup_class);
 
         Il2CppAppDomain* ad = (Il2CppAppDomain*)Object::NewPinned(il2cpp_defaults.appdomain_class);
-        ad->data = domain;
-        gc::GarbageCollector::SetWriteBarrier((void**)&ad->data);
-        domain->domain = ad;
-        gc::GarbageCollector::SetWriteBarrier((void**)&domain->domain);
-        domain->setup = setup;
-        gc::GarbageCollector::SetWriteBarrier((void**)&domain->setup);
+        gc::WriteBarrier::GenericStore(&ad->data, domain);
+        gc::WriteBarrier::GenericStore(&domain->domain, ad);
+        gc::WriteBarrier::GenericStore(&domain->setup, setup);
+
         domain->domain_id = 1; // Only have a single domain ATM.
 
-        domain->friendly_name = basepath(domainName);
+        domain->friendly_name = basepath(filename);
 
         LastError::InitializeLastErrorThreadStatic();
 
@@ -381,28 +356,14 @@ namespace vm
 #if IL2CPP_MONO_DEBUGGER
         il2cpp::utils::Debugger::Start();
 #endif
-
-        std::string executablePath = os::Path::GetExecutablePath();
-        SetConfigStr(executablePath);
-
-        if (utils::Environment::GetNumMainArgs() == 0)
-        {
-            // If main args were never set, we default to 1 arg that is the executable path
-            const char* mainArgs[] = { executablePath.c_str() };
-            utils::Environment::SetMainArgs(mainArgs, 1);
-        }
-
         return true;
     }
 
     void Runtime::Shutdown()
     {
-        os::FastAutoLock lock(&s_InitLock);
-
-        IL2CPP_ASSERT(s_RuntimeInitCount > 0);
-        if (--s_RuntimeInitCount > 0)
-            return;
-
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+        gc::WriteBarrierValidation::Run();
+#endif
         shutting_down = true;
 
 #if IL2CPP_ENABLE_PROFILER
@@ -443,8 +404,6 @@ namespace vm
 
         vm::Image::ClearCachedResourceData();
         MetadataAllocCleanup();
-
-        vm::COMEntryPoints::FreeCachedData();
 
         os::Locale::UnInitialize();
         os::Uninitialize();
@@ -562,7 +521,7 @@ namespace vm
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
     {
         if (exc)
-            *exc = NULL;
+            il2cpp::gc::WriteBarrier::GenericStore(exc, NULL);
 
         // we wrap invoker call in try/catch here, rather than emitting a try/catch
         // in every invoke call as that blows up the code size.
@@ -578,7 +537,7 @@ namespace vm
         catch (Il2CppExceptionWrapper& ex)
         {
             if (exc)
-                *exc = ex.ex;
+                il2cpp::gc::WriteBarrier::GenericStore(exc, ex.ex);
             return NULL;
         }
     }
@@ -736,7 +695,7 @@ namespace vm
                         // If value type is passed by reference, just pass pointer to value directly
                         // If null was passed in, create a new boxed value type in its place
                         if (parameters[i] == NULL)
-                            parameters[i] = Object::New(parameterType);
+                            gc::WriteBarrier::GenericStore(parameters + i, Object::New(parameterType));
 
                         convertedParameters[i] = Object::Unbox(parameters[i]);
                     }
@@ -789,7 +748,7 @@ namespace vm
                 Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
 
                 if (Class::IsNullable(parameterType))
-                    parameters[i] = Object::Box(parameterType, convertedParameters[i]);
+                    gc::WriteBarrier::GenericStore(parameters + i, Object::Box(parameterType, convertedParameters[i]));
             }
         }
 
@@ -798,7 +757,7 @@ namespace vm
             static Il2CppClass* pointerClass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Pointer");
             Il2CppReflectionPointer* pointer = reinterpret_cast<Il2CppReflectionPointer*>(Object::New(pointerClass));
             pointer->data = result;
-            pointer->type = Reflection::GetTypeObject(method->return_type);
+            IL2CPP_OBJECT_SETREF(pointer, type, Reflection::GetTypeObject(method->return_type));
             result = reinterpret_cast<Il2CppObject*>(pointer);
         }
 
@@ -883,7 +842,7 @@ namespace vm
             if (exception != NULL)
             {
                 const Il2CppType *type = Class::GetType(klass);
-                std::string n = StringUtils::Printf("The type initializer for '%s' threw an exception.", Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_IL).c_str());
+                std::string n = il2cpp::utils::StringUtils::Printf("The type initializer for '%s' threw an exception.", Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_IL).c_str());
                 Il2CppException* typeInitializationException = Exception::GetTypeInitializationException(n.c_str(), exception);
                 Exception::Raise(typeInitializationException);
             }

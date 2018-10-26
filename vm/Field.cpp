@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "utils/StringUtils.h"
+#include "gc/WriteBarrier.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
 #include "vm/Field.h"
@@ -15,8 +16,6 @@
 #include "utils/MemoryRead.h"
 #include "vm-utils/BlobReader.h"
 #include "Thread.h"
-
-using namespace il2cpp::utils;
 
 namespace il2cpp
 {
@@ -140,7 +139,7 @@ namespace vm
         const char* data;
 
         data = Class::GetFieldDefaultValue(field, &type);
-        BlobReader::GetConstantValueFromBlob(type->type, data, value);
+        utils::BlobReader::GetConstantValueFromBlob(type->type, data, value);
     }
 
     void Field::StaticGetValue(FieldInfo *field, void *value)
@@ -232,8 +231,7 @@ namespace vm
     {
         assert(!(field->type->attrs & FIELD_ATTRIBUTE_LITERAL));
         assert(!Class::FromIl2CppType(field->type)->valuetype);
-        *reinterpret_cast<Il2CppObject**>(reinterpret_cast<uint8_t*>(objectInstance) + field->offset) = value;
-        // Object write barrier needed here
+        gc::WriteBarrier::GenericStore(reinterpret_cast<uint8_t*>(objectInstance) + field->offset, value);
     }
 
     void Field::SetValueRaw(const Il2CppType *type, void *dest, void *value, bool deref_pointer)
@@ -272,7 +270,7 @@ namespace vm
                 *p = value ? *(Il2CppChar*)value : 0;
                 return;
             }
-#if IL2CPP_SIZEOF_VOID_P == 4
+#if SIZEOF_VOID_P == 4
             case IL2CPP_TYPE_I:
             case IL2CPP_TYPE_U:
 #endif
@@ -283,7 +281,7 @@ namespace vm
                 *p = value ? *(int32_t*)value : 0;
                 return;
             }
-#if IL2CPP_SIZEOF_VOID_P == 8
+#if SIZEOF_VOID_P == 8
             case IL2CPP_TYPE_I:
             case IL2CPP_TYPE_U:
 #endif
@@ -311,8 +309,7 @@ namespace vm
             case IL2CPP_TYPE_CLASS:
             case IL2CPP_TYPE_OBJECT:
             case IL2CPP_TYPE_ARRAY:
-                *(void**)dest = (deref_pointer ? *(void**)value : value);
-                //mono_gc_wbarrier_generic_store (dest, deref_pointer? *(void**)value: value);
+                gc::WriteBarrier::GenericStore(dest, (deref_pointer ? *(void**)value : value));
                 return;
             case IL2CPP_TYPE_FNPTR:
             case IL2CPP_TYPE_PTR:

@@ -22,8 +22,6 @@ namespace vm
 {
 namespace MemoryInformation
 {
-    using namespace il2cpp::metadata;
-
     struct GatherMetadataContext
     {
         uint32_t currentIndex;
@@ -66,9 +64,9 @@ namespace MemoryInformation
             }
         }
 
-        ArrayMetadata::WalkArrays(GatherMetadataCallback, &gatherMetadataContext);
-        ArrayMetadata::WalkSZArrays(GatherMetadataCallback, &gatherMetadataContext);
-        GenericMetadata::WalkAllGenericClasses(GatherMetadataCallback, &gatherMetadataContext);
+        metadata::ArrayMetadata::WalkArrays(GatherMetadataCallback, &gatherMetadataContext);
+        metadata::ArrayMetadata::WalkSZArrays(GatherMetadataCallback, &gatherMetadataContext);
+        metadata::GenericMetadata::WalkAllGenericClasses(GatherMetadataCallback, &gatherMetadataContext);
         MetadataCache::WalkPointerTypes(GatherMetadataCallback, &gatherMetadataContext);
 
         const std::map<Il2CppClass*, uint32_t>& allTypes = gatherMetadataContext.allTypes;

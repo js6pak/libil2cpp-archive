@@ -36,8 +36,3 @@ void Logging::SetLogCallback(Il2CppLogCallback method)
     assert(method != NULL);
     s_Callback = method;
 }
-
-bool Logging::IsLogCallbackSet()
-{
-    return s_Callback != DefaultLogCallback;
-}

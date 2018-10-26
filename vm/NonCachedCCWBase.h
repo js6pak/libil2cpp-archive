@@ -1,8 +1,7 @@
 #pragma once
 
 #include "gc/GCHandle.h"
-#include "vm/CCWBase.h"
-#include "vm/Exception.h"
+#include "vm/ComObjectBase.h"
 #include "utils/TemplateUtils.h"
 
 namespace il2cpp
@@ -10,7 +9,7 @@ namespace il2cpp
 namespace vm
 {
     template<typename TDerived>
-    struct NOVTABLE NonCachedCCWBase : CCWBase
+    struct NOVTABLE NonCachedCCWBase : ComObjectBase
     {
     private:
         volatile uint32_t m_RefCount;
@@ -18,7 +17,7 @@ namespace vm
 
     public:
         inline NonCachedCCWBase(Il2CppObject* obj) :
-            CCWBase(obj),
+            ComObjectBase(obj),
             m_RefCount(1) // We start with a ref count of 1
         {
             m_GCHandle = gc::GCHandle::New(GetManagedObjectInline(), false);

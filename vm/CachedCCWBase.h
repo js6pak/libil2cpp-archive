@@ -2,7 +2,7 @@
 
 #include "gc/GCHandle.h"
 #include "vm/Atomic.h"
-#include "vm/CCWBase.h"
+#include "vm/ComObjectBase.h"
 #include "utils/Memory.h"
 #include "utils/TemplateUtils.h"
 
@@ -24,7 +24,7 @@ namespace vm
 // when the reference count reaches 0; we instead rely on GC finalizer of the managed object to both remove it from
 // CCW cache and also destroy it.
     template<typename TDerived>
-    struct NOVTABLE CachedCCWBase : CCWBase
+    struct NOVTABLE CachedCCWBase : ComObjectBase
     {
     private:
         volatile uint32_t m_RefCount;
@@ -32,7 +32,7 @@ namespace vm
 
     public:
         inline CachedCCWBase(Il2CppObject* obj) :
-            CCWBase(obj),
+            ComObjectBase(obj),
             m_RefCount(0), // We do not hold any references upon its creation
             m_GCHandle(0)
         {
@@ -49,40 +49,27 @@ namespace vm
             return ReleaseImpl();
         }
 
-        // AddRef can be called at any time whatsoever, as it's called when
-        // managed objects are passed to native code
-        IL2CPP_NO_INLINE uint32_t AddRefImpl()
+        FORCE_INLINE uint32_t AddRefImpl()
         {
             const uint32_t refCount = Atomic::Increment(&m_RefCount);
 
             if (refCount == 1)
             {
-                // Since AddRef can be called at any time, it's possible that
-                // at this point we're in middle of ReleaseImpl call just after
-                // it decrements the gccount to 0 but hasn't released m_GCHandle
-                // yet. We spin until it is released.
-                uint32_t gcHandle = gc::GCHandle::New(GetManagedObjectInline(), false);
-                while (Atomic::CompareExchange(&m_GCHandle, gcHandle, 0) != 0) {}
+                IL2CPP_ASSERT(m_GCHandle == 0);
+                m_GCHandle = gc::GCHandle::New(GetManagedObjectInline(), false);
             }
 
             return refCount;
         }
 
-        // Release can be called only if m_RefCount is greater than 0,
-        // and the AddRef call that has increased the ref count above 0 has returned
-        IL2CPP_NO_INLINE uint32_t ReleaseImpl()
+        FORCE_INLINE uint32_t ReleaseImpl()
         {
             const uint32_t count = Atomic::Decrement(&m_RefCount);
             if (count == 0)
             {
-                // We decreased the ref count to 0, so we are responsible
-                // for freeing the handle. Only one ReleaseImpl that reduced
-                // ref count to 0 will ever be in flight at the same time
-                // because AddRefImpl that takes us out of this state halts until
-                // we set m_GCHandle to zero.
-                uint32_t gcHandle = Atomic::Exchange(&m_GCHandle, 0);
-                IL2CPP_ASSERT(gcHandle != 0);
-                gc::GCHandle::Free(gcHandle);
+                IL2CPP_ASSERT(m_GCHandle != 0);
+                gc::GCHandle::Free(m_GCHandle);
+                m_GCHandle = 0;
             }
 
             return count;

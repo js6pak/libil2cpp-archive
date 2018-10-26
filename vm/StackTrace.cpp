@@ -6,7 +6,6 @@
 #include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
 #include "vm-utils/NativeSymbol.h"
-#include "vm-utils/Debugger.h"
 
 namespace il2cpp
 {
@@ -21,7 +20,7 @@ namespace vm
 
         inline StackFrames* GetStackFramesRaw()
         {
-            StackFrames* stackFrames;
+            StackFrames* stackFrames = NULL;
 
             os::ErrorCode result = s_StackFrames.GetValue(reinterpret_cast<void**>(&stackFrames));
             Assert(result == os::kErrorCodeSuccess);
@@ -93,52 +92,6 @@ namespace vm
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 
-#if IL2CPP_MONO_DEBUGGER
-    class DebuggerMethodStack : public MethodStack
-    {
-    public:
-        inline const StackFrames* GetStackFrames()
-        {
-            StackFrames* stackFrames = GetStackFramesRaw();
-            if (stackFrames == NULL)
-                return stackFrames;
-            stackFrames->clear();
-
-            utils::Debugger::GetStackFrames(stackFrames);
-
-            return stackFrames;
-        }
-
-        inline const StackFrames* GetCachedStackFrames(int32_t depth, const void* stackPointer)
-        {
-            return GetStackFrames();
-        }
-
-        inline bool GetStackFrameAt(int32_t depth, Il2CppStackFrameInfo& frame)
-        {
-            const StackFrames& frames = *GetStackFrames();
-
-            if (static_cast<int>(frames.size()) + depth < 1)
-                return false;
-
-            frame = frames[frames.size() - 1 + depth];
-            return true;
-        }
-
-        inline void PushFrame(Il2CppStackFrameInfo& frame)
-        {
-        }
-
-        inline void PopFrame()
-        {
-        }
-
-        inline const void* GetStackPointer()
-        {
-            return NULL;
-        }
-    };
-#else
     class NativeMethodStack : public MethodStack
     {
         static bool GetStackFramesCallback(Il2CppMethodPointer frame, void* context)
@@ -185,6 +138,8 @@ namespace vm
         inline const StackFrames* GetStackFrames()
         {
             StackFrames* stackFrames = GetStackFramesRaw();
+            if (stackFrames == NULL)
+                return stackFrames;
             stackFrames->clear();
 
             os::StackTrace::WalkStack(&NativeMethodStack::GetStackFramesCallback, stackFrames, os::StackTrace::kFirstCalledToLastCalled);
@@ -215,7 +170,6 @@ namespace vm
         {
         }
     };
-#endif // IL2CPP_MONO_DEBUGGER
 
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
 
@@ -263,11 +217,7 @@ namespace vm
 
 #elif IL2CPP_ENABLE_NATIVE_STACKTRACES
 
-#if IL2CPP_MONO_DEBUGGER
-    DebuggerMethodStack s_MethodStack;
-#else
     NativeMethodStack s_MethodStack;
-#endif
 
 #endif
 

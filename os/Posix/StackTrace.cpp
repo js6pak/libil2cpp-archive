@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_JAVASCRIPT && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4
+#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_JAVASCRIPT && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4  && !IL2CPP_TARGET_LUMIN
 
 #include "os/StackTrace.h"
 #include <execinfo.h>
@@ -22,7 +22,7 @@ namespace os
 
         if (walkOrder == kFirstCalledToLastCalled)
         {
-            for (int i = frames - 1; i >= 0; i--)
+            for (size_t i = frames; i--;)
             {
                 if (!callback(reinterpret_cast<Il2CppMethodPointer>(callstack[i]), context))
                     break;

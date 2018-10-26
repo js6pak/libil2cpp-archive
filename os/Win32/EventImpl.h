@@ -22,7 +22,6 @@ namespace os
         ErrorCode Reset();
         WaitStatus Wait(bool interruptible);
         WaitStatus Wait(uint32_t ms, bool interruptible);
-        void* GetOSHandle();
 
     private:
         HANDLE m_Event;

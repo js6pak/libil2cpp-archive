@@ -104,22 +104,11 @@ namespace Threading
         }
     }
 
-    int32_t WaitHandle::Wait_internal(void* *handles, int32_t numhandles, bool  waitall, int32_t timeouts)
+    int32_t WaitHandle::Wait_internal(void* *handles, int32_t numhandles, bool waitall, int32_t timeouts)
     {
-        vm::ThreadStateSetter state(vm::kThreadStateWaitSleepJoin);
-
-        if (numhandles == 1)
-        {
-            os::WaitStatus status = ((os::Handle**)handles)[0]->Wait((uint32_t)timeouts, true);
-
-            // The managed code expects either success or timeout from this function, so
-            // throw away any other error codes.
-            if (status != kWaitStatusSuccess)
-                status = kWaitStatusTimeout;
-            return map_native_wait_result_to_managed(status, 1);
-        }
-
         std::vector<os::Handle*> osWaitHandles((os::Handle**)handles, (os::Handle**)handles + numhandles);
+
+        vm::ThreadStateSetter state(vm::kThreadStateWaitSleepJoin);
 
         if (waitall)
         {

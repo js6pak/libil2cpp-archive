@@ -13,8 +13,6 @@
 #include "vm/Type.h"
 #include "vm/WindowsRuntime.h"
 
-using namespace il2cpp::metadata;
-
 namespace il2cpp
 {
 namespace vm

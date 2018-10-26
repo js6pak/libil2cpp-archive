@@ -131,11 +131,6 @@ namespace os
         m_Thread->SetStackSize(stackSize);
     }
 
-    int Thread::GetMaxStackSize()
-    {
-        return ThreadImpl::GetMaxStackSize();
-    }
-
     struct StartData
     {
         Thread* thread;
@@ -270,13 +265,6 @@ namespace os
         s_CurrentThread.GetValue(&value);
         IL2CPP_ASSERT(value != NULL);
         return reinterpret_cast<Thread*>(value);
-    }
-
-    bool Thread::HasCurrentThread()
-    {
-        void* value;
-        s_CurrentThread.GetValue(&value);
-        return value != NULL;
     }
 
     Thread* Thread::GetOrCreateCurrentThread()

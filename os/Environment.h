@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <vector>
 
+#undef SetEnvironmentVariable // Get rid of windows.h #define.
+#undef GetEnvironmentVariable // Get rid of windows.h #define.
+
 struct Il2CppArray;
 
 namespace il2cpp

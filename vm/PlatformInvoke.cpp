@@ -330,7 +330,7 @@ namespace vm
 
 #if !NET_4_0
         Il2CppString* managedString = MarshalCppStringToCSharpStringResult(buffer);
-        stringBuilder->str = managedString;
+        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
         stringBuilder->length = utils::StringUtils::GetLength(managedString);
 #else
         UTF16String utf16String = utils::StringUtils::Utf8ToUtf16(buffer);
@@ -355,7 +355,7 @@ namespace vm
 
 #if !NET_4_0
         Il2CppString* managedString = MarshalCppWStringToCSharpStringResult(buffer);
-        stringBuilder->str = managedString;
+        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
         stringBuilder->length = utils::StringUtils::GetLength(managedString);
 #else
         int len = (int)utils::StringUtils::StrLen(buffer);
