@@ -4,6 +4,17 @@
 #include "il2cpp-config.h"
 #include "il2cpp-object-internals.h"
 
+#undef CopyFile
+#undef DeleteFile
+#undef MoveFile
+#undef ReplaceFile
+#undef GetFileAttributes
+#undef SetFileAttributes
+#undef CreatePipe
+#undef GetTempPath
+#undef FindNextFile
+#undef FindFirstFile
+
 struct Il2CppArray;
 struct Il2CppString;
 

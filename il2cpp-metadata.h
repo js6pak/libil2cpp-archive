@@ -38,19 +38,19 @@ typedef int32_t ImageIndex;
 typedef int32_t AssemblyIndex;
 typedef int32_t InteropDataIndex;
 
-const TypeIndex kTypeIndexInvalid = -1;
-const TypeDefinitionIndex kTypeDefinitionIndexInvalid = -1;
-const DefaultValueDataIndex kDefaultValueIndexNull = -1;
-const CustomAttributeIndex kCustomAttributeIndexInvalid = -1;
-const EventIndex kEventIndexInvalid = -1;
-const FieldIndex kFieldIndexInvalid = -1;
-const MethodIndex kMethodIndexInvalid = -1;
-const PropertyIndex kPropertyIndexInvalid = -1;
-const GenericContainerIndex kGenericContainerIndexInvalid = -1;
-const GenericParameterIndex kGenericParameterIndexInvalid = -1;
-const RGCTXIndex kRGCTXIndexInvalid = -1;
-const StringLiteralIndex kStringLiteralIndexInvalid = -1;
-const InteropDataIndex kInteropDataIndexInvalid = -1;
+static const TypeIndex kTypeIndexInvalid = -1;
+static const TypeDefinitionIndex kTypeDefinitionIndexInvalid = -1;
+static const DefaultValueDataIndex kDefaultValueIndexNull = -1;
+static const CustomAttributeIndex kCustomAttributeIndexInvalid = -1;
+static const EventIndex kEventIndexInvalid = -1;
+static const FieldIndex kFieldIndexInvalid = -1;
+static const MethodIndex kMethodIndexInvalid = -1;
+static const PropertyIndex kPropertyIndexInvalid = -1;
+static const GenericContainerIndex kGenericContainerIndexInvalid = -1;
+static const GenericParameterIndex kGenericParameterIndexInvalid = -1;
+static const RGCTXIndex kRGCTXIndexInvalid = -1;
+static const StringLiteralIndex kStringLiteralIndexInvalid = -1;
+static const InteropDataIndex kInteropDataIndexInvalid = -1;
 
 // Encoded index (1 bit)
 // MethodDef - 0
@@ -275,12 +275,13 @@ typedef struct Il2CppGenericMethodFunctionsDefinitions
 } Il2CppGenericMethodFunctionsDefinitions;
 
 #define PUBLIC_KEY_BYTE_LENGTH 8
-const int kPublicKeyByteLength = PUBLIC_KEY_BYTE_LENGTH;
+static const int kPublicKeyByteLength = PUBLIC_KEY_BYTE_LENGTH;
 
 typedef struct Il2CppAssemblyNameDefinition
 {
     StringIndex nameIndex;
     StringIndex cultureIndex;
+    StringIndex hashValueIndex;
     StringIndex publicKeyIndex;
     uint32_t hash_alg;
     int32_t hash_len;

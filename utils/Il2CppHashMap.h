@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../external/google/sparsehash/dense_hash_map.h"
+#include "../../external/google/sparsehash/dense_hash_map.h"
 #include "KeyWrapper.h"
 
 template<class Key, class T,

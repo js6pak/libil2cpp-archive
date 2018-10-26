@@ -6,8 +6,7 @@
 #include "os/Atomic.h"
 #include "os/Mutex.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_JAVASCRIPT
-// Note: sockets are not supported when targetting WebGL, even if it is considered a POSIX platform.
+#if IL2CPP_TARGET_POSIX
 # include "os/Posix/SocketImpl.h"
 #elif IL2CPP_TARGET_WINDOWS
 # include "os/Win32/SocketImpl.h"

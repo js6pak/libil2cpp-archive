@@ -57,7 +57,6 @@ namespace os
         ThreadPriority GetPriority();
 
         void SetStackSize(size_t stackSize);
-        static int GetMaxStackSize();
 
         void SetCleanupFunction(CleanupFunc cleanupFunc, void* arg)
         {
@@ -88,7 +87,6 @@ namespace os
 
         static ThreadId CurrentThreadId();
         static Thread* GetCurrentThread();
-        static bool HasCurrentThread();
         static Thread* GetOrCreateCurrentThread();
         static void DetachCurrentThread();
 

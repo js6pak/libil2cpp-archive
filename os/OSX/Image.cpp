@@ -2,8 +2,6 @@
 
 #if IL2CPP_TARGET_DARWIN
 
-#include "os/Image.h"
-
 #include <mach-o/dyld.h>
 #include <mach-o/getsect.h>
 #include <mach-o/ldsyms.h>
@@ -16,6 +14,8 @@ namespace os
 namespace Image
 {
     static void* s_ImageBase = NULL;
+    static void* s_ManagedSectionStart = NULL;
+    static void* s_ManagedSectionEnd = NULL;
 
     static int GetImageIndex()
     {
@@ -106,25 +106,31 @@ namespace Image
             }
         }
 
-        if (sectionData != NULL)
-        {
-            void* start = (void*)((intptr_t)sectionData->addr + (intptr_t)s_ImageBase);
-            void* end = (uint8_t*)start + sectionData->size;
-
-            SetManagedSectionStartAndEnd(start, end);
-        }
+        s_ManagedSectionStart = (void*)((intptr_t)sectionData->addr + (intptr_t)s_ImageBase);
+        s_ManagedSectionEnd = (uint8_t*)s_ManagedSectionStart + sectionData->size;
     }
 
     void Initialize()
     {
         InitializeImageBase();
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
         InitializeManagedSection();
+#endif
     }
 
     void* GetImageBase()
     {
         return s_ImageBase;
     }
+
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+    bool IsInManagedSection(void* ip)
+    {
+        IL2CPP_ASSERT(s_ManagedSectionStart != NULL && s_ManagedSectionEnd != NULL);
+        return s_ManagedSectionStart <= ip && ip <= s_ManagedSectionEnd;
+    }
+
+#endif
 }
 }
 }

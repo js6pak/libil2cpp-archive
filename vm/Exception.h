@@ -22,7 +22,6 @@ namespace vm
     public:
         static Il2CppException* Get(il2cpp_hresult_t hresult, bool defaultToCOMException);
 
-        static void PrepareExceptionForThrow(Il2CppException* ex, Il2CppSequencePoint *seqPoint = NULL, MethodInfo* lastManagedFrame = NULL);
         static NORETURN void Raise(Il2CppException* ex, Il2CppSequencePoint *seqPoint = NULL, MethodInfo* lastManagedFrame = NULL);
         static NORETURN void RaiseOutOfMemoryException(Il2CppSequencePoint *seqPoint = NULL);
         static NORETURN void RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg, Il2CppSequencePoint *seqPoint = NULL);
@@ -84,7 +83,6 @@ namespace vm
         static Il2CppException* GetDivideByZeroException();
         static Il2CppException* GetPlatformNotSupportedException(const utils::StringView<Il2CppChar>& msg);
         static Il2CppException* GetFileLoadException(const char* msg);
-        static Il2CppException* GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg);
 
         static Il2CppException* GetMaxmimumNestedGenericsException();
 

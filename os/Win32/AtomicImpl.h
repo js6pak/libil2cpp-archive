@@ -17,6 +17,8 @@ namespace os
         ::MemoryBarrier();
 #elif defined(_M_ARM)
         __dmb(_ARM_BARRIER_SY);
+#elif defined(_M_ARM64)
+        __dmb(_ARM64_BARRIER_SY);
 #else
 #error Not implemented;
 #endif

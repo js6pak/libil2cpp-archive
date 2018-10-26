@@ -89,7 +89,7 @@ namespace System
 {
 namespace Globalization
 {
-    static Il2CppArray* create_names_array_idx(const uint16_t* names, int max)
+    static Il2CppArray* culture_info_create_names_array_idx(const uint16_t* names, int max)
     {
         if (names == NULL)
             return NULL;
@@ -105,11 +105,7 @@ namespace Globalization
         Il2CppArray* ret = il2cpp_array_new_specific(il2cpp_array_class_get(il2cpp_defaults.string_class, 1), len);
 
         for (int i = 0; i < len; i++)
-#if !NET_4_0
             il2cpp_array_setref(ret, i, il2cpp_string_new(idx2string(names[i])));
-#else
-            il2cpp_array_setref(ret, i, il2cpp_string_new(dtidx2string(names[i])));
-#endif
 
         return ret;
     }
@@ -145,14 +141,14 @@ namespace Globalization
         cultureInfo->text_info_data = &ci->text_info;
 
 #if NET_4_0
-        IL2CPP_OBJECT_SETREF(cultureInfo, native_calendar_names, create_names_array_idx(ci->native_calendar_names, NUM_CALENDARS));
+        IL2CPP_OBJECT_SETREF(cultureInfo, native_calendar_names, culture_info_create_names_array_idx(ci->native_calendar_names, NUM_CALENDARS));
         cultureInfo->default_calendar_type = ci->calendar_type;
 #endif
 
         return true;
     }
 
-    static int culture_name_locator(const void *a, const void *b)
+    static int culture_info_culture_name_locator(const void *a, const void *b)
     {
         const char* aa = (const char*)a;
         const CultureInfoNameEntry* bb = (const CultureInfoNameEntry*)b;
@@ -181,7 +177,7 @@ namespace Globalization
 #if !NET_4_0
     static bool construct_culture_from_specific_name(Il2CppCultureInfo* cultureInfo, const char *name)
     {
-        const CultureInfoNameEntry* ne = (const CultureInfoNameEntry*)bsearch(name, culture_name_entries, NUM_CULTURE_ENTRIES, sizeof(CultureInfoNameEntry), culture_name_locator);
+        const CultureInfoNameEntry* ne = (const CultureInfoNameEntry*)bsearch(name, culture_name_entries, NUM_CULTURE_ENTRIES, sizeof(CultureInfoNameEntry), culture_info_culture_name_locator);
 
         if (ne == NULL)
             return false;
@@ -200,7 +196,7 @@ namespace Globalization
 
 #endif
 
-    static Il2CppArray* create_group_sizes_array(const int *gs, int ml)
+    static Il2CppArray* culture_info_create_group_sizes_array(const int *gs, int ml)
     {
         int i, len = 0;
 
@@ -228,27 +224,27 @@ namespace Globalization
         const DateTimeFormatEntry* dfe = &datetime_format_entries[cultureInfo->datetime_index];
 
         datetime->readOnly = cultureInfo->is_read_only;
-        IL2CPP_OBJECT_SETREF(datetime, AbbreviatedDayNames, create_names_array_idx(dfe->abbreviated_day_names, NUM_DAYS));
-        IL2CPP_OBJECT_SETREF(datetime, AbbreviatedMonthNames, create_names_array_idx(dfe->abbreviated_month_names, NUM_MONTHS));
+        IL2CPP_OBJECT_SETREF(datetime, AbbreviatedDayNames, culture_info_create_names_array_idx(dfe->abbreviated_day_names, NUM_DAYS));
+        IL2CPP_OBJECT_SETREF(datetime, AbbreviatedMonthNames, culture_info_create_names_array_idx(dfe->abbreviated_month_names, NUM_MONTHS));
         IL2CPP_OBJECT_SETREF(datetime, AMDesignator, il2cpp_string_new(idx2string(dfe->am_designator)));
         datetime->CalendarWeekRule = dfe->calendar_week_rule;
         IL2CPP_OBJECT_SETREF(datetime, DateSeparator, il2cpp_string_new(idx2string(dfe->date_separator)));
-        IL2CPP_OBJECT_SETREF(datetime, DayNames, create_names_array_idx(dfe->day_names, NUM_DAYS));
+        IL2CPP_OBJECT_SETREF(datetime, DayNames, culture_info_create_names_array_idx(dfe->day_names, NUM_DAYS));
         datetime->FirstDayOfWeek = dfe->first_day_of_week;
         IL2CPP_OBJECT_SETREF(datetime, FullDateTimePattern, il2cpp_string_new(idx2string(dfe->full_date_time_pattern)));
         IL2CPP_OBJECT_SETREF(datetime, LongDatePattern, il2cpp_string_new(idx2string(dfe->long_date_pattern)));
         IL2CPP_OBJECT_SETREF(datetime, LongTimePattern, il2cpp_string_new(idx2string(dfe->long_time_pattern)));
         IL2CPP_OBJECT_SETREF(datetime, MonthDayPattern, il2cpp_string_new(idx2string(dfe->month_day_pattern)));
-        IL2CPP_OBJECT_SETREF(datetime, MonthNames, create_names_array_idx(dfe->month_names, NUM_MONTHS));
+        IL2CPP_OBJECT_SETREF(datetime, MonthNames, culture_info_create_names_array_idx(dfe->month_names, NUM_MONTHS));
         IL2CPP_OBJECT_SETREF(datetime, PMDesignator, il2cpp_string_new(idx2string(dfe->pm_designator)));
         IL2CPP_OBJECT_SETREF(datetime, ShortDatePattern, il2cpp_string_new(idx2string(dfe->short_date_pattern)));
         IL2CPP_OBJECT_SETREF(datetime, ShortTimePattern, il2cpp_string_new(idx2string(dfe->short_time_pattern)));
         IL2CPP_OBJECT_SETREF(datetime, TimeSeparator, il2cpp_string_new(idx2string(dfe->time_separator)));
         IL2CPP_OBJECT_SETREF(datetime, YearMonthPattern, il2cpp_string_new(idx2string(dfe->year_month_pattern)));
-        IL2CPP_OBJECT_SETREF(datetime, ShortDatePatterns, create_names_array_idx(dfe->short_date_patterns, NUM_SHORT_DATE_PATTERNS));
-        IL2CPP_OBJECT_SETREF(datetime, LongDatePatterns, create_names_array_idx(dfe->long_date_patterns, NUM_LONG_DATE_PATTERNS));
-        IL2CPP_OBJECT_SETREF(datetime, ShortTimePatterns, create_names_array_idx(dfe->short_time_patterns, NUM_SHORT_TIME_PATTERNS));
-        IL2CPP_OBJECT_SETREF(datetime, LongTimePatterns, create_names_array_idx(dfe->long_time_patterns, NUM_LONG_TIME_PATTERNS));
+        IL2CPP_OBJECT_SETREF(datetime, ShortDatePatterns, culture_info_create_names_array_idx(dfe->short_date_patterns, NUM_SHORT_DATE_PATTERNS));
+        IL2CPP_OBJECT_SETREF(datetime, LongDatePatterns, culture_info_create_names_array_idx(dfe->long_date_patterns, NUM_LONG_DATE_PATTERNS));
+        IL2CPP_OBJECT_SETREF(datetime, ShortTimePatterns, culture_info_create_names_array_idx(dfe->short_time_patterns, NUM_SHORT_TIME_PATTERNS));
+        IL2CPP_OBJECT_SETREF(datetime, LongTimePatterns, culture_info_create_names_array_idx(dfe->long_time_patterns, NUM_LONG_TIME_PATTERNS));
     }
 
     bool CultureInfo::construct_internal_locale_from_current_locale(Il2CppCultureInfo* cultureInfo)
@@ -278,7 +274,7 @@ namespace Globalization
     bool CultureInfo::construct_internal_locale_from_name(Il2CppCultureInfo* cultureInfo, Il2CppString* name)
     {
         std::string cultureName = il2cpp::utils::StringUtils::Utf16ToUtf8(name->chars);
-        const CultureInfoNameEntry* ne = (const CultureInfoNameEntry*)bsearch(cultureName.c_str(), culture_name_entries, NUM_CULTURE_ENTRIES, sizeof(CultureInfoNameEntry), culture_name_locator);
+        const CultureInfoNameEntry* ne = (const CultureInfoNameEntry*)bsearch(cultureName.c_str(), culture_name_entries, NUM_CULTURE_ENTRIES, sizeof(CultureInfoNameEntry), culture_info_culture_name_locator);
 
         if (ne == NULL)
             return false;
@@ -301,7 +297,7 @@ namespace Globalization
         number->currencyDecimalDigits = nfe->currency_decimal_digits;
         IL2CPP_OBJECT_SETREF(number, currencyDecimalSeparator, il2cpp_string_new(idx2string(nfe->currency_decimal_separator)));
         IL2CPP_OBJECT_SETREF(number, currencyGroupSeparator, il2cpp_string_new(idx2string(nfe->currency_group_separator)));
-        IL2CPP_OBJECT_SETREF(number, currencyGroupSizes, create_group_sizes_array(nfe->currency_group_sizes, GROUP_SIZE));
+        IL2CPP_OBJECT_SETREF(number, currencyGroupSizes, culture_info_create_group_sizes_array(nfe->currency_group_sizes, GROUP_SIZE));
         number->currencyNegativePattern = nfe->currency_negative_pattern;
         number->currencyPositivePattern = nfe->currency_positive_pattern;
         IL2CPP_OBJECT_SETREF(number, currencySymbol, il2cpp_string_new(idx2string(nfe->currency_symbol)));
@@ -311,12 +307,12 @@ namespace Globalization
         number->numberDecimalDigits = nfe->number_decimal_digits;
         IL2CPP_OBJECT_SETREF(number, numberDecimalSeparator, il2cpp_string_new(idx2string(nfe->number_decimal_separator)));
         IL2CPP_OBJECT_SETREF(number, numberGroupSeparator, il2cpp_string_new(idx2string(nfe->number_group_separator)));
-        IL2CPP_OBJECT_SETREF(number, numberGroupSizes, create_group_sizes_array(nfe->number_group_sizes, GROUP_SIZE));
+        IL2CPP_OBJECT_SETREF(number, numberGroupSizes, culture_info_create_group_sizes_array(nfe->number_group_sizes, GROUP_SIZE));
         number->numberNegativePattern = nfe->number_negative_pattern;
         number->percentDecimalDigits = nfe->percent_decimal_digits;
         IL2CPP_OBJECT_SETREF(number, percentDecimalSeparator, il2cpp_string_new(idx2string(nfe->percent_decimal_separator)));
         IL2CPP_OBJECT_SETREF(number, percentGroupSeparator, il2cpp_string_new(idx2string(nfe->percent_group_separator)));
-        IL2CPP_OBJECT_SETREF(number, percentGroupSizes, create_group_sizes_array(nfe->percent_group_sizes, GROUP_SIZE));
+        IL2CPP_OBJECT_SETREF(number, percentGroupSizes, culture_info_create_group_sizes_array(nfe->percent_group_sizes, GROUP_SIZE));
         number->percentNegativePattern = nfe->percent_negative_pattern;
         number->percentPositivePattern = nfe->percent_positive_pattern;
         IL2CPP_OBJECT_SETREF(number, percentSymbol, il2cpp_string_new(idx2string(nfe->percent_symbol)));
@@ -366,7 +362,7 @@ namespace Globalization
         // InvariantCulture is not in culture table. We reserve the first
         // array element for it.
         if (neutral)
-            il2cpp_array_set(array, Il2CppCultureInfo*, index++, NULL);
+            il2cpp_array_setref(array, index++, NULL);
 
         // Populate CultureInfo entries.
         for (int i = 0; i < NUM_CULTURE_ENTRIES; ++i)
@@ -378,7 +374,7 @@ namespace Globalization
             Il2CppCultureInfo* info = reinterpret_cast<Il2CppCultureInfo*>(il2cpp_object_new(cultureInfoClass));
             construct_culture(info, &entry);
 
-            il2cpp_array_set(array, Il2CppCultureInfo*, index++, info);
+            il2cpp_array_setref(array, index++, info);
         }
 
         return array;

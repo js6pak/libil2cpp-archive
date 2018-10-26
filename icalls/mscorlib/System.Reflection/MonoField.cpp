@@ -14,7 +14,6 @@
 #include "il2cpp-tabledefs.h"
 #include "vm-utils/BlobReader.h"
 
-using namespace il2cpp::vm;
 using il2cpp::utils::StringUtils;
 
 namespace il2cpp
@@ -48,17 +47,17 @@ namespace Reflection
 
     void MonoField::SetValueInternal(Il2CppReflectionField* field, Il2CppObject* obj, Il2CppObject* value)
     {
-        FieldInfo* fieldInfo = field->field;
-        Il2CppClass* fieldType = Class::FromIl2CppType(fieldInfo->type);
+        ::FieldInfo* fieldInfo = field->field;
+        Il2CppClass* fieldType = vm::Class::FromIl2CppType(fieldInfo->type);
         vm::Class::Init(fieldType);
 
 #ifndef NET_4_0 //This check is done in managed code in .NET 4.5+
-        if (value != NULL && !Class::IsAssignableFrom(fieldType, value->klass))
+        if (value != NULL && !vm::Class::IsAssignableFrom(fieldType, value->klass))
         {
-            Exception::Raise(Exception::GetArgumentException("value",
+            vm::Exception::Raise(vm::Exception::GetArgumentException("value",
                     utils::StringUtils::Printf("Object of type '%s' cannot be converted to type '%s'.",
-                        Type::GetName(&value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
-                        Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
+                        vm::Type::GetName(&value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
+                        vm::Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
                         ).c_str()));
         }
 #endif
@@ -72,7 +71,7 @@ namespace Reflection
                 IL2CPP_NOT_IMPLEMENTED(Field::StaticSetValue);
             }
 
-            Runtime::ClassInit(fieldInfo->parent);
+            vm::Runtime::ClassInit(fieldInfo->parent);
             fieldAddress = static_cast<uint8_t*>(fieldInfo->parent->static_fields) + fieldInfo->offset;
         }
         else
@@ -83,34 +82,36 @@ namespace Reflection
 
         if (fieldType->valuetype)
         {
-            if (!Class::IsNullable(fieldType))
+            if (!vm::Class::IsNullable(fieldType))
             {
-                uint32_t fieldSize = Class::GetInstanceSize(fieldType) - sizeof(Il2CppObject);
+                uint32_t fieldSize = vm::Class::GetInstanceSize(fieldType) - sizeof(Il2CppObject);
 
                 if (value != NULL)
                 {
-                    memcpy(fieldAddress, Object::Unbox(value), fieldSize);
+                    memcpy(fieldAddress, vm::Object::Unbox(value), fieldSize);
                 }
                 else
                 {
                     // Setting value type to null is defined to zero it out
                     memset(fieldAddress, 0, fieldSize);
                 }
+                il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)fieldAddress, fieldSize);
             }
             else
             {
-                Il2CppClass* nullableArg = Class::GetNullableArgument(fieldType);
-                uint32_t valueSize = Class::GetInstanceSize(nullableArg) - sizeof(Il2CppObject);
+                Il2CppClass* nullableArg = vm::Class::GetNullableArgument(fieldType);
+                uint32_t valueSize = vm::Class::GetInstanceSize(nullableArg) - sizeof(Il2CppObject);
 
                 if (value != NULL)
                 {
-                    memcpy(fieldAddress, Object::Unbox(value), valueSize);
+                    memcpy(fieldAddress, vm::Object::Unbox(value), valueSize);
                     *(fieldAddress + valueSize) = true;
                 }
                 else
                 {
                     *(fieldAddress + valueSize) = false;
                 }
+                il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)fieldAddress, valueSize);
             }
         }
         else
@@ -122,13 +123,13 @@ namespace Reflection
 
     Il2CppObject* MonoField::GetRawConstantValue(Il2CppReflectionField* field)
     {
-        FieldInfo* fieldInfo = field->field;
+        ::FieldInfo* fieldInfo = field->field;
 
         if (!(fieldInfo->type->attrs & FIELD_ATTRIBUTE_HAS_DEFAULT))
-            Exception::Raise(Exception::GetInvalidOperationException(NULL));
+            vm::Exception::Raise(vm::Exception::GetInvalidOperationException(NULL));
 
         const Il2CppType* type = NULL;
-        const char* data = Class::GetFieldDefaultValue(fieldInfo, &type);
+        const char* data = vm::Class::GetFieldDefaultValue(fieldInfo, &type);
 
         switch (type->type)
         {
@@ -145,8 +146,8 @@ namespace Reflection
             case IL2CPP_TYPE_I8:
             case IL2CPP_TYPE_R8:
             {
-                Il2CppObject* obj = Object::New(Class::FromIl2CppType(type));
-                utils::BlobReader::GetConstantValueFromBlob(type->type, data, Object::Unbox(obj));
+                Il2CppObject* obj = vm::Object::New(vm::Class::FromIl2CppType(type));
+                utils::BlobReader::GetConstantValueFromBlob(type->type, data, vm::Object::Unbox(obj));
                 return obj;
             }
             case IL2CPP_TYPE_STRING:
@@ -159,7 +160,7 @@ namespace Reflection
                 return obj;
             }
             default:
-                Exception::Raise(Exception::GetInvalidOperationException(StringUtils::Printf("Attempting to get raw constant value for field of type %d", type).c_str()));
+                vm::Exception::Raise(vm::Exception::GetInvalidOperationException(StringUtils::Printf("Attempting to get raw constant value for field of type %d", type).c_str()));
         }
 
         return NULL;
