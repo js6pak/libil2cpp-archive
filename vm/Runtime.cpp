@@ -39,7 +39,6 @@
 #include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
 #include "gc/WriteBarrier.h"
-#include "gc/WriteBarrierValidation.h"
 #include "vm/InternalCalls.h"
 #include "utils/Collections.h"
 #include "utils/Memory.h"
@@ -127,10 +126,6 @@ namespace vm
 
     bool Runtime::Init(const char* filename, const char *runtime_version)
     {
-#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
-        gc::WriteBarrierValidation::Setup();
-#endif
-
         SanityChecks();
 
         os::Initialize();
@@ -361,9 +356,6 @@ namespace vm
 
     void Runtime::Shutdown()
     {
-#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
-        gc::WriteBarrierValidation::Run();
-#endif
         shutting_down = true;
 
 #if IL2CPP_ENABLE_PROFILER
@@ -809,7 +801,7 @@ namespace vm
 
             // May have been us and we got here through recursion.
             os::Thread::ThreadId currentThread = os::Thread::CurrentThreadId();
-            if (os::Atomic::CompareExchange64(&klass->cctor_thread, currentThread, currentThread) == currentThread)
+            if (os::Atomic::CompareExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)currentThread, (size_t*)currentThread) == (size_t*)currentThread)
                 return;
 
             // Wait for other thread to finish executing the constructor.
@@ -821,7 +813,7 @@ namespace vm
         else
         {
             // Let others know we have started executing the constructor.
-            os::Atomic::Exchange64(&klass->cctor_thread, os::Thread::CurrentThreadId());
+            os::Atomic::ExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)os::Thread::CurrentThreadId());
             os::Atomic::Exchange(&klass->cctor_started, 1);
 
             s_TypeInitializationLock.Unlock();
@@ -836,7 +828,7 @@ namespace vm
 
             // Let other threads know we finished.
             os::Atomic::Exchange(&klass->cctor_finished, 1);
-            os::Atomic::Exchange64(&klass->cctor_thread, 0);
+            os::Atomic::ExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)0);
 
             // Deal with exceptions.
             if (exception != NULL)
