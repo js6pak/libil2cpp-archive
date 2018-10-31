@@ -90,6 +90,10 @@ il2cpp_gc_enable
 il2cpp_gc_get_used_size
 il2cpp_gc_get_heap_size
 
+il2cpp_gc_get_max_time_slice_ns
+il2cpp_gc_set_max_time_slice_ns
+il2cpp_gc_is_incremental
+
 il2cpp_gc_wbarrier_set_field 
 il2cpp_gc_has_strict_wbarriers 
 il2cpp_gc_set_external_allocation_tracker

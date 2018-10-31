@@ -13,6 +13,7 @@
 #include "vm/PlatformInvoke.h"
 #include "vm/RCW.h"
 #include "vm/Runtime.h"
+#include "os/Atomic.h"
 #include "os/COM.h"
 #include "os/Mutex.h"
 #include "os/WindowsRuntime.h"
@@ -46,6 +47,7 @@ namespace vm
     void RCW::Register(Il2CppComObject* rcw)
     {
         os::FastAutoLock lock(&s_RCWCacheMutex);
+        rcw->refCount = 1;
         const bool inserted = s_RCWCache.insert(std::make_pair(rcw->identity, gc::GCHandle::NewWeakref(rcw, false))).second;
         Assert(inserted);
     }
@@ -271,19 +273,22 @@ namespace vm
         RCWCache::iterator iter = s_RCWCache.find(identity);
         if (iter != s_RCWCache.end())
         {
-            Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
+            Il2CppComObject* obj = static_cast<Il2CppComObject*>(gc::GCHandle::GetTarget(iter->second));
             if (obj != NULL)
             {
-                identity->Release();
-                identity = NULL;
-                return obj;
+                // Make sure the RCW isn't dead. If increment returns 1, it means
+                // that the ref count had previous reached 0 and was released
+                if (os::Atomic::Increment(&obj->refCount) > 1)
+                {
+                    identity->Release();
+                    identity = NULL;
+                    return obj;
+                }
             }
-            else
-            {
-                // The RCW was already queued for finalization.
-                // Erase it from the cache and let us create a new one.
-                s_RCWCache.erase(iter);
-            }
+
+            // The RCW was already queued for finalization or destroyed by ref count reaching 0.
+            // Erase it from the cache and let us create a new one.
+            s_RCWCache.erase(iter);
         }
 
         // 3. Figure out the concrete RCW class
@@ -318,6 +323,7 @@ namespace vm
         // 4. Create RCW object
         Il2CppComObject* rcw = static_cast<Il2CppComObject*>(Object::New(objectClass));
         rcw->identity = identity;
+        rcw->refCount = 1;
 
         // 5. Insert it into the cache
         const bool inserted = s_RCWCache.insert(std::make_pair(identity, gc::GCHandle::NewWeakref(rcw, false))).second;

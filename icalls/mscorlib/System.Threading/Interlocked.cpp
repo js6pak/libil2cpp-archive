@@ -132,12 +132,19 @@ namespace Threading
 
     double Interlocked::ExchangeDouble(double* location1, double value)
     {
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
         LongDoubleUnion val, ret;
 
         val.d_val = value;
         ret.l_val = (int64_t)os::Atomic::Exchange64((int64_t*)location1, val.l_val);
 
         return ret.d_val;
+#else
+        os::FastAutoLock lock(&m_Atomic64Mutex);
+        double orig = *location1;
+        *location1 = value;
+        return orig;
+#endif
     }
 
     intptr_t Interlocked::ExchangeIntPtr(intptr_t* location, intptr_t value)

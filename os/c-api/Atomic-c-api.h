@@ -11,15 +11,18 @@ static inline int32_t UnityPalCompareExchange(volatile int32_t* dest, int32_t ex
 static inline int64_t UnityPalCompareExchange64(volatile int64_t* dest, int64_t exchange, int64_t comparand);
 static inline void* UnityPalCompareExchangePointer(void* volatile* dest, void* exchange, void* comparand);
 static inline int32_t UnityPalAdd(volatile int32_t* location1, int32_t value);
-static inline int64_t UnityPalAdd64(volatile int64_t* location1, int64_t value);
 static inline int32_t UnityPalIncrement(volatile int32_t* value);
-static inline int64_t UnityPalIncrement64(volatile int64_t* value);
 static inline int32_t UnityPalDecrement(volatile int32_t* value);
-static inline int64_t UnityPalDecrement64(volatile int64_t* value);
 static inline int32_t UnityPalExchange(volatile int32_t* dest, int32_t exchange);
-static inline int64_t UnityPalExchange64(volatile int64_t* dest, int64_t exchange);
 static inline void* UnityPalExchangePointer(void* volatile* dest, void* exchange);
 static inline int64_t UnityPalRead64(volatile int64_t* addr);
+
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
+static inline int64_t UnityPalAdd64(volatile int64_t* location1, int64_t value);
+static inline int64_t UnityPalIncrement64(volatile int64_t* value);
+static inline int64_t UnityPalDecrement64(volatile int64_t* value);
+static inline int64_t UnityPalExchange64(volatile int64_t* dest, int64_t exchange);
+#endif
 
 #if defined(__cplusplus)
 }
@@ -32,30 +35,39 @@ inline int32_t UnityPalAdd(volatile int32_t* location1, int32_t value)
     return *location1 += value;
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalAdd64(volatile int64_t* location1, int64_t value)
 {
     return *location1 += value;
 }
+
+#endif
 
 inline int32_t UnityPalIncrement(volatile int32_t* value)
 {
     return ++(*value);
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalIncrement64(volatile int64_t* value)
 {
     return ++(*value);
 }
+
+#endif
 
 inline int32_t UnityPalDecrement(volatile int32_t* value)
 {
     return --(*value);
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalDecrement64(volatile int64_t* value)
 {
     return --(*value);
 }
+
+#endif
 
 inline int32_t UnityPalCompareExchange(volatile int32_t* dest, int32_t exchange, int32_t comparand)
 {
@@ -84,12 +96,15 @@ inline void* UnityPalCompareExchangePointer(void* volatile* dest, void* exchange
     return orig;
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalExchange64(volatile int64_t* dest, int64_t exchange)
 {
     int64_t orig = *dest;
     *dest = exchange;
     return orig;
 }
+
+#endif
 
 inline int32_t UnityPalExchange(volatile int32_t* dest, int32_t exchange)
 {

@@ -662,6 +662,21 @@ bool il2cpp_gc_is_disabled()
     return GarbageCollector::IsDisabled();
 }
 
+bool il2cpp_gc_is_incremental()
+{
+    return GarbageCollector::IsIncremental();
+}
+
+int64_t il2cpp_gc_get_max_time_slice_ns()
+{
+    return GarbageCollector::GetMaxTimeSliceNs();
+}
+
+void il2cpp_gc_set_max_time_slice_ns(int64_t maxTimeSlice)
+{
+    GarbageCollector::SetMaxTimeSliceNs(maxTimeSlice);
+}
+
 int64_t il2cpp_gc_get_used_size()
 {
     return GarbageCollector::GetUsedHeapSize();
