@@ -39,7 +39,7 @@ namespace os
             CloseHandle(m_ThreadHandle);
     }
 
-    uint64_t ThreadImpl::Id()
+    size_t ThreadImpl::Id()
     {
         return m_ThreadId;
     }
@@ -361,7 +361,7 @@ namespace
         m_ApartmentState = state;
     }
 
-    uint64_t ThreadImpl::CurrentThreadId()
+    size_t ThreadImpl::CurrentThreadId()
     {
         return GetCurrentThreadId();
     }

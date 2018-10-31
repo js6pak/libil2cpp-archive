@@ -21,7 +21,7 @@ namespace os
         ThreadImpl();
         ~ThreadImpl();
 
-        uint64_t Id();
+        size_t Id();
         ErrorCode Run(Thread::StartFunc func, void* arg);
         void SetName(const std::string& name);
         void SetPriority(ThreadPriority priority);
@@ -47,7 +47,7 @@ namespace os
         void SetExplicitApartment(ApartmentState state);
 
         static void Sleep(uint32_t ms, bool interruptible);
-        static uint64_t CurrentThreadId();
+        static size_t CurrentThreadId();
         static ThreadImpl* CreateForCurrentThread();
 
 #if NET_4_0
