@@ -105,14 +105,19 @@ namespace vm
 
     Il2CppObject* ReboxIfBoxed(Il2CppIUnknown* comObject, Il2CppClass* objectClass)
     {
-        if (strcmp(objectClass->namespaze, "Windows.Foundation") == 0 && strcmp(objectClass->name, "IReference`1") == 0)
-            return ReboxIReference(comObject, objectClass);
-
-        if (strcmp(objectClass->namespaze, "System.Collections.Generic") == 0 && strcmp(objectClass->name, "KeyValuePair`2") == 0)
+        if (strcmp(objectClass->namespaze, "Windows.Foundation") == 0)
+        {
+            if (strcmp(objectClass->name, "IReference`1") == 0 || strcmp(objectClass->name, "IReferenceArray`1") == 0)
+                return ReboxIReference(comObject, objectClass);
+        }
+        else if (strcmp(objectClass->namespaze, "System.Collections.Generic") == 0 && strcmp(objectClass->name, "KeyValuePair`2") == 0)
+        {
             return ReboxKeyValuePair(comObject, objectClass);
-
-        if (objectClass == il2cpp_defaults.system_uri_class)
+        }
+        else if (objectClass == il2cpp_defaults.system_uri_class)
+        {
             return ReboxUri(comObject);
+        }
 
         return NULL;
     }
@@ -307,6 +312,7 @@ namespace vm
             //
             // Current list of unboxable classes:
             //     Windows.Foundation.IReference`1<T>
+            //     Windows.Foundation.IReferenceArray`1<T>
             //     System.Collections.Generic.KeyValuePair`2<K, V>
             //     System.Uri
             Il2CppObject* reboxed = ReboxIfBoxed(comObject, objectClass);
