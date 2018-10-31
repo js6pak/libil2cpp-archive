@@ -39,7 +39,7 @@ namespace os
         typedef void (*StartFunc) (void* arg);
         // Use STDCALL calling convention on Windows, as it will be called back directly from the OS. This is defined as nothing on other platforms.
         typedef void (STDCALL * APCFunc)(void* context);
-        typedef uint64_t ThreadId;
+        typedef size_t ThreadId;
         typedef void (*CleanupFunc) (void* arg);
 
         /// Initialize/Shutdown thread subsystem. Must be called on main thread.

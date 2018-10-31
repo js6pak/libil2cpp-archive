@@ -460,7 +460,7 @@ typedef struct Il2CppClass
 
     uint32_t cctor_started;
     uint32_t cctor_finished;
-    ALIGN_TYPE(8) uint64_t cctor_thread;
+    ALIGN_TYPE(8) size_t cctor_thread;
 
     // Remaining fields are always valid except where noted
     GenericContainerIndex genericContainerIndex;
@@ -488,6 +488,10 @@ typedef struct Il2CppClass
     uint8_t rank;
     uint8_t minimumAlignment;
     uint8_t packingSize;
+
+    // this is critical for performance of Class::InitFromCodegen. Equals to initialized && !has_initialization_error at all times.
+    // Use Class::UpdateInitializedAndNoError to update
+    uint8_t initialized_and_no_error : 1;
 
     uint8_t valuetype : 1;
     uint8_t initialized : 1;

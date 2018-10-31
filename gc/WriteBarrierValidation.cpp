@@ -14,7 +14,7 @@
 
 // On systems which have the posix backtrace API, you can turn on this define to get native stack traces.
 // This can make it easier to debug issues with missing barriers.
-#define HAS_POSIX_BACKTRACE 0
+#define HAS_POSIX_BACKTRACE IL2CPP_TARGET_OSX
 
 #if HAS_POSIX_BACKTRACE
 #include <execinfo.h>
