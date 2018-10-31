@@ -29,10 +29,13 @@ namespace os
             return (uint32_t)Add((volatile int32_t*)location1, (int32_t)value);
         }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
         static inline int64_t Add64(volatile int64_t* location1, int64_t value)
         {
             return UnityPalAdd64(location1, value);
         }
+
+#endif
 
         template<typename T>
         static inline T* CompareExchangePointer(T* volatile* dest, T* newValue, T* oldValue)
@@ -62,7 +65,7 @@ namespace os
         #if IL2CPP_SIZEOF_VOID_P == 4
             return reinterpret_cast<T*>(Add(reinterpret_cast<volatile int32_t*>(pointer), 0));
         #else
-            return reinterpret_cast<T*>(Add64(reinterpret_cast<volatile int64_t*>(pointer), 0));
+            return reinterpret_cast<T*>(Read64(reinterpret_cast<volatile int64_t*>(pointer)));
         #endif
         }
 
@@ -76,6 +79,7 @@ namespace os
             return (uint32_t)Increment((volatile int32_t*)value);
         }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
         static inline int64_t Increment64(volatile int64_t* value)
         {
             return UnityPalIncrement64(value);
@@ -85,6 +89,8 @@ namespace os
         {
             return (uint64_t)Increment64((volatile int64_t*)value);
         }
+
+#endif
 
         static inline int32_t Decrement(volatile int32_t* value)
         {
@@ -96,6 +102,7 @@ namespace os
             return (uint32_t)Decrement((volatile int32_t*)value);
         }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
         static inline int64_t Decrement64(volatile int64_t* value)
         {
             return UnityPalDecrement64(value);
@@ -105,6 +112,8 @@ namespace os
         {
             return (uint64_t)Decrement64((volatile int64_t*)value);
         }
+
+#endif
 
         static inline int32_t CompareExchange(volatile int32_t* dest, int32_t exchange, int32_t comparand)
         {
@@ -136,6 +145,7 @@ namespace os
             return (uint32_t)Exchange((volatile int32_t*)value, newValue);
         }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
         static inline int64_t Exchange64(volatile int64_t* dest, int64_t exchange)
         {
             return UnityPalExchange64(dest, exchange);
@@ -145,6 +155,8 @@ namespace os
         {
             return (uint64_t)Exchange64((volatile int64_t*)value, newValue);
         }
+
+#endif
     };
 }
 }

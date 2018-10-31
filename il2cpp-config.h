@@ -101,8 +101,8 @@
 
 #define IL2CPP_PAGE_SIZE 4096
 
-// 64-bit types are aligned to 8 bytes on 64-bit platforms and always on Windows
-#define IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT ((IL2CPP_SIZEOF_VOID_P == 8) || (IL2CPP_TARGET_WINDOWS))
+// 64-bit types are aligned to 8 bytes on 64-bit platforms
+#define IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT (IL2CPP_SIZEOF_VOID_P == 8)
 
 /* Debugging */
 #ifndef IL2CPP_DEBUG
@@ -299,6 +299,10 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_USE_GENERIC_FILE (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_DARWIN)
 #endif
 
+#ifndef IL2CPP_USE_GENERIC_DEBUG_LOG
+#define IL2CPP_USE_GENERIC_DEBUG_LOG !IL2CPP_TARGET_WINDOWS
+#endif
+
 #ifndef IL2CPP_USE_GENERIC_PROCESS
 #define IL2CPP_USE_GENERIC_PROCESS !IL2CPP_TARGET_LUMIN
 #endif
@@ -311,16 +315,15 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-#define DECLARE_SEQ_POINT_STORAGE(name) Il2CppSequencePointStorage name
-#define STORE_SEQ_POINT(storage, seqPointId) (storage).Store(il2cpp_codegen_get_sequence_point(seqPointId))
-#define CHECK_SEQ_POINT(storage, seqPointId) il2cpp_codegen_check_sequence_point((storage), il2cpp_codegen_get_sequence_point(seqPointId))
-#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId) MethodExitSequencePointChecker name(storage, seqPointId)
+#define STORE_SEQ_POINT(storage, seqPointId) do { (storage).currentSequencePoint = il2cpp_codegen_get_sequence_point(seqPointId); } while (0)
+#define CHECK_SEQ_POINT(storage, seqPointId) il2cpp_codegen_check_sequence_point(&(storage), il2cpp_codegen_get_sequence_point(seqPointId))
+#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId) MethodExitSequencePointChecker name(&(storage), seqPointId)
 #define DECLARE_METHOD_THIS(variableName, thisAddress) void* variableName[] = { thisAddress }
 #define DECLARE_METHOD_PARAMS(variableName, ...) void* variableName[] = { __VA_ARGS__ }
 #define DECLARE_METHOD_LOCALS(variableName, ...) void* variableName[] = { __VA_ARGS__ }
 #define DECLARE_METHOD_EXEC_CTX(ctxVariable, method, thisVariable, paramsVariable, localsVariable) Il2CppSequencePointExecutionContext ctxVariable(method, thisVariable, paramsVariable, localsVariable)
+#define CHECK_PAUSE_POINT il2cpp_codegen_check_pause_point()
 #else
-#define DECLARE_SEQ_POINT_STORAGE(name)
 #define STORE_SEQ_POINT(storage, seqPointVar)
 #define CHECK_SEQ_POINT(storage, seqPointVar)
 #define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId)
@@ -328,6 +331,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define DECLARE_METHOD_PARAMS(variableName, ...)
 #define DECLARE_METHOD_LOCALS(variableName, ...)
 #define DECLARE_METHOD_EXEC_CTX(ctxVariable, method, thisVariable, paramsVariable, localsVariable)
+#define CHECK_PAUSE_POINT
 #endif
 
 #ifdef __cplusplus

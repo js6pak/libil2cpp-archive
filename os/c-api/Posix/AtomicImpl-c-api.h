@@ -12,11 +12,14 @@ inline int32_t UnityPalAdd(volatile int32_t* location1, int32_t value)
     return __sync_add_and_fetch(location1, value);
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalAdd64(volatile int64_t* location1, int64_t value)
 {
     ASSERT_ALIGNMENT(location1, 8);
     return __sync_add_and_fetch(location1, value);
 }
+
+#endif
 
 inline int32_t UnityPalIncrement(volatile int32_t* value)
 {
@@ -24,11 +27,14 @@ inline int32_t UnityPalIncrement(volatile int32_t* value)
     return __sync_add_and_fetch(value, 1);
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalIncrement64(volatile int64_t* value)
 {
     ASSERT_ALIGNMENT(value, 8);
     return __sync_add_and_fetch(value, 1);
 }
+
+#endif
 
 inline int32_t UnityPalDecrement(volatile int32_t* value)
 {
@@ -36,11 +42,14 @@ inline int32_t UnityPalDecrement(volatile int32_t* value)
     return __sync_add_and_fetch(value, -1);
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalDecrement64(volatile int64_t* value)
 {
     ASSERT_ALIGNMENT(value, 8);
     return __sync_add_and_fetch(value, -1);
 }
+
+#endif
 
 inline int32_t UnityPalCompareExchange(volatile int32_t* dest, int32_t exchange, int32_t comparand)
 {
@@ -80,6 +89,7 @@ inline int32_t UnityPalExchange(volatile int32_t* dest, int32_t exchange)
 #endif
 }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalExchange64(volatile int64_t* dest, int64_t exchange)
 {
     ASSERT_ALIGNMENT(dest, 8);
@@ -95,6 +105,8 @@ inline int64_t UnityPalExchange64(volatile int64_t* dest, int64_t exchange)
     return prev;
 #endif
 }
+
+#endif
 
 inline void* UnityPalExchangePointer(void* volatile* dest, void* exchange)
 {

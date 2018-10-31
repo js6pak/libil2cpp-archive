@@ -11,30 +11,39 @@ namespace vm
         return os::Atomic::Add(location1, value);
     }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
     int64_t Atomic::Add64(volatile int64_t* location1, int64_t value)
     {
         return os::Atomic::Add64(location1, value);
     }
+
+#endif
 
     int32_t Atomic::Increment(volatile int32_t* value)
     {
         return os::Atomic::Increment(value);
     }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
     int64_t Atomic::Increment64(volatile int64_t* value)
     {
         return os::Atomic::Increment64(value);
     }
+
+#endif
 
     int32_t Atomic::Decrement(volatile int32_t* value)
     {
         return os::Atomic::Decrement(value);
     }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
     int64_t Atomic::Decrement64(volatile int64_t* value)
     {
         return os::Atomic::Decrement64(value);
     }
+
+#endif
 
     int32_t Atomic::CompareExchange(volatile int32_t* dest, int32_t exchange, int32_t comparand)
     {
@@ -56,10 +65,13 @@ namespace vm
         return os::Atomic::Exchange(dest, exchange);
     }
 
+#if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
     int64_t Atomic::Exchange64(volatile int64_t* dest, int64_t exchange)
     {
         return os::Atomic::Exchange64(dest, exchange);
     }
+
+#endif
 
     void* Atomic::ExchangePointer(void* volatile* dest, void* exchange)
     {

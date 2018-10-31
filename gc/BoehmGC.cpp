@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "gc_wrapper.h"
 #include "GarbageCollector.h"
+#include "WriteBarrierValidation.h"
 #include "vm/Profiler.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
@@ -32,6 +33,10 @@ il2cpp::gc::GarbageCollector::Initialize()
 {
     if (s_GCInitialized)
         return;
+
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    il2cpp::gc::WriteBarrierValidation::Setup();
+#endif
     // This tells the GC that we are not scanning dynamic library data segments and that
     // the GC tracked data structures need ot be manually pushed and marked.
     // Call this before GC_INIT since the initialization logic uses this value.
@@ -67,6 +72,9 @@ il2cpp::gc::GarbageCollector::Initialize()
 
 void il2cpp::gc::GarbageCollector::UninitializeGC()
 {
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    il2cpp::gc::WriteBarrierValidation::Run();
+#endif
     GC_deinit();
 }
 
@@ -303,6 +311,24 @@ bool
 il2cpp::gc::GarbageCollector::HasPendingFinalizers()
 {
     return GC_should_invoke_finalizers() != 0;
+}
+
+int64_t
+il2cpp::gc::GarbageCollector::GetMaxTimeSliceNs()
+{
+    return GC_get_time_limit() * 1000000;
+}
+
+void
+il2cpp::gc::GarbageCollector::SetMaxTimeSliceNs(int64_t maxTimeSlice)
+{
+    GC_set_time_limit((unsigned long)(maxTimeSlice / 1000000));
+}
+
+bool
+il2cpp::gc::GarbageCollector::IsIncremental()
+{
+    return GC_is_incremental_mode();
 }
 
 #if IL2CPP_ENABLE_PROFILER

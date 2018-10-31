@@ -50,6 +50,11 @@ namespace gc
         static void Disable();
         static bool IsDisabled();
 
+        static bool IsIncremental();
+
+        static int64_t GetMaxTimeSliceNs();
+        static void SetMaxTimeSliceNs(int64_t maxTimeSlice);
+
         static FinalizerCallback RegisterFinalizerWithCallback(Il2CppObject* obj, FinalizerCallback callback);
 
         static int64_t GetAllocatedHeapSize();
