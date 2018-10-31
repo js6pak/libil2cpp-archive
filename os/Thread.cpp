@@ -254,7 +254,7 @@ namespace os
         ThreadImpl::Sleep(milliseconds, interruptible);
     }
 
-    uint64_t Thread::CurrentThreadId()
+    size_t Thread::CurrentThreadId()
     {
         return ThreadImpl::CurrentThreadId();
     }

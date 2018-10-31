@@ -133,7 +133,7 @@ struct MonitorData : public il2cpp::utils::ThreadSafeFreeListNode
         return (owningThreadId != kCanBeAcquiredByOtherThread && owningThreadId != kHasBeenReturnedToFreeList);
     }
 
-    bool TryAcquire(uint64_t threadId)
+    bool TryAcquire(size_t threadId)
     {
         return (il2cpp::os::Atomic::CompareExchange64(&owningThreadId, threadId, kCanBeAcquiredByOtherThread) == kCanBeAcquiredByOtherThread);
     }
@@ -141,7 +141,7 @@ struct MonitorData : public il2cpp::utils::ThreadSafeFreeListNode
     void Unacquire()
     {
         IL2CPP_ASSERT(owningThreadId == il2cpp::os::Thread::CurrentThreadId());
-        il2cpp::os::Atomic::Exchange64(&owningThreadId, kCanBeAcquiredByOtherThread);
+        il2cpp::os::Atomic::ExchangePointer((size_t*volatile*)&owningThreadId, (size_t*)kCanBeAcquiredByOtherThread);
     }
 
     /// Mark current thread as being blocked in Monitor.Enter(), i.e. as "ready to acquire monitor
@@ -288,7 +288,7 @@ namespace vm
 
     bool Monitor::TryEnter(Il2CppObject* obj, uint32_t timeOutMilliseconds)
     {
-        uint64_t currentThreadId = il2cpp::os::Thread::CurrentThreadId();
+        size_t currentThreadId = il2cpp::os::Thread::CurrentThreadId();
 
         while (true)
         {
@@ -299,7 +299,7 @@ namespace vm
                 MonitorData* newlyAllocatedMonitorForThisThread = MonitorData::s_FreeList.Allocate();
                 IL2CPP_ASSERT(il2cpp::os::Atomic::Read64((int64_t*)&newlyAllocatedMonitorForThisThread->owningThreadId) == MonitorData::kHasBeenReturnedToFreeList
                     && "Monitor on freelist cannot be owned by thread!");
-                il2cpp::os::Atomic::Exchange64(&newlyAllocatedMonitorForThisThread->owningThreadId, currentThreadId);
+                il2cpp::os::Atomic::ExchangePointer((size_t*volatile*)&newlyAllocatedMonitorForThisThread->owningThreadId, (size_t*)currentThreadId);
 
                 // Try to install the monitor on the object (aka "inflate" the object).
                 if (il2cpp::os::Atomic::CompareExchangePointer(&obj->monitor, newlyAllocatedMonitorForThisThread, (MonitorData*)NULL) == NULL)
@@ -314,7 +314,7 @@ namespace vm
                 else
                 {
                     // Some other thread raced us and won. Retry.
-                    il2cpp::os::Atomic::Exchange64(&newlyAllocatedMonitorForThisThread->owningThreadId, MonitorData::kHasBeenReturnedToFreeList);
+                    il2cpp::os::Atomic::ExchangePointer((size_t*volatile*)&newlyAllocatedMonitorForThisThread->owningThreadId, (size_t*)MonitorData::kHasBeenReturnedToFreeList);
                     MonitorData::s_FreeList.Release(newlyAllocatedMonitorForThisThread);
                     continue;
                 }
@@ -538,7 +538,7 @@ namespace vm
 
             // Release monitor back to free list.
             IL2CPP_ASSERT(monitor->owningThreadId == il2cpp::os::Thread::CurrentThreadId());
-            il2cpp::os::Atomic::Exchange64(&monitor->owningThreadId, MonitorData::kHasBeenReturnedToFreeList);
+            il2cpp::os::Atomic::ExchangePointer((size_t*volatile*)&monitor->owningThreadId, (size_t*)MonitorData::kHasBeenReturnedToFreeList);
             MonitorData::s_FreeList.Release(monitor);
         }
     }
