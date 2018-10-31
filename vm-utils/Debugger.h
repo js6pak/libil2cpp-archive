@@ -28,13 +28,14 @@ namespace utils
         static void StartDebuggerThread();
         static void PushExecutionContext(Il2CppSequencePointExecutionContext* executionContext);
         static void PopExecutionContext();
-        static Il2CppSequencePoint** PushSequencePoint();
-        static void PopSequencePoint();
-        typedef void (*OnBreakPointHitCallback) (Il2CppSequencePoint* sequencePoint);
-        static void RegisterCallbacks(OnBreakPointHitCallback callback);
+        typedef void(*OnBreakPointHitCallback) (Il2CppSequencePoint* sequencePoint);
+        typedef void (*OnPausePointHitCallback) ();
+        static void RegisterCallbacks(OnBreakPointHitCallback breakCallback, OnPausePointHitCallback pauseCallback);
+        static Il2CppThreadUnwindState* GetThreadStatePointer();
         static void SaveThreadContext(Il2CppThreadUnwindState* context, int frameCountAdjust);
         static void FreeThreadContext(Il2CppThreadUnwindState* context);
         static void OnBreakPointHit(Il2CppSequencePoint *sequencePoint);
+        static void OnPausePointHit();
         static bool IsGlobalBreakpointActive();
         static bool GetIsDebuggerAttached();
         static void SetIsDebuggerAttached(bool attached);
@@ -50,6 +51,7 @@ namespace utils
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
         static bool IsSequencePointActive(Il2CppSequencePoint *seqPoint);
+        static bool IsPausePointActive();
         static const MethodInfo* GetSequencePointMethod(Il2CppSequencePoint *seqPoint);
 
         static void GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes);
@@ -69,6 +71,8 @@ typedef struct Il2CppSequencePointExecutionContext
     void** thisArg;
     void** params;
     void** locals;
+    Il2CppSequencePoint* currentSequencePoint;
+
 
 #ifdef __cplusplus
     Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals);
@@ -78,7 +82,6 @@ typedef struct Il2CppSequencePointExecutionContext
 
 typedef struct Il2CppThreadUnwindState
 {
-    Il2CppSequencePoint** sequencePoints;
     Il2CppSequencePointExecutionContext** executionContexts;
     uint32_t frameCount;
     uint32_t frameCapacity;
