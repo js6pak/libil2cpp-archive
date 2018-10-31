@@ -281,38 +281,7 @@ inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRe
 #endif
 }
 
-struct Il2CppSequencePointStorage
-{
-public:
-    inline Il2CppSequencePointStorage()
-#if IL2CPP_MONO_DEBUGGER
-        : m_Ptr(il2cpp::utils::Debugger::PushSequencePoint())
-#endif
-    {
-    }
-
-    inline ~Il2CppSequencePointStorage()
-    {
-#if IL2CPP_MONO_DEBUGGER
-        il2cpp::utils::Debugger::PopSequencePoint();
-#endif
-    }
-
-    inline void Store(Il2CppSequencePoint* sequencePoint)
-    {
-#if IL2CPP_MONO_DEBUGGER
-        if (m_Ptr)
-            *m_Ptr = sequencePoint;
-#endif
-    }
-
-private:
-#if IL2CPP_MONO_DEBUGGER
-    Il2CppSequencePoint** const m_Ptr;
-#endif
-};
-
-inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequencePointStorage, Il2CppSequencePoint *sequencePoint)
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint *sequencePoint)
 {
 #if IL2CPP_MONO_DEBUGGER
     if (!sequencePoint)
@@ -320,9 +289,17 @@ inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointStorage& sequ
 
     if (il2cpp::utils::Debugger::IsSequencePointActive(sequencePoint))
     {
-        sequencePointStorage.Store(sequencePoint);
+        executionContext->currentSequencePoint = sequencePoint;
         il2cpp::utils::Debugger::OnBreakPointHit(sequencePoint);
     }
+#endif
+}
+
+inline void il2cpp_codegen_check_pause_point()
+{
+#if IL2CPP_MONO_DEBUGGER
+    if (il2cpp::utils::Debugger::IsPausePointActive())
+        il2cpp::utils::Debugger::OnPausePointHit();
 #endif
 }
 
@@ -339,10 +316,10 @@ class MethodExitSequencePointChecker
 {
 private:
     Il2CppSequencePoint *m_pSeqPoint;
-    Il2CppSequencePointStorage& m_seqPointStorage;
+    Il2CppSequencePointExecutionContext* m_seqPointStorage;
 
 public:
-    MethodExitSequencePointChecker(Il2CppSequencePointStorage& seqPointStorage, size_t seqPointId) :
+    MethodExitSequencePointChecker(Il2CppSequencePointExecutionContext* seqPointStorage, size_t seqPointId) :
         m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL)
     {
 #if IL2CPP_MONO_DEBUGGER

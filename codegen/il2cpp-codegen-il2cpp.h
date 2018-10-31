@@ -907,9 +907,24 @@ inline RuntimeException* il2cpp_codegen_com_get_exception(il2cpp_hresult_t hr, b
     return il2cpp::vm::Exception::Get(hr, defaultToCOMException);
 }
 
-inline RuntimeException* il2cpp_codegen_com_get_exception_for_invalid_iproperty_cast(RuntimeObject* value, const char* a, const char* b)
+inline il2cpp_hresult_t il2cpp_codegen_com_handle_invalid_iproperty_conversion(const char* fromType, const char* toType)
 {
-    return il2cpp::vm::CCW::GetIPropertyValueInvalidCast(value, a, b);
+    return il2cpp::vm::CCW::HandleInvalidIPropertyConversion(fromType, toType);
+}
+
+inline il2cpp_hresult_t il2cpp_codegen_com_handle_invalid_iproperty_conversion(RuntimeObject* value, const char* fromType, const char* toType)
+{
+    return il2cpp::vm::CCW::HandleInvalidIPropertyConversion(value, fromType, toType);
+}
+
+inline il2cpp_hresult_t il2cpp_codegen_com_handle_invalid_ipropertyarray_conversion(const char* fromArrayType, const char* fromElementType, const char* toElementType, il2cpp_array_size_t index)
+{
+    return il2cpp::vm::CCW::HandleInvalidIPropertyArrayConversion(fromArrayType, fromElementType, toElementType, index);
+}
+
+inline il2cpp_hresult_t il2cpp_codegen_com_handle_invalid_ipropertyarray_conversion(RuntimeObject* value, const char* fromArrayType, const char* fromElementType, const char* toElementType, il2cpp_array_size_t index)
+{
+    return il2cpp::vm::CCW::HandleInvalidIPropertyArrayConversion(value, fromArrayType, fromElementType, toElementType, index);
 }
 
 inline void il2cpp_codegen_store_exception_info(RuntimeException* ex, String_t* exceptionString)
