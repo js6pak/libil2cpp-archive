@@ -629,6 +629,21 @@ struct Il2CppMarshalByRefObject
 struct Il2CppComObject : Il2CppObject
 {
     Il2CppIUnknown* identity;
+
+    // Same native object can be marshaled to managed code several times. If that happens,
+    // we have to marshal it to the same RCW (same Il2CppComObject). We use a map of
+    // IUnknown pointer -> weak GC handles to achieve it, and that works. When managed code
+    // stops referencing the RCW, GC just garbage collects it and the finalizer will clean it
+    // from our map. So far so good, eh?
+    //
+    // Enter Marshal.ReleaseComObject. This beast is designed to release the underlying COM object,
+    // but ONLY after we used N amount of times (where N is the amount of times we marshaled
+    // IUnknown into Il2CppComObject). In order to make it work, we need to implement ref counting.
+    // This ref count gets incremented each time we marshal IUnknown to Il2CppComObject,
+    // and gets decremented when Marshal.ReleaseComObject gets called. Fortunately, since we
+    // live in a world of fairies and garbage collectors, we don't actually have to release it
+    // manually in order for it to get cleaned up automatically in the future.
+    volatile int32_t refCount;
 };
 
 // System.AppDomain
