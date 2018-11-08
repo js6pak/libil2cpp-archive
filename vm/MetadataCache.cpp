@@ -308,8 +308,16 @@ void MetadataCache::InitializeWindowsRuntimeTypeNamesTables()
         Il2CppWindowsRuntimeTypeNamePair typeNamePair = windowsRuntimeTypeNames[i];
         const char* name = GetStringFromIndex(typeNamePair.nameIndex);
         const Il2CppType* type = GetIl2CppTypeFromIndex(typeNamePair.typeIndex);
-        s_WindowsRuntimeTypeNameToClassMap.insert(std::make_pair(name, Class::FromIl2CppType(type)));
-        s_ClassToWindowsRuntimeTypeNameMap.insert(std::make_pair(Class::FromIl2CppType(type), name));
+        Il2CppClass* klass = il2cpp::vm::Class::FromIl2CppType(type);
+
+        if (!Class::IsNullable(klass))
+        {
+            // Don't add nullable types to name -> klass map because IReference`1<T> and Nullable`1<T>
+            // share windows runtime type names, and that would cause a collision.
+            s_WindowsRuntimeTypeNameToClassMap.insert(std::make_pair(name, klass));
+        }
+
+        s_ClassToWindowsRuntimeTypeNameMap.insert(std::make_pair(klass, name));
     }
 }
 
