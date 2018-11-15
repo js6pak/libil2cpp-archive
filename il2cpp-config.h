@@ -306,8 +306,8 @@ const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-#define STORE_SEQ_POINT(storage, seqPointId) do { (storage).currentSequencePoint = il2cpp_codegen_get_sequence_point(seqPointId); } while (0)
-#define CHECK_SEQ_POINT(storage, seqPointId) il2cpp_codegen_check_sequence_point(&(storage), il2cpp_codegen_get_sequence_point(seqPointId))
+#define STORE_SEQ_POINT(storage, seqPointId) do { (storage).currentSequencePoint = seqPointId; } while (0)
+#define CHECK_SEQ_POINT(storage, seqPointId) il2cpp_codegen_check_sequence_point(&(storage), seqPointId)
 #define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId) MethodExitSequencePointChecker name(&(storage), seqPointId)
 #define DECLARE_METHOD_THIS(variableName, thisAddress) void* variableName[] = { thisAddress }
 #define DECLARE_METHOD_PARAMS(variableName, ...) void* variableName[] = { __VA_ARGS__ }
