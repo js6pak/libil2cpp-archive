@@ -21,6 +21,7 @@ namespace utils
     class Debugger
     {
     public:
+        static void RegisterSequencePointCheck(uint32_t* check);
         static void RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data);
         static void SetAgentOptions(const char* options);
         static void Init();
@@ -54,6 +55,9 @@ namespace utils
         static bool IsPausePointActive();
         static const MethodInfo* GetSequencePointMethod(Il2CppSequencePoint *seqPoint);
 
+        static void CheckSequencePoint(Il2CppSequencePointExecutionContext* executionContext, size_t seqPointId);
+        static void CheckPausePoint();
+
         static void GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes);
 
     private:
@@ -71,7 +75,7 @@ typedef struct Il2CppSequencePointExecutionContext
     void** thisArg;
     void** params;
     void** locals;
-    Il2CppSequencePoint* currentSequencePoint;
+    size_t currentSequencePoint;
 
 
 #ifdef __cplusplus
