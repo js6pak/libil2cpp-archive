@@ -26,7 +26,6 @@ struct MonoDebuggerRuntimeCallbacks
 {
     void(*il2cpp_debugger_save_thread_context)(Il2CppThreadUnwindState* context, int frameCountAdjust);
     void(*il2cpp_debugger_free_thread_context)(Il2CppThreadUnwindState* context);
-    void (*set_global_breakpoint_active)();
 };
 
 struct MonoContext;
@@ -40,6 +39,7 @@ void mono_debugger_il2cpp_init(const Il2CppDebuggerMetadataRegistration *data);
 void unity_debugger_agent_breakpoint(Il2CppSequencePoint* sequencePoint);
 void unity_debugger_agent_pausepoint();
 void mono_debugger_install_runtime_callbacks(MonoDebuggerRuntimeCallbacks* cbs);
+void mono_debugger_install_sequence_point_check(uint32_t* check);
 void* il2cpp_alloc(size_t size);
 int32_t unity_debugger_agent_is_global_breakpoint_active();
 int32_t unity_debugger_agent_is_single_stepping();
@@ -73,6 +73,11 @@ namespace utils
     typedef dynamic_array<const char*> FileNameList;
     typedef Il2CppHashMap<const Il2CppClass*, FileNameList, il2cpp::utils::PointerHash<Il2CppClass> > TypeSourceFileMap;
     static TypeSourceFileMap *s_typeSourceFiles;
+
+    void Debugger::RegisterSequencePointCheck(uint32_t* check)
+    {
+        mono_debugger_install_sequence_point_check(check);
+    }
 
     void Debugger::RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data)
     {
@@ -509,6 +514,22 @@ namespace utils
     bool Debugger::IsPausePointActive()
     {
         return unity_pause_point_active();
+    }
+
+    void Debugger::CheckSequencePoint(Il2CppSequencePointExecutionContext* executionContext, size_t seqPointId)
+    {
+        Il2CppSequencePoint* seqPoint = GetSequencePoint(seqPointId);
+        if (seqPoint && il2cpp::utils::Debugger::IsSequencePointActive(seqPoint))
+        {
+            executionContext->currentSequencePoint = seqPointId;
+            il2cpp::utils::Debugger::OnBreakPointHit(GetSequencePoint(seqPointId));
+        }
+    }
+
+    void Debugger::CheckPausePoint()
+    {
+        if (il2cpp::utils::Debugger::IsPausePointActive())
+            il2cpp::utils::Debugger::OnPausePointHit();
     }
 
     const MethodInfo* Debugger::GetSequencePointMethod(Il2CppSequencePoint *seqPoint)
