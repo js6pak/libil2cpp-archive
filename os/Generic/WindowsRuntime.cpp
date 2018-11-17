@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include "il2cpp-vm-support.h"
 #include "os/WindowsRuntime.h"
-#include "vm/Exception.h"
 
 #if IL2CPP_USE_GENERIC_WINDOWSRUNTIME
 

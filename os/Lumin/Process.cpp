@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 #include "os/Process.h"
-#include "vm/Exception.h"
 #include "utils/Logging.h"
 
 #include "il2cpp-vm-support.h"

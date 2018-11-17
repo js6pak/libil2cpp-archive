@@ -1,7 +1,9 @@
-#include "il2cpp-config.h"
+#include "os/c-api/il2cpp-config-platforms.h"
+#include "os/Thread.h"
+
+#if IL2CPP_SUPPORT_THREADS
 
 #include "os/Mutex.h"
-#include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
 #if IL2CPP_THREADS_STD
 #include "os/Std/ThreadImpl.h"
@@ -325,3 +327,157 @@ namespace os
 #endif
 }
 }
+
+#else
+
+namespace il2cpp
+{
+namespace os
+{
+    Thread::Thread()
+    {
+    }
+
+    Thread::~Thread()
+    {
+    }
+
+    void Thread::Init()
+    {
+    }
+
+    void Thread::Shutdown()
+    {
+    }
+
+    Thread::ThreadId Thread::Id()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return 0;
+    }
+
+    void Thread::SetName(const std::string& name)
+    {
+    }
+
+    void Thread::SetPriority(ThreadPriority priority)
+    {
+    }
+
+    ThreadPriority Thread::GetPriority()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return kThreadPriorityLowest;
+    }
+
+    void Thread::SetStackSize(size_t stackSize)
+    {
+    }
+
+    void Thread::RunWrapper(void* arg)
+    {
+    }
+
+    ErrorCode Thread::Run(StartFunc func, void* arg)
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return kErrorCodeSuccess;
+    }
+
+    WaitStatus Thread::Join()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return kWaitStatusSuccess;
+    }
+
+    WaitStatus Thread::Join(uint32_t ms)
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return kWaitStatusSuccess;
+    }
+
+    void Thread::QueueUserAPC(APCFunc func, void* context)
+    {
+    }
+
+    ApartmentState Thread::GetApartment()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return kApartmentStateUnknown;
+    }
+
+    ApartmentState Thread::GetExplicitApartment()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return kApartmentStateUnknown;
+    }
+
+    ApartmentState Thread::SetApartment(ApartmentState state)
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return kApartmentStateUnknown;
+    }
+
+    void Thread::SetExplicitApartment(ApartmentState state)
+    {
+    }
+
+    void Thread::Sleep(uint32_t milliseconds, bool interruptible)
+    {
+    }
+
+    size_t Thread::CurrentThreadId()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return 0;
+    }
+
+    Thread* Thread::GetCurrentThread()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return NULL;
+    }
+
+    Thread* Thread::GetOrCreateCurrentThread()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return NULL;
+    }
+
+    void Thread::DetachCurrentThread()
+    {
+    }
+
+#if NET_4_0
+
+    bool Thread::YieldInternal()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return false;
+    }
+
+#endif
+
+#if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
+
+    void Thread::SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction)
+    {
+    }
+
+    void Thread::RegisterCurrentThreadForCleanup(void* arg)
+    {
+    }
+
+    void Thread::UnregisterCurrentThreadForCleanup()
+    {
+    }
+
+    void Thread::SignalExited()
+    {
+    }
+
+#endif
+}
+}
+
+#endif

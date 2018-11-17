@@ -16,7 +16,11 @@ namespace os
         ErrorCode SetValue(void* value);
         ErrorCode GetValue(void** value);
     private:
-        ThreadLocalValueImpl* m_ThreadLocalValue;
+#if IL2CPP_SUPPORT_THREADS
+        ThreadLocalValueImpl * m_ThreadLocalValue;
+#else
+        void* m_ThreadLocalValue;
+#endif
     };
 }
 }
