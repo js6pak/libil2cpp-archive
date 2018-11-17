@@ -316,13 +316,13 @@ il2cpp::gc::GarbageCollector::HasPendingFinalizers()
 int64_t
 il2cpp::gc::GarbageCollector::GetMaxTimeSliceNs()
 {
-    return GC_get_time_limit() * 1000000;
+    return GC_get_time_limit_ns();
 }
 
 void
 il2cpp::gc::GarbageCollector::SetMaxTimeSliceNs(int64_t maxTimeSlice)
 {
-    GC_set_time_limit((unsigned long)(maxTimeSlice / 1000000));
+    GC_set_time_limit_ns(maxTimeSlice);
 }
 
 bool

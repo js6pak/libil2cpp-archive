@@ -13,7 +13,6 @@
 #undef CreatePipe
 
 #include "os/File.h"
-#include "vm/Exception.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 #include "il2cpp-vm-support.h"

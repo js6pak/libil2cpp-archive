@@ -43,7 +43,6 @@
 #include "os/Posix/ThreadImpl.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
-#include "vm/Exception.h"
 
 #include "il2cpp-vm-support.h"
 

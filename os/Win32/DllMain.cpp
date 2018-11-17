@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINDOWS
+#if IL2CPP_TARGET_WINDOWS && !UNITY_TINY
 
 #include "DllMain.h"
 #include "ThreadImpl.h"

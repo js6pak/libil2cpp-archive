@@ -15,6 +15,13 @@
 #include <stdio.h>
 #endif
 
+#if IL2CPP_TARGET_LUMIN
+namespace il2cpp
+{ namespace os
+{ namespace lumin
+{ extern std::string GetPackageTempPath(); } } }
+#endif
+
 namespace il2cpp
 {
 namespace os
@@ -61,6 +68,8 @@ namespace os
 
 #if IL2CPP_TARGET_ANDROID
         return std::string("/data/local/tmp");
+#elif IL2CPP_TARGET_LUMIN
+        return il2cpp::os::lumin::GetPackageTempPath();
 #else
         return std::string("/tmp");
 #endif
