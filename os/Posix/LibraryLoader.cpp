@@ -18,8 +18,6 @@
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
-#include "vm/Exception.h"
-#include "vm/PlatformInvoke.h"
 
 namespace il2cpp
 {

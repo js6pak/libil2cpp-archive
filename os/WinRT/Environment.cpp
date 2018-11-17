@@ -6,7 +6,6 @@
 #include "os\Environment.h"
 #include "os\Win32\WindowsHelpers.h"
 #include "utils\StringUtils.h"
-#include "vm\Exception.h"
 
 #include <windows.storage.h>
 #include <wrl.h>
@@ -17,8 +16,6 @@ using namespace Microsoft::WRL::Wrappers;
 
 namespace il2cpp
 {
-    using namespace vm;
-
 namespace os
 {
 #define CSIDL_DESKTOP                   0x0000        // <desktop>

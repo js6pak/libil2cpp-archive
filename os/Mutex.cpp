@@ -1,6 +1,8 @@
 #include "os/c-api/il2cpp-config-platforms.h"
-
 #include "os/Mutex.h"
+
+#if IL2CPP_SUPPORT_THREADS
+
 #include "os/Atomic.h"
 #if IL2CPP_THREADS_WIN32
 #include "os/Win32/MutexImpl.h"
@@ -69,3 +71,56 @@ namespace os
     }
 }
 }
+
+#else
+
+namespace il2cpp
+{
+namespace os
+{
+    Mutex::Mutex(bool initiallyOwned)
+    {
+    }
+
+    Mutex::~Mutex()
+    {
+    }
+
+    void Mutex::Lock(bool interruptible)
+    {
+    }
+
+    bool Mutex::TryLock(uint32_t milliseconds, bool interruptible)
+    {
+        return true;
+    }
+
+    void Mutex::Unlock()
+    {
+    }
+
+    FastMutex::FastMutex()
+    {
+    }
+
+    FastMutex::~FastMutex()
+    {
+    }
+
+    void FastMutex::Lock()
+    {
+    }
+
+    void FastMutex::Unlock()
+    {
+    }
+
+    FastMutexImpl* FastMutex::GetImpl()
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return NULL;
+    }
+}
+}
+
+#endif
