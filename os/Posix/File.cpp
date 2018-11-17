@@ -244,6 +244,7 @@ namespace os
         return isatty(fileHandle->fd) == 1;
     }
 
+#if !IL2CPP_PLATFORM_OVERRIDES_STD_FILE_HANDLES
     FileHandle* File::GetStdError()
     {
         static FileHandle* s_handle = NULL;
@@ -291,6 +292,8 @@ namespace os
 
         return s_handle;
     }
+
+#endif
 
     bool File::CreatePipe(FileHandle** read_handle, FileHandle** write_handle)
     {

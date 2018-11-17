@@ -86,20 +86,3 @@ typedef struct Il2CppType
     unsigned int pinned   : 1;  /* valid when included in a local var signature */
     //MonoCustomMod modifiers [MONO_ZERO_LEN_ARRAY]; /* this may grow */
 } Il2CppType;
-
-typedef enum Il2CppCallConvention
-{
-    IL2CPP_CALL_DEFAULT,
-    IL2CPP_CALL_C,
-    IL2CPP_CALL_STDCALL,
-    IL2CPP_CALL_THISCALL,
-    IL2CPP_CALL_FASTCALL,
-    IL2CPP_CALL_VARARG
-} Il2CppCallConvention;
-
-typedef enum Il2CppCharSet
-{
-    CHARSET_ANSI,
-    CHARSET_UNICODE,
-    CHARSET_NOT_SPECIFIED
-} Il2CppCharSet;
