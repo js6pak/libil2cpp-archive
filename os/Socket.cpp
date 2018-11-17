@@ -1,5 +1,7 @@
 #include "il2cpp-config.h"
 
+#if IL2CPP_SUPPORT_SOCKETS
+
 #include <map>
 
 #include "os/Socket.h"
@@ -369,3 +371,5 @@ namespace os
     }
 }
 }
+
+#endif

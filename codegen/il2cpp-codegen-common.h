@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdarg.h>
+
 #include "il2cpp-config.h"
 
 #include <cassert>
@@ -201,10 +203,64 @@ inline void il2cpp_codegen_write_to_stdout(const char* str)
     il2cpp::utils::Output::WriteToStdout(str);
 }
 
+#if IL2CPP_TARGET_LUMIN
+inline void il2cpp_codegen_write_to_stdout_args(const char* str, ...)
+{
+    va_list args, local;
+    char* buffer = nullptr;
+    va_start(args, str);
+    va_copy(local, args);
+    int size = vsnprintf(nullptr, 0, str, local);
+    if (size < 0)
+    {
+        va_end(local);
+        va_end(args);
+        return;
+    }
+    va_end(local);
+    va_copy(local, args);
+    buffer = new char[size + 1];
+    vsnprintf(buffer, size + 1, str, local);
+    il2cpp::utils::Output::WriteToStdout(buffer);
+    if (buffer != nullptr)
+        delete[] buffer;
+    va_end(local);
+    va_end(args);
+}
+
+#endif
+
 inline void il2cpp_codegen_write_to_stderr(const char* str)
 {
     il2cpp::utils::Output::WriteToStderr(str);
 }
+
+#if IL2CPP_TARGET_LUMIN
+inline void il2cpp_codegen_write_to_stderr_args(const char* str, ...)
+{
+    va_list args, local;
+    char* buffer = nullptr;
+    va_start(args, str);
+    va_copy(local, args);
+    int size = vsnprintf(nullptr, 0, str, local);
+    if (size < 0)
+    {
+        va_end(local);
+        va_end(args);
+        return;
+    }
+    va_end(local);
+    va_copy(local, args);
+    buffer = new char[size + 1];
+    vsnprintf(buffer, size + 1, str, local);
+    il2cpp::utils::Output::WriteToStderr(buffer);
+    if (buffer != nullptr)
+        delete[] buffer;
+    va_end(local);
+    va_end(args);
+}
+
+#endif
 
 inline REAL_NORETURN void il2cpp_codegen_abort()
 {
@@ -273,32 +329,31 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
     memset(ptr, value, num);
 }
 
+#if IL2CPP_MONO_DEBUGGER
+extern uint32_t g_Il2CppDebuggerCheckPointEnabled;
+#endif
+
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
 #if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::RegisterSequencePointCheck(&g_Il2CppDebuggerCheckPointEnabled);
     il2cpp::utils::Debugger::RegisterMetadata(data);
 #endif
 }
 
-inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint *sequencePoint)
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, size_t seqPointId)
 {
 #if IL2CPP_MONO_DEBUGGER
-    if (!sequencePoint)
-        return;
-
-    if (il2cpp::utils::Debugger::IsSequencePointActive(sequencePoint))
-    {
-        executionContext->currentSequencePoint = sequencePoint;
-        il2cpp::utils::Debugger::OnBreakPointHit(sequencePoint);
-    }
+    if (g_Il2CppDebuggerCheckPointEnabled)
+        il2cpp::utils::Debugger::CheckSequencePoint(executionContext, seqPointId);
 #endif
 }
 
 inline void il2cpp_codegen_check_pause_point()
 {
 #if IL2CPP_MONO_DEBUGGER
-    if (il2cpp::utils::Debugger::IsPausePointActive())
-        il2cpp::utils::Debugger::OnPausePointHit();
+    if (g_Il2CppDebuggerCheckPointEnabled)
+        il2cpp::utils::Debugger::CheckPausePoint();
 #endif
 }
 
@@ -314,16 +369,13 @@ inline Il2CppSequencePoint* il2cpp_codegen_get_sequence_point(size_t id)
 class MethodExitSequencePointChecker
 {
 private:
-    Il2CppSequencePoint *m_pSeqPoint;
+    size_t m_pSeqPoint;
     Il2CppSequencePointExecutionContext* m_seqPointStorage;
 
 public:
     MethodExitSequencePointChecker(Il2CppSequencePointExecutionContext* seqPointStorage, size_t seqPointId) :
-        m_seqPointStorage(seqPointStorage), m_pSeqPoint(NULL)
+        m_seqPointStorage(seqPointStorage), m_pSeqPoint(seqPointId)
     {
-#if IL2CPP_MONO_DEBUGGER
-        m_pSeqPoint = il2cpp_codegen_get_sequence_point(seqPointId);
-#endif
     }
 
     ~MethodExitSequencePointChecker()

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "il2cpp-config.h"
+#include "il2cpp-pinvoke-support.h"
 #include "utils/StringView.h"
 #include <string>
-
-struct PInvokeArguments;
 
 namespace il2cpp
 {

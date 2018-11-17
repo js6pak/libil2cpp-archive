@@ -14,15 +14,7 @@
 struct Il2CppString;
 struct Il2CppStringBuilder;
 
-struct PInvokeArguments
-{
-    const il2cpp::utils::StringView<Il2CppNativeChar> moduleName;
-    const il2cpp::utils::StringView<char> entryPoint;
-    Il2CppCallConvention callingConvention;
-    Il2CppCharSet charSet;
-    int parameterSize;
-    bool isNoMangle;    // Says whether P/Invoke should append to function name 'A'/'W' according to charSet.
-};
+struct PInvokeArguments;
 
 namespace il2cpp
 {

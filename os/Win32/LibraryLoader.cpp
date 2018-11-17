@@ -6,7 +6,6 @@
 #include "os/Mutex.h"
 #include "os/LibraryLoader.h"
 #include "os/Image.h"
-#include "vm/PlatformInvoke.h"
 #include "utils/StringUtils.h"
 
 #include "WindowsHelpers.h"
