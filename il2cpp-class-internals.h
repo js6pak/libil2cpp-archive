@@ -166,6 +166,8 @@ typedef struct Il2CppDefaults
 
     // Windows.Foundation.IReference`1<T>
     Il2CppClass* ireference_class;
+    // Windows.Foundation.IReferenceArray`1<T>
+    Il2CppClass* ireferencearray_class;
     // Windows.Foundation.Collections.IKeyValuePair`2<K, V>
     Il2CppClass* ikey_value_pair_class;
     // System.Collections.Generic.KeyValuePair`2<K, V>

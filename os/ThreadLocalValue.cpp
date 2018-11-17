@@ -1,6 +1,8 @@
 #include "os/c-api/il2cpp-config-platforms.h"
-
 #include "os/ThreadLocalValue.h"
+
+#if IL2CPP_SUPPORT_THREADS
+
 #if IL2CPP_THREADS_WIN32
 #include "os/Win32/ThreadLocalValueImpl.h"
 #elif IL2CPP_THREADS_PSP2
@@ -36,3 +38,33 @@ namespace os
     }
 }
 }
+
+#else
+
+namespace il2cpp
+{
+namespace os
+{
+    ThreadLocalValue::ThreadLocalValue()
+    {
+    }
+
+    ThreadLocalValue::~ThreadLocalValue()
+    {
+    }
+
+    ErrorCode ThreadLocalValue::SetValue(void* value)
+    {
+        m_ThreadLocalValue = value;
+        return kErrorCodeSuccess;
+    }
+
+    ErrorCode ThreadLocalValue::GetValue(void** value)
+    {
+        *value = m_ThreadLocalValue;
+        return kErrorCodeSuccess;
+    }
+}
+}
+
+#endif

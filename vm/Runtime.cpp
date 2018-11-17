@@ -291,6 +291,7 @@ namespace vm
         {
             const Il2CppImage* windowsRuntimeMetadataImage = Assembly::GetImage(windowsRuntimeMetadataAssembly);
             il2cpp_defaults.ireference_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "IReference`1");
+            il2cpp_defaults.ireferencearray_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "IReferenceArray`1");
             il2cpp_defaults.ikey_value_pair_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation.Collections", "IKeyValuePair`2");
             il2cpp_defaults.ikey_value_pair_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation.Collections", "IKeyValuePair`2");
             il2cpp_defaults.windows_foundation_uri_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "Uri");

@@ -1,17 +1,16 @@
 #include "il2cpp-config.h"
+
+#if IL2CPP_TARGET_WINDOWS && !IL2CPP_USE_GENERIC_WINDOWSRUNTIME
+
 #include "il2cpp-class-internals.h"
 #include "il2cpp-string-types.h"
 #include "il2cpp-vm-support.h"
 #include "os/WindowsRuntime.h"
 #include "utils/Il2CppHStringReference.h"
 #include "utils/StringUtils.h"
-#include "vm/Array.h"
 #include "vm/CCW.h"
-#include "vm/Exception.h"
-#include "vm/String.h"
 #include "WindowsHeaders.h"
 
-#if IL2CPP_TARGET_WINDOWS && !IL2CPP_USE_GENERIC_WINDOWSRUNTIME
 
 #if LINK_TO_WINDOWSRUNTIME_LIBS
 #include <roerrorapi.h>
