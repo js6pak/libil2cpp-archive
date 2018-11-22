@@ -51,6 +51,8 @@ namespace il2cpp
 {
 namespace vm
 {
+    const int Class::IgnoreNumberOfArguments = -1;
+
     static il2cpp::utils::dynamic_array<Il2CppClass*> s_staticFieldData;
     static int32_t s_FinalizerSlot = -1;
     static int32_t s_GetHashCodeSlot = -1;
@@ -429,7 +431,7 @@ namespace vm
             {
                 if (method->name[0] == name[0] &&
                     !strcmp(name, method->name) &&
-                    (argsCount == -1 || method->parameters_count == argsCount) &&
+                    (argsCount == IgnoreNumberOfArguments || method->parameters_count == argsCount) &&
                     ((method->flags & flags) == flags))
                 {
                     return method;
@@ -1703,7 +1705,7 @@ namespace vm
         if (!klass->has_cctor)
             return NULL;
 
-        return GetMethodFromNameFlags(klass, ".cctor", -1, METHOD_ATTRIBUTE_SPECIAL_NAME);
+        return GetMethodFromNameFlags(klass, ".cctor", IgnoreNumberOfArguments, METHOD_ATTRIBUTE_SPECIAL_NAME);
     }
 
     const char* Class::GetFieldDefaultValue(const FieldInfo *field, const Il2CppType** type)
