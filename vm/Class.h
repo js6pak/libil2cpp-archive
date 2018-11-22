@@ -96,6 +96,8 @@ namespace vm
         static const char *GetAssemblyName(const Il2CppClass *klass);
         static const char *GetAssemblyNameNoExtension(const Il2CppClass *klass);
 
+        static const int IgnoreNumberOfArguments;
+
     public:
         //internal
         static FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
