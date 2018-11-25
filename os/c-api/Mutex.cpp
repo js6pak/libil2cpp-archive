@@ -1,5 +1,8 @@
-#include "os/c-api/Mutex-c-api.h"
 #include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
+#include "os/c-api/Mutex-c-api.h"
 
 extern "C"
 {
@@ -97,3 +100,5 @@ UnityPalFastMutexImpl* UnityPalFastMutexGetImpl(UnityPalFastMutex* fastMutex)
     return fastMutex->GetImpl();
 }
 }
+
+#endif

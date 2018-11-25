@@ -1,3 +1,7 @@
+#include "il2cpp-config.h"
+
+#if !UNITY_TINY
+
 #include "NativeDelegateMethodCache.h"
 
 namespace il2cpp
@@ -25,3 +29,5 @@ namespace utils
     }
 } // namespace utils
 } // namespace il2cpp
+
+#endif

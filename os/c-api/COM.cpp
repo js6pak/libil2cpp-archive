@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/COM.h"
 #include "os/c-api/COM-c-api.h"
 
@@ -63,3 +67,5 @@ il2cpp_hresult_t UnityPalCOMSafeArrayGetUBound(UnityPalIl2CppSafeArray* safeArra
     return il2cpp::os::COM::SafeArrayGetUBound(safeArray, dimention, bound);
 }
 }
+
+#endif

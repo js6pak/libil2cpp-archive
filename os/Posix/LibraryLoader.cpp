@@ -23,9 +23,11 @@ namespace il2cpp
 {
 namespace os
 {
+#if !UNITY_TINY_WITHOUT_DEBUGGER
     static std::set<void*> s_NativeHandlesOpen;
     typedef std::set<void*>::const_iterator OpenHandleIterator;
     os::FastMutex s_NativeHandlesOpenMutex;
+#endif
 
     struct LibraryNamePrefixAndSuffix
     {
@@ -39,6 +41,7 @@ namespace os
         std::string suffix;
     };
 
+#if !UNITY_TINY_WITHOUT_DEBUGGER
     static LibraryNamePrefixAndSuffix LibraryNamePrefixAndSuffixVariations[8] =
     {
         LibraryNamePrefixAndSuffix("", ".so"),
@@ -50,6 +53,7 @@ namespace os
         LibraryNamePrefixAndSuffix("lib", ".dylib"),
         LibraryNamePrefixAndSuffix("lib", ".bundle")
     };
+#endif
 
 // Note that testing this code can be a bit difficult, since dlopen will cache
 // the values it returns, and we don't call dlcose from the C# level. See the
@@ -90,6 +94,7 @@ namespace os
         return NULL;
     }
 
+#if !UNITY_TINY_WITHOUT_DEBUGGER
     static void* CheckLibraryVariations(const char* name, int flags)
     {
         int numberOfVariations = sizeof(LibraryNamePrefixAndSuffixVariations) / sizeof(LibraryNamePrefixAndSuffixVariations[0]);
@@ -103,6 +108,8 @@ namespace os
 
         return NULL;
     }
+
+#endif
 
     Il2CppMethodPointer LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(const il2cpp::utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, const il2cpp::utils::StringView<char>& entryPoint)
     {
@@ -119,6 +126,11 @@ namespace os
 #ifdef VERBOSE_OUTPUT
         printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.Str());
 #endif
+
+#if UNITY_TINY
+        StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
+        return dlopen(libraryName, RTLD_LAZY);
+#else
 
         if (nativeDynamicLibrary.IsEmpty())
             return LoadLibraryWithName(NULL, flags);
@@ -147,11 +159,15 @@ namespace os
             s_NativeHandlesOpen.insert(handle);
 
         return handle;
+#endif
     }
 
     Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
     {
         StringViewAsNullTerminatedStringOf(char, pinvokeArgs.entryPoint, entryPoint);
+#if UNITY_TINY
+        return reinterpret_cast<Il2CppMethodPointer>(dlsym(dynamicLibrary, entryPoint));
+#else
 
         if (pinvokeArgs.isNoMangle)
             return reinterpret_cast<Il2CppMethodPointer>(dlsym(dynamicLibrary, entryPoint));
@@ -188,6 +204,7 @@ namespace os
         }
 
         return reinterpret_cast<Il2CppMethodPointer>(functionPtr);
+#endif
     }
 
     Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const char* functionName)
@@ -208,11 +225,13 @@ namespace os
 
     void LibraryLoader::CleanupLoadedLibraries()
     {
+#if !UNITY_TINY_WITHOUT_DEBUGGER
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         for (OpenHandleIterator it = s_NativeHandlesOpen.begin(); it != s_NativeHandlesOpen.end(); it++)
         {
             dlclose(*it);
         }
+#endif
     }
 
     bool LibraryLoader::CloseLoadedLibrary(void*& dynamicLibrary)
@@ -220,6 +239,7 @@ namespace os
         if (dynamicLibrary == NULL)
             return false;
 
+#if !UNITY_TINY_WITHOUT_DEBUGGER
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         OpenHandleIterator it = s_NativeHandlesOpen.find(dynamicLibrary);
         if (it != s_NativeHandlesOpen.end())
@@ -229,6 +249,9 @@ namespace os
             return true;
         }
         return false;
+#else
+        return true;
+#endif
     }
 }
 }

@@ -33,6 +33,12 @@ namespace utils
             IL2CPP_ASSERT(str != NULL);
         }
 
+        inline StringView(const CharType* str, size_t startIndex, size_t length) :
+            m_String(str + startIndex), m_Length(length)
+        {
+            IL2CPP_ASSERT(str != NULL);
+        }
+
         inline StringView(const StringView<CharType>& str, size_t startIndex, size_t length) :
             m_String(str.Str() + startIndex),
             m_Length(length)

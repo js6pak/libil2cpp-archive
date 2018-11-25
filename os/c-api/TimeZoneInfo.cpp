@@ -1,4 +1,7 @@
-#include "il2cpp-config-platforms.h"
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/TimeZoneInfo-c-api.h"
 #include "os/TimeZoneInfo.h"
 
@@ -24,3 +27,5 @@ int UnityPalGetTimeZoneDataForID(char* id, void** nativeRawData, int* size)
     return il2cpp::os::TimeZoneInfo::GetTimeZoneDataForID(id, nativeRawData, size);
 }
 }
+
+#endif

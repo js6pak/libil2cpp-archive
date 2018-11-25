@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/SystemCertificates.h"
 #include "os/c-api/SystemCertificates-c-api.h"
 
@@ -18,3 +22,5 @@ void UnityPalSystemCertificatesCloseSystemRootStore(void* cStore)
     il2cpp::os::SystemCertificates::CloseSystemRootStore(cStore);
 }
 }
+
+#endif

@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/Cryptography-c-api.h"
 #include "os/Cryptography.h"
 
@@ -23,3 +27,5 @@ int32_t UnityPalCryptographyFillBufferWithRandomBytes(void* provider, uint32_t l
     return il2cpp::os::Cryptography::FillBufferWithRandomBytes(provider, length, data);
 }
 }
+
+#endif

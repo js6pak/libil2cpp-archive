@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "Allocator.h"
 #include "os/Messages.h"
 #include "os/c-api/Messages-c-api.h"
@@ -9,3 +13,5 @@ char* UnityPalMessagesFromCode(UnityPalErrorCode code)
     return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Messages::FromCode(code));
 }
 }
+
+#endif

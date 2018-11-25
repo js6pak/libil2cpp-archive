@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "il2cpp-runtime-metadata.h"
 #include "il2cpp-metadata.h"
-
+#include "il2cpp-pinvoke-support.h"
 
 #define IL2CPP_CLASS_IS_ARRAY(c) ((c)->rank)
 
@@ -392,31 +392,6 @@ typedef struct Il2CppRuntimeInterfaceOffsetPair
     int32_t offset;
 } Il2CppRuntimeInterfaceOffsetPair;
 
-typedef void (*PInvokeMarshalToNativeFunc)(void* managedStructure, void* marshaledStructure);
-typedef void (*PInvokeMarshalFromNativeFunc)(void* marshaledStructure, void* managedStructure);
-typedef void (*PInvokeMarshalCleanupFunc)(void* marshaledStructure);
-typedef struct Il2CppIUnknown* (*CreateCCWFunc)(Il2CppObject* obj);
-
-#if RUNTIME_MONO
-#include "il2cpp-mapping.h"
-#endif
-
-typedef struct Il2CppInteropData
-{
-    Il2CppMethodPointer delegatePInvokeWrapperFunction;
-    PInvokeMarshalToNativeFunc pinvokeMarshalToNativeFunction;
-    PInvokeMarshalFromNativeFunc pinvokeMarshalFromNativeFunction;
-    PInvokeMarshalCleanupFunc pinvokeMarshalCleanupFunction;
-    CreateCCWFunc createCCWFunction;
-    const Il2CppGuid* guid;
-#if RUNTIME_MONO
-    MonoMetadataToken typeToken;
-    uint64_t hash;
-#else
-    const Il2CppType* type;
-#endif
-} Il2CppInteropData;
-
 #if IL2CPP_COMPILER_MSVC
 #pragma warning( push )
 #pragma warning( disable : 4200 )
@@ -457,6 +432,8 @@ typedef struct Il2CppClass
     // used for fast parent checks
     Il2CppClass** typeHierarchy; // Initialized in SetupTypeHierachy
     // End initialization required fields
+
+    void *unity_user_data;
 
     uint32_t initializationExceptionGCHandle;
 

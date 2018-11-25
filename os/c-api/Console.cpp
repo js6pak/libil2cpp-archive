@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/Console.h"
 #include "os/c-api/Console-c-api.h"
 
@@ -23,3 +27,5 @@ int32_t UnityPalConsoleTtySetup(const char* keypadXmit, const char* teardown, ui
     return il2cpp::os::Console::TtySetup(keypadXmit, teardown, control_characters, size);
 }
 }
+
+#endif

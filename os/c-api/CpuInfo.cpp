@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #if NET_4_0
 #include "os/CpuInfo.h"
 #include "os/c-api/CpuInfo-c-api.h"
@@ -15,3 +19,5 @@ int32_t UnityPalCpuInfoUsage(void* previous)
 }
 }
 #endif // NET_4_0
+
+#endif
