@@ -1,6 +1,6 @@
 #pragma once
 
-#if IL2CPP_TARGET_POSIX
+#if IL2CPP_TARGET_POSIX && !UNITY_TINY_WITHOUT_DEBUGGER
 
 #include <pthread.h>
 #include <stdint.h>

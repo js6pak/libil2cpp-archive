@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/File.h"
 #include "os/c-api/File-c-api.h"
 #include "os/c-api/Allocator.h"
@@ -185,3 +189,5 @@ int32_t UnityPalIsExecutable(const char* filename)
     return il2cpp::os::File::IsExecutable(filename);
 }
 }
+
+#endif

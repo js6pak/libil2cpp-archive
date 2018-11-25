@@ -15,9 +15,14 @@
 // On systems which have the posix backtrace API, you can turn on this define to get native stack traces.
 // This can make it easier to debug issues with missing barriers.
 #define HAS_POSIX_BACKTRACE IL2CPP_TARGET_OSX
+#define HAS_WINDOWS_BACKTRACE IL2CPP_TARGET_WINDOWS
 
 #if HAS_POSIX_BACKTRACE
 #include <execinfo.h>
+#endif
+
+#if HAS_WINDOWS_BACKTRACE
+#include <windows.h>
 #endif
 
 using namespace il2cpp::os;
@@ -43,7 +48,7 @@ namespace gc
     {
         size_t size;
         StackFrames stacktrace;
-#if HAS_POSIX_BACKTRACE
+#if HAS_POSIX_BACKTRACE || HAS_WINDOWS_BACKTRACE
         void *backtraceFrames[128];
         int frameCount;
 #endif
@@ -101,6 +106,9 @@ namespace gc
                 allocation.stacktrace = *trace;
 #if HAS_POSIX_BACKTRACE
             allocation.frameCount = backtrace(&allocation.backtraceFrames[0], 128);
+#endif
+#if HAS_WINDOWS_BACKTRACE
+            allocation.frameCount = CaptureStackBackTrace(0, 128, &allocation.backtraceFrames[0], NULL);
 #endif
 
             g_MinHeap = std::min(g_MinHeap, ptr);

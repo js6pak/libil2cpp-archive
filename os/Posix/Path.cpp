@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX
+#if IL2CPP_TARGET_POSIX && !UNITY_TINY_WITHOUT_DEBUGGER
 #include "os/Environment.h"
 #include "os/Path.h"
 #include <string>

@@ -8,15 +8,23 @@
 #include "os/Thread.h"
 #include "os/c-api/Allocator.h"
 #include "os/SocketBridge.h"
+
+#if !UNITY_TINY
 #include "vm/MetadataCache.h"
 #include "vm/Method.h"
 #include "vm/Thread.h"
+#endif
+
 #include "utils/Environment.h"
 #include "utils/dynamic_array.h"
 #include "utils/StringUtils.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
+
+#if !UNITY_TINY
 #include "VmStringUtils.h"
+#endif
+
 #include <deque>
 #include <string>
 #include <algorithm>
@@ -41,7 +49,6 @@ void unity_debugger_agent_breakpoint(Il2CppSequencePoint* sequencePoint);
 void unity_debugger_agent_pausepoint();
 void mono_debugger_install_runtime_callbacks(MonoDebuggerRuntimeCallbacks* cbs);
 void mono_debugger_install_sequence_point_check(uint32_t* check);
-void* il2cpp_alloc(size_t size);
 int32_t unity_debugger_agent_is_global_breakpoint_active();
 int32_t unity_debugger_agent_is_single_stepping();
 void unity_debugger_agent_handle_exception(Il2CppException *exc, Il2CppSequencePoint *sequencePoint);
@@ -52,6 +59,11 @@ void mono_debugger_agent_debug_log(int level, Il2CppString *category, Il2CppStri
 int32_t unity_sequence_point_active(Il2CppSequencePoint *seqPoint);
 int32_t unity_pause_point_active();
 void il2cpp_save_current_thread_context_func_exit();
+
+void* il2cpp_malloc(size_t size)
+{
+    return IL2CPP_MALLOC(size);
+}
 }
 
 static const Il2CppDebuggerMetadataRegistration *g_metadata;
@@ -117,7 +129,7 @@ namespace utils
 
         il2cpp::utils::Debugger::RegisterCallbacks(breakpoint_callback, pausepoint_callback);
 
-        register_allocator(il2cpp_alloc);
+        register_allocator(il2cpp_malloc);
 
         s_IsDebuggerInitialized = true;
 #else
@@ -145,7 +157,12 @@ namespace utils
                 if (klass)
                     s_typeSourceFiles->add(klass, files);
 
+#if !UNITY_TINY
                 klass = il2cpp::vm::MetadataCache::GetTypeInfoFromTypeDefinitionIndex(pair.klassIndex);
+#else
+                klass = NULL;
+                IL2CPP_ASSERT(0 && "Not implemented yet for tiny");
+#endif
                 lastTypeIndex = pair.klassIndex;
                 files.clear();
             }
@@ -161,7 +178,11 @@ namespace utils
     {
         if (s_IsDebuggerInitialized)
         {
+#if !UNITY_TINY
             vm::MetadataCache::InitializeAllMethodMetadata();
+#else
+            IL2CPP_ASSERT(0 && "Not implemented yet for tiny");
+#endif
             InitializeTypeSourceFileMap();
             InitializeMethodToSequencePointMap();
             Debugger::StartDebuggerThread();
@@ -541,15 +562,25 @@ namespace utils
         if (seqPoint == NULL)
             return NULL;
 
+#if !UNITY_TINY
         return il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex(seqPoint->methodDefinitionIndex);
+#else
+        IL2CPP_ASSERT(0 && "Not implemented yet for tiny");
+        return NULL;
+#endif
     }
 
     void Debugger::GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes)
     {
+#if !UNITY_TINY
         if (il2cpp::vm::Method::IsInflated(method))
             method = il2cpp::vm::MetadataCache::GetGenericMethodDefinition(method);
-
         int methodIndex = il2cpp::vm::MetadataCache::GetIndexForMethodDefinition(method);
+#else
+        IL2CPP_ASSERT(0 && "Not implemented yet for tiny");
+        int methodIndex = -1;
+#endif
+
         Il2CppMethodExecutionContextInfoIndex *index = &g_metadata->methodExecutionContextInfoIndexes[methodIndex];
         if (index->count != -1)
         {

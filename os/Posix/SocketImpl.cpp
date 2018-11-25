@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_POSIX
+#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_POSIX && IL2CPP_SUPPORT_SOCKETS
 
 // enable support for AF_UNIX and socket paths
 #define SUPPORT_UNIXSOCKETS (1)

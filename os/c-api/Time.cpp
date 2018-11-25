@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/Time.h"
 
 #include <stdint.h>
@@ -24,3 +28,5 @@ int64_t UnityPalGetSystemTimeAsFileTime()
     return il2cpp::os::Time::GetSystemTimeAsFileTime();
 }
 }
+
+#endif

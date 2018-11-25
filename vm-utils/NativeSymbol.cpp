@@ -1,4 +1,7 @@
 #include "il2cpp-config.h"
+
+#if !UNITY_TINY
+
 #include "os/Environment.h"
 #include "os/File.h"
 #include "os/Image.h"
@@ -202,3 +205,5 @@ namespace utils
 #endif
 } /* namespace utils */
 } /* namespace il2cpp */
+
+#endif

@@ -1,3 +1,7 @@
+#include "il2cpp-config.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "MemoryMappedFile.h"
 
 namespace il2cpp
@@ -76,3 +80,5 @@ namespace utils
     }
 }
 }
+
+#endif
