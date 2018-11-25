@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/Handle-c-api.h"
 #include "os/Handle.h"
 #include <vector>
@@ -51,3 +55,5 @@ UnityPalWaitStatus UnityPalWaitForMultipleHandles(UnityPalHandle** handles, size
     }
 }
 }
+
+#endif

@@ -1,4 +1,7 @@
 #include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/Semaphore-c-api.h"
 #include "os/Semaphore.h"
 
@@ -69,3 +72,5 @@ UnityPalSemaphore* UnityPalSemaphoreHandleGet(UnityPalSemaphoreHandle* handle)
     return &handle->Get();
 }
 }
+
+#endif

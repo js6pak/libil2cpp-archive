@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "utils/StringUtils.h"
+#include "gc/GarbageCollector.h"
 #include "gc/WriteBarrier.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
@@ -336,7 +337,7 @@ namespace vm
                     else
                     {
                         memcpy(dest, value, size);
-                        //mono_gc_wbarrier_value_copy (dest, value, size, klass);
+                        gc::GarbageCollector::SetWriteBarrier(reinterpret_cast<void**>(dest), size);
                     }
                 }
                 return;

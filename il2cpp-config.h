@@ -67,8 +67,14 @@
 
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
+#define IL2CPP_NO_ALIAS __declspec(noalias)
+#define IL2CPP_RESTRICT __declspec(restrict)
+#define IL2CPP_ASSUME(x) __assume(x)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
+#define IL2CPP_NO_ALIAS
+#define IL2CPP_RESTRICT
+#define IL2CPP_ASSUME(x)
 #endif
 
 #if IL2CPP_COMPILER_MSVC
@@ -166,6 +172,12 @@
     #define IL2CPP_HAS_CXX_CONSTEXPR (_MSC_VER >= 1900)
 #else
     #define IL2CPP_HAS_CXX_CONSTEXPR (__has_feature (cxx_constexpr))
+#endif
+
+#if IL2CPP_HAS_CXX_CONSTEXPR
+    #define COMPILE_TIME_CONST constexpr
+#else
+    #define COMPILE_TIME_CONST const
 #endif
 
 /* clang specific __has_builtin check */
@@ -281,7 +293,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 #define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
 #define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || UNITY_TINY)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))

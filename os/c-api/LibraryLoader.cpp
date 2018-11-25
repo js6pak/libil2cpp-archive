@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/LibraryLoader-c-api.h"
 #include "os/LibraryLoader.h"
 #include "utils/StringUtils.h"
@@ -26,3 +30,5 @@ int32_t UnityPalLibraryLoaderCloseLoadedLibrary(void** dynamicLibrary)
     return il2cpp::os::LibraryLoader::CloseLoadedLibrary(*dynamicLibrary);
 }
 }
+
+#endif

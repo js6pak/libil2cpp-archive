@@ -1,4 +1,7 @@
 #include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/ThreadLocalValue-c-api.h"
 #include "os/ThreadLocalValue.h"
 
@@ -27,3 +30,5 @@ UnityPalErrorCode UnityPalThreadLocalValueGetValue(UnityPalThreadLocalValue* obj
     return object->GetValue(value);
 }
 }
+
+#endif
