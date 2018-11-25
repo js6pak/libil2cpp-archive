@@ -1,4 +1,7 @@
 #include "il2cpp-config.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/Environment.h"
 #include "os/c-api/Environment-c-api.h"
 #include "Allocator.h"
@@ -44,3 +47,5 @@ int32_t UnityPalGetProcessorCount()
     return il2cpp::os::Environment::GetProcessorCount();
 }
 }
+
+#endif

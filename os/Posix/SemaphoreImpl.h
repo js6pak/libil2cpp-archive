@@ -1,6 +1,6 @@
 #pragma once
 
-#if IL2CPP_THREADS_PTHREAD
+#if IL2CPP_THREADS_PTHREAD && !UNITY_TINY_WITHOUT_DEBUGGER
 
 #include "PosixWaitObject.h"
 #include "os/ErrorCodes.h"

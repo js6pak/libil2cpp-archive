@@ -1300,3 +1300,13 @@ void il2cpp_custom_attrs_free(Il2CppCustomAttrInfo *ainfo)
 {
     // nothing to free, we cache everything
 }
+
+void il2cpp_class_set_userdata(Il2CppClass* klass, void* userdata)
+{
+    klass->unity_user_data = userdata;
+}
+
+int il2cpp_class_get_userdata_offset()
+{
+    return offsetof(struct Il2CppClass, unity_user_data);
+}

@@ -2,7 +2,7 @@
 
 #include "il2cpp-config.h"
 
-#if IL2CPP_THREADS_PTHREAD
+#if IL2CPP_THREADS_PTHREAD && !UNITY_TINY_WITHOUT_DEBUGGER
 
 #include <pthread.h>
 

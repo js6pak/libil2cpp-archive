@@ -1,3 +1,7 @@
+#include "il2cpp-config.h"
+
+#if IL2CPP_SUPPORT_THREADS
+
 #include "AtomicQueue.h"
 #include "ExtendedAtomicOps.h"
 
@@ -1657,3 +1661,5 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
 #endif
 
 UNITY_PLATFORM_END_NAMESPACE;
+
+#endif

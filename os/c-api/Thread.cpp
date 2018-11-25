@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "Thread-c-api.h"
 #include "os/Thread.h"
 
@@ -15,3 +19,5 @@ UnityPalThreadId UnityPalGetCurrentThreadId()
 {
     return il2cpp::os::Thread::GetCurrentThread()->Id();
 }
+
+#endif

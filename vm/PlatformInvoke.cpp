@@ -392,7 +392,7 @@ namespace vm
         if (d->method->is_inflated)
         {
             std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
-            std::string errorMessage = "IL2CPP does not support marshaling delegates that point to generic methods. The generic method we're attemping to marshal is: " + methodName;
+            std::string errorMessage = "IL2CPP does not support marshaling delegates that point to generic methods. The generic method we're attempting to marshal is: " + methodName;
             vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
         }
 
@@ -404,11 +404,16 @@ namespace vm
         Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapperFromIndex(d->method->methodDefinition->reversePInvokeWrapperIndex);
         if (reversePInvokeWrapper == NULL)
         {
+            std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
             // Okay, we cannot marshal it for some reason. Figure out why.
             if (Method::IsInstance(d->method))
-                vm::Exception::Raise(vm::Exception::GetNotSupportedException("IL2CPP does not support marshaling delegates that point to instance methods to native code."));
+            {
+                std::string errorMessage = "IL2CPP does not support marshaling delegates that point to instance methods to native code. The method we're attempting to marshal is: " + methodName;
+                vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
+            }
 
-            vm::Exception::Raise(vm::Exception::GetNotSupportedException("To marshal a managed method, please add an attribute named 'MonoPInvokeCallback' to the method definition."));
+            std::string errorMessage = "To marshal a managed method, please add an attribute named 'MonoPInvokeCallback' to the method definition. The method we're attempting to marshal is: " + methodName;
+            vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
         }
 
         return reinterpret_cast<intptr_t>(reversePInvokeWrapper);
