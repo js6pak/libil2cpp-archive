@@ -36,11 +36,15 @@ namespace os
 // Head and tail of linked list.
     static FileHandle* s_fileHandleHead = NULL;
     static FileHandle* s_fileHandleTail = NULL;
+#if IL2CPP_SUPPORT_THREADS
     static FastMutex s_fileHandleMutex;
+#endif
 
     static void AddFileHandle(FileHandle *fileHandle)
     {
+#if IL2CPP_SUPPORT_THREADS
         FastAutoLock autoLock(&s_fileHandleMutex);
+#endif
 
         if (s_fileHandleHead == NULL)
         {
@@ -62,7 +66,9 @@ namespace os
 
     static void RemoveFileHandle(il2cpp::os::FileHandle *fileHandle)
     {
+#if IL2CPP_SUPPORT_THREADS
         FastAutoLock autoLock(&s_fileHandleMutex);
+#endif
 
         if (s_fileHandleHead == fileHandle)
             s_fileHandleHead = fileHandle->next;
@@ -79,7 +85,9 @@ namespace os
 
     static const FileHandle* FindFileHandle(const struct stat& statBuf)
     {
+#if IL2CPP_SUPPORT_THREADS
         FastAutoLock autoLock(&s_fileHandleMutex);
+#endif
 
         const dev_t device = statBuf.st_dev;
         const ino_t inode = statBuf.st_ino;
@@ -526,7 +534,7 @@ namespace os
 
         if (!ShareAllowOpen(srcStat, kFileShareNone, kFileAccessWrite))
         {
-            *error = kErrorCodeSharingViolation;
+            *error = kErrorCodeSuccess;
             return false;
         }
 

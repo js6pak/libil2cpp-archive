@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/Directory.h"
 #include "os/c-api/Directory-c-api.h"
 #include "Allocator.h"
@@ -101,3 +105,5 @@ UnityPalErrorCode UnityPalDirectoryFindNextFile(UnityPalFindHandle*  findHandle,
     return retVal;
 }
 }
+
+#endif

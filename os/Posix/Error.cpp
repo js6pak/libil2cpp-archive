@@ -119,7 +119,6 @@ namespace os
     #ifdef ENXIO
             case ENXIO: result = kWSAhostNotFound; break;
     #endif
-
             default:
                 result = kWSAsyscallfailure;
                 break;
@@ -135,6 +134,7 @@ namespace os
 
         switch (code)
         {
+#if !UNITY_TINY_WITHOUT_DEBUGGER
             case EACCES: case EPERM: case EROFS:
                 ret = kErrorCodeAccessDenied;
                 break;
@@ -208,6 +208,7 @@ namespace os
             case EPIPE:
                 ret = kErrorCodeWriteFault;
                 break;
+#endif
 
             default:
                 ret = kErrorCodeGenFailure;

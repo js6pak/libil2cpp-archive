@@ -354,10 +354,7 @@ namespace utils
 
         T *allocate(size_t size)
         {
-            if (size > 0)
-                return static_cast<T *>(IL2CPP_MALLOC_ALIGNED(size * sizeof(T), align));
-
-            return NULL;
+            return static_cast<T *>(IL2CPP_MALLOC_ALIGNED(size * sizeof(T), align));
         }
 
         T *deallocate(T *data)

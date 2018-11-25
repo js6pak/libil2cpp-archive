@@ -1,5 +1,8 @@
-#if NET_4_0
 #include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
+#if NET_4_0
 #include "os/c-api/ConditionVariable-c-api.h"
 #include "os/c-api/Mutex-c-api.h"
 #include "os/ConditionVariable.h"
@@ -41,4 +44,6 @@ void UnityPalConditionVariableSignal(UnityPalConditionVariable* object)
     object->Signal();
 }
 }
+#endif
+
 #endif

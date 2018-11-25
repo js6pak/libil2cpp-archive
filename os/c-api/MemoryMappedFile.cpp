@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/MemoryMappedFile-c-api.h"
 #include "utils/MemoryMappedFile.h"
 
@@ -23,3 +27,5 @@ void UnityPalMemoryMappedFileUnmapWithParams(void* address, int64_t length)
     il2cpp::utils::MemoryMappedFile::Unmap(address, length);
 }
 }
+
+#endif

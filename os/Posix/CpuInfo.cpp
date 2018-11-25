@@ -2,7 +2,7 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 #if IL2CPP_PLATFORM_SUPPORTS_CPU_INFO
 
-#if IL2CPP_TARGET_POSIX
+#if IL2CPP_TARGET_POSIX && !UNITY_TINY_WITHOUT_DEBUGGER
 
 #include "os/CpuInfo.h"
 #include <stdlib.h>
@@ -19,7 +19,6 @@
 #endif
 
 #include <time.h>
-#include <errno.h>
 
 #if IL2CPP_TARGET_LINUX
 #include <sys/time.h>
