@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/NativeMethods.h"
 #include "os/c-api/Process-c-api.h"
 
@@ -23,3 +27,5 @@ UnityPalProcessHandle* UnityPalNativeGetCurrentProcess()
     return il2cpp::os::NativeMethods::GetCurrentProcess();
 }
 }
+
+#endif

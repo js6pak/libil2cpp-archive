@@ -1,6 +1,5 @@
 #pragma once
 
-#include "utils/StringView.h"
 
 typedef enum Il2CppCallConvention
 {
@@ -19,6 +18,37 @@ typedef enum Il2CppCharSet
     CHARSET_NOT_SPECIFIED
 } Il2CppCharSet;
 
+#include "il2cpp-windowsruntime-types.h"
+
+typedef void (*PInvokeMarshalToNativeFunc)(void* managedStructure, void* marshaledStructure);
+typedef void (*PInvokeMarshalFromNativeFunc)(void* marshaledStructure, void* managedStructure);
+typedef void (*PInvokeMarshalCleanupFunc)(void* marshaledStructure);
+typedef struct Il2CppIUnknown* (*CreateCCWFunc)(Il2CppObject* obj);
+
+#if RUNTIME_MONO
+#include "il2cpp-mapping.h"
+#endif
+
+typedef struct Il2CppInteropData
+{
+    Il2CppMethodPointer delegatePInvokeWrapperFunction;
+    PInvokeMarshalToNativeFunc pinvokeMarshalToNativeFunction;
+    PInvokeMarshalFromNativeFunc pinvokeMarshalFromNativeFunction;
+    PInvokeMarshalCleanupFunc pinvokeMarshalCleanupFunction;
+    CreateCCWFunc createCCWFunction;
+    const Il2CppGuid* guid;
+#if RUNTIME_MONO
+    MonoMetadataToken typeToken;
+    uint64_t hash;
+#else
+    const Il2CppType* type;
+#endif
+} Il2CppInteropData;
+
+#if defined(__cplusplus)
+
+#include "utils/StringView.h"
+
 struct PInvokeArguments
 {
     const il2cpp::utils::StringView<Il2CppNativeChar> moduleName;
@@ -28,3 +58,5 @@ struct PInvokeArguments
     int parameterSize;
     bool isNoMangle;    // Says whether P/Invoke should append to function name 'A'/'W' according to charSet.
 };
+
+#endif

@@ -1,4 +1,7 @@
-#include "il2cpp-config.h"
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/Path.h"
 #include "utils/PathUtils.h"
 #include "Allocator.h"
@@ -39,3 +42,5 @@ char* UnityPalDirectoryName(const char* path)
     return Allocator::CopyToAllocatedStringBuffer(il2cpp::utils::PathUtils::DirectoryName(pathString));
 }
 }
+
+#endif

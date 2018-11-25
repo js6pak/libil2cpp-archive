@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/Process.h"
 #include "os/c-api/Process-c-api.h"
 #include "Allocator.h"
@@ -26,3 +30,5 @@ const char* UnityPalGetProcessName(UnityPalProcessHandle* handle)
     return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Process::GetProcessName(handle));
 }
 }
+
+#endif

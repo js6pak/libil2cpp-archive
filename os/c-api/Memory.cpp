@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/c-api/Memory-c-api.h"
 #include "os/Memory.h"
 
@@ -18,3 +22,5 @@ void UnityPalAlignedFree(void* memory)
     il2cpp::os::Memory::AlignedFree(memory);
 }
 }
+
+#endif

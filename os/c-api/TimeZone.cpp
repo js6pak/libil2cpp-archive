@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/TimeZone.h"
 #include "Allocator.h"
 
@@ -21,3 +25,5 @@ int32_t UnityPalGetTimeZoneData(int32_t year, int64_t data[4], const char* names
     return result;
 }
 }
+
+#endif

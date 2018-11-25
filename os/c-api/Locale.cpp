@@ -1,3 +1,7 @@
+#include "os/c-api/il2cpp-config-platforms.h"
+
+#if !UNITY_TINY_WITHOUT_DEBUGGER
+
 #include "os/Locale.h"
 #include "Allocator.h"
 
@@ -20,3 +24,5 @@ char* UnityPalGetLocale()
     return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Locale::GetLocale());
 }
 }
+
+#endif
