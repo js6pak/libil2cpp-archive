@@ -9,6 +9,7 @@
 struct MethodInfo;
 struct VirtualInvokeData;
 struct Il2CppInteropData;
+struct Il2CppCodeGenModule;
 
 void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoError* error);
 MonoAssembly* il2cpp_mono_assembly_from_index(AssemblyIndex index);
@@ -24,6 +25,7 @@ Il2CppAsyncResult* il2cpp_mono_delegate_begin_invoke(MonoDelegate* delegate, voi
 MonoObject* il2cpp_mono_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args);
 MonoArray* MonoArrayNew(MonoClass* elementType, uintptr_t length);
 MonoMethod* MethodFromIndex(MethodIndex index);
+MonoMethod* MethodFromToken(uint32_t token, Il2CppMethodPointer methodPtr);
 MonoMethod* GenericMethodFromIndex(MethodIndex index);
 const Il2CppInteropData* FindInteropDataFor(MonoClass* klass);
 void RuntimeInit(MonoClass* klass);
@@ -34,6 +36,8 @@ bool il2cpp_mono_error_ok(MonoError *error);
 MonoVTable* il2cpp_mono_class_vtable(MonoDomain *domain, MonoClass *klass);
 void* il2cpp_mono_get_static_field_address(MonoClass *klass, MonoClassField *field);
 void* il2cpp_mono_get_thread_static_field_address(MonoClass *klass, MonoClassField *field);
+
+Il2CppCodeGenModule* InitializeCodeGenHandle(MonoImage* image);
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 struct MethodDefinitionKey

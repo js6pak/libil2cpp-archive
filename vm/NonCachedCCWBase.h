@@ -51,7 +51,7 @@ namespace vm
             void* memory = utils::Memory::Malloc(sizeof(TDerived));
             if (memory == NULL)
                 Exception::RaiseOutOfMemoryException();
-            return new(memory)TDerived(obj);
+            return new(memory) TDerived(obj);
         }
 
         virtual void STDCALL Destroy() IL2CPP_FINAL IL2CPP_OVERRIDE

@@ -18,7 +18,7 @@ namespace utils
 
     extern "C"
     {
-    int32_t mono_set_allocator_vtable(MonoMemoryCallbacks* callbacks);
+        int32_t mono_set_allocator_vtable(MonoMemoryCallbacks* callbacks);
     }
 
     static MonoMemoryCallbacks s_MonoCallbacks =

@@ -88,6 +88,7 @@ SUITE(LibraryLoader)
         classMethodPointer = il2cpp::os::LibraryLoader::GetFunctionPointer(classDynLib, POSIX_FUNC_NAME);
         CHECK_EQUAL(classMethodPointer, palMethodPointer);
     }
+
 #endif // IL2CPP_TARGET_POSIX
 #if defined(WINDOWS)
 

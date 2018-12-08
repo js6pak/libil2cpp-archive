@@ -19,7 +19,7 @@
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) mono_string_new_len(g_MonoDomain, value, length);
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason)))
     #define IL2CPP_VM_NOT_IMPLEMENTED(func) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func)))
-    #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) isGeneric ? GenericMethodFromIndex(methodIndex) : MethodFromIndex(methodIndex)
+    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) key->isGeneric ? GenericMethodFromIndex(key->methodIndex) : MethodFromToken(key->methodIndex, key->method)
     #define IL2CPP_VM_SHUTDOWN() do { if (mono_runtime_try_shutdown()) mono_runtime_quit(); } while(0)
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
 //    #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (mono_profiler_get_events () & MONO_PROFILE_FILEIO) mono_profiler_fileio (kind, count);
@@ -39,7 +39,7 @@ typedef MonoMethod VmMethod;
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) NULL
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_NOT_IMPLEMENTED(func) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
-    #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
+    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
     #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
     #define IL2CPP_VM_PROFILE_FILEIO(kind, count) NULL
@@ -63,7 +63,7 @@ typedef MonoMethod VmMethod;
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) il2cpp::vm::String::NewLen(value, length)
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) NOT_SUPPORTED_IL2CPP(func, reason)
     #define IL2CPP_VM_NOT_IMPLEMENTED(func) IL2CPP_NOT_IMPLEMENTED_ICALL(func)
-    #define IL2CPP_VM_METHOD_METADATA_FROM_INDEX(isGeneric, methodIndex) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex (methodIndex)
+    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex (key->methodIndex)
     #define IL2CPP_VM_SHUTDOWN() il2cpp_shutdown()
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) vm::CCW::GetOrCreate(reinterpret_cast<Il2CppObject*>(ex), Il2CppIUnknown::IID)
     #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (il2cpp::vm::Profiler::ProfileFileIO()) il2cpp::vm::Profiler::FileIO(kind, count);

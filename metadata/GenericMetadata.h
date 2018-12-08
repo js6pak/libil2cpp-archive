@@ -29,7 +29,7 @@ namespace metadata
         static const MethodInfo* Inflate(const MethodInfo* methodDefinition, Il2CppClass* declaringClass, const Il2CppGenericContext* context);
         static const Il2CppGenericMethod* Inflate(const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context);
 
-        static Il2CppRGCTXData* InflateRGCTX(RGCTXIndex rgctxEntryIndex, int16_t rgctxEntryCount, const Il2CppGenericContext* context);
+        static Il2CppRGCTXData* InflateRGCTX(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context);
 
         // temporary while we generate generics
         static void RegisterGenericClass(Il2CppGenericClass *gclass);

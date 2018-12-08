@@ -121,9 +121,9 @@ namespace System
         const char* frameworkVersion = vm::Runtime::GetFrameworkVersion();
 
         std::string path = utils::PathUtils::Combine(
-                vm::Runtime::GetConfigDir(), utils::PathUtils::Combine(
-                    utils::StringView<char>("mono"), utils::PathUtils::Combine(
-                        utils::StringView<char>(frameworkVersion, strlen(frameworkVersion)), utils::StringView<char>("machine.config"))));
+            vm::Runtime::GetConfigDir(), utils::PathUtils::Combine(
+                utils::StringView<char>("mono"), utils::PathUtils::Combine(
+                    utils::StringView<char>(frameworkVersion, strlen(frameworkVersion)), utils::StringView<char>("machine.config"))));
 
         return vm::String::NewWrapper(path.c_str());
     }

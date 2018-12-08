@@ -101,6 +101,7 @@ SUITE(TimeZone)
 
         CHECK_EQUAL(names_class[1].c_str(), names_c_api[1]);
     }
+
 #endif
 }
 

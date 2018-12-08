@@ -2,6 +2,7 @@
 
 #include "il2cpp-config.h"
 #include <stdint.h>
+#include "il2cpp-tokentype.h"
 
 // This file contains the structures specifying how we store converted metadata.
 // These structures have 3 constraints:
@@ -88,6 +89,16 @@ static inline uint32_t GetDecodedMethodIndex(EncodedMethodIndex index)
     return index & 0x1FFFFFFFU;
 }
 
+static inline uint32_t GetTokenType(uint32_t token)
+{
+    return token & 0xFF000000;
+}
+
+static inline uint32_t GetTokenRowId(uint32_t token)
+{
+    return token & 0x00FFFFFF;
+}
+
 #endif
 
 struct Il2CppImage;
@@ -110,11 +121,25 @@ typedef enum Il2CppRGCTXDataType
     IL2CPP_RGCTX_DATA_ARRAY,
 } Il2CppRGCTXDataType;
 
+#if RUNTIME_MONO
+
+typedef struct MonoRGCTXDefinition
+{
+    Il2CppRGCTXDataType type;
+    AssemblyIndex assemblyIndex;
+    int32_t token;
+    int32_t generic_parameter_index;
+} MonoRGCTXDefinition;
+
+#else
+
 typedef struct Il2CppRGCTXDefinition
 {
     Il2CppRGCTXDataType type;
     Il2CppRGCTXDefinitionData data;
 } Il2CppRGCTXDefinition;
+
+#endif
 
 typedef struct Il2CppInterfaceOffsetPair
 {
@@ -132,9 +157,6 @@ typedef struct Il2CppTypeDefinition
     TypeIndex declaringTypeIndex;
     TypeIndex parentIndex;
     TypeIndex elementTypeIndex; // we can probably remove this one. Only used for enums
-
-    RGCTXIndex rgctxStartIndex;
-    int32_t rgctxCount;
 
     GenericContainerIndex genericContainerIndex;
 
@@ -218,11 +240,6 @@ typedef struct Il2CppMethodDefinition
     TypeIndex returnType;
     ParameterIndex parameterStart;
     GenericContainerIndex genericContainerIndex;
-    MethodIndex methodIndex;
-    MethodIndex invokerIndex;
-    MethodIndex reversePInvokeWrapperIndex;
-    RGCTXIndex rgctxStartIndex;
-    int32_t rgctxCount;
     uint32_t token;
     uint16_t flags;
     uint16_t iflags;
@@ -396,8 +413,6 @@ typedef struct Il2CppGlobalMetadataHeader
     int32_t interfaceOffsetsCount;
     int32_t typeDefinitionsOffset; // Il2CppTypeDefinition
     int32_t typeDefinitionsCount;
-    int32_t rgctxEntriesOffset; // Il2CppRGCTXDefinition
-    int32_t rgctxEntriesCount;
     int32_t imagesOffset; // Il2CppImageDefinition
     int32_t imagesCount;
     int32_t assembliesOffset; // Il2CppAssemblyDefinition
@@ -434,14 +449,9 @@ typedef struct Il2CppGlobalMonoMetadataHeader
     int32_t version;
     int32_t stringOffset; // string data for metadata
     int32_t stringCount;
-    int32_t methodInfoMappingOffset; // hash -> MonoMethodInfo mapping
-    int32_t methodInfoMappingCount;
     int32_t genericMethodInfoMappingOffset; // hash -> generic MonoMethodInfo mapping
     int32_t genericMethodInfoMappingCount;
-    int32_t rgctxIndicesOffset; // runtime generic context indices
-    int32_t rgctxIndicesCount;
-    int32_t rgctxInfoOffset; // runtime generic context info
-    int32_t rgctxInfoCount;
+
     int32_t monoStringOffset; // mono strings
     int32_t monoStringCount;
     int32_t methodMetadataOffset; // method metadata
@@ -452,8 +462,6 @@ typedef struct Il2CppGlobalMonoMetadataHeader
     int32_t typeTableCount;
     int32_t fieldTableOffset; // field table
     int32_t fieldTableCount;
-    int32_t methodIndexTableOffset; // method index table
-    int32_t methodIndexTableCount;
     int32_t genericMethodIndexTableOffset; // generic method index table
     int32_t genericMethodIndexTableCount;
     int32_t metaDataUsageListsTableOffset; // meta data usage lists table

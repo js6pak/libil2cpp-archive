@@ -40,30 +40,30 @@ struct MonoDebuggerRuntimeCallbacks
 struct MonoContext;
 extern "C"
 {
-void mono_debugger_agent_parse_options(const char *options);
-void mono_debugger_agent_init();
-void mono_debugger_run_debugger_thread_func(void* arg);
-void debugger_agent_single_step_from_context(MonoContext *ctx, int sequencePointId);
-void mono_debugger_il2cpp_init(const Il2CppDebuggerMetadataRegistration *data);
-void unity_debugger_agent_breakpoint(Il2CppSequencePoint* sequencePoint);
-void unity_debugger_agent_pausepoint();
-void mono_debugger_install_runtime_callbacks(MonoDebuggerRuntimeCallbacks* cbs);
-void mono_debugger_install_sequence_point_check(uint32_t* check);
-int32_t unity_debugger_agent_is_global_breakpoint_active();
-int32_t unity_debugger_agent_is_single_stepping();
-void unity_debugger_agent_handle_exception(Il2CppException *exc, Il2CppSequencePoint *sequencePoint);
-int32_t il2cpp_mono_methods_match(const MethodInfo* left, const MethodInfo* right);
-void mono_debugger_agent_user_break();
-int32_t mono_debugger_agent_debug_log_is_enabled();
-void mono_debugger_agent_debug_log(int level, Il2CppString *category, Il2CppString *message);
-int32_t unity_sequence_point_active(Il2CppSequencePoint *seqPoint);
-int32_t unity_pause_point_active();
-void il2cpp_save_current_thread_context_func_exit();
+    void mono_debugger_agent_parse_options(const char *options);
+    void mono_debugger_agent_init();
+    void mono_debugger_run_debugger_thread_func(void* arg);
+    void debugger_agent_single_step_from_context(MonoContext *ctx, int sequencePointId);
+    void mono_debugger_il2cpp_init(const Il2CppDebuggerMetadataRegistration *data);
+    void unity_debugger_agent_breakpoint(Il2CppSequencePoint* sequencePoint);
+    void unity_debugger_agent_pausepoint();
+    void mono_debugger_install_runtime_callbacks(MonoDebuggerRuntimeCallbacks* cbs);
+    void mono_debugger_install_sequence_point_check(volatile uint32_t* check);
+    int32_t unity_debugger_agent_is_global_breakpoint_active();
+    int32_t unity_debugger_agent_is_single_stepping();
+    void unity_debugger_agent_handle_exception(Il2CppException *exc, Il2CppSequencePoint *sequencePoint);
+    int32_t il2cpp_mono_methods_match(const MethodInfo* left, const MethodInfo* right);
+    void mono_debugger_agent_user_break();
+    int32_t mono_debugger_agent_debug_log_is_enabled();
+    void mono_debugger_agent_debug_log(int level, Il2CppString *category, Il2CppString *message);
+    int32_t unity_sequence_point_active(Il2CppSequencePoint *seqPoint);
+    int32_t unity_pause_point_active();
+    void il2cpp_save_current_thread_context_func_exit();
 
-void* il2cpp_malloc(size_t size)
-{
-    return IL2CPP_MALLOC(size);
-}
+    void* il2cpp_malloc(size_t size)
+    {
+        return IL2CPP_MALLOC(size);
+    }
 }
 
 static const Il2CppDebuggerMetadataRegistration *g_metadata;
@@ -87,7 +87,7 @@ namespace utils
     typedef Il2CppHashMap<const Il2CppClass*, FileNameList, il2cpp::utils::PointerHash<Il2CppClass> > TypeSourceFileMap;
     static TypeSourceFileMap *s_typeSourceFiles;
 
-    void Debugger::RegisterSequencePointCheck(uint32_t* check)
+    void Debugger::RegisterSequencePointCheck(volatile uint32_t* check)
     {
         mono_debugger_install_sequence_point_check(check);
     }
