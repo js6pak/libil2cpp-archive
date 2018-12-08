@@ -313,8 +313,8 @@ namespace os
             saddr6.sin6_len = sizeof(saddr6);
 #endif
             if (getnameinfo((struct sockaddr*)&saddr6, sizeof(saddr6),
-                    hostname, sizeof(hostname), NULL, 0,
-                    flags) != 0)
+                hostname, sizeof(hostname), NULL, 0,
+                flags) != 0)
             {
                 return kWaitStatusFailure;
             }
@@ -347,8 +347,8 @@ namespace os
             return kWaitStatusFailure;
 
         return (add_local_ips
-                ? hostent_get_info_with_local_ips(he, name, aliases, addresses)
-                : hostent_get_info(he, name, aliases, addresses))
+            ? hostent_get_info_with_local_ips(he, name, aliases, addresses)
+            : hostent_get_info(he, name, aliases, addresses))
             ? kWaitStatusSuccess
             : kWaitStatusFailure;
     }

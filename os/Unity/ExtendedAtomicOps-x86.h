@@ -177,7 +177,7 @@ static inline void atomic_retain(volatile int *p)
         : "+m" (*p)
         :
         : "cc", "memory"
-        );
+    );
 #endif
 }
 
@@ -193,7 +193,7 @@ static inline bool atomic_release(volatile int *p)
         : "+m" (*p), "=q" (res)
         :
         : "cc", "memory"
-        );
+    );
     return res;
 #endif
 }

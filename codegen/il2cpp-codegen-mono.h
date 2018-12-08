@@ -4,6 +4,9 @@
 #include "il2cpp-mono-support.h"
 #include "mono-api.h"
 
+#include "vm/StackTrace.h"
+#include "vm/PlatformInvoke.h"
+
 struct ProfilerMethodSentry
 {
     ProfilerMethodSentry(const RuntimeMethod* method)

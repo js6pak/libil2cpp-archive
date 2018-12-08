@@ -150,7 +150,7 @@ namespace collections
             TKeyLess keyLessComparer = TKeyLess(), TKeyEquals keyEqualsComparer = TKeyEquals())
         {
             this->~ArrayValueMap();
-            new(this)map_type(values, valueCount, valueToKeyConverter, keyLessComparer, keyEqualsComparer);
+            new(this) map_type(values, valueCount, valueToKeyConverter, keyLessComparer, keyEqualsComparer);
         }
 
         // Constructs map that contains pointers to original array
@@ -171,7 +171,7 @@ namespace collections
                 }
             }
 
-            new(this)map_type(storage, valueCount, valueToKeyConverter, keyLessComparer, keyEqualsComparer);
+            new(this) map_type(storage, valueCount, valueToKeyConverter, keyLessComparer, keyEqualsComparer);
             m_OwnStorage = true;
         }
 
@@ -179,7 +179,7 @@ namespace collections
             TKeyLess keyLessComparer = TKeyLess(), TKeyEquals keyEqualsComparer = TKeyEquals())
         {
             this->~ArrayValueMap();
-            new(this)map_type(values, valueToKeyConverter, keyLessComparer, keyEqualsComparer);
+            new(this) map_type(values, valueToKeyConverter, keyLessComparer, keyEqualsComparer);
         }
 
         inline iterator begin() const

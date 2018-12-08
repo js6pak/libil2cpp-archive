@@ -16,6 +16,7 @@ typedef struct Il2CppAppDomainSetup Il2CppAppDomainSetup;
 typedef struct Il2CppDelegate Il2CppDelegate;
 typedef struct Il2CppAppContext Il2CppAppContext;
 typedef struct Il2CppNameToTypeDefinitionIndexHashTable Il2CppNameToTypeDefinitionIndexHashTable;
+typedef struct Il2CppCodeGenModule Il2CppCodeGenModule;
 
 #if RUNTIME_MONO
 extern "C"
@@ -555,6 +556,8 @@ typedef struct Il2CppImage
 #endif
     Il2CppNameToTypeDefinitionIndexHashTable * nameToClassHashTable;
 
+    const Il2CppCodeGenModule* codeGenModule;
+
     uint32_t token;
     uint8_t dynamic;
 } Il2CppImage;
@@ -573,10 +576,39 @@ typedef struct Il2CppCodeGenOptions
     bool enablePrimitiveValueTypeGenericSharing;
 } Il2CppCodeGenOptions;
 
+typedef struct Il2CppTokenIndexPair
+{
+    uint32_t token;
+    int32_t index;
+} Il2CppTokenIndexPair;
+
+
+typedef struct Il2CppTokenRangePair
+{
+    uint32_t token;
+    Il2CppRange range;
+} Il2CppTokenRangePair;
+
+typedef struct Il2CppCodeGenModule
+{
+    const char* moduleName;
+    const uint32_t methodPointerCount;
+    const Il2CppMethodPointer* methodPointers;
+    const int32_t* invokerIndices;
+    const uint32_t reversePInvokeWrapperCount;
+    const Il2CppTokenIndexPair* reversePInvokeWrapperIndices;
+    const uint32_t rgctxRangesCount;
+    const Il2CppTokenRangePair* rgctxRanges;
+    const uint32_t rgctxsCount;
+#if RUNTIME_MONO
+    const MonoRGCTXDefinition* rgctxs;
+#else
+    const Il2CppRGCTXDefinition* rgctxs;
+#endif
+} Il2CppCodeGenModule;
+
 typedef struct Il2CppCodeRegistration
 {
-    uint32_t methodPointersCount;
-    const Il2CppMethodPointer* methodPointers;
     uint32_t reversePInvokeWrapperCount;
     const Il2CppMethodPointer* reversePInvokeWrappers;
     uint32_t genericMethodPointersCount;
@@ -589,6 +621,8 @@ typedef struct Il2CppCodeRegistration
     const Il2CppMethodPointer* unresolvedVirtualCallPointers;
     uint32_t interopDataCount;
     Il2CppInteropData* interopData;
+    uint32_t codeGenModulesCount;
+    const Il2CppCodeGenModule** codeGenModules;
 } Il2CppCodeRegistration;
 
 typedef struct Il2CppMetadataRegistration

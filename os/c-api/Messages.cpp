@@ -8,10 +8,10 @@
 
 extern "C"
 {
-char* UnityPalMessagesFromCode(UnityPalErrorCode code)
-{
-    return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Messages::FromCode(code));
-}
+    char* UnityPalMessagesFromCode(UnityPalErrorCode code)
+    {
+        return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Messages::FromCode(code));
+    }
 }
 
 #endif

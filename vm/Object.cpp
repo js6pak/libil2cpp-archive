@@ -3,6 +3,7 @@
 #include "utils/StringUtils.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
+#include "vm/ClassInlines.h"
 #include "vm/Exception.h"
 #include "vm/MetadataCache.h"
 #include "vm/Object.h"
@@ -201,7 +202,7 @@ namespace vm
         Il2CppClass* methodDeclaringType = method->klass;
         if (Class::IsInterface(methodDeclaringType))
         {
-            const MethodInfo* itfMethod = Class::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, method->slot).method;
+            const MethodInfo* itfMethod = ClassInlines::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, method->slot).method;
             if (Method::IsGenericInstance(method))
             {
                 if (itfMethod->methodPointer)

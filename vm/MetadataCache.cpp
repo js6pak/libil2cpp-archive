@@ -32,6 +32,7 @@
 #include "utils/PathUtils.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
+#include "vm/ClassInlines.h"
 #include "vm/GenericClass.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataLoader.h"
@@ -173,6 +174,12 @@ bool il2cpp::vm::MetadataCache::Initialize()
         image->token = imageDefinition->token;
         image->customAttributeStart = imageDefinition->customAttributeStart;
         image->customAttributeCount = imageDefinition->customAttributeCount;
+        for (uint32_t codeGenModuleIndex = 0; codeGenModuleIndex < s_Il2CppCodeRegistration->codeGenModulesCount; ++codeGenModuleIndex)
+        {
+            if (strcmp(image->name, s_Il2CppCodeRegistration->codeGenModules[codeGenModuleIndex]->moduleName) == 0)
+                image->codeGenModule = s_Il2CppCodeRegistration->codeGenModules[codeGenModuleIndex];
+        }
+        IL2CPP_ASSERT(image->codeGenModule);
         image->dynamic = false;
     }
 
@@ -227,7 +234,7 @@ bool il2cpp::vm::MetadataCache::Initialize()
                 const Il2CppMethodDefinition* methodDefinition = GetMethodDefinitionFromIndex(type->methodStart + u);
                 MethodDefinitionKey currentMethodList;
                 currentMethodList.methodIndex = type->methodStart + u;
-                currentMethodList.method = GetMethodPointerFromIndex(methodDefinition->methodIndex);
+                currentMethodList.method = GetMethodPointer(image, methodDefinition->token);
                 if (currentMethodList.method)
                     managedMethods.push_back(currentMethodList);
             }
@@ -620,7 +627,7 @@ Il2CppClass* il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(TypeIndex index
 
     const Il2CppType* type = s_Il2CppMetadataRegistration->types[index];
     Il2CppClass *klass = il2cpp::vm::Class::FromIl2CppType(type);
-    il2cpp::vm::Class::InitFromCodegen(klass);
+    il2cpp::vm::ClassInlines::InitFromCodegen(klass);
     s_TypeInfoTable[index] = klass;
 
     return s_TypeInfoTable[index];
@@ -674,17 +681,27 @@ const Il2CppGenericMethod* il2cpp::vm::MetadataCache::GetGenericMethodFromIndex(
     return s_GenericMethodTable[index];
 }
 
-Il2CppMethodPointer il2cpp::vm::MetadataCache::GetMethodPointerFromIndex(MethodIndex index)
+Il2CppMethodPointer il2cpp::vm::MetadataCache::GetMethodPointer(const Il2CppImage* image, uint32_t token)
 {
-    if (index == kMethodIndexInvalid)
+    uint32_t rid = GetTokenRowId(token);
+    uint32_t table =  GetTokenType(token);
+    if (rid == 0)
         return NULL;
 
-    IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->methodPointersCount);
-    return s_Il2CppCodeRegistration->methodPointers[index];
+    IL2CPP_ASSERT(rid <= image->codeGenModule->methodPointerCount);
+
+    return image->codeGenModule->methodPointers[rid - 1];
 }
 
-InvokerMethod il2cpp::vm::MetadataCache::GetMethodInvokerFromIndex(MethodIndex index)
+InvokerMethod il2cpp::vm::MetadataCache::GetMethodInvoker(const Il2CppImage* image, uint32_t token)
 {
+    uint32_t rid = GetTokenRowId(token);
+    uint32_t table = GetTokenType(token);
+    if (rid == 0)
+        return NULL;
+
+    int32_t index = image->codeGenModule->invokerIndices[rid - 1];
+
     if (index == kMethodIndexInvalid)
         return NULL;
 
@@ -702,10 +719,26 @@ const Il2CppInteropData* il2cpp::vm::MetadataCache::GetInteropDataForType(const 
     return interopData;
 }
 
-Il2CppMethodPointer il2cpp::vm::MetadataCache::GetReversePInvokeWrapperFromIndex(MethodIndex index)
+static int CompareIl2CppTokenIndexPair(const void* pkey, const void* pelem)
 {
-    if (index == kMethodIndexInvalid)
+    return (int)(((Il2CppTokenIndexPair*)pkey)->token - ((Il2CppTokenIndexPair*)pelem)->token);
+}
+
+Il2CppMethodPointer il2cpp::vm::MetadataCache::GetReversePInvokeWrapper(const Il2CppImage* image, uint32_t token)
+{
+    if (image->codeGenModule->reversePInvokeWrapperCount == 0)
         return NULL;
+
+    Il2CppTokenIndexPair key;
+    memset(&key, 0, sizeof(Il2CppTokenIndexPair));
+    key.token = token;
+
+    const Il2CppTokenIndexPair* res = (const Il2CppTokenIndexPair*)bsearch(&key, image->codeGenModule->reversePInvokeWrapperIndices, image->codeGenModule->reversePInvokeWrapperCount, sizeof(Il2CppTokenIndexPair), CompareIl2CppTokenIndexPair);
+
+    if (res == NULL)
+        return NULL;
+
+    uint32_t index = res->index;
 
     IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->reversePInvokeWrapperCount);
     return s_Il2CppCodeRegistration->reversePInvokeWrappers[index];
@@ -1008,12 +1041,30 @@ Il2CppInterfaceOffsetPair il2cpp::vm::MetadataCache::GetInterfaceOffsetIndex(Int
     return interfaceOffsets[index];
 }
 
-const Il2CppRGCTXDefinition* il2cpp::vm::MetadataCache::GetRGCTXDefinitionFromIndex(RGCTXIndex index)
+static int CompareIl2CppTokenRangePair(const void* pkey, const void* pelem)
 {
-    IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) <= s_GlobalMetadataHeader->rgctxEntriesCount / sizeof(Il2CppRGCTXDefinition));
-    const Il2CppRGCTXDefinition* rgctxEntries = (const Il2CppRGCTXDefinition*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->rgctxEntriesOffset);
+    return (int)(((Il2CppTokenRangePair*)pkey)->token - ((Il2CppTokenRangePair*)pelem)->token);
+}
 
-    return rgctxEntries  + index;
+il2cpp::vm::RGCTXCollection il2cpp::vm::MetadataCache::GetRGCTXs(const Il2CppImage* image, uint32_t token)
+{
+    il2cpp::vm::RGCTXCollection collection = { 0, NULL };
+    if (image->codeGenModule->rgctxRangesCount == 0)
+        return collection;
+
+    Il2CppTokenRangePair key;
+    memset(&key, 0, sizeof(Il2CppTokenRangePair));
+    key.token = token;
+
+    const Il2CppTokenRangePair* res = (const Il2CppTokenRangePair*)bsearch(&key, image->codeGenModule->rgctxRanges, image->codeGenModule->rgctxRangesCount, sizeof(Il2CppTokenRangePair), CompareIl2CppTokenRangePair);
+
+    if (res == NULL)
+        return collection;
+
+    collection.count = res->range.length;
+    collection.items = image->codeGenModule->rgctxs + res->range.start;
+
+    return collection;
 }
 
 const Il2CppEventDefinition* il2cpp::vm::MetadataCache::GetEventDefinitionFromIndex(EventIndex index)

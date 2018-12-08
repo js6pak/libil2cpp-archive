@@ -7,20 +7,20 @@
 
 extern "C"
 {
-void* UnityPalAlignedAlloc(size_t size, size_t alignment)
-{
-    return il2cpp::os::Memory::AlignedAlloc(size, alignment);
-}
+    void* UnityPalAlignedAlloc(size_t size, size_t alignment)
+    {
+        return il2cpp::os::Memory::AlignedAlloc(size, alignment);
+    }
 
-void* UnityPalAlignedReAlloc(void* memory, size_t newSize, size_t alignment)
-{
-    return il2cpp::os::Memory::AlignedReAlloc(memory, newSize, alignment);
-}
+    void* UnityPalAlignedReAlloc(void* memory, size_t newSize, size_t alignment)
+    {
+        return il2cpp::os::Memory::AlignedReAlloc(memory, newSize, alignment);
+    }
 
-void UnityPalAlignedFree(void* memory)
-{
-    il2cpp::os::Memory::AlignedFree(memory);
-}
+    void UnityPalAlignedFree(void* memory)
+    {
+        il2cpp::os::Memory::AlignedFree(memory);
+    }
 }
 
 #endif

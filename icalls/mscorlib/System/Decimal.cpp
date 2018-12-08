@@ -1519,10 +1519,10 @@ il2cpp_decimal_to_double_result(Il2CppDecimal *input, double *result)
 
     if ((int32_t)DECIMAL_MID32(*input) < 0)
         dbl = (ds2to64.d + (double)(int64_t)tmp.int64 +
-               (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
+            (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
     else
         dbl = ((double)(int64_t)tmp.int64 +
-               (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
+            (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
 
     if (DECIMAL_SIGN(*input))
         dbl = -dbl;
@@ -2478,7 +2478,7 @@ il2cpp_decimal_round_result(Il2CppDecimal *input, int cDecimals, Il2CppDecimal *
         if (pwr < rem &&
             ++num[0] == 0 &&
             ++num[1] == 0
-            )
+        )
             ++num[2];
 
         result->v.v.Lo32 = num[0];
