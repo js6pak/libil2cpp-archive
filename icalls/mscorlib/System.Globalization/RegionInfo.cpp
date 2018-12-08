@@ -53,7 +53,7 @@ namespace Globalization
     {
         std::string n = utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(name));
         RegionInfoNameEntry* nameEntry = (RegionInfoNameEntry*)bsearch(n.c_str(), region_name_entries, NUM_REGION_ENTRIES,
-                sizeof(RegionInfoNameEntry), RegionNameLocator);
+            sizeof(RegionInfoNameEntry), RegionNameLocator);
 
         if (nameEntry == NULL)
             return false;

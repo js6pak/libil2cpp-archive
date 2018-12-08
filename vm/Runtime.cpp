@@ -263,7 +263,7 @@ namespace vm
         DEFAULTS_INIT(mono_method_message_class, "System.Runtime.Remoting.Messaging", "MonoMethodMessage");
 
         il2cpp_defaults.threadpool_perform_wait_callback_method = (MethodInfo*)vm::Class::GetMethodFromName(
-                il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
+            il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
 #endif
 
 #if NET_4_0

@@ -24,6 +24,12 @@ namespace il2cpp
 {
 namespace vm
 {
+    struct RGCTXCollection
+    {
+        int32_t count;
+        const Il2CppRGCTXDefinition* items;
+    };
+
     class LIBIL2CPP_CODEGEN_API MetadataCache
     {
     public:
@@ -63,10 +69,10 @@ namespace vm
         static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index);
         static void InitializeMethodMetadata(uint32_t index);
 
-        static Il2CppMethodPointer GetMethodPointerFromIndex(MethodIndex index);
-        static InvokerMethod GetMethodInvokerFromIndex(MethodIndex index);
+        static Il2CppMethodPointer GetMethodPointer(const Il2CppImage* image, uint32_t token);
+        static InvokerMethod GetMethodInvoker(const Il2CppImage* image, uint32_t token);
         static const Il2CppInteropData* GetInteropDataForType(const Il2CppType* type);
-        static Il2CppMethodPointer GetReversePInvokeWrapperFromIndex(MethodIndex index);
+        static Il2CppMethodPointer GetReversePInvokeWrapper(const Il2CppImage* image, uint32_t token);
 
         static Il2CppMethodPointer GetUnresolvedVirtualCallStub(const MethodInfo* method);
 
@@ -83,7 +89,7 @@ namespace vm
         static const Il2CppType* GetInterfaceFromIndex(InterfacesIndex index);
         static EncodedMethodIndex GetVTableMethodFromIndex(VTableIndex index);
         static Il2CppInterfaceOffsetPair GetInterfaceOffsetIndex(InterfaceOffsetIndex index);
-        static const Il2CppRGCTXDefinition* GetRGCTXDefinitionFromIndex(RGCTXIndex index);
+        static RGCTXCollection GetRGCTXs(const Il2CppImage* image, uint32_t token);
         static const Il2CppEventDefinition* GetEventDefinitionFromIndex(EventIndex index);
         static const Il2CppFieldDefinition* GetFieldDefinitionFromIndex(FieldIndex index);
         static const Il2CppFieldDefaultValue* GetFieldDefaultValueFromIndex(FieldIndex index);

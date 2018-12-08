@@ -12,6 +12,7 @@
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
+#include "vm/ClassInlines.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
 #include "vm/GenericClass.h"
@@ -43,6 +44,8 @@ namespace il2cpp
 {
 namespace vm
 {
+    const int Class::IgnoreNumberOfArguments = -1;
+
     static il2cpp::utils::dynamic_array<Il2CppClass*> s_staticFieldData;
     static int32_t s_FinalizerSlot = -1;
     static int32_t s_GetHashCodeSlot = -1;
@@ -421,7 +424,7 @@ namespace vm
             {
                 if (method->name[0] == name[0] &&
                     !strcmp(name, method->name) &&
-                    (argsCount == -1 || method->parameters_count == argsCount) &&
+                    (argsCount == IgnoreNumberOfArguments || method->parameters_count == argsCount) &&
                     ((method->flags & flags) == flags))
                 {
                     return method;
@@ -563,7 +566,7 @@ namespace vm
         Class::SetupTypeHierarchy(klass);
         Class::SetupTypeHierarchy(parent);
 
-        return HasParentUnsafe(klass, parent);
+        return ClassInlines::HasParentUnsafe(klass, parent);
     }
 
     bool Class::IsAssignableFrom(Il2CppClass *klass, Il2CppClass *oklass)
@@ -618,7 +621,7 @@ namespace vm
             }
 #endif
 
-            return HasParentUnsafe(oklass, klass);
+            return ClassInlines::HasParentUnsafe(oklass, klass);
         }
 
 #if NET_4_0
@@ -715,7 +718,7 @@ namespace vm
         }
         else
         {
-            if (!IsInterface(klass) && HasParentUnsafe(klass, klassc))
+            if (!IsInterface(klass) && ClassInlines::HasParentUnsafe(klass, klassc))
                 return true;
         }
 
@@ -893,7 +896,7 @@ namespace vm
             il2cpp::metadata::FieldLayout::FieldLayoutData staticLayoutData;
             il2cpp::metadata::FieldLayout::FieldLayoutData threadStaticLayoutData;
 
-            il2cpp::metadata::FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, fieldTypes, layoutData);
+            il2cpp::metadata::FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, klass->packingSize, fieldTypes, layoutData);
 
             instanceSize = layoutData.classSize;
 
@@ -910,8 +913,8 @@ namespace vm
 
             klass->size_inited = true;
 
-            il2cpp::metadata::FieldLayout::LayoutFields(0, 0, 1, staticFieldTypes, staticLayoutData);
-            il2cpp::metadata::FieldLayout::LayoutFields(0, 0, 1, threadStaticFieldTypes, threadStaticLayoutData);
+            il2cpp::metadata::FieldLayout::LayoutFields(0, 0, 1, 0, staticFieldTypes, staticLayoutData);
+            il2cpp::metadata::FieldLayout::LayoutFields(0, 0, 1, 0, threadStaticFieldTypes, threadStaticLayoutData);
 
             klass->minimumAlignment = layoutData.minimumAlignment;
             klass->actualSize = static_cast<uint32_t>(layoutData.actualClassSize);
@@ -1062,8 +1065,8 @@ namespace vm
                 const Il2CppMethodDefinition* methodDefinition = MetadataCache::GetMethodDefinitionFromIndex(index);
 
                 newMethod->name = MetadataCache::GetStringFromIndex(methodDefinition->nameIndex);
-                newMethod->methodPointer = MetadataCache::GetMethodPointerFromIndex(methodDefinition->methodIndex);
-                newMethod->invoker_method = MetadataCache::GetMethodInvokerFromIndex(methodDefinition->invokerIndex);
+                newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodDefinition->token);
+                newMethod->invoker_method = MetadataCache::GetMethodInvoker(klass->image, methodDefinition->token);
                 newMethod->klass = klass;
                 newMethod->return_type = MetadataCache::GetIl2CppTypeFromIndex(methodDefinition->returnType);
 
@@ -1436,9 +1439,8 @@ namespace vm
 
         if (klass->generic_class)
         {
-            const Il2CppTypeDefinition* typeDefinition = GenericClass::GetTypeDefinition(klass->generic_class)->typeDefinition;
             if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::MaximumRuntimeGenericDepth)
-                klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTX(typeDefinition->rgctxStartIndex, typeDefinition->rgctxCount, &klass->generic_class->context);
+                klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTX(klass->image, klass->token, &klass->generic_class->context);
         }
 
         klass->initialized = true;
@@ -1461,16 +1463,6 @@ namespace vm
         }
 
         return true;
-    }
-
-    bool Class::InitFromCodegenSlow(Il2CppClass *klass)
-    {
-        bool result = Class::Init(klass);
-
-        if (klass->has_initialization_error)
-            il2cpp::vm::Exception::Raise((Il2CppException*)gc::GCHandle::GetTarget(klass->initializationExceptionGCHandle));
-
-        return result;
     }
 
     void Class::UpdateInitializedAndNoError(Il2CppClass *klass)
@@ -1700,7 +1692,7 @@ namespace vm
         if (!klass->has_cctor)
             return NULL;
 
-        return GetMethodFromNameFlags(klass, ".cctor", -1, METHOD_ATTRIBUTE_SPECIAL_NAME);
+        return GetMethodFromNameFlags(klass, ".cctor", IgnoreNumberOfArguments, METHOD_ATTRIBUTE_SPECIAL_NAME);
     }
 
     const char* Class::GetFieldDefaultValue(const FieldInfo *field, const Il2CppType** type)
@@ -2058,72 +2050,6 @@ namespace vm
     Il2CppClass* Class::GetDeclaringType(Il2CppClass* klass)
     {
         return klass->declaringType;
-    }
-
-    NORETURN static void RaiseExceptionForNotFoundInterface(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
-    {
-        std::string message;
-        message = "Attempt to access method '" + Type::GetName(&itf->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "." + Method::GetName(itf->methods[slot])
-            + "' on type '" + Type::GetName(&klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_IL) + "' failed.";
-        Exception::Raise(il2cpp::vm::Exception::GetMethodAccessException(message.c_str()));
-    }
-
-    const VirtualInvokeData* Class::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
-    {
-#if NET_4_0
-        if (itf->generic_class != NULL)
-        {
-            const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(itf->generic_class->typeDefinitionIndex);
-            const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericInterface->genericContainerIndex);
-
-            for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
-            {
-                const Il2CppRuntimeInterfaceOffsetPair* pair = klass->interfaceOffsets + i;
-                if (IsGenericClassAssignableFrom(itf, pair->interfaceType, genericContainer))
-                {
-                    IL2CPP_ASSERT(pair->offset + slot < klass->vtable_count);
-                    return &klass->vtable[pair->offset + slot];
-                }
-            }
-        }
-#endif
-
-        return NULL;
-    }
-
-    const VirtualInvokeData& Class::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
-    {
-        const Il2CppClass* klass = obj->klass;
-        const VirtualInvokeData* data;
-
-        data = GetInterfaceInvokeDataFromVTableSlowPath(klass, itf, slot);
-        if (data)
-            return *data;
-
-        if (klass->is_import_or_windows_runtime)
-        {
-            Il2CppIUnknown* iunknown = static_cast<const Il2CppComObject*>(obj)->identity;
-
-            // It might be null if it's called on a dead (already released) or fake object
-            if (iunknown != NULL)
-            {
-                if (itf->vtable_count > 0)
-                {
-                    IL2CPP_ASSERT(slot < itf->vtable_count);
-
-                    // Nothing will be referencing these types directly, so we need to initialize them here
-                    const VirtualInvokeData& invokeData = itf->vtable[slot];
-                    Init(invokeData.method->klass);
-                    return invokeData;
-                }
-
-                // TO DO: add support for covariance/contravariance for projected interfaces like
-                // System.Collections.Generic.IEnumerable`1<T>
-            }
-        }
-
-        RaiseExceptionForNotFoundInterface(klass, itf, slot);
-        IL2CPP_UNREACHABLE;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -153,7 +153,7 @@ namespace Reflection
         return res;
     }
 
-    Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2CppObject * thisPtr, Il2CppArray * params, Il2CppObject * * exc)
+    Il2CppObject * MonoMethod::InternalInvoke(Il2CppReflectionMethod * method, Il2CppObject * thisPtr, Il2CppArray * params, Il2CppException * * exc)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(MonoMethod::InternalInvoke, "Audit and look over commented code. Work in progress.");
 /*

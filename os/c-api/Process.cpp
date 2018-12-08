@@ -10,25 +10,25 @@
 
 extern "C"
 {
-int UnityPalGetCurrentProcessId()
-{
-    return il2cpp::os::Process::GetCurrentProcessId();
-}
+    int UnityPalGetCurrentProcessId()
+    {
+        return il2cpp::os::Process::GetCurrentProcessId();
+    }
 
-UnityPalProcessHandle* UnityPalGetProcess(int processId)
-{
-    return il2cpp::os::Process::GetProcess(processId);
-}
+    UnityPalProcessHandle* UnityPalGetProcess(int processId)
+    {
+        return il2cpp::os::Process::GetProcess(processId);
+    }
 
-void UnityPalFreeProcess(UnityPalProcessHandle* handle)
-{
-    return il2cpp::os::Process::FreeProcess(handle);
-}
+    void UnityPalFreeProcess(UnityPalProcessHandle* handle)
+    {
+        return il2cpp::os::Process::FreeProcess(handle);
+    }
 
-const char* UnityPalGetProcessName(UnityPalProcessHandle* handle)
-{
-    return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Process::GetProcessName(handle));
-}
+    const char* UnityPalGetProcessName(UnityPalProcessHandle* handle)
+    {
+        return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Process::GetProcessName(handle));
+    }
 }
 
 #endif

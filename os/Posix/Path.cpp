@@ -16,10 +16,7 @@
 #endif
 
 #if IL2CPP_TARGET_LUMIN
-namespace il2cpp
-{ namespace os
-{ namespace lumin
-{ extern std::string GetPackageTempPath(); } } }
+namespace il2cpp { namespace os { namespace lumin { extern std::string GetPackageTempPath(); } } }
 #endif
 
 namespace il2cpp

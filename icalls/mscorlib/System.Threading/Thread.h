@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include "il2cpp-object-internals.h"
-#include "vm/Thread.h"
 #include "il2cpp-config.h"
 
 struct Il2CppString;
@@ -30,7 +29,7 @@ namespace Threading
         static void MemoryBarrier_();
         static void SpinWait_nop();
         static void Abort_internal(Il2CppThread* thisPtr, Il2CppObject* stateInfo);
-        static void ClrState(Il2CppThread* thisPtr, il2cpp::vm::ThreadState clr);
+        static void ClrState(Il2CppThread* thisPtr, uint32_t clr);
         static void FreeLocalSlotValues(int32_t slot, bool use_thread_local);
         static Il2CppObject* GetAbortExceptionState(void* /* System.Threading.Thread */ self);
         static mscorlib_System_Globalization_CultureInfo * GetCachedCurrentCulture(Il2CppThread* thisPtr);
@@ -42,7 +41,7 @@ namespace Threading
         static Il2CppArray * GetSerializedCurrentCulture(Il2CppThread* thisPtr);
         static Il2CppArray* GetSerializedCurrentUICulture(Il2CppThread* thisPtr);
 #endif
-        static il2cpp::vm::ThreadState GetState(Il2CppThread * thisPtr);
+        static uint32_t GetState(Il2CppThread * thisPtr);
         static void Interrupt_internal(Il2CppThread* thisPtr);
         static bool Join_internal(Il2CppThread * thisPtr, int32_t ms, void* thread);
         static void Resume_internal(void* /* System.Threading.Thread */ self);
@@ -52,7 +51,7 @@ namespace Threading
         static void SetSerializedCurrentCulture(Il2CppThread* thisPtr, Il2CppArray* culture);
         static void SetSerializedCurrentUICulture(Il2CppThread* thisPtr, Il2CppArray* culture);
 #endif
-        static void SetState(Il2CppThread * thisPtr, il2cpp::vm::ThreadState state);
+        static void SetState(Il2CppThread * thisPtr, uint32_t state);
         static void Sleep_internal(int32_t milliseconds);
         static void Suspend_internal(void* /* System.Threading.Thread */ self);
         static void Thread_init(Il2CppThread* thisPtr);
@@ -88,7 +87,7 @@ namespace Threading
         static Il2CppInternalThread* CurrentInternalThread_internal();
         static int32_t GetState40(Il2CppInternalThread* thread);
         static void Abort_internal40(Il2CppInternalThread* thread, Il2CppObject* stateInfo);
-        static void ClrState40(Il2CppInternalThread* thread, il2cpp::vm::ThreadState clr);
+        static void ClrState40(Il2CppInternalThread* thread, uint32_t clr);
         static void ConstructInternalThread(Il2CppThread* _this);
         static void GetStackTraces(Il2CppArray** threads, Il2CppArray** stack_frames);
         static void InterruptInternal(Il2CppThread* _this);
@@ -96,7 +95,7 @@ namespace Threading
         static void ResumeInternal(Il2CppObject* _this);
         static void SetName_internal40(Il2CppInternalThread* thread, Il2CppString* name);
         static void SetPriorityNative(Il2CppThread* _this, int32_t priority);
-        static void SetState40(Il2CppInternalThread* thread, vm::ThreadState set);
+        static void SetState40(Il2CppInternalThread* thread, uint32_t set);
         static void SleepInternal(int32_t millisecondsTimeout);
         static void SuspendInternal(Il2CppObject* _this);
 #endif

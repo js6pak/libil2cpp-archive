@@ -1,31 +1,16 @@
 #pragma once
 
-#include <stdarg.h>
-
 #include "il2cpp-config.h"
 
-#include <cassert>
-#include <cstdlib>
-#include <limits>
-#include <string>
-#include <math.h>
-#include <vector>
+#include <cmath>
 
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-tabledefs.h"
 
-#include "gc/GarbageCollector.h"
-#include "vm/PlatformInvoke.h"
-#include "vm/StackTrace.h"
-#include "vm/PlatformInvoke.h"
-#include "vm/StackTrace.h"
 #include "vm-utils/Debugger.h"
 #include "utils/StringUtils.h"
-#include "utils/StringView.h"
-#include "utils/Exception.h"
 #include "utils/Output.h"
-#include "utils/Runtime.h"
 
 REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
 
@@ -167,11 +152,11 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     } while (0)
 #endif
 
-
-inline void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object)
-{
-    il2cpp::gc::GarbageCollector::SetWriteBarrier(targetAddress);
-}
+#if IL2CPP_ENABLE_WRITE_BARRIERS
+void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object);
+#else
+inline void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object) {}
+#endif
 
 void il2cpp_codegen_memory_barrier();
 
@@ -262,11 +247,7 @@ inline void il2cpp_codegen_write_to_stderr_args(const char* str, ...)
 
 #endif
 
-inline REAL_NORETURN void il2cpp_codegen_abort()
-{
-    il2cpp::utils::Runtime::Abort();
-    il2cpp_codegen_no_return();
-}
+REAL_NORETURN void il2cpp_codegen_abort();
 
 inline bool il2cpp_codegen_check_add_overflow(int64_t left, int64_t right)
 {
@@ -330,7 +311,7 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
 }
 
 #if IL2CPP_MONO_DEBUGGER
-extern uint32_t g_Il2CppDebuggerCheckPointEnabled;
+extern volatile uint32_t g_Il2CppDebuggerCheckPointEnabled;
 #endif
 
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)

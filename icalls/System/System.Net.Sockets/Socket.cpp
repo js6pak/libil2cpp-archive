@@ -203,9 +203,9 @@ namespace Sockets
         if (!System_Net_SocketAddress)
         {
             System_Net_SocketAddress = vm::Class::FromName(
-                    vm::Assembly::GetImage(
-                        vm::Assembly::Load("System.dll")),
-                    "System.Net", "SocketAddress");
+                vm::Assembly::GetImage(
+                    vm::Assembly::Load("System.dll")),
+                "System.Net", "SocketAddress");
         }
 
         socket_address = (Il2CppSocketAddress*)vm::Object::New(System_Net_SocketAddress);
@@ -377,9 +377,9 @@ namespace Sockets
             address[i] = buffer[i + 8];
 
         *scope = (uint32_t)((buffer[27] << 24) +
-                            (buffer[26] << 16) +
-                            (buffer[25] << 8) +
-                            (buffer[24]));
+            (buffer[26] << 16) +
+            (buffer[25] << 8) +
+            (buffer[24]));
     }
 
     void Socket::Bind(intptr_t socket, Il2CppSocketAddress* socket_address, int32_t* error)
@@ -627,9 +627,9 @@ namespace Sockets
                 if (!System_Net_Sockets_LingerOption)
                 {
                     System_Net_Sockets_LingerOption = vm::Class::FromName(
-                            vm::Assembly::GetImage(
-                                vm::Assembly::Load("System.dll")),
-                            "System.Net.Sockets", "LingerOption");
+                        vm::Assembly::GetImage(
+                            vm::Assembly::Load("System.dll")),
+                        "System.Net.Sockets", "LingerOption");
                 }
 
                 *obj_val = vm::Object::New(System_Net_Sockets_LingerOption);

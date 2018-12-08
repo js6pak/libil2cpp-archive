@@ -8,14 +8,6 @@ struct MonoMethodInfoMetadata
     int32_t method_pointer_index;
 };
 
-struct MonoRGCTXDefinition
-{
-    Il2CppRGCTXDataType type;
-    AssemblyIndex assemblyIndex;
-    int32_t token;
-    int32_t generic_parameter_index;
-};
-
 struct RuntimeGenericContextInfo
 {
     uint64_t hash;
@@ -33,7 +25,6 @@ struct MonoMetadataToken
 struct MonoMethodMetadata
 {
     MonoMetadataToken metadataToken;
-    MethodIndex reversePInvokeWrapperIndex;
     uint64_t hash;
 };
 #pragma pack(pop, p1)

@@ -41,9 +41,9 @@ namespace Threading
     static void cache_culture(Il2CppThread *thisPtr, Il2CppObject *culture, int start_idx);
 
 
-    void Thread::ClrState(Il2CppThread* thisPtr, il2cpp::vm::ThreadState state)
+    void Thread::ClrState(Il2CppThread* thisPtr, uint32_t state)
     {
-        il2cpp::vm::Thread::ClrState(thisPtr, state);
+        il2cpp::vm::Thread::ClrState(thisPtr, (il2cpp::vm::ThreadState)state);
     }
 
     Il2CppThread * Thread::CurrentThread_internal(void)
@@ -56,10 +56,10 @@ namespace Threading
         return il2cpp::vm::Domain::GetCurrent()->domain_id;
     }
 
-    il2cpp::vm::ThreadState Thread::GetState(Il2CppThread * thisPtr)
+    uint32_t Thread::GetState(Il2CppThread * thisPtr)
     {
         il2cpp::os::FastAutoLock lock(thisPtr->GetInternalThread()->synch_cs);
-        return (il2cpp::vm::ThreadState)thisPtr->GetInternalThread()->state;
+        return thisPtr->GetInternalThread()->state;
     }
 
     bool Thread::Join_internal(Il2CppThread * thisPtr, int32_t ms, void* thread)
@@ -106,10 +106,10 @@ namespace Threading
         vm::Thread::SetName(thisPtr, name);
     }
 
-    void Thread::SetState(Il2CppThread* thisPtr, il2cpp::vm::ThreadState state)
+    void Thread::SetState(Il2CppThread* thisPtr, uint32_t state)
     {
         il2cpp::os::FastAutoLock lock(thisPtr->GetInternalThread()->synch_cs);
-        il2cpp::vm::Thread::SetState(thisPtr, state);
+        il2cpp::vm::Thread::SetState(thisPtr, (il2cpp::vm::ThreadState)state);
     }
 
     void Thread::Sleep_internal(int32_t milliseconds)
@@ -215,7 +215,8 @@ namespace Threading
         thisPtr->GetInternalThread()->handle = thread;
         thisPtr->GetInternalThread()->state &= ~vm::kThreadStateUnstarted;
         thisPtr->GetInternalThread()->tid = thread->Id();
-        thisPtr->GetInternalThread()->managed_id = il2cpp::vm::Thread::GetNewManagedId();
+        if (!thisPtr->GetInternalThread()->managed_id)
+            thisPtr->GetInternalThread()->managed_id = il2cpp::vm::Thread::GetNewManagedId();
 
         startData->m_Semaphore->Post(1, NULL);
 
@@ -566,9 +567,9 @@ namespace Threading
         il2cpp::vm::Thread::RequestAbort(thread);
     }
 
-    void Thread::ClrState40(Il2CppInternalThread* thread, il2cpp::vm::ThreadState clr)
+    void Thread::ClrState40(Il2CppInternalThread* thread, uint32_t clr)
     {
-        il2cpp::vm::Thread::ClrState(thread, clr);
+        il2cpp::vm::Thread::ClrState(thread, (il2cpp::vm::ThreadState)clr);
     }
 
     void Thread::ConstructInternalThread(Il2CppThread* _this)
@@ -635,9 +636,9 @@ namespace Threading
         vm::Thread::SetPriority(_this, priority);
     }
 
-    void Thread::SetState40(Il2CppInternalThread* thread, il2cpp::vm::ThreadState state)
+    void Thread::SetState40(Il2CppInternalThread* thread, uint32_t state)
     {
-        vm::Thread::SetState(thread, state);
+        vm::Thread::SetState(thread, (il2cpp::vm::ThreadState)state);
     }
 
     void Thread::SleepInternal(int32_t millisecondsTimeout)

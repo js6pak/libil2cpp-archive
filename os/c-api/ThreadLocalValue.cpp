@@ -7,28 +7,28 @@
 
 extern "C"
 {
-UnityPalThreadLocalValue* UnityPalThreadLocalValueNew()
-{
-    return new il2cpp::os::ThreadLocalValue();
-}
+    UnityPalThreadLocalValue* UnityPalThreadLocalValueNew()
+    {
+        return new il2cpp::os::ThreadLocalValue();
+    }
 
-void UnityPalThreadLocalValueDelete(UnityPalThreadLocalValue* object)
-{
-    IL2CPP_ASSERT(object);
-    delete object;
-}
+    void UnityPalThreadLocalValueDelete(UnityPalThreadLocalValue* object)
+    {
+        IL2CPP_ASSERT(object);
+        delete object;
+    }
 
-UnityPalErrorCode UnityPalThreadLocalValueSetValue(UnityPalThreadLocalValue* object, void* value)
-{
-    IL2CPP_ASSERT(object);
-    return object->SetValue(value);
-}
+    UnityPalErrorCode UnityPalThreadLocalValueSetValue(UnityPalThreadLocalValue* object, void* value)
+    {
+        IL2CPP_ASSERT(object);
+        return object->SetValue(value);
+    }
 
-UnityPalErrorCode UnityPalThreadLocalValueGetValue(UnityPalThreadLocalValue* object, void** value)
-{
-    IL2CPP_ASSERT(object);
-    return object->GetValue(value);
-}
+    UnityPalErrorCode UnityPalThreadLocalValueGetValue(UnityPalThreadLocalValue* object, void** value)
+    {
+        IL2CPP_ASSERT(object);
+        return object->GetValue(value);
+    }
 }
 
 #endif

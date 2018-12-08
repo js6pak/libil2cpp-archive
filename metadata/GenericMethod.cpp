@@ -110,7 +110,7 @@ namespace metadata
         else
         {
             // we only need RGCTX for generic instance methods
-            newMethod->rgctx_data = GenericMetadata::InflateRGCTX(methodDefinition->methodDefinition->rgctxStartIndex, methodDefinition->methodDefinition->rgctxCount, &gmethod->context);
+            newMethod->rgctx_data = GenericMetadata::InflateRGCTX(gmethod->methodDefinition->klass->image, gmethod->methodDefinition->token, &gmethod->context);
         }
 
         newMethod->invoker_method = MetadataCache::GetInvokerMethodPointer(methodDefinition, &gmethod->context);
