@@ -7,10 +7,10 @@
 
 extern "C"
 {
-int32_t UnityPalIsDebuggerPresent()
-{
-    return il2cpp::os::Debug::IsDebuggerPresent();
-}
+    int32_t UnityPalIsDebuggerPresent()
+    {
+        return il2cpp::os::Debug::IsDebuggerPresent();
+    }
 }
 
 #endif

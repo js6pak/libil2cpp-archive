@@ -3,6 +3,7 @@
 #if NET_4_0
 
 struct Il2CppReflectionRuntimeType;
+struct mscorlib_System_Reflection_MethodInfo;
 
 #include "il2cpp-object-internals.h"
 

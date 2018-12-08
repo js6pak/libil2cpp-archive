@@ -10,6 +10,7 @@
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
+#include "vm/ClassInlines.h"
 #include "vm/GenericClass.h"
 #include "vm/MetadataCache.h"
 #include "vm/Object.h"
@@ -421,7 +422,7 @@ namespace System
             Il2CppObject fakeObject;
             fakeObject.klass = klass;
             fakeObject.monitor = NULL;
-            invokeDataStart = &vm::Class::GetInterfaceInvokeDataFromVTable(&fakeObject, iklass, 0);
+            invokeDataStart = &vm::ClassInlines::GetInterfaceInvokeDataFromVTable(&fakeObject, iklass, 0);
         }
         else
         {
@@ -433,7 +434,7 @@ namespace System
             // thus making it skip asking native side whether a particular interface is supported
             fakeComObject.identity = NULL;
 
-            invokeDataStart = &vm::Class::GetInterfaceInvokeDataFromVTable(&fakeComObject, iklass, 0);
+            invokeDataStart = &vm::ClassInlines::GetInterfaceInvokeDataFromVTable(&fakeComObject, iklass, 0);
         }
 
         for (int i = 0; i < numberOfMethods; ++i)

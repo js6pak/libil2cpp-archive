@@ -238,15 +238,16 @@ namespace metadata
         return MetadataCache::GetGenericMethod(genericMethod->methodDefinition, classInst, methodInst);
     }
 
-    Il2CppRGCTXData* GenericMetadata::InflateRGCTX(RGCTXIndex rgctxStartIndex, int16_t rgctxCount, const Il2CppGenericContext* context)
+    Il2CppRGCTXData* GenericMetadata::InflateRGCTX(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context)
     {
-        if (rgctxStartIndex == kRGCTXIndexInvalid)
+        RGCTXCollection collection = MetadataCache::GetRGCTXs(image, token);
+        if (collection.count == 0)
             return NULL;
 
-        Il2CppRGCTXData* dataValues = (Il2CppRGCTXData*)MetadataCalloc(rgctxCount, sizeof(Il2CppRGCTXData));
-        for (RGCTXIndex rgctxIndex = 0; rgctxIndex < rgctxCount; rgctxIndex++)
+        Il2CppRGCTXData* dataValues = (Il2CppRGCTXData*)MetadataCalloc(collection.count, sizeof(Il2CppRGCTXData));
+        for (RGCTXIndex rgctxIndex = 0; rgctxIndex < collection.count; rgctxIndex++)
         {
-            const Il2CppRGCTXDefinition* definitionData = MetadataCache::GetRGCTXDefinitionFromIndex(rgctxStartIndex + rgctxIndex);
+            const Il2CppRGCTXDefinition* definitionData = collection.items + rgctxIndex;
             switch (definitionData->type)
             {
                 case IL2CPP_RGCTX_DATA_TYPE:

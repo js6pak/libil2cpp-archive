@@ -38,7 +38,7 @@ LIBIL2CPP_CODEGEN_API char* il2cpp_array_addr_with_size(Il2CppArray *array, int3
 
 extern "C"
 {
-IL2CPP_EXPORT int il2cpp_array_element_size(const Il2CppClass *ac);
+    IL2CPP_EXPORT int il2cpp_array_element_size(const Il2CppClass *ac);
 }
 
 #define load_array_elema(arr, idx, size) ((((uint8_t*)(arr)) + kIl2CppSizeOfArray) + ((size) * (idx)))

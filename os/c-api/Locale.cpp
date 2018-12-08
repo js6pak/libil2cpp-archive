@@ -9,20 +9,20 @@
 
 extern "C"
 {
-void UnityPalLocaleInitialize()
-{
-    il2cpp::os::Locale::Initialize();
-}
+    void UnityPalLocaleInitialize()
+    {
+        il2cpp::os::Locale::Initialize();
+    }
 
-void UnityPalLocaleUnInitialize()
-{
-    il2cpp::os::Locale::UnInitialize();
-}
+    void UnityPalLocaleUnInitialize()
+    {
+        il2cpp::os::Locale::UnInitialize();
+    }
 
-char* UnityPalGetLocale()
-{
-    return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Locale::GetLocale());
-}
+    char* UnityPalGetLocale()
+    {
+        return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Locale::GetLocale());
+    }
 }
 
 #endif

@@ -203,7 +203,7 @@ namespace gc
 #else
             GetReadableStackTrace(object.second.stacktrace).c_str()
 #endif
-            );
+        );
         msg += chbuf;
         snprintf(chbuf, 1024, "Points to object %p of type (%s)\n", refObject, ObjectName(refObject, kPtrFree).c_str());
         msg += chbuf;

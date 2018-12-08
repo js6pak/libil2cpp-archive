@@ -174,7 +174,7 @@ namespace utils
             NativeMethodMap::iterator iter = s_NativeMethods.find_first(MaskSpareBits(nativeMethod));
             if (iter != s_NativeMethods.end())
             {
-                return IL2CPP_VM_METHOD_METADATA_FROM_INDEX(iter->isGeneric, iter->methodIndex);
+                return IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(iter);
             }
         }
         else
@@ -196,7 +196,7 @@ namespace utils
             if (methodAfterNativeMethod != s_NativeMethods.begin())
                 methodAfterNativeMethod--;
 
-            return IL2CPP_VM_METHOD_METADATA_FROM_INDEX(methodAfterNativeMethod->isGeneric, methodAfterNativeMethod->methodIndex);
+            return IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(methodAfterNativeMethod);
         }
 
         return NULL;

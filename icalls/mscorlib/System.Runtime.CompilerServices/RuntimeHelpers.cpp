@@ -40,7 +40,7 @@ namespace CompilerServices
         if (vm::Type::IsReference(type) || (type->type == IL2CPP_TYPE_VALUETYPE && (!vm::Type::GetClass(type) || vm::Type::GetClass(type)->has_references)))
         {
             Il2CppException *exc = vm::Exception::GetArgumentException("array",
-                    "Cannot initialize array containing references");
+                "Cannot initialize array containing references");
             vm::Exception::Raise(exc);
         }
 
