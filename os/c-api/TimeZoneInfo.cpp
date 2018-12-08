@@ -7,25 +7,25 @@
 
 extern "C"
 {
-int UseUnityPalForTimeZoneInformation()
-{
-    return il2cpp::os::TimeZoneInfo::UsePalForTimeZoneInfo();
-}
+    int UseUnityPalForTimeZoneInformation()
+    {
+        return il2cpp::os::TimeZoneInfo::UsePalForTimeZoneInfo();
+    }
 
-void* UnityPalTimeZoneInfoGetTimeZoneIDs()
-{
-    return il2cpp::os::TimeZoneInfo::GetTimeZoneIDs();
-}
+    void* UnityPalTimeZoneInfoGetTimeZoneIDs()
+    {
+        return il2cpp::os::TimeZoneInfo::GetTimeZoneIDs();
+    }
 
-int UnityPalGetLocalTimeZoneData(void** nativeRawData, char** nativeID, int* size)
-{
-    return il2cpp::os::TimeZoneInfo::GetLocalTimeZoneData(nativeRawData, nativeID, size);
-}
+    int UnityPalGetLocalTimeZoneData(void** nativeRawData, char** nativeID, int* size)
+    {
+        return il2cpp::os::TimeZoneInfo::GetLocalTimeZoneData(nativeRawData, nativeID, size);
+    }
 
-int UnityPalGetTimeZoneDataForID(char* id, void** nativeRawData, int* size)
-{
-    return il2cpp::os::TimeZoneInfo::GetTimeZoneDataForID(id, nativeRawData, size);
-}
+    int UnityPalGetTimeZoneDataForID(char* id, void** nativeRawData, int* size)
+    {
+        return il2cpp::os::TimeZoneInfo::GetTimeZoneDataForID(id, nativeRawData, size);
+    }
 }
 
 #endif

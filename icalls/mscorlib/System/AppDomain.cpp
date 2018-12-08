@@ -201,7 +201,7 @@ namespace System
     static inline void InitializeDomainData()
     {
         void* memory = utils::Memory::Malloc(sizeof(DomainDataStorage));
-        s_DomainData = new(memory)DomainDataStorage;
+        s_DomainData = new(memory) DomainDataStorage;
     }
 
     Il2CppObject* AppDomain::GetData(Il2CppAppDomain* self, Il2CppString* name)

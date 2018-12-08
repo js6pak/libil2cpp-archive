@@ -1112,7 +1112,7 @@ namespace os
 #ifdef ENOTSUP
                 || errno == ENOTSUP
 #endif
-                )
+            )
             {
                 *error = kErrorCodeSuccess;
                 return;
@@ -1154,7 +1154,7 @@ namespace os
 #ifdef ENOTSUP
                 || errno == ENOTSUP
 #endif
-                )
+            )
             {
                 *error = kErrorCodeSuccess;
                 return;

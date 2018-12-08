@@ -401,7 +401,7 @@ namespace vm
 
         IL2CPP_ASSERT(d->method->methodDefinition);
 
-        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapperFromIndex(d->method->methodDefinition->reversePInvokeWrapperIndex);
+        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method->token);
         if (reversePInvokeWrapper == NULL)
         {
             std::string methodName = il2cpp::vm::Method::GetFullName(d->method);

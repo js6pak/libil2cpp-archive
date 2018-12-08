@@ -55,10 +55,10 @@ namespace Reflection
         if (value != NULL && !vm::Class::IsAssignableFrom(fieldType, value->klass))
         {
             vm::Exception::Raise(vm::Exception::GetArgumentException("value",
-                    utils::StringUtils::Printf("Object of type '%s' cannot be converted to type '%s'.",
-                        vm::Type::GetName(&value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
-                        vm::Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
-                        ).c_str()));
+                utils::StringUtils::Printf("Object of type '%s' cannot be converted to type '%s'.",
+                    vm::Type::GetName(&value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
+                    vm::Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
+                ).c_str()));
         }
 #endif
 

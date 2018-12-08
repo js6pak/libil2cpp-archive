@@ -387,7 +387,7 @@ namespace InteropServices
             vm::Exception::Raise(vm::Exception::GetArgumentException("t", "The t parameter is a generic type."));
 
         std::string exceptionMessage = utils::StringUtils::Printf("Type \'%s\' cannot be marshaled as an unmanaged structure; no meaningful size or offset can be computed.",
-                vm::Type::GetName(rtype->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str());
+            vm::Type::GetName(rtype->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str());
 
         vm::Exception::Raise(vm::Exception::GetArgumentException(NULL, exceptionMessage.c_str()));
         return 0;

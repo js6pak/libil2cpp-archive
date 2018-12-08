@@ -59,6 +59,7 @@ SUITE(Directory)
         apiRetValue = UnityPalDirectoryGetCurrent(&error);
         CHECK(strlen(apiRetValue) > 0);
     }
+
 #endif
 
     TEST_FIXTURE(DirectoryFixture, GetCurrentDirectoryReturnsGoodError)
@@ -120,6 +121,7 @@ SUITE(Directory)
 
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
+
 #else
     TEST_FIXTURE(DirectoryFixture, SetCurrentDirectoryWithGarbageReturnsTrue)
     {
@@ -133,6 +135,7 @@ SUITE(Directory)
 
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
+
 #endif
 
     TEST_FIXTURE(DirectoryFixture, ApiSetCurrentDirectoryWithGarbageReturnsSameAsClass)
@@ -531,7 +534,6 @@ SUITE(Directory)
         UnityPalDirectoryCloseOSHandle(testFind);
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, returnErrorCode);
     }
-
 
     TEST_FIXTURE(FileSytemEntriesFixture, FindFirstFileMatchesClass)
     {
