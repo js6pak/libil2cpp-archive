@@ -59,7 +59,7 @@ namespace System
         if (bounds != NULL)
             i32bounds = (int32_t*)il2cpp_array_addr(bounds, int32_t, 0);
 
-        Il2CppClass* arrayType = il2cpp::vm::Class::GetArrayClassCached(il2cpp::vm::Class::FromIl2CppType(elementType->type), il2cpp::vm::Array::GetLength(lengths));
+        Il2CppClass* arrayType = il2cpp::vm::Class::GetArrayClassCached(il2cpp::vm::Class::FromIl2CppType(elementType->type), il2cpp::vm::Array::GetLength(lengths), bounds != NULL);
 
         if (arrayType == NULL)
             vm::Exception::Raise(vm::Exception::GetInvalidOperationException(FormatCreateInstanceException(elementType->type).c_str()));

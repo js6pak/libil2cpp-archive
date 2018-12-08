@@ -8,9 +8,9 @@ namespace il2cpp
 { namespace os
 { namespace lumin
 {
-  extern void LifecycleInit();
-  extern void InitializeFileHandles();
-  extern void CleanupFileHandles();
+    extern void LifecycleInit();
+    extern void InitializeFileHandles();
+    extern void CleanupFileHandles();
 }}}
 
 void il2cpp::os::Initialize()

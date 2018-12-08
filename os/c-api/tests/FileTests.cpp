@@ -73,6 +73,7 @@ SUITE(File)
     {
         CHECK_EQUAL((int32_t)il2cpp::os::File::Isatty(handle), UnityPalIsatty(handle));
     }
+
 #endif
 
     TEST(FileOpenNoError_ReturnsNonNullHandle)
@@ -316,7 +317,6 @@ SUITE(File)
         CHECK_NOT_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-
     TEST_FIXTURE(FileFixture, GetFileStatNormalName)
     {
         int error;
@@ -503,7 +503,6 @@ SUITE(File)
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
 
-
     TEST(CopyFileBadResult_ReturnsFalse)
     {
         int error;
@@ -650,7 +649,6 @@ SUITE(File)
 
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, error);
     }
-
 
     TEST(DeleteFileBadResult_ReturnsFalse)
     {
@@ -1674,6 +1672,7 @@ SUITE(File)
     {
         CHECK_MSG(!UnityPalIsExecutable(nonexecutableFilename), "A file not ending in the .exe extension is reported as executable, which is not expected.");
     }
+
 #else
     TEST_FIXTURE(ExecutableFileFixture, IsExecutable_ReturnsTrueForFileWithExecutablePermissions)
     {
@@ -1684,6 +1683,7 @@ SUITE(File)
     {
         CHECK_MSG(!UnityPalIsExecutable(nonexecutableFilename), "A file without executable permissions is reported as executable, which is not expected.");
     }
+
 #endif
 
 #endif // IL2CPP_CAN_CHECK_EXECUTABLE

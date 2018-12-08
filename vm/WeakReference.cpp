@@ -12,7 +12,7 @@ il2cpp_hresult_t il2cpp::vm::WeakReference::Create(Il2CppObject* managedObject, 
     if (memory == NULL)
         return IL2CPP_E_OUTOFMEMORY;
 
-    *result = new(memory)WeakReference(managedObject);
+    *result = new(memory) WeakReference(managedObject);
     return IL2CPP_S_OK;
 }
 

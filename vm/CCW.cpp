@@ -83,7 +83,7 @@ namespace vm
         void* memory = utils::Memory::Malloc(sizeof(ManagedObject));
         if (memory == NULL)
             Exception::RaiseOutOfMemoryException();
-        return static_cast<Il2CppIManagedObjectHolder*>(new(memory)ManagedObject(obj));
+        return static_cast<Il2CppIManagedObjectHolder*>(new(memory) ManagedObject(obj));
     }
 
     static Il2CppString* ValueToStringFallbackToEmpty(Il2CppObject* value)
@@ -119,22 +119,22 @@ namespace vm
     {
         Il2CppString* valueStr = ValueToStringFallbackToEmpty(value);
         std::string message = il2cpp::utils::StringUtils::Printf(
-                "Object in an IPropertyValue is of type '%s' with value '%s', which cannot be converted to a '%s'.",
-                fromType,
-                utils::StringUtils::Utf16ToUtf8(valueStr->chars, valueStr->length).c_str(),
-                toType);
+            "Object in an IPropertyValue is of type '%s' with value '%s', which cannot be converted to a '%s'.",
+            fromType,
+            utils::StringUtils::Utf16ToUtf8(valueStr->chars, valueStr->length).c_str(),
+            toType);
         return HandleInvalidIPropertyConversionImpl(message);
     }
 
     il2cpp_hresult_t CCW::HandleInvalidIPropertyArrayConversion(const char* fromArrayType, const char* fromElementType, const char* toElementType, il2cpp_array_size_t index)
     {
         std::string message = il2cpp::utils::StringUtils::Printf(
-                "Object in an IPropertyValue is of type '%s' which cannot be converted to a '%s[]' due to array element '%d': Object in an IPropertyValue is of type '%s', which cannot be converted to a '%s'.",
-                fromArrayType,
-                toElementType,
-                static_cast<int>(index),
-                fromElementType,
-                toElementType);
+            "Object in an IPropertyValue is of type '%s' which cannot be converted to a '%s[]' due to array element '%d': Object in an IPropertyValue is of type '%s', which cannot be converted to a '%s'.",
+            fromArrayType,
+            toElementType,
+            static_cast<int>(index),
+            fromElementType,
+            toElementType);
         return HandleInvalidIPropertyConversionImpl(message);
     }
 
@@ -142,13 +142,13 @@ namespace vm
     {
         Il2CppString* valueStr = ValueToStringFallbackToEmpty(value);
         std::string message = il2cpp::utils::StringUtils::Printf(
-                "Object in an IPropertyValue is of type '%s' which cannot be converted to a '%s[]' due to array element '%d': Object in an IPropertyValue is of type '%s' with value '%s', which cannot be converted to a '%s'.",
-                fromArrayType,
-                toElementType,
-                static_cast<int>(index),
-                fromElementType,
-                utils::StringUtils::Utf16ToUtf8(valueStr->chars, valueStr->length).c_str(),
-                toElementType);
+            "Object in an IPropertyValue is of type '%s' which cannot be converted to a '%s[]' due to array element '%d': Object in an IPropertyValue is of type '%s' with value '%s', which cannot be converted to a '%s'.",
+            fromArrayType,
+            toElementType,
+            static_cast<int>(index),
+            fromElementType,
+            utils::StringUtils::Utf16ToUtf8(valueStr->chars, valueStr->length).c_str(),
+            toElementType);
         return HandleInvalidIPropertyConversionImpl(message);
     }
 } /* namespace vm */

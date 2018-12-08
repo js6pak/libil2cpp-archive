@@ -261,7 +261,7 @@ namespace os
         //and GetProcAddress to get a pointer to the function if available.
 
         LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
-                GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+            GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
 
         if (NULL != fnIsWow64Process)
         {
