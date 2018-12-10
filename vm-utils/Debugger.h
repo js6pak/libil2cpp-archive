@@ -21,7 +21,7 @@ namespace utils
     class Debugger
     {
     public:
-        static void RegisterSequencePointCheck(uint32_t* check);
+        static void RegisterSequencePointCheck(volatile uint32_t* check);
         static void RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data);
         static void SetAgentOptions(const char* options);
         static void Init();
