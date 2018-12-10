@@ -14,5 +14,5 @@ REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return()
 }
 
 #if IL2CPP_MONO_DEBUGGER
-uint32_t g_Il2CppDebuggerCheckPointEnabled;
+volatile uint32_t g_Il2CppDebuggerCheckPointEnabled;
 #endif
