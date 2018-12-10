@@ -39,7 +39,7 @@ void mono_debugger_il2cpp_init(const Il2CppDebuggerMetadataRegistration *data);
 void unity_debugger_agent_breakpoint(Il2CppSequencePoint* sequencePoint);
 void unity_debugger_agent_pausepoint();
 void mono_debugger_install_runtime_callbacks(MonoDebuggerRuntimeCallbacks* cbs);
-void mono_debugger_install_sequence_point_check(uint32_t* check);
+void mono_debugger_install_sequence_point_check(volatile uint32_t* check);
 void* il2cpp_alloc(size_t size);
 int32_t unity_debugger_agent_is_global_breakpoint_active();
 int32_t unity_debugger_agent_is_single_stepping();
@@ -74,7 +74,7 @@ namespace utils
     typedef Il2CppHashMap<const Il2CppClass*, FileNameList, il2cpp::utils::PointerHash<Il2CppClass> > TypeSourceFileMap;
     static TypeSourceFileMap *s_typeSourceFiles;
 
-    void Debugger::RegisterSequencePointCheck(uint32_t* check)
+    void Debugger::RegisterSequencePointCheck(volatile uint32_t* check)
     {
         mono_debugger_install_sequence_point_check(check);
     }

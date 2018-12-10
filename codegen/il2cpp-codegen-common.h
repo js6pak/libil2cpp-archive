@@ -275,7 +275,7 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
 }
 
 #if IL2CPP_MONO_DEBUGGER
-extern uint32_t g_Il2CppDebuggerCheckPointEnabled;
+extern volatile uint32_t g_Il2CppDebuggerCheckPointEnabled;
 #endif
 
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
