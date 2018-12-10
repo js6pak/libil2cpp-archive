@@ -520,6 +520,12 @@ inline T* il2cpp_codegen_marshal_allocate_array(size_t length)
     return static_cast<T*>(il2cpp::vm::MarshalAlloc::Allocate((il2cpp_array_size_t)(sizeof(T) * length)));
 }
 
+template<typename T>
+inline T* il2cpp_codegen_marshal_allocate()
+{
+    return static_cast<T*>(il2cpp::vm::MarshalAlloc::Allocate(sizeof(T)));
+}
+
 inline char* il2cpp_codegen_marshal_string(String_t* string)
 {
     return il2cpp::vm::PlatformInvoke::MarshalCSharpStringToCppString((RuntimeString*)string);
@@ -753,37 +759,37 @@ inline MethodBase_t* il2cpp_codegen_get_method_object(const RuntimeMethod* metho
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(RuntimeObject*, String_t*, const RuntimeMethod*);
+    typedef Type_t* (*getTypeFuncType)(String_t*, const RuntimeMethod*);
     RuntimeString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((RuntimeString*)typeName, assemblyName);
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)(NULL, (String_t*)assemblyQualifiedTypeName, NULL);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, NULL);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(NULL, typeName, NULL);
+        return ((getTypeFuncType)getTypeFunction)(typeName, NULL);
     return type;
 }
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(RuntimeObject*, String_t*, bool, const RuntimeMethod*);
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool, const RuntimeMethod*);
     RuntimeString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((RuntimeString*)typeName, assemblyName);
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)(NULL, (String_t*)assemblyQualifiedTypeName, throwOnError, NULL);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, NULL);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(NULL, typeName, throwOnError, NULL);
+        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, NULL);
     return type;
 }
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(RuntimeObject*, String_t*, bool, bool, const RuntimeMethod*);
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool, const RuntimeMethod*);
     RuntimeString* assemblyQualifiedTypeName = il2cpp::vm::Type::AppendAssemblyNameIfNecessary((RuntimeString*)typeName, assemblyName);
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
 
-    Type_t* type = ((getTypeFuncType)getTypeFunction)(NULL, (String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase, NULL);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase, NULL);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(NULL, typeName, throwOnError, ignoreCase, NULL);
+        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, ignoreCase, NULL);
     return type;
 }
 
@@ -1000,4 +1006,10 @@ inline std::string il2cpp_codegen_format_exception(const RuntimeException* ex)
 inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object, Type_t* type)
 {
     return il2cpp::icalls::mscorlib::System::Runtime::InteropServices::Marshal::GetCCW(object, reinterpret_cast<Il2CppReflectionType*>(type));
+}
+
+inline NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method)
+{
+    std::string methodName = il2cpp::vm::Method::GetFullName(method);
+    il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
 }

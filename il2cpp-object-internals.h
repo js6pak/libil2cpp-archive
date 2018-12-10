@@ -5,6 +5,18 @@
 #include <stddef.h>
 #include "il2cpp-class-internals.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif // __cplusplus
+// We cannot include il2cpp-api.h here because generated code contains il2cpp
+// api declarations with mismatching parameter declarations (char* vs const char*).
+// So we only declare il2cpp_gc_wbarrier_set_field here.
+IL2CPP_EXPORT void il2cpp_gc_wbarrier_set_field(Il2CppObject * obj, void **targetAddress, void *object);
+#if defined(__cplusplus)
+}
+#endif // __cplusplus
+
 typedef struct Il2CppClass Il2CppClass;
 typedef struct MethodInfo MethodInfo;
 typedef struct PropertyInfo PropertyInfo;
@@ -113,14 +125,12 @@ typedef struct Il2CppString
 #endif
 
 #define IL2CPP_OBJECT_SETREF(obj, fieldname, value) do {\
-        /* mono_gc_wbarrier_set_field ((MonoObject*)(obj), &((obj)->fieldname), (MonoObject*)value); */ \
-        (obj)->fieldname = (value); \
+        il2cpp_gc_wbarrier_set_field((Il2CppObject *)(obj), (void**)&(obj)->fieldname, (value));\
     } while (0)
 
 /* This should be used if 's' can reside on the heap */
 #define IL2CPP_STRUCT_SETREF(s, field, value) do {\
-        /* mono_gc_wbarrier_generic_store (&((s)->field), (MonoObject*)(value)); */ \
-        (s)->field = (value); \
+        il2cpp_gc_wbarrier_set_field((Il2CppObject *)(s), (void**)&(s)->field, (value));\
     } while (0)
 
 typedef struct Il2CppReflectionType

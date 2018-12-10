@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include <stddef.h>
+#include "gc/GarbageCollector.h"
 #include "icalls/mscorlib/System.Reflection/MonoField.h"
 #include "utils/StringUtils.h"
 #include "vm/Class.h"
@@ -115,6 +116,7 @@ namespace Reflection
         else
         {
             memcpy(fieldAddress, &value, sizeof(Il2CppObject*));
+            il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)fieldAddress);
         }
     }
 
