@@ -903,7 +903,7 @@ namespace vm
             FieldLayout::FieldLayoutData staticLayoutData;
             FieldLayout::FieldLayoutData threadStaticLayoutData;
 
-            FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, fieldTypes, layoutData);
+            FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, klass->packingSize, fieldTypes, layoutData);
 
             instanceSize = layoutData.classSize;
 
@@ -920,8 +920,8 @@ namespace vm
 
             klass->size_inited = true;
 
-            FieldLayout::LayoutFields(0, 0, 1, staticFieldTypes, staticLayoutData);
-            FieldLayout::LayoutFields(0, 0, 1, threadStaticFieldTypes, threadStaticLayoutData);
+            FieldLayout::LayoutFields(0, 0, 1, 0, staticFieldTypes, staticLayoutData);
+            FieldLayout::LayoutFields(0, 0, 1, 0, threadStaticFieldTypes, threadStaticLayoutData);
 
             klass->minimumAlignment = layoutData.minimumAlignment;
             klass->actualSize = static_cast<uint32_t>(layoutData.actualClassSize);

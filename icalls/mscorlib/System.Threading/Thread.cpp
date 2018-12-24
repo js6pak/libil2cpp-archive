@@ -216,7 +216,8 @@ namespace Threading
         thisPtr->GetInternalThread()->handle = thread;
         thisPtr->GetInternalThread()->state &= ~kThreadStateUnstarted;
         thisPtr->GetInternalThread()->tid = thread->Id();
-        thisPtr->GetInternalThread()->managed_id = il2cpp::vm::Thread::GetNewManagedId();
+        if (!thisPtr->GetInternalThread()->managed_id)
+            thisPtr->GetInternalThread()->managed_id = il2cpp::vm::Thread::GetNewManagedId();
 
         startData->m_Semaphore->Post(1, NULL);
 
