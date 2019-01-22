@@ -981,11 +981,6 @@ inline bool il2cpp_codegen_is_import_or_windows_runtime(const RuntimeObject *obj
     return false;
 }
 
-inline std::string il2cpp_codegen_format_exception(const RuntimeException* ex)
-{
-    return il2cpp_mono_format_exception(ex);
-}
-
 inline intptr_t il2cpp_codegen_get_com_interface_for_object(RuntimeObject* object, Type_t* type)
 {
     assert(0 && "Not implemented yet.");

@@ -8,29 +8,81 @@ struct Il2CppThreadUnwindState;
 typedef void(*DebugInfoInitialization)();
 typedef void(*ThreadCallback)(void*, uintptr_t);
 
-#ifdef __cplusplus
+typedef struct Il2CppSequencePointExecutionContext
+{
+    const MethodInfo* method;
+    void** thisArg;
+    void** params;
+    void** locals;
+    Il2CppSequencePoint* currentSequencePoint;
 
+#ifdef __cplusplus
+    Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals);
+    ~Il2CppSequencePointExecutionContext();
+#endif //__cplusplus
+} Il2CppSequencePointExecutionContext;
+
+
+typedef struct Il2CppThreadUnwindState
+{
+    Il2CppSequencePointExecutionContext** executionContexts;
+    uint32_t frameCount;
+    uint32_t frameCapacity;
+} Il2CppThreadUnwindState;
+
+#ifdef __cplusplus
+extern "C"
+{
+    int32_t unity_sequence_point_active_entry(Il2CppSequencePoint *seqPoint);
+    int32_t unity_sequence_point_active_exit(Il2CppSequencePoint *seqPoint);
+    extern bool g_unity_pause_point_active;
+}
 #include <stdint.h>
-#include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
 
 #undef IsLoggingEnabled
 
+extern il2cpp::os::ThreadLocalValue s_ExecutionContexts;
+
 namespace il2cpp
 {
+namespace os
+{
+    class Thread;
+}
 namespace utils
 {
     class Debugger
     {
     public:
-        static void RegisterSequencePointCheck(volatile uint32_t* check);
         static void RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data);
         static void SetAgentOptions(const char* options);
         static void Init();
         static void Start();
         static void StartDebuggerThread();
-        static void PushExecutionContext(Il2CppSequencePointExecutionContext* executionContext);
-        static void PopExecutionContext();
+
+        static inline void PushExecutionContext(Il2CppSequencePointExecutionContext* executionContext)
+        {
+            Il2CppThreadUnwindState* unwindState;
+            s_ExecutionContexts.GetValue(reinterpret_cast<void**>(&unwindState));
+
+            if (unwindState->frameCount == unwindState->frameCapacity)
+            {
+                IL2CPP_ASSERT(0);
+            }
+            unwindState->executionContexts[unwindState->frameCount] = executionContext;
+            unwindState->frameCount++;
+        }
+
+        static inline void PopExecutionContext()
+        {
+            Il2CppThreadUnwindState* unwindState;
+            s_ExecutionContexts.GetValue(reinterpret_cast<void**>(&unwindState));
+
+            IL2CPP_ASSERT(unwindState->frameCount > 0);
+            unwindState->frameCount--;
+        }
+
         typedef void(*OnBreakPointHitCallback) (Il2CppSequencePoint* sequencePoint);
         typedef void (*OnPausePointHitCallback) ();
         static void RegisterCallbacks(OnBreakPointHitCallback breakCallback, OnPausePointHitCallback pauseCallback);
@@ -45,19 +97,60 @@ namespace utils
         static bool IsDebuggerThread(os::Thread* thread);
         static void AllocateThreadLocalData();
         static void FreeThreadLocalData();
-        static Il2CppSequencePoint* GetSequencePoint(size_t id);
-        static Il2CppSequencePoint* GetSequencePoints(void* *iter);
+        static Il2CppSequencePoint* GetSequencePoint(const Il2CppImage* image, size_t id);
         static Il2CppSequencePoint* GetSequencePoints(const MethodInfo* method, void**iter);
+        static Il2CppSequencePoint* GetAllSequencePoints(void* *iter);
         static void HandleException(Il2CppException *exc, Il2CppSequencePoint *sequencePoint);
         static const char** GetTypeSourceFiles(const Il2CppClass *klass, int& count);
         static void UserBreak();
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
-        static bool IsSequencePointActive(Il2CppSequencePoint *seqPoint);
+
+        static inline bool IsSequencePointActive(Il2CppSequencePoint *seqPoint)
+        {
+            return seqPoint->isActive || g_unity_pause_point_active;
+        }
+
+        static inline bool IsSequencePointActiveEntry(Il2CppSequencePoint *seqPoint)
+        {
+            return unity_sequence_point_active_entry(seqPoint);
+        }
+
+        static inline bool IsSequencePointActiveExit(Il2CppSequencePoint *seqPoint)
+        {
+            return unity_sequence_point_active_exit(seqPoint);
+        }
+
         static bool IsPausePointActive();
         static const MethodInfo* GetSequencePointMethod(Il2CppSequencePoint *seqPoint);
 
-        static void CheckSequencePoint(Il2CppSequencePointExecutionContext* executionContext, size_t seqPointId);
+        static inline void CheckSequencePoint(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
+        {
+            if (IsSequencePointActive(seqPoint))
+            {
+                executionContext->currentSequencePoint = seqPoint;
+                OnBreakPointHit(seqPoint);
+            }
+        }
+
+        static inline void CheckSequencePointEntry(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
+        {
+            if (IsSequencePointActiveEntry(seqPoint))
+            {
+                executionContext->currentSequencePoint = seqPoint;
+                OnBreakPointHit(seqPoint);
+            }
+        }
+
+        static inline void CheckSequencePointExit(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
+        {
+            if (IsSequencePointActiveExit(seqPoint))
+            {
+                executionContext->currentSequencePoint = seqPoint;
+                OnBreakPointHit(seqPoint);
+            }
+        }
+
         static void CheckPausePoint();
 
         static void GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes);
@@ -69,26 +162,21 @@ namespace utils
     };
 }
 }
-#endif //__cplusplus
 
-typedef struct Il2CppSequencePointExecutionContext
+inline Il2CppSequencePointExecutionContext::Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals)
+    : method(method),
+    thisArg(thisArg),
+    params(params),
+    locals(locals),
+    currentSequencePoint(NULL)
 {
-    const MethodInfo* method;
-    void** thisArg;
-    void** params;
-    void** locals;
-    size_t currentSequencePoint;
+    il2cpp::utils::Debugger::PushExecutionContext(this);
+}
 
-
-#ifdef __cplusplus
-    Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals);
-    ~Il2CppSequencePointExecutionContext();
-#endif //__cplusplus
-} Il2CppSequencePointExecutionContext;
-
-typedef struct Il2CppThreadUnwindState
+inline Il2CppSequencePointExecutionContext::~Il2CppSequencePointExecutionContext()
 {
-    Il2CppSequencePointExecutionContext** executionContexts;
-    uint32_t frameCount;
-    uint32_t frameCapacity;
-} Il2CppThreadUnwindState;
+    il2cpp::utils::Debugger::PopExecutionContext();
+    // il2cpp_save_current_thread_context_func_exit();
+}
+
+#endif //__cplusplus

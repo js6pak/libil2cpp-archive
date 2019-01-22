@@ -20,7 +20,7 @@ namespace utils
 {
     NORETURN void Runtime::Abort()
     {
-#if !UNITY_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
         os::Environment::Abort();
 #endif
     }
@@ -39,7 +39,7 @@ namespace utils
 
     std::string Runtime::GetDataDir()
     {
-#if !UNITY_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 #if defined(RUNTIME_MONO)
         // use explicit value if set
         char* dataDirCS = mono_unity_get_data_dir();

@@ -1,15 +1,12 @@
 #pragma once
 
 #include <stdint.h>
-#include <vector>
 #include "il2cpp-config.h"
 #include "Assembly.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "il2cpp-class-internals.h"
 #include "utils/dynamic_array.h"
 #include "os/Mutex.h"
-
-#define THREAD_LOCAL_STATIC_MASK (int32_t)0x80000000
 
 struct MethodInfo;
 struct Il2CppClass;
@@ -48,7 +45,7 @@ namespace vm
         static const MethodInfo* GetGenericMethodDefinition(const MethodInfo* method);
 
         static Il2CppClass* GetPointerType(Il2CppClass* type);
-        static Il2CppClass* GetWindowsRuntimeClass(const std::string& fullName);
+        static Il2CppClass* GetWindowsRuntimeClass(const char* fullName);
         static const char* GetWindowsRuntimeClassName(const Il2CppClass* klass);
         static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
 
@@ -77,7 +74,7 @@ namespace vm
         static Il2CppMethodPointer GetUnresolvedVirtualCallStub(const MethodInfo* method);
 
         static const Il2CppAssembly* GetAssemblyFromIndex(AssemblyIndex index);
-        static const Il2CppAssembly* GetAssemblyByName(const std::string& name);
+        static const Il2CppAssembly* GetAssemblyByName(const char* nameToFind);
         static Il2CppImage* GetImageFromIndex(ImageIndex index);
         static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index);
         static const Il2CppTypeDefinition* GetTypeDefinitionFromIndex(TypeDefinitionIndex index);

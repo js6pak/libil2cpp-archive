@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <vector>
-#include <string>
 #include "il2cpp-config.h"
 struct Il2CppAssembly;
 struct Il2CppAssemblyName;

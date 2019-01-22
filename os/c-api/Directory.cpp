@@ -1,11 +1,12 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 
-#if !UNITY_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "os/Directory.h"
 #include "os/c-api/Directory-c-api.h"
 #include "Allocator.h"
 #include "utils/StringUtils.h"
+#include "utils/StringViewUtils.h"
 
 #include <string>
 
@@ -67,7 +68,7 @@ extern "C"
     UnityPalFindHandle* UnityPalDirectoryFindHandleNew(const char* searchPathWithPattern)
     {
         Il2CppNativeString pattern(il2cpp::utils::StringUtils::Utf8ToNativeString(searchPathWithPattern));
-        return new il2cpp::os::Directory::FindHandle(pattern);
+        return new il2cpp::os::Directory::FindHandle(STRING_TO_STRINGVIEW(pattern));
     }
 
     void UnityPalDirectoryFindHandleDelete(UnityPalFindHandle* object)
@@ -92,7 +93,7 @@ extern "C"
     {
         Il2CppNativeString pattern(il2cpp::utils::StringUtils::Utf8ToNativeString(searchPathWithPattern));
         Il2CppNativeString nativeFileName;
-        UnityPalErrorCode retVal = il2cpp::os::Directory::FindFirstFile(findHandle, pattern, &nativeFileName, resultAttributes);
+        UnityPalErrorCode retVal = il2cpp::os::Directory::FindFirstFile(findHandle, STRING_TO_STRINGVIEW(pattern), &nativeFileName, resultAttributes);
         *resultFileName = Allocator::CopyToAllocatedStringBuffer(il2cpp::utils::StringUtils::NativeStringToUtf8(nativeFileName));
         return retVal;
     }
