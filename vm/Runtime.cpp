@@ -181,6 +181,7 @@ namespace vm
         DEFAULTS_INIT(string_class, "System", "String");
         DEFAULTS_INIT(enum_class, "System", "Enum");
         DEFAULTS_INIT(array_class, "System", "Array");
+#if !IL2CPP_TINY
         DEFAULTS_INIT_TYPE(delegate_class, "System", "Delegate", Il2CppDelegate);
 #if !NET_4_0
         DEFAULTS_INIT(multicastdelegate_class, "System", "MulticastDelegate");
@@ -190,11 +191,14 @@ namespace vm
         DEFAULTS_INIT(asyncresult_class, "System.Runtime.Remoting.Messaging", "AsyncResult");
         DEFAULTS_INIT_TYPE(async_call_class, "System", "MonoAsyncCall", Il2CppAsyncCall);
         DEFAULTS_INIT(manualresetevent_class, "System.Threading", "ManualResetEvent");
+#endif // !IL2CPP_TINY
         //DEFAULTS_INIT(typehandle_class, "System", "RuntimeTypeHandle");
         //DEFAULTS_INIT(methodhandle_class, "System", "RuntimeMethodHandle");
         //DEFAULTS_INIT(fieldhandle_class, "System", "RuntimeFieldHandle");
         DEFAULTS_INIT(systemtype_class, "System", "Type");
+#if !IL2CPP_TINY
         DEFAULTS_INIT_TYPE(monotype_class, "System", "MonoType", Il2CppReflectionMonoType);
+#endif
         //DEFAULTS_INIT(exception_class, "System", "Exception");
         //DEFAULTS_INIT(threadabortexcepXtion_class, "System.Threading", "ThreadAbortException");
         DEFAULTS_INIT_TYPE(thread_class, "System.Threading", "Thread", Il2CppThread);
@@ -202,6 +206,7 @@ namespace vm
         DEFAULTS_INIT_TYPE(internal_thread_class, "System.Threading", "InternalThread", Il2CppInternalThread);
         DEFAULTS_INIT_TYPE(runtimetype_class, "System", "RuntimeType", Il2CppReflectionRuntimeType);
 #endif
+#if !IL2CPP_TINY
         DEFAULTS_INIT(appdomain_class, "System", "AppDomain");
         DEFAULTS_INIT(appdomain_setup_class, "System", "AppDomainSetup");
         DEFAULTS_INIT(field_info_class, "System.Reflection", "FieldInfo");
@@ -225,9 +230,11 @@ namespace vm
         DEFAULTS_INIT(culture_info, "System.Globalization", "CultureInfo");
         DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "Assembly", Il2CppReflectionAssembly);
         DEFAULTS_INIT_TYPE(assembly_name_class, "System.Reflection", "AssemblyName", Il2CppReflectionAssemblyName);
+#endif // !IL2CPP_TINY
 #if NET_4_0
         DEFAULTS_INIT_TYPE(mono_assembly_class, "System.Reflection", "MonoAssembly", Il2CppReflectionAssembly);
 #endif
+#if !IL2CPP_TINY
 #if !NET_4_0
         DEFAULTS_INIT_TYPE(enum_info_class, "System", "MonoEnumInfo", Il2CppEnumInfo);
 #endif
@@ -257,8 +264,9 @@ namespace vm
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
         DEFAULTS_INIT(system_guid_class, "System", "Guid");
+#endif // !IL2CPP_TINY
 
-#if NET_4_0
+#if NET_4_0 && !IL2CPP_TINY
         DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
         DEFAULTS_INIT(mono_method_message_class, "System.Runtime.Remoting.Messaging", "MonoMethodMessage");
 
@@ -311,12 +319,14 @@ namespace vm
         Il2CppThread* mainThread = Thread::Attach(domain);
         Thread::SetMain(mainThread);
 
+#if !IL2CPP_TINY
         Il2CppAppDomainSetup* setup = (Il2CppAppDomainSetup*)Object::NewPinned(il2cpp_defaults.appdomain_setup_class);
 
         Il2CppAppDomain* ad = (Il2CppAppDomain*)Object::NewPinned(il2cpp_defaults.appdomain_class);
         gc::WriteBarrier::GenericStore(&ad->data, domain);
         gc::WriteBarrier::GenericStore(&domain->domain, ad);
         gc::WriteBarrier::GenericStore(&domain->setup, setup);
+#endif
 
         domain->domain_id = 1; // Only have a single domain ATM.
 
@@ -344,8 +354,10 @@ namespace vm
         os::Environment::SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes");
         os::Environment::SetEnvironmentVariable("MONO_XMLSERIALIZER_THS", "no");
 
+#if !IL2CPP_TINY
         Domain::ContextInit(domain);
         Domain::ContextSet(domain->default_context);
+#endif
 
         VerifyApiVersion();
 
@@ -414,12 +426,14 @@ namespace vm
 
     static void SetConfigStr(const std::string& executablePath)
     {
+#if !IL2CPP_TINY
         Il2CppDomain* domain = vm::Domain::GetCurrent();
         std::string configFileName = utils::PathUtils::Basename(executablePath);
         configFileName.append(".config");
         std::string appBase = utils::PathUtils::DirectoryName(executablePath);
         IL2CPP_OBJECT_SETREF(domain->setup, application_base, vm::String::New(appBase.c_str()));
         IL2CPP_OBJECT_SETREF(domain->setup, configuration_file, vm::String::New(configFileName.c_str()));
+#endif
     }
 
     void Runtime::SetConfigUtf16(const Il2CppChar* executablePath)
@@ -888,6 +902,7 @@ namespace vm
 
     void Runtime::VerifyApiVersion()
     {
+#if !IL2CPP_TINY
 #if IL2CPP_DEBUG
         Il2CppClass *klass = Class::FromName(il2cpp_defaults.corlib, "System", "Environment");
         Class::Init(klass);
@@ -899,6 +914,7 @@ namespace vm
         IL2CPP_ASSERT(value == 82);
 #else
         IL2CPP_ASSERT(value == 1051100001);
+#endif
 #endif
 #endif
     }

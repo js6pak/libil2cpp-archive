@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !UNITY_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <limits>
 #include <unistd.h>
@@ -111,16 +111,16 @@ namespace os
         return posix::PosixThreadIdToThreadId(m_Handle);
     }
 
-    void ThreadImpl::SetName(const std::string& name)
+    void ThreadImpl::SetName(const char* name)
     {
         // Can only be set on current thread on OSX and Linux.
         if (pthread_self() != m_Handle)
             return;
 
 #if IL2CPP_TARGET_DARWIN
-        pthread_setname_np(name.c_str());
+        pthread_setname_np(name);
 #elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_LUMIN || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
-        pthread_setname_np(m_Handle, name.c_str());
+        pthread_setname_np(m_Handle, name);
 #endif
     }
 
@@ -133,6 +133,23 @@ namespace os
         }
 
         m_StackSize = newsize;
+    }
+
+    int ThreadImpl::GetMaxStackSize()
+    {
+#if IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_LINUX
+        struct rlimit lim;
+
+        /* If getrlimit fails, we don't enforce any limits. */
+        if (getrlimit(RLIMIT_STACK, &lim))
+            return INT_MAX;
+        /* rlim_t is an unsigned long long on 64bits OSX but we want an int response. */
+        if (lim.rlim_max > (rlim_t)INT_MAX)
+            return INT_MAX;
+        return (int)lim.rlim_max;
+#else
+        return INT_MAX;
+#endif
     }
 
     void ThreadImpl::SetPriority(ThreadPriority priority)

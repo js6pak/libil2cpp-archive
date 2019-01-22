@@ -2,7 +2,6 @@
 
 #include "il2cpp-config.h"
 #include "os/ErrorCodes.h"
-#include "os/Handle.h"
 #include "os/Event.h"
 #include "os/WaitStatus.h"
 #include "utils/NonCopyable.h"
@@ -51,12 +50,13 @@ namespace os
 
         /// Set thread name for debugging purposes. Won't do anything if not supported
         /// by platform.
-        void SetName(const std::string& name);
+        void SetName(const char* name);
 
         void SetPriority(ThreadPriority priority);
         ThreadPriority GetPriority();
 
         void SetStackSize(size_t stackSize);
+        static int GetMaxStackSize();
 
         void SetCleanupFunction(CleanupFunc cleanupFunc, void* arg)
         {
