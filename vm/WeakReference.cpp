@@ -5,6 +5,7 @@
 #include "vm/CCW.h"
 #include "vm/ScopedThreadAttacher.h"
 #include "WeakReference.h"
+#include "os/Unity/UnityPlatformConfigure.h"
 
 il2cpp_hresult_t il2cpp::vm::WeakReference::Create(Il2CppObject* managedObject, Il2CppIWeakReference** result)
 {

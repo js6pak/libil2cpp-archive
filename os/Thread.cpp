@@ -113,7 +113,7 @@ namespace os
         return m_Thread->Id();
     }
 
-    void Thread::SetName(const std::string& name)
+    void Thread::SetName(const char* name)
     {
         m_Thread->SetName(name);
     }
@@ -131,6 +131,11 @@ namespace os
     void Thread::SetStackSize(size_t stackSize)
     {
         m_Thread->SetStackSize(stackSize);
+    }
+
+    int Thread::GetMaxStackSize()
+    {
+        return ThreadImpl::GetMaxStackSize();
     }
 
     struct StartData
@@ -356,7 +361,7 @@ namespace os
         return 0;
     }
 
-    void Thread::SetName(const std::string& name)
+    void Thread::SetName(const char* name)
     {
     }
 
@@ -372,6 +377,11 @@ namespace os
 
     void Thread::SetStackSize(size_t stackSize)
     {
+    }
+
+    int Thread::GetMaxStackSize()
+    {
+        return INT_MAX;
     }
 
     void Thread::RunWrapper(void* arg)

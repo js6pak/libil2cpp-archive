@@ -10,7 +10,7 @@
 #include "vm/Atomic.h"
 #include "vm/ClassInlines.h"
 #include "vm/ScopedThreadAttacher.h"
-#include "vm/WindowsRuntime.h"
+#include "vm/String.h"
 
 #if IL2CPP_ENABLE_PROFILER
 
@@ -43,6 +43,10 @@ private:
     const RuntimeMethod* m_method;
 };
 
+void il2cpp_codegen_stacktrace_push_frame(Il2CppStackFrameInfo& frame);
+
+void il2cpp_codegen_stacktrace_pop_frame();
+
 struct StackTraceSentry
 {
     StackTraceSentry(const RuntimeMethod* method) : m_method(method)
@@ -51,12 +55,12 @@ struct StackTraceSentry
 
         frame_info.method = method;
 
-        il2cpp::vm::StackTrace::PushFrame(frame_info);
+        il2cpp_codegen_stacktrace_push_frame(frame_info);
     }
 
     ~StackTraceSentry()
     {
-        il2cpp::vm::StackTrace::PopFrame();
+        il2cpp_codegen_stacktrace_pop_frame();
     }
 
 private:
@@ -137,10 +141,6 @@ Exception_t* il2cpp_codegen_get_index_out_of_range_exception();
 
 Exception_t* il2cpp_codegen_get_exception(il2cpp_hresult_t hresult, bool defaultToCOMException);
 
-std::string il2cpp_codegen_format_invalid_cast_exception(const RuntimeClass* fromType, const RuntimeClass* toType);
-
-std::string il2cpp_codegen_format_exception(const RuntimeException* ex);
-
 inline RuntimeClass* il2cpp_codegen_object_class(RuntimeObject* obj)
 {
     return obj->klass;
@@ -177,12 +177,7 @@ inline RuntimeObject* IsInstClass(RuntimeObject *obj, RuntimeClass* targetType)
 
 // OpCode.Castclass
 
-NORETURN inline void RaiseInvalidCastException(RuntimeObject* obj, RuntimeClass* targetType)
-{
-    std::string exceptionMessage = il2cpp_codegen_format_invalid_cast_exception(obj->klass->element_class, targetType);
-    Exception_t* exception = il2cpp_codegen_get_invalid_cast_exception(exceptionMessage.c_str());
-    il2cpp_codegen_raise_exception(exception);
-}
+NORETURN void RaiseInvalidCastException(RuntimeObject* obj, RuntimeClass* targetType);
 
 inline RuntimeObject* Castclass(RuntimeObject *obj, RuntimeClass* targetType)
 {
@@ -473,39 +468,26 @@ void il2cpp_codegen_marshal_string_builder_result(StringBuilder_t* stringBuilder
 
 void il2cpp_codegen_marshal_wstring_builder_result(StringBuilder_t* stringBuilder, Il2CppChar* buffer);
 
-inline Il2CppHString il2cpp_codegen_create_hstring(String_t* str)
-{
-    return il2cpp::vm::WindowsRuntime::CreateHString(reinterpret_cast<RuntimeString*>(str));
-}
+Il2CppHString il2cpp_codegen_create_hstring(String_t* str);
 
-inline String_t* il2cpp_codegen_marshal_hstring_result(Il2CppHString hstring)
-{
-    return reinterpret_cast<String_t*>(il2cpp::vm::WindowsRuntime::HStringToManagedString(hstring));
-}
+String_t* il2cpp_codegen_marshal_hstring_result(Il2CppHString hstring);
 
-inline void il2cpp_codegen_marshal_free_hstring(Il2CppHString hstring)
-{
-    il2cpp::vm::WindowsRuntime::DeleteHString(hstring);
-}
+void il2cpp_codegen_marshal_free_hstring(Il2CppHString hstring);
 
-inline void il2cpp_codegen_marshal_type_to_native(Type_t* type, Il2CppWindowsRuntimeTypeName& nativeType)
-{
-    return il2cpp::vm::WindowsRuntime::MarshalTypeToNative(type != NULL ? reinterpret_cast<Il2CppReflectionType*>(type)->type : NULL, nativeType);
-}
+void il2cpp_codegen_marshal_type_to_native(Type_t* type, Il2CppWindowsRuntimeTypeName& nativeType);
+
+const Il2CppType* il2cpp_codegen_marshal_type_from_native_internal(Il2CppWindowsRuntimeTypeName& nativeType);
 
 inline Type_t* il2cpp_codegen_marshal_type_from_native(Il2CppWindowsRuntimeTypeName& nativeType)
 {
-    const Il2CppType* type = il2cpp::vm::WindowsRuntime::MarshalTypeFromNative(nativeType);
+    const Il2CppType* type = il2cpp_codegen_marshal_type_from_native_internal(nativeType);
     if (type == NULL)
         return NULL;
 
     return il2cpp_codegen_type_get_object(type);
 }
 
-inline void il2cpp_codegen_delete_native_type(Il2CppWindowsRuntimeTypeName& nativeType)
-{
-    return il2cpp::vm::WindowsRuntime::DeleteNativeType(nativeType);
-}
+void il2cpp_codegen_delete_native_type(Il2CppWindowsRuntimeTypeName& nativeType);
 
 void il2cpp_codegen_marshal_free(void* ptr);
 
@@ -777,10 +759,7 @@ il2cpp_hresult_t il2cpp_codegen_com_handle_invalid_ipropertyarray_conversion(Run
 
 void il2cpp_codegen_store_exception_info(RuntimeException* ex, String_t* exceptionString);
 
-inline Il2CppIActivationFactory* il2cpp_codegen_windows_runtime_get_activation_factory(const il2cpp::utils::StringView<Il2CppNativeChar>& runtimeClassName)
-{
-    return il2cpp::vm::WindowsRuntime::GetActivationFactory(runtimeClassName);
-}
+Il2CppIActivationFactory* il2cpp_codegen_windows_runtime_get_activation_factory(const il2cpp::utils::StringView<Il2CppNativeChar>& runtimeClassName);
 
 // delegate
 
@@ -831,10 +810,92 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object
     return il2cpp::icalls::mscorlib::System::Runtime::InteropServices::Marshal::GetCCW(object, reinterpret_cast<Il2CppReflectionType*>(type));
 }
 
-std::string il2cpp_codegen_method_get_full_name(const RuntimeMethod* method);
+NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method);
 
-inline NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method)
+#if IL2CPP_TINY
+
+// Add intrinsics used by Tiny.
+
+#include "utils/MemoryUtils.h"
+
+inline Type_t* il2cpp_codegen_get_type(Il2CppObject* obj)
 {
-    std::string methodName = il2cpp_codegen_method_get_full_name(method);
-    il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
+    return reinterpret_cast<Type_t*>(obj->klass);
 }
+
+inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* szArray)
+{
+    return static_cast<int32_t>(szArray->max_length);
+}
+
+inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* genArray, int32_t dimension)
+{
+    return static_cast<int32_t>(genArray->bounds[dimension].length);
+}
+
+inline MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
+{
+    IL2CPP_ASSERT(0 && "Not implemented yet");
+    return NULL;
+}
+
+inline int il2cpp_codegen_get_offset_to_string_data()
+{
+    return offsetof(Il2CppString, chars);
+}
+
+inline String_t* il2cpp_codegen_marshal_ptr_to_string_ansi(intptr_t ptr)
+{
+    return il2cpp_codegen_marshal_string_result(reinterpret_cast<const char*>(ptr));
+}
+
+inline intptr_t il2cpp_codegen_marshal_string_to_co_task_mem_ansi(String_t* ptr)
+{
+    return reinterpret_cast<intptr_t>(il2cpp_codegen_marshal_string(ptr));
+}
+
+inline void il2cpp_codegen_marshal_string_free_co_task_mem(intptr_t ptr)
+{
+    il2cpp_codegen_marshal_free(reinterpret_cast<void*>(ptr));
+}
+
+struct Delegate_t;
+
+inline intptr_t il2cpp_codegen_marshal_get_function_pointer_for_delegate(const Delegate_t* d)
+{
+    IL2CPP_ASSERT(0 && "Not implemented yet");
+    return 0;
+}
+
+inline String_t* il2cpp_codegen_string_new_from_char_array(Il2CppArray* characterArray, size_t startIndex, size_t length)
+{
+    il2cpp_array_size_t arraySize = characterArray->max_length;
+    if (startIndex + length > arraySize || startIndex < 0)
+        il2cpp_codegen_raise_exception(NULL);
+
+    return il2cpp_codegen_string_new_utf16(il2cpp::utils::StringView<Il2CppChar>(reinterpret_cast<Il2CppChar*>(characterArray + 1), startIndex, length));
+}
+
+inline String_t* il2cpp_codegen_string_new_length(int length)
+{
+    return reinterpret_cast<String_t*>(il2cpp::vm::String::NewLen("", length));
+}
+
+inline Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
+{
+    IL2CPP_ASSERT(0 && "Not implemented yet");
+    return NULL;
+}
+
+inline Type_t* il2cpp_codegen_get_type_from_handle(intptr_t handle)
+{
+    return reinterpret_cast<Type_t*>(handle);
+}
+
+inline bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
+{
+    IL2CPP_ASSERT(0 && "Not implemented yet");
+    return false;
+}
+
+#endif

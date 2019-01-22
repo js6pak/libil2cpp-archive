@@ -4,6 +4,7 @@
 #include "os/WindowsRuntime.h"
 #include "utils/Il2CppHStringReference.h"
 #include "utils/StringUtils.h"
+#include "utils/StringViewUtils.h"
 #include "vm/AssemblyName.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -315,7 +316,7 @@ namespace vm
             else
             {
                 elementMetadataTypeName = GetWindowsRuntimeMetadataTypeNameUtf8(elementClass);
-                elementTypeName = utils::StringView<char>(elementMetadataTypeName);
+                elementTypeName = STRING_TO_STRINGVIEW(elementMetadataTypeName);
             }
 
             size_t spaceRequired = IL2CPP_ARRAY_SIZE(kArrayTypePrefixUtf8) + elementTypeName.Length() + 1 /* '>' */ - 1 /* minus null terminator from IL2CPP_ARRAY_SIZE */;
@@ -434,19 +435,19 @@ namespace vm
         if (windowsRuntimeTypeName != NULL)
         {
             Il2CppNativeString typeName = utils::StringUtils::Utf8ToNativeString(windowsRuntimeTypeName);
-            return WindowsRuntime::CreateHString(typeName);
+            return WindowsRuntime::CreateHString(STRING_TO_STRINGVIEW(typeName));
         }
 
         std::string typeNameUtf8 = GetWindowsRuntimeTypeNameFromWinmdReference(klass);
         Il2CppNativeString typeName = utils::StringUtils::Utf8ToNativeString(typeNameUtf8);
-        return WindowsRuntime::CreateHString(typeName);
+        return WindowsRuntime::CreateHString(STRING_TO_STRINGVIEW(typeName));
     }
 
     static Il2CppHString GetWindowsRuntimeCustomTypeName(const Il2CppType* type)
     {
         std::string typeNameUtf8 = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED);
         Il2CppNativeString typeName = utils::StringUtils::Utf8ToNativeString(typeNameUtf8);
-        return WindowsRuntime::CreateHString(typeName);
+        return WindowsRuntime::CreateHString(STRING_TO_STRINGVIEW(typeName));
     }
 
     void WindowsRuntime::MarshalTypeToNative(const Il2CppType* type, Il2CppWindowsRuntimeTypeName& nativeType)
@@ -491,7 +492,7 @@ namespace vm
     static REAL_NORETURN IL2CPP_NO_INLINE void ThrowWindowsRuntimeTypeNotFoundException(utils::StringView<Il2CppNativeChar> typeName)
     {
         std::string typeNameUtf8 = utils::StringUtils::NativeStringToUtf8(typeName.Str(), static_cast<uint32_t>(typeName.Length()));
-        Il2CppException* typeLoadException = Exception::GetTypeLoadExceptionForWindowsRuntimeType(utils::StringView<char>::Empty(), typeNameUtf8);
+        Il2CppException* typeLoadException = Exception::GetTypeLoadExceptionForWindowsRuntimeType(utils::StringView<char>::Empty(), STRING_TO_STRINGVIEW(typeNameUtf8));
         Exception::Raise(typeLoadException);
         IL2CPP_UNREACHABLE;
     }
@@ -724,7 +725,7 @@ namespace vm
 
         // It's not an generic array, or boxed type. Look in Windows Runtime class type map
         const std::string typeNameUtf8 = utils::StringUtils::NativeStringToUtf8(typeName.Str(), static_cast<uint32_t>(typeName.Length()));
-        Il2CppClass* windowsRuntimeClass = MetadataCache::GetWindowsRuntimeClass(typeNameUtf8);
+        Il2CppClass* windowsRuntimeClass = MetadataCache::GetWindowsRuntimeClass(typeNameUtf8.c_str());
         if (windowsRuntimeClass != NULL)
             return windowsRuntimeClass;
 
@@ -792,7 +793,7 @@ namespace vm
             }
             else
             {
-                name = str;
+                name = STRING_TO_STRINGVIEW(str);
             }
 
             // Splitting name and namespace is pretty complicated, and they're going to be mashed up together in

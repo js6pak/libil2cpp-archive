@@ -9,7 +9,6 @@
 #include "il2cpp-tabledefs.h"
 
 #include "vm-utils/Debugger.h"
-#include "utils/StringUtils.h"
 #include "utils/Output.h"
 
 REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
@@ -310,59 +309,57 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
     memset(ptr, value, num);
 }
 
-#if IL2CPP_MONO_DEBUGGER
-extern volatile uint32_t g_Il2CppDebuggerCheckPointEnabled;
-#endif
-
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
 #if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::RegisterSequencePointCheck(&g_Il2CppDebuggerCheckPointEnabled);
     il2cpp::utils::Debugger::RegisterMetadata(data);
 #endif
 }
 
-inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, size_t seqPointId)
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
 {
 #if IL2CPP_MONO_DEBUGGER
-    if (g_Il2CppDebuggerCheckPointEnabled)
-        il2cpp::utils::Debugger::CheckSequencePoint(executionContext, seqPointId);
+    il2cpp::utils::Debugger::CheckSequencePoint(executionContext, seqPoint);
+#endif
+}
+
+inline void il2cpp_codegen_check_sequence_point_entry(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
+{
+#if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::CheckSequencePointEntry(executionContext, seqPoint);
+#endif
+}
+
+inline void il2cpp_codegen_check_sequence_point_exit(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
+{
+#if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::CheckSequencePointExit(executionContext, seqPoint);
 #endif
 }
 
 inline void il2cpp_codegen_check_pause_point()
 {
 #if IL2CPP_MONO_DEBUGGER
-    if (g_Il2CppDebuggerCheckPointEnabled)
-        il2cpp::utils::Debugger::CheckPausePoint();
-#endif
-}
-
-inline Il2CppSequencePoint* il2cpp_codegen_get_sequence_point(size_t id)
-{
-#if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::GetSequencePoint(id);
-#else
-    return NULL;
+    il2cpp::utils::Debugger::CheckPausePoint();
 #endif
 }
 
 class MethodExitSequencePointChecker
 {
 private:
-    size_t m_pSeqPoint;
+    Il2CppSequencePoint* m_seqPoint;
     Il2CppSequencePointExecutionContext* m_seqPointStorage;
 
 public:
-    MethodExitSequencePointChecker(Il2CppSequencePointExecutionContext* seqPointStorage, size_t seqPointId) :
-        m_seqPointStorage(seqPointStorage), m_pSeqPoint(seqPointId)
+    MethodExitSequencePointChecker(Il2CppSequencePointExecutionContext* seqPointStorage, Il2CppSequencePoint* seqPoint) :
+        m_seqPointStorage(seqPointStorage), m_seqPoint(seqPoint)
     {
     }
 
     ~MethodExitSequencePointChecker()
     {
 #if IL2CPP_MONO_DEBUGGER
-        il2cpp_codegen_check_sequence_point(m_seqPointStorage, m_pSeqPoint);
+        il2cpp_codegen_check_sequence_point_exit(m_seqPointStorage, m_seqPoint);
 #endif
     }
 };
