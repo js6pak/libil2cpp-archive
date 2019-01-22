@@ -160,7 +160,7 @@ namespace vm
         if (thread->GetInternalThread()->name)
         {
             std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->GetInternalThread()->name);
-            thread->GetInternalThread()->handle->SetName(utf8Name);
+            thread->GetInternalThread()->handle->SetName(utf8Name.c_str());
         }
 
         // Sync thread apartment state.
@@ -489,6 +489,12 @@ namespace vm
     {
         AUTO_LOCK_THREADS();
         GCTrackedThreadVector::iterator it = std::find(s_AttachedThreads->begin(), s_AttachedThreads->end(), thread);
+
+#if IL2CPP_MONO_DEBUGGER
+        if (it == s_AttachedThreads->end() && thread->internal_thread && il2cpp::utils::Debugger::IsDebuggerThread(thread->internal_thread->handle))
+            return;
+#endif
+
         IL2CPP_ASSERT(it != s_AttachedThreads->end() && "Vm thread not found in list of attached threads.");
         s_AttachedThreads->erase(it);
         set_wbarrier_for_attached_threads();
@@ -526,7 +532,7 @@ namespace vm
         if (thread->GetInternalThread()->handle)
         {
             std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->GetInternalThread()->name);
-            thread->GetInternalThread()->handle->SetName(utf8Name);
+            thread->GetInternalThread()->handle->SetName(utf8Name.c_str());
         }
     }
 
@@ -547,7 +553,7 @@ namespace vm
         if (thread->handle)
         {
             std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->name);
-            thread->handle->SetName(utf8Name);
+            thread->handle->SetName(utf8Name.c_str());
         }
     }
 

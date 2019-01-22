@@ -65,6 +65,18 @@
 #define THISCALL
 #endif
 
+#if defined(__cplusplus)
+#define IL2CPP_EXTERN_C extern "C"
+#define IL2CPP_EXTERN_C_CONST extern "C" const
+#define IL2CPP_EXTERN_C_BEGIN extern "C" {
+#define IL2CPP_EXTERN_C_END }
+#else
+#define IL2CPP_EXTERN_C
+#define IL2CPP_EXTERN_C_CONST extern const
+#define IL2CPP_EXTERN_C_BEGIN
+#define IL2CPP_EXTERN_C_END
+#endif
+
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #define IL2CPP_NO_ALIAS __declspec(noalias)
@@ -293,7 +305,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 #define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
 #define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || UNITY_TINY)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || IL2CPP_TINY)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
@@ -323,26 +335,24 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
 #ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-#if IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 )
-    #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL 1
-#else
-    #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL 0
-#endif
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 ) )
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-#define STORE_SEQ_POINT(storage, seqPointId) do { (storage).currentSequencePoint = seqPointId; } while (0)
-#define CHECK_SEQ_POINT(storage, seqPointId) il2cpp_codegen_check_sequence_point(&(storage), seqPointId)
-#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId) MethodExitSequencePointChecker name(&(storage), seqPointId)
+#define STORE_SEQ_POINT(storage, seqPoint) do { (storage).currentSequencePoint = seqPoint; } while (0)
+#define CHECK_SEQ_POINT(storage, seqPoint) do {  il2cpp_codegen_check_sequence_point(&(storage), seqPoint); } while (0)
+#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint) do { il2cpp_codegen_check_sequence_point_entry(&(storage), seqPoint); } while (0)
+#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPoint) MethodExitSequencePointChecker name(&(storage), seqPoint);
 #define DECLARE_METHOD_THIS(variableName, thisAddress) void* variableName[] = { thisAddress }
 #define DECLARE_METHOD_PARAMS(variableName, ...) void* variableName[] = { __VA_ARGS__ }
 #define DECLARE_METHOD_LOCALS(variableName, ...) void* variableName[] = { __VA_ARGS__ }
 #define DECLARE_METHOD_EXEC_CTX(ctxVariable, method, thisVariable, paramsVariable, localsVariable) Il2CppSequencePointExecutionContext ctxVariable(method, thisVariable, paramsVariable, localsVariable)
 #define CHECK_PAUSE_POINT il2cpp_codegen_check_pause_point()
 #else
-#define STORE_SEQ_POINT(storage, seqPointVar)
-#define CHECK_SEQ_POINT(storage, seqPointVar)
-#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId)
+#define STORE_SEQ_POINT(storage, seqPointChunk, seqPointVar)
+#define CHECK_SEQ_POINT(storage, seqPointChunk, seqPointVar)
+#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPointChunk, seqPointId)
+#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointChunk, seqPointId)
 #define DECLARE_METHOD_THIS(variableName, thisAddress)
 #define DECLARE_METHOD_PARAMS(variableName, ...)
 #define DECLARE_METHOD_LOCALS(variableName, ...)

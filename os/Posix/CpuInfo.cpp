@@ -2,7 +2,7 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 #if IL2CPP_PLATFORM_SUPPORTS_CPU_INFO
 
-#if IL2CPP_TARGET_POSIX && !UNITY_TINY_WITHOUT_DEBUGGER
+#if IL2CPP_TARGET_POSIX && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "os/CpuInfo.h"
 #include <stdlib.h>

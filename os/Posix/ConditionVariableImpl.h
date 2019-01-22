@@ -1,6 +1,6 @@
 #pragma once
 #if NET_4_0
-#if IL2CPP_THREADS_PTHREAD && !UNITY_TINY_WITHOUT_DEBUGGER
+#if IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <pthread.h>
 #include "utils/NonCopyable.h"

@@ -399,9 +399,9 @@ Il2CppClass* il2cpp::vm::MetadataCache::GetPointerType(Il2CppClass* type)
     return i->second;
 }
 
-Il2CppClass* il2cpp::vm::MetadataCache::GetWindowsRuntimeClass(const std::string& fullName)
+Il2CppClass* il2cpp::vm::MetadataCache::GetWindowsRuntimeClass(const char* fullName)
 {
-    WindowsRuntimeTypeNameToClassMap::iterator it = s_WindowsRuntimeTypeNameToClassMap.find(fullName.c_str());
+    WindowsRuntimeTypeNameToClassMap::iterator it = s_WindowsRuntimeTypeNameToClassMap.find(fullName);
     if (it != s_WindowsRuntimeTypeNameToClassMap.end())
         return it->second;
 
@@ -916,10 +916,8 @@ const Il2CppAssembly* il2cpp::vm::MetadataCache::GetAssemblyFromIndex(AssemblyIn
     return s_AssembliesTable + index;
 }
 
-const Il2CppAssembly* il2cpp::vm::MetadataCache::GetAssemblyByName(const std::string& name)
+const Il2CppAssembly* il2cpp::vm::MetadataCache::GetAssemblyByName(const char* nameToFind)
 {
-    const char* nameToFind = name.c_str();
-
     for (int i = 0; i < s_AssembliesCount; i++)
     {
         const Il2CppAssembly* assembly = s_AssembliesTable + i;
