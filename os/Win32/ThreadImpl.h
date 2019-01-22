@@ -23,7 +23,7 @@ namespace os
 
         size_t Id();
         ErrorCode Run(Thread::StartFunc func, void* arg);
-        void SetName(const std::string& name);
+        void SetName(const char* name);
         void SetPriority(ThreadPriority priority);
         ThreadPriority GetPriority();
 
@@ -38,6 +38,8 @@ namespace os
             }
             m_StackSize = newsize;
         }
+
+        static int GetMaxStackSize();
 
         void QueueUserAPC(Thread::APCFunc func, void* context);
 

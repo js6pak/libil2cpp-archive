@@ -78,7 +78,7 @@ namespace vm
         std::string classNameUtf8 = utils::StringUtils::Utf16ToUtf8(classNamePtr, classNameLength);
         os::WindowsRuntime::DeleteHString(className);
 
-        Il2CppClass* rcwClass = MetadataCache::GetWindowsRuntimeClass(classNameUtf8);
+        Il2CppClass* rcwClass = MetadataCache::GetWindowsRuntimeClass(classNameUtf8.c_str());
         return rcwClass != NULL ? rcwClass : fallbackClass;
     }
 

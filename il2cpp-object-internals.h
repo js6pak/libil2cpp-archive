@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "il2cpp-class-internals.h"
-#include "il2cpp-string-types.h"
 #include "il2cpp-windowsruntime-types.h"
 
 #if defined(__cplusplus)

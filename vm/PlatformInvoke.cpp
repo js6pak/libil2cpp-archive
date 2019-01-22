@@ -44,9 +44,9 @@ namespace vm
 
         void* dynamicLibrary = NULL;
         if (utils::VmStringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
-            dynamicLibrary = LibraryLoader::LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
+            dynamicLibrary = LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
         else
-            dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
+            dynamicLibrary = LibraryLoader::LoadDynamicLibrary(pinvokeArgs.moduleName);
 
         if (dynamicLibrary == NULL)
         {

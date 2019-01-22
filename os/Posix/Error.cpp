@@ -134,7 +134,7 @@ namespace os
 
         switch (code)
         {
-#if !UNITY_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
             case EACCES: case EPERM: case EROFS:
                 ret = kErrorCodeAccessDenied;
                 break;
