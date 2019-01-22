@@ -541,8 +541,8 @@ SUITE(Directory)
         returnErrorCode = UnityPalDirectoryFindFirstFile(testFind, TEST_PATTERN, &resultFileName, &resultAttributes);
         UnityPalDirectoryCloseOSHandle(testFind);
         Il2CppNativeString pattern(il2cpp::utils::StringUtils::Utf8ToNativeString(TEST_PATTERN));
-        il2cpp::os::Directory::FindHandle classFindHandle(pattern);
-        il2cpp::os::Directory::FindFirstFile(&classFindHandle, pattern, &classFileName, &resultAttributes);
+        il2cpp::os::Directory::FindHandle classFindHandle(STRING_TO_STRINGVIEW(pattern));
+        il2cpp::os::Directory::FindFirstFile(&classFindHandle, STRING_TO_STRINGVIEW(pattern), &classFileName, &resultAttributes);
         classFindHandle.CloseOSHandle();
         CHECK_EQUAL(il2cpp::utils::StringUtils::NativeStringToUtf8(classFileName).c_str(), resultFileName);
     }
@@ -553,8 +553,8 @@ SUITE(Directory)
         returnErrorCode = UnityPalDirectoryFindFirstFile(testFind, TEST_PATTERN, &resultFileName, &resultAttributes);
         UnityPalDirectoryCloseOSHandle(testFind);
         Il2CppNativeString pattern(il2cpp::utils::StringUtils::Utf8ToNativeString(TEST_PATTERN));
-        il2cpp::os::Directory::FindHandle classFindHandle(pattern);
-        il2cpp::os::Directory::FindFirstFile(&classFindHandle, pattern, &classFileName, &compareResultAttributes);
+        il2cpp::os::Directory::FindHandle classFindHandle(STRING_TO_STRINGVIEW(pattern));
+        il2cpp::os::Directory::FindFirstFile(&classFindHandle, STRING_TO_STRINGVIEW(pattern), &classFileName, &compareResultAttributes);
         classFindHandle.CloseOSHandle();
         CHECK_EQUAL(compareResultAttributes, resultAttributes);
     }
@@ -565,8 +565,8 @@ SUITE(Directory)
         returnErrorCode = UnityPalDirectoryFindFirstFile(testFind, TEST_PATTERN, &resultFileName, &resultAttributes);
         UnityPalDirectoryCloseOSHandle(testFind);
         Il2CppNativeString pattern(il2cpp::utils::StringUtils::Utf8ToNativeString(TEST_PATTERN));
-        il2cpp::os::Directory::FindHandle classFindHandle(pattern);
-        compareReturnErrorCode = il2cpp::os::Directory::FindFirstFile(&classFindHandle, pattern, &classFileName, &compareResultAttributes);
+        il2cpp::os::Directory::FindHandle classFindHandle(STRING_TO_STRINGVIEW(pattern));
+        compareReturnErrorCode = il2cpp::os::Directory::FindFirstFile(&classFindHandle, STRING_TO_STRINGVIEW(pattern), &classFileName, &compareResultAttributes);
         classFindHandle.CloseOSHandle();
         CHECK_EQUAL(compareReturnErrorCode, returnErrorCode);
     }
@@ -578,8 +578,8 @@ SUITE(Directory)
         UnityPalDirectoryFindNextFile(testFind, &nextResultFileName, &resultAttributes);
         UnityPalDirectoryCloseOSHandle(testFind);
         Il2CppNativeString pattern(il2cpp::utils::StringUtils::Utf8ToNativeString(TEST_PATTERN));
-        il2cpp::os::Directory::FindHandle classFindHandle(pattern);
-        il2cpp::os::Directory::FindFirstFile(&classFindHandle, pattern, &classFileName, &compareResultAttributes);
+        il2cpp::os::Directory::FindHandle classFindHandle(STRING_TO_STRINGVIEW(pattern));
+        il2cpp::os::Directory::FindFirstFile(&classFindHandle, STRING_TO_STRINGVIEW(pattern), &classFileName, &compareResultAttributes);
         il2cpp::os::Directory::FindNextFile(&classFindHandle, &classFileName, &compareResultAttributes);
         classFindHandle.CloseOSHandle();
         CHECK_EQUAL(il2cpp::utils::StringUtils::NativeStringToUtf8(classFileName).c_str(), nextResultFileName);

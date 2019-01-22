@@ -2,7 +2,9 @@
 
 #include "gc/GCHandle.h"
 #include "vm/ComObjectBase.h"
+#include "vm/Exception.h"
 #include "utils/TemplateUtils.h"
+#include "utils/Memory.h"
 
 namespace il2cpp
 {

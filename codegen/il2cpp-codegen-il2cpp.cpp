@@ -1,5 +1,7 @@
 #if !RUNTIME_MONO
 
+#include <string>
+
 #include "il2cpp-config.h"
 #include "il2cpp-codegen.h"
 
@@ -26,6 +28,8 @@
 #include "vm/Type.h"
 #include "vm/Class.h"
 #include "vm/PlatformInvoke.h"
+#include "vm/WindowsRuntime.h"
+#include "vm/StackTrace.h"
 
 void il2cpp_codegen_marshal_store_last_error()
 {
@@ -130,9 +134,10 @@ bool MethodHasParameters(const RuntimeMethod* method)
     return il2cpp::vm::Method::GetParamCount(method) != 0;
 }
 
-std::string il2cpp_codegen_method_get_full_name(const RuntimeMethod* method)
+NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method)
 {
-    return il2cpp::vm::Method::GetFullName(method);
+    std::string methodName = il2cpp::vm::Method::GetFullName(method);
+    il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
 }
 
 const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod)
@@ -423,14 +428,11 @@ RuntimeString* il2cpp_codegen_type_append_assembly_name_if_necessary(RuntimeStri
     return il2cpp::vm::Type::AppendAssemblyNameIfNecessary(typeName, assemblyName);
 }
 
-std::string il2cpp_codegen_format_invalid_cast_exception(const RuntimeClass* fromType, const RuntimeClass* toType)
+NORETURN void RaiseInvalidCastException(RuntimeObject* obj, RuntimeClass* targetType)
 {
-    return il2cpp::utils::Exception::FormatInvalidCastException(fromType, toType);
-}
-
-std::string il2cpp_codegen_format_exception(const RuntimeException* ex)
-{
-    return il2cpp::utils::Exception::FormatException(ex);
+    std::string exceptionMessage = il2cpp::utils::Exception::FormatInvalidCastException(obj->klass->element_class, targetType);
+    Exception_t* exception = il2cpp_codegen_get_invalid_cast_exception(exceptionMessage.c_str());
+    il2cpp_codegen_raise_exception(exception);
 }
 
 bool il2cpp_codegen_method_is_interface_method(RuntimeMethod* method)
@@ -546,6 +548,51 @@ Il2CppDelegate* il2cpp_codegen_marshal_function_ptr_to_delegate_internal(void* f
 Il2CppMethodPointer il2cpp_codegen_resolve(const PInvokeArguments& pinvokeArgs)
 {
     return il2cpp::vm::PlatformInvoke::Resolve(pinvokeArgs);
+}
+
+Il2CppHString il2cpp_codegen_create_hstring(String_t* str)
+{
+    return il2cpp::vm::WindowsRuntime::CreateHString(reinterpret_cast<RuntimeString*>(str));
+}
+
+String_t* il2cpp_codegen_marshal_hstring_result(Il2CppHString hstring)
+{
+    return reinterpret_cast<String_t*>(il2cpp::vm::WindowsRuntime::HStringToManagedString(hstring));
+}
+
+void il2cpp_codegen_marshal_free_hstring(Il2CppHString hstring)
+{
+    il2cpp::vm::WindowsRuntime::DeleteHString(hstring);
+}
+
+void il2cpp_codegen_marshal_type_to_native(Type_t* type, Il2CppWindowsRuntimeTypeName& nativeType)
+{
+    return il2cpp::vm::WindowsRuntime::MarshalTypeToNative(type != NULL ? reinterpret_cast<Il2CppReflectionType*>(type)->type : NULL, nativeType);
+}
+
+const Il2CppType* il2cpp_codegen_marshal_type_from_native_internal(Il2CppWindowsRuntimeTypeName& nativeType)
+{
+    return il2cpp::vm::WindowsRuntime::MarshalTypeFromNative(nativeType);
+}
+
+void il2cpp_codegen_delete_native_type(Il2CppWindowsRuntimeTypeName& nativeType)
+{
+    return il2cpp::vm::WindowsRuntime::DeleteNativeType(nativeType);
+}
+
+Il2CppIActivationFactory* il2cpp_codegen_windows_runtime_get_activation_factory(const il2cpp::utils::StringView<Il2CppNativeChar>& runtimeClassName)
+{
+    return il2cpp::vm::WindowsRuntime::GetActivationFactory(runtimeClassName);
+}
+
+void il2cpp_codegen_stacktrace_push_frame(Il2CppStackFrameInfo& frame)
+{
+    il2cpp::vm::StackTrace::PushFrame(frame);
+}
+
+void il2cpp_codegen_stacktrace_pop_frame()
+{
+    il2cpp::vm::StackTrace::PopFrame();
 }
 
 #endif

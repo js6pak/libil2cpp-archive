@@ -339,7 +339,7 @@ namespace Reflection
         std::string utf8Path = utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(assemblyFile));
         std::string fileName = utils::PathUtils::BasenameNoExtension(utf8Path);
 
-        const Il2CppAssembly* foundAssembly = vm::MetadataCache::GetAssemblyByName(fileName);
+        const Il2CppAssembly* foundAssembly = vm::MetadataCache::GetAssemblyByName(fileName.c_str());
 
         if (!foundAssembly)
         {

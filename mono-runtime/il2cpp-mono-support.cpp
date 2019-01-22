@@ -23,14 +23,14 @@
 #include "os/Mutex.h"
 
 extern const Il2CppCodeRegistration g_CodeRegistration IL2CPP_ATTRIBUTE_WEAK;
-extern const Il2CppMethodSpec g_Il2CppMethodSpecTable[] IL2CPP_ATTRIBUTE_WEAK;
+extern "C" const Il2CppMethodSpec g_Il2CppMethodSpecTable[] IL2CPP_ATTRIBUTE_WEAK;
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
 
 // Mono-specific metadata emitted by IL2CPP
-extern void** const g_MetadataUsages[] IL2CPP_ATTRIBUTE_WEAK;
-extern const MonoGenericInstMetadata* const g_MonoGenericInstMetadataTable[] IL2CPP_ATTRIBUTE_WEAK;
-extern const Il2CppCodeGenOptions s_Il2CppCodeGenOptions IL2CPP_ATTRIBUTE_WEAK;
+extern "C" void** const g_MetadataUsages[] IL2CPP_ATTRIBUTE_WEAK;
+extern "C" const MonoGenericInstMetadata* const g_MonoGenericInstMetadataTable[] IL2CPP_ATTRIBUTE_WEAK;
+extern "C" const Il2CppCodeGenOptions s_Il2CppCodeGenOptions IL2CPP_ATTRIBUTE_WEAK;
 
 extern const int g_Il2CppInteropDataCount IL2CPP_ATTRIBUTE_WEAK;
 extern Il2CppInteropData g_Il2CppInteropData[] IL2CPP_ATTRIBUTE_WEAK;

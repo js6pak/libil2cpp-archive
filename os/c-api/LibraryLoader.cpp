@@ -1,17 +1,18 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 
-#if !UNITY_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "os/c-api/LibraryLoader-c-api.h"
 #include "os/LibraryLoader.h"
 #include "utils/StringUtils.h"
+#include "utils/StringViewUtils.h"
 
 extern "C"
 {
     void* UnityPalLibraryLoaderLoadDynamicLibrary(const char* nativeDynamicLibrary, int flags)
     {
         Il2CppNativeString libName(il2cpp::utils::StringUtils::Utf8ToNativeString(nativeDynamicLibrary));
-        return il2cpp::os::LibraryLoader::LoadDynamicLibrary(libName, flags);
+        return il2cpp::os::LibraryLoader::LoadDynamicLibrary(STRING_TO_STRINGVIEW(libName), flags);
     }
 
     void UnityPalLibraryLoaderCleanupLoadedLibraries()

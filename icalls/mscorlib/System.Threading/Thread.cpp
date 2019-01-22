@@ -537,8 +537,7 @@ namespace Threading
 
     int32_t Thread::SystemMaxStackStize()
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::SystemMaxStackStize);
-        IL2CPP_UNREACHABLE;
+        return il2cpp::os::Thread::GetMaxStackSize();
     }
 
     Il2CppString* Thread::GetName_internal40(Il2CppInternalThread* thread)
@@ -627,7 +626,7 @@ namespace Threading
         if (thread->handle)
         {
             std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->name);
-            thread->handle->SetName(utf8Name);
+            thread->handle->SetName(utf8Name.c_str());
         }
     }
 

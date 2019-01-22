@@ -43,7 +43,7 @@ typedef MonoMethod VmMethod;
     #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
     #define IL2CPP_VM_PROFILE_FILEIO(kind, count) NULL
-#elif UNITY_TINY
+#elif IL2CPP_TINY_WITHOUT_DEBUGGER
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")

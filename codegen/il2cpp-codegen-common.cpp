@@ -16,10 +16,6 @@ REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return()
     IL2CPP_UNREACHABLE;
 }
 
-#if IL2CPP_MONO_DEBUGGER
-volatile uint32_t g_Il2CppDebuggerCheckPointEnabled;
-#endif
-
 REAL_NORETURN void il2cpp_codegen_abort()
 {
     il2cpp::utils::Runtime::Abort();

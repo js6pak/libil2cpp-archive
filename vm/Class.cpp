@@ -196,7 +196,9 @@ namespace vm
         }
         else if (klass->rank > 0)
         {
+#if !IL2CPP_TINY
             il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
+#endif
         }
         else
         {
@@ -347,6 +349,9 @@ namespace vm
         if (!klass->has_finalize)
             return NULL;
 
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "System.Object does not have a finalizer in the Tiny mscorlib, so we don't have a finalizer slot.");
+#endif
         return klass->vtable[s_FinalizerSlot].method;
     }
 
@@ -1430,8 +1435,10 @@ namespace vm
                 else if (!strcmp(vmethod->name, "Finalize"))
                     s_FinalizerSlot = slot;
             }
+#if !IL2CPP_TINY
             IL2CPP_ASSERT(s_FinalizerSlot > 0);
             IL2CPP_ASSERT(s_GetHashCodeSlot > 0);
+#endif
         }
 
         if (!Class::IsGeneric(klass))

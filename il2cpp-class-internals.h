@@ -6,6 +6,8 @@
 #include "il2cpp-metadata.h"
 #include "il2cpp-pinvoke-support.h"
 
+#define THREAD_LOCAL_STATIC_MASK (int32_t)0x80000000
+
 #define IL2CPP_CLASS_IS_ARRAY(c) ((c)->rank)
 
 typedef struct Il2CppClass Il2CppClass;
@@ -19,10 +21,14 @@ typedef struct Il2CppNameToTypeDefinitionIndexHashTable Il2CppNameToTypeDefiniti
 typedef struct Il2CppCodeGenModule Il2CppCodeGenModule;
 
 #if RUNTIME_MONO
+#if defined(__cplusplus)
 extern "C"
 {
+#endif // __cplusplus
 #include <mono/metadata/metadata.h>
+#if defined(__cplusplus)
 }
+#endif // __cplusplus
 #endif
 
 typedef struct VirtualInvokeData
@@ -281,7 +287,6 @@ typedef struct Il2CppMethodExecutionContextInfo
 
 typedef struct Il2CppMethodExecutionContextInfoIndex
 {
-    int8_t tableIndex;
     int32_t startIndex;
     int32_t count;
 } Il2CppMethodExecutionContextInfoIndex;
@@ -298,12 +303,6 @@ typedef struct Il2CppMethodHeaderInfo
     int32_t startScope;
     int32_t numScopes;
 } Il2CppMethodHeaderInfo;
-
-typedef struct Il2CppSequencePointIndex
-{
-    uint8_t tableIndex;
-    int32_t index;
-} Il2CppSequencePointIndex;
 
 typedef struct Il2CppSequencePointSourceFile
 {
@@ -333,14 +332,13 @@ typedef struct Il2CppSequencePoint
 
 typedef struct Il2CppDebuggerMetadataRegistration
 {
-    Il2CppMethodExecutionContextInfo** methodExecutionContextInfos;
+    Il2CppMethodExecutionContextInfo* methodExecutionContextInfos;
     Il2CppMethodExecutionContextInfoIndex* methodExecutionContextInfoIndexes;
     Il2CppMethodScope* methodScopes;
     Il2CppMethodHeaderInfo* methodHeaderInfos;
     Il2CppSequencePointSourceFile* sequencePointSourceFiles;
     int32_t numSequencePoints;
-    Il2CppSequencePointIndex* sequencePointIndexes;
-    Il2CppSequencePoint** sequencePoints;
+    Il2CppSequencePoint* sequencePoints;
     int32_t numTypeSourceFileEntries;
     Il2CppTypeSourceFilePair* typeSourceFiles;
     const char** methodExecutionContextInfoStrings;
@@ -605,6 +603,7 @@ typedef struct Il2CppCodeGenModule
 #else
     const Il2CppRGCTXDefinition* rgctxs;
 #endif
+    const Il2CppDebuggerMetadataRegistration *debuggerMetadata;
 } Il2CppCodeGenModule;
 
 typedef struct Il2CppCodeRegistration

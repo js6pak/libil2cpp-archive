@@ -44,7 +44,7 @@ namespace os
         return m_ThreadId;
     }
 
-    void ThreadImpl::SetName(const std::string& name)
+    void ThreadImpl::SetName(const char* name)
     {
         // http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 
@@ -62,7 +62,7 @@ namespace os
 
         THREADNAME_INFO info;
         info.dwType = 0x1000;
-        info.szName = name.c_str();
+        info.szName = name;
         info.dwThreadID = static_cast<DWORD>(Id());
         info.dwFlags = 0;
 
@@ -143,6 +143,11 @@ namespace os
     void ThreadImpl::QueueUserAPC(Thread::APCFunc func, void* context)
     {
         ::QueueUserAPC(reinterpret_cast<PAPCFUNC>(func), m_ThreadHandle, reinterpret_cast<ULONG_PTR>(context));
+    }
+
+    int ThreadImpl::GetMaxStackSize()
+    {
+        return INT_MAX;
     }
 
 namespace

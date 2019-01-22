@@ -452,7 +452,9 @@ namespace metadata
         IL2CPP_ASSERT(klass->element_class->initialized);
 
         SetupCastClass(klass);
+#if !IL2CPP_TINY
         SetupArrayVTableAndInterfaceOffsets(klass);
+#endif
         SetupArrayMethods(klass);
     }
 
@@ -526,10 +528,16 @@ namespace metadata
         if (rank <= 1 && !bounded)
             CollectImplicitArrayInterfacesFromElementClass(elementClass, interfaces);
 
+#if IL2CPP_TINY
+        size_t slots = arrayClass->vtable_count;
+#else
         size_t slots = arrayClass->vtable_count + interfaces.size() * (il2cpp_defaults.generic_ilist_class->method_count + il2cpp_defaults.generic_icollection_class->method_count + il2cpp_defaults.generic_ienumerable_class->method_count);
+#endif
 
+#if !IL2CPP_TINY
 #if NET_4_0
         slots += interfaces.size() * (il2cpp_defaults.generic_ireadonlylist_class->method_count + il2cpp_defaults.generic_ireadonlycollection_class->method_count);
+#endif
 #endif
 
         Il2CppClass* klass = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass) + (slots * sizeof(VirtualInvokeData)));
