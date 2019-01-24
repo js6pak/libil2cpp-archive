@@ -538,8 +538,7 @@ namespace Threading
 
     int32_t Thread::SystemMaxStackStize()
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::SystemMaxStackStize);
-        IL2CPP_UNREACHABLE;
+        return il2cpp::os::Thread::GetMaxStackSize();
     }
 
     Il2CppString* Thread::GetName_internal40(Il2CppInternalThread* thread)
