@@ -554,6 +554,51 @@ namespace os
             return kWaitStatusFailure;
         }
 
+        // if (fd >= _wapi_fd_reserve)
+        // {
+        //  WSASetLastError (WSASYSCALLFAILURE);
+        //  closesocket (fd);
+
+        //  return(INVALID_SOCKET);
+        // }
+
+        /* .net seems to set this by default for SOCK_STREAM, not for
+         * SOCK_DGRAM (see bug #36322)
+         *
+         * It seems winsock has a rather different idea of what
+         * SO_REUSEADDR means.  If it's set, then a new socket can be
+         * bound over an existing listening socket.  There's a new
+         * windows-specific option called SO_EXCLUSIVEADDRUSE but
+         * using that means the socket MUST be closed properly, or a
+         * denial of service can occur.  Luckily for us, winsock
+         * behaves as though any other system would when SO_REUSEADDR
+         * is true, so we don't need to do anything else here.  See
+         * bug 53992.
+         */
+        {
+            int32_t v = 1;
+            const int32_t ret = setsockopt((SOCKET)_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(v));
+
+            if (ret == -1)
+            {
+                if (closesocket((SOCKET)_fd) == -1)
+                    StoreLastError();
+
+                return kWaitStatusFailure;
+            }
+        }
+
+        // mono_once (&socket_ops_once, socket_ops_init);
+
+        // handle = _wapi_handle_new_fd (WAPI_HANDLE_SOCKET, fd, &socket_handle);
+        // if (handle == _WAPI_HANDLE_INVALID) {
+        //  g_warning ("%s: error creating socket handle", __func__);
+        //  WSASetLastError (WSASYSCALLFAILURE);
+        //  closesocket (fd);
+
+        //  return(INVALID_SOCKET);
+        // }
+
         _is_valid = true;
 
         return kWaitStatusSuccess;
@@ -679,53 +724,9 @@ namespace os
 
 #endif
 
-    static AddressFamily convert_define_to_address_family(int32_t family)
-    {
-        switch (family)
-        {
-            case AF_UNSPEC:
-                return kAddressFamilyUnspecified;
-
-            case AF_UNIX:
-                return kAddressFamilyUnix;
-
-            case AF_INET:
-                return kAddressFamilyInterNetwork;
-#ifdef AF_IPX
-            case AF_IPX:
-                return kAddressFamilyIpx;
-#endif
-#ifdef AF_SNA
-            case AF_SNA:
-                return kAddressFamilySna;
-#endif
-#ifdef AF_DECnet
-            case AF_DECnet:
-                return kAddressFamilyDecNet;
-#endif
-#ifdef AF_APPLETALK
-            case AF_APPLETALK:
-                return kAddressFamilyAppleTalk;
-#endif
-#ifdef AF_INET6
-            case AF_INET6:
-                return kAddressFamilyInterNetworkV6;
-#endif
-#ifdef AF_IRDA
-            case AF_IRDA:
-                return kAddressFamilyIrda;
-#endif
-
-            default:
-                break;
-        }
-
-        return kAddressFamilyError;
-    }
-
     static bool socketaddr_to_endpoint_info(const struct sockaddr *address, socklen_t address_len, EndPointInfo &info)
     {
-        info.family = convert_define_to_address_family(address->sa_family);
+        info.family = (os::AddressFamily)address->sa_family;
 
         if (info.family == os::kAddressFamilyInterNetwork)
         {
@@ -745,28 +746,6 @@ namespace os
 
         //  return true;
         //}
-
-#if IL2CPP_SUPPORT_IPV6
-        if (info.family == os::kAddressFamilyInterNetworkV6)
-        {
-            const struct sockaddr_in6 *address_in = (const struct sockaddr_in6 *)address;
-
-            uint16_t port = ntohs(address_in->sin6_port);
-
-            info.data.raw[2] = (port >> 8) & 0xff;
-            info.data.raw[3] = port & 0xff;
-
-            for (int i = 0; i < 16; i++)
-                info.data.raw[i + 8] = address_in->sin6_addr.s6_addr[i];
-
-            info.data.raw[24] = address_in->sin6_scope_id & 0xff;
-            info.data.raw[25] = (address_in->sin6_scope_id >> 8) & 0xff;
-            info.data.raw[26] = (address_in->sin6_scope_id >> 16) & 0xff;
-            info.data.raw[27] = (address_in->sin6_scope_id >> 24) & 0xff;
-
-            return true;
-        }
-#endif
 
         return false;
     }

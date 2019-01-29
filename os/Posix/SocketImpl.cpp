@@ -916,21 +916,15 @@ namespace os
     }
 
 #if SUPPORT_UNIXSOCKETS
-    static struct sockaddr* sockaddr_from_path(const char *path, socklen_t *sa_size)
+    static void sockaddr_from_path(const char *path, struct sockaddr *sa, socklen_t *sa_size)
     {
-        struct sockaddr_un* sa_un;
+        struct sockaddr_un sa_un = {0};
         const size_t len = strlen(path);
 
-        if (len >= sizeof(sa_un->sun_path))
-            return NULL;
+        memcpy(sa_un.sun_path, path, len);
 
-        sa_un = (struct sockaddr_un*)IL2CPP_CALLOC(1, sizeof(sockaddr_un));
-
-        sa_un->sun_family = AF_UNIX;
-        memcpy(sa_un->sun_path, path, len);
-
-        *sa_size = sizeof(sockaddr_un);
-        return (struct sockaddr *)sa_un;
+        *sa_size = (socklen_t)len;
+        *sa = *((struct sockaddr*)&sa_un);
     }
 
 #endif
@@ -1010,15 +1004,12 @@ namespace os
     WaitStatus SocketImpl::Bind(const char *path)
     {
 #if SUPPORT_UNIXSOCKETS
+        struct sockaddr sa = {0};
         socklen_t sa_size = 0;
 
-        struct sockaddr* sa = sockaddr_from_path(path, &sa_size);
+        sockaddr_from_path(path, &sa, &sa_size);
 
-        int result = bind(_fd, sa, sa_size);
-
-        IL2CPP_FREE(sa);
-
-        if (result == -1)
+        if (bind(_fd, &sa, sa_size) == -1)
         {
             StoreLastError();
             return kWaitStatusFailure;
@@ -1134,15 +1125,12 @@ namespace os
     WaitStatus SocketImpl::Connect(const char *path)
     {
 #if SUPPORT_UNIXSOCKETS
+        struct sockaddr sa = {0};
         socklen_t sa_size = 0;
 
-        struct sockaddr* sa = sockaddr_from_path(path, &sa_size);
+        sockaddr_from_path(path, &sa, &sa_size);
 
-        WaitStatus status = ConnectInternal(sa, sa_size);
-
-        IL2CPP_FREE(sa);
-
-        return status;
+        return ConnectInternal((struct sockaddr *)&sa, sa_size);
 #else
         return kWaitStatusFailure;
 #endif
@@ -1557,15 +1545,12 @@ namespace os
 #if SUPPORT_UNIXSOCKETS
         *len = 0;
 
+        struct sockaddr sa = {0};
         socklen_t sa_size = 0;
 
-        struct sockaddr* sa = sockaddr_from_path(path, &sa_size);
+        sockaddr_from_path(path, &sa, &sa_size);
 
-        WaitStatus status = SendToInternal(sa, sa_size, data, count, flags, len);
-
-        IL2CPP_FREE(sa);
-
-        return status;
+        return SendToInternal(&sa, sa_size, data, count, flags, len);
 #else
         return kWaitStatusFailure;
 #endif
@@ -1629,43 +1614,37 @@ namespace os
 #if SUPPORT_UNIXSOCKETS
         *len = 0;
 
+        struct sockaddr sa = {0};
         socklen_t sa_size = 0;
 
-        struct sockaddr* sa = sockaddr_from_path(path, &sa_size);
+        sockaddr_from_path(path, &sa, &sa_size);
 
         const int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
         {
             _saved_error = kWSAeopnotsupp;
-            IL2CPP_FREE(sa);
             return kWaitStatusFailure;
         }
 
-        const WaitStatus status = ReceiveFromInternal(data, count, c_flags, len, sa, (int32_t*)&sa_size);
+        const WaitStatus status = ReceiveFromInternal(data, count, c_flags, len, &sa, (int32_t*)&sa_size);
 
         if (status != kWaitStatusSuccess)
         {
             ep.family = os::kAddressFamilyError;
-            IL2CPP_FREE(sa);
             return kWaitStatusFailure;
         }
 
         if (sa_size == 0)
-        {
-            IL2CPP_FREE(sa);
             return kWaitStatusSuccess;
-        }
 
-        if (!socketaddr_to_endpoint_info(sa, sa_size, ep))
+        if (!socketaddr_to_endpoint_info(&sa, sa_size, ep))
         {
             ep.family = os::kAddressFamilyError;
             _saved_error = kWSAeafnosupport;
-            IL2CPP_FREE(sa);
             return kWaitStatusFailure;
         }
 
-        IL2CPP_FREE(sa);
         return kWaitStatusSuccess;
 #else
         return kWaitStatusFailure;

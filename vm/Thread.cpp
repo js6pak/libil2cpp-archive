@@ -699,13 +699,7 @@ namespace vm
                 }
                 catch (Il2CppExceptionWrapper& ex)
                 {
-                    // Only deal with the unhandled exception if the runtime is not
-                    // shutting down. Otherwise, the code to process the unhandled
-                    // exception might fail in unexpected ways, because it needs
-                    // the full runtime available. We've seen this cause crashes
-                    // that are difficult to reproduce locally.
-                    if (!il2cpp::vm::Runtime::IsShuttingDown())
-                        Runtime::UnhandledException(ex.ex);
+                    Runtime::UnhandledException(ex.ex);
                 }
             }
             catch (il2cpp::vm::Thread::NativeThreadAbortException)
@@ -816,8 +810,13 @@ namespace vm
         if (!(state & kThreadStateAbortRequested))
             return;
 
-        // Mark the current thread as being unblocked.
+#if !NET_4_0
+        // Mark the current thread as being unblocked, but not for NET_4_0. The newer
+        // class libraries check the thread state from managed code, so we need to leave
+        // the thread in the abort requested state. The ResetAbort function should clear
+        // this when it is called from the class library code.
         il2cpp::vm::Thread::ClrState(currentThread, kThreadStateAbortRequested);
+#endif
 
         // Throw interrupt exception.
         Il2CppException* abortException = il2cpp::vm::Exception::GetThreadAbortException();

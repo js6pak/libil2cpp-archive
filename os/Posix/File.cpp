@@ -1040,7 +1040,7 @@ namespace os
         if ((handle->accessMode & kFileAccessWrite) == 0)
         {
             *error = kErrorCodeAccessDenied;
-            return -1;
+            return 0;
         }
 
         int ret;
@@ -1054,7 +1054,7 @@ namespace os
         if (ret == -1)
         {
             *error = FileErrnoToErrorCode(errno);
-            return -1;
+            return 0;
         }
 
 #if IL2CPP_ENABLE_PROFILER

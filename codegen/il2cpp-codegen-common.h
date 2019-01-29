@@ -9,7 +9,6 @@
 #include "il2cpp-tabledefs.h"
 
 #include "vm-utils/Debugger.h"
-#include "utils/LeaveTargetStack.h"
 #include "utils/Output.h"
 
 REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
@@ -111,7 +110,7 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 
 // Exception support macros
 #define IL2CPP_LEAVE(Offset, Target) \
-    __leave_targets.push(Offset); \
+    __leave_target = Offset; \
     goto Target;
 
 #define IL2CPP_END_FINALLY(Id) \
@@ -128,13 +127,13 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
         }
 
 #define IL2CPP_JUMP_TBL(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) { \
-        __leave_targets.pop(); \
+    if(__leave_target == Offset) { \
+        __leave_target = 0; \
         goto Target; \
         }
 
 #define IL2CPP_END_CLEANUP(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) \
+    if(__leave_target == Offset) \
         goto Target;
 
 
