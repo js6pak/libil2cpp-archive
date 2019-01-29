@@ -780,7 +780,10 @@ namespace vm
         pa[1] = CreateUnhandledExceptionEventArgs(exc);
         DelegateInvoke(delegate, pa, &e);
 
-        IL2CPP_ASSERT(!e);
+        // A managed exception occurred during the unhandled exception handler.
+        // We can't do much else here other than try to abort the process.
+        if (e != NULL)
+            utils::Runtime::Abort();
     }
 
     static il2cpp::os::FastMutex s_TypeInitializationLock;

@@ -197,8 +197,7 @@ namespace vm
         else if (klass->rank > 0)
         {
 #if !IL2CPP_TINY
-            if (klass->implementedInterfaces == NULL)
-                il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
+            il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
 #endif
         }
         else
@@ -903,8 +902,6 @@ namespace vm
             il2cpp::metadata::FieldLayout::FieldLayoutData threadStaticLayoutData;
 
             il2cpp::metadata::FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, klass->packingSize, fieldTypes, layoutData);
-
-            klass->naturalAligment = layoutData.naturalAlignment;
 
             instanceSize = layoutData.classSize;
 

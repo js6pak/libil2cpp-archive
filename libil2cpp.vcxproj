@@ -1413,7 +1413,6 @@
     <ClInclude Include="..\external\zlib\zlib.h" />
     <ClInclude Include="..\external\zlib\zutil.h" />
     <ClInclude Include="os\WindowsRuntime.h" />
-    <ClInclude Include="os\WinRT\BrokeredFileSystem.h" />
     <ClInclude Include="os\WinRT\SynchronousOperation.h" />
     <ClInclude Include="os\WinRT\Win32ApiSharedEmulation.h" />
     <ClInclude Include="os\WinRT\Win32ApiWinRTEmulation.h" />
@@ -1513,7 +1512,6 @@
     <ClCompile Include="class-internals.cpp" />
     <ClCompile Include="codegen\il2cpp-codegen-common.cpp" />
     <ClCompile Include="..\external\xamarin-android\xamarin_getifaddrs.c" />
-    <ClCompile Include="codegen\il2cpp-codegen-il2cpp.cpp" />
     <ClCompile Include="gc\GarbageCollector.cpp" />
     <ClCompile Include="gc\WriteBarrier.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Globalization.Unicode\Normalization.cpp" />
@@ -1725,7 +1723,7 @@
     <ClCompile Include="os\Generic\Initialize.cpp" />
     <ClCompile Include="os\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Generic\MemoryMappedFile.cpp" />
-    <ClCompile Include="os\Generic\Process.cpp" />
+    <ClCompile Include="os\Generic\Process.cpp"/>
     <ClCompile Include="os\Generic\SocketBridge.cpp" />
     <ClCompile Include="os\Generic\SocketImpl.cpp" />
     <ClCompile Include="os\Generic\TimeZoneInfo.cpp" />
@@ -1817,7 +1815,6 @@
     <ClCompile Include="..\external\zlib\uncompr.c" />
     <ClCompile Include="..\external\zlib\zutil.c" />
     <ClCompile Include="os\Win32\WindowsRuntime.cpp" />
-    <ClCompile Include="os\WinRT\BrokeredFileSystem.cpp" />
     <ClCompile Include="os\WinRT\Cryptography.cpp" />
     <ClCompile Include="os\WinRT\Environment.cpp" />
     <ClCompile Include="os\WinRT\File.cpp" />

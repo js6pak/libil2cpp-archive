@@ -139,7 +139,7 @@ namespace vm
         nativeName->name = il2cpp::utils::StringUtils::StringDuplicate(aname.name);
         nativeName->culture = il2cpp::utils::StringUtils::StringDuplicate(aname.culture);
         nativeName->hash_value = il2cpp::utils::StringUtils::StringDuplicate(aname.hash_value);
-        nativeName->public_key = aname.public_key != NULL ? EncodeStringBlob(aname.public_key) : NULL;
+        nativeName->public_key = EncodeStringBlob(aname.public_key);
         nativeName->hash_alg = aname.hash_alg;
         nativeName->hash_len = aname.hash_len;
         nativeName->flags = aname.flags;

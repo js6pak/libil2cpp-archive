@@ -105,18 +105,6 @@ struct InteropDataToTypeConverter
 typedef il2cpp::utils::collections::ArrayValueMap<const Il2CppType*, Il2CppInteropData, InteropDataToTypeConverter, il2cpp::metadata::Il2CppTypeLess, il2cpp::metadata::Il2CppTypeEqualityComparer> InteropDataMap;
 static InteropDataMap s_InteropData;
 
-template<typename K, typename V>
-struct PairToKeyConverter
-{
-    inline const K& operator()(const std::pair<K, V>& pair) const
-    {
-        return pair.first;
-    }
-};
-
-typedef il2cpp::utils::collections::ArrayValueMap<const Il2CppGuid*, std::pair<const Il2CppGuid*, Il2CppClass*>, PairToKeyConverter<const Il2CppGuid*, Il2CppClass*> > GuidToClassMap;
-static GuidToClassMap s_GuidToNonImportClassMap;
-
 template<typename T>
 static T MetadataOffset(void* metadata, size_t sectionOffset, size_t itemIndex)
 {
@@ -214,8 +202,6 @@ bool il2cpp::vm::MetadataCache::Initialize()
         assemblyName->culture = GetStringFromIndex(assemblyNameDefinition->cultureIndex);
         assemblyName->hash_value = GetStringFromIndex(assemblyNameDefinition->hashValueIndex);
         assemblyName->public_key = GetStringFromIndex(assemblyNameDefinition->publicKeyIndex);
-        if (strcmp(assemblyName->public_key, "NULL") == 0)
-            assemblyName->public_key = NULL;
         assemblyName->hash_alg = assemblyNameDefinition->hash_alg;
         assemblyName->hash_len = assemblyNameDefinition->hash_len;
         assemblyName->flags = assemblyNameDefinition->flags;
@@ -317,34 +303,12 @@ void il2cpp::vm::MetadataCache::InitializeWindowsRuntimeTypeNamesTables()
     }
 }
 
-void il2cpp::vm::MetadataCache::InitializeGuidToClassTable()
-{
-    Il2CppInteropData* interopData = s_Il2CppCodeRegistration->interopData;
-    uint32_t interopDataCount = s_Il2CppCodeRegistration->interopDataCount;
-    std::vector<std::pair<const Il2CppGuid*, Il2CppClass*> > guidToNonImportClassMap;
-    guidToNonImportClassMap.reserve(interopDataCount);
-
-    for (uint32_t i = 0; i < interopDataCount; i++)
-    {
-        // It's important to check for non-import types because type projections will have identical GUIDs (e.g. IEnumerable<T> and IIterable<T>)
-        if (interopData[i].guid != NULL)
-        {
-            Il2CppClass* klass = Class::FromIl2CppType(interopData[i].type);
-            if (!klass->is_import_or_windows_runtime)
-                guidToNonImportClassMap.push_back(std::make_pair(interopData[i].guid, klass));
-        }
-    }
-
-    s_GuidToNonImportClassMap.assign(guidToNonImportClassMap);
-}
-
 // this is called later in the intialization cycle with more systems setup like GC
 void il2cpp::vm::MetadataCache::InitializeGCSafe()
 {
     InitializeStringLiteralTable();
     InitializeGenericMethodTable();
     InitializeWindowsRuntimeTypeNamesTables();
-    InitializeGuidToClassTable();
 }
 
 void il2cpp::vm::MetadataCache::InitializeUnresolvedSignatureTable()
@@ -453,17 +417,6 @@ const char* il2cpp::vm::MetadataCache::GetWindowsRuntimeClassName(const Il2CppCl
     return NULL;
 }
 
-Il2CppClass* il2cpp::vm::MetadataCache::GetClassForGuid(const Il2CppGuid* guid)
-{
-    IL2CPP_ASSERT(guid != NULL);
-
-    GuidToClassMap::iterator it = s_GuidToNonImportClassMap.find_first(guid);
-    if (it != s_GuidToNonImportClassMap.end())
-        return it->second;
-
-    return NULL;
-}
-
 void il2cpp::vm::MetadataCache::AddPointerType(Il2CppClass* type, Il2CppClass* pointerType)
 {
     il2cpp::os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
@@ -530,23 +483,6 @@ const Il2CppGenericMethod* il2cpp::vm::MetadataCache::GetGenericMethod(const Met
     return newMethod;
 }
 
-static bool IsShareableEnum(const Il2CppType* type)
-{
-    // Base case for recursion - we've found an enum.
-    if (il2cpp::vm::Type::IsEnum(type))
-        return true;
-
-    if (il2cpp::vm::Type::IsGenericInstance(type))
-    {
-        // Recursive case - look "inside" the generic instance type to see if this is a nested enum.
-        Il2CppClass* definition = il2cpp::vm::GenericClass::GetTypeDefinition(type->data.generic_class);
-        return IsShareableEnum(il2cpp::vm::Class::GetType(definition));
-    }
-
-    // Base case for recurion - this is not an enum or a generic instance type.
-    return false;
-}
-
 // this logic must match the C# logic in GenericSharingAnalysis.GetSharedTypeForGenericParameter
 static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
 {
@@ -564,7 +500,7 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
 #if NET_4_0
             if (s_Il2CppCodeGenOptions->enablePrimitiveValueTypeGenericSharing)
             {
-                if (IsShareableEnum(type))
+                if (il2cpp::vm::Type::IsEnum(type))
                 {
                     const Il2CppType* underlyingType = il2cpp::vm::Type::GetUnderlyingType(type);
                     switch (underlyingType->type)
