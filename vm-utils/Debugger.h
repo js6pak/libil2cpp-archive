@@ -35,7 +35,7 @@ extern "C"
 {
     int32_t unity_sequence_point_active_entry(Il2CppSequencePoint *seqPoint);
     int32_t unity_sequence_point_active_exit(Il2CppSequencePoint *seqPoint);
-    extern bool g_unity_pause_point_active;
+    extern int32_t g_unity_pause_point_active;
 }
 #include <stdint.h>
 #include "os/ThreadLocalValue.h"

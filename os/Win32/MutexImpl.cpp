@@ -41,11 +41,6 @@ namespace os
     {
         ReleaseMutex(m_MutexHandle);
     }
-
-    void* MutexImpl::GetOSHandle()
-    {
-        return (void*)m_MutexHandle;
-    }
 }
 }
 
