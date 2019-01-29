@@ -41,11 +41,6 @@ namespace os
     {
         return il2cpp::os::win::WaitForSingleObjectAndAccountForAPCs(m_Handle, ms, interruptible);
     }
-
-    void* SemaphoreImpl::GetOSHandle()
-    {
-        return (void*)m_Handle;
-    }
 }
 }
 

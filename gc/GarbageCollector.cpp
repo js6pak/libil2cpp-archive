@@ -276,11 +276,7 @@ namespace gc
 
         // check for rcw object. COM interface can be extracted from it and there's no need to create ccw
         if (obj->klass->is_import_or_windows_runtime)
-        {
-            Il2CppIUnknown* result = RCW::QueryInterfaceNoAddRef<true>(static_cast<Il2CppComObject*>(obj), iid);
-            result->AddRef();
-            return result;
-        }
+            return RCW::QueryInterface<true>(static_cast<Il2CppComObject*>(obj), iid);
 
         os::FastAutoLock lock(&s_CCWCacheMutex);
         CCWCache::iterator it = s_CCWCache.find(obj);

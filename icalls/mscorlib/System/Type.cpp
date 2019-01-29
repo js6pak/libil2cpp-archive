@@ -419,15 +419,16 @@ namespace System
         // It is safe because the only fields GetInterfaceInvokeDataFromVTable accesses are the klass and identity fields
         if (!klass->is_import_or_windows_runtime)
         {
-            Il2CppObject fakeObject = {};
+            Il2CppObject fakeObject;
             fakeObject.klass = klass;
+            fakeObject.monitor = NULL;
             invokeDataStart = &vm::ClassInlines::GetInterfaceInvokeDataFromVTable(&fakeObject, iklass, 0);
         }
         else
         {
             Il2CppComObject fakeComObject;
-            memset(&fakeComObject, 0, sizeof(fakeComObject));
             fakeComObject.klass = klass;
+            fakeComObject.monitor = NULL;
 
             // This makes GetInterfaceInvokeDataFromVTable believe that the COM object is dead,
             // thus making it skip asking native side whether a particular interface is supported

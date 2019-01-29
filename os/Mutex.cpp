@@ -45,11 +45,6 @@ namespace os
         m_Mutex->Unlock();
     }
 
-    void* Mutex::GetOSHandle()
-    {
-        return m_Mutex->GetOSHandle();
-    }
-
     FastMutex::FastMutex()
         : m_Impl(new FastMutexImpl())
     {
@@ -102,11 +97,6 @@ namespace os
 
     void Mutex::Unlock()
     {
-    }
-
-    void* Mutex::GetOSHandle()
-    {
-        return NULL;
     }
 
     FastMutex::FastMutex()
