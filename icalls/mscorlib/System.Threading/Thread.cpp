@@ -601,8 +601,7 @@ namespace Threading
 
     void Thread::ResetAbortNative(Il2CppObject* _this)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Thread::ResetAbortNative);
-        IL2CPP_UNREACHABLE;
+        vm::Thread::ResetAbort(vm::Thread::CurrentInternal());
     }
 
     void Thread::ResumeInternal(Il2CppObject* _this)

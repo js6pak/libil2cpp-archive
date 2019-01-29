@@ -45,11 +45,6 @@ namespace os
     {
         return m_Event->Wait(ms, interruptible);
     }
-
-    void* Event::GetOSHandle()
-    {
-        return m_Event->GetOSHandle();
-    }
 }
 }
 
@@ -85,11 +80,6 @@ namespace os
     WaitStatus Event::Wait(uint32_t ms, bool interruptible)
     {
         return kWaitStatusSuccess;
-    }
-
-    void* Event::GetOSHandle()
-    {
-        return NULL;
     }
 }
 }
