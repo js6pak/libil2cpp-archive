@@ -209,24 +209,13 @@ typedef uint32_t Il2CppMethodSlot;
 static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 /* Debug macros */
-
-#if defined(_MSC_VER) && _MSC_VER >= 1900 // UTF-8 literals are only supported in VS2015+
-// On MSVC, __FILE__ will expand to ANSI string literal and will fail to compile if there are unicode characters in the path
-// So we specify it to be UTF-8 literal explicitly
-    #define MAKE_UTF8_LITERAL_HELPER(x) u8 ## x
-    #define MAKE_UTF8_LITERAL(x) MAKE_UTF8_LITERAL_HELPER(x)
-#else
-    #define MAKE_UTF8_LITERAL(x) x
-#endif
-
-#define __FILE_UTF8__ MAKE_UTF8_LITERAL(__FILE__)
 #define STRINGIZE(L)          #L
 #define MAKE_STRING(M, L)     M(L)
 #define $Line                   MAKE_STRING( STRINGIZE, __LINE__ )
-#define FIXME                   "FIXME: "
-#define ICALLMESSAGE(name)      __FILE_UTF8__ "(" $Line ") : FIXME: Missing internal call implementation: " name
-#define RUNTIMEMESSAGE(name)    __FILE_UTF8__ "(" $Line ") : FIXME: Missing runtime implementation: " name
-#define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE_UTF8__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
+#define FIXME                   __FILE__ "(" $Line ") : FIXME: "
+#define ICALLMESSAGE(name)      __FILE__ "(" $Line ") : FIXME: Missing internal call implementation: " name
+#define RUNTIMEMESSAGE(name)    __FILE__ "(" $Line ") : FIXME: Missing runtime implementation: " name
+#define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)
@@ -346,7 +335,11 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
 #ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 ) )
+#if IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 )
+    #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL 1
+#else
+    #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL 0
+#endif
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
@@ -360,10 +353,10 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define DECLARE_METHOD_EXEC_CTX(ctxVariable, method, thisVariable, paramsVariable, localsVariable) Il2CppSequencePointExecutionContext ctxVariable(method, thisVariable, paramsVariable, localsVariable)
 #define CHECK_PAUSE_POINT il2cpp_codegen_check_pause_point()
 #else
-#define STORE_SEQ_POINT(storage, seqPoint)
-#define CHECK_SEQ_POINT(storage, seqPoint)
-#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint)
-#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPoint)
+#define STORE_SEQ_POINT(storage, seqPointChunk, seqPointVar)
+#define CHECK_SEQ_POINT(storage, seqPointChunk, seqPointVar)
+#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPointChunk, seqPointId)
+#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointChunk, seqPointId)
 #define DECLARE_METHOD_THIS(variableName, thisAddress)
 #define DECLARE_METHOD_PARAMS(variableName, ...)
 #define DECLARE_METHOD_LOCALS(variableName, ...)

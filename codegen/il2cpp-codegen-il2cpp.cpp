@@ -30,7 +30,6 @@
 #include "vm/PlatformInvoke.h"
 #include "vm/WindowsRuntime.h"
 #include "vm/StackTrace.h"
-#include "vm/Field.h"
 
 void il2cpp_codegen_marshal_store_last_error()
 {
@@ -409,22 +408,6 @@ RuntimeObject* il2cpp_codegen_com_get_or_create_rcw_for_sealed_class_internal(Il
     return il2cpp::vm::RCW::GetOrCreateForSealedClass(unknown, objectClass);
 }
 
-Il2CppIUnknown* il2cpp_codegen_com_query_interface_internal(Il2CppComObject* rcw, const Il2CppGuid& guid)
-{
-    return il2cpp::vm::RCW::QueryInterfaceNoAddRef<true>(rcw, guid);
-}
-
-Il2CppIUnknown* il2cpp_codegen_com_query_interface_no_throw_internal(Il2CppComObject* rcw, const Il2CppGuid& guid)
-{
-    return il2cpp::vm::RCW::QueryInterfaceNoAddRef<false>(rcw, guid);
-}
-
-void il2cpp_codegen_com_cache_queried_interface(Il2CppComObject* rcw, const Il2CppGuid& iid, Il2CppIUnknown* queriedInterface)
-{
-    if (il2cpp::vm::RCW::CacheQueriedInterface(rcw, iid, queriedInterface))
-        queriedInterface->AddRef();
-}
-
 void il2cpp_codegen_il2cpp_com_object_cleanup(Il2CppComObject* rcw)
 {
     il2cpp::vm::RCW::Cleanup(rcw);
@@ -610,11 +593,6 @@ void il2cpp_codegen_stacktrace_push_frame(Il2CppStackFrameInfo& frame)
 void il2cpp_codegen_stacktrace_pop_frame()
 {
     il2cpp::vm::StackTrace::PopFrame();
-}
-
-const char* il2cpp_codegen_get_field_data(RuntimeField* field)
-{
-    return il2cpp::vm::Field::GetData(field);
 }
 
 #endif

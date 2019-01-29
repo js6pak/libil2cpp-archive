@@ -17,6 +17,7 @@ namespace posix
         int32_t ret = 0;
         time_t start = time(NULL);
 
+        timeout = (timeout >= 0) ? (timeout / 1000) : -1;
         do
         {
             ret = poll(handles, numHandles, timeout);
