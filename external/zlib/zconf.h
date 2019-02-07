@@ -128,6 +128,7 @@
 #    define uncompress2           il2cpp_z_uncompress2
 #  endif
 #  define zError                il2cpp_z_zError
+#  define z_errmsg              il2cpp_z_z_errmsg
 #  ifndef Z_SOLO
 #    define zcalloc               il2cpp_z_zcalloc
 #    define zcfree                il2cpp_z_zcfree
