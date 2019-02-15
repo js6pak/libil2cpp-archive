@@ -1732,7 +1732,56 @@ namespace os
                         return INVALID_OPTION_NAME;
                 }
                 break;
+#if IL2CPP_SUPPORT_IPV6
+            case kSocketOptionLevelIPv6:
+        #ifdef SOL_IPV6
+                *system_level = SOL_IPV6;
+        #else
+                *system_level = IPPROTO_IPV6;
+        #endif
 
+                switch (name)
+                {
+                    case kSocketOptionNameMulticastInterface:
+                        *system_name = IPV6_MULTICAST_IF;
+                        break;
+                    case kSocketOptionNameMulticastTimeToLive:
+                        *system_name = IPV6_MULTICAST_HOPS;
+                        break;
+                    case kSocketOptionNameMulticastLoopback:
+                        *system_name = IPV6_MULTICAST_LOOP;
+                        break;
+                    case kSocketOptionNameAddMembership:
+                        *system_name = IPV6_JOIN_GROUP;
+                        break;
+                    case kSocketOptionNameDropMembership:
+                        *system_name = IPV6_LEAVE_GROUP;
+                        break;
+                    case kSocketOptionNamePacketInformation:
+#ifdef HAVE_IPV6_PKTINFO
+                        *system_name = IPV6_PKTINFO;
+                        break;
+#endif
+                    case kSocketOptionNameIPv6Only:
+#ifdef IPV6_V6ONLY
+                        *system_name = IPV6_V6ONLY;
+                        break;
+#endif
+                    case kSocketOptionNameHeaderIncluded:
+                    case kSocketOptionNameIPOptions:
+                    case kSocketOptionNameTypeOfService:
+                    case kSocketOptionNameDontFragment:
+                    case kSocketOptionNameAddSourceMembership:
+                    case kSocketOptionNameDropSourceMembership:
+                    case kSocketOptionNameBlockSource:
+                    case kSocketOptionNameUnblockSource:
+                    // Can't figure out how to map these, so fall
+                    // through
+                    default:
+                        return INVALID_OPTION_NAME;
+                }
+                break;
+#endif // IL2CPP_SUPPORT_IPV6
             case kSocketOptionLevelTcp:
 #ifdef SOL_TCP
                 *system_level = SOL_TCP;
