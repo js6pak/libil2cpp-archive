@@ -502,6 +502,23 @@ const Il2CppGenericMethod* MetadataCache::GetGenericMethod(const MethodInfo* met
     return newMethod;
 }
 
+static bool IsShareableEnum(const Il2CppType* type)
+{
+    // Base case for recursion - we've found an enum.
+    if (il2cpp::vm::Type::IsEnum(type))
+        return true;
+
+    if (il2cpp::vm::Type::IsGenericInstance(type))
+    {
+        // Recursive case - look "inside" the generic instance type to see if this is a nested enum.
+        Il2CppClass* definition = il2cpp::vm::GenericClass::GetTypeDefinition(type->data.generic_class);
+        return IsShareableEnum(il2cpp::vm::Class::GetType(definition));
+    }
+
+    // Base case for recurion - this is not an enum or a generic instance type.
+    return false;
+}
+
 // this logic must match the C# logic in GenericSharingAnalysis.GetSharedTypeForGenericParameter
 static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
 {
@@ -519,9 +536,9 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
 #if NET_4_0
             if (s_Il2CppCodeGenOptions->enablePrimitiveValueTypeGenericSharing)
             {
-                if (Type::IsEnum(type))
+                if (IsShareableEnum(type))
                 {
-                    const Il2CppType* underlyingType = Type::GetUnderlyingType(type);
+                    const Il2CppType* underlyingType = il2cpp::vm::Type::GetUnderlyingType(type);
                     switch (underlyingType->type)
                     {
                         case IL2CPP_TYPE_I1:
