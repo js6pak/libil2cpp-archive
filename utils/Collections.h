@@ -239,6 +239,17 @@ namespace collections
         {
             return m_Values[i];
         }
+
+        template<typename Mutator>
+        inline void mutate(Mutator& mutator)
+        {
+            size_t count = m_ValueCount;
+            const TValue* values = m_Values;
+            for (size_t i = 0; i < count; i++)
+                mutator(const_cast<TValue*>(values + i));
+
+            m_Values = InitializeInPlace(const_cast<TValue*>(values), count, m_ValueToKeyConverter, m_KeyLessComparer);
+        }
     };
 }
 }   // namespace utils

@@ -41,7 +41,6 @@ namespace os
         std::string suffix;
     };
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
     static LibraryNamePrefixAndSuffix LibraryNamePrefixAndSuffixVariations[8] =
     {
         LibraryNamePrefixAndSuffix("", ".so"),
@@ -53,7 +52,6 @@ namespace os
         LibraryNamePrefixAndSuffix("lib", ".dylib"),
         LibraryNamePrefixAndSuffix("lib", ".bundle")
     };
-#endif
 
 // Note that testing this code can be a bit difficult, since dlopen will cache
 // the values it returns, and we don't call dlcose from the C# level. See the
@@ -94,7 +92,6 @@ namespace os
         return NULL;
     }
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
     static void* CheckLibraryVariations(const char* name, int flags)
     {
         int numberOfVariations = sizeof(LibraryNamePrefixAndSuffixVariations) / sizeof(LibraryNamePrefixAndSuffixVariations[0]);
@@ -108,8 +105,6 @@ namespace os
 
         return NULL;
     }
-
-#endif
 
     Il2CppMethodPointer LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(const il2cpp::utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, const il2cpp::utils::StringView<char>& entryPoint)
     {
@@ -126,11 +121,6 @@ namespace os
 #ifdef VERBOSE_OUTPUT
         printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.Str());
 #endif
-
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
-        StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
-        return dlopen(libraryName, RTLD_LAZY);
-#else
 
         if (nativeDynamicLibrary.IsEmpty())
             return LoadLibraryWithName(NULL, flags);
@@ -154,12 +144,13 @@ namespace os
             }
         }
 
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         if (handle != NULL)
             s_NativeHandlesOpen.insert(handle);
+#endif
 
         return handle;
-#endif
     }
 
     Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
