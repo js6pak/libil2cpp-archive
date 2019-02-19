@@ -294,41 +294,41 @@ inline RuntimeClass* il2cpp_codegen_method_get_declaring_type(RuntimeMethod* met
     return mono_method_get_class(method);
 }
 
-FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_virtual_invoke_data(RuntimeMethod* method, void* obj)
+IL2CPP_FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_virtual_invoke_data(RuntimeMethod* method, void* obj)
 {
     VirtualInvokeData invokeData;
     il2cpp_mono_get_virtual_invoke_data(method, obj, &invokeData);
     return invokeData;
 }
 
-FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_interface_invoke_data(RuntimeMethod* method, void* obj, RuntimeClass* declaringInterface)
+IL2CPP_FORCE_INLINE const VirtualInvokeData il2cpp_codegen_get_interface_invoke_data(RuntimeMethod* method, void* obj, RuntimeClass* declaringInterface)
 {
     VirtualInvokeData invokeData;
     il2cpp_mono_get_interface_invoke_data(method, obj, &invokeData);
     return invokeData;
 }
 
-FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj)
+IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj)
 {
     return il2cpp_mono_get_virtual_target_method(const_cast<RuntimeMethod*>(method), const_cast<RuntimeObject*>(obj));
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const RuntimeMethod* method, void* obj, VirtualInvokeData* invokeData)
+IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const RuntimeMethod* method, void* obj, VirtualInvokeData* invokeData)
 {
     il2cpp_mono_get_invoke_data(const_cast<RuntimeMethod*>(method), obj, invokeData);
 }
 
-FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, const RuntimeObject* obj)
+IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, const RuntimeObject* obj)
 {
     return il2cpp_mono_get_virtual_target_method(const_cast<RuntimeMethod*>(method), const_cast<RuntimeObject*>(obj));
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(RuntimeMethod* method, void* obj, VirtualInvokeData* invokeData)
+IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(RuntimeMethod* method, void* obj, VirtualInvokeData* invokeData)
 {
     il2cpp_mono_get_invoke_data(method, obj, invokeData);
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const RuntimeMethod* method, void* obj, VirtualInvokeData* invokeData)
+IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const RuntimeMethod* method, void* obj, VirtualInvokeData* invokeData)
 {
     il2cpp_codegen_get_generic_interface_invoke_data(const_cast<RuntimeMethod*>(method), obj, invokeData);
 }
@@ -746,6 +746,20 @@ inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* n
 }
 
 // COM
+
+template<typename T>
+inline T* il2cpp_codegen_com_query_interface(Il2CppComObject* rcw)
+{
+    IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
+    return NULL;
+}
+
+template<typename T>
+inline T* il2cpp_codegen_com_query_interface_no_throw(Il2CppComObject* rcw)
+{
+    IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
+    return NULL;
+}
 
 inline void il2cpp_codegen_com_marshal_variant(RuntimeObject* obj, Il2CppVariant* variant)
 {

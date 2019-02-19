@@ -253,12 +253,9 @@ namespace vm
             const Il2CppGuid* iid = klass->interopData->guid;
             if (iid != NULL)
             {
-                Il2CppIUnknown* unknown = RCW::QueryInterface<false>(static_cast<Il2CppComObject*>(obj), *iid);
+                Il2CppIUnknown* unknown = RCW::QueryInterfaceNoAddRef<false>(static_cast<Il2CppComObject*>(obj), *iid);
                 if (unknown)
-                {
-                    unknown->Release();
                     return static_cast<Il2CppComObject*>(obj);
-                }
             }
         }
 

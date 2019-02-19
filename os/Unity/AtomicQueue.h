@@ -92,7 +92,42 @@ AtomicQueue* CreateAtomicQueue();
 void DestroyAtomicQueue(AtomicQueue* s);
 
 #elif IL2CPP_SUPPORT_THREADS
+
+#if IL2CPP_TARGET_JAVASCRIPT
+// Provide a dummy implementation for Emscripten that lets us build, but won't
+// work at runtime.
+class AtomicStack
+{
+public:
+    AtomicStack() {}
+
+    int IsEmpty() const
+    {
+        return 1;
+    }
+
+    void Push(AtomicNode *node)
+    {
+    }
+
+    void PushAll(AtomicNode *first, AtomicNode *last)
+    {
+    }
+
+    AtomicNode *Pop()
+    {
+        return NULL;
+    }
+
+    AtomicNode *PopAll()
+    {
+        return NULL;
+    }
+};
+#else
 #error Platform is missing atomic queue implementation
+#endif // IL2CPP_TARGET_JAVASCRIPT
+
 #endif
 
 //

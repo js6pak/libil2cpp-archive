@@ -15,6 +15,7 @@
 #include "vm/Runtime.h"
 #include "os/Atomic.h"
 #include "os/COM.h"
+#include "vm/Monitor.h"
 #include "os/Mutex.h"
 #include "os/WindowsRuntime.h"
 #include "utils/Il2CppHashMap.h"
@@ -131,8 +132,8 @@ namespace vm
 
         // We don't really want to allocate it on the GC heap for this little invocation
         Il2CppComObject fakeRcw;
+        memset(&fakeRcw, 0, sizeof(fakeRcw));
         fakeRcw.klass = objectClass;
-        fakeRcw.monitor = NULL;
         fakeRcw.identity = comObject;
 
         Il2CppException* exception = NULL;
@@ -166,8 +167,8 @@ namespace vm
         IL2CPP_ASSERT(strcmp(getValueMethod->name, "get_Value") == 0);
 
         Il2CppComObject fakeRcw;
+        memset(&fakeRcw, 0, sizeof(fakeRcw));
         fakeRcw.klass = il2cpp_defaults.il2cpp_com_object_class;
-        fakeRcw.monitor = NULL;
         fakeRcw.identity = comObject;
 
         // Create new boxed key value pair
@@ -224,8 +225,8 @@ namespace vm
         IL2CPP_ASSERT(strcmp(getRawUriInvokeData.method->name, "get_RawUri") == 0);
 
         Il2CppComObject fakeRcw;
+        memset(&fakeRcw, 0, sizeof(fakeRcw));
         fakeRcw.klass = il2cpp_defaults.il2cpp_com_object_class;
-        fakeRcw.monitor = NULL;
         fakeRcw.identity = comObject;
 
         Il2CppObject* rawUri = Runtime::InvokeWithThrow(getRawUriInvokeData.method, &fakeRcw, NULL);
@@ -355,27 +356,229 @@ namespace vm
 
     void RCW::Cleanup(Il2CppComObject* rcw)
     {
-        os::FastAutoLock lock(&s_RCWCacheMutex);
-
-        RCWCache::iterator iter = s_RCWCache.find(rcw->identity);
-
-        // It is possible for us to not find object in the cache if two RCWs for the same IUnknown get
-        // finalized in a row: then, the first finalizer will remove the NULL object, and the second one
-        // will not find it.
-        if (iter != s_RCWCache.end())
+        if (rcw->klass->is_import_or_windows_runtime)
         {
-            Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
+            os::FastAutoLock lock(&s_RCWCacheMutex);
 
-            // If it's null, it means that the cache contains our object
-            // but the weak GC handle has been invalidated by the GC already
-            // If it's equal to our object, it means that RCW::Cleanup was
-            // called manually, and we should also delete it from the cache
-            // Otherwise, it's a different object. It means that we have already
-            // created a new RCW in place of this one during the time
-            // it had been queued for finalization
-            if (obj == NULL || obj == rcw)
-                s_RCWCache.erase(iter);
+            RCWCache::iterator iter = s_RCWCache.find(rcw->identity);
+
+            // It is possible for us to not find object in the cache if two RCWs for the same IUnknown get
+            // finalized in a row: then, the first finalizer will remove the NULL object, and the second one
+            // will not find it.
+            if (iter != s_RCWCache.end())
+            {
+                Il2CppObject* obj = gc::GCHandle::GetTarget(iter->second);
+
+                // If it's null, it means that the cache contains our object
+                // but the weak GC handle has been invalidated by the GC already
+                // If it's equal to our object, it means that RCW::Cleanup was
+                // called manually, and we should also delete it from the cache
+                // Otherwise, it's a different object. It means that we have already
+                // created a new RCW in place of this one during the time
+                // it had been queued for finalization
+                if (obj == NULL || obj == rcw)
+                    s_RCWCache.erase(iter);
+            }
         }
+
+        int32_t shortCacheSize = rcw->qiShortCacheSize;
+        for (int32_t i = 0; i < shortCacheSize; i++)
+            rcw->qiShortCache[i].qiResult->Release();
+
+        int32_t longCacheSize = rcw->qiLongCacheSize;
+        if (longCacheSize > 0)
+        {
+            for (int32_t i = 0; i < longCacheSize; i++)
+                rcw->qiLongCache[i].qiResult->Release();
+
+            IL2CPP_FREE(rcw->qiLongCache);
+        }
+    }
+
+    Il2CppIUnknown* RCW::QueryInterfaceCached(Il2CppComObject* rcw, const Il2CppGuid& iid)
+    {
+        MonitorHolder monitorHolder(rcw);
+
+        int32_t shortCacheSize = rcw->qiShortCacheSize;
+        for (int32_t i = 0; i < shortCacheSize; i++)
+        {
+            const Il2CppGuid* queriedInterface = rcw->qiShortCache[i].iid;
+            if (queriedInterface == &iid)
+                return rcw->qiShortCache[i].qiResult;
+        }
+
+        int32_t longCacheSize = rcw->qiLongCacheSize;
+        for (int32_t i = 0; i < longCacheSize; i++)
+        {
+            const Il2CppGuid* queriedInterface = rcw->qiLongCache[i].iid;
+            if (queriedInterface == &iid)
+                return rcw->qiLongCache[i].qiResult;
+        }
+
+        return NULL;
+    }
+
+    bool RCW::CacheQueriedInterface(Il2CppComObject* rcw, const Il2CppGuid& iid, Il2CppIUnknown* queriedInterface)
+    {
+        MonitorHolder monitorHolder(rcw);
+
+        QICache cache = { &iid, queriedInterface };
+
+        // We need to rescan caches in case another thread got to cache it first
+        int32_t shortCacheSize = rcw->qiShortCacheSize;
+        IL2CPP_ASSERT(shortCacheSize <= IL2CPP_ARRAY_SIZE(rcw->qiShortCache));
+
+        for (int32_t i = 0; i < shortCacheSize; i++)
+        {
+            const Il2CppGuid* queriedInterface = rcw->qiShortCache[i].iid;
+            if (queriedInterface == &iid)
+                return false;
+        }
+
+        if (shortCacheSize == IL2CPP_ARRAY_SIZE(rcw->qiShortCache))
+        {
+            // We only need to check long cache if short cache is full
+            int32_t longCacheSize = rcw->qiLongCacheSize;
+            for (int32_t i = 0; i < longCacheSize; i++)
+            {
+                const Il2CppGuid* queriedInterface = rcw->qiLongCache[i].iid;
+                if (queriedInterface == &iid)
+                    return false;
+            }
+        }
+        else
+        {
+            rcw->qiShortCache[shortCacheSize] = cache;
+            rcw->qiShortCacheSize = shortCacheSize + 1;
+            return true;
+        }
+
+        int32_t longCacheSize = rcw->qiLongCacheSize;
+        int32_t longCacheCapacity = rcw->qiLongCacheCapacity;
+        IL2CPP_ASSERT(longCacheSize <= longCacheCapacity);
+
+        if (longCacheSize == longCacheCapacity)
+        {
+            longCacheCapacity *= 2;
+            rcw->qiLongCache = static_cast<QICache*>(IL2CPP_REALLOC(rcw->qiLongCache, sizeof(QICache) * longCacheCapacity));
+            rcw->qiLongCacheCapacity = longCacheCapacity;
+        }
+
+        rcw->qiLongCache[longCacheSize] = cache;
+        rcw->qiLongCacheSize = longCacheSize + 1;
+        return true;
+    }
+
+    const VirtualInvokeData* RCW::GetComInterfaceInvokeData(Il2CppClass* queriedInterface, const Il2CppClass* targetInterface, Il2CppMethodSlot slot)
+    {
+        Class::Init(queriedInterface);
+        uint16_t vtableCount = queriedInterface->vtable_count;
+
+#if  NET_4_0
+        if (targetInterface->generic_class != NULL)
+        {
+            const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(targetInterface->generic_class->typeDefinitionIndex);
+            const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericInterface->genericContainerIndex);
+
+            if (Class::IsGenericClassAssignableFrom(targetInterface, queriedInterface, genericContainer))
+                return NULL;
+
+            const Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets = queriedInterface->interfaceOffsets;
+            uint16_t interfaceOffsetsCount = queriedInterface->interface_offsets_count;
+            for (uint16_t i = 0; i < interfaceOffsetsCount; i++)
+            {
+                if (Class::IsGenericClassAssignableFrom(targetInterface, interfaceOffsets[i].interfaceType, genericContainer))
+                {
+                    Il2CppMethodSlot slotWithOffset = interfaceOffsets[i].offset + slot;
+                    if (slotWithOffset < vtableCount)
+                        return &queriedInterface->vtable[slotWithOffset];
+                }
+            }
+        }
+        else
+#endif
+        {
+            const Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets = queriedInterface->interfaceOffsets;
+            uint16_t interfaceOffsetsCount = queriedInterface->interface_offsets_count;
+            for (uint16_t i = 0; i < interfaceOffsetsCount; ++i)
+            {
+                if (interfaceOffsets[i].interfaceType == targetInterface)
+                {
+                    Il2CppMethodSlot slotWithOffset = interfaceOffsets[i].offset + slot;
+                    if (slotWithOffset < vtableCount)
+                        return &queriedInterface->vtable[slotWithOffset];
+                }
+            }
+        }
+
+        Il2CppClass* const* implementedInterfaces = queriedInterface->implementedInterfaces;
+        uint16_t implementedInterfacesCount = queriedInterface->interfaces_count;
+
+        for (uint16_t i = 0; i < implementedInterfacesCount; i++)
+        {
+            Il2CppClass* implementedInterface = implementedInterfaces[i];
+            const VirtualInvokeData* invokeData = GetComInterfaceInvokeData(implementedInterface, targetInterface, slot);
+            if (invokeData != NULL)
+                return invokeData;
+        }
+
+        return NULL;
+    }
+
+    const VirtualInvokeData* RCW::GetComInterfaceInvokeData(Il2CppComObject* rcw, const Il2CppClass* targetInterface, Il2CppMethodSlot slot)
+    {
+        uint16_t vtableCount = targetInterface->vtable_count;
+        if (slot < vtableCount)
+        {
+            const Il2CppInteropData* itfInteropData = targetInterface->interopData;
+            if (itfInteropData != NULL)
+            {
+                const Il2CppGuid* itfGuid = itfInteropData->guid;
+                if (itfGuid != NULL)
+                {
+                    // Try querying for the interface we were asked
+                    if (RCW::QueryInterfaceNoAddRef<false>(rcw, *itfGuid) != NULL)
+                        return &targetInterface->vtable[slot];
+                }
+            }
+        }
+
+        if (targetInterface->is_import_or_windows_runtime)
+            return NULL;
+
+        // For projected interfaces, we look in the cache for compatible interface in order to handle these scenarios:
+        // * Covariable/Contravariance. For instance, we should be able to invoke IReadOnlyList<object> methods on IReadOnlyList<string>, even though if QI fails for IVectorView<object>
+        // * Inherited interfaces on CLR but not Windows Runtime side. For instance, IEnumerable<T> implements IEnumerable but IIterable<T> does not implement IBindableIterable
+        MonitorHolder monitorHolder(rcw);
+
+        int32_t shortCacheSize = rcw->qiShortCacheSize;
+        for (int32_t i = 0; i < shortCacheSize; i++)
+        {
+            Il2CppClass* queriedInterface = vm::MetadataCache::GetClassForGuid(rcw->qiShortCache[i].iid);
+            if (queriedInterface != NULL)
+            {
+                const VirtualInvokeData* invokeData = GetComInterfaceInvokeData(queriedInterface, targetInterface, slot);
+                if (invokeData != NULL)
+                    return invokeData;
+            }
+        }
+
+        int32_t longCacheSize = rcw->qiLongCacheSize;
+        for (int32_t i = 0; i < longCacheSize; i++)
+        {
+            Il2CppClass* queriedInterface = vm::MetadataCache::GetClassForGuid(rcw->qiLongCache[i].iid);
+            if (queriedInterface != NULL)
+            {
+                const VirtualInvokeData* invokeData = GetComInterfaceInvokeData(queriedInterface, targetInterface, slot);
+                if (invokeData != NULL)
+                    return invokeData;
+            }
+        }
+
+        if (slot < vtableCount)
+            return &targetInterface->vtable[slot];
+
+        return NULL;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

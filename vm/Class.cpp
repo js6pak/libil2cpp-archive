@@ -903,6 +903,8 @@ namespace vm
 
             il2cpp::metadata::FieldLayout::LayoutFields(instanceSize, actualSize, klass->minimumAlignment, klass->packingSize, fieldTypes, layoutData);
 
+            klass->naturalAligment = layoutData.naturalAlignment;
+
             instanceSize = layoutData.classSize;
 
             // This is a value type with no instance fields, but at least one static field.

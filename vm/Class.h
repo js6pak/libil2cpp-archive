@@ -141,7 +141,7 @@ namespace vm
         static void UpdateInitializedAndNoError(Il2CppClass *klass);
 
 #if NET_4_0
-        static FORCE_INLINE bool IsGenericClassAssignableFrom(const Il2CppClass* klass, const Il2CppClass* oklass, const Il2CppGenericContainer* genericContainer)
+        static IL2CPP_FORCE_INLINE bool IsGenericClassAssignableFrom(const Il2CppClass* klass, const Il2CppClass* oklass, const Il2CppGenericContainer* genericContainer)
         {
             const Il2CppGenericClass* genericClass = klass->generic_class;
             const Il2CppGenericClass* oGenericClass = oklass->generic_class;

@@ -1512,6 +1512,7 @@
     <ClCompile Include="class-internals.cpp" />
     <ClCompile Include="codegen\il2cpp-codegen-common.cpp" />
     <ClCompile Include="..\external\xamarin-android\xamarin_getifaddrs.c" />
+    <ClCompile Include="codegen\il2cpp-codegen-il2cpp.cpp" />
     <ClCompile Include="gc\GarbageCollector.cpp" />
     <ClCompile Include="gc\WriteBarrier.cpp" />
     <ClCompile Include="icalls\mscorlib\Mono.Globalization.Unicode\Normalization.cpp" />
@@ -1723,7 +1724,7 @@
     <ClCompile Include="os\Generic\Initialize.cpp" />
     <ClCompile Include="os\Generic\MarshalStringAlloc.cpp" />
     <ClCompile Include="os\Generic\MemoryMappedFile.cpp" />
-    <ClCompile Include="os\Generic\Process.cpp"/>
+    <ClCompile Include="os\Generic\Process.cpp" />
     <ClCompile Include="os\Generic\SocketBridge.cpp" />
     <ClCompile Include="os\Generic\SocketImpl.cpp" />
     <ClCompile Include="os\Generic\TimeZoneInfo.cpp" />

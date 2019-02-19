@@ -38,9 +38,29 @@ namespace utils
     typedef il2cpp::utils::collections::ArrayValueMap<Il2CppMethodPointer, MethodDefinitionKey, MethodInfoToMethodPointerConverter> NativeMethodMap;
     static NativeMethodMap s_NativeMethods;
 
+    struct NativeSymbolMutator
+    {
+        void operator()(MethodDefinitionKey* method)
+        {
+            // So, when a function is marked as noreturn, some compilers emit a call to that function and then
+            // put the next function immediately after call instruction which means the return address on the stack
+            // will appear to point to the wrong function. This messes up our stack walking as we now are confused
+            // which method is actually on the stack. To work around this, we add "1" to each of the function addresses,
+            // so each function appears to start 1 byte later which means the address on the stack will appear as if
+            // it is pointing to function that called the no return function. This is okay because no function will
+            // ever return to the first byte of another function.
+            method->method = reinterpret_cast<Il2CppMethodPointer>(reinterpret_cast<intptr_t>(method->method) + 1);
+        }
+    };
+
     void NativeSymbol::RegisterMethods(const std::vector<MethodDefinitionKey>& managedMethods)
     {
         s_NativeMethods.assign(managedMethods);
+
+#if IL2CPP_MUTATE_METHOD_POINTERS
+        NativeSymbolMutator mutator;
+        s_NativeMethods.mutate(mutator);
+#endif
     }
 
 #pragma pack(push, p1, 4)
