@@ -49,7 +49,7 @@ namespace vm
             return ReleaseImpl();
         }
 
-        FORCE_INLINE uint32_t AddRefImpl()
+        IL2CPP_FORCE_INLINE uint32_t AddRefImpl()
         {
             const uint32_t refCount = Atomic::Increment(&m_RefCount);
 
@@ -62,7 +62,7 @@ namespace vm
             return refCount;
         }
 
-        FORCE_INLINE uint32_t ReleaseImpl()
+        IL2CPP_FORCE_INLINE uint32_t ReleaseImpl()
         {
             const uint32_t count = Atomic::Decrement(&m_RefCount);
             if (count == 0)

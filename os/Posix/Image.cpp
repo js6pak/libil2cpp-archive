@@ -8,15 +8,17 @@
 #include <dlfcn.h>
 #endif
 
+extern char __start_il2cpp;
+extern char __stop_il2cpp;
+
 namespace il2cpp
 {
 namespace os
 {
 namespace Image
 {
-    void Initialize()
-    {
-    }
+    static char* s_ManagedSectionStart = NULL;
+    static char* s_ManagedSectionEnd = NULL;
 
     void* GetImageBase()
     {
@@ -32,6 +34,33 @@ namespace Image
             return NULL;
 #endif
     }
+
+    static IL2CPP_METHOD_ATTR void NoGeneratedCodeWorkaround()
+    {
+    }
+
+    void InitializeManagedSection()
+    {
+        NoGeneratedCodeWorkaround();
+        s_ManagedSectionStart = &__start_il2cpp;
+        s_ManagedSectionEnd = &__stop_il2cpp;
+    }
+
+    void Initialize()
+    {
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+        InitializeManagedSection();
+#endif
+    }
+
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+    bool IsInManagedSection(void* ip)
+    {
+        IL2CPP_ASSERT(s_ManagedSectionStart != NULL && s_ManagedSectionEnd != NULL);
+        return s_ManagedSectionStart <= ip && ip <= s_ManagedSectionEnd;
+    }
+
+#endif
 }
 }
 }

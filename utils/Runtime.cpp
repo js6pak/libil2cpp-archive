@@ -20,9 +20,7 @@ namespace utils
 {
     NORETURN void Runtime::Abort()
     {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
         os::Environment::Abort();
-#endif
     }
 
     static std::string s_DataDirFallback;
