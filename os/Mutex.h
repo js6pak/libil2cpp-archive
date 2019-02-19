@@ -21,6 +21,7 @@ namespace os
         void Lock(bool interruptible = false);
         bool TryLock(uint32_t milliseconds = 0, bool interruptible = false);
         void Unlock();
+        void* GetOSHandle();
 
     private:
         MutexImpl* m_Mutex;
@@ -44,6 +45,7 @@ namespace os
         virtual WaitStatus Wait(bool interruptible) { m_Mutex->Lock(interruptible); return kWaitStatusSuccess; }
         virtual WaitStatus Wait(uint32_t ms, bool interruptible) { return m_Mutex->TryLock(ms, interruptible) ? kWaitStatusSuccess : kWaitStatusFailure; }
         virtual void Signal() { m_Mutex->Unlock(); }
+        virtual void* GetOSHandle() { return m_Mutex->GetOSHandle(); }
         Mutex* Get() { return m_Mutex; }
 
     private:

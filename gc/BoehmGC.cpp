@@ -62,7 +62,9 @@ il2cpp::gc::GarbageCollector::Initialize()
     GC_set_finalize_on_demand(1);
     GC_set_finalizer_notifier(&il2cpp::gc::GarbageCollector::NotifyFinalizers);
     // We need to call this if we want to manually register threads, i.e. GC_register_my_thread
+    #if !IL2CPP_TARGET_JAVASCRIPT
     GC_allow_register_threads();
+    #endif
 #endif
 #ifdef GC_GCJ_SUPPORT
     GC_init_gcj_malloc(0, NULL);
@@ -161,7 +163,7 @@ il2cpp::gc::GarbageCollector::IsDisabled()
 bool
 il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
 {
-#if defined(GC_THREADS)
+#if defined(GC_THREADS) && !IL2CPP_TARGET_JAVASCRIPT
     struct GC_stack_base sb;
     int res;
 
@@ -187,7 +189,7 @@ il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
 bool
 il2cpp::gc::GarbageCollector::UnregisterThread()
 {
-#if defined(GC_THREADS)
+#if defined(GC_THREADS) && !IL2CPP_TARGET_JAVASCRIPT
     int res;
 
     res = GC_unregister_my_thread();
