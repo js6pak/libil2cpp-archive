@@ -101,7 +101,7 @@
     #define ALIGN_OF(T) __alignof__(T)
     #define ALIGN_TYPE(val) __attribute__((aligned(val)))
     #define ALIGN_FIELD(val) ALIGN_TYPE(val)
-    #define FORCE_INLINE inline __attribute__ ((always_inline))
+    #define IL2CPP_FORCE_INLINE inline __attribute__ ((always_inline))
 #elif defined(_MSC_VER)
     #define ALIGN_OF(T) __alignof(T)
 #if _MSC_VER >= 1900 && defined(__cplusplus)
@@ -110,11 +110,11 @@
     #define ALIGN_TYPE(val) __declspec(align(val))
 #endif
     #define ALIGN_FIELD(val) __declspec(align(val))
-    #define FORCE_INLINE __forceinline
+    #define IL2CPP_FORCE_INLINE __forceinline
 #else
     #define ALIGN_TYPE(size)
     #define ALIGN_FIELD(size)
-    #define FORCE_INLINE inline
+    #define IL2CPP_FORCE_INLINE inline
 #endif
 
 #define IL2CPP_PAGE_SIZE 4096
@@ -335,11 +335,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
 #ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-#if IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 )
-    #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL 1
-#else
-    #define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL 0
-#endif
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 ) )
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
@@ -458,22 +454,6 @@ static const Il2CppChar kIl2CppNewLine[] = { '\r', '\n', '\0' };
 static const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #endif
 
-
-#if IL2CPP_TARGET_ANDROID && defined(__i386__)
-// On Android with x86, function pointers are not aligned, so we
-// need to use all of the bits when comparing them. Hence we mask
-// nothing.
-#define IL2CPP_POINTER_SPARE_BITS 0
-#else
-// On ARMv7 with Thumb instructions the lowest bit is always set.
-// With Thumb2 the second-to-lowest bit is also set. Mask both of
-// them off so that we can do a comparison properly based on the data
-// from the linker map file. On other architectures this operation should
-// not matter, as we assume these two bits are always zero because the pointer
-// will be aligned.
-#define IL2CPP_POINTER_SPARE_BITS 3
-#endif
-
 #define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted."
 #if IL2CPP_COMPILER_MSVC
 #define IL2CPP_ATTRIBUTE_WEAK
@@ -507,3 +487,7 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 #define IL2CPP_ARRAY_SIZE(array) (sizeof(*il2cpp_array_size_helper(array)))
 
 #endif // __cplusplus
+
+#ifndef IL2CPP_MUTATE_METHOD_POINTERS
+#define IL2CPP_MUTATE_METHOD_POINTERS !IL2CPP_TARGET_PS4
+#endif
