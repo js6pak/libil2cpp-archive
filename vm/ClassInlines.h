@@ -27,7 +27,7 @@ namespace vm
         static IL2CPP_NO_INLINE bool InitFromCodegenSlow(Il2CppClass *klass);
 
         //internal
-        static FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+        static FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
         {
             const Il2CppClass* klass = obj->klass;
             IL2CPP_ASSERT(klass->initialized);
@@ -67,7 +67,7 @@ namespace vm
         }
 
         // we don't want this method to get inlined because that makes GetInterfaceInvokeDataFromVTable method itself very large and performance suffers
-        static IL2CPP_NO_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot);
+        static IL2CPP_NO_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTableSlowPath(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot);
         static IL2CPP_NO_INLINE const VirtualInvokeData* GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot);
     };
 }
