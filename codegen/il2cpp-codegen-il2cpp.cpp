@@ -408,6 +408,22 @@ RuntimeObject* il2cpp_codegen_com_get_or_create_rcw_for_sealed_class_internal(Il
     return il2cpp::vm::RCW::GetOrCreateForSealedClass(unknown, objectClass);
 }
 
+Il2CppIUnknown* il2cpp_codegen_com_query_interface_internal(Il2CppComObject* rcw, const Il2CppGuid& guid)
+{
+    return il2cpp::vm::RCW::QueryInterfaceNoAddRef<true>(rcw, guid);
+}
+
+Il2CppIUnknown* il2cpp_codegen_com_query_interface_no_throw_internal(Il2CppComObject* rcw, const Il2CppGuid& guid)
+{
+    return il2cpp::vm::RCW::QueryInterfaceNoAddRef<false>(rcw, guid);
+}
+
+void il2cpp_codegen_com_cache_queried_interface(Il2CppComObject* rcw, const Il2CppGuid& iid, Il2CppIUnknown* queriedInterface)
+{
+    if (il2cpp::vm::RCW::CacheQueriedInterface(rcw, iid, queriedInterface))
+        queriedInterface->AddRef();
+}
+
 void il2cpp_codegen_il2cpp_com_object_cleanup(Il2CppComObject* rcw)
 {
     il2cpp::vm::RCW::Cleanup(rcw);

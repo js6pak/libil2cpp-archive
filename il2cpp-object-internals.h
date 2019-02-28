@@ -679,10 +679,22 @@ typedef struct Il2CppMarshalByRefObject
 } Il2CppMarshalByRefObject;
 
 #ifdef __cplusplus
+struct QICache
+{
+    const Il2CppGuid* iid;
+    Il2CppIUnknown* qiResult;
+};
+
 // System.__Il2CppComObject (dummy type that replaces System.__ComObject)
 struct Il2CppComObject : Il2CppObject
 {
     Il2CppIUnknown* identity;
+
+    QICache qiShortCache[8];
+    QICache* qiLongCache;
+    int32_t qiShortCacheSize;
+    int32_t qiLongCacheSize;
+    int32_t qiLongCacheCapacity;
 
     // Same native object can be marshaled to managed code several times. If that happens,
     // we have to marshal it to the same RCW (same Il2CppComObject). We use a map of
