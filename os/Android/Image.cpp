@@ -89,6 +89,10 @@ namespace Image
         // Load the binary as a read-only memory mapped file
         MemoryMappedExecutable executable(path);
 
+        // Make sure this is really an ELF binary
+        if (executable.size < 4 || memcmp(executable.data, "\177ELF", 4))
+            return continueSearch;
+
         // Process the ELF binary headers
         // There is a section in the binary which lists the names of all of the other sections.
         // Find that section name table, then iterate each section, looking for a name
