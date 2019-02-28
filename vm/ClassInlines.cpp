@@ -2,6 +2,7 @@
 #include "vm/Class.h"
 #include "vm/Exception.h"
 #include "vm/Method.h"
+#include "vm/RCW.h"
 #include "gc/GCHandle.h"
 
 namespace il2cpp
@@ -49,7 +50,7 @@ namespace vm
         return NULL;
     }
 
-    const VirtualInvokeData& ClassInlines::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+    const VirtualInvokeData& ClassInlines::GetInterfaceInvokeDataFromVTableSlowPath(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
     {
         const Il2CppClass* klass = obj->klass;
         const VirtualInvokeData* data;
@@ -60,23 +61,18 @@ namespace vm
 
         if (klass->is_import_or_windows_runtime)
         {
-            Il2CppIUnknown* iunknown = static_cast<const Il2CppComObject*>(obj)->identity;
+            Il2CppComObject* rcw = static_cast<Il2CppComObject*>(obj);
 
             // It might be null if it's called on a dead (already released) or fake object
-            if (iunknown != NULL)
+            if (rcw->identity != NULL)
             {
-                if (itf->vtable_count > 0)
+                const VirtualInvokeData* invokeData = RCW::GetComInterfaceInvokeData(rcw, itf, slot);
+                if (invokeData != NULL)
                 {
-                    IL2CPP_ASSERT(slot < itf->vtable_count);
-
                     // Nothing will be referencing these types directly, so we need to initialize them here
-                    const VirtualInvokeData& invokeData = itf->vtable[slot];
-                    Class::Init(invokeData.method->klass);
-                    return invokeData;
+                    Class::Init(invokeData->method->klass);
+                    return *invokeData;
                 }
-
-                // TO DO: add support for covariance/contravariance for projected interfaces like
-                // System.Collections.Generic.IEnumerable`1<T>
             }
         }
 

@@ -40,6 +40,11 @@ namespace os
     {
         return m_Semaphore->Wait(ms, interruptible);
     }
+
+    void* Semaphore::GetOSHandle()
+    {
+        return m_Semaphore->GetOSHandle();
+    }
 }
 }
 
