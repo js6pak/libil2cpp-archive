@@ -43,5 +43,10 @@ namespace os
     {
         return m_Event->Wait(ms, interruptible);
     }
+
+    void* Event::GetOSHandle()
+    {
+        return m_Event->GetOSHandle();
+    }
 }
 }

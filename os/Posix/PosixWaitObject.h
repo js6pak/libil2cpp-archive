@@ -48,6 +48,8 @@ namespace posix
         /// back to waiting except if the wait timeout has expired.
         void InterruptWait();
 
+        void* GetOSHandle();
+
         static void LockWaitObjectDeletion();
         static void UnlockWaitObjectDeletion();
 
