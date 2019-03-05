@@ -245,6 +245,12 @@ namespace posix
     {
         pthread_cond_broadcast(&m_Condition);
     }
+
+    void* PosixWaitObject::GetOSHandle()
+    {
+        IL2CPP_ASSERT(0 && "This function is not implemented and should not be called");
+        return NULL;
+    }
 }
 }
 }
