@@ -123,6 +123,10 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 }
 
 // Exception support macros
+#define IL2CPP_RESET_LEAVE(Offset) \
+    if(__leave_target == 0) \
+        __leave_target = Offset;
+
 #define IL2CPP_LEAVE(Offset, Target) \
     __leave_target = Offset; \
     goto Target;
