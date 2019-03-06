@@ -299,7 +299,7 @@ typedef struct Il2CppMethodScope
 
 typedef struct Il2CppMethodHeaderInfo
 {
-    int32_t codeSize;
+    int32_t code_size;
     int32_t startScope;
     int32_t numScopes;
 } Il2CppMethodHeaderInfo;
@@ -646,29 +646,6 @@ typedef struct Il2CppMetadataRegistration
     const size_t metadataUsagesCount;
     void** const* metadataUsages;
 } Il2CppMetadataRegistration;
-
-typedef struct Il2CppRuntimeStats
-{
-    uint64_t new_object_count;
-    uint64_t initialized_class_count;
-    // uint64_t generic_vtable_count;
-    // uint64_t used_class_count;
-    uint64_t method_count;
-    // uint64_t class_vtable_size;
-    uint64_t class_static_data_size;
-    uint64_t generic_instance_count;
-    uint64_t generic_class_count;
-    uint64_t inflated_method_count;
-    uint64_t inflated_type_count;
-    // uint64_t delegate_creations;
-    // uint64_t minor_gc_count;
-    // uint64_t major_gc_count;
-    // uint64_t minor_gc_time_usecs;
-    // uint64_t major_gc_time_usecs;
-    bool enabled;
-} Il2CppRuntimeStats;
-
-extern Il2CppRuntimeStats il2cpp_runtime_stats;
 
 /*
 * new structure to hold performance counters values that are exported

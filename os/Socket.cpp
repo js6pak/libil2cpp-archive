@@ -365,6 +365,14 @@ namespace os
 
 #endif
 
+#if IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY
+    bool Socket::IsIPv6Supported()
+    {
+        return SocketImpl::IsIPv6Supported();
+    }
+
+#endif
+
     WaitStatus Socket::SendFile(const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options)
     {
         return m_Socket->SendFile(filename, buffers, options);

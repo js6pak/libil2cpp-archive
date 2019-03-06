@@ -7,6 +7,8 @@
 #   include <emmintrin.h>
 #endif
 
+#include "il2cpp-sanitizers.h"
+
 static inline void atomic_thread_fence(memory_order_relaxed_t)
 {
 }
@@ -54,12 +56,12 @@ static inline void atomic_thread_fence(int /* memory_order_seq_cst_t */)
  * int support
  */
 
-static inline atomic_word atomic_load_explicit(const volatile int* p, memory_order_relaxed_t)
+static inline atomic_word atomic_load_explicit(const volatile int* p, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
 {
     return *p;
 }
 
-static inline int atomic_load_explicit(const volatile int* p, int)
+static inline int atomic_load_explicit(const volatile int* p, int) IL2CPP_DISABLE_TSAN
 {
     int v;
 #if defined(_MSC_VER)
@@ -71,12 +73,12 @@ static inline int atomic_load_explicit(const volatile int* p, int)
     return v;
 }
 
-static inline void atomic_store_explicit(volatile int* p, int v, memory_order_relaxed_t)
+static inline void atomic_store_explicit(volatile int* p, int v, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
 {
     *p = v;
 }
 
-static inline void atomic_store_explicit(volatile int* p, int v, memory_order_release_t)
+static inline void atomic_store_explicit(volatile int* p, int v, memory_order_release_t) IL2CPP_DISABLE_TSAN
 {
 #if defined(_MSC_VER)
     _ReadWriteBarrier();
@@ -86,7 +88,7 @@ static inline void atomic_store_explicit(volatile int* p, int v, memory_order_re
 #endif
 }
 
-static inline void atomic_store_explicit(volatile int* p, int val, int /* memory_order_seq_cst_t */)
+static inline void atomic_store_explicit(volatile int* p, int val, int /* memory_order_seq_cst_t */) IL2CPP_DISABLE_TSAN
 {
 #if defined(_MSC_VER)
     _InterlockedExchange((volatile LONG*)p, (LONG)val);
@@ -107,12 +109,12 @@ static inline void atomic_store_explicit(volatile int* p, int val, int /* memory
  * native word support
  */
 
-static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, memory_order_relaxed_t)
+static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
 {
     return *p;
 }
 
-static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, int)
+static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, int) IL2CPP_DISABLE_TSAN
 {
     atomic_word v;
 #if defined(_MSC_VER)
@@ -124,12 +126,12 @@ static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, in
     return v;
 }
 
-static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t)
+static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
 {
     *p = v;
 }
 
-static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t)
+static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t) IL2CPP_DISABLE_TSAN
 {
 #if defined(_MSC_VER)
     _ReadWriteBarrier();
@@ -139,7 +141,7 @@ static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v,
 #endif
 }
 
-static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word val, int /* memory_order_seq_cst_t */)
+static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word val, int /* memory_order_seq_cst_t */) IL2CPP_DISABLE_TSAN
 {
 #if defined(_MSC_VER)
     _InterlockedExchange64((volatile LONGLONG*)p, (LONGLONG)val);
@@ -296,7 +298,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
 #endif
 }
 
-static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, int o)
+static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, int o) IL2CPP_DISABLE_TSAN
 {
 /*
     atomic_word2 r = { 0, 0 };
@@ -309,7 +311,7 @@ static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, 
     return r;
 }
 
-static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 v, int o)
+static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 v, int o) IL2CPP_DISABLE_TSAN
 {
 /*
     atomic_word2 c = v;

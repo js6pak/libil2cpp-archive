@@ -514,6 +514,18 @@ namespace utils
         return il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex(seqPoint->methodDefinitionIndex);
     }
 
+    const char* Debugger::GetLocalName(const MethodInfo* method, int32_t index)
+    {
+        const Il2CppDebuggerMetadataRegistration* debuggerMetadata = method->klass->image->codeGenModule->debuggerMetadata;
+        return debuggerMetadata->methodExecutionContextInfoStrings[index];
+    }
+
+    const Il2CppMethodScope* Debugger::GetLocalScope(const MethodInfo* method, int32_t index)
+    {
+        const Il2CppDebuggerMetadataRegistration* debuggerMetadata = method->klass->image->codeGenModule->debuggerMetadata;
+        return &debuggerMetadata->methodScopes[index];
+    }
+
     void Debugger::GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes)
     {
         if (il2cpp::vm::Method::IsInflated(method))

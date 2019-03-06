@@ -93,6 +93,10 @@ namespace os
         WaitStatus SetSocketOptionMembership(SocketOptionLevel level, SocketOptionName name, IPv6Address ipv6, uint64_t interfaceOffset);
 #endif
 
+#if IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY
+        static bool IsIPv6Supported();
+#endif
+
         WaitStatus SendFile(const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options);
 
         static WaitStatus Poll(std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error);

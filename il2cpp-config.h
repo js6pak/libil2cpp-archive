@@ -16,6 +16,8 @@
 
 #include "il2cpp-config-api.h"
 
+#include "il2cpp-sanitizers.h"
+
 #ifndef IL2CPP_EXCEPTION_DISABLED
 #define IL2CPP_EXCEPTION_DISABLED 0
 #endif
@@ -349,10 +351,10 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define DECLARE_METHOD_EXEC_CTX(ctxVariable, method, thisVariable, paramsVariable, localsVariable) Il2CppSequencePointExecutionContext ctxVariable(method, thisVariable, paramsVariable, localsVariable)
 #define CHECK_PAUSE_POINT il2cpp_codegen_check_pause_point()
 #else
-#define STORE_SEQ_POINT(storage, seqPointChunk, seqPointVar)
-#define CHECK_SEQ_POINT(storage, seqPointChunk, seqPointVar)
-#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPointChunk, seqPointId)
-#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointChunk, seqPointId)
+#define STORE_SEQ_POINT(storage, seqPoint)
+#define CHECK_SEQ_POINT(storage, seqPoint)
+#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint)
+#define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPoint)
 #define DECLARE_METHOD_THIS(variableName, thisAddress)
 #define DECLARE_METHOD_PARAMS(variableName, ...)
 #define DECLARE_METHOD_LOCALS(variableName, ...)
@@ -393,6 +395,7 @@ static const uintptr_t kIl2CppUIntPtrMax = UINT32_MAX;
 
 static const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_SWITCH
+#define IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY (IL2CPP_SUPPORT_IPV6 && IL2CPP_TARGET_LINUX)
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
