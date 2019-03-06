@@ -2391,7 +2391,7 @@ namespace os
         return SetSocketOptionInternal(system_level, system_name, &mreq, sizeof(mreq));
     }
 
-#if IL2CPP_TARGET_DARWIN
+#if IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_LINUX
     #include <sys/types.h>
     #include <ifaddrs.h>
     #include <sys/socket.h>
@@ -2449,7 +2449,7 @@ namespace os
             in6addr.s6_addr[i] = ipv6.addr[i];
         mreq6.ipv6mr_multiaddr = in6addr;
 
-#if IL2CPP_TARGET_DARWIN
+#if IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_LINUX
         if (interfaceOffset == 0)
             interfaceOffset = get_local_interface_id(AF_INET6);
 #endif
@@ -2502,6 +2502,29 @@ namespace os
 
         return kWaitStatusSuccess;
     }
+
+#if IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY
+    bool SocketImpl::IsIPv6Supported()
+    {
+        ifaddrs* interfaces;
+        if (getifaddrs(&interfaces))
+            return false;
+
+        bool ipv6IsSupported = false;
+        for (ifaddrs* iface = interfaces; iface != NULL; iface = iface->ifa_next)
+        {
+            if (iface->ifa_addr->sa_family == AF_INET6)
+            {
+                ipv6IsSupported = true;
+                break;
+            }
+        }
+
+        freeifaddrs(interfaces);
+        return ipv6IsSupported;
+    }
+
+#endif
 
     WaitStatus SocketImpl::SendFile(const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options)
     {

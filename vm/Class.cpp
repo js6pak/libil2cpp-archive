@@ -30,6 +30,7 @@
 #include "vm/Object.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
+#include "il2cpp-runtime-stats.h"
 #include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
 #include "utils/Il2CppHashMap.h"
