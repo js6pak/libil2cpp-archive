@@ -125,6 +125,13 @@ namespace os
         if (nativeDynamicLibrary.IsEmpty())
             return LoadLibraryWithName(NULL, flags);
 
+#if IL2CPP_TARGET_LINUX
+        // Workaround the fact that on Linux, libc is actually named libc.so.6 instead of libc.so.
+        // mscorlib P/Invokes into plain libc, so we need this for those P/Invokes to succeed
+        if (strncasecmp(nativeDynamicLibrary.Str(), "libc", nativeDynamicLibrary.Length()) == 0)
+            return LoadLibraryWithName("libc.so.6", flags);
+#endif
+
         StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
         void* handle = LoadLibraryWithName(libraryName, flags);
 

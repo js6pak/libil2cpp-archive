@@ -1755,7 +1755,9 @@ namespace Sockets
         // System.Net.NetworkInformation.NetworkInterfaceComponent enum
         // 0 => IPv4
         // 1 => IPv6
-#if IL2CPP_SUPPORT_IPV6
+#if IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY
+        return networkInterface == 1 ? os::Socket::IsIPv6Supported() : true;
+#elif IL2CPP_SUPPORT_IPV6
         // This platform supports both IPv6 and IPv4.
         return true;
 #else
