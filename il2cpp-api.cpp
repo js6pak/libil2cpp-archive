@@ -1,5 +1,6 @@
 #include "il2cpp-api.h"
 #include "il2cpp-object-internals.h"
+#include "il2cpp-runtime-stats.h"
 
 #include "vm/Array.h"
 #include "vm/Assembly.h"
