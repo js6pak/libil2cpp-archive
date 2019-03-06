@@ -159,6 +159,9 @@ namespace utils
 
         static void CheckPausePoint();
 
+        static const char* GetLocalName(const MethodInfo* method, int32_t index);
+        static const Il2CppMethodScope* GetLocalScope(const MethodInfo* method, int32_t index);
+
         static void GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes);
 
     private:
