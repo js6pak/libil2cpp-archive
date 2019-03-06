@@ -5,6 +5,7 @@
 #include <limits>
 #include "il2cpp-class-internals.h"
 #include "il2cpp-tabledefs.h"
+#include "il2cpp-runtime-stats.h"
 #include "gc/GarbageCollector.h"
 #include "metadata/ArrayMetadata.h"
 #include "metadata/GenericMetadata.h"
@@ -1487,7 +1488,10 @@ static bool IsMatchingUsage(Il2CppMetadataUsage usage, const il2cpp::utils::dyna
     return false;
 }
 
-void il2cpp::vm::MetadataCache::IntializeMethodMetadataRange(uint32_t start, uint32_t count, const il2cpp::utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages)
+// This method can be called from multiple threads, so it does have a data race. However, each
+// thread is reading from the same read-only metadata, so each thread will set the same values.
+// Therefore, we can safely ignore thread sanitizer issues in this method.
+void il2cpp::vm::MetadataCache::IntializeMethodMetadataRange(uint32_t start, uint32_t count, const il2cpp::utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages) IL2CPP_DISABLE_TSAN
 {
     for (uint32_t i = 0; i < count; i++)
     {

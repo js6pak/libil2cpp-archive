@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "il2cpp-runtime-stats.h"
 #include "os/Mutex.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"

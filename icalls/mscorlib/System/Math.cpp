@@ -1,5 +1,5 @@
 #include "il2cpp-config.h"
-#include <math.h>
+#include <cmath>
 #include <limits>
 #include <float.h>
 #include "icalls/mscorlib/System/Math.h"
@@ -8,7 +8,7 @@
 #ifdef _MSC_VER
 # define ISNAN _isnan
 #else
-# define ISNAN isnan
+# define ISNAN std::isnan
 #endif
 
 namespace il2cpp

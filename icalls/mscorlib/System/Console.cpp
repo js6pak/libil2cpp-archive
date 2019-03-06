@@ -2,24 +2,9 @@
 
 #if IL2CPP_TINY
 
-#include "os/File.h"
-#include "utils/StringUtils.h"
-
-extern "C" void STDCALL Console_Write(const char* message, int newline)
-{
-    il2cpp::os::FileHandle* fileHandle = il2cpp::os::File::GetStdOutput();
-    size_t length = il2cpp::utils::StringUtils::StrLen(message);
-
-    int error;
-    il2cpp::os::File::Write(fileHandle, message, static_cast<int>(length), &error);
-    if (newline)
-    {
-#if IL2CPP_TARGET_WINDOWS
-        il2cpp::os::File::Write(fileHandle, "\r\n", 2, &error);
-#else
-        il2cpp::os::File::Write(fileHandle, "\n", 1, &error);
-#endif
-    }
-}
+// When the debugger is enabled, we use the big libil2cpp runtime code
+// with the tiny profile. We need to build this icall for big libil2cpp,
+// so direcrtly include the .cpp file to avboid code duplication.
+#include "../libil2cppTiny/icalls/System/Console.cpp"
 
 #endif

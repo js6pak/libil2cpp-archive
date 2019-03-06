@@ -329,6 +329,10 @@ namespace os
 
         WaitStatus SendFile(const char *filename, TransmitFileBuffers *buffers, TransmitFileOptions options);
 
+#if IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY
+        static bool IsIPv6Supported();
+#endif
+
         static WaitStatus Poll(std::vector<PollRequest> &requests, int32_t count, int32_t timeout, int32_t *result, int32_t *error);
         static WaitStatus Poll(std::vector<PollRequest> &requests, int32_t timeout, int32_t *result, int32_t *error);
         static WaitStatus Poll(PollRequest &request, int32_t timeout, int32_t *result, int32_t *error);
