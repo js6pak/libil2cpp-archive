@@ -18,6 +18,9 @@
 #include <sys/time.h>
 #endif
 
+/* a made up uptime of 300 seconds */
+#define MADEUP_BOOT_TIME (300 * MTICKS_PER_SEC)
+
 namespace il2cpp
 {
 namespace os
@@ -61,17 +64,26 @@ namespace os
 
 #endif
         /* a made up uptime of 300 seconds */
-        return (int64_t)300 * MTICKS_PER_SEC;
+        return (int64_t)MADEUP_BOOT_TIME;
     }
 
     uint32_t Time::GetTicksMillisecondsMonotonic()
     {
+#if IL2CPP_TARGET_ANDROID
+        struct timespec ts;
+        if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+        {
+            return (int64_t)MADEUP_BOOT_TIME;
+        }
+        return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
+#else
         static int64_t boot_time = 0;
         int64_t now;
         if (!boot_time)
             boot_time = GetBootTime();
         now = GetTicks100NanosecondsMonotonic();
         return (uint32_t)((now - boot_time) / 10000);
+#endif
     }
 
     int64_t Time::GetTicks100NanosecondsMonotonic()
