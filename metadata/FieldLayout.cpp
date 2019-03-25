@@ -153,6 +153,7 @@ namespace metadata
         data.actualClassSize = actualParentSize;
         IL2CPP_ASSERT(parentAlignment <= std::numeric_limits<uint8_t>::max());
         data.minimumAlignment = static_cast<uint8_t>(parentAlignment);
+        data.naturalAlignment = 0;
         for (Il2CppTypeVector::const_iterator iter = fieldTypes.begin(); iter != fieldTypes.end(); ++iter)
         {
             SizeAndAlignment sa = GetTypeSizeAndAlignment(*iter);
@@ -174,7 +175,7 @@ namespace metadata
             data.FieldOffsets.push_back(offset);
             data.actualClassSize = offset + std::max(sa.size, (size_t)1);
             data.minimumAlignment = std::max(data.minimumAlignment, alignment);
-            data.naturalAlignment = std::max(data.minimumAlignment, sa.alignment);
+            data.naturalAlignment = std::max(data.naturalAlignment, sa.alignment);
         }
 
         data.classSize = AlignTo(data.actualClassSize, data.minimumAlignment);
