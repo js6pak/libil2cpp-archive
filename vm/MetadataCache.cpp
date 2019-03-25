@@ -222,6 +222,8 @@ void MetadataCache::Initialize()
         assemblyName->culture = GetStringFromIndex(assemblyNameDefinition->cultureIndex);
         assemblyName->hash_value = GetStringFromIndex(assemblyNameDefinition->hashValueIndex);
         assemblyName->public_key = GetStringFromIndex(assemblyNameDefinition->publicKeyIndex);
+        if (strcmp(assemblyName->public_key, "NULL") == 0)
+            assemblyName->public_key = NULL;
         assemblyName->hash_alg = assemblyNameDefinition->hash_alg;
         assemblyName->hash_len = assemblyNameDefinition->hash_len;
         assemblyName->flags = assemblyNameDefinition->flags;
