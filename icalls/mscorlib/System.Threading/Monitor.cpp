@@ -59,8 +59,8 @@ namespace Threading
 #if NET_4_0
     bool Monitor::Monitor_test_owner(Il2CppObject* obj)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Monitor::Monitor_test_owner);
-        IL2CPP_UNREACHABLE;
+        IL2CPP_CHECK_ARG_NULL(obj);
+        return il2cpp::vm::Monitor::IsAcquired(obj);
     }
 
     void Monitor::enter_with_atomic_var(Il2CppObject* obj, bool* lockTaken)
