@@ -14,6 +14,10 @@
 #include "vm/String.h"
 #include "vm/Exception.h"
 
+#if IL2CPP_TINY_DEBUGGER
+#include "vm/StackTrace.h"
+#endif
+
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
@@ -228,6 +232,15 @@ namespace System
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::get_bundled_machine_config);
         IL2CPP_UNREACHABLE;
+    }
+
+#endif
+
+#if IL2CPP_TINY_DEBUGGER
+    Il2CppString* Environment::GetStackTrace_internal()
+    {
+        std::string stackTrace = vm::StackTrace::GetStackTrace();
+        return vm::String::NewLen(stackTrace.c_str(), (uint32_t)stackTrace.length());
     }
 
 #endif

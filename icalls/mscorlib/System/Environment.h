@@ -47,6 +47,9 @@ namespace System
         static Il2CppString* internalGetEnvironmentVariable_native(intptr_t variable);
         static Il2CppString* get_bundled_machine_config();
 #endif
+#if IL2CPP_TINY
+        static Il2CppString* GetStackTrace_internal();
+#endif
     };
 } /* namespace System */
 } /* namespace mscorlib */

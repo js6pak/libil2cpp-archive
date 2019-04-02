@@ -8,11 +8,6 @@
 
 using il2cpp::vm::Class;
 
-#ifdef _MSC_VER
-# define ISNAN _isnan
-#else
-# define ISNAN isnan
-#endif
 
 namespace il2cpp
 {

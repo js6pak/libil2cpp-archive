@@ -335,6 +335,8 @@ namespace os
 
 #else
 
+#include <limits.h>
+
 namespace il2cpp
 {
 namespace os
