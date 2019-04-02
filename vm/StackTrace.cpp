@@ -258,6 +258,32 @@ namespace vm
             callback(&*it, context);
     }
 
+#if IL2CPP_TINY_DEBUGGER
+    std::string StackTrace::GetStackTrace()
+    {
+        const StackFrames* frames = s_MethodStack.GetStackFrames();
+
+        const size_t numberOfFramesToSkip = 1;
+        int startFrame = (int)frames->size() - 1 - numberOfFramesToSkip;
+
+        std::string stackTrace;
+        for (int i = startFrame; i > 0; i--)
+        {
+            if (i == startFrame)
+                stackTrace += "at ";
+            else
+                stackTrace += "  at ";
+            Il2CppStackFrameInfo test = (*frames)[i];
+            stackTrace += std::string((*frames)[i].method->name);
+            if (i != 1)
+                stackTrace += "\n";
+        }
+
+        return stackTrace;
+    }
+
+#endif
+
     void StackTrace::PushFrame(Il2CppStackFrameInfo& frame)
     {
         s_MethodStack.PushFrame(frame);

@@ -39,6 +39,16 @@ void* il2cpp_mono_get_thread_static_field_address(MonoClass *klass, MonoClassFie
 
 Il2CppCodeGenModule* InitializeCodeGenHandle(MonoImage* image);
 
+struct ArgvMono
+{
+    int argc;
+    std::string **argvMonoObj;
+    char **argvMono;
+};
+
+ArgvMono il2cpp_mono_convert_args(int argc, const Il2CppChar* const* argv);
+void il2cpp_mono_free_args(ArgvMono& args);
+
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 struct MethodDefinitionKey
 {

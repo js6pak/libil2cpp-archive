@@ -86,6 +86,10 @@ namespace Image
 
     static int FindManagedCodeSectionInElfBinary(const char* path, ManagedSectionData* sectionData)
     {
+        // Some files may not be possible to read, filter the candidates by extension first
+        if (strstr(path, ".dex") != NULL)
+            return continueSearch;
+
         // Load the binary as a read-only memory mapped file
         MemoryMappedExecutable executable(path);
 
