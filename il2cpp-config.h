@@ -148,7 +148,18 @@
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
 #endif
 
-#define IL2CPP_ENABLE_STACKTRACES 1
+#if IL2CPP_TINY
+    #if IL2CPP_TINY_DEBUG_METADATA
+        #define IL2CPP_ENABLE_STACKTRACES 1
+    #else
+        #define IL2CPP_ENABLE_STACKTRACES 0
+    #endif // IL2CPP_TINY_DEBUG_METADATA
+#else
+    #define IL2CPP_ENABLE_STACKTRACES 1
+#endif // IL2CPP_TINY
+
+#if IL2CPP_ENABLE_STACKTRACES
+
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
 #define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_LUMIN)
@@ -156,6 +167,8 @@
 
 /* Platforms which use stacktrace sentries */
 #define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS || IL2CPP_TARGET_SWITCH)
+
+#endif // IL2CPP_ENABLE_STACKTRACES
 
 #if (IL2CPP_ENABLE_STACKTRACES && !IL2CPP_ENABLE_NATIVE_STACKTRACES && !IL2CPP_ENABLE_STACKTRACE_SENTRIES)
 #error "If stacktraces are supported, then either native stack traces must be supported, or usage of stacktrace sentries must be enabled!"

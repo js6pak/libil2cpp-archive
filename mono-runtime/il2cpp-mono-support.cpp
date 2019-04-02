@@ -11,6 +11,7 @@
 
 #include "../libmono/mono-api.h"
 #include "utils/dynamic_array.h"
+#include "utils/StringUtils.h"
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 #include "vm-utils/NativeSymbol.h"
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
@@ -20,6 +21,7 @@
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
 #include "utils/PathUtils.h"
+#include "utils/StringUtils.h"
 #include "os/Mutex.h"
 
 extern const Il2CppCodeRegistration g_CodeRegistration IL2CPP_ATTRIBUTE_WEAK;
@@ -921,6 +923,36 @@ MonoVTable* il2cpp_mono_class_vtable(MonoDomain *domain, MonoClass *klass)
 
     MonoError unused;
     return mono_class_vtable_full(domain, klass, &unused);
+}
+
+ArgvMono il2cpp_mono_convert_args(int argc, const Il2CppChar* const* argv)
+{
+    ArgvMono args;
+
+    args.argc = argc;
+
+    args.argvMonoObj = new std::string*[argc];
+    for (int i = 0; i < argc; ++i)
+        args.argvMonoObj[i] = new std::string();
+
+    for (int i = 0; i < argc; ++i)
+        *(args.argvMonoObj[i]) = il2cpp::utils::StringUtils::Utf16ToUtf8(argv[i]);
+
+    args.argvMono = new char*[argc];
+    for (int i = 0; i < argc; ++i)
+        args.argvMono[i] = const_cast<char*>(args.argvMonoObj[i]->c_str());
+
+    return args;
+}
+
+void il2cpp_mono_free_args(ArgvMono& args)
+{
+    delete[] args.argvMono;
+
+    for (int i = 0; i < args.argc; ++i)
+        delete args.argvMonoObj[i];
+
+    delete[] args.argvMonoObj;
 }
 
 extern "C"

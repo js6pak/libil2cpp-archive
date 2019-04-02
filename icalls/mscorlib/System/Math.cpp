@@ -5,12 +5,6 @@
 #include "icalls/mscorlib/System/Math.h"
 #include "vm/Exception.h"
 
-#ifdef _MSC_VER
-# define ISNAN _isnan
-#else
-# define ISNAN std::isnan
-#endif
-
 namespace il2cpp
 {
 namespace icalls
@@ -80,7 +74,7 @@ namespace System
     double Math::Pow(double val, double exp)
     {
         double res = pow(val, exp);
-        if (ISNAN(res))
+        if (std::isnan(res))
             return 1.0;
 
         if (res == -0.0)
