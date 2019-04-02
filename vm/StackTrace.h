@@ -25,6 +25,10 @@ namespace vm
         static void InitializeStackTracesForCurrentThread();
         static void CleanupStackTracesForCurrentThread();
 
+#if IL2CPP_TINY_DEBUGGER
+        static std::string GetStackTrace();
+#endif
+
         // Current thread functions
         static const StackFrames* GetStackFrames();
         static bool GetStackFrameAt(int32_t depth, Il2CppStackFrameInfo& frame);
