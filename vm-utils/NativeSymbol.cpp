@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
-
 #include "os/Environment.h"
 #include "os/File.h"
 #include "os/Image.h"
@@ -225,5 +223,3 @@ namespace utils
 #endif
 } /* namespace utils */
 } /* namespace il2cpp */
-
-#endif
