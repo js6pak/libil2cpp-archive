@@ -8,7 +8,7 @@ namespace vm
 {
     static Il2CppSetFindPlugInCallback s_FindPluginCallback = NULL;
 
-    void* LibraryLoader::LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar> nativeDynamicLibrary)
+    void* LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar> nativeDynamicLibrary)
     {
         if (s_FindPluginCallback)
         {
@@ -27,6 +27,7 @@ namespace vm
 
     void LibraryLoader::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
     {
+        IL2CPP_ASSERT(method == NULL || s_FindPluginCallback == NULL);
         s_FindPluginCallback = method;
     }
 } /* namespace vm */

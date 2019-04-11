@@ -44,9 +44,9 @@ namespace vm
 
         void* dynamicLibrary = NULL;
         if (utils::VmStringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
-            dynamicLibrary = LibraryLoader::LoadLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
+            dynamicLibrary = LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
         else
-            dynamicLibrary = LibraryLoader::LoadLibrary(pinvokeArgs.moduleName);
+            dynamicLibrary = LibraryLoader::LoadDynamicLibrary(pinvokeArgs.moduleName);
 
         if (dynamicLibrary == NULL)
         {
@@ -330,7 +330,7 @@ namespace vm
 
 #if !NET_4_0
         Il2CppString* managedString = MarshalCppStringToCSharpStringResult(buffer);
-        stringBuilder->str = managedString;
+        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
         stringBuilder->length = utils::StringUtils::GetLength(managedString);
 #else
         UTF16String utf16String = utils::StringUtils::Utf8ToUtf16(buffer);
@@ -355,7 +355,7 @@ namespace vm
 
 #if !NET_4_0
         Il2CppString* managedString = MarshalCppWStringToCSharpStringResult(buffer);
-        stringBuilder->str = managedString;
+        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
         stringBuilder->length = utils::StringUtils::GetLength(managedString);
 #else
         int len = (int)utils::StringUtils::StrLen(buffer);
@@ -392,7 +392,7 @@ namespace vm
         if (d->method->is_inflated)
         {
             std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
-            std::string errorMessage = "IL2CPP does not support marshaling delegates that point to generic methods. The generic method we're attemping to marshal is: " + methodName;
+            std::string errorMessage = "IL2CPP does not support marshaling delegates that point to generic methods. The generic method we're attempting to marshal is: " + methodName;
             vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
         }
 
@@ -401,14 +401,19 @@ namespace vm
 
         IL2CPP_ASSERT(d->method->methodDefinition);
 
-        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapperFromIndex(d->method->methodDefinition->reversePInvokeWrapperIndex);
+        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method->token);
         if (reversePInvokeWrapper == NULL)
         {
+            std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
             // Okay, we cannot marshal it for some reason. Figure out why.
             if (Method::IsInstance(d->method))
-                vm::Exception::Raise(vm::Exception::GetNotSupportedException("IL2CPP does not support marshaling delegates that point to instance methods to native code."));
+            {
+                std::string errorMessage = "IL2CPP does not support marshaling delegates that point to instance methods to native code. The method we're attempting to marshal is: " + methodName;
+                vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
+            }
 
-            vm::Exception::Raise(vm::Exception::GetNotSupportedException("To marshal a managed method, please add an attribute named 'MonoPInvokeCallback' to the method definition."));
+            std::string errorMessage = "To marshal a managed method, please add an attribute named 'MonoPInvokeCallback' to the method definition. The method we're attempting to marshal is: " + methodName;
+            vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
         }
 
         return reinterpret_cast<intptr_t>(reversePInvokeWrapper);

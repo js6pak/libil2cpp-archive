@@ -1,6 +1,6 @@
 #pragma once
 
-#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD
+#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <pthread.h>
 #include <vector>
@@ -41,7 +41,7 @@ namespace os
         uint64_t Id();
         ErrorCode Run(Thread::StartFunc func, void* arg);
         void QueueUserAPC(Thread::APCFunc func, void* context);
-        void SetName(const std::string& name);
+        void SetName(const char* name);
         void SetPriority(ThreadPriority priority);
         ThreadPriority GetPriority();
         void SetStackSize(size_t newsize);

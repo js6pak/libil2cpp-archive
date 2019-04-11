@@ -1,3 +1,7 @@
+#include "il2cpp-config.h"
+
+#if IL2CPP_SUPPORT_THREADS
+
 #include "AtomicQueue.h"
 #include "ExtendedAtomicOps.h"
 
@@ -925,7 +929,7 @@ AtomicNode* AtomicQueue::Dequeue()
         : "=&r" (tail), "=&r" (tmp), "+m" (_tail), "=&r" (success), "=&r" (data0), "=&r" (data1), "=&r" (data2)
         : "r" (&_tail)
         : "cc", "memory"
-        );
+    );
     if (tmp)
     {
         tail->data[0] = data0;
@@ -965,7 +969,7 @@ AtomicNode* AtomicQueue::Dequeue()
         "bne\t0b\n\t"
         // "isb\n\t" //not available on N3DS
         "1:\n\t"
-        );
+    );
     if (tmp)
     {
         tail->data[0] = data0;
@@ -1009,7 +1013,7 @@ AtomicNode* AtomicQueue::Dequeue()
         : "=&r" (tail), "=&r" (tmp), "+m" (_tail), "=&r" (success), "=&r" (tail), "=&r" (data0), "=&r" (data1), "=&r" (data2)
         : "r" (&_tail)
         : "cc", "memory"
-        );
+    );
     if (tmp)
     {
         tail->data[0] = data0;
@@ -1096,7 +1100,7 @@ AtomicNode* AtomicQueue::Dequeue()
         : "=&b" (tail), "=&b" (tmp), "+m" (_tail), "=&b" (data0), "=&b" (data1), "=&b" (data2)
         : "b" (&_tail)
         : "cr0", "memory"
-        );
+    );
     if (tmp)
     {
         tail->data[0] = data0;
@@ -1125,7 +1129,7 @@ AtomicQueue* CreateAtomicQueue()
     //seems like UNITY_PLATFORM_NEW shouldn't take an alignment...?
     return UNITY_PLATFORM_NEW(AtomicQueue, kMemThread);
 #else
-    return UNITY_PLATFORM_NEW(AtomicQueue, kMemThread, sizeof(atomic_word));
+    #error "ATOMIC_HAS_DCAS is not defined for this platform nor is a platform dependent implementation available."
 #endif
 }
 
@@ -1657,3 +1661,5 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
 #endif
 
 UNITY_PLATFORM_END_NAMESPACE;
+
+#endif

@@ -13,7 +13,6 @@
 #include "os/c-api/Allocator.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
-#include "vm/COMEntryPoints.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -39,6 +38,7 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
+#include "gc/WriteBarrier.h"
 #include "vm/InternalCalls.h"
 #include "utils/Collections.h"
 #include "utils/Memory.h"
@@ -57,16 +57,9 @@ extern "C" {
 }
 #endif
 
-
-using il2cpp::metadata::GenericMethod;
-using il2cpp::utils::StringUtils;
-
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
-
-static il2cpp::os::FastMutex s_InitLock;
-static int32_t s_RuntimeInitCount;
 
 namespace il2cpp
 {
@@ -131,31 +124,15 @@ namespace vm
 
 #endif
 
-    static void SetConfigStr(const std::string& executablePath);
-
-    bool Runtime::Init(const char* domainName)
+    bool Runtime::Init(const char* filename, const char *runtime_version)
     {
-        os::FastAutoLock lock(&s_InitLock);
-
-        IL2CPP_ASSERT(s_RuntimeInitCount >= 0);
-        if (s_RuntimeInitCount++ > 0)
-            return true;
-
         SanityChecks();
 
         os::Initialize();
         os::Locale::Initialize();
         MetadataAllocInitialize();
 
-        // NOTE(gab): the runtime_version needs to change once we
-        // will support multiple runtimes.
-        // For now we default to the one used by unity and don't
-        // allow the callers to change it.
-#if NET_4_0
-        s_FrameworkVersion = framework_version_for("v4.0.30319");
-#else
-        s_FrameworkVersion = framework_version_for("v2.0.50727");
-#endif
+        s_FrameworkVersion = framework_version_for(runtime_version);
 
         os::Image::Initialize();
         os::Thread::Init();
@@ -163,11 +140,7 @@ namespace vm
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
 
         if (!MetadataCache::Initialize())
-        {
-            s_RuntimeInitCount--;
             return false;
-        }
-
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
 
@@ -208,6 +181,7 @@ namespace vm
         DEFAULTS_INIT(string_class, "System", "String");
         DEFAULTS_INIT(enum_class, "System", "Enum");
         DEFAULTS_INIT(array_class, "System", "Array");
+#if !IL2CPP_TINY
         DEFAULTS_INIT_TYPE(delegate_class, "System", "Delegate", Il2CppDelegate);
 #if !NET_4_0
         DEFAULTS_INIT(multicastdelegate_class, "System", "MulticastDelegate");
@@ -217,11 +191,14 @@ namespace vm
         DEFAULTS_INIT(asyncresult_class, "System.Runtime.Remoting.Messaging", "AsyncResult");
         DEFAULTS_INIT_TYPE(async_call_class, "System", "MonoAsyncCall", Il2CppAsyncCall);
         DEFAULTS_INIT(manualresetevent_class, "System.Threading", "ManualResetEvent");
+#endif // !IL2CPP_TINY
         //DEFAULTS_INIT(typehandle_class, "System", "RuntimeTypeHandle");
         //DEFAULTS_INIT(methodhandle_class, "System", "RuntimeMethodHandle");
         //DEFAULTS_INIT(fieldhandle_class, "System", "RuntimeFieldHandle");
         DEFAULTS_INIT(systemtype_class, "System", "Type");
+#if !IL2CPP_TINY
         DEFAULTS_INIT_TYPE(monotype_class, "System", "MonoType", Il2CppReflectionMonoType);
+#endif
         //DEFAULTS_INIT(exception_class, "System", "Exception");
         //DEFAULTS_INIT(threadabortexcepXtion_class, "System.Threading", "ThreadAbortException");
         DEFAULTS_INIT_TYPE(thread_class, "System.Threading", "Thread", Il2CppThread);
@@ -229,6 +206,7 @@ namespace vm
         DEFAULTS_INIT_TYPE(internal_thread_class, "System.Threading", "InternalThread", Il2CppInternalThread);
         DEFAULTS_INIT_TYPE(runtimetype_class, "System", "RuntimeType", Il2CppReflectionRuntimeType);
 #endif
+#if !IL2CPP_TINY
         DEFAULTS_INIT(appdomain_class, "System", "AppDomain");
         DEFAULTS_INIT(appdomain_setup_class, "System", "AppDomainSetup");
         DEFAULTS_INIT(field_info_class, "System.Reflection", "FieldInfo");
@@ -252,9 +230,11 @@ namespace vm
         DEFAULTS_INIT(culture_info, "System.Globalization", "CultureInfo");
         DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "Assembly", Il2CppReflectionAssembly);
         DEFAULTS_INIT_TYPE(assembly_name_class, "System.Reflection", "AssemblyName", Il2CppReflectionAssemblyName);
+#endif // !IL2CPP_TINY
 #if NET_4_0
         DEFAULTS_INIT_TYPE(mono_assembly_class, "System.Reflection", "MonoAssembly", Il2CppReflectionAssembly);
 #endif
+#if !IL2CPP_TINY
 #if !NET_4_0
         DEFAULTS_INIT_TYPE(enum_info_class, "System", "MonoEnumInfo", Il2CppEnumInfo);
 #endif
@@ -284,13 +264,14 @@ namespace vm
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
         DEFAULTS_INIT(system_guid_class, "System", "Guid");
+#endif // !IL2CPP_TINY
 
-#if NET_4_0
+#if NET_4_0 && !IL2CPP_TINY
         DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
         DEFAULTS_INIT(mono_method_message_class, "System.Runtime.Remoting.Messaging", "MonoMethodMessage");
 
         il2cpp_defaults.threadpool_perform_wait_callback_method = (MethodInfo*)vm::Class::GetMethodFromName(
-                il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
+            il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
 #endif
 
 #if NET_4_0
@@ -338,18 +319,18 @@ namespace vm
         Il2CppThread* mainThread = Thread::Attach(domain);
         Thread::SetMain(mainThread);
 
+#if !IL2CPP_TINY
         Il2CppAppDomainSetup* setup = (Il2CppAppDomainSetup*)Object::NewPinned(il2cpp_defaults.appdomain_setup_class);
 
         Il2CppAppDomain* ad = (Il2CppAppDomain*)Object::NewPinned(il2cpp_defaults.appdomain_class);
-        ad->data = domain;
-        gc::GarbageCollector::SetWriteBarrier((void**)&ad->data);
-        domain->domain = ad;
-        gc::GarbageCollector::SetWriteBarrier((void**)&domain->domain);
-        domain->setup = setup;
-        gc::GarbageCollector::SetWriteBarrier((void**)&domain->setup);
+        gc::WriteBarrier::GenericStore(&ad->data, domain);
+        gc::WriteBarrier::GenericStore(&domain->domain, ad);
+        gc::WriteBarrier::GenericStore(&domain->setup, setup);
+#endif
+
         domain->domain_id = 1; // Only have a single domain ATM.
 
-        domain->friendly_name = basepath(domainName);
+        domain->friendly_name = basepath(filename);
 
         LastError::InitializeLastErrorThreadStatic();
 
@@ -373,36 +354,21 @@ namespace vm
         os::Environment::SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes");
         os::Environment::SetEnvironmentVariable("MONO_XMLSERIALIZER_THS", "no");
 
+#if !IL2CPP_TINY
         Domain::ContextInit(domain);
         Domain::ContextSet(domain->default_context);
+#endif
 
         VerifyApiVersion();
 
 #if IL2CPP_MONO_DEBUGGER
         il2cpp::utils::Debugger::Start();
 #endif
-
-        std::string executablePath = os::Path::GetExecutablePath();
-        SetConfigStr(executablePath);
-
-        if (utils::Environment::GetNumMainArgs() == 0)
-        {
-            // If main args were never set, we default to 1 arg that is the executable path
-            const char* mainArgs[] = { executablePath.c_str() };
-            utils::Environment::SetMainArgs(mainArgs, 1);
-        }
-
         return true;
     }
 
     void Runtime::Shutdown()
     {
-        os::FastAutoLock lock(&s_InitLock);
-
-        IL2CPP_ASSERT(s_RuntimeInitCount > 0);
-        if (--s_RuntimeInitCount > 0)
-            return;
-
         shutting_down = true;
 
 #if IL2CPP_ENABLE_PROFILER
@@ -444,8 +410,6 @@ namespace vm
         vm::Image::ClearCachedResourceData();
         MetadataAllocCleanup();
 
-        vm::COMEntryPoints::FreeCachedData();
-
         os::Locale::UnInitialize();
         os::Uninitialize();
     }
@@ -462,12 +426,14 @@ namespace vm
 
     static void SetConfigStr(const std::string& executablePath)
     {
+#if !IL2CPP_TINY
         Il2CppDomain* domain = vm::Domain::GetCurrent();
         std::string configFileName = utils::PathUtils::Basename(executablePath);
         configFileName.append(".config");
         std::string appBase = utils::PathUtils::DirectoryName(executablePath);
         IL2CPP_OBJECT_SETREF(domain->setup, application_base, vm::String::New(appBase.c_str()));
         IL2CPP_OBJECT_SETREF(domain->setup, configuration_file, vm::String::New(configFileName.c_str()));
+#endif
     }
 
     void Runtime::SetConfigUtf16(const Il2CppChar* executablePath)
@@ -562,7 +528,7 @@ namespace vm
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
     {
         if (exc)
-            *exc = NULL;
+            il2cpp::gc::WriteBarrier::GenericStore(exc, NULL);
 
         // we wrap invoker call in try/catch here, rather than emitting a try/catch
         // in every invoke call as that blows up the code size.
@@ -578,7 +544,7 @@ namespace vm
         catch (Il2CppExceptionWrapper& ex)
         {
             if (exc)
-                *exc = ex.ex;
+                il2cpp::gc::WriteBarrier::GenericStore(exc, ex.ex);
             return NULL;
         }
     }
@@ -736,7 +702,7 @@ namespace vm
                         // If value type is passed by reference, just pass pointer to value directly
                         // If null was passed in, create a new boxed value type in its place
                         if (parameters[i] == NULL)
-                            parameters[i] = Object::New(parameterType);
+                            gc::WriteBarrier::GenericStore(parameters + i, Object::New(parameterType));
 
                         convertedParameters[i] = Object::Unbox(parameters[i]);
                     }
@@ -789,7 +755,7 @@ namespace vm
                 Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
 
                 if (Class::IsNullable(parameterType))
-                    parameters[i] = Object::Box(parameterType, convertedParameters[i]);
+                    gc::WriteBarrier::GenericStore(parameters + i, Object::Box(parameterType, convertedParameters[i]));
             }
         }
 
@@ -798,7 +764,7 @@ namespace vm
             static Il2CppClass* pointerClass = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Pointer");
             Il2CppReflectionPointer* pointer = reinterpret_cast<Il2CppReflectionPointer*>(Object::New(pointerClass));
             pointer->data = result;
-            pointer->type = Reflection::GetTypeObject(method->return_type);
+            IL2CPP_OBJECT_SETREF(pointer, type, Reflection::GetTypeObject(method->return_type));
             result = reinterpret_cast<Il2CppObject*>(pointer);
         }
 
@@ -850,7 +816,7 @@ namespace vm
 
             // May have been us and we got here through recursion.
             os::Thread::ThreadId currentThread = os::Thread::CurrentThreadId();
-            if (os::Atomic::CompareExchange64(&klass->cctor_thread, currentThread, currentThread) == currentThread)
+            if (os::Atomic::CompareExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)currentThread, (size_t*)currentThread) == (size_t*)currentThread)
                 return;
 
             // Wait for other thread to finish executing the constructor.
@@ -862,7 +828,7 @@ namespace vm
         else
         {
             // Let others know we have started executing the constructor.
-            os::Atomic::Exchange64(&klass->cctor_thread, os::Thread::CurrentThreadId());
+            os::Atomic::ExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)os::Thread::CurrentThreadId());
             os::Atomic::Exchange(&klass->cctor_started, 1);
 
             s_TypeInitializationLock.Unlock();
@@ -877,13 +843,13 @@ namespace vm
 
             // Let other threads know we finished.
             os::Atomic::Exchange(&klass->cctor_finished, 1);
-            os::Atomic::Exchange64(&klass->cctor_thread, 0);
+            os::Atomic::ExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)0);
 
             // Deal with exceptions.
             if (exception != NULL)
             {
                 const Il2CppType *type = Class::GetType(klass);
-                std::string n = StringUtils::Printf("The type initializer for '%s' threw an exception.", Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_IL).c_str());
+                std::string n = il2cpp::utils::StringUtils::Printf("The type initializer for '%s' threw an exception.", Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_IL).c_str());
                 Il2CppException* typeInitializationException = Exception::GetTypeInitializationException(n.c_str(), exception);
                 Exception::Raise(typeInitializationException);
             }
@@ -936,6 +902,7 @@ namespace vm
 
     void Runtime::VerifyApiVersion()
     {
+#if !IL2CPP_TINY
 #if IL2CPP_DEBUG
         Il2CppClass *klass = Class::FromName(il2cpp_defaults.corlib, "System", "Environment");
         Class::Init(klass);
@@ -947,6 +914,7 @@ namespace vm
         IL2CPP_ASSERT(value == 82);
 #else
         IL2CPP_ASSERT(value == 1051100001);
+#endif
 #endif
 #endif
     }

@@ -2,7 +2,6 @@
 
 #include "il2cpp-config.h"
 #include "os/ErrorCodes.h"
-#include "os/Handle.h"
 #include "os/Event.h"
 #include "os/WaitStatus.h"
 #include "utils/NonCopyable.h"
@@ -39,7 +38,7 @@ namespace os
         typedef void (*StartFunc) (void* arg);
         // Use STDCALL calling convention on Windows, as it will be called back directly from the OS. This is defined as nothing on other platforms.
         typedef void (STDCALL * APCFunc)(void* context);
-        typedef uint64_t ThreadId;
+        typedef size_t ThreadId;
         typedef void (*CleanupFunc) (void* arg);
 
         /// Initialize/Shutdown thread subsystem. Must be called on main thread.
@@ -51,7 +50,7 @@ namespace os
 
         /// Set thread name for debugging purposes. Won't do anything if not supported
         /// by platform.
-        void SetName(const std::string& name);
+        void SetName(const char* name);
 
         void SetPriority(ThreadPriority priority);
         ThreadPriority GetPriority();
@@ -88,7 +87,6 @@ namespace os
 
         static ThreadId CurrentThreadId();
         static Thread* GetCurrentThread();
-        static bool HasCurrentThread();
         static Thread* GetOrCreateCurrentThread();
         static void DetachCurrentThread();
 

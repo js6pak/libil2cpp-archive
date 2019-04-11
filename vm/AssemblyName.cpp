@@ -101,11 +101,45 @@ namespace vm
 
 #if NET_4_0
 
+    uint8_t* EncodeStringBlob(const char* original)
+    {
+        size_t stringLength = strlen(original);
+        uint32_t sizeForLength;
+        uint8_t encodedLength[4];
+
+        if (stringLength < 0x80)
+        {
+            sizeForLength = 1;
+            encodedLength[0] = static_cast<uint8_t>(stringLength);
+        }
+        else if (stringLength < 0x4000)
+        {
+            sizeForLength = 2;
+            encodedLength[0] = static_cast<uint8_t>(stringLength >> 8) | 0x80;
+            encodedLength[1] = static_cast<uint8_t>(stringLength & 0xFF);
+        }
+        else
+        {
+            sizeForLength = 4;
+            encodedLength[0] = static_cast<uint8_t>(stringLength >> 24) | 0xC0;
+            encodedLength[1] = static_cast<uint8_t>((stringLength >> 16) & 0xFF);
+            encodedLength[2] = static_cast<uint8_t>((stringLength >> 8) & 0xFF);
+            encodedLength[3] = static_cast<uint8_t>(stringLength & 0xFF);
+        }
+
+        uint8_t* result = static_cast<uint8_t*>(IL2CPP_MALLOC(stringLength + sizeForLength + 1));
+
+        memcpy(result, encodedLength, sizeForLength);
+        strncpy(reinterpret_cast<char*>(result + sizeForLength), original, stringLength + 1);
+        return result;
+    }
+
     void AssemblyName::FillNativeAssemblyName(const Il2CppAssemblyName& aname, Il2CppMonoAssemblyName* nativeName)
     {
         nativeName->name = il2cpp::utils::StringUtils::StringDuplicate(aname.name);
         nativeName->culture = il2cpp::utils::StringUtils::StringDuplicate(aname.culture);
-        nativeName->public_key = aname.public_key != NULL ? aname.public_key : NULL;
+        nativeName->hash_value = il2cpp::utils::StringUtils::StringDuplicate(aname.hash_value);
+        nativeName->public_key = aname.public_key != NULL ? EncodeStringBlob(aname.public_key) : NULL;
         nativeName->hash_alg = aname.hash_alg;
         nativeName->hash_len = aname.hash_len;
         nativeName->flags = aname.flags;

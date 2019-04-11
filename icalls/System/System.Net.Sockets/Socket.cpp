@@ -203,9 +203,9 @@ namespace Sockets
         if (!System_Net_SocketAddress)
         {
             System_Net_SocketAddress = vm::Class::FromName(
-                    vm::Assembly::GetImage(
-                        vm::Assembly::Load("System.dll")),
-                    "System.Net", "SocketAddress");
+                vm::Assembly::GetImage(
+                    vm::Assembly::Load("System.dll")),
+                "System.Net", "SocketAddress");
         }
 
         socket_address = (Il2CppSocketAddress*)vm::Object::New(System_Net_SocketAddress);
@@ -217,7 +217,7 @@ namespace Sockets
 #if NET_4_0
             socket_address->m_Size = 8;
 #endif
-            socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 8);
+            IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 8));
 
             const uint16_t port = info.data.inet.port;
             const uint32_t address = info.data.inet.address;
@@ -238,7 +238,7 @@ namespace Sockets
 #if NET_4_0
             socket_address->m_Size = 3 + path_len;
 #endif
-            socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 3 + path_len);
+            IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 3 + path_len));
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
             il2cpp_array_set(socket_address->data, uint8_t, 1, (family >> 8) & 0xFF);
@@ -253,7 +253,7 @@ namespace Sockets
 #if NET_4_0
             socket_address->m_Size = 28;
 #endif
-            socket_address->data = vm::Array::New(il2cpp_defaults.byte_class, 28);
+            IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 28));
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
             il2cpp_array_set(socket_address->data, uint8_t, 1, (family >> 8) & 0xFF);
@@ -377,9 +377,9 @@ namespace Sockets
             address[i] = buffer[i + 8];
 
         *scope = (uint32_t)((buffer[27] << 24) +
-                            (buffer[26] << 16) +
-                            (buffer[25] << 8) +
-                            (buffer[24]));
+            (buffer[26] << 16) +
+            (buffer[25] << 8) +
+            (buffer[24]));
     }
 
     void Socket::Bind(intptr_t socket, Il2CppSocketAddress* socket_address, int32_t* error)
@@ -627,9 +627,9 @@ namespace Sockets
                 if (!System_Net_Sockets_LingerOption)
                 {
                     System_Net_Sockets_LingerOption = vm::Class::FromName(
-                            vm::Assembly::GetImage(
-                                vm::Assembly::Load("System.dll")),
-                            "System.Net.Sockets", "LingerOption");
+                        vm::Assembly::GetImage(
+                            vm::Assembly::Load("System.dll")),
+                        "System.Net.Sockets", "LingerOption");
                 }
 
                 *obj_val = vm::Object::New(System_Net_Sockets_LingerOption);
@@ -974,11 +974,6 @@ namespace Sockets
             return;
 
         int32_t results = 0;
-
-        // The timeout from managed code is in microseconds. Convert it to milliseconds
-        // for the poll implementation.
-        timeout = (timeout >= 0) ? (timeout / 1000) : -1;
-
         const os::WaitStatus result = os::Socket::Poll(requests, timeout, &results, error);
 
         if (result == kWaitStatusFailure)

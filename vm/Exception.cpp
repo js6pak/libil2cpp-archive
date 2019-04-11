@@ -13,6 +13,7 @@
 #include "vm/Type.h"
 #include "Image.h"
 #include "../utils/StringUtils.h"
+#include "../utils/StringViewUtils.h"
 #include "il2cpp-tabledefs.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
@@ -196,36 +197,36 @@ namespace vm
         switch (hresult)
         {
             case IL2CPP_E_NOTIMPL:
-                return FromNameMsg(Image::GetCorlib(), "System", "NotImplementedException", message);
+                return FromNameMsg(Image::GetCorlib(), "System", "NotImplementedException", STRING_TO_STRINGVIEW(message));
 
             case IL2CPP_E_NOINTERFACE:
-                return GetInvalidCastException(message);
+                return GetInvalidCastException(STRING_TO_STRINGVIEW(message));
 
             case IL2CPP_E_POINTER:
-                return GetNullReferenceException(message);
+                return GetNullReferenceException(STRING_TO_STRINGVIEW(message));
 
             case IL2CPP_COR_E_OPERATIONCANCELED:
-                return FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", message);
+                return FromNameMsg(Image::GetCorlib(), "System", "OperationCanceledException", STRING_TO_STRINGVIEW(message));
 
             case IL2CPP_E_ACCESS_DENIED:
-                return GetUnauthorizedAccessException(message);
+                return GetUnauthorizedAccessException(STRING_TO_STRINGVIEW(message));
 
             case IL2CPP_E_OUTOFMEMORY:
-                return GetOutOfMemoryException(message);
+                return GetOutOfMemoryException(STRING_TO_STRINGVIEW(message));
 
             case IL2CPP_E_INVALIDARG:
-                return GetArgumentException(utils::StringView<Il2CppChar>::Empty(), message);
+                return GetArgumentException(utils::StringView<Il2CppChar>::Empty(), STRING_TO_STRINGVIEW(message));
 
             case IL2CPP_COR_E_OBJECTDISPOSED:
             case IL2CPP_RO_E_CLOSED:
-                return FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", message, hresult);
+                return FromNameMsg(Image::GetCorlib(), "System", "ObjectDisposedException", STRING_TO_STRINGVIEW(message), hresult);
 
             case IL2CPP_E_FAIL:
             {
                 if (message.empty())
                     message = utils::StringUtils::Utf8ToUtf16("Unspecified error");
 
-                return FromNameMsg(Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", message, hresult);
+                return FromNameMsg(Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", STRING_TO_STRINGVIEW(message), hresult);
             }
 
             case IL2CPP_COR_E_PLATFORMNOTSUPPORTED:
@@ -233,16 +234,13 @@ namespace vm
                 if (message.empty())
                     message = utils::StringUtils::Utf8ToUtf16("Operation is not supported on this platform.");
 
-                return GetPlatformNotSupportedException(message);
+                return GetPlatformNotSupportedException(STRING_TO_STRINGVIEW(message));
             }
-
-            case IL2CPP_E_FILE_NOT_FOUND:
-                return GetFileNotFoundException(message);
 
             default:
                 return defaultToCOMException
-                    ? Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", message, hresult)
-                    : Exception::FromNameMsg(vm::Image::GetCorlib(), "System", "Exception", message, hresult);
+                    ? Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", STRING_TO_STRINGVIEW(message), hresult)
+                    : Exception::FromNameMsg(vm::Image::GetCorlib(), "System", "Exception", STRING_TO_STRINGVIEW(message), hresult);
         }
     }
 
@@ -258,7 +256,7 @@ namespace vm
         if (msg != NULL)
             utf16Msg = utils::StringUtils::Utf8ToUtf16(msg);
 
-        return FromNameMsg(image, name_space, name, utf16Msg);
+        return FromNameMsg(image, name_space, name, STRING_TO_STRINGVIEW(utf16Msg));
     }
 
     Il2CppException* Exception::FromNameMsg(const Il2CppImage* image, const char* name_space, const char* name, const utils::StringView<Il2CppChar>& msg)
@@ -381,7 +379,7 @@ namespace vm
         {
             utils::VmStringUtils::CaseInsensitiveComparer comparer;
             if (comparer(assemblyName.name, "WindowsRuntimeMetadata"))
-                return GetTypeLoadExceptionForWindowsRuntimeType(info.ns(), info.name());
+                return GetTypeLoadExceptionForWindowsRuntimeType(STRING_TO_STRINGVIEW(info.ns()), STRING_TO_STRINGVIEW(info.name()));
 
             assemblyNameStr += assemblyName.name;
             assemblyNameStr += ", Version=";
@@ -410,7 +408,7 @@ namespace vm
             assemblyNameStr += assemblyName.public_key_token[0] ? assemblyName.public_key_token : "null";
         }
 
-        return GetTypeLoadException(info.ns(), info.name(), assemblyNameStr);
+        return GetTypeLoadException(STRING_TO_STRINGVIEW(info.ns()), STRING_TO_STRINGVIEW(info.name()), STRING_TO_STRINGVIEW(assemblyNameStr));
     }
 
     Il2CppException* Exception::GetTypeLoadException(const utils::StringView<char>& namespaze, const utils::StringView<char>& typeName, const utils::StringView<char>& assemblyName)
@@ -461,7 +459,7 @@ namespace vm
             const char kInnerExceptionMessage[] = "The provided identity format is not recognized. (Exception from HRESULT: 0x80132003)";
             Il2CppException* innerException = Exception::GetArgumentException("", kInnerExceptionMessage);
             innerException->hresult = 0x80132003;
-            typeLoadException->inner_ex = innerException;
+            IL2CPP_OBJECT_SETREF(typeLoadException, inner_ex, innerException);
         }
 
         return typeLoadException;
@@ -590,11 +588,6 @@ namespace vm
     Il2CppException* Exception::GetFileLoadException(const char* msg)
     {
         return FromNameMsg(Image::GetCorlib(), "System.IO", "FileLoadException", msg);
-    }
-
-    Il2CppException* Exception::GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg)
-    {
-        return FromNameMsg(Image::GetCorlib(), "System.IO", "FileNotFoundException", msg);
     }
 
     void Exception::StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString)

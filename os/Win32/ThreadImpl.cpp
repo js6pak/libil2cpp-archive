@@ -12,7 +12,7 @@ namespace il2cpp
 {
 namespace os
 {
-    struct StartData
+    struct ThreadImplStartData
     {
         Thread::StartFunc m_StartFunc;
         void* m_StartArg;
@@ -21,7 +21,7 @@ namespace os
 
     static DWORD WINAPI ThreadStartWrapper(LPVOID arg)
     {
-        StartData startData = *(StartData*)arg;
+        ThreadImplStartData startData = *(ThreadImplStartData*)arg;
         free(arg);
         *startData.m_ThreadId = GetCurrentThreadId();
         startData.m_StartFunc(startData.m_StartArg);
@@ -39,12 +39,12 @@ namespace os
             CloseHandle(m_ThreadHandle);
     }
 
-    uint64_t ThreadImpl::Id()
+    size_t ThreadImpl::Id()
     {
         return m_ThreadId;
     }
 
-    void ThreadImpl::SetName(const std::string& name)
+    void ThreadImpl::SetName(const char* name)
     {
         // http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 
@@ -62,7 +62,7 @@ namespace os
 
         THREADNAME_INFO info;
         info.dwType = 0x1000;
-        info.szName = name.c_str();
+        info.szName = name;
         info.dwThreadID = static_cast<DWORD>(Id());
         info.dwFlags = 0;
 
@@ -100,7 +100,7 @@ namespace os
         // It might happen that func will start executing and will try to access m_ThreadId before CreateThread gets a chance to assign it.
         // Therefore m_ThreadId is assigned both by this thread and from the newly created thread (race condition could go the other way too).
 
-        StartData* startData = (StartData*)malloc(sizeof(StartData));
+        ThreadImplStartData* startData = (ThreadImplStartData*)malloc(sizeof(ThreadImplStartData));
         startData->m_StartFunc = func;
         startData->m_StartArg = arg;
         startData->m_ThreadId = &m_ThreadId;
@@ -366,7 +366,7 @@ namespace
         m_ApartmentState = state;
     }
 
-    uint64_t ThreadImpl::CurrentThreadId()
+    size_t ThreadImpl::CurrentThreadId()
     {
         return GetCurrentThreadId();
     }

@@ -1,16 +1,17 @@
 #pragma once
 
 #include "gc/GCHandle.h"
-#include "vm/CCWBase.h"
+#include "vm/ComObjectBase.h"
 #include "vm/Exception.h"
 #include "utils/TemplateUtils.h"
+#include "utils/Memory.h"
 
 namespace il2cpp
 {
 namespace vm
 {
     template<typename TDerived>
-    struct NOVTABLE NonCachedCCWBase : CCWBase
+    struct NOVTABLE NonCachedCCWBase : ComObjectBase
     {
     private:
         volatile uint32_t m_RefCount;
@@ -18,7 +19,7 @@ namespace vm
 
     public:
         inline NonCachedCCWBase(Il2CppObject* obj) :
-            CCWBase(obj),
+            ComObjectBase(obj),
             m_RefCount(1) // We start with a ref count of 1
         {
             m_GCHandle = gc::GCHandle::New(GetManagedObjectInline(), false);
@@ -52,7 +53,7 @@ namespace vm
             void* memory = utils::Memory::Malloc(sizeof(TDerived));
             if (memory == NULL)
                 Exception::RaiseOutOfMemoryException();
-            return new(memory)TDerived(obj);
+            return new(memory) TDerived(obj);
         }
 
         virtual void STDCALL Destroy() IL2CPP_FINAL IL2CPP_OVERRIDE

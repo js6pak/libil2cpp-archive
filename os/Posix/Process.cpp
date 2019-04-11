@@ -1,12 +1,11 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_DARWIN
+#if IL2CPP_TARGET_POSIX && !(IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_LUMIN) && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <sys/types.h>
 #include <unistd.h>
 
 #include "os/Process.h"
-#include "vm/Exception.h"
 
 #include "il2cpp-vm-support.h"
 

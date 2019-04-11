@@ -36,22 +36,18 @@ const Il2CppGuid Il2CppIAgileObject::IID = { 0x94ea2b94, 0xe9cc, 0x49e0, 0xc0, 0
 const Il2CppGuid Il2CppIWeakReference::IID = { 0x00000037, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 const Il2CppGuid Il2CppIWeakReferenceSource::IID = { 0x00000038, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 };
 
-using il2cpp::utils::PointerHash;
-
 namespace il2cpp
 {
-    using namespace os;
-
 namespace vm
 {
-    typedef Il2CppHashMap<Il2CppIUnknown*, /* Weak GC Handle */ uint32_t, PointerHash<Il2CppIUnknown> > RCWCache;
+    typedef Il2CppHashMap<Il2CppIUnknown*, /* Weak GC Handle */ uint32_t, il2cpp::utils::PointerHash<Il2CppIUnknown> > RCWCache;
 
-    static FastMutex s_RCWCacheMutex;
+    static os::FastMutex s_RCWCacheMutex;
     static RCWCache s_RCWCache;
 
     void RCW::Register(Il2CppComObject* rcw)
     {
-        FastAutoLock lock(&s_RCWCacheMutex);
+        os::FastAutoLock lock(&s_RCWCacheMutex);
         rcw->refCount = 1;
         const bool inserted = s_RCWCache.insert(std::make_pair(rcw->identity, gc::GCHandle::NewWeakref(rcw, false))).second;
         Assert(inserted);
@@ -83,7 +79,7 @@ namespace vm
         std::string classNameUtf8 = utils::StringUtils::Utf16ToUtf8(classNamePtr, classNameLength);
         os::WindowsRuntime::DeleteHString(className);
 
-        Il2CppClass* rcwClass = MetadataCache::GetWindowsRuntimeClass(classNameUtf8);
+        Il2CppClass* rcwClass = MetadataCache::GetWindowsRuntimeClass(classNameUtf8.c_str());
         return rcwClass != NULL ? rcwClass : fallbackClass;
     }
 
@@ -279,7 +275,7 @@ namespace vm
         Il2CppIUnknown* identity = GetIdentity(comObject);
 
         // 2. Try to find it in RCW cache
-        FastAutoLock lock(&s_RCWCacheMutex);
+        os::FastAutoLock lock(&s_RCWCacheMutex);
         RCWCache::iterator iter = s_RCWCache.find(identity);
         if (iter != s_RCWCache.end())
         {

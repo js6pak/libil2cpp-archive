@@ -1,3 +1,7 @@
+#include "il2cpp-config.h"
+
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+
 #include "VmStringUtils.h"
 #include "../il2cpp-object-internals.h"
 #include "../char-conversions.h"
@@ -135,3 +139,5 @@ namespace utils
     }
 }
 }
+
+#endif

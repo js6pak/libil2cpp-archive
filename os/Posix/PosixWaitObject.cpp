@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX
+#if IL2CPP_TARGET_POSIX && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <cerrno>
 #include <ctime>
@@ -38,13 +38,7 @@ namespace posix
         , m_WaitingThreadCount(0)
     {
         pthread_mutex_init(&m_Mutex, NULL);
-#if IL2CPP_TARGET_JAVASCRIPT
-        ////FIXME: WebGL bombs in pthread_cond_init() with non-NULL attributes ATM.
-        //// We need to fix this once we have proper pthreads on Emscripten. Right now
-        //// this will set up the condition variable incorrectly.
-        pthread_cond_init(&m_Condition, NULL);
-#elif !IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-        // Initialize condition to use CLOCK_MONOTONIC instead of CLOCK_REALTIME.
+#if !IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
         pthread_condattr_t attr;
         int result = pthread_condattr_init(&attr);
         pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);

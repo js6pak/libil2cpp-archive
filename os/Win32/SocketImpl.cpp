@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_WINDOWS
+#if !IL2CPP_USE_GENERIC_SOCKET_IMPL && IL2CPP_TARGET_WINDOWS && IL2CPP_SUPPORT_SOCKETS
 
 #include <time.h>
 #include <string.h>
@@ -313,8 +313,8 @@ namespace os
             saddr6.sin6_len = sizeof(saddr6);
 #endif
             if (getnameinfo((struct sockaddr*)&saddr6, sizeof(saddr6),
-                    hostname, sizeof(hostname), NULL, 0,
-                    flags) != 0)
+                hostname, sizeof(hostname), NULL, 0,
+                flags) != 0)
             {
                 return kWaitStatusFailure;
             }
@@ -339,9 +339,6 @@ namespace os
                 add_local_ips = true;
         }
 
-#if IL2CPP_SUPPORT_IPV6
-        return GetAddressInfo(hostname, add_local_ips, name, addresses);
-#else
         struct hostent *he = NULL;
         if (*hostname)
             he = gethostbyname(hostname);
@@ -350,11 +347,10 @@ namespace os
             return kWaitStatusFailure;
 
         return (add_local_ips
-                ? hostent_get_info_with_local_ips(he, name, aliases, addresses)
-                : hostent_get_info(he, name, aliases, addresses))
+            ? hostent_get_info_with_local_ips(he, name, aliases, addresses)
+            : hostent_get_info(he, name, aliases, addresses))
             ? kWaitStatusSuccess
             : kWaitStatusFailure;
-#endif
     }
 
     WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, int32_t &family, std::vector<std::string> &aliases, std::vector<void*> &addr_list, int32_t &addr_size)
@@ -1616,7 +1612,11 @@ namespace os
                 break;
 
             case kSocketOptionLevelIP:
+#ifdef SOL_IP
+                *system_level = SOL_IP;
+#else
                 *system_level = IPPROTO_IP;
+#endif
 
                 switch (name)
                 {
@@ -1689,7 +1689,11 @@ namespace os
                 break;
 #if IL2CPP_SUPPORT_IPV6
             case kSocketOptionLevelIPv6:
+        #ifdef SOL_IPV6
+                *system_level = SOL_IPV6;
+        #else
                 *system_level = IPPROTO_IPV6;
+        #endif
 
                 switch (name)
                 {
@@ -2326,7 +2330,7 @@ namespace os
             return kWaitStatusFailure;
         }
 
-        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)buffers, options))
+        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)&buffers, options))
         {
             StoreLastError();
 

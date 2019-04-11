@@ -1,7 +1,7 @@
 #pragma once
 
 // Assumes clang or gcc as compiler.
-#if IL2CPP_TARGET_POSIX
+#if IL2CPP_TARGET_POSIX && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "os/c-api/Atomic-c-api.h"
 

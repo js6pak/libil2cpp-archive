@@ -4,6 +4,8 @@
 
 #include "os/Handle.h"
 
+#if IL2CPP_SUPPORT_THREADS
+
 #include <algorithm>
 #include "os/Thread.h"
 
@@ -57,5 +59,27 @@ namespace os
     }
 } // namespace os
 } // naemspace il2cpp
+
+#else
+
+namespace il2cpp
+{
+namespace os
+{
+    int32_t Handle::WaitAny(const std::vector<Handle*>& handles, int32_t ms)
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return 0;
+    }
+
+    bool Handle::WaitAll(std::vector<Handle*>& handles, int32_t ms)
+    {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
+        return false;
+    }
+} // namespace os
+} // naemspace il2cpp
+
+#endif
 
 #endif

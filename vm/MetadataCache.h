@@ -1,15 +1,12 @@
 #pragma once
 
 #include <stdint.h>
-#include <vector>
 #include "il2cpp-config.h"
 #include "Assembly.h"
 #include "metadata/Il2CppTypeVector.h"
 #include "il2cpp-class-internals.h"
 #include "utils/dynamic_array.h"
 #include "os/Mutex.h"
-
-#define THREAD_LOCAL_STATIC_MASK (int32_t)0x80000000
 
 struct MethodInfo;
 struct Il2CppClass;
@@ -24,6 +21,12 @@ namespace il2cpp
 {
 namespace vm
 {
+    struct RGCTXCollection
+    {
+        int32_t count;
+        const Il2CppRGCTXDefinition* items;
+    };
+
     class LIBIL2CPP_CODEGEN_API MetadataCache
     {
     public:
@@ -42,9 +45,8 @@ namespace vm
         static const MethodInfo* GetGenericMethodDefinition(const MethodInfo* method);
 
         static Il2CppClass* GetPointerType(Il2CppClass* type);
-        static Il2CppClass* GetWindowsRuntimeClass(const std::string& fullName);
+        static Il2CppClass* GetWindowsRuntimeClass(const char* fullName);
         static const char* GetWindowsRuntimeClassName(const Il2CppClass* klass);
-        static Il2CppMethodPointer GetWindowsRuntimeFactoryCreationFunction(const char* fullName);
         static Il2CppClass* GetClassForGuid(const Il2CppGuid* guid);
         static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
 
@@ -55,7 +57,7 @@ namespace vm
         static InvokerMethod GetInvokerMethodPointer(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
         static Il2CppMethodPointer GetMethodPointer(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
 
-        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError = true);
+        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index);
         static const Il2CppType* GetIl2CppTypeFromIndex(TypeIndex index);
         static const MethodInfo* GetMethodInfoFromIndex(EncodedMethodIndex index);
         static const Il2CppGenericMethod* GetGenericMethodFromIndex(GenericMethodIndex index);
@@ -65,15 +67,15 @@ namespace vm
         static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index);
         static void InitializeMethodMetadata(uint32_t index);
 
-        static Il2CppMethodPointer GetMethodPointerFromIndex(MethodIndex index);
-        static InvokerMethod GetMethodInvokerFromIndex(MethodIndex index);
+        static Il2CppMethodPointer GetMethodPointer(const Il2CppImage* image, uint32_t token);
+        static InvokerMethod GetMethodInvoker(const Il2CppImage* image, uint32_t token);
         static const Il2CppInteropData* GetInteropDataForType(const Il2CppType* type);
-        static Il2CppMethodPointer GetReversePInvokeWrapperFromIndex(MethodIndex index);
+        static Il2CppMethodPointer GetReversePInvokeWrapper(const Il2CppImage* image, uint32_t token);
 
         static Il2CppMethodPointer GetUnresolvedVirtualCallStub(const MethodInfo* method);
 
         static const Il2CppAssembly* GetAssemblyFromIndex(AssemblyIndex index);
-        static const Il2CppAssembly* GetAssemblyByName(const std::string& name);
+        static const Il2CppAssembly* GetAssemblyByName(const char* nameToFind);
         static Il2CppImage* GetImageFromIndex(ImageIndex index);
         static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index);
         static const Il2CppTypeDefinition* GetTypeDefinitionFromIndex(TypeDefinitionIndex index);
@@ -85,7 +87,7 @@ namespace vm
         static const Il2CppType* GetInterfaceFromIndex(InterfacesIndex index);
         static EncodedMethodIndex GetVTableMethodFromIndex(VTableIndex index);
         static Il2CppInterfaceOffsetPair GetInterfaceOffsetIndex(InterfaceOffsetIndex index);
-        static const Il2CppRGCTXDefinition* GetRGCTXDefinitionFromIndex(RGCTXIndex index);
+        static RGCTXCollection GetRGCTXs(const Il2CppImage* image, uint32_t token);
         static const Il2CppEventDefinition* GetEventDefinitionFromIndex(EventIndex index);
         static const Il2CppFieldDefinition* GetFieldDefinitionFromIndex(FieldIndex index);
         static const Il2CppFieldDefaultValue* GetFieldDefaultValueFromIndex(FieldIndex index);
@@ -125,7 +127,7 @@ namespace vm
         static void InitializeGenericMethodTable();
         static void InitializeWindowsRuntimeTypeNamesTables();
         static void InitializeGuidToClassTable();
-        static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages, bool throwOnError);
+        static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages);
     };
 } // namespace vm
 } // namespace il2cpp

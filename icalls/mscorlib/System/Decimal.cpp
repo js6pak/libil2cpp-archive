@@ -1519,10 +1519,10 @@ il2cpp_decimal_to_double_result(Il2CppDecimal *input, double *result)
 
     if ((int32_t)DECIMAL_MID32(*input) < 0)
         dbl = (ds2to64.d + (double)(int64_t)tmp.int64 +
-               (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
+            (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
     else
         dbl = ((double)(int64_t)tmp.int64 +
-               (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
+            (double)DECIMAL_HI32(*input) * ds2to64.d) / fnDblPower10(DECIMAL_SCALE(*input));
 
     if (DECIMAL_SIGN(*input))
         dbl = -dbl;
@@ -2478,7 +2478,7 @@ il2cpp_decimal_round_result(Il2CppDecimal *input, int cDecimals, Il2CppDecimal *
         if (pwr < rem &&
             ++num[0] == 0 &&
             ++num[1] == 0
-            )
+        )
             ++num[2];
 
         result->v.v.Lo32 = num[0];
@@ -3258,12 +3258,8 @@ namespace System
             }
             else
             {
-                // i is signed here, so for 2147483648 we would see -2147483648 here
-                // negating it is undefined behavior by C++ standard (overflow)
-                // if changing this, make sure to check -2147483648 converts to Int32
-                if (i <= INT32_MAX)
-                    return -i;
-                else if (i == INT32_MIN)
+                i = -i;
+                if (i <= 0)
                     return i;
             }
         }

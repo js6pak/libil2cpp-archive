@@ -2,28 +2,14 @@
 
 #include "il2cpp-config.h"
 
-#include <cassert>
-#include <cstdlib>
-#include <limits>
-#include <string>
-#include <math.h>
-#include <vector>
+#include <cmath>
 
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-tabledefs.h"
 
-#include "gc/GarbageCollector.h"
-#include "vm/PlatformInvoke.h"
-#include "vm/StackTrace.h"
-#include "vm/PlatformInvoke.h"
-#include "vm/StackTrace.h"
 #include "vm-utils/Debugger.h"
-#include "utils/StringUtils.h"
-#include "utils/LeaveTargetStack.h"
-#include "utils/Exception.h"
 #include "utils/Output.h"
-#include "utils/Runtime.h"
 
 REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
 
@@ -122,25 +108,13 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     return llabs(value);
 }
 
-template<typename TInput, typename TOutput, typename TFloat>
-inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
-{
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-    // On ARM, a cast from a floating point to integer value will use
-    // the min or max value if the cast is out of range (instead of
-    // overflowing like x86/x64). So first do a cast to the output
-    // type (which is signed in .NET - the value stack does not have
-    // unsigned types) to try to get the value into a range that will
-    // actually be cast.
-    if (value < 0)
-        return (TOutput)((TInput)(TOutput)value);
-#endif
-    return (TOutput)((TInput)value);
-}
-
 // Exception support macros
+#define IL2CPP_RESET_LEAVE(Offset) \
+    if(__leave_target == 0) \
+        __leave_target = Offset;
+
 #define IL2CPP_LEAVE(Offset, Target) \
-    __leave_targets.push(Offset); \
+    __leave_target = Offset; \
     goto Target;
 
 #define IL2CPP_END_FINALLY(Id) \
@@ -157,13 +131,13 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
         }
 
 #define IL2CPP_JUMP_TBL(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) { \
-        __leave_targets.pop(); \
+    if(__leave_target == Offset) { \
+        __leave_target = 0; \
         goto Target; \
         }
 
 #define IL2CPP_END_CLEANUP(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) \
+    if(__leave_target == Offset) \
         goto Target;
 
 
@@ -181,12 +155,11 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
     } while (0)
 #endif
 
-
-template<typename T>
-inline void Il2CppCodeGenWriteBarrier(T** targetAddress, T* object)
-{
-    il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)targetAddress);
-}
+#if IL2CPP_ENABLE_WRITE_BARRIERS
+void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object);
+#else
+inline void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object) {}
+#endif
 
 void il2cpp_codegen_memory_barrier();
 
@@ -203,7 +176,7 @@ inline void VolatileWrite(T** location, T* value)
 {
     il2cpp_codegen_memory_barrier();
     *location = value;
-    Il2CppCodeGenWriteBarrier(location, value);
+    Il2CppCodeGenWriteBarrier((void**)location, value);
 }
 
 template<typename T>
@@ -218,16 +191,66 @@ inline void il2cpp_codegen_write_to_stdout(const char* str)
     il2cpp::utils::Output::WriteToStdout(str);
 }
 
+#if IL2CPP_TARGET_LUMIN
+inline void il2cpp_codegen_write_to_stdout_args(const char* str, ...)
+{
+    va_list args, local;
+    char* buffer = nullptr;
+    va_start(args, str);
+    va_copy(local, args);
+    int size = vsnprintf(nullptr, 0, str, local);
+    if (size < 0)
+    {
+        va_end(local);
+        va_end(args);
+        return;
+    }
+    va_end(local);
+    va_copy(local, args);
+    buffer = new char[size + 1];
+    vsnprintf(buffer, size + 1, str, local);
+    il2cpp::utils::Output::WriteToStdout(buffer);
+    if (buffer != nullptr)
+        delete[] buffer;
+    va_end(local);
+    va_end(args);
+}
+
+#endif
+
 inline void il2cpp_codegen_write_to_stderr(const char* str)
 {
     il2cpp::utils::Output::WriteToStderr(str);
 }
 
-inline REAL_NORETURN void il2cpp_codegen_abort()
+#if IL2CPP_TARGET_LUMIN
+inline void il2cpp_codegen_write_to_stderr_args(const char* str, ...)
 {
-    il2cpp::utils::Runtime::Abort();
-    il2cpp_codegen_no_return();
+    va_list args, local;
+    char* buffer = nullptr;
+    va_start(args, str);
+    va_copy(local, args);
+    int size = vsnprintf(nullptr, 0, str, local);
+    if (size < 0)
+    {
+        va_end(local);
+        va_end(args);
+        return;
+    }
+    va_end(local);
+    va_copy(local, args);
+    buffer = new char[size + 1];
+    vsnprintf(buffer, size + 1, str, local);
+    il2cpp::utils::Output::WriteToStderr(buffer);
+    if (buffer != nullptr)
+        delete[] buffer;
+    va_end(local);
+    va_end(args);
 }
+
+#endif
+
+REAL_NORETURN void il2cpp_codegen_abort();
 
 inline bool il2cpp_codegen_check_add_overflow(int64_t left, int64_t right)
 {
@@ -290,59 +313,57 @@ inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
     memset(ptr, value, num);
 }
 
-#if IL2CPP_MONO_DEBUGGER
-extern volatile uint32_t g_Il2CppDebuggerCheckPointEnabled;
-#endif
-
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
 #if IL2CPP_MONO_DEBUGGER
-    il2cpp::utils::Debugger::RegisterSequencePointCheck(&g_Il2CppDebuggerCheckPointEnabled);
     il2cpp::utils::Debugger::RegisterMetadata(data);
 #endif
 }
 
-inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, size_t seqPointId)
+inline void il2cpp_codegen_check_sequence_point(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
 {
 #if IL2CPP_MONO_DEBUGGER
-    if (g_Il2CppDebuggerCheckPointEnabled)
-        il2cpp::utils::Debugger::CheckSequencePoint(executionContext, seqPointId);
+    il2cpp::utils::Debugger::CheckSequencePoint(executionContext, seqPoint);
+#endif
+}
+
+inline void il2cpp_codegen_check_sequence_point_entry(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
+{
+#if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::CheckSequencePointEntry(executionContext, seqPoint);
+#endif
+}
+
+inline void il2cpp_codegen_check_sequence_point_exit(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
+{
+#if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::CheckSequencePointExit(executionContext, seqPoint);
 #endif
 }
 
 inline void il2cpp_codegen_check_pause_point()
 {
 #if IL2CPP_MONO_DEBUGGER
-    if (g_Il2CppDebuggerCheckPointEnabled)
-        il2cpp::utils::Debugger::CheckPausePoint();
-#endif
-}
-
-inline Il2CppSequencePoint* il2cpp_codegen_get_sequence_point(size_t id)
-{
-#if IL2CPP_MONO_DEBUGGER
-    return il2cpp::utils::Debugger::GetSequencePoint(id);
-#else
-    return NULL;
+    il2cpp::utils::Debugger::CheckPausePoint();
 #endif
 }
 
 class MethodExitSequencePointChecker
 {
 private:
-    size_t m_pSeqPoint;
+    Il2CppSequencePoint* m_seqPoint;
     Il2CppSequencePointExecutionContext* m_seqPointStorage;
 
 public:
-    MethodExitSequencePointChecker(Il2CppSequencePointExecutionContext* seqPointStorage, size_t seqPointId) :
-        m_seqPointStorage(seqPointStorage), m_pSeqPoint(seqPointId)
+    MethodExitSequencePointChecker(Il2CppSequencePointExecutionContext* seqPointStorage, Il2CppSequencePoint* seqPoint) :
+        m_seqPointStorage(seqPointStorage), m_seqPoint(seqPoint)
     {
     }
 
     ~MethodExitSequencePointChecker()
     {
 #if IL2CPP_MONO_DEBUGGER
-        il2cpp_codegen_check_sequence_point(m_seqPointStorage, m_pSeqPoint);
+        il2cpp_codegen_check_sequence_point_exit(m_seqPointStorage, m_seqPoint);
 #endif
     }
 };
@@ -372,20 +393,4 @@ public:
 inline bool il2cpp_codegen_object_reference_equals(const RuntimeObject *obj1, const RuntimeObject *obj2)
 {
     return obj1 == obj2;
-}
-
-inline bool il2cpp_codegen_platform_is_osx_or_ios()
-{
-    return IL2CPP_TARGET_OSX != 0 || IL2CPP_TARGET_IOS != 0;
-}
-
-inline bool il2cpp_codegen_platform_is_freebsd()
-{
-    // we don't currently support FreeBSD
-    return false;
-}
-
-inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
-{
-    return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
 }

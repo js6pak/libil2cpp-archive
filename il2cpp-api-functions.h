@@ -2,9 +2,8 @@
 #define DO_API_NO_RETURN(r, n, p) DO_API(r,n,p)
 #endif
 
-
-DO_API(void, il2cpp_init, (const char* domain_name));
-DO_API(void, il2cpp_init_utf16, (const Il2CppChar * domain_name));
+DO_API(int, il2cpp_init, (const char* domain_name));
+DO_API(int, il2cpp_init_utf16, (const Il2CppChar * domain_name));
 DO_API(void, il2cpp_shutdown, ());
 DO_API(void, il2cpp_set_config_dir, (const char *config_path));
 DO_API(void, il2cpp_set_data_dir, (const char *data_path));
@@ -119,9 +118,15 @@ DO_API(int32_t, il2cpp_gc_collect_a_little, ());
 DO_API(void, il2cpp_gc_disable, ());
 DO_API(void, il2cpp_gc_enable, ());
 DO_API(bool, il2cpp_gc_is_disabled, ());
+DO_API(int64_t, il2cpp_gc_get_max_time_slice_ns, ());
+DO_API(void, il2cpp_gc_set_max_time_slice_ns, (int64_t maxTimeSlice));
+DO_API(bool, il2cpp_gc_is_incremental, ());
 DO_API(int64_t, il2cpp_gc_get_used_size, ());
 DO_API(int64_t, il2cpp_gc_get_heap_size, ());
 DO_API(void, il2cpp_gc_wbarrier_set_field, (Il2CppObject * obj, void **targetAddress, void *object));
+DO_API(bool, il2cpp_gc_has_strict_wbarriers, ());
+DO_API(void, il2cpp_gc_set_external_allocation_tracker, (void(*func)(void*, size_t, int)));
+DO_API(void, il2cpp_gc_set_external_wbarrier_tracker, (void(*func)(void**)));
 
 // gchandle
 DO_API(uint32_t, il2cpp_gchandle_new, (Il2CppObject * obj, bool pinned));
@@ -272,3 +277,7 @@ DO_API(bool, il2cpp_custom_attrs_has_attr, (Il2CppCustomAttrInfo * ainfo, Il2Cpp
 DO_API(Il2CppArray*,  il2cpp_custom_attrs_construct, (Il2CppCustomAttrInfo * cinfo));
 
 DO_API(void, il2cpp_custom_attrs_free, (Il2CppCustomAttrInfo * ainfo));
+
+// Il2CppClass user data for GetComponent optimization
+DO_API(void, il2cpp_class_set_userdata, (Il2CppClass * klass, void* userdata));
+DO_API(int, il2cpp_class_get_userdata_offset, ());

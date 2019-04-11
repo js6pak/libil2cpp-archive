@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX
+#if IL2CPP_TARGET_POSIX && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <clocale>
 #include <locale.h>
@@ -48,18 +48,18 @@ namespace os
                         len += bytes_converted + 1;
                     }
 
-                    darwin_locale = (char*)IL2CPP_MALLOC(len + 1);
-                    CFStringGetBytes(locale_language, CFRangeMake(0, CFStringGetLength(locale_language)), kCFStringEncodingMacRoman, 0, FALSE, (UInt8*)darwin_locale, len, &bytes_converted);
+                    darwin_locale = (char *)IL2CPP_MALLOC(len + 1);
+                    CFStringGetBytes(locale_language, CFRangeMake(0, CFStringGetLength(locale_language)), kCFStringEncodingMacRoman, 0, FALSE, (UInt8 *)darwin_locale, len, &bytes_converted);
 
                     darwin_locale[bytes_converted] = '-';
                     bytes_written = bytes_converted + 1;
-                    if (locale_script != NULL && CFStringGetBytes(locale_script, CFRangeMake(0, CFStringGetLength(locale_script)), kCFStringEncodingMacRoman, 0, FALSE, (UInt8*)&darwin_locale[bytes_written], len - bytes_written, &bytes_converted) > 0)
+                    if (locale_script != NULL && CFStringGetBytes(locale_script, CFRangeMake(0, CFStringGetLength(locale_script)), kCFStringEncodingMacRoman, 0, FALSE, (UInt8 *)&darwin_locale[bytes_written], len - bytes_written, &bytes_converted) > 0)
                     {
                         darwin_locale[bytes_written + bytes_converted] = '-';
                         bytes_written += bytes_converted + 1;
                     }
 
-                    CFStringGetBytes(locale_country, CFRangeMake(0, CFStringGetLength(locale_country)), kCFStringEncodingMacRoman, 0, FALSE, (UInt8*)&darwin_locale[bytes_written], len - bytes_written, &bytes_converted);
+                    CFStringGetBytes(locale_country, CFRangeMake(0, CFStringGetLength(locale_country)), kCFStringEncodingMacRoman, 0, FALSE, (UInt8 *)&darwin_locale[bytes_written], len - bytes_written, &bytes_converted);
                     darwin_locale[bytes_written + bytes_converted] = '\0';
                 }
             }
@@ -71,7 +71,7 @@ namespace os
                 if (locale_cfstr)
                 {
                     len = CFStringGetMaximumSizeForEncoding(CFStringGetLength(locale_cfstr), kCFStringEncodingMacRoman) + 1;
-                    darwin_locale = (char*)IL2CPP_MALLOC(len);
+                    darwin_locale = (char *)IL2CPP_MALLOC(len);
                     if (!CFStringGetCString(locale_cfstr, darwin_locale, len, kCFStringEncodingMacRoman))
                     {
                         IL2CPP_FREE(darwin_locale);

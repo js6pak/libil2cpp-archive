@@ -23,7 +23,7 @@ namespace Reflection
         static mscorlib_System_Runtime_InteropServices_DllImportAttribute * GetDllImportAttribute(intptr_t);
         static Il2CppArray * GetGenericArguments(Il2CppReflectionMethod *);
         static Il2CppReflectionMethod* GetGenericMethodDefinition_impl(Il2CppReflectionMethod* method);
-        static Il2CppObject * InternalInvoke(Il2CppReflectionMethod * method, Il2CppObject * thisPtr, Il2CppArray * params, Il2CppObject * * exc);
+        static Il2CppObject * InternalInvoke(Il2CppReflectionMethod * method, Il2CppObject * thisPtr, Il2CppArray * params, Il2CppException * * exc);
         static bool get_IsGenericMethod(Il2CppReflectionMethod *);
         static bool get_IsGenericMethodDefinition(Il2CppReflectionMethod *);
         static Il2CppReflectionMethod* get_base_definition(Il2CppReflectionMethod *);

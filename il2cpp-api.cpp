@@ -35,6 +35,7 @@
 
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
+#include "gc/WriteBarrierValidation.h"
 
 #include <locale.h>
 #include <fstream>
@@ -84,15 +85,23 @@ void* il2cpp_api_lookup_symbol(const char* name)
 
 #endif // IL2CPP_API_DYNAMIC_NO_DLSYM
 
-void il2cpp_init(const char* domain_name)
+int il2cpp_init(const char* domain_name)
 {
     // Use environment's default locale
     setlocale(LC_ALL, "");
 
-    Runtime::Init(domain_name);
+    // NOTE(gab): the runtime_version needs to change once we
+    // will support multiple runtimes.
+    // For now we default to the one used by unity and don't
+    // allow the callers to change it.
+#if NET_4_0
+    return Runtime::Init(domain_name, "v4.0.30319");
+#else
+    return Runtime::Init(domain_name, "v2.0.50727");
+#endif
 }
 
-void il2cpp_init_utf16(const Il2CppChar* domain_name)
+int il2cpp_init_utf16(const Il2CppChar* domain_name)
 {
     return il2cpp_init(il2cpp::utils::StringUtils::Utf16ToUtf8(domain_name).c_str());
 }
@@ -653,6 +662,21 @@ bool il2cpp_gc_is_disabled()
     return GarbageCollector::IsDisabled();
 }
 
+bool il2cpp_gc_is_incremental()
+{
+    return GarbageCollector::IsIncremental();
+}
+
+int64_t il2cpp_gc_get_max_time_slice_ns()
+{
+    return GarbageCollector::GetMaxTimeSliceNs();
+}
+
+void il2cpp_gc_set_max_time_slice_ns(int64_t maxTimeSlice)
+{
+    GarbageCollector::SetMaxTimeSliceNs(maxTimeSlice);
+}
+
 int64_t il2cpp_gc_get_used_size()
 {
     return GarbageCollector::GetUsedHeapSize();
@@ -684,6 +708,29 @@ void il2cpp_gc_wbarrier_set_field(Il2CppObject *obj, void **targetAddress, void 
 {
     *targetAddress = object;
     GarbageCollector::SetWriteBarrier(targetAddress);
+}
+
+bool il2cpp_gc_has_strict_wbarriers()
+{
+#if IL2CPP_ENABLE_STRICT_WRITE_BARRIERS
+    return true;
+#else
+    return false;
+#endif
+}
+
+void il2cpp_gc_set_external_allocation_tracker(void(*func)(void*, size_t, int))
+{
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    il2cpp::gc::WriteBarrierValidation::SetExternalAllocationTracker(func);
+#endif
+}
+
+void il2cpp_gc_set_external_wbarrier_tracker(void(*func)(void**))
+{
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    il2cpp::gc::WriteBarrierValidation::SetExternalWriteBarrierTracker(func);
+#endif
 }
 
 void il2cpp_gchandle_free(uint32_t gchandle)
@@ -1252,4 +1299,14 @@ Il2CppArray*  il2cpp_custom_attrs_construct(Il2CppCustomAttrInfo *ainfo)
 void il2cpp_custom_attrs_free(Il2CppCustomAttrInfo *ainfo)
 {
     // nothing to free, we cache everything
+}
+
+void il2cpp_class_set_userdata(Il2CppClass* klass, void* userdata)
+{
+    klass->unity_user_data = userdata;
+}
+
+int il2cpp_class_get_userdata_offset()
+{
+    return offsetof(struct Il2CppClass, unity_user_data);
 }
