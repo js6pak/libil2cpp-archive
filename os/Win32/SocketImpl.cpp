@@ -554,51 +554,6 @@ namespace os
             return kWaitStatusFailure;
         }
 
-        // if (fd >= _wapi_fd_reserve)
-        // {
-        //  WSASetLastError (WSASYSCALLFAILURE);
-        //  closesocket (fd);
-
-        //  return(INVALID_SOCKET);
-        // }
-
-        /* .net seems to set this by default for SOCK_STREAM, not for
-         * SOCK_DGRAM (see bug #36322)
-         *
-         * It seems winsock has a rather different idea of what
-         * SO_REUSEADDR means.  If it's set, then a new socket can be
-         * bound over an existing listening socket.  There's a new
-         * windows-specific option called SO_EXCLUSIVEADDRUSE but
-         * using that means the socket MUST be closed properly, or a
-         * denial of service can occur.  Luckily for us, winsock
-         * behaves as though any other system would when SO_REUSEADDR
-         * is true, so we don't need to do anything else here.  See
-         * bug 53992.
-         */
-        {
-            int32_t v = 1;
-            const int32_t ret = setsockopt((SOCKET)_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(v));
-
-            if (ret == -1)
-            {
-                if (closesocket((SOCKET)_fd) == -1)
-                    StoreLastError();
-
-                return kWaitStatusFailure;
-            }
-        }
-
-        // mono_once (&socket_ops_once, socket_ops_init);
-
-        // handle = _wapi_handle_new_fd (WAPI_HANDLE_SOCKET, fd, &socket_handle);
-        // if (handle == _WAPI_HANDLE_INVALID) {
-        //  g_warning ("%s: error creating socket handle", __func__);
-        //  WSASetLastError (WSASYSCALLFAILURE);
-        //  closesocket (fd);
-
-        //  return(INVALID_SOCKET);
-        // }
-
         _is_valid = true;
 
         return kWaitStatusSuccess;
