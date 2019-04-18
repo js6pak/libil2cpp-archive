@@ -24,7 +24,7 @@ namespace il2cpp
 {
 namespace os
 {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
     std::string Environment::GetMachineName()
     {
         char buf[256];
@@ -136,14 +136,14 @@ namespace os
         exit(result);
     }
 
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
 
     NORETURN void Environment::Abort()
     {
         abort();
     }
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
     std::string Environment::GetWindowsFolderPath(int folder)
     {
         // This should only be called on Windows.
@@ -164,7 +164,7 @@ namespace os
     }
 
 #endif // NET_4_0
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
 }
 }
 #endif

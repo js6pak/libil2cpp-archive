@@ -25,7 +25,7 @@ namespace vm
         static void InitializeStackTracesForCurrentThread();
         static void CleanupStackTracesForCurrentThread();
 
-#if IL2CPP_TINY_DEBUGGER
+#if IL2CPP_DOTS_DEBUGGER
         static std::string GetStackTrace();
 #endif
 

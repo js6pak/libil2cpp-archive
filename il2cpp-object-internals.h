@@ -1,6 +1,9 @@
 #pragma once
 
 #include "il2cpp-config.h"
+
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+
 #include <stdint.h>
 #include <stddef.h>
 #include "il2cpp-class-internals.h"
@@ -1369,3 +1372,5 @@ typedef union Il2CppSingle_float
 } Il2CppSingle_float;
 
 #endif
+
+#endif // IL2CPP_DOTS

@@ -1,7 +1,10 @@
 #include "il2cpp-config.h"
+
+#if IL2CPP_USE_GENERIC_CRASH_HELPERS
+
 #include "os/CrashHelpers.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_USE_GENERIC_CRASH_HELPERS
+#include <cstdlib>
 
 namespace il2cpp
 {
@@ -9,7 +12,7 @@ namespace os
 {
     void CrashHelpers::CrashImpl()
     {
-        __builtin_trap();
+        abort();
     }
 }
 }
