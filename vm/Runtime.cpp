@@ -181,7 +181,7 @@ namespace vm
         DEFAULTS_INIT(string_class, "System", "String");
         DEFAULTS_INIT(enum_class, "System", "Enum");
         DEFAULTS_INIT(array_class, "System", "Array");
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
         DEFAULTS_INIT_TYPE(delegate_class, "System", "Delegate", Il2CppDelegate);
 #if !NET_4_0
         DEFAULTS_INIT(multicastdelegate_class, "System", "MulticastDelegate");
@@ -191,12 +191,12 @@ namespace vm
         DEFAULTS_INIT(asyncresult_class, "System.Runtime.Remoting.Messaging", "AsyncResult");
         DEFAULTS_INIT_TYPE(async_call_class, "System", "MonoAsyncCall", Il2CppAsyncCall);
         DEFAULTS_INIT(manualresetevent_class, "System.Threading", "ManualResetEvent");
-#endif // !IL2CPP_TINY
+#endif // !IL2CPP_DOTS
         //DEFAULTS_INIT(typehandle_class, "System", "RuntimeTypeHandle");
         //DEFAULTS_INIT(methodhandle_class, "System", "RuntimeMethodHandle");
         //DEFAULTS_INIT(fieldhandle_class, "System", "RuntimeFieldHandle");
         DEFAULTS_INIT(systemtype_class, "System", "Type");
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
         DEFAULTS_INIT_TYPE(monotype_class, "System", "MonoType", Il2CppReflectionMonoType);
 #endif
         //DEFAULTS_INIT(exception_class, "System", "Exception");
@@ -206,7 +206,7 @@ namespace vm
         DEFAULTS_INIT_TYPE(internal_thread_class, "System.Threading", "InternalThread", Il2CppInternalThread);
         DEFAULTS_INIT_TYPE(runtimetype_class, "System", "RuntimeType", Il2CppReflectionRuntimeType);
 #endif
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
         DEFAULTS_INIT(appdomain_class, "System", "AppDomain");
         DEFAULTS_INIT(appdomain_setup_class, "System", "AppDomainSetup");
         DEFAULTS_INIT(field_info_class, "System.Reflection", "FieldInfo");
@@ -230,11 +230,11 @@ namespace vm
         DEFAULTS_INIT(culture_info, "System.Globalization", "CultureInfo");
         DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "Assembly", Il2CppReflectionAssembly);
         DEFAULTS_INIT_TYPE(assembly_name_class, "System.Reflection", "AssemblyName", Il2CppReflectionAssemblyName);
-#endif // !IL2CPP_TINY
+#endif // !IL2CPP_DOTS
 #if NET_4_0
         DEFAULTS_INIT_TYPE(mono_assembly_class, "System.Reflection", "MonoAssembly", Il2CppReflectionAssembly);
 #endif
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
 #if !NET_4_0
         DEFAULTS_INIT_TYPE(enum_info_class, "System", "MonoEnumInfo", Il2CppEnumInfo);
 #endif
@@ -264,9 +264,9 @@ namespace vm
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
         DEFAULTS_INIT(system_guid_class, "System", "Guid");
-#endif // !IL2CPP_TINY
+#endif // !IL2CPP_DOTS
 
-#if NET_4_0 && !IL2CPP_TINY
+#if NET_4_0 && !IL2CPP_DOTS
         DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
         DEFAULTS_INIT(mono_method_message_class, "System.Runtime.Remoting.Messaging", "MonoMethodMessage");
 
@@ -319,7 +319,7 @@ namespace vm
         Il2CppThread* mainThread = Thread::Attach(domain);
         Thread::SetMain(mainThread);
 
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
         Il2CppAppDomainSetup* setup = (Il2CppAppDomainSetup*)Object::NewPinned(il2cpp_defaults.appdomain_setup_class);
 
         Il2CppAppDomain* ad = (Il2CppAppDomain*)Object::NewPinned(il2cpp_defaults.appdomain_class);
@@ -354,7 +354,7 @@ namespace vm
         os::Environment::SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes");
         os::Environment::SetEnvironmentVariable("MONO_XMLSERIALIZER_THS", "no");
 
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
         Domain::ContextInit(domain);
         Domain::ContextSet(domain->default_context);
 #endif
@@ -426,7 +426,7 @@ namespace vm
 
     static void SetConfigStr(const std::string& executablePath)
     {
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
         Il2CppDomain* domain = vm::Domain::GetCurrent();
         std::string configFileName = utils::PathUtils::Basename(executablePath);
         configFileName.append(".config");
@@ -905,7 +905,7 @@ namespace vm
 
     void Runtime::VerifyApiVersion()
     {
-#if !IL2CPP_TINY
+#if !IL2CPP_DOTS
 #if IL2CPP_DEBUG
         Il2CppClass *klass = Class::FromName(il2cpp_defaults.corlib, "System", "Environment");
         Class::Init(klass);

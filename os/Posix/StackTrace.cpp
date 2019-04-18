@@ -37,6 +37,27 @@ namespace os
             }
         }
     }
+
+    std::string StackTrace::NativeStackTrace()
+    {
+        void* callstack[kMaxStackFrames];
+        int frames = backtrace(callstack, kMaxStackFrames);
+        char **symbols = backtrace_symbols(callstack, frames);
+
+        std::string stackTrace;
+        if (symbols != NULL)
+        {
+            for (int i = 0; i < frames; ++i)
+            {
+                stackTrace += symbols[i];
+                stackTrace += "\n";
+            }
+
+            free(symbols);
+        }
+
+        return stackTrace;
+    }
 }
 }
 
