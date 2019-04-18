@@ -1,6 +1,9 @@
 #pragma once
 
 #include "il2cpp-config.h"
+
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+
 #include <stdint.h>
 #include "il2cpp-runtime-metadata.h"
 #include "il2cpp-metadata.h"
@@ -729,3 +732,5 @@ typedef struct Il2CppPerfCounters
     unsigned int threadpool_threads;
     unsigned int threadpool_iothreads;
 } Il2CppPerfCounters;
+
+#endif // !IL2CPP_DOTS
