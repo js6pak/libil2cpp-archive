@@ -1,6 +1,6 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
 
 #include "Thread-c-api.h"
 #include "os/Thread.h"

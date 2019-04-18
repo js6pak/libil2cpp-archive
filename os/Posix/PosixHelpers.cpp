@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if IL2CPP_TARGET_POSIX && !IL2CPP_DOTS_WITHOUT_DEBUGGER
 
 #include <sys/errno.h>
 
@@ -17,7 +17,6 @@ namespace posix
         int32_t ret = 0;
         time_t start = time(NULL);
 
-        timeout = (timeout >= 0) ? (timeout / 1000) : -1;
         do
         {
             ret = poll(handles, numHandles, timeout);

@@ -14,8 +14,10 @@
 #include "vm/String.h"
 #include "vm/Exception.h"
 
-#if IL2CPP_TINY_DEBUGGER
+#if IL2CPP_DOTS_DEBUGGER
+#include "os/CrashHelpers.h"
 #include "vm/StackTrace.h"
+#include "utils/Logging.h"
 #endif
 
 #include "utils/PathUtils.h"
@@ -236,11 +238,41 @@ namespace System
 
 #endif
 
-#if IL2CPP_TINY_DEBUGGER
+#if IL2CPP_DOTS_DEBUGGER
     Il2CppString* Environment::GetStackTrace_internal()
     {
         std::string stackTrace = vm::StackTrace::GetStackTrace();
         return vm::String::NewLen(stackTrace.c_str(), (uint32_t)stackTrace.length());
+    }
+
+    void Environment::FailFast_internal(Il2CppString* message)
+    {
+        bool messageWritten = false;
+        if (message != NULL)
+        {
+            std::string messageUtf8 = il2cpp::utils::StringUtils::Utf16ToUtf8(message->chars, message->length);
+            if (!messageUtf8.empty())
+            {
+                il2cpp::utils::Logging::Write(messageUtf8.c_str());
+                messageWritten = true;
+            }
+        }
+
+        if (!messageWritten)
+            il2cpp::utils::Logging::Write("No error message was provided. Hopefully the stack trace can provide some information.");
+
+        std::string managedStackTrace = vm::StackTrace::GetStackTrace();
+        if (!managedStackTrace.empty())
+        {
+            std::string managedStackTraceMessage = "Managed stack trace:\n" + managedStackTrace;
+            il2cpp::utils::Logging::Write(managedStackTraceMessage.c_str());
+        }
+        else
+        {
+            il2cpp::utils::Logging::Write("No managed stack trace exists. Make sure this is a development build to enable managed stack traces.");
+        }
+
+        il2cpp::os::CrashHelpers::Crash();
     }
 
 #endif
