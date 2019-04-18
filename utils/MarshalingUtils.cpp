@@ -7,8 +7,8 @@ namespace utils
 {
     void MarshalingUtils::MarshalStructToNative(void* managedStructure, void* marshaledStructure, const Il2CppInteropData* interopData)
     {
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
-        IL2CPP_ASSERT(0 && "Not supported with the Tiny runtime");
+#if IL2CPP_DOTS_WITHOUT_DEBUGGER
+        IL2CPP_ASSERT(0 && "Not supported with the Dots runtime");
 #else
         IL2CPP_ASSERT(interopData);
         IL2CPP_ASSERT(interopData->pinvokeMarshalToNativeFunction);
@@ -18,8 +18,8 @@ namespace utils
 
     void MarshalingUtils::MarshalStructFromNative(void* marshaledStructure, void* managedStructure, const Il2CppInteropData* interopData)
     {
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
-        IL2CPP_ASSERT(0 && "Not supported with the Tiny runtime");
+#if IL2CPP_DOTS_WITHOUT_DEBUGGER
+        IL2CPP_ASSERT(0 && "Not supported with the Dots runtime");
 #else
         IL2CPP_ASSERT(interopData);
         IL2CPP_ASSERT(interopData->pinvokeMarshalFromNativeFunction);
@@ -29,8 +29,8 @@ namespace utils
 
     bool MarshalingUtils::MarshalFreeStruct(void* marshaledStructure, const Il2CppInteropData* interopData)
     {
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
-        IL2CPP_ASSERT(0 && "Not supported with the Tiny runtime");
+#if IL2CPP_DOTS_WITHOUT_DEBUGGER
+        IL2CPP_ASSERT(0 && "Not supported with the Dots runtime");
         return false;
 #else
         if (interopData == NULL)

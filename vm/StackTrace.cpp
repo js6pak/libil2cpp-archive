@@ -258,7 +258,7 @@ namespace vm
             callback(&*it, context);
     }
 
-#if IL2CPP_TINY_DEBUGGER
+#if IL2CPP_DOTS_DEBUGGER
     std::string StackTrace::GetStackTrace()
     {
         const StackFrames* frames = s_MethodStack.GetStackFrames();

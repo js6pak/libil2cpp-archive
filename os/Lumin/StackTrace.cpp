@@ -131,6 +131,11 @@ namespace
                 break;
         }
     }
+
+    std::string StackTrace::NativeStackTrace()
+    {
+        return std::string();
+    }
 }
 }
 
