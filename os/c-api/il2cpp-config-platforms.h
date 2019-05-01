@@ -44,10 +44,6 @@
 #define IL2CPP_TARGET_WINDOWS_DESKTOP 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
-// Windows 7 is the min OS we support, so we cannot link newer APIs
-#define NTDDI_VERSION    0x06010000
-#define _WIN32_WINNT     0x0601
-#define WINVER           0x0601
 #endif
 #define _UNICODE 1
 #define UNICODE 1
@@ -84,8 +80,7 @@
 #define IL2CPP_TARGET_ANDROID 1
 #define IL2CPP_PLATFORM_SUPPORTS_TIMEZONEINFO 1
 #define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
-#define IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE 1
-#define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
+#define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT," IL2CPP_BINARY_SECTION_NAME ",regular,pure_instructions")))
 #elif defined(__EMSCRIPTEN__)
 #define IL2CPP_TARGET_JAVASCRIPT 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
@@ -219,10 +214,6 @@
 #define IL2CPP_PLATFORM_SUPPORTS_DEBUGGER_PRESENT 0
 #endif
 
-#ifndef IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE
-#define IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE 0
-#endif
-
 #ifndef IL2CPP_PLATFORM_SUPPORTS_BACKTRACE_CALL
 #define IL2CPP_PLATFORM_SUPPORTS_BACKTRACE_CALL !IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_LUMIN
 #endif //IL2CPP_PLATFORM_SUPPORTS_BACKTRACE_CALL
@@ -237,11 +228,6 @@
 #define IL2CPP_THREADS_PS4 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PS4)
 #define IL2CPP_THREADS_PSP2 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PSP2)
 #define IL2CPP_THREADS_SWITCH (!IL2CPP_THREADS_STD && IL2CPP_TARGET_SWITCH)
-
-// Not supported on RUNTIME_MONO because we don't really care about it
-// Not supported on TINY because it doesn't support synchronization context
-// Not supported on no runtime because it needs to call back into the runtime!
-#define IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT (IL2CPP_TARGET_WINDOWS) && !RUNTIME_MONO && !IL2CPP_DOTS && !RUNTIME_NONE
 
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \

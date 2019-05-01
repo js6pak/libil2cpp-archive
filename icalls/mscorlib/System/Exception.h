@@ -14,7 +14,6 @@ namespace System
     public:
         static bool nIsTransient(int32_t hr);
         static Il2CppObject* GetMethodFromStackTrace(Il2CppObject* stackTrace);
-        static void ReportUnhandledException(Il2CppException* exception);
     };
 } // namespace System
 } // namespace mscorlib

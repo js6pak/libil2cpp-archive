@@ -200,7 +200,7 @@ extern "C"
         ERROR_CHECK(hr);
 
         HString name;
-        hr = MakeSynchronousOperation(op.Get())->GetResults(name.GetAddressOf());
+        hr = SynchronousOperation<HSTRING>(op.Get()).GetResults(name.GetAddressOf());
         ERROR_CHECK(hr);
 
 #undef ERROR_CHECK

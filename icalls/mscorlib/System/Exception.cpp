@@ -1,7 +1,6 @@
 #if NET_4_0
 #include "il2cpp-config.h"
 #include "Exception.h"
-#include "vm/Runtime.h"
 
 namespace il2cpp
 {
@@ -23,11 +22,6 @@ namespace System
         IL2CPP_NOT_IMPLEMENTED_ICALL(Exception::GetMethodFromStackTrace);
         IL2CPP_UNREACHABLE;
         return NULL;
-    }
-
-    void Exception::ReportUnhandledException(Il2CppException* exception)
-    {
-        vm::Runtime::UnhandledException(exception);
     }
 } // namespace System
 } // namespace mscorlib

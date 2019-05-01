@@ -960,11 +960,6 @@ System.Threading.NativeEventCalls::OpenEvent_internal(System.String,System.Secur
 System.Threading.NativeEventCalls::ResetEvent_internal(System.IntPtr) mscorlib::System::Threading::NativeEventCalls::ResetEvent_internal
 System.Threading.NativeEventCalls::SetEvent_internal(System.IntPtr) mscorlib::System::Threading::NativeEventCalls::SetEvent_internal
 
-// System.Threading.OSSpecificSynchronizationContext
->icalls/mscorlib/System.Threading/OSSpecificSynchronizationContext.h
-System.Threading.OSSpecificSynchronizationContext::GetOSContext() mscorlib::System::Threading::OSSpecificSynchronizationContext::GetOSContext
-System.Threading.OSSpecificSynchronizationContext::PostInternal(System.Object,System.IntPtr,System.IntPtr) mscorlib::System::Threading::OSSpecificSynchronizationContext::PostInternal
-
 // System.Threading.Semaphore
 >icalls/System/System.Threading/Semaphore.h
 System.Threading.Semaphore::CreateSemaphore_internal(System.Int32,System.Int32,System.String,System.Boolean&) System::System::Threading::Semaphore::CreateSemaphore_internal
@@ -1130,7 +1125,6 @@ System.CLRConfig::CheckThrowUnobservedTaskExceptions() mscorlib::System::CLRConf
 >icalls/mscorlib/System/Exception.h
 System.Exception::nIsTransient(System.Int32) mscorlib::System::Exception::nIsTransient
 System.Exception::GetMethodFromStackTrace(System.Object) mscorlib::System::Exception::GetMethodFromStackTrace
-System.Exception::ReportUnhandledException(System.Exception) mscorlib::System::Exception::ReportUnhandledException
 
 // System.Number
 >icalls/mscorlib/System/Number.h
