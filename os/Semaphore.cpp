@@ -76,11 +76,6 @@ namespace os
     {
         return kWaitStatusSuccess;
     }
-
-    void* Semaphore::GetOSHandle()
-    {
-        return NULL;
-    }
 }
 }
 

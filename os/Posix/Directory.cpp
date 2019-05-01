@@ -171,8 +171,7 @@ namespace os
     }
 
     Directory::FindHandle::FindHandle(const utils::StringView<Il2CppNativeChar>& searchPathWithPattern) :
-        osHandle(NULL),
-        handleFlags(os::kNoFindHandleFlags)
+        osHandle(NULL)
     {
         directoryPath = il2cpp::utils::PathUtils::DirectoryName(searchPathWithPattern);
         pattern = il2cpp::utils::PathUtils::Basename(searchPathWithPattern);

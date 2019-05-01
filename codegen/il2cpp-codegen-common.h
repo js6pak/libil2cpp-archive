@@ -9,7 +9,6 @@
 #include "il2cpp-tabledefs.h"
 
 #include "vm-utils/Debugger.h"
-#include "utils/LeaveTargetStack.h"
 #include "utils/Output.h"
 
 REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
@@ -109,25 +108,13 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     return llabs(value);
 }
 
-template<typename TInput, typename TOutput, typename TFloat>
-inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
-{
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-    // On ARM, a cast from a floating point to integer value will use
-    // the min or max value if the cast is out of range (instead of
-    // overflowing like x86/x64). So first do a cast to the output
-    // type (which is signed in .NET - the value stack does not have
-    // unsigned types) to try to get the value into a range that will
-    // actually be cast.
-    if (value < 0)
-        return (TOutput)((TInput)(TOutput)value);
-#endif
-    return (TOutput)((TInput)value);
-}
-
 // Exception support macros
+#define IL2CPP_RESET_LEAVE(Offset) \
+    if(__leave_target == 0) \
+        __leave_target = Offset;
+
 #define IL2CPP_LEAVE(Offset, Target) \
-    __leave_targets.push(Offset); \
+    __leave_target = Offset; \
     goto Target;
 
 #define IL2CPP_END_FINALLY(Id) \
@@ -144,13 +131,13 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
         }
 
 #define IL2CPP_JUMP_TBL(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) { \
-        __leave_targets.pop(); \
+    if(__leave_target == Offset) { \
+        __leave_target = 0; \
         goto Target; \
         }
 
 #define IL2CPP_END_CLEANUP(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) \
+    if(__leave_target == Offset) \
         goto Target;
 
 
@@ -384,9 +371,6 @@ public:
 #ifdef _MSC_VER
 #define IL2CPP_DISABLE_OPTIMIZATIONS __pragma(optimize("", off))
 #define IL2CPP_ENABLE_OPTIMIZATIONS __pragma(optimize("", on))
-#elif IL2CPP_TARGET_LINUX
-#define IL2CPP_DISABLE_OPTIMIZATIONS
-#define IL2CPP_ENABLE_OPTIMIZATIONS
 #else
 #define IL2CPP_DISABLE_OPTIMIZATIONS __attribute__ ((optnone))
 #define IL2CPP_ENABLE_OPTIMIZATIONS
@@ -409,20 +393,4 @@ public:
 inline bool il2cpp_codegen_object_reference_equals(const RuntimeObject *obj1, const RuntimeObject *obj2)
 {
     return obj1 == obj2;
-}
-
-inline bool il2cpp_codegen_platform_is_osx_or_ios()
-{
-    return IL2CPP_TARGET_OSX != 0 || IL2CPP_TARGET_IOS != 0;
-}
-
-inline bool il2cpp_codegen_platform_is_freebsd()
-{
-    // we don't currently support FreeBSD
-    return false;
-}
-
-inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
-{
-    return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
 }
