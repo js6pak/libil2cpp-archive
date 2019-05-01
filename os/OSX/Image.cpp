@@ -42,7 +42,7 @@ namespace Image
         for (uint32_t i = 0; i < numberOfImages; i++)
         {
             const char* imageName = _dyld_get_image_name(i);
-            if (strstr(imageName, "GameAssembly.dylib") != NULL)
+            if (strstr(imageName, "GameAssembly.dylib") != NULL || strstr(imageName, "UnityFramework.framework/UnityFramework") != NULL)
                 gameAssemblyImageIndex = i;
             else if (strcmp(imageName, &path[0]) == 0)
                 executableImageIndex = i;
