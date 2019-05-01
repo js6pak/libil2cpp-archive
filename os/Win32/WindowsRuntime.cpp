@@ -11,7 +11,21 @@
 #include "vm/CCW.h"
 #include "WindowsHeaders.h"
 
+
+#if LINK_TO_WINDOWSRUNTIME_LIBS
 #include <roerrorapi.h>
+#else
+
+typedef enum
+{
+    RO_ERROR_REPORTING_NONE = 0x00000000,
+    RO_ERROR_REPORTING_SUPPRESSEXCEPTIONS = 0x00000001,
+    RO_ERROR_REPORTING_FORCEEXCEPTIONS = 0x00000002,
+    RO_ERROR_REPORTING_USESETERRORINFO = 0x00000004,
+    RO_ERROR_REPORTING_SUPPRESSSETERRORINFO = 0x00000008,
+} RO_ERROR_REPORTING_FLAGS;
+
+#endif
 
 namespace il2cpp
 {
@@ -342,8 +356,6 @@ namespace os
             if (RoSetErrorReportingFlags == NULL)
                 return;
         }
-
-        const int RO_ERROR_REPORTING_USESETERRORINFO = 0x00000004;
 #endif
 
         il2cpp_hresult_t hr = RoSetErrorReportingFlags(RO_ERROR_REPORTING_USESETERRORINFO);
