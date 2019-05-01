@@ -589,11 +589,12 @@ namespace InteropServices
                     if (!vm::Type::IsStruct(previousField->type))
                     {
                         size_t managedOffset = field->offset - previousField->offset;
-                        if (managedOffset != 0) // overlapping fields have a zero offset
+                        if (type->packingSize == 0)
+                            offset += managedOffset;
+                        else if (managedOffset != 0) // overlapping fields have a zero offset
                         {
                             offset += vm::Class::GetFieldMarshaledSize(previousField);
-                            int marshaledFieldSize = vm::Class::GetFieldMarshaledSize(field);
-                            offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldSize : std::min((int)type->packingSize, marshaledFieldSize));
+                            offset = RoundUpToMultiple(offset, std::min((int)type->packingSize, vm::Class::GetFieldMarshaledSize(field)));
                         }
                     }
                     else
@@ -678,9 +679,8 @@ namespace InteropServices
 #if NET_4_0
     intptr_t Marshal::AllocCoTaskMemSize(intptr_t sizet)
     {
-        intptr_t result;
-        result = (intptr_t)vm::MarshalAlloc::Allocate(sizet);
-        return result;
+        IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::AllocCoTaskMemSize);
+        IL2CPP_UNREACHABLE;
     }
 
 #endif
