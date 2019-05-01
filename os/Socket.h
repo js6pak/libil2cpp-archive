@@ -192,17 +192,6 @@ namespace os
 
     struct PollRequest
     {
-        PollRequest()
-            : fd(-1)
-            , events(kPollFlagsNone)
-            , revents(kPollFlagsNone)
-        {}
-
-        PollRequest(int64_t value)
-            : fd(value)
-            , events(kPollFlagsNone)
-            , revents(kPollFlagsNone)
-        {}
         int64_t fd;
         PollFlags events;
         PollFlags revents;

@@ -679,53 +679,9 @@ namespace os
 
 #endif
 
-    static AddressFamily convert_define_to_address_family(int32_t family)
-    {
-        switch (family)
-        {
-            case AF_UNSPEC:
-                return kAddressFamilyUnspecified;
-
-            case AF_UNIX:
-                return kAddressFamilyUnix;
-
-            case AF_INET:
-                return kAddressFamilyInterNetwork;
-#ifdef AF_IPX
-            case AF_IPX:
-                return kAddressFamilyIpx;
-#endif
-#ifdef AF_SNA
-            case AF_SNA:
-                return kAddressFamilySna;
-#endif
-#ifdef AF_DECnet
-            case AF_DECnet:
-                return kAddressFamilyDecNet;
-#endif
-#ifdef AF_APPLETALK
-            case AF_APPLETALK:
-                return kAddressFamilyAppleTalk;
-#endif
-#ifdef AF_INET6
-            case AF_INET6:
-                return kAddressFamilyInterNetworkV6;
-#endif
-#ifdef AF_IRDA
-            case AF_IRDA:
-                return kAddressFamilyIrda;
-#endif
-
-            default:
-                break;
-        }
-
-        return kAddressFamilyError;
-    }
-
     static bool socketaddr_to_endpoint_info(const struct sockaddr *address, socklen_t address_len, EndPointInfo &info)
     {
-        info.family = convert_define_to_address_family(address->sa_family);
+        info.family = (os::AddressFamily)address->sa_family;
 
         if (info.family == os::kAddressFamilyInterNetwork)
         {
@@ -745,28 +701,6 @@ namespace os
 
         //  return true;
         //}
-
-#if IL2CPP_SUPPORT_IPV6
-        if (info.family == os::kAddressFamilyInterNetworkV6)
-        {
-            const struct sockaddr_in6 *address_in = (const struct sockaddr_in6 *)address;
-
-            uint16_t port = ntohs(address_in->sin6_port);
-
-            info.data.raw[2] = (port >> 8) & 0xff;
-            info.data.raw[3] = port & 0xff;
-
-            for (int i = 0; i < 16; i++)
-                info.data.raw[i + 8] = address_in->sin6_addr.s6_addr[i];
-
-            info.data.raw[24] = address_in->sin6_scope_id & 0xff;
-            info.data.raw[25] = (address_in->sin6_scope_id >> 8) & 0xff;
-            info.data.raw[26] = (address_in->sin6_scope_id >> 16) & 0xff;
-            info.data.raw[27] = (address_in->sin6_scope_id >> 24) & 0xff;
-
-            return true;
-        }
-#endif
 
         return false;
     }
@@ -2396,7 +2330,7 @@ namespace os
             return kWaitStatusFailure;
         }
 
-        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)buffers, options))
+        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)&buffers, options))
         {
             StoreLastError();
 
