@@ -699,7 +699,13 @@ namespace vm
                 }
                 catch (Il2CppExceptionWrapper& ex)
                 {
-                    Runtime::UnhandledException(ex.ex);
+                    // Only deal with the unhandled exception if the runtime is not
+                    // shutting down. Otherwise, the code to process the unhandled
+                    // exception might fail in unexpected ways, because it needs
+                    // the full runtime available. We've seen this cause crashes
+                    // that are difficult to reproduce locally.
+                    if (!il2cpp::vm::Runtime::IsShuttingDown())
+                        Runtime::UnhandledException(ex.ex);
                 }
             }
             catch (il2cpp::vm::Thread::NativeThreadAbortException)
