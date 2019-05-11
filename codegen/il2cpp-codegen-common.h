@@ -371,6 +371,9 @@ public:
 #ifdef _MSC_VER
 #define IL2CPP_DISABLE_OPTIMIZATIONS __pragma(optimize("", off))
 #define IL2CPP_ENABLE_OPTIMIZATIONS __pragma(optimize("", on))
+#elif IL2CPP_TARGET_LINUX
+#define IL2CPP_DISABLE_OPTIMIZATIONS
+#define IL2CPP_ENABLE_OPTIMIZATIONS
 #else
 #define IL2CPP_DISABLE_OPTIMIZATIONS __attribute__ ((optnone))
 #define IL2CPP_ENABLE_OPTIMIZATIONS
