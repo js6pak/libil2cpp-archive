@@ -24,7 +24,9 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
     // atomic exchange, returns previous value
     atomic_word atomic_exchange (volatile atomic_word* p, atomic_word val);
 
-    // atomic compare exchange (strong), returns if the operation succeeded and update *oldval with the previous value
+    // atomic compare exchange (strong), returns if the operation succeeded
+    // and update *oldval with the previous value
+    // http://en.cppreference.com/w/c/atomic/atomic_compare_exchange
     bool atomic_compare_exchange (volatile atomic_word* p, atomic_word* oldval, atomic_word newval);
 
     // atomic fetch then add, returns previous value
@@ -51,11 +53,13 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
     // atomic_compare_exchange_weak_explicit: can fail spuriously even if *p == *oldval
     // uses <success> memory barrier when it succeeds, <failure> otherwize
     // returns the state of the operation and updates *oldval with the previous value
+    // http://en.cppreference.com/w/c/atomic/atomic_compare_exchange
     bool atomic_compare_exchange_weak_explicit (volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_t success, memory_order_t failure);
 
     // atomic_compare_exchange_strong_explicit: can loop and only returns false if *p != *oldval
     // uses <success> memory barrier when it succeeds, <failure> otherwise
     // returns the state of the operation and updates *oldval with the previous value
+    // http://en.cppreference.com/w/c/atomic/atomic_compare_exchange
     bool atomic_compare_exchange_strong_explicit (volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_t success, memory_order_t failure);
 
     // atomic fetch then add with <mo> semantic, returns previous value
@@ -83,7 +87,7 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
     void atomic_store_explicit (volatile atomic_word2* p, atomic_word2 v, memory_order_t mo);
 
     // atomic exchange
-    atomic_word atomic_exchange_explicit (volatile atomic_word2* p, atomic_word2 newval, memory_order_t mo);
+    atomic_word2 atomic_exchange_explicit (volatile atomic_word2* p, atomic_word2 newval, memory_order_t mo);
 
     // atomic compare exchange
     bool atomic_compare_exchange_strong_explicit (volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, memory_order_t success, memory_order_t failure);
@@ -100,7 +104,6 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
 #elif defined(__x86_64__) || defined(_M_X64)
 
 #   include "ExtendedAtomicOps-x86-64.h"
-#   define UNITY_ATOMIC_INT_OVERLOAD
 
 #elif defined(__x86__) || defined(__i386__) || defined(_M_IX86)
 
@@ -109,33 +112,15 @@ enum memory_order_seq_cst_t { memory_order_seq_cst = 5 };
 #elif (defined(__arm64__) || defined(__aarch64__)) && (defined(__clang__) || defined(__GNUC__))
 
 #   include "ExtendedAtomicOps-arm64.h"
-#   define UNITY_ATOMIC_INT_OVERLOAD
 
 #elif defined(_M_ARM64)
 
 #   include "ExtendedAtomicOps-arm64-windows.h"
-#   define UNITY_ATOMIC_INT_OVERLOAD
 
-#elif defined(_M_ARM) || (defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (!UNITY_STV_API) && (defined(__clang__) || defined(__GNUC__)))
+#elif defined(_M_ARM) || (defined(__arm__) && (defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__)) && (defined(__clang__) || defined(__GNUC__)))
 
 #   include "ExtendedAtomicOps-arm.h"
 
-#elif PLATFORM_WIIU
-
-#   include "ExtendedAtomicOps-ppc.h"
-
-#elif PLATFORM_PSVITA
-
-#   include "PlatformExtendedAtomicOps.h"
-
-#elif (defined(__ppc64__) || defined(_ARCH_PPC64)) && (defined(__clang__) || defined(__GNUC__))
-
-#   include "ExtendedAtomicOps-ppc64.h"
-#   define UNITY_ATOMIC_INT_OVERLOAD
-
-//#elif defined (__ppc__) && (defined (__clang__) || defined (__GNUC__))
-
-//# include "Runtime/Threads/ExtendedAtomicOps-ppc.h"
 #else
 
     #define UNITY_NO_ATOMIC_OPS
@@ -201,6 +186,16 @@ static inline int atomic_load(const volatile int* p)
 static inline void atomic_store(volatile int* p, int val)
 {
     atomic_store_explicit(p, val, memory_order_seq_cst);
+}
+
+static inline int atomic_exchange(volatile int* p, int val)
+{
+    return atomic_exchange_explicit(p, val, memory_order_seq_cst);
+}
+
+static inline bool atomic_compare_exchange(volatile int* p, int* oldval, int newval)
+{
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, memory_order_seq_cst, memory_order_seq_cst);
 }
 
 static inline int atomic_fetch_add(volatile int *p, int val)

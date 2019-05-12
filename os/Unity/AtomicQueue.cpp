@@ -26,6 +26,8 @@ AtomicNode* AtomicNode::Link(AtomicNode* next)
 
 #if defined(ATOMIC_HAS_QUEUE)
 
+#if !IL2CPP_TARGET_JAVASCRIPT
+
 //
 //  AtomicStack
 //
@@ -78,9 +80,19 @@ void AtomicStack::Push(AtomicNode* node)
     }
     while (!atomic_compare_exchange_strong_explicit(&_top, &top, newtop, memory_order_release, memory_order_relaxed));
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
-    AtomicNode* top;
+    do
+    {
+        node->_next = UNITY_ATOMIC_ARMV8_LDAEX(&_top);
+        UNITY_ATOMIC_ARMV7_DMB_ISH
+    }
+    while (UNITY_ATOMIC_ARMV8_STLEX((atomic_word)node, &_top));
+    UNITY_ATOMIC_ARMV7_DMB_ISH
+
+#elif defined(__arm64__)
+
+    AtomicNode * top;
     long success;
     __asm__ __volatile__
     (
@@ -94,21 +106,6 @@ void AtomicStack::Push(AtomicNode* node)
         : "r" (&_top), "r" (node)
         : "cc", "memory"
     );
-
-#elif PLATFORM_N3DS
-    AtomicNode* top;
-    int success;
-
-    __asm__ __volatile__
-    {
-        //dmb   ishst //not supported on N3DS
-    one:
-        ldrex top, [&_top]
-        str top, [node]
-        strex success, node, [&_top]
-        teq success, #0
-        bne one
-    }
 
 #elif defined(__arm__)
 
@@ -198,9 +195,19 @@ void AtomicStack::PushAll(AtomicNode* first, AtomicNode* last)
     }
     while (!atomic_compare_exchange_strong_explicit(&_top, &top, newtop, memory_order_release, memory_order_relaxed));
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
-    AtomicNode* top;
+    do
+    {
+        last->_next = UNITY_ATOMIC_ARMV8_LDAEX(&_top);
+        UNITY_ATOMIC_ARMV7_DMB_ISH
+    }
+    while (UNITY_ATOMIC_ARMV8_STLEX((atomic_word)first, &_top));
+    UNITY_ATOMIC_ARMV7_DMB_ISH
+
+#elif defined(__arm64__)
+
+    AtomicNode * top;
     long success;
 
     __asm__ __volatile__
@@ -214,21 +221,6 @@ void AtomicStack::PushAll(AtomicNode* first, AtomicNode* last)
         : "=&r" (top), "+m" (_top), "=m" (*last), "=&r" (success)
         : "r" (&_top), "r" (first), "r" (last)
         : "cc", "memory"
-    );
-
-#elif PLATFORM_N3DS
-    AtomicNode* top;
-    int success;
-
-    __asm__ __volatile__
-    (
-        //"dmb  ishst\n\t" //not supported on N3DS
-        "0:\n\t"
-        "ldrex\ttop, [&_top]\n\t"
-        "str    top, [last]\n\t"
-        "strex\tsuccess, first, [&_top]\n\t"
-        "teq    success, #0\n\t"
-        "bne\t0b\n\t"
     );
 
 #elif defined(__arm__)
@@ -324,9 +316,27 @@ AtomicNode* AtomicStack::Pop()
 
     return node;
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
-    AtomicNode* top = NULL;
+    AtomicNode* node = 0;
+    do
+    {
+        node = (AtomicNode*)UNITY_ATOMIC_ARMV8_LDAEX(&_top);
+        UNITY_ATOMIC_ARMV7_DMB_ISH
+        if (node == 0)   // stack became empty in the meantime so return null
+        {
+            __builtin_arm_clrex();
+            break;
+        }
+    }
+    while (UNITY_ATOMIC_ARMV8_STLEX(node->_next, &_top));
+    UNITY_ATOMIC_ARMV7_DMB_ISH
+
+    return node;
+
+#elif defined(__arm64__)
+
+    AtomicNode* top;
     AtomicNode* tmp;
     long success;
 
@@ -346,31 +356,9 @@ AtomicNode* AtomicStack::Pop()
     );
     return top;
 
-#elif PLATFORM_N3DS
-
-    AtomicNode* top = NULL;
-    AtomicNode* tmp;
-    int success = 0;
-
-    __asm__ __volatile__
-    {
-    one:
-        ldrex top, [&_top]
-        cmp top, #0
-        beq two
-        ldr tmp, [top]
-        strex success, tmp, [&_top]
-        teq success, #0
-        bne one
-        //isb
-    two:
-    }
-
-    return top;
-
 #elif defined(__arm__)
 
-    AtomicNode* top = NULL;
+    AtomicNode* top;
     AtomicNode* tmp;
     int success;
 
@@ -395,7 +383,7 @@ AtomicNode* AtomicStack::Pop()
 
 #elif defined(__ppc64__) || defined(_ARCH_PPC64)
 
-    AtomicNode* top = NULL;
+    AtomicNode* top;
     AtomicNode* tmp;
 
     __asm__ __volatile__
@@ -422,7 +410,7 @@ AtomicNode* AtomicStack::Pop()
 
 #elif defined(__ppc__)
 
-    AtomicNode* top = NULL;
+    AtomicNode* top;
     AtomicNode* tmp;
 
     __asm__ __volatile__
@@ -474,7 +462,25 @@ AtomicNode* AtomicStack::PopAll()
 
     return node;
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
+
+    AtomicNode* node = 0;
+    do
+    {
+        node = (AtomicNode*)UNITY_ATOMIC_ARMV8_LDAEX(&_top);
+        UNITY_ATOMIC_ARMV7_DMB_ISH
+        if (node == 0)   // stack became empty in the meantime so return null
+        {
+            __builtin_arm_clrex();
+            break;
+        }
+    }
+    while (UNITY_ATOMIC_ARMV8_STLEX((atomic_word)0, &_top));
+    UNITY_ATOMIC_ARMV7_DMB_ISH
+
+    return node;
+
+#elif defined(__arm64__)
 
     AtomicNode* top;
     AtomicNode* tmp;
@@ -492,26 +498,6 @@ AtomicNode* AtomicStack::PopAll()
         : "=&r" (top), "=&r" (tmp), "+m" (_top), "=&r" (success)
         : "r" (&_top), "r" (0)
         : "cc", "memory"
-    );
-    return top;
-
-#elif PLATFORM_N3DS
-
-    AtomicNode* top;
-    AtomicNode* tmp;
-    int success;
-
-    __asm__ __volatile__
-    (
-        "0:\n\t"
-        "ldrex\ttop, [&_top]\n\t"
-        "cmp\ttop, #0\n\t"
-        "beq\t1f\n\t"
-        "strex\tsuccess, #0, [&_top]\n\t"
-        "teq\tsuccess, #0\n\t"
-        "bne\t0b\n\t"
-        //"isb\n\t" //not supported on N3DS
-        "1:\n\t"
     );
     return top;
 
@@ -657,7 +643,8 @@ int AtomicQueue::IsEmpty() const
 
 void AtomicQueue::Enqueue(AtomicNode* node)
 {
-#if defined(ATOMIC_HAS_DCAS)
+    // i am not sure why this is marked with "need DCAS". Also, (at least arm) asm provided is not exactly equivalent to cpp code
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     AtomicNode* prev;
 
@@ -665,7 +652,7 @@ void AtomicQueue::Enqueue(AtomicNode* node)
     prev = (AtomicNode*)atomic_exchange_explicit(&_head, (atomic_word)node, memory_order_release);
     atomic_store_explicit(&prev->_next, (atomic_word)node, memory_order_release);
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(__arm64__)
 
     AtomicNode* head;
     long success;
@@ -681,22 +668,6 @@ void AtomicQueue::Enqueue(AtomicNode* node)
         : "=&r" (head), "+m" (_head), "=&r" (success)
         : "r" (&_head), "r" (node)
         : "cc", "memory"
-    );
-
-#elif PLATFORM_N3DS
-
-    AtomicNode* head;
-    int success;
-
-    __asm__ __volatile__
-    (
-        //"dmb  ishst\n\t" //not supported on N3DS
-        "0:\n\t"
-        "ldrex\thead, [&_head]\n\t"
-        "strex\tsuccess, node, [&_head]\n\t"
-        "teq    success, #0\n\t"
-        "bne\t0b\n\t"
-        "str    node, [head]\n\t"
     );
 
 #elif defined(__arm__)
@@ -766,14 +737,15 @@ void AtomicQueue::EnqueueAll(AtomicNode* first, AtomicNode* last)
 {
     atomic_store_explicit(&last->_next, 0, memory_order_relaxed);
 
-#if defined(ATOMIC_HAS_DCAS)
+    // i am not sure why this is marked with "need DCAS". Also, (at least arm) asm provided is not exactly equivalent to cpp code
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     AtomicNode* prev;
 
     prev = (AtomicNode*)atomic_exchange_explicit(&_head, (atomic_word)last, memory_order_release);
     atomic_store_explicit(&prev->_next, (atomic_word)first, memory_order_release);
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(__arm64__)
 
     AtomicNode* head;
     long success;
@@ -789,22 +761,6 @@ void AtomicQueue::EnqueueAll(AtomicNode* first, AtomicNode* last)
         : "=&r" (head), "+m" (_head), "=&r" (success)
         : "r" (&_head), "r" (first), "r" (last)
         : "cc", "memory"
-    );
-
-#elif PLATFORM_N3DS
-
-    AtomicNode* head;
-    int success;
-
-    __asm__ __volatile__
-    (
-        //"dmb  ishst\n\t" //not supported on N3DS
-        "0:\n\t"
-        "ldrex\thead, [&_head]\n\t"
-        "strex\tsuccess, last, [&_head]\n\t"
-        "teq    success, #0\n\t"
-        "bne\t0b\n\t"
-        "str    first, [head]\n\t"
     );
 
 #elif defined(__arm__)
@@ -901,7 +857,29 @@ AtomicNode* AtomicQueue::Dequeue()
 
     return res;
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
+
+    AtomicNode *ret = 0, *next = 0; void* data[3];
+    do
+    {
+        ret = (AtomicNode*)UNITY_ATOMIC_ARMV8_LDAEX(&_tail);
+        UNITY_ATOMIC_ARMV7_DMB_ISH
+
+            next = (AtomicNode*)ret->_next;
+        if (!next) // empty queue
+        {
+            __builtin_arm_clrex();
+            return 0;
+        }
+        data[0] = next->data[0], data[1] = next->data[1], data[2] = next->data[2];
+    }
+    while (UNITY_ATOMIC_ARMV8_STLEX((atomic_word)next, &_tail));
+    UNITY_ATOMIC_ARMV7_DMB_ISH
+
+    ret->data[0] = data[0], ret->data[1] = data[1], ret->data[2] = data[2];
+    return ret;
+
+#elif defined(__arm64__)
 
     AtomicNode* tail;
     AtomicNode* tmp;
@@ -929,46 +907,6 @@ AtomicNode* AtomicQueue::Dequeue()
         : "=&r" (tail), "=&r" (tmp), "+m" (_tail), "=&r" (success), "=&r" (data0), "=&r" (data1), "=&r" (data2)
         : "r" (&_tail)
         : "cc", "memory"
-    );
-    if (tmp)
-    {
-        tail->data[0] = data0;
-        tail->data[1] = data1;
-        tail->data[2] = data2;
-    }
-    else
-    {
-        tail = 0;
-    }
-    return tail;
-
-#elif PLATFORM_N3DS
-
-    AtomicNode* tail;
-    AtomicNode* tmp;
-    void* data0;
-    void* data1;
-    void* data2 = 0;
-    int success = 1;
-
-    __asm__ __volatile__ (
-        "0:\n\t"
-        "ldrex\ttail, [data2]\n\t"
-        "ldr\ttmp, [tail]\n\t"
-        "cmp\ttmp, #0\n\t"
-        "beq\t1f\n\t"
-        "ldr\ttail, [tmp, #4]\n\t"
-        "ldr\tdata0, [tmp, #8]\n\t"
-        "ldr\tdata1, [tmp, #12]\n\t"
-        // create an artificial dependency to ensure previous loads are not reordered
-        "orr\tdata2, data2, success, lsr #32\n\t" // nop
-        "orr\tdata2, data2, tail, lsr #32\n\t" // nop
-        "orr\tdata2, data2, data0, lsr #32\n\t" // nop
-        "strex\tsuccess, tmp, [data2]\n\t"
-        "teq\tsuccess, #0\n\t"
-        "bne\t0b\n\t"
-        // "isb\n\t" //not available on N3DS
-        "1:\n\t"
     );
     if (tmp)
     {
@@ -1122,15 +1060,8 @@ AtomicNode* AtomicQueue::Dequeue()
 
 AtomicQueue* CreateAtomicQueue()
 {
-    // should be properly aligned
-#if defined(ATOMIC_HAS_DCAS)
+    // UNITY_NEW can be used when it starts supporting alignof (instead of default alignement)
     return UNITY_PLATFORM_NEW_ALIGNED(AtomicQueue, kMemThread, sizeof(atomic_word2));
-#elif PLATFORM_N3DS
-    //seems like UNITY_PLATFORM_NEW shouldn't take an alignment...?
-    return UNITY_PLATFORM_NEW(AtomicQueue, kMemThread);
-#else
-    #error "ATOMIC_HAS_DCAS is not defined for this platform nor is a platform dependent implementation available."
-#endif
 }
 
 void DestroyAtomicQueue(AtomicQueue* s)
@@ -1144,7 +1075,7 @@ void DestroyAtomicQueue(AtomicQueue* s)
 
 void AtomicList::Init()
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 w;
     w.lo = w.hi = 0;
@@ -1160,7 +1091,7 @@ void AtomicList::Init()
 
 atomic_word AtomicList::Tag()
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 w = atomic_load_explicit((volatile atomic_word2*)&_top, memory_order_relaxed);
 
@@ -1175,7 +1106,7 @@ atomic_word AtomicList::Tag()
 
 AtomicNode* AtomicList::Peek()
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 w = atomic_load_explicit((volatile atomic_word2*)&_top, memory_order_relaxed);
 
@@ -1190,7 +1121,7 @@ AtomicNode* AtomicList::Peek()
 
 AtomicNode* AtomicList::Load(atomic_word &tag)
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 w = atomic_load_explicit((volatile atomic_word2*)&_top, memory_order_acquire);
     tag = w.hi;
@@ -1214,7 +1145,7 @@ AtomicNode* AtomicList::Load(atomic_word &tag)
 
 bool AtomicList::Add(AtomicNode *first, AtomicNode *last, atomic_word tag)
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 oldval, newval;
     bool res = false;
@@ -1234,7 +1165,7 @@ bool AtomicList::Add(AtomicNode *first, AtomicNode *last, atomic_word tag)
     }
     return res;
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(__arm64__)
 
     AtomicNode* res;
     AtomicNode* tmp;
@@ -1258,33 +1189,6 @@ bool AtomicList::Add(AtomicNode *first, AtomicNode *last, atomic_word tag)
         : "cc", "memory"
     );
     return failure == 0;
-
-#elif PLATFORM_N3DS
-
-    /*
-    AtomicNode* res;
-    AtomicNode* tmp;
-    int failure = 1;
-
-    __asm__ __volatile__
-    (
-        "dmb    ishst\n\t"
-        "0:\n\t"
-        "ldrex  %0, [%4]\n\t"
-        "add    %4, %4, %0\n\t" // nop
-        "sub    %4, %4, %0\n\t" // nop
-        "ldr    %1, [%4, #4]\n\t"
-        "cmp    %1, %7\n\t"
-        "bne    1f\n\t"
-        "str    %0, [%6]\n\t"
-        "strex  %3, %5, [%4]\n\t"
-        "teq    %3, #0\n\t"
-        "bne    0b\n\t"
-        "1:\n\t"
-    );
-    return res;
-    */
-    return false;
 
 #elif defined(__arm__)
 
@@ -1379,7 +1283,7 @@ bool AtomicList::Add(AtomicNode *first, AtomicNode *last, atomic_word tag)
 
 AtomicNode* AtomicList::Touch(atomic_word tag)
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 w;
     w.lo = 0;
@@ -1392,6 +1296,7 @@ AtomicNode* AtomicList::Touch(atomic_word tag)
 
     atomic_store_explicit(&_ver, tag, memory_order_release);
     atomic_word w = atomic_exchange_explicit(&_top, 0, memory_order_acquire);
+
     return (AtomicNode*)w;
 
 #endif
@@ -1399,7 +1304,7 @@ AtomicNode* AtomicList::Touch(atomic_word tag)
 
 void AtomicList::Reset(AtomicNode* node, atomic_word tag)
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 w;
     w.lo = (atomic_word)node;
@@ -1416,7 +1321,7 @@ void AtomicList::Reset(AtomicNode* node, atomic_word tag)
 
 AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
 {
-#if defined(ATOMIC_HAS_DCAS)
+#if defined(ATOMIC_HAS_DCAS) || defined(UNITY_ATOMICQUEUE_USE_CLANG_ARM_ATOMICS)
 
     atomic_word2 top;
     atomic_word2 newtop;
@@ -1434,7 +1339,7 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
         return NULL;
     }
 
-#elif defined(__arm64__) || defined(__aarch64__)
+#elif defined(__arm64__)
 
     AtomicNode* res;
     AtomicNode* tmp;
@@ -1458,36 +1363,6 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
         : "=&r" (res), "=&r" (tmp), "+m" (_top), "=&r" (success)
         : "r" (&_top)
         : "cc", "memory"
-    );
-    return res;
-
-#elif PLATFORM_N3DS
-
-    AtomicNode* res;
-    AtomicNode* tmp;
-    int success;
-    int theTop = (int)(&_top);
-
-    __asm__ __volatile__
-    (
-        "0:\n\t"
-        "ldrex\tres, [theTop]\n\t"
-        "cmp\tres, #0\n\t"
-        "beq\t2f\n\t"
-        "ldr    tmp, [res]\n\t"
-        "strex\tsuccess, tmp, [theTop]\n\t"
-        "teq\tsuccess, #0\n\t"
-        "bne\t0b\n\t"
-        "add\ttheTop, theTop, 4\n\t"
-        "1:\n\t"
-        "ldrex\tsuccess, [theTop]\n\t"
-        "add\tsuccess, success, 1\n\t"
-        "strex\tsuccess, success, [theTop]\n\t"
-        "teq\tsuccess, #0\n\t"
-        "bne\t1b\n\t"
-        "sub\ttheTop, theTop, 4\n\t"
-        //"isb\n\t" //not available on N3DS
-        "2:\n\t"
     );
     return res;
 
@@ -1659,6 +1534,8 @@ AtomicNode* AtomicList::Clear(AtomicNode* old, atomic_word tag)
 }
 
 #endif
+
+#endif // !IL2CPP_TARGET_JAVASCRIPT
 
 UNITY_PLATFORM_END_NAMESPACE;
 
