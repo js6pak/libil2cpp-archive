@@ -132,12 +132,14 @@ namespace utils
         {
             return MemoryCompare(left, right, sizeof(T));
         }
+
 #if IL2CPP_DOTS
         template<typename T>
         static int32_t MemHashRef(T* val)
         {
             return XXH32(val, sizeof(T), 0x8f37154b);
         }
+
 #endif
     };
 #define DECL_MEMCMP_NUM(typ) template<> inline int32_t MemoryUtils::MemCmpRef<typ>(typ* left, typ* right) { return (*right > *left) ? -1 : (*right < *left) ? 1 : 0; }
