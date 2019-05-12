@@ -90,7 +90,7 @@ static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word va
     // lock prefix is implicit
     __asm__ __volatile__
     (
-/*lock*/ "xchgl  %1, %0"
+        /*lock*/ "xchgl  %1, %0"
 
         : "+m" (*p), "+r" (val)
         :
@@ -107,7 +107,7 @@ static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atom
     // lock prefix is implicit
     __asm__ __volatile__
     (
-/*lock*/ "xchgl  %1, %0"
+        /*lock*/ "xchgl  %1, %0"
 
         : "+m" (*p), "+r" (val)
         :
@@ -240,6 +240,13 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
     );
     return res != 0;
 #endif
+}
+
+template<class SuccOrder, class FailOrder>
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, SuccOrder o1, FailOrder o2)
+{
+    // TODO: implement proper weak compare exchange
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, o1, o2);
 }
 
 static inline atomic_word2 atomic_exchange_explicit(volatile atomic_word2* p, atomic_word2 newval, int)

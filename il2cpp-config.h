@@ -158,12 +158,12 @@
     #define IL2CPP_ENABLE_STACKTRACES 1
 #endif // IL2CPP_DOTS
 
-#if IL2CPP_ENABLE_STACKTRACES
-
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
 #define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_LUMIN)
 #endif
+
+#if IL2CPP_ENABLE_STACKTRACES
 
 /* Platforms which use stacktrace sentries */
 #define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS || IL2CPP_TARGET_SWITCH)
@@ -224,13 +224,24 @@ typedef uint32_t Il2CppMethodSlot;
 static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 /* Debug macros */
+
+#if defined(_MSC_VER) && _MSC_VER >= 1900 // UTF-8 literals are only supported in VS2015+
+// On MSVC, __FILE__ will expand to ANSI string literal and will fail to compile if there are unicode characters in the path
+// So we specify it to be UTF-8 literal explicitly
+    #define MAKE_UTF8_LITERAL_HELPER(x) u8 ## x
+    #define MAKE_UTF8_LITERAL(x) MAKE_UTF8_LITERAL_HELPER(x)
+#else
+    #define MAKE_UTF8_LITERAL(x) x
+#endif
+
+#define __FILE_UTF8__ MAKE_UTF8_LITERAL(__FILE__)
 #define STRINGIZE(L)          #L
 #define MAKE_STRING(M, L)     M(L)
 #define $Line                   MAKE_STRING( STRINGIZE, __LINE__ )
-#define FIXME                   __FILE__ "(" $Line ") : FIXME: "
-#define ICALLMESSAGE(name)      __FILE__ "(" $Line ") : FIXME: Missing internal call implementation: " name
-#define RUNTIMEMESSAGE(name)    __FILE__ "(" $Line ") : FIXME: Missing runtime implementation: " name
-#define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
+#define FIXME                   "FIXME: "
+#define ICALLMESSAGE(name)      __FILE_UTF8__ "(" $Line ") : FIXME: Missing internal call implementation: " name
+#define RUNTIMEMESSAGE(name)    __FILE_UTF8__ "(" $Line ") : FIXME: Missing runtime implementation: " name
+#define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE_UTF8__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)

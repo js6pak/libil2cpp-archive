@@ -523,3 +523,10 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
 {
     return _InterlockedCompareExchange128(/* _Destination */ &p->lo, /* _ExchangeHigh */ newval.hi, /* _ExchangeLow */ newval.lo, /* _ComparandResult */ &oldval->lo);
 }
+
+template<class SuccOrder, class FailOrder>
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, SuccOrder o1, FailOrder o2)
+{
+    // TODO: implement proper weak compare exchange
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, o1, o2);
+}
