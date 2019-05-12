@@ -31,14 +31,14 @@ static inline void atomic_thread_fence(int /* memory_order_seq_cst_t */)
     __asm__ __volatile__ (ASM_DMB_ISH : : : "memory");
 }
 
-#define ATOMIC_LOAD(opc) \
-    atomic_word res; \
-    __asm__ __volatile__ \
-    ( \
-        opc "   %0, %1\n\t" \
-        : "=r" (res) \
-        : "m" (*p) \
-    ); \
+#define ATOMIC_LOAD(opc)        \
+    atomic_word res;            \
+    __asm__ __volatile__        \
+    (                           \
+        opc "   %0, %1\n\t"     \
+        : "=r" (res)            \
+        : "m" (*p)              \
+    );                          \
     return res;
 
 /*
@@ -50,7 +50,7 @@ static inline int atomic_load_explicit(const volatile int* p, memory_order_relax
     int res;
     __asm__ __volatile__
     (
-        "ldr   %w0, %w1\n\t"
+        "ldr   %w0, %1\n\t"
         : "=r" (res)
         : "m" (*p)
     );
@@ -62,7 +62,7 @@ static inline int atomic_load_explicit(const volatile int* p, memory_order_acqui
     int res;
     __asm__ __volatile__
     (
-        "ldar   %w0, %w1\n\t"
+        "ldar   %w0, %1\n\t"
         : "=r" (res)
         : "m" (*p)
     );
@@ -74,7 +74,7 @@ static inline int atomic_load_explicit(const volatile int* p, int /* memory_orde
     int res;
     __asm__ __volatile__
     (
-        "ldar   %w0, %w1\n\t"
+        "ldar   %w0, %1\n\t"
         : "=r" (res)
         : "m" (*p)
     );
@@ -117,7 +117,7 @@ static inline void atomic_store_explicit(volatile int* p, int v, memory_order_re
 {
     __asm__ __volatile__
     (
-        "str   %w1, %w0\n\t"
+        "str   %w1, %0\n\t"
         : "=m" (*p)
         : "r" (v)
         : "memory"
@@ -128,7 +128,7 @@ static inline void atomic_store_explicit(volatile int* p, int v, memory_order_re
 {
     __asm__ __volatile__
     (
-        "stlr   %w1, %w0\n\t"
+        "stlr   %w1, %0\n\t"
         : "=m" (*p)
         : "r" (v)
         : "memory"
@@ -139,7 +139,7 @@ static inline void atomic_store_explicit(volatile int* p, int v, int /* memory_o
 {
     __asm__ __volatile__
     (
-        "stlr   %w1, %w0\n\t"
+        "stlr   %w1, %0\n\t"
         : "=m" (*p)
         : "r" (v)
         : "memory"
@@ -165,200 +165,343 @@ static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v,
     ATOMIC_STORE("stlr")
 }
 
-#define ATOMIC_XCHG(LD, ST) \
-    atomic_word res; \
-    atomic_word success; \
-    __asm__ __volatile__ \
-    ( \
-    "0:\n\t" \
-        LD "    %2, [%4]\n\t" \
-        ST "    %w0, %3, [%4]\n\t" \
-        "cbnz   %w0, 0b\n\t" \
-        : "=&r" (success), "+m" (*p), "=&r" (res) \
-        : "r" (v), "r" (p) \
-        : "memory" \
-    ); \
-    return res;
-
-static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t)
-{
-    ATOMIC_XCHG("ldxr", "stxr")
-}
-
-static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_acquire_t)
-{
-    ATOMIC_XCHG("ldaxr", "stxr")
-}
-
-static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t)
-{
-    ATOMIC_XCHG("ldxr", "stlxr")
-}
-
-static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_acq_rel_t)
-{
-    ATOMIC_XCHG("ldaxr", "stlxr")
-}
-
-static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, int /* memory_order_seq_cst_t */)
-{
-    ATOMIC_XCHG("ldaxr", "stlxr")
-}
-
-// atomic_compare_exchange_weak_explicit: can fail spuriously even if *p == *oldval
-
-#define ATOMIC_CMP_XCHG(LD, ST) \
-    atomic_word res; \
-    atomic_word success = 0; \
-    __asm__ __volatile__ \
-    ( \
-        LD "    %2, [%4]\n\t" \
-        "cmp    %2, %5\n\t" \
-        "b.ne   1f\n\t" \
-        ST "    %w0, %3, [%4]\n" \
-    "1:\n\t" \
-        "clrex\n\t" \
-        : "=&r" (success), "+m" (*p), "=&r" (res) \
-        : "r" (newval), "r" (p), "r" (*oldval) \
-        : "cc", "memory" \
-    ); \
-    *oldval = res; \
-    return success == 0;
-
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_relaxed_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldxr", "stxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_acquire_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_release_t)
-{
-    ATOMIC_CMP_XCHG("ldxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_acq_rel_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, int /* memory_order_seq_cst_t */)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
-// atomic_compare_exchange_strong_explicit: does loop and only returns false if *p != *oldval
-
-#undef ATOMIC_CMP_XCHG
-
-#define ATOMIC_CMP_XCHG(LD, ST) \
-    atomic_word res; \
-    atomic_word success = 0; \
-    __asm__ __volatile__ \
-    ( \
-    "0:\n\t" \
-        LD "    %2, [%4]\n\t" \
-        "cmp    %2, %5\n\t" \
-        "b.ne   1f\n\t" \
-        ST "    %w0, %3, [%4]\n" \
-        "cbnz   %w0, 0b\n\t" \
-    "1:\n\t" \
-        "clrex\n\t" \
-        : "=&r" (success), "+m" (*p), "=&r" (res) \
-        : "r" (newval), "r" (p), "r" (*oldval) \
-        : "cc", "memory" \
-    ); \
-    *oldval = res; \
-    return success == 0;
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_relaxed_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldxr", "stxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, memory_order_relaxed_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_acquire_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_release_t)
-{
-    ATOMIC_CMP_XCHG("ldxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_acq_rel_t)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
-static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, int /* memory_order_seq_cst_t */)
-{
-    ATOMIC_CMP_XCHG("ldaxr", "stlxr")
-}
-
 #define ATOMIC_PFIX_int         "%w"
 #define ATOMIC_PFIX_atomic_word "%"
 #define ATOMIC_PFIX(WORD)       ATOMIC_PFIX_##WORD
 
-#define ATOMIC_OP(WORD, LD, ST, OP) \
-    long long res, tmp; \
-    int success; \
-    __asm__ __volatile__ \
-    ( \
-    "0:\n\t" \
-        LD "    " ATOMIC_PFIX(WORD) "2, [%5]\n\t" \
-        OP "    " ATOMIC_PFIX(WORD) "3, " ATOMIC_PFIX(WORD) "2, " ATOMIC_PFIX(WORD) "4\n\t"\
-        ST "    %w0, " ATOMIC_PFIX(WORD) "3, [%5]\n" \
-        "cbnz   %w0, 0b\n\t" \
-        : "=&r" (success), "+m" (*p), "=&r" (res), "=&r" (tmp) \
-        : "Ir" ((long long) v), "r" (p) \
-        : "cc", "memory" \
-    ); \
+#define ATOMIC_XCHG(WORD, LD, ST)                       \
+    atomic_word res;                                    \
+    atomic_word success;                                \
+    __asm__ __volatile__                                \
+    (                                                   \
+      "0:\n\t"                                          \
+      LD "    " ATOMIC_PFIX(WORD) "2, [%4]\n\t"         \
+      ST "    %w0, " ATOMIC_PFIX(WORD) "3, [%4]\n\t"    \
+      "cbnz   %w0, 0b\n\t"                              \
+      : "=&r" (success), "+m" (*p), "=&r" (res)         \
+      : "r" (v), "r" (p)                                \
+      : "memory"                                        \
+    );                                                  \
+    return res;
+
+/*
+ *  int support
+ */
+
+static inline int atomic_exchange_explicit(volatile int* p, int v, memory_order_relaxed_t)
+{
+    ATOMIC_XCHG(int, "ldxr", "stxr")
+}
+
+static inline int atomic_exchange_explicit(volatile int* p, int v, memory_order_acquire_t)
+{
+    ATOMIC_XCHG(int, "ldaxr", "stxr")
+}
+
+static inline int atomic_exchange_explicit(volatile int* p, int v, memory_order_release_t)
+{
+    ATOMIC_XCHG(int, "ldxr", "stlxr")
+}
+
+static inline int atomic_exchange_explicit(volatile int* p, int v, memory_order_acq_rel_t)
+{
+    ATOMIC_XCHG(int, "ldaxr", "stlxr")
+}
+
+static inline int atomic_exchange_explicit(volatile int* p, int v, int /* memory_order_seq_cst_t */)
+{
+    ATOMIC_XCHG(int, "ldaxr", "stlxr")
+}
+
+/*
+ *  native word support
+ */
+
+static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t)
+{
+    ATOMIC_XCHG(atomic_word, "ldxr", "stxr")
+}
+
+static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_acquire_t)
+{
+    ATOMIC_XCHG(atomic_word, "ldaxr", "stxr")
+}
+
+static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t)
+{
+    ATOMIC_XCHG(atomic_word, "ldxr", "stlxr")
+}
+
+static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, memory_order_acq_rel_t)
+{
+    ATOMIC_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atomic_word v, int /* memory_order_seq_cst_t */)
+{
+    ATOMIC_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+// atomic_compare_exchange_weak_explicit: can fail spuriously even if *p == *oldval
+
+#undef  ATOMIC_CMP_XCHG
+#define ATOMIC_CMP_XCHG(WORD, LD, ST)                                   \
+    atomic_word res;                                                    \
+    atomic_word failure = 1;                                            \
+    __asm__ __volatile__                                                \
+    (                                                                   \
+      LD "   " ATOMIC_PFIX(WORD) "2, [%4]                       \n\t"   \
+      "cmp   " ATOMIC_PFIX(WORD) "2, " ATOMIC_PFIX(WORD) "5     \n\t"   \
+      "b.ne  1f                                                 \n\t"   \
+      ST "   %w0, " ATOMIC_PFIX(WORD) "3, [%4]                  \n\t"   \
+      "1:                                                       \n\t"   \
+      "clrex                                                    \n\t"   \
+      : "+&r" (failure), "+m" (*p), "=&r" (res)                         \
+      : "r" (newval), "r" (p), "r" (*oldval)                            \
+      : "cc", "memory"                                                  \
+    );                                                                  \
+    *oldval = res;                                                      \
+    return (failure == 0);
+
+/*
+ *  int support
+ */
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, memory_order_relaxed_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, memory_order_acquire_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, memory_order_release_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, memory_order_acq_rel_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, int /* memory_order_seq_cst_t */, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, memory_order_acquire_t, memory_order_acquire_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, memory_order_release_t, memory_order_release_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, memory_order_acq_rel_t, memory_order_acq_rel_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int *oldval, int newval, int /* memory_order_seq_cst_t */, int /* memory_order_seq_cst_t */)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+/*
+ *  native word support
+ */
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_relaxed_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_acquire_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_release_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_acq_rel_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, int /* memory_order_seq_cst_t */)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+// atomic_compare_exchange_strong_explicit: does loop and only returns false if *p != *oldval
+
+#undef  ATOMIC_CMP_XCHG
+#define ATOMIC_CMP_XCHG(WORD, LD, ST)                                   \
+    atomic_word res;                                                    \
+    atomic_word failure = 1;                                            \
+    __asm__ __volatile__                                                \
+    (                                                                   \
+      "0:                                                       \n\t"   \
+      "mov      %w0, #1                                         \n\t" /* reset failure each loop */ \
+      LD "      " ATOMIC_PFIX(WORD) "2, [%4]                    \n\t"   \
+      "cmp      " ATOMIC_PFIX(WORD) "2, " ATOMIC_PFIX(WORD) "5  \n\t"   \
+      "b.ne     1f                                              \n\t"   \
+      ST "      %w0, " ATOMIC_PFIX(WORD) "3, [%4]               \n\t"   \
+      "cbnz     %w0, 0b                                         \n\t"   \
+      "1:                                                       \n\t"   \
+      "clrex                                                    \n\t"   \
+      : "+&r" (failure), "+m" (*p), "=&r" (res)                         \
+      : "r" (newval), "r" (p), "r" (*oldval)                            \
+      : "cc", "memory"                                                  \
+    );                                                                  \
+    *oldval = res;                                                      \
+    return (failure == 0);
+
+/*
+ *  int support
+ */
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, memory_order_relaxed_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, memory_order_acquire_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, memory_order_release_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, memory_order_acq_rel_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, int /* memory_order_seq_cst_t */, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, memory_order_acquire_t, memory_order_acquire_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, memory_order_release_t, memory_order_release_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, memory_order_acq_rel_t, memory_order_acq_rel_t)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int *oldval, int newval, int /* memory_order_seq_cst_t */, int /* memory_order_seq_cst_t */)
+{
+    ATOMIC_CMP_XCHG(int, "ldaxr", "stlxr")
+}
+
+/*
+ *  native word support
+ */
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_relaxed_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, memory_order_relaxed_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acquire_t, memory_order_acquire_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_release_t, memory_order_release_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_acq_rel_t, memory_order_acq_rel_t)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, int /* memory_order_seq_cst_t */, int /* memory_order_seq_cst_t */)
+{
+    ATOMIC_CMP_XCHG(atomic_word, "ldaxr", "stlxr")
+}
+
+#define ATOMIC_OP(WORD, LD, ST, OP)                                                             \
+    long long res, tmp;                                                                         \
+    int success;                                                                                \
+    __asm__ __volatile__                                                                        \
+    (                                                                                           \
+    "0:                                                                                 \n\t"   \
+        LD "    " ATOMIC_PFIX(WORD) "2, [%5]                                            \n\t"   \
+        OP "    " ATOMIC_PFIX(WORD) "3, " ATOMIC_PFIX(WORD) "2, " ATOMIC_PFIX(WORD) "4  \n\t"   \
+        ST "    %w0, " ATOMIC_PFIX(WORD) "3, [%5]                                       \n\t"   \
+        "cbnz   %w0, 0b                                                                 \n\t"   \
+        : "=&r" (success), "+m" (*p), "=&r" (res), "=&r" (tmp)                                  \
+        : "Ir" ((long long) v), "r" (p)                                                         \
+        : "cc", "memory"                                                                        \
+    );                                                                                          \
     return (WORD) res;
+
+/*
+ *  int support
+ */
 
 static inline int atomic_fetch_add_explicit(volatile int* p, int v, memory_order_relaxed_t)
 {
@@ -385,6 +528,10 @@ static inline int atomic_fetch_add_explicit(volatile int* p, int v, int /* memor
     ATOMIC_OP(int, "ldaxr", "stlxr", "add")
 }
 
+/*
+ *  native word support
+ */
+
 static inline atomic_word atomic_fetch_add_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t)
 {
     ATOMIC_OP(atomic_word, "ldxr", "stxr", "add")
@@ -410,6 +557,10 @@ static inline atomic_word atomic_fetch_add_explicit(volatile atomic_word* p, ato
     ATOMIC_OP(atomic_word, "ldaxr", "stlxr", "add")
 }
 
+/*
+ *  int support
+ */
+
 static inline int atomic_fetch_sub_explicit(volatile int* p, int v, memory_order_relaxed_t)
 {
     ATOMIC_OP(int, "ldxr", "stxr", "sub")
@@ -434,6 +585,10 @@ static inline int atomic_fetch_sub_explicit(volatile int* p, int v, int /* memor
 {
     ATOMIC_OP(int, "ldaxr", "stlxr", "sub")
 }
+
+/*
+ *  native word support
+ */
 
 static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t)
 {
@@ -651,4 +806,11 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
     );
 
     return success == 0;
+}
+
+template<class SuccOrder, class FailOrder>
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, SuccOrder o1, FailOrder o2)
+{
+    // TODO: implement proper weak compare exchange
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, o1, o2);
 }

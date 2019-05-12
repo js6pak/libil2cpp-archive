@@ -7,8 +7,6 @@
 #   include <emmintrin.h>
 #endif
 
-#include "il2cpp-sanitizers.h"
-
 static inline void atomic_thread_fence(memory_order_relaxed_t)
 {
 }
@@ -56,12 +54,12 @@ static inline void atomic_thread_fence(int /* memory_order_seq_cst_t */)
  * int support
  */
 
-static inline atomic_word atomic_load_explicit(const volatile int* p, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
+static inline int atomic_load_explicit(const volatile int* p, memory_order_relaxed_t)
 {
     return *p;
 }
 
-static inline int atomic_load_explicit(const volatile int* p, int) IL2CPP_DISABLE_TSAN
+static inline int atomic_load_explicit(const volatile int* p, int)
 {
     int v;
 #if defined(_MSC_VER)
@@ -73,12 +71,12 @@ static inline int atomic_load_explicit(const volatile int* p, int) IL2CPP_DISABL
     return v;
 }
 
-static inline void atomic_store_explicit(volatile int* p, int v, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
+static inline void atomic_store_explicit(volatile int* p, int v, memory_order_relaxed_t)
 {
     *p = v;
 }
 
-static inline void atomic_store_explicit(volatile int* p, int v, memory_order_release_t) IL2CPP_DISABLE_TSAN
+static inline void atomic_store_explicit(volatile int* p, int v, memory_order_release_t)
 {
 #if defined(_MSC_VER)
     _ReadWriteBarrier();
@@ -88,7 +86,7 @@ static inline void atomic_store_explicit(volatile int* p, int v, memory_order_re
 #endif
 }
 
-static inline void atomic_store_explicit(volatile int* p, int val, int /* memory_order_seq_cst_t */) IL2CPP_DISABLE_TSAN
+static inline void atomic_store_explicit(volatile int* p, int val, int /* memory_order_seq_cst_t */)
 {
 #if defined(_MSC_VER)
     _InterlockedExchange((volatile LONG*)p, (LONG)val);
@@ -96,7 +94,7 @@ static inline void atomic_store_explicit(volatile int* p, int val, int /* memory
     // lock prefix is implicit
     __asm__ __volatile__
     (
-/*lock*/ "xchgl  %1, %0"
+        /*lock*/ "xchgl  %1, %0"
 
         : "+m" (*p), "+r" (val)
         :
@@ -105,16 +103,57 @@ static inline void atomic_store_explicit(volatile int* p, int val, int /* memory
 #endif
 }
 
+static inline int atomic_exchange_explicit(volatile int* p, int val, int)
+{
+#if defined(_MSC_VER)
+    return (int)_InterlockedExchange((volatile long*)p, (long)val);
+#else
+    // lock prefix is implicit
+    __asm__ __volatile__
+    (
+        /*lock*/ "xchg  %1, %0"
+        : "+m" (*p), "+r" (val)
+        :
+        : "memory"
+    );
+    return val;
+#endif
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile int* p, int* oldval, int newval, int, int)
+{
+#if defined(_MSC_VER)
+    int tmp = (int)_InterlockedCompareExchange((volatile long*)p, (long)newval, (long)*oldval);
+    return *oldval == tmp ? true : (*oldval = tmp, false);
+#else
+    char res;
+    __asm__ __volatile__
+    (
+        "lock cmpxchg %3, %0\n\t"
+        "setz %b1"
+        : "+m" (*p), "=q" (res), "+a" (*oldval)
+        : "r" (newval)
+        : "cc", "memory"
+    );
+    return res != 0;
+#endif
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile int* p, int* oldval, int newval, int, int)
+{
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, memory_order_seq_cst, memory_order_seq_cst);
+}
+
 /*
  * native word support
  */
 
-static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
+static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, memory_order_relaxed_t)
 {
     return *p;
 }
 
-static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, int) IL2CPP_DISABLE_TSAN
+static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, int)
 {
     atomic_word v;
 #if defined(_MSC_VER)
@@ -126,12 +165,12 @@ static inline atomic_word atomic_load_explicit(const volatile atomic_word* p, in
     return v;
 }
 
-static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t) IL2CPP_DISABLE_TSAN
+static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t)
 {
     *p = v;
 }
 
-static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t) IL2CPP_DISABLE_TSAN
+static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t)
 {
 #if defined(_MSC_VER)
     _ReadWriteBarrier();
@@ -141,7 +180,7 @@ static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word v,
 #endif
 }
 
-static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word val, int /* memory_order_seq_cst_t */) IL2CPP_DISABLE_TSAN
+static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word val, int /* memory_order_seq_cst_t */)
 {
 #if defined(_MSC_VER)
     _InterlockedExchange64((volatile LONGLONG*)p, (LONGLONG)val);
@@ -149,7 +188,7 @@ static inline void atomic_store_explicit(volatile atomic_word* p, atomic_word va
     // lock prefix is implicit
     __asm__ __volatile__
     (
-/*lock*/ "xchgq  %1, %0"
+        /*lock*/ "xchgq  %1, %0"
         : "+m" (*p), "+r" (val)
         :
         : "memory"
@@ -165,7 +204,7 @@ static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atom
     // lock prefix is implicit
     __asm__ __volatile__
     (
-/*lock*/ "xchgq  %1, %0"
+        /*lock*/ "xchgq  %1, %0"
         : "+m" (*p), "+r" (val)
         :
         : "memory"
@@ -298,26 +337,25 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
 #endif
 }
 
-static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, int o) IL2CPP_DISABLE_TSAN
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, int o1, int o2)
 {
-/*
-    atomic_word2 r = { 0, 0 };
-    atomic_word2 c = { 0, 0 };
-    atomic_compare_exchange_strong_explicit((volatile atomic_word2*) p, &r, c, o, o);
-    return r;
-*/
-    atomic_word2 r;
-    r.v = ::_mm_load_si128((const __m128i*)p);
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, o1, o2);
+}
+
+static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, int o)
+{
+    atomic_word2 r = { 0, 0};
+    atomic_word2 c = { 0, 0};
+    atomic_compare_exchange_strong_explicit((volatile atomic_word2*)p, &r, c, o, o);
     return r;
 }
 
-static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 v, int o) IL2CPP_DISABLE_TSAN
+static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 v, int o)
 {
-/*
     atomic_word2 c = v;
-    while(!atomic_compare_exchange_strong_explicit(p, &c, v, o, o)) {};
-*/
-    ::_mm_store_si128((__m128i*)&p->v, v.v);
+    while (!atomic_compare_exchange_strong_explicit(p, &c, v, o, o))
+    {
+    }
 }
 
 static inline atomic_word2 atomic_exchange_explicit(volatile atomic_word2* p, atomic_word2 newval, int)
