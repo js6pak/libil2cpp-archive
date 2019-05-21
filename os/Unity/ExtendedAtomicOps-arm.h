@@ -621,7 +621,7 @@ static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, 
 
         : "=&r" (success), "=&r" (lo), "=&r" (hi)
         : "r" (p)
-        : "cc", "r2", "r3"
+        : "cc"
     );
     atomic_word2 w;
     w.lo = lo;
@@ -652,7 +652,7 @@ static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, 
 
         : "=&r" (success), "=&r" (lo), "=&r" (hi)
         : "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
     atomic_word2 w;
     w.lo = lo;
@@ -689,7 +689,7 @@ static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 
 
         : "=&r" (success), "=m" (*p), "=&r" (l), "=&r" (h)
         : "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
 #endif
 }
@@ -723,7 +723,7 @@ static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 
 
         : "=&r" (success), "=m" (*p), "=&r" (l), "=&r" (h)
         : "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
 #endif
 }
@@ -754,7 +754,7 @@ static inline atomic_word2 atomic_exchange_explicit(volatile atomic_word2* p, at
 
         : "=&r" (success), "=m" (*p), "=&r" (l), "=&r" (h)
         : "r" (hi), "r" (lo), "r" (p)
-        : "cc", "memory", "r0", "r1", "r3"
+        : "cc", "memory"
     );
     val.lo = l;
     val.hi = h;
@@ -792,7 +792,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
 
         : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
         : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
     if (failure != 0)
     {
@@ -832,7 +832,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
 
         : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
         : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
     if (failure != 0)
     {
@@ -874,7 +874,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
 
         : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
         : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
     if (failure != 0)
     {
@@ -916,7 +916,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
 
         : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
         : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
     if (failure != 0)
     {
