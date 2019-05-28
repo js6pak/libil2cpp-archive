@@ -1012,16 +1012,12 @@ extern "C" {
 
     void il2cpp_mono_threadpool_suspend()
     {
-#if NET_4_0
         il2cpp::vm::ThreadPoolMs::Suspend();
-#endif // NET_4_0
     }
 
     void il2cpp_mono_threadpool_resume()
     {
-#if NET_4_0
         il2cpp::vm::ThreadPoolMs::Resume();
-#endif // NET_4_0
     }
 
     MonoImage* il2cpp_mono_assembly_get_image(MonoAssembly* assembly)
@@ -1396,6 +1392,24 @@ extern "C" {
             return il2cpp::utils::Debugger::GetAllSequencePoints(iter);
         else
             return (Il2CppSequencePoint*)il2cpp::utils::Debugger::GetSequencePoints((const MethodInfo*)method, iter);
+#else
+        return NULL;
+#endif
+    }
+
+    Il2CppCatchPoint* il2cpp_get_method_catch_points(MonoMethod* method, void* *iter)
+    {
+#if IL2CPP_MONO_DEBUGGER
+        return (Il2CppCatchPoint*)il2cpp::utils::Debugger::GetCatchPoints((const MethodInfo*)method, iter);
+#else
+        return NULL;
+#endif
+    }
+
+    Il2CppSequencePoint* il2cpp_get_seq_point_from_catch_point(Il2CppCatchPoint *cp)
+    {
+#if IL2CPP_MONO_DEBUGGER
+        return (Il2CppSequencePoint*)il2cpp::utils::Debugger::GetSequencePoint(cp);
 #else
         return NULL;
 #endif

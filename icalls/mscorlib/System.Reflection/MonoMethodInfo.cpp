@@ -58,14 +58,11 @@ namespace Reflection
         return NULL;
     }
 
-#if NET_4_0
     int32_t MonoMethodInfo::get_method_attributes(intptr_t methodPtr)
     {
         MethodInfo* method = (MethodInfo*)methodPtr;
         return method->flags;
     }
-
-#endif
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

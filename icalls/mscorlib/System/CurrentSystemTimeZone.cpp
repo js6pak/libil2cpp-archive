@@ -17,11 +17,7 @@ namespace mscorlib
 {
 namespace System
 {
-#if NET_4_0
     bool CurrentSystemTimeZone::GetTimeZoneData40(int year, Il2CppArray** data, Il2CppArray** names, bool* daylight_inverted)
-#else
-    bool CurrentSystemTimeZone::GetTimeZoneData(int year, Il2CppArray** data, Il2CppArray** names)
-#endif
     {
         int64_t dataTemp[4] = {0};
         std::string namesTemp[2];
@@ -30,11 +26,7 @@ namespace System
 
         gc::WriteBarrier::GenericStore(data, vm::Array::New(il2cpp_defaults.int64_class, 4));
         gc::WriteBarrier::GenericStore(names, vm::Array::New(il2cpp_defaults.string_class, 2));
-#if NET_4_0
         if (!os::TimeZone::GetTimeZoneData(year, dataTemp, namesTemp, daylight_inverted))
-#else
-        if (!os::TimeZone::GetTimeZoneData(year, dataTemp, namesTemp))
-#endif
             return false;
 
         for (int i = 0; i < 4; i++)

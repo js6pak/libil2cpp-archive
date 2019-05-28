@@ -1,5 +1,4 @@
 #pragma once
-#if NET_4_0
 #include "utils/NonCopyable.h"
 #include <stdint.h>
 
@@ -26,4 +25,3 @@ namespace os
     };
 }
 }
-#endif

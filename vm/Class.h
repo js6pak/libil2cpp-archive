@@ -11,10 +11,8 @@
 #include "Exception.h"
 #include "Type.h"
 
-#if NET_4_0
 #include "vm/MetadataCache.h"
 #include "il2cpp-tabledefs.h"
-#endif
 
 
 struct Il2CppClass;
@@ -140,7 +138,6 @@ namespace vm
 
         static void UpdateInitializedAndNoError(Il2CppClass *klass);
 
-#if NET_4_0
         static IL2CPP_FORCE_INLINE bool IsGenericClassAssignableFrom(const Il2CppClass* klass, const Il2CppClass* oklass, const Il2CppGenericContainer* genericContainer)
         {
             const Il2CppGenericClass* genericClass = klass->generic_class;
@@ -184,8 +181,6 @@ namespace vm
 
             return true;
         }
-
-#endif
     };
 } /* namespace vm */
 } /* namespace il2cpp */

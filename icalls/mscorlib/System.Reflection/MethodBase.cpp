@@ -62,8 +62,6 @@ namespace Reflection
         return 0;
     }
 
-#if NET_4_0
-
     static const MethodInfo* il2cpp_method_get_equivalent_method(const MethodInfo *method, Il2CppClass *klass)
     {
         int offset = -1, i;
@@ -139,8 +137,6 @@ namespace Reflection
         res = il2cpp_method_get_object(method, klass);
         return res;
     }
-
-#endif
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

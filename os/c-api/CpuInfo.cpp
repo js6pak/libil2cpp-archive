@@ -1,8 +1,7 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
-#if NET_4_0
 #include "os/CpuInfo.h"
 #include "os/c-api/CpuInfo-c-api.h"
 
@@ -18,6 +17,5 @@ extern "C"
         return il2cpp::os::CpuInfo::Usage(previous);
     }
 }
-#endif // NET_4_0
 
 #endif

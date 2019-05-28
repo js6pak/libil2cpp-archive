@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 
-#if NET_4_0
 #include "gc/GarbageCollector.h"
 #include "mono/ThreadPool/threadpool-ms-io-poll.h"
 #include "os/Socket.h"
@@ -218,5 +217,3 @@ int poll_event_wait(void (*callback)(int fd, int events, void* user_data), void*
 
     return 0;
 }
-
-#endif

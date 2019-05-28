@@ -126,7 +126,6 @@ System.Convert::InternalFromBase64String(System.String,System.Boolean) mscorlib:
 
 // System.CurrentSystemTimeZone
 >icalls/mscorlib/System/CurrentSystemTimeZone.h
-System.CurrentSystemTimeZone::GetTimeZoneData(System.Int32,System.Int64[]&,System.String[]&) mscorlib::System::CurrentSystemTimeZone::GetTimeZoneData
 System.CurrentSystemTimeZone::GetTimeZoneData(System.Int32,System.Int64[]&,System.String[]&,System.Boolean&) mscorlib::System::CurrentSystemTimeZone::GetTimeZoneData40
 
 // System.ComponentModel.Win32Exception
@@ -141,18 +140,9 @@ System.DateTime::GetSystemTimeAsFileTime() mscorlib::System::DateTime::GetSystem
 
 // System.Decimal
 >icalls/mscorlib/System/Decimal.h
-System.Decimal::decimal2double(System.Decimal&) mscorlib::System::Decimal::decimal2double
-System.Decimal::decimal2Int64(System.Decimal&,System.Int64&) mscorlib::System::Decimal::decimal2Int64
 System.Decimal::decimal2string(System.Decimal&,System.Int32,System.Int32,System.Char[],System.Int32,System.Int32&,System.Int32&) mscorlib::System::Decimal::decimal2string
-System.Decimal::decimal2UInt64(System.Decimal&,System.UInt64&) mscorlib::System::Decimal::decimal2UInt64
-System.Decimal::decimalCompare(System.Decimal&,System.Decimal&) mscorlib::System::Decimal::decimalCompare
-System.Decimal::decimalDiv(System.Decimal&,System.Decimal&,System.Decimal&) mscorlib::System::Decimal::decimalDiv
-System.Decimal::decimalFloorAndTrunc(System.Decimal&,System.Int32) mscorlib::System::Decimal::decimalFloorAndTrunc
-System.Decimal::decimalIncr(System.Decimal&,System.Decimal&) mscorlib::System::Decimal::decimalIncr
+System.Decimal::decimalIncr(Sysem.Decimal&,System.Decimal&) mscorlib::System::Decimal::decimalIncr
 System.Decimal::decimalIntDiv(System.Decimal&,System.Decimal&,System.Decimal&) mscorlib::System::Decimal::decimalIntDiv
-System.Decimal::decimalMult(System.Decimal&,System.Decimal&) mscorlib::System::Decimal::decimalMult
-System.Decimal::decimalSetExponent(System.Decimal&,System.Int32) mscorlib::System::Decimal::decimalSetExponent
-System.Decimal::string2decimal(System.Decimal&,System.String,System.UInt32,System.Int32) mscorlib::System::Decimal::string2decimal
 System.Decimal::ToDouble(System.Decimal) mscorlib::System::Decimal::ToDouble
 System.Decimal::FCallCompare(System.Decimal&,System.Decimal&) mscorlib::System::Decimal::FCallCompare
 System.Decimal::FCallToInt32(System.Decimal) mscorlib::System::Decimal::FCallToInt32
@@ -319,12 +309,8 @@ System.Globalization.CompareInfo::internal_index(System.String,System.Int32,Syst
 
 // System.Globalization.CultureInfo
 >icalls/mscorlib/System.Globalization/CultureInfo.h
-System.Globalization.CultureInfo::construct_datetime_format() mscorlib::System::Globalization::CultureInfo::construct_datetime_format
-System.Globalization.CultureInfo::construct_internal_locale_from_current_locale(System.Globalization.CultureInfo) mscorlib::System::Globalization::CultureInfo::construct_internal_locale_from_current_locale
 System.Globalization.CultureInfo::construct_internal_locale_from_lcid(System.Int32) mscorlib::System::Globalization::CultureInfo::construct_internal_locale_from_lcid
 System.Globalization.CultureInfo::construct_internal_locale_from_name(System.String) mscorlib::System::Globalization::CultureInfo::construct_internal_locale_from_name
-System.Globalization.CultureInfo::construct_internal_locale_from_specific_name(System.Globalization.CultureInfo,System.String) mscorlib::System::Globalization::CultureInfo::construct_internal_locale_from_specific_name
-System.Globalization.CultureInfo::construct_number_format() mscorlib::System::Globalization::CultureInfo::construct_number_format
 System.Globalization.CultureInfo::internal_get_cultures(System.Boolean,System.Boolean,System.Boolean) mscorlib::System::Globalization::CultureInfo::internal_get_cultures
 System.Globalization.CultureInfo::internal_is_lcid_neutral(System.Int32,System.Boolean&) mscorlib::System::Globalization::CultureInfo::internal_is_lcid_neutral
 System.Globalization.CultureInfo::get_current_locale_name() mscorlib::System::Globalization::CultureInfo::get_current_locale_name
@@ -445,10 +431,6 @@ System.Math::Abs(System.Single) mscorlib::System::Math::Abs
 System.MonoCustomAttrs::GetCustomAttributesDataInternal(System.Reflection.ICustomAttributeProvider) mscorlib::System::MonoCustomAttrs::GetCustomAttributesDataInternal
 System.MonoCustomAttrs::GetCustomAttributesInternal(System.Reflection.ICustomAttributeProvider,System.Type,System.Boolean) mscorlib::System::MonoCustomAttrs::GetCustomAttributesInternal
 System.MonoCustomAttrs::IsDefinedInternal(System.Reflection.ICustomAttributeProvider,System.Type) mscorlib::System::MonoCustomAttrs::IsDefinedInternal
-
-// System.MonoEnumInfo
->icalls/mscorlib/System/MonoEnumInfo.h
-System.MonoEnumInfo::get_enum_info(System.Type,System.MonoEnumInfo&) mscorlib::System::MonoEnumInfo::get_enum_info
 
 // System.MonoType
 >icalls/mscorlib/System/MonoType.h
@@ -960,6 +942,11 @@ System.Threading.NativeEventCalls::OpenEvent_internal(System.String,System.Secur
 System.Threading.NativeEventCalls::ResetEvent_internal(System.IntPtr) mscorlib::System::Threading::NativeEventCalls::ResetEvent_internal
 System.Threading.NativeEventCalls::SetEvent_internal(System.IntPtr) mscorlib::System::Threading::NativeEventCalls::SetEvent_internal
 
+// System.Threading.OSSpecificSynchronizationContext
+>icalls/mscorlib/System.Threading/OSSpecificSynchronizationContext.h
+System.Threading.OSSpecificSynchronizationContext::GetOSContext() mscorlib::System::Threading::OSSpecificSynchronizationContext::GetOSContext
+System.Threading.OSSpecificSynchronizationContext::PostInternal(System.Object,System.IntPtr,System.IntPtr) mscorlib::System::Threading::OSSpecificSynchronizationContext::PostInternal
+
 // System.Threading.Semaphore
 >icalls/System/System.Threading/Semaphore.h
 System.Threading.Semaphore::CreateSemaphore_internal(System.Int32,System.Int32,System.String,System.Boolean&) System::System::Threading::Semaphore::CreateSemaphore_internal
@@ -981,8 +968,6 @@ System.Threading.Thread::GetCachedCurrentUICulture() mscorlib::System::Threading
 System.Threading.Thread::GetDomainID() mscorlib::System::Threading::Thread::GetDomainID
 System.Threading.Thread::GetName_internal() mscorlib::System::Threading::Thread::GetName_internal
 System.Threading.Thread::GetNewManagedId_internal() mscorlib::System::Threading::Thread::GetNewManagedId_internal
-System.Threading.Thread::GetSerializedCurrentCulture() mscorlib::System::Threading::Thread::GetSerializedCurrentCulture
-System.Threading.Thread::GetSerializedCurrentUICulture() mscorlib::System::Threading::Thread::GetSerializedCurrentUICulture
 System.Threading.Thread::GetState() mscorlib::System::Threading::Thread::GetState
 System.Threading.Thread::Interrupt_internal() mscorlib::System::Threading::Thread::Interrupt_internal
 System.Threading.Thread::Join_internal(System.Int32,System.IntPtr) mscorlib::System::Threading::Thread::Join_internal
@@ -998,7 +983,6 @@ System.Threading.Thread::SetState(System.Threading.ThreadState) mscorlib::System
 System.Threading.Thread::Sleep_internal(System.Int32) mscorlib::System::Threading::Thread::Sleep_internal
 System.Threading.Thread::SpinWait_nop() mscorlib::System::Threading::Thread::SpinWait_nop
 System.Threading.Thread::Suspend_internal() mscorlib::System::Threading::Thread::Suspend_internal
-System.Threading.Thread::Thread_free_internal(System.IntPtr) mscorlib::System::Threading::Thread::Thread_free_internal
 System.Threading.Thread::Thread_init() mscorlib::System::Threading::Thread::Thread_init
 System.Threading.Thread::Thread_internal(System.MulticastDelegate) mscorlib::System::Threading::Thread::Thread_internal
 System.Threading.Thread::VolatileRead(System.Byte&) mscorlib::System::Threading::Thread::VolatileReadInt8
@@ -1125,6 +1109,7 @@ System.CLRConfig::CheckThrowUnobservedTaskExceptions() mscorlib::System::CLRConf
 >icalls/mscorlib/System/Exception.h
 System.Exception::nIsTransient(System.Int32) mscorlib::System::Exception::nIsTransient
 System.Exception::GetMethodFromStackTrace(System.Object) mscorlib::System::Exception::GetMethodFromStackTrace
+System.Exception::ReportUnhandledException(System.Exception) mscorlib::System::Exception::ReportUnhandledException
 
 // System.Number
 >icalls/mscorlib/System/Number.h
@@ -1374,9 +1359,3 @@ System.SizedReference::GetApproximateSizeOfSizedRef(System.IntPtr) mscorlib::Sys
 System.SizedReference::CreateSizedRef(System.Object) mscorlib::System::SizedReference::CreateSizedRef
 System.SizedReference::GetTargetOfSizedRef(System.IntPtr) mscorlib::System::SizedReference::GetTargetOfSizedRef
 System.SizedReference::FreeSizedRef(System.IntPtr) mscorlib::System::SizedReference::FreeSizedRef
-
-// System.Net.NetworkInformation.LinuxNetworkInterface
->icalls/System/System.Net.NetworkInformation/LinuxNetworkInterface.h
-System.Net.NetworkInformation.LinuxNetworkInterface::GetInterfaceAddresses(System.IntPtr&) System::System::Net::NetworkInformation::LinuxNetworkInterface::GetInterfaceAddresses
-System.Net.NetworkInformation.LinuxNetworkInterface::FreeInterfaceAddresses(System.IntPtr) System::System::Net::NetworkInformation::LinuxNetworkInterface::FreeInterfaceAddresses
-System.Net.NetworkInformation.LinuxNetworkInterface::InitializeInterfaceAddresses() System::System::Net::NetworkInformation::LinuxNetworkInterface::InitializeInterfaceAddresses

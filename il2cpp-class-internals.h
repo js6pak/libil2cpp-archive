@@ -2,7 +2,7 @@
 
 #include "il2cpp-config.h"
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <stdint.h>
 #include "il2cpp-runtime-metadata.h"
@@ -87,9 +87,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *exception_class;
     Il2CppClass *threadabortexception_class;
     Il2CppClass *thread_class;
-#if NET_4_0
     Il2CppClass *internal_thread_class;
-#endif
     /*Il2CppClass *transparent_proxy_class;
     Il2CppClass *real_proxy_class;
     Il2CppClass *mono_method_message_class;*/
@@ -119,11 +117,9 @@ typedef struct Il2CppDefaults
     Il2CppClass *generic_ilist_class;
     Il2CppClass *generic_icollection_class;
     Il2CppClass *generic_ienumerable_class;
-#if NET_4_0
     Il2CppClass *generic_ireadonlylist_class;
     Il2CppClass *generic_ireadonlycollection_class;
     Il2CppClass *runtimetype_class;
-#endif
     Il2CppClass *generic_nullable_class;
     /*Il2CppClass *variant_class;
     Il2CppClass *com_object_class;*/
@@ -140,21 +136,14 @@ typedef struct Il2CppDefaults
     Il2CppClass *culture_info;
     Il2CppClass *async_call_class;
     Il2CppClass *assembly_class;
-#if NET_4_0
     Il2CppClass *mono_assembly_class;
-#endif
     Il2CppClass *assembly_name_class;
-#if !NET_4_0
-    Il2CppClass *enum_info_class;
-#endif
     Il2CppClass *mono_field_class;
     Il2CppClass *mono_method_class;
     Il2CppClass *mono_method_info_class;
     Il2CppClass *mono_property_info_class;
     Il2CppClass *parameter_info_class;
-#if NET_4_0
     Il2CppClass *mono_parameter_info_class;
-#endif
     Il2CppClass *module_class;
     Il2CppClass *pointer_class;
     Il2CppClass *system_exception_class;
@@ -167,12 +156,10 @@ typedef struct Il2CppDefaults
     Il2CppClass *missing_class;
     Il2CppClass *value_type_class;
 
-#if NET_4_0
     // Stuff used by the mono code
     Il2CppClass *threadpool_wait_callback_class;
     MethodInfo *threadpool_perform_wait_callback_method;
     Il2CppClass *mono_method_message_class;
-#endif
 
     // Windows.Foundation.IReference`1<T>
     Il2CppClass* ireference_class;
@@ -191,7 +178,6 @@ typedef struct Il2CppDefaults
     // System.Guid
     Il2CppClass* system_guid_class;
 
-#if NET_4_0
     Il2CppClass* sbyte_shared_enum;
     Il2CppClass* int16_shared_enum;
     Il2CppClass* int32_shared_enum;
@@ -201,7 +187,6 @@ typedef struct Il2CppDefaults
     Il2CppClass* uint16_shared_enum;
     Il2CppClass* uint32_shared_enum;
     Il2CppClass* uint64_shared_enum;
-#endif
 } Il2CppDefaults;
 
 extern LIBIL2CPP_CODEGEN_API Il2CppDefaults il2cpp_defaults;
@@ -322,7 +307,6 @@ typedef struct Il2CppTypeSourceFilePair
 typedef struct Il2CppSequencePoint
 {
     MethodIndex methodDefinitionIndex;
-    TypeIndex catchTypeIndex;
     int32_t sourceFileIndex;
     int32_t lineStart, lineEnd;
     int32_t columnStart, columnEnd;
@@ -330,8 +314,16 @@ typedef struct Il2CppSequencePoint
     SequencePointKind kind;
     int32_t isActive;
     int32_t id;
-    uint8_t tryDepth;
 } Il2CppSequencePoint;
+
+typedef struct Il2CppCatchPoint
+{
+    MethodIndex methodDefinitionIndex;
+    TypeIndex catchTypeIndex;
+    int32_t ilOffset;
+    int8_t tryId;
+    int8_t parentTryId;
+} Il2CppCatchPoint;
 
 typedef struct Il2CppDebuggerMetadataRegistration
 {
@@ -342,6 +334,8 @@ typedef struct Il2CppDebuggerMetadataRegistration
     Il2CppSequencePointSourceFile* sequencePointSourceFiles;
     int32_t numSequencePoints;
     Il2CppSequencePoint* sequencePoints;
+    int32_t numCatchPoints;
+    Il2CppCatchPoint* catchPoints;
     int32_t numTypeSourceFileEntries;
     Il2CppTypeSourceFilePair* typeSourceFiles;
     const char** methodExecutionContextInfoStrings;
@@ -514,9 +508,7 @@ typedef struct Il2CppDomain
     const char* friendly_name;
     uint32_t domain_id;
 
-#if NET_4_0
     volatile int threadpool_jobs;
-#endif
     void* agent_info;
 } Il2CppDomain;
 
@@ -733,4 +725,4 @@ typedef struct Il2CppPerfCounters
     unsigned int threadpool_iothreads;
 } Il2CppPerfCounters;
 
-#endif // !IL2CPP_DOTS
+#endif // !IL2CPP_TINY

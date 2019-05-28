@@ -30,11 +30,9 @@ namespace Reflection
         static Il2CppString *  get_name(Il2CppReflectionMethod * m);
         static Il2CppReflectionMethod* MakeGenericMethod_impl(Il2CppReflectionMethod *, Il2CppArray *);
 
-#if NET_4_0
         static int32_t get_core_clr_security_level(Il2CppObject* _this);
         static Il2CppReflectionMethod* get_base_method(Il2CppReflectionMethod* method, bool definition);
         static void GetPInvoke(Il2CppReflectionMethod* _this, int32_t* flags, Il2CppString** entryPoint, Il2CppString** dllName);
-#endif
     };
 } /* namespace Reflection */
 } /* namespace System */

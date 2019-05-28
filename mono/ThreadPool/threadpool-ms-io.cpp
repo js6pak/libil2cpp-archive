@@ -9,8 +9,6 @@
  */
 #include "il2cpp-config.h"
 
-#if NET_4_0
-
 #ifndef DISABLE_SOCKETS
 
 #ifndef IL2CPP_USE_PIPES_FOR_WAKEUP
@@ -675,5 +673,4 @@ void threadpool_ms_io_remove_socket (int fd)
 	IL2CPP_ASSERT(0 && "Should not be called");
 }
 
-#endif
 #endif
