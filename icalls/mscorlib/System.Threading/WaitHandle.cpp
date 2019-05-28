@@ -76,7 +76,6 @@ namespace Threading
         return WaitOne_internal(NULL, toWaitOn, ms, exitContext);
     }
 
-#if NET_4_0
     int32_t WaitHandle::SignalAndWait_Internal40(intptr_t toSignal, intptr_t toWaitOn, int32_t ms)
     {
         return SignalAndWait_Internal(toSignal, toWaitOn, ms, false) ? 0 : 1;
@@ -135,8 +134,6 @@ namespace Threading
         else
             return os::Handle::WaitAny(osWaitHandles, timeouts);
     }
-
-#endif
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

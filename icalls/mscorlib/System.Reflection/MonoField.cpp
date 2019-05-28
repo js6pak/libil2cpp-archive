@@ -51,17 +51,6 @@ namespace Reflection
         Il2CppClass* fieldType = vm::Class::FromIl2CppType(fieldInfo->type);
         vm::Class::Init(fieldType);
 
-#ifndef NET_4_0 //This check is done in managed code in .NET 4.5+
-        if (value != NULL && !vm::Class::IsAssignableFrom(fieldType, value->klass))
-        {
-            vm::Exception::Raise(vm::Exception::GetArgumentException("value",
-                utils::StringUtils::Printf("Object of type '%s' cannot be converted to type '%s'.",
-                    vm::Type::GetName(&value->klass->byval_arg, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str(),
-                    vm::Type::GetName(fieldInfo->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME).c_str()
-                ).c_str()));
-        }
-#endif
-
         uint8_t* fieldAddress;
 
         if (fieldInfo->type->attrs & FIELD_ATTRIBUTE_STATIC)
@@ -166,7 +155,6 @@ namespace Reflection
         return NULL;
     }
 
-#if NET_4_0
     int32_t MonoField::get_core_clr_security_level(Il2CppObject* _this)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(MonoField::get_core_clr_security_level);
@@ -180,8 +168,6 @@ namespace Reflection
         IL2CPP_UNREACHABLE;
         return NULL;
     }
-
-#endif
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

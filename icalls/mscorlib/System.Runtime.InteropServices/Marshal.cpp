@@ -647,8 +647,6 @@ namespace InteropServices
         return reinterpret_cast<intptr_t>(il2cpp_array_addr_with_size(arr, il2cpp_array_element_size(arr->klass), index));
     }
 
-#if NET_4_0
-
     intptr_t Marshal::BufferToBSTR(Il2CppArray* ptr, int32_t slen)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::BufferToBSTR);
@@ -674,16 +672,11 @@ namespace InteropServices
         IL2CPP_UNREACHABLE;
     }
 
-#endif
-
-#if NET_4_0
     intptr_t Marshal::AllocCoTaskMemSize(intptr_t sizet)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::AllocCoTaskMemSize);
         IL2CPP_UNREACHABLE;
     }
-
-#endif
 } /* namespace InteropServices */
 } /* namespace Runtime */
 } /* namespace System */

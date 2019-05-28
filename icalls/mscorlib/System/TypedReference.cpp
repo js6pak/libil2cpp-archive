@@ -22,7 +22,6 @@ namespace System
         return 0;
     }
 
-#if NET_4_0
     Il2CppObject* TypedReference::InternalToObject(Il2CppTypedRef* typedRef)
     {
         Il2CppObject* result = NULL;
@@ -79,8 +78,6 @@ namespace System
 
         return res;
     }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

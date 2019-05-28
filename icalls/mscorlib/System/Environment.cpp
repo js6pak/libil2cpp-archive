@@ -14,7 +14,7 @@
 #include "vm/String.h"
 #include "vm/Exception.h"
 
-#if IL2CPP_DOTS_DEBUGGER
+#if IL2CPP_TINY_DEBUGGER
 #include "os/CrashHelpers.h"
 #include "vm/StackTrace.h"
 #include "utils/Logging.h"
@@ -151,7 +151,7 @@ namespace System
     {
 #ifdef _MSC_VER
         return 2;
-#elif NET_4_0 && IL2CPP_TARGET_DARWIN
+#elif IL2CPP_TARGET_DARWIN
         // new Mono expects distinct platform value for OSX/iOS
         return 6;
 #else
@@ -199,7 +199,6 @@ namespace System
         return 0;
     }
 
-#if NET_4_0
     bool Environment::GetIs64BitOperatingSystem()
     {
         if (sizeof(void*) == 8)
@@ -236,9 +235,7 @@ namespace System
         IL2CPP_UNREACHABLE;
     }
 
-#endif
-
-#if IL2CPP_DOTS_DEBUGGER
+#if IL2CPP_TINY_DEBUGGER
     Il2CppString* Environment::GetStackTrace_internal()
     {
         std::string stackTrace = vm::StackTrace::GetStackTrace();

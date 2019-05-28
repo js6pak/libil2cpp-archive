@@ -1,7 +1,5 @@
 #pragma once
 
-#if NET_4_0
-
 #include <vector>
 
 #include "os/ConditionVariable.h"
@@ -112,5 +110,3 @@ enum ThreadPoolHeuristicStateTransition
     TRANSITION_THREAD_TIMED_OUT,
     TRANSITION_UNDEFINED,
 };
-
-#endif // NET_4_0

@@ -826,11 +826,7 @@ namespace vm
 
         klass = Class::FromIl2CppType(type->type);
 
-#if NET_4_0
         Il2CppClass *arrType = runtimeArray ? il2cpp_defaults.runtimetype_class : il2cpp_defaults.systemtype_class;
-#else
-        Il2CppClass *arrType = il2cpp_defaults.systemtype_class;
-#endif
 
         if (Class::IsGeneric(klass))
         {

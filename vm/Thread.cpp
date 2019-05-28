@@ -112,9 +112,7 @@ namespace vm
         // Create managed object representing the current thread.
 
         thread = (Il2CppThread*)Object::New(il2cpp_defaults.thread_class);
-#if NET_4_0
         gc::WriteBarrier::GenericStore(&thread->internal_thread, Object::New(il2cpp_defaults.internal_thread_class));
-#endif
         thread->GetInternalThread()->handle = osThread;
         thread->GetInternalThread()->state = kThreadStateRunning;
         thread->GetInternalThread()->tid = osThread->Id();
@@ -200,10 +198,6 @@ namespace vm
 
 #if IL2CPP_MONO_DEBUGGER
         utils::Debugger::FreeThreadLocalData();
-#endif
-
-#if !NET_4_0
-        delete[] thread->GetInternalThread()->serialized_culture_info;
 #endif
 
         os::Thread::DetachCurrentThread();
@@ -354,7 +348,6 @@ namespace vm
         thread->GetInternalThread()->state |= value;
     }
 
-#if NET_4_0
     void Thread::ClrState(Il2CppInternalThread* thread, ThreadState clr)
     {
         il2cpp::os::FastAutoLock lock(thread->synch_cs);
@@ -383,8 +376,6 @@ namespace vm
     {
         return Current()->GetInternalThread();
     }
-
-#endif
 
     ThreadState Thread::GetState(Il2CppThread *thread)
     {
@@ -462,7 +453,6 @@ namespace vm
         return thread->GetInternalThread()->static_data[offset];
     }
 
-#if NET_4_0
     void* Thread::GetThreadStaticDataForThread(int32_t offset, Il2CppInternalThread* thread)
     {
         // No lock. We allocate static_data once with a fixed size so we can read it
@@ -470,8 +460,6 @@ namespace vm
         IL2CPP_ASSERT(offset >= 0 && static_cast<uint32_t>(offset) < s_ThreadStaticSizes.size());
         return thread->static_data[offset];
     }
-
-#endif
 
     void Thread::Register(Il2CppThread *thread)
     {
@@ -505,7 +493,6 @@ namespace vm
         return !gc::GarbageCollector::IsFinalizerThread(thread);
     }
 
-#if NET_4_0
     std::string Thread::GetName(Il2CppInternalThread* thread)
     {
         if (thread->name == NULL)
@@ -513,8 +500,6 @@ namespace vm
 
         return utils::StringUtils::Utf16ToUtf8(thread->name);
     }
-
-#endif
 
     void Thread::SetName(Il2CppThread* thread, Il2CppString* name)
     {
@@ -536,7 +521,6 @@ namespace vm
         }
     }
 
-#if NET_4_0
     void Thread::SetName(Il2CppInternalThread* thread, Il2CppString* name)
     {
         il2cpp::os::FastAutoLock lock(thread->synch_cs);
@@ -556,8 +540,6 @@ namespace vm
             thread->handle->SetName(utf8Name.c_str());
         }
     }
-
-#endif
 
     static void STDCALL CheckCurrentThreadForInterruptCallback(void* context)
     {
@@ -627,7 +609,6 @@ namespace vm
         return true;
     }
 
-#if NET_4_0
     bool Thread::RequestAbort(Il2CppInternalThread* thread)
     {
         il2cpp::os::FastAutoLock lock(thread->synch_cs);
@@ -699,7 +680,13 @@ namespace vm
                 }
                 catch (Il2CppExceptionWrapper& ex)
                 {
-                    Runtime::UnhandledException(ex.ex);
+                    // Only deal with the unhandled exception if the runtime is not
+                    // shutting down. Otherwise, the code to process the unhandled
+                    // exception might fail in unexpected ways, because it needs
+                    // the full runtime available. We've seen this cause crashes
+                    // that are difficult to reproduce locally.
+                    if (!il2cpp::vm::Runtime::IsShuttingDown())
+                        Runtime::UnhandledException(ex.ex);
                 }
             }
             catch (il2cpp::vm::Thread::NativeThreadAbortException)
@@ -796,8 +783,6 @@ namespace vm
         return os::Thread::YieldInternal();
     }
 
-#endif
-
     void Thread::CheckCurrentThreadForAbortAndThrowIfNecessary()
     {
         Il2CppThread* currentThread = il2cpp::vm::Thread::Current();
@@ -809,14 +794,6 @@ namespace vm
         ThreadState state = il2cpp::vm::Thread::GetState(currentThread);
         if (!(state & kThreadStateAbortRequested))
             return;
-
-#if !NET_4_0
-        // Mark the current thread as being unblocked, but not for NET_4_0. The newer
-        // class libraries check the thread state from managed code, so we need to leave
-        // the thread in the abort requested state. The ResetAbort function should clear
-        // this when it is called from the class library code.
-        il2cpp::vm::Thread::ClrState(currentThread, kThreadStateAbortRequested);
-#endif
 
         // Throw interrupt exception.
         Il2CppException* abortException = il2cpp::vm::Exception::GetThreadAbortException();
@@ -831,15 +808,12 @@ namespace vm
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetThreadStateException("Unable to reset abort because no abort was requested."));
     }
 
-#if NET_4_0
     void Thread::ResetAbort(Il2CppInternalThread* thread)
     {
         il2cpp::vm::Thread::ClrState(thread, kThreadStateAbortRequested);
         if (thread->abort_exc == NULL)
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetThreadStateException("Unable to reset abort because no abort was requested."));
     }
-
-#endif
 
     void Thread::FullMemoryBarrier()
     {
@@ -856,12 +830,9 @@ namespace vm
         return thread->GetInternalThread()->tid;
     }
 
-#if NET_4_0
     uint64_t Thread::GetId(Il2CppInternalThread* thread)
     {
         return thread->tid;
     }
-
-#endif
 } /* namespace vm */
 } /* namespace il2cpp */

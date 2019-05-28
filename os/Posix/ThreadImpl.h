@@ -1,6 +1,6 @@
 #pragma once
 
-#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <pthread.h>
 #include <vector>
@@ -57,9 +57,7 @@ namespace os
         static ThreadImpl* GetCurrentThread();
         static ThreadImpl* CreateForCurrentThread();
 
-#if NET_4_0
         static bool YieldInternal();
-#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
         static void SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction);

@@ -38,11 +38,7 @@ using std::vector;
 using std::pair;
 
 
-#if NET_4_0
 const size_t kImplicitArrayInterfaceCount = 5;
-#else
-const size_t kImplicitArrayInterfaceCount = 3;
-#endif
 
 namespace il2cpp
 {
@@ -181,10 +177,8 @@ namespace metadata
                     interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_icollection_class, genericArguments));
                     interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, genericArguments));
 
-#if NET_4_0
                     interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, genericArguments));
                     interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, genericArguments));
-#endif
                 }
             }
 
@@ -231,7 +225,6 @@ namespace metadata
                 methodName = method->name + 27;
                 name = StringUtils::Printf("System.Collections.Generic.IEnumerable`1.%s", method->name + 27);
             }
-#if NET_4_0
             else if (!strncmp(method->name, "InternalArray__IReadOnlyList_", 29))
             {
                 implementingInterface = il2cpp_defaults.generic_ireadonlylist_class;
@@ -244,7 +237,6 @@ namespace metadata
                 methodName = method->name + 35;
                 name = StringUtils::Printf("System.Collections.Generic.IReadOnlyCollection`1.%s", method->name + 35);
             }
-#endif
             else
             {
                 implementingInterface = il2cpp_defaults.generic_ilist_class;
@@ -351,9 +343,7 @@ namespace metadata
         int32_t arrayVTableSlot = arrayClass->vtable_count;
         size_t slots = arrayVTableSlot + interfaces.size() * (il2cpp_defaults.generic_ilist_class->method_count + il2cpp_defaults.generic_icollection_class->method_count + il2cpp_defaults.generic_ienumerable_class->method_count);
 
-#if NET_4_0
         slots += interfaces.size() * (il2cpp_defaults.generic_ireadonlylist_class->method_count + il2cpp_defaults.generic_ireadonlycollection_class->method_count);
-#endif
 
         memcpy(klass->vtable, arrayClass->vtable, arrayVTableSlot * sizeof(VirtualInvokeData));
 
@@ -376,7 +366,6 @@ namespace metadata
             newInterfaceOffsets[index + 2].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index + 2].interfaceType->method_count;
 
-#if NET_4_0
             newInterfaceOffsets[index + 3].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, genericArguments);
             newInterfaceOffsets[index + 3].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index + 3].interfaceType->method_count;
@@ -384,7 +373,6 @@ namespace metadata
             newInterfaceOffsets[index + 4].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, genericArguments);
             newInterfaceOffsets[index + 4].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index + 4].interfaceType->method_count;
-#endif
         }
 
         size_t interfaceOffsetsCount = arrayInterfacesCount + kImplicitArrayInterfaceCount * interfaces.size();
@@ -438,12 +426,10 @@ namespace metadata
             IL2CPP_ASSERT(klass->implementedInterfaces[1]);
             klass->implementedInterfaces[2] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, genericArguments);
             IL2CPP_ASSERT(klass->implementedInterfaces[2]);
-#if NET_4_0
             klass->implementedInterfaces[3] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, genericArguments);
             IL2CPP_ASSERT(klass->implementedInterfaces[3]);
             klass->implementedInterfaces[4] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, genericArguments);
             IL2CPP_ASSERT(klass->implementedInterfaces[4]);
-#endif
         }
     }
 
@@ -453,7 +439,7 @@ namespace metadata
         IL2CPP_ASSERT(klass->element_class->initialized);
 
         SetupCastClass(klass);
-#if !IL2CPP_DOTS
+#if !IL2CPP_TINY
         SetupArrayVTableAndInterfaceOffsets(klass);
 #endif
         SetupArrayMethods(klass);
@@ -529,16 +515,14 @@ namespace metadata
         if (rank <= 1 && !bounded)
             CollectImplicitArrayInterfacesFromElementClass(elementClass, interfaces);
 
-#if IL2CPP_DOTS
+#if IL2CPP_TINY
         size_t slots = arrayClass->vtable_count;
 #else
         size_t slots = arrayClass->vtable_count + interfaces.size() * (il2cpp_defaults.generic_ilist_class->method_count + il2cpp_defaults.generic_icollection_class->method_count + il2cpp_defaults.generic_ienumerable_class->method_count);
 #endif
 
-#if !IL2CPP_DOTS
-#if NET_4_0
+#if !IL2CPP_TINY
         slots += interfaces.size() * (il2cpp_defaults.generic_ireadonlylist_class->method_count + il2cpp_defaults.generic_ireadonlycollection_class->method_count);
-#endif
 #endif
 
         Il2CppClass* klass = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass) + (slots * sizeof(VirtualInvokeData)));

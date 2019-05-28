@@ -19,15 +19,12 @@ namespace Reflection
         return MonoMethod::InternalInvoke(self, obj, parameters, exc);
     }
 
-#if NET_4_0
     int32_t MonoCMethod::get_core_clr_security_level(Il2CppObject* _this)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(MonoCMethod::get_core_clr_security_level);
         IL2CPP_UNREACHABLE;
         return 0;
     }
-
-#endif
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

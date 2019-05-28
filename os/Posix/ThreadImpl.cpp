@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <limits>
 #include <unistd.h>
@@ -242,14 +242,10 @@ namespace os
         return thread;
     }
 
-#if NET_4_0
-
     bool ThreadImpl::YieldInternal()
     {
         return sched_yield() == 0;
     }
-
-#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 

@@ -68,28 +68,6 @@ namespace System
         return il2cpp::vm::Reflection::HasAttribute(obj, vm::Class::FromIl2CppType(attr_type->type));
     }
 
-#if !NET_4_0
-    static Il2CppObject* CreateCustomAttributeData(Il2CppObject* attribute)
-    {
-        static const MethodInfo* customAttributeDataConstructor;
-        void *params[3];
-
-        if (!customAttributeDataConstructor)
-            customAttributeDataConstructor = vm::Class::GetMethodFromName(il2cpp_defaults.customattribute_data_class, ".ctor", 3);
-
-        const MethodInfo* attributeConstructor = vm::Class::GetMethodFromName(attribute->klass, ".ctor", 0);
-
-        if (attributeConstructor == NULL)
-            IL2CPP_NOT_IMPLEMENTED_ICALL(MonoCustomAttrs::GetCustomAttributesDataInternal);
-
-        Il2CppObject* customAttributeData = vm::Object::New(il2cpp_defaults.customattribute_data_class);
-        params[0] = vm::Reflection::GetMethodObject(attributeConstructor, NULL);
-        params[1] = params[2] = NULL;
-        vm::Runtime::Invoke(customAttributeDataConstructor, customAttributeData, params, NULL);
-        return customAttributeData;
-    }
-
-#else
     static Il2CppObject* CreateCustomAttributeData(Il2CppObject* attribute)
     {
         static const MethodInfo* customAttributeDataConstructor;
@@ -113,8 +91,6 @@ namespace System
         vm::Runtime::Invoke(customAttributeDataConstructor, customAttributeData, params, NULL);
         return customAttributeData;
     }
-
-#endif
 
     Il2CppArray* MonoCustomAttrs::GetCustomAttributesDataInternal(Il2CppObject* obj)
     {

@@ -1,8 +1,7 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
-#if NET_4_0
 #include "os/c-api/ConditionVariable-c-api.h"
 #include "os/c-api/Mutex-c-api.h"
 #include "os/ConditionVariable.h"
@@ -44,6 +43,4 @@ extern "C"
         object->Signal();
     }
 }
-#endif
-
 #endif

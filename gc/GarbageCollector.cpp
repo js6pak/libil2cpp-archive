@@ -9,7 +9,7 @@
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 #include "vm/CCW.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
@@ -26,7 +26,7 @@ namespace il2cpp
 {
 namespace gc
 {
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 // So COM Callable Wrapper can be created for any kind of managed object,
 // whether it has finalizer or not. If it doesn't then it's an easy case:
 // when creating the CCW, we just register our cleanup method to be the
@@ -314,7 +314,7 @@ namespace gc
         return result;
     }
 
-#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
 
     int32_t GarbageCollector::GetGeneration(void* addr)
     {
@@ -338,11 +338,8 @@ namespace gc
 
 #endif
 
-#if NET_4_0
     void il2cpp::gc::GarbageCollector::SetSkipThread(bool skip)
     {
     }
-
-#endif
 } // namespace gc
 } // namespace il2cpp

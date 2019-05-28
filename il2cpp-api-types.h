@@ -107,6 +107,15 @@ typedef struct Il2CppStackFrameInfo
     const MethodInfo *method;
 } Il2CppStackFrameInfo;
 
+typedef void(*Il2CppMethodPointer)();
+
+typedef struct Il2CppMethodDebugInfo
+{
+    Il2CppMethodPointer methodPointer;
+    int32_t code_size;
+    const char *file;
+} Il2CppMethodDebugInfo;
+
 typedef struct
 {
     void* (*malloc_func)(size_t size);
@@ -156,6 +165,5 @@ typedef void (*Il2CppLogCallback)(const char*);
 
 struct Il2CppManagedMemorySnapshot;
 
-typedef void (*Il2CppMethodPointer)();
 typedef uintptr_t il2cpp_array_size_t;
 #define ARRAY_LENGTH_AS_INT32(a) ((int32_t)a)

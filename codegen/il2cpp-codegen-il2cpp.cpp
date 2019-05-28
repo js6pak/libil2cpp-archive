@@ -38,20 +38,12 @@ void il2cpp_codegen_marshal_store_last_error()
 
 Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegate, void** params, RuntimeDelegate* asyncCallback, RuntimeObject* state)
 {
-#if NET_4_0
     return il2cpp::vm::ThreadPoolMs::DelegateBeginInvoke(delegate, params, asyncCallback, state);
-#else
-    return il2cpp::vm::ThreadPool::Queue(delegate, params, asyncCallback, state);
-#endif
 }
 
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args)
 {
-#if NET_4_0
     return il2cpp::vm::ThreadPoolMs::DelegateEndInvoke(asyncResult, out_args);
-#else
-    return il2cpp::vm::ThreadPool::Wait(asyncResult, out_args);
-#endif
 }
 
 Il2CppMethodPointer il2cpp_codegen_resolve_icall(const char* name)
@@ -228,14 +220,14 @@ void il2cpp_codegen_profiler_method_exit(const RuntimeMethod* method)
 
 #endif
 
-NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, Il2CppSequencePoint *seqPoint, MethodInfo* lastManagedFrame)
+NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame)
 {
-    il2cpp::vm::Exception::Raise((RuntimeException*)ex, seqPoint, lastManagedFrame);
+    il2cpp::vm::Exception::Raise((RuntimeException*)ex, lastManagedFrame);
 }
 
-NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException, Il2CppSequencePoint *seqPoint)
+NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException)
 {
-    il2cpp::vm::Exception::Raise(hresult, defaultToCOMException, seqPoint);
+    il2cpp::vm::Exception::Raise(hresult, defaultToCOMException);
 }
 
 NORETURN void il2cpp_codegen_raise_out_of_memory_exception()
@@ -243,14 +235,14 @@ NORETURN void il2cpp_codegen_raise_out_of_memory_exception()
     il2cpp::vm::Exception::RaiseOutOfMemoryException();
 }
 
-NORETURN void il2cpp_codegen_raise_null_reference_exception(Il2CppSequencePoint *seqPoint)
+NORETURN void il2cpp_codegen_raise_null_reference_exception()
 {
-    il2cpp::vm::Exception::RaiseNullReferenceException(seqPoint);
+    il2cpp::vm::Exception::RaiseNullReferenceException();
 }
 
-NORETURN void il2cpp_codegen_raise_divide_by_zero_exception(Il2CppSequencePoint *seqPoint)
+NORETURN void il2cpp_codegen_raise_divide_by_zero_exception()
 {
-    il2cpp::vm::Exception::RaiseDivideByZeroException(seqPoint);
+    il2cpp::vm::Exception::RaiseDivideByZeroException();
 }
 
 Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)

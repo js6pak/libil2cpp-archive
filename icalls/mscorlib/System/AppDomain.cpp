@@ -65,11 +65,7 @@ namespace System
 
         if (!System_Reflection_Assembly)
         {
-#if !NET_4_0
-            System_Reflection_Assembly = il2cpp_defaults.assembly_class;
-#else
             System_Reflection_Assembly = il2cpp_defaults.mono_assembly_class;
-#endif
         }
 
         vm::AssemblyVector* assemblies = vm::Assembly::GetAllAssemblies();
@@ -240,14 +236,11 @@ namespace System
         gc::GarbageCollector::SetWriteBarrier((void**)&s_DomainData->back().second);
     }
 
-#if NET_4_0
     void AppDomain::DoUnhandledException(Il2CppObject* _this, Il2CppException* e)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(AppDomain::DoUnhandledException);
         IL2CPP_UNREACHABLE;
     }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */
