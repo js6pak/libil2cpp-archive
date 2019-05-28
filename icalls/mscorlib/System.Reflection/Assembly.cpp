@@ -321,13 +321,10 @@ namespace Reflection
         NOT_SUPPORTED_IL2CPP(Assembly::InternalGetAssemblyName, "This icall is not supported by il2cpp.");
     }
 
-#if NET_4_0
     void Assembly::InternalGetAssemblyName40(Il2CppString* assemblyFile, Il2CppMonoAssemblyName* aname, Il2CppString** codebase)
     {
         NOT_SUPPORTED_IL2CPP(Assembly::InternalGetAssemblyName, "This icall is not supported by il2cpp.");
     }
-
-#endif
 
     Il2CppReflectionAssembly* Assembly::LoadFrom(Il2CppString* assemblyFile, bool refonly)
     {
@@ -552,15 +549,11 @@ namespace Reflection
         return false;
     }
 
-#if NET_4_0
     Il2CppString* Assembly::GetAotId()
     {
         return NULL;
     }
 
-#endif
-
-#if NET_4_0
     intptr_t Assembly::InternalGetReferencedAssemblies(Il2CppReflectionAssembly* module)
     {
         VoidPtrArray assemblyPointers;
@@ -575,8 +568,6 @@ namespace Reflection
 
         return reinterpret_cast<intptr_t>(void_ptr_array_to_gptr_array(assemblyPointers));
     }
-
-#endif
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

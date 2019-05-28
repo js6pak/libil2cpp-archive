@@ -103,9 +103,9 @@ String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView<Il2Cpp
 
 Type_t* il2cpp_codegen_type_get_object(const RuntimeType* type);
 
-NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, Il2CppSequencePoint *seqPoint = NULL, MethodInfo* lastManagedFrame = NULL);
+NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame = NULL);
 
-NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException, Il2CppSequencePoint *seqPoint = NULL);
+NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException);
 
 void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method);
 
@@ -113,9 +113,9 @@ void il2cpp_codegen_raise_execution_engine_exception(const RuntimeMethod* method
 
 NORETURN void il2cpp_codegen_raise_out_of_memory_exception();
 
-NORETURN void il2cpp_codegen_raise_null_reference_exception(Il2CppSequencePoint *seqPoint = NULL);
+NORETURN void il2cpp_codegen_raise_null_reference_exception();
 
-NORETURN void il2cpp_codegen_raise_divide_by_zero_exception(Il2CppSequencePoint *seqPoint = NULL);
+NORETURN void il2cpp_codegen_raise_divide_by_zero_exception();
 
 Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg);
 
@@ -218,12 +218,12 @@ inline RuntimeObject* CastclassClass(RuntimeObject *obj, RuntimeClass* targetTyp
     return NULL;
 }
 
-inline void NullCheck(void* this_ptr, Il2CppSequencePoint *seqPoint = NULL)
+inline void NullCheck(void* this_ptr)
 {
     if (this_ptr != NULL)
         return;
 
-    il2cpp_codegen_raise_null_reference_exception(seqPoint);
+    il2cpp_codegen_raise_null_reference_exception();
 }
 
 // OpCode.Box
@@ -828,9 +828,9 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object
 
 NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method);
 
-#if IL2CPP_DOTS
+#if IL2CPP_TINY
 
-// Add intrinsics used by Dots.
+// Add intrinsics used by Tiny.
 
 #include "utils/MemoryUtils.h"
 

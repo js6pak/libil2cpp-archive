@@ -562,7 +562,6 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
         else
         {
             const Il2CppType* type = inst->type_argv[i];
-#if NET_4_0
             if (s_Il2CppCodeGenOptions->enablePrimitiveValueTypeGenericSharing)
             {
                 if (IsShareableEnum(type))
@@ -600,7 +599,6 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
                     }
                 }
             }
-#endif
 
             if (il2cpp::vm::Type::IsGenericInstance(type))
             {

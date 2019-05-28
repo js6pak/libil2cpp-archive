@@ -2,6 +2,7 @@
 #include "il2cpp-class-internals.h"
 
 struct Il2CppSequencePoint;
+struct Il2CppCatchPoint;
 struct Il2CppSequencePointExecutionContext;
 struct Il2CppThreadUnwindState;
 
@@ -15,6 +16,7 @@ typedef struct Il2CppSequencePointExecutionContext
     void** params;
     void** locals;
     Il2CppSequencePoint* currentSequencePoint;
+    int8_t tryId;
 
 #ifdef __cplusplus
     Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals);
@@ -71,6 +73,7 @@ namespace utils
             {
                 IL2CPP_ASSERT(0);
             }
+
             unwindState->executionContexts[unwindState->frameCount] = executionContext;
             unwindState->frameCount++;
         }
@@ -100,8 +103,10 @@ namespace utils
         static void FreeThreadLocalData();
         static Il2CppSequencePoint* GetSequencePoint(const Il2CppImage* image, size_t id);
         static Il2CppSequencePoint* GetSequencePoints(const MethodInfo* method, void**iter);
+        static Il2CppSequencePoint* GetSequencePoint(Il2CppCatchPoint* cp);
+        static Il2CppCatchPoint* GetCatchPoints(const MethodInfo* method, void**iter);
         static Il2CppSequencePoint* GetAllSequencePoints(void* *iter);
-        static void HandleException(Il2CppException *exc, Il2CppSequencePoint *sequencePoint);
+        static void HandleException(Il2CppException *exc);
         static const char** GetTypeSourceFiles(const Il2CppClass *klass, int& count);
         static void UserBreak();
         static bool IsLoggingEnabled();
@@ -129,6 +134,7 @@ namespace utils
 
         static bool IsPausePointActive();
         static const MethodInfo* GetSequencePointMethod(Il2CppSequencePoint *seqPoint);
+        static const MethodInfo* GetCatchPointMethod(Il2CppCatchPoint *catchPoint);
 
         static inline void CheckSequencePoint(Il2CppSequencePointExecutionContext* executionContext, Il2CppSequencePoint* seqPoint)
         {
@@ -168,6 +174,7 @@ namespace utils
         static os::ThreadLocalValue s_IsGlobalBreakpointActive;
         static void InitializeMethodToSequencePointMap();
         static void InitializeTypeSourceFileMap();
+        static void InitializeMethodToCatchPointMap();
     };
 }
 }
@@ -177,7 +184,8 @@ inline Il2CppSequencePointExecutionContext::Il2CppSequencePointExecutionContext(
     thisArg(thisArg),
     params(params),
     locals(locals),
-    currentSequencePoint(NULL)
+    currentSequencePoint(NULL),
+    tryId(-1)
 {
     il2cpp::utils::Debugger::PushExecutionContext(this);
 }

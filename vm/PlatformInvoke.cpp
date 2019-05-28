@@ -197,25 +197,6 @@ namespace vm
         if (stringBuilder == NULL)
             return NULL;
 
-#if !NET_4_0
-        size_t stringLength = utils::StringUtils::GetLength(stringBuilder->str);
-
-        // not sure if this is necessary but it's better to be safe than sorry
-        IL2CPP_ASSERT(static_cast<int32_t>(stringLength) >= stringBuilder->length);
-        if (static_cast<int32_t>(stringLength) < stringBuilder->length)
-            stringLength = stringBuilder->length;
-
-        std::string utf8String = utils::StringUtils::Utf16ToUtf8(stringBuilder->str->chars, stringBuilder->length);
-
-        if (stringLength < utf8String.length())
-            stringLength = utf8String.length();
-
-        char* nativeString = MarshalAllocateStringBuffer<char>(stringLength + 1);
-        strcpy(nativeString, utf8String.c_str());
-
-        return nativeString;
-
-#else
         size_t stringLength = 0;
         Il2CppStringBuilder* currentBuilder = stringBuilder;
 
@@ -263,7 +244,6 @@ namespace vm
         }
 
         return nativeString;
-#endif
     }
 
     Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder)
@@ -271,22 +251,6 @@ namespace vm
         if (stringBuilder == NULL)
             return NULL;
 
-#if !NET_4_0
-        int32_t stringLength = utils::StringUtils::GetLength(stringBuilder->str);
-
-        // not sure if this is necessary but it's better to be safe than sorry
-        IL2CPP_ASSERT(stringLength >= stringBuilder->length);
-        if (stringLength < stringBuilder->length)
-            stringLength = stringBuilder->length;
-
-        Il2CppChar* nativeString = MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
-        for (int32_t i = 0; i < stringBuilder->length; ++i)
-            nativeString[i] = stringBuilder->str->chars[i];
-
-        nativeString[stringBuilder->length] = '\0';
-
-        return nativeString;
-#else
         size_t stringLength = 0;
         Il2CppStringBuilder* currentBuilder = stringBuilder;
         while (true)
@@ -320,7 +284,6 @@ namespace vm
         nativeString[stringLength] = '\0';
 
         return nativeString;
-#endif
     }
 
     void PlatformInvoke::MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer)
@@ -328,11 +291,6 @@ namespace vm
         if (stringBuilder == NULL || buffer == NULL)
             return;
 
-#if !NET_4_0
-        Il2CppString* managedString = MarshalCppStringToCSharpStringResult(buffer);
-        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
-        stringBuilder->length = utils::StringUtils::GetLength(managedString);
-#else
         UTF16String utf16String = utils::StringUtils::Utf8ToUtf16(buffer);
 
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkChars, il2cpp::vm::Array::New(il2cpp_defaults.char_class, (int)utf16String.size() + 1));
@@ -345,7 +303,6 @@ namespace vm
         stringBuilder->chunkLength = (int)utf16String.size();
         stringBuilder->chunkOffset = 0;
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
-#endif
     }
 
     void PlatformInvoke::MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, Il2CppChar* buffer)
@@ -353,11 +310,6 @@ namespace vm
         if (stringBuilder == NULL || buffer == NULL)
             return;
 
-#if !NET_4_0
-        Il2CppString* managedString = MarshalCppWStringToCSharpStringResult(buffer);
-        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
-        stringBuilder->length = utils::StringUtils::GetLength(managedString);
-#else
         int len = (int)utils::StringUtils::StrLen(buffer);
 
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkChars, il2cpp::vm::Array::New(il2cpp_defaults.char_class, len + 1));
@@ -370,7 +322,6 @@ namespace vm
         stringBuilder->chunkLength = len;
         stringBuilder->chunkOffset = 0;
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
-#endif
     }
 
     // When a delegate is marshalled from native code via Marshal.GetDelegateForFunctionPointer

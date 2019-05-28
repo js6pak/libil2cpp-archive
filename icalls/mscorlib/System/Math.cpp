@@ -148,7 +148,6 @@ namespace System
 #endif
     }
 
-#if NET_4_0
     double Math::Abs(double value)
     {
         return fabs(value);
@@ -168,8 +167,6 @@ namespace System
     {
         return fabsf(value);
     }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

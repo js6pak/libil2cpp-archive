@@ -1,4 +1,3 @@
-#if NET_4_0
 #include <algorithm>
 #include <vector>
 #include "il2cpp-config.h"
@@ -178,4 +177,3 @@ namespace MemoryMappedFiles
 } // namespace System
 } // namespace icalls
 } // namespace il2cpp
-#endif
