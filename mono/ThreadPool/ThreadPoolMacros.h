@@ -1,7 +1,5 @@
 #pragma once
 
-#if NET_4_0
-
 #include "vm/Atomic.h"
 
 #define COUNTER_CHECK(counter) \
@@ -41,5 +39,3 @@
 
 #define CPU_USAGE_LOW 80
 #define CPU_USAGE_HIGH 95
-
-#endif // NET_4_0

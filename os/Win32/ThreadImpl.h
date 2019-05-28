@@ -52,9 +52,7 @@ namespace os
         static size_t CurrentThreadId();
         static ThreadImpl* CreateForCurrentThread();
 
-#if NET_4_0
         static bool YieldInternal();
-#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
         static void SetNativeThreadCleanup(Thread::ThreadCleanupFunc cleanupFunction);

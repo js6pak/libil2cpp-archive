@@ -24,10 +24,10 @@ namespace il2cpp
 {
 namespace vm
 {
-    void Exception::PrepareExceptionForThrow(Il2CppException* ex, Il2CppSequencePoint* seqPoint, MethodInfo* lastManagedFrame)
+    void Exception::PrepareExceptionForThrow(Il2CppException* ex, MethodInfo* lastManagedFrame)
     {
 #if IL2CPP_MONO_DEBUGGER
-        il2cpp::utils::Debugger::HandleException(ex, seqPoint);
+        il2cpp::utils::Debugger::HandleException(ex);
 #endif
 
         if (ex->trace_ips == NULL)
@@ -60,45 +60,45 @@ namespace vm
         }
     }
 
-    NORETURN void Exception::Raise(Il2CppException* ex, Il2CppSequencePoint *seqPoint, MethodInfo* lastManagedFrame)
+    NORETURN void Exception::Raise(Il2CppException* ex, MethodInfo* lastManagedFrame)
     {
-        PrepareExceptionForThrow(ex, seqPoint, lastManagedFrame);
+        PrepareExceptionForThrow(ex, lastManagedFrame);
         throw Il2CppExceptionWrapper(ex);
     }
 
-    NORETURN void Exception::RaiseOutOfMemoryException(Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::RaiseOutOfMemoryException()
     {
-        RaiseOutOfMemoryException(utils::StringView<Il2CppChar>::Empty(), seqPoint);
+        RaiseOutOfMemoryException(utils::StringView<Il2CppChar>::Empty());
     }
 
-    NORETURN void Exception::RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg, Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg)
     {
-        Raise(GetOutOfMemoryException(msg), seqPoint);
+        Raise(GetOutOfMemoryException(msg));
     }
 
-    NORETURN void Exception::RaiseNullReferenceException(Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::RaiseNullReferenceException()
     {
-        RaiseNullReferenceException(utils::StringView<Il2CppChar>::Empty(), seqPoint);
+        RaiseNullReferenceException(utils::StringView<Il2CppChar>::Empty());
     }
 
-    NORETURN void Exception::RaiseNullReferenceException(const utils::StringView<Il2CppChar>& msg, Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::RaiseNullReferenceException(const utils::StringView<Il2CppChar>& msg)
     {
-        Raise(GetNullReferenceException(msg), seqPoint);
+        Raise(GetNullReferenceException(msg));
     }
 
-    NORETURN void Exception::RaiseDivideByZeroException(Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::RaiseDivideByZeroException()
     {
-        Raise(GetDivideByZeroException(), seqPoint);
+        Raise(GetDivideByZeroException());
     }
 
-    NORETURN void Exception::RaiseOverflowException(Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::RaiseOverflowException()
     {
-        Raise(GetOverflowException(), seqPoint);
+        Raise(GetOverflowException());
     }
 
-    NORETURN void Exception::RaiseArgumentOutOfRangeException(const char* msg, Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::RaiseArgumentOutOfRangeException(const char* msg)
     {
-        Raise(GetArgumentOutOfRangeException(msg), seqPoint);
+        Raise(GetArgumentOutOfRangeException(msg));
     }
 
     inline static Il2CppException* TryGetExceptionFromRestrictedErrorInfo(Il2CppIRestrictedErrorInfo* errorInfo)
@@ -237,6 +237,9 @@ namespace vm
                 return GetPlatformNotSupportedException(STRING_TO_STRINGVIEW(message));
             }
 
+            case IL2CPP_E_FILE_NOT_FOUND:
+                return GetFileNotFoundException(STRING_TO_STRINGVIEW(message));
+
             default:
                 return defaultToCOMException
                     ? Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", STRING_TO_STRINGVIEW(message), hresult)
@@ -244,9 +247,9 @@ namespace vm
         }
     }
 
-    NORETURN void Exception::Raise(il2cpp_hresult_t hresult, bool defaultToCOMException, Il2CppSequencePoint *seqPoint)
+    NORETURN void Exception::Raise(il2cpp_hresult_t hresult, bool defaultToCOMException)
     {
-        Raise(Get(hresult, defaultToCOMException), seqPoint);
+        Raise(Get(hresult, defaultToCOMException));
     }
 
     Il2CppException* Exception::FromNameMsg(const Il2CppImage* image, const char *name_space, const char *name, const char *msg)
@@ -588,6 +591,11 @@ namespace vm
     Il2CppException* Exception::GetFileLoadException(const char* msg)
     {
         return FromNameMsg(Image::GetCorlib(), "System.IO", "FileLoadException", msg);
+    }
+
+    Il2CppException* Exception::GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg)
+    {
+        return FromNameMsg(Image::GetCorlib(), "System.IO", "FileNotFoundException", msg);
     }
 
     void Exception::StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString)

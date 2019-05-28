@@ -1,5 +1,3 @@
-#if NET_4_0
-
 #include "il2cpp-api.h"
 #include "il2cpp-config.h"
 #include "utils/dynamic_array.h"
@@ -129,5 +127,3 @@ namespace vm
     }
 } /* namespace vm */
 } /* namespace il2cpp */
-
-#endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#if IL2CPP_THREADS_PTHREAD && !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "os/ErrorCodes.h"
 #include "utils/NonCopyable.h"

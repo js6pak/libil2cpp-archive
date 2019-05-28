@@ -1,4 +1,3 @@
-#if NET_4_0
 #include "os/c-api/il2cpp-config-platforms.h"
 #include "os/ConditionVariable.h"
 #include "os/Mutex.h"
@@ -85,7 +84,5 @@ namespace os
     }
 }
 }
-
-#endif
 
 #endif

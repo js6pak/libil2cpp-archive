@@ -36,9 +36,7 @@ namespace Threading
         static int32_t Increment(int32_t* value);
         static int64_t Increment64(int64_t* location);
         static int64_t Read(int64_t* location);
-#if NET_4_0
         static int32_t CompareExchange(int32_t* location1, int32_t value, int32_t comparand, bool* succeeded);
-#endif
     };
 } /* namespace Threading */
 } /* namespace System */

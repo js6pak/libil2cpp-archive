@@ -2,7 +2,7 @@
 
 #include "il2cpp-config.h"
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include <stdint.h>
 #include <stddef.h>
@@ -145,7 +145,6 @@ typedef struct Il2CppReflectionType
 
 // IMPORTANT: All managed types corresponding to the objects below must be blacklisted in mscorlib.xml
 
-#if NET_4_0
 // System.RuntimeType
 typedef struct Il2CppReflectionRuntimeType
 {
@@ -154,26 +153,16 @@ typedef struct Il2CppReflectionRuntimeType
     Il2CppObject* genericCache;
     Il2CppObject* serializationCtor;
 } Il2CppReflectionRuntimeType;
-#endif
 
 // System.MonoType
 typedef struct Il2CppReflectionMonoType
 {
-#if !NET_4_0
-    Il2CppReflectionType type;
-    Il2CppObject *type_info;
-#else
     Il2CppReflectionRuntimeType type;
-#endif
 
 #ifdef __cplusplus
     const Il2CppType* GetIl2CppType() const
     {
-#if !NET_4_0
-        return type.type;
-#else
         return type.type.type;
-#endif
     }
 
 #endif //__cplusplus
@@ -206,17 +195,6 @@ typedef struct Il2CppReflectionMonoEventInfo
     uint32_t eventAttributes;
     Il2CppArray* otherMethods;
 } Il2CppReflectionMonoEventInfo;
-
-#if !NET_4_0
-// System.MonoEnumInfo
-typedef struct Il2CppEnumInfo
-{
-    Il2CppReflectionType *utype;
-    Il2CppArray *values;
-    Il2CppArray *names;
-    void* name_hash;
-} Il2CppEnumInfo;
-#endif
 
 // System.Reflection.MonoField
 typedef struct Il2CppReflectionField
@@ -266,9 +244,7 @@ typedef struct Il2CppMethodInfo
 typedef struct Il2CppPropertyInfo
 {
     Il2CppReflectionType* parent;
-#if NET_4_0
     Il2CppReflectionType* declaringType;
-#endif
     Il2CppString *name;
     Il2CppReflectionMethod *get;
     Il2CppReflectionMethod *set;
@@ -317,9 +293,7 @@ typedef struct Il2CppReflectionAssemblyName
     uint32_t     versioncompat;
     Il2CppObject *version;
     uint32_t     processor_architecture;
-#if NET_4_0
     uint32_t contentType;
-#endif
 } Il2CppReflectionAssemblyName;
 
 // System.Reflection.Assembly
@@ -363,7 +337,6 @@ typedef struct Il2CppReflectionPointer
     Il2CppReflectionType* type;
 } Il2CppReflectionPointer;
 
-#if NET_4_0
 // System.Threading.InternalThread
 typedef struct Il2CppInternalThread
 {
@@ -449,8 +422,6 @@ typedef struct Il2CppMethodMessage
     uint32_t        call_type;
 } Il2CppMethodMessage;
 
-#endif
-
 /* This is a copy of System.AppDomainSetup */
 typedef struct Il2CppAppDomainSetup
 {
@@ -476,9 +447,7 @@ typedef struct Il2CppAppDomainSetup
     Il2CppArray* domain_initializer_args;
     uint8_t disallow_appbase_probe;
     Il2CppArray* configuration_bytes;
-#if NET_4_0
     Il2CppArray* serialized_non_primitives;
-#endif
 } Il2CppAppDomainSetup;
 
 
@@ -486,60 +455,6 @@ typedef struct Il2CppAppDomainSetup
 typedef struct Il2CppThread
 {
     Il2CppObject  obj;
-#if !NET_4_0
-    int         lock_thread_id; /* to be used as the pre-shifted thread id in thin locks */
-    il2cpp::os::Thread* handle;
-    Il2CppArray  *cached_culture_info;
-    void*    unused1;
-    bool threadpool_thread;//bool threadpool_thread;
-    Il2CppChar* name;
-    uint32_t name_len;
-    uint32_t        state;
-    Il2CppObject* abort_exc;//MonoException *abort_exc;
-    int abort_state_handle;
-    uint64_t tid;   /* This is accessed as a gsize in the code (so it can hold a 64bit pointer on systems that need it), but needs to reserve 64 bits of space on all machines as it corresponds to a field in managed code */
-    void*       start_notify;
-    void* stack_ptr;
-    void* *static_data;
-    void* jit_data;
-    void* lock_data;
-    Il2CppObject* current_appcontext;//MonoAppContext *current_appcontext;
-    int stack_size;
-    Il2CppObject* start_obj;//MonoObject *start_obj;
-    void* appdomain_refs;//GSList *appdomain_refs;
-    ///* This is modified using atomic ops, so keep it a int32_t */
-    int32_t interruption_requested;
-    void* suspend_event;
-    void* suspended_event;
-    void* resume_event;
-    il2cpp::os::FastMutex* synch_cs;
-    uint8_t* serialized_culture_info;
-    uint32_t serialized_culture_info_len;
-    uint8_t* serialized_ui_culture_info;
-    uint32_t serialized_ui_culture_info_len;
-    bool thread_dump_requested;//bool thread_dump_requested;
-    void* end_stack; /* This is only used when running in the debugger. */
-    bool thread_interrupt_requested;//bool thread_interrupt_requested;
-    uint8_t apartment_state;
-    int32_t critical_region_level;
-    uint32_t small_id; /* A small, unique id, used for the hazard pointer table. */
-    void* manage_callback;
-    Il2CppException *pending_exception;
-    Il2CppObject *ec_to_set;
-    ///*
-    // * These fields are used to avoid having to increment corlib versions
-    // * when a new field is added to the unmanaged MonoThread structure.
-    // */
-    void* interrupt_on_stop;
-    uintptr_t flags;
-    void* unused4;
-    void* unused5;
-    void* unused6;
-    Il2CppObject* threadstart;
-    int managed_id;
-    Il2CppObject* principal;
-    bool in_currentculture;
-#else
     Il2CppInternalThread* internal_thread;
     Il2CppObject* start_obj;
     Il2CppException* pending_exception;
@@ -548,22 +463,13 @@ typedef struct Il2CppThread
     Il2CppDelegate* delegate;
     Il2CppObject* executionContext;
     bool executionContextBelongsToOuterScope;
-#endif
 
 #ifdef __cplusplus
-#if !NET_4_0
-    Il2CppThread* GetInternalThread()
-    {
-        return this;
-    }
-
-#else
     Il2CppInternalThread* GetInternalThread() const
     {
         return internal_thread;
     }
 
-#endif
 #endif //__cplusplus
 } Il2CppThread;
 
@@ -576,21 +482,6 @@ typedef struct Il2CppException
 {
     Il2CppObject object;
 #endif //__cplusplus
-#if !NET_4_0
-    /* Stores the IPs and the generic sharing infos
-       (vtable/MRGCTX) of the frames. */
-    Il2CppArray *trace_ips;
-    Il2CppException *inner_ex;
-    Il2CppString *message;
-    Il2CppString *help_link;
-    Il2CppString *class_name;
-    Il2CppString *stack_trace;
-    Il2CppString *remote_stack_trace;
-    int32_t    remote_stack_index;
-    il2cpp_hresult_t hresult;
-    Il2CppString *source;
-    Il2CppObject *_data;
-#else
     Il2CppString* className;
     Il2CppString* message;
     Il2CppObject* _data;
@@ -606,7 +497,6 @@ typedef struct Il2CppException
     Il2CppObject* safeSerializationManager;
     Il2CppArray* captured_traces;
     Il2CppArray* native_trace_ips;
-#endif
 } Il2CppException;
 
 // System.SystemException
@@ -648,9 +538,7 @@ typedef struct Il2CppDelegate
 
     void* delegate_trampoline;
 
-#if NET_4_0
     intptr_t extraArg;
-#endif
 
     /*
      * If non-NULL, this points to a memory location which stores the address of
@@ -661,18 +549,14 @@ typedef struct Il2CppDelegate
     Il2CppReflectionMethod *original_method_info;
     Il2CppObject *data;
 
-#if NET_4_0
     bool method_is_virtual;
-#endif
 } Il2CppDelegate;
 
-#if NET_4_0
 typedef struct Il2CppMulticastDelegate
 {
     Il2CppDelegate delegate;
     Il2CppArray *delegates;
 } Il2CppMulticastDelegate;
-#endif
 
 // System.MarshalByRefObject
 typedef struct Il2CppMarshalByRefObject
@@ -729,10 +613,8 @@ typedef struct Il2CppStackFrame
     Il2CppObject obj;
     int32_t il_offset;
     int32_t native_offset;
-#if NET_4_0
     uint64_t methodAddress;
     uint32_t methodIndex;
-#endif
     Il2CppReflectionMethod *method;
     Il2CppString *filename;
     int32_t line;
@@ -744,37 +626,6 @@ typedef struct Il2CppStackFrame
 typedef struct Il2CppDateTimeFormatInfo
 {
     Il2CppObject obj;
-#if !NET_4_0
-    bool readOnly;
-    Il2CppString* AMDesignator;
-    Il2CppString* PMDesignator;
-    Il2CppString* DateSeparator;
-    Il2CppString* TimeSeparator;
-    Il2CppString* ShortDatePattern;
-    Il2CppString* LongDatePattern;
-    Il2CppString* ShortTimePattern;
-    Il2CppString* LongTimePattern;
-    Il2CppString* MonthDayPattern;
-    Il2CppString* YearMonthPattern;
-    Il2CppString* FullDateTimePattern;
-    Il2CppString* RFC1123Pattern;
-    Il2CppString* SortableDateTimePattern;
-    Il2CppString* UniversalSortableDateTimePattern;
-    uint32_t FirstDayOfWeek;
-    Il2CppObject* Calendar;
-    uint32_t CalendarWeekRule;
-    Il2CppArray* AbbreviatedDayNames;
-    Il2CppArray* DayNames;
-    Il2CppArray* MonthNames;
-    Il2CppArray* AbbreviatedMonthNames;
-    Il2CppArray* ShortDatePatterns;
-    Il2CppArray* LongDatePatterns;
-    Il2CppArray* ShortTimePatterns;
-    Il2CppArray* LongTimePatterns;
-    Il2CppArray* MonthDayPatterns;
-    Il2CppArray* YearMonthPatterns;
-    Il2CppArray* ShortDayNames;
-#else
     Il2CppObject* CultureData;
     Il2CppString* Name;
     Il2CppString* LangName;
@@ -825,46 +676,12 @@ typedef struct Il2CppDateTimeFormatInfo
     Il2CppString* FullTimeSpanPositivePattern;
     Il2CppString* FullTimeSpanNegativePattern;
     Il2CppArray* dtfiTokenHash;
-#endif
 } Il2CppDateTimeFormatInfo;
 
 // System.Globalization.NumberFormatInfo
 typedef struct Il2CppNumberFormatInfo
 {
     Il2CppObject obj;
-#if !NET_4_0
-    bool readOnly;
-    Il2CppString* decimalFormats;
-    Il2CppString* currencyFormats;
-    Il2CppString* percentFormats;
-    Il2CppString* digitPattern;
-    Il2CppString* zeroPattern;
-    int32_t currencyDecimalDigits;
-    Il2CppString* currencyDecimalSeparator;
-    Il2CppString* currencyGroupSeparator;
-    Il2CppArray* currencyGroupSizes;
-    int32_t currencyNegativePattern;
-    int32_t currencyPositivePattern;
-    Il2CppString* currencySymbol;
-    Il2CppString* naNSymbol;
-    Il2CppString* negativeInfinitySymbol;
-    Il2CppString* negativeSign;
-    uint32_t numberDecimalDigits;
-    Il2CppString* numberDecimalSeparator;
-    Il2CppString* numberGroupSeparator;
-    Il2CppArray* numberGroupSizes;
-    int32_t numberNegativePattern;
-    int32_t percentDecimalDigits;
-    Il2CppString* percentDecimalSeparator;
-    Il2CppString* percentGroupSeparator;
-    Il2CppArray* percentGroupSizes;
-    int32_t percentNegativePattern;
-    int32_t percentPositivePattern;
-    Il2CppString* percentSymbol;
-    Il2CppString* perMilleSymbol;
-    Il2CppString* positiveInfinitySymbol;
-    Il2CppString* positiveSign;
-#else
     Il2CppArray* numberGroupSizes;
     Il2CppArray* currencyGroupSizes;
     Il2CppArray* percentGroupSizes;
@@ -899,10 +716,8 @@ typedef struct Il2CppNumberFormatInfo
     bool isInvariant;
     bool validForParseAsNumber;
     bool validForParseAsCurrency;
-#endif
 } Il2CppNumberFormatInfo;
 
-#if NET_4_0
 typedef struct Il2CppCultureData
 {
     Il2CppObject obj;
@@ -935,7 +750,6 @@ typedef struct Il2CppCalendarData
     Il2CppArray *GenitiveMonthNames;
     Il2CppArray *GenitiveAbbreviatedMonthNames;
 } Il2CppCalendarData;
-#endif
 
 // System.Globalization.CultureInfo
 typedef struct Il2CppCultureInfo
@@ -945,16 +759,10 @@ typedef struct Il2CppCultureInfo
     int32_t lcid;
     int32_t parent_lcid;
 
-#if !NET_4_0
-    int32_t specific_lcid;
-#endif
-
     int32_t datetime_index;
     int32_t number_index;
 
-#if NET_4_0
     int32_t default_calendar_type;
-#endif
 
     bool use_user_override;
     Il2CppNumberFormatInfo* number_format;
@@ -962,35 +770,20 @@ typedef struct Il2CppCultureInfo
     Il2CppObject* textinfo;
     Il2CppString* name;
 
-#if !NET_4_0
-    Il2CppString* displayname;
-#endif
-
     Il2CppString* englishname;
     Il2CppString* nativename;
     Il2CppString* iso3lang;
     Il2CppString* iso2lang;
 
-#if !NET_4_0
-    Il2CppString* icu_name;
-#endif
-
     Il2CppString* win3lang;
     Il2CppString* territory;
 
-#if NET_4_0
     Il2CppArray* native_calendar_names;
-#endif
 
     Il2CppString* compareinfo;
 
-#if !NET_4_0
-    const int32_t* calendar_data;
-#endif
-
     const void* text_info_data;
 
-#if NET_4_0
     int dataItem;
     Il2CppObject* calendar;
     Il2CppObject* parent_culture;
@@ -998,32 +791,22 @@ typedef struct Il2CppCultureInfo
     Il2CppArray* cached_serialized_form;
     Il2CppObject* cultureData;
     bool isInherited;
-#endif
 } Il2CppCultureInfo;
 
 // System.Globalization.RegionInfo
 typedef struct Il2CppRegionInfo
 {
     Il2CppObject obj;
-#if NET_4_0
     int32_t geo_id;
-#else
-    int32_t lcid;
-    int32_t region_id;
-#endif
     Il2CppString* iso2name;
     Il2CppString* iso3name;
     Il2CppString* win3name;
     Il2CppString* english_name;
-#if NET_4_0
     Il2CppString* native_name;
-#endif
     Il2CppString* currency_symbol;
     Il2CppString* iso_currency_symbol;
     Il2CppString* currency_english_name;
-#if NET_4_0
     Il2CppString* currency_native_name;
-#endif
 } Il2CppRegionInfo;
 
 // System.Runtime.InteropServices.SafeHandle
@@ -1033,15 +816,9 @@ typedef struct Il2CppSafeHandle
     Il2CppObject base;
     void* handle;
 
-#if !NET_4_0
-    void* invalid_handle_value;
-    int refcount;
-    bool owns_handle;
-#else
     int state;
     bool owns_handle;
     bool fullyInitialized;
-#endif
 } Il2CppSafeHandle;
 
 // System.Text.StringBuilder
@@ -1050,32 +827,21 @@ typedef struct Il2CppStringBuilder
 {
     Il2CppObject object;
 
-#if !NET_4_0
-    int32_t length;
-    Il2CppString *str;
-    Il2CppString *cached_str;
-    int32_t max_capacity;
-#else
     Il2CppArray* chunkChars;
     Il2CppStringBuilder* chunkPrevious;
     int chunkLength;
     int chunkOffset;
     int maxCapacity;
-#endif
 } Il2CppStringBuilder;
 
 // System.Net.SocketAddress
 typedef struct Il2CppSocketAddress
 {
     Il2CppObject base;
-#if !NET_4_0
-    Il2CppArray* data;
-#else
     int m_Size;
     Il2CppArray* data;
     bool m_changed;
     int m_hash;
-#endif
 } Il2CppSocketAddress;
 
 // System.Globalization.SortKey
@@ -1083,13 +849,8 @@ typedef struct Il2CppSortKey
 {
     Il2CppObject base;
     Il2CppString *str;
-#if !NET_4_0
-    int32_t options;
-    Il2CppArray *key;
-#else
     Il2CppArray *key;
     int32_t options;
-#endif
     int32_t lcid;
 } Il2CppSortKey;
 
@@ -1122,21 +883,13 @@ typedef struct Il2CppAsyncCall
 {
     Il2CppObject base;
 
-#if !NET_4_0
-    void *msg; // We pass exceptions through here for now.
-#else
     Il2CppMethodMessage *msg;
-#endif
 
     MethodInfo *cb_method; // We don't set this.
     Il2CppDelegate *cb_target; // We pass the actual delegate here.
     Il2CppObject *state;
     Il2CppObject *res;
     Il2CppArray *out_args;
-#if !NET_4_0
-    /* This is a HANDLE, we use guint64 so the managed object layout remains constant */
-    uint64_t wait_event;
-#endif
 } Il2CppAsyncCall;
 
 
@@ -1163,7 +916,6 @@ typedef struct Il2CppExceptionWrapper
 #endif
 } Il2CppExceptionWrapper;
 
-#if NET_4_0
 typedef struct Il2CppIOAsyncResult
 {
     Il2CppObject base;
@@ -1173,39 +925,11 @@ typedef struct Il2CppIOAsyncResult
     bool completed_synchronously;
     bool completed;
 } Il2CppIOAsyncResult;
-#endif
 
 /// Corresponds to Mono's internal System.Net.Sockets.Socket.SocketAsyncResult
 /// class. Has no relation to Il2CppAsyncResult.
 typedef struct Il2CppSocketAsyncResult
 {
-#if !NET_4_0
-    Il2CppObject base;
-    Il2CppObject *socket;
-    intptr_t handle;
-    Il2CppObject *state;
-    Il2CppDelegate *callback;
-    Il2CppWaitHandle *wait_handle;
-    Il2CppException *delayedException;
-    Il2CppObject *ep;
-    Il2CppArray *buffer;
-    int32_t offset;
-    int32_t size;
-    int32_t socket_flags;
-    Il2CppObject *accept_reuse_socket;
-    Il2CppArray *addresses;
-    int32_t port;
-    Il2CppObject *buffers;
-    bool reusesocket;
-    Il2CppObject *acceptSocket;
-    int32_t total;
-    bool completed_synchronously;
-    bool completed;
-    bool blocking;
-    int32_t error;
-    int32_t operation;
-    Il2CppAsyncResult *ares;
-#else
     Il2CppIOAsyncResult base;
     Il2CppObject* socket;
     int32_t operation;
@@ -1225,7 +949,6 @@ typedef struct Il2CppSocketAsyncResult
     int32_t total;
     int32_t error;
     int32_t endCalled;
-#endif
 } Il2CppSocketAsyncResult;
 
 typedef enum Il2CppResourceLocation
@@ -1258,28 +981,6 @@ typedef struct Il2CppAppContext
     int32_t context_id;
     void* static_data;
 } Il2CppAppContext;
-
-#if !NET_4_0
-// System.Decimal
-typedef struct
-{
-    //Note that we are not taking care of endianess.
-    union
-    {
-        uint32_t ss32;
-        struct signscale
-        {
-            unsigned int reserved1 : 16;
-            unsigned int scale : 8;
-            unsigned int reserved2 : 7;
-            unsigned int sign : 1;
-        } signscale;
-    } u;
-    uint32_t hi32;
-    uint32_t lo32;
-    uint32_t mid32;
-} il2cpp_decimal_repr;
-#else
 
 typedef struct Il2CppDecimal
 {
@@ -1371,6 +1072,4 @@ typedef union Il2CppSingle_float
     float f;
 } Il2CppSingle_float;
 
-#endif
-
-#endif // IL2CPP_DOTS
+#endif // IL2CPP_TINY

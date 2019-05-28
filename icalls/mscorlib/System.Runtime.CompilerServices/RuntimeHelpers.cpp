@@ -88,13 +88,10 @@ namespace CompilerServices
         NOT_SUPPORTED_IL2CPP(RuntimeHelpers::RunModuleConstructor, "This icall is not supported by il2cpp.");
     }
 
-#if NET_4_0
     bool RuntimeHelpers::SufficientExecutionStack()
     {
         return true;
     }
-
-#endif
 } /* namespace CompilerServices */
 } /* namespace Runtime */
 } /* namespace System */

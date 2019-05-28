@@ -10,8 +10,8 @@ namespace utils
 {
     std::string Exception::FormatException(const Il2CppException* ex)
     {
-#if IL2CPP_DOTS_WITHOUT_DEBUGGER
-        IL2CPP_ASSERT(0 && "Exceptions are not supported with the Dots runtime");
+#if IL2CPP_TINY_WITHOUT_DEBUGGER
+        IL2CPP_ASSERT(0 && "Exceptions are not supported with the Tiny runtime");
         return std::string();
 #else
         std::string exception_namespace = ex->klass->namespaze;
@@ -26,8 +26,8 @@ namespace utils
     std::string Exception::FormatInvalidCastException(const Il2CppClass* fromType, const Il2CppClass* toType)
     {
         std::string message;
-#if IL2CPP_DOTS_WITHOUT_DEBUGGER
-        IL2CPP_ASSERT(0 && "Exceptions are not supported with the Dots runtime");
+#if IL2CPP_TINY_WITHOUT_DEBUGGER
+        IL2CPP_ASSERT(0 && "Exceptions are not supported with the Tiny runtime");
 #else
         if (fromType != NULL && toType != NULL)
         {
