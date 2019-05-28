@@ -214,9 +214,7 @@ namespace Sockets
 
         if (info.family == os::kAddressFamilyInterNetwork)
         {
-#if NET_4_0
             socket_address->m_Size = 8;
-#endif
             IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 8));
 
             const uint16_t port = info.data.inet.port;
@@ -235,9 +233,7 @@ namespace Sockets
         {
             const int32_t path_len = (int32_t)strlen(info.data.path);
 
-#if NET_4_0
             socket_address->m_Size = 3 + path_len;
-#endif
             IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 3 + path_len));
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
@@ -250,9 +246,7 @@ namespace Sockets
         }
         else if (info.family == os::kAddressFamilyInterNetworkV6)
         {
-#if NET_4_0
             socket_address->m_Size = 28;
-#endif
             IL2CPP_OBJECT_SETREF(socket_address, data, vm::Array::New(il2cpp_defaults.byte_class, 28));
 
             il2cpp_array_set(socket_address->data, uint8_t, 0, (family >> 0) & 0xFF);
@@ -634,13 +628,8 @@ namespace Sockets
 
                 *obj_val = vm::Object::New(System_Net_Sockets_LingerOption);
 
-#if NET_4_0
                 const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "enabled");
                 const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "lingerTime");
-#else
-                const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "enabled");
-                const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(System_Net_Sockets_LingerOption, "seconds");
-#endif
 
                 *((bool*)((char*)(*obj_val) + enabled_field_info->offset)) = (first ? 1 : 0);
                 *((int32_t*)((char*)(*obj_val) + seconds_field_info->offset)) = second;
@@ -943,18 +932,12 @@ namespace Sockets
                 continue;
             }
 
-#if !NET_4_0
-
-            const FieldInfo *field_info = vm::Class::GetFieldFromName(obj->klass, "socket");
-            intptr_t& intPtr = *((intptr_t*)((char*)obj + field_info->offset));
-#else
             FieldInfo *safe_handle_field_info = vm::Class::GetFieldFromName(obj->klass, "m_Handle");
             const Il2CppObject* value = NULL;
             vm::Field::GetValue(obj, safe_handle_field_info, &value);
 
             const FieldInfo *handle_field_info = vm::Class::GetFieldFromName(value->klass, "handle");
             intptr_t& intPtr = *((intptr_t*)((char*)value + handle_field_info->offset));
-#endif
 
             // Acquire socket.
             socketHandles.push_back(os::SocketHandleWrapper());
@@ -1285,13 +1268,8 @@ namespace Sockets
             {
                 case kSocketOptionNameLinger:
                 {
-#if NET_4_0
                     const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(obj_val->klass, "enabled");
                     const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(obj_val->klass, "lingerTime");
-#else
-                    const FieldInfo *enabled_field_info = vm::Class::GetFieldFromName(obj_val->klass, "enabled");
-                    const FieldInfo *seconds_field_info = vm::Class::GetFieldFromName(obj_val->klass, "seconds");
-#endif
 
                     const bool enabled = *((bool*)((char*)obj_val + enabled_field_info->offset));
                     const int32_t seconds = *((int32_t*)((char*)obj_val + seconds_field_info->offset));
@@ -1309,22 +1287,14 @@ namespace Sockets
                     {
                         os::IPv6Address ipv6 = {{0}};
                         uint64_t interfaceOffset;
-#if NET_4_0
                         GetAddressAndInterfaceFromObject(obj_val, "m_Group", "m_Interface", ipv6, interfaceOffset);
-#else
-                        GetAddressAndInterfaceFromObject(obj_val, "group", "ifIndex", ipv6, interfaceOffset);
-#endif // NET_4_0
                         status = socketHandle->SetSocketOptionMembership(system_level, system_name, ipv6, interfaceOffset);
                     }
                     else if (system_level == (os::SocketOptionLevel)kSocketOptionLevelIP)
 #endif // IL2CPP_SUPPORT_IPV6
                     {
                         FieldInfo *group_field_info = vm::Class::GetFieldFromName(obj_val->klass, "group");
-#if NET_4_0
                         FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "localAddress");
-#else
-                        FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "local");
-#endif
 
                         Il2CppObject* group_obj = vm::Field::GetValueObject(group_field_info, obj_val);
                         Il2CppObject* local_obj = vm::Field::GetValueObject(local_field_info, obj_val);
@@ -1446,7 +1416,6 @@ namespace Sockets
         return output_bytes;
     }
 
-#if NET_4_0
     bool Socket::SendFile_internal(intptr_t sock, Il2CppString* filename, Il2CppArray* pre_buffer, Il2CppArray* post_buffer, int32_t flags, int32_t* error, bool blocking)
     {
         return SendFile(sock, filename, pre_buffer, post_buffer, static_cast<TransmitFileOptions>(flags));
@@ -1765,8 +1734,6 @@ namespace Sockets
         return networkInterface == 0;
 #endif
     }
-
-#endif
 } /* namespace Sockets */
 } /* namespace Net */
 } /* namespace System */

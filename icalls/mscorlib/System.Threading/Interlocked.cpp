@@ -196,15 +196,12 @@ namespace Threading
 #endif
     }
 
-#if NET_4_0
     int32_t Interlocked::CompareExchange(int32_t* location1, int32_t value, int32_t comparand, bool* succeeded)
     {
         int32_t result = CompareExchange(location1, value, comparand);
         *succeeded = result == comparand;
         return result;
     }
-
-#endif
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

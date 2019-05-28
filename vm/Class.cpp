@@ -197,7 +197,7 @@ namespace vm
         }
         else if (klass->rank > 0)
         {
-#if !IL2CPP_DOTS
+#if !IL2CPP_TINY
             il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
 #endif
         }
@@ -350,8 +350,8 @@ namespace vm
         if (!klass->has_finalize)
             return NULL;
 
-#if IL2CPP_DOTS
-        IL2CPP_ASSERT(0 && "System.Object does not have a finalizer in the Dots mscorlib, so we don't have a finalizer slot.");
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "System.Object does not have a finalizer in the Tiny mscorlib, so we don't have a finalizer slot.");
 #endif
         return klass->vtable[s_FinalizerSlot].method;
     }
@@ -616,7 +616,6 @@ namespace vm
                 return Class::IsAssignableFrom(nullableArg, oklass);
             }
 
-#if NET_4_0
             if (klass->parent == il2cpp_defaults.multicastdelegate_class && klass->generic_class != NULL)
             {
                 const Il2CppTypeDefinition* genericClass = MetadataCache::GetTypeDefinitionFromIndex(klass->generic_class->typeDefinitionIndex);
@@ -625,12 +624,10 @@ namespace vm
                 if (IsGenericClassAssignableFrom(klass, oklass, genericContainer))
                     return true;
             }
-#endif
 
             return ClassInlines::HasParentUnsafe(oklass, klass);
         }
 
-#if NET_4_0
         if (klass->generic_class != NULL)
         {
             // checking for simple reference equality is not enough in this case because generic interface might have covariant and/or contravariant parameters
@@ -657,7 +654,6 @@ namespace vm
             }
         }
         else
-#endif
         {
             for (Il2CppClass* iter = oklass; iter != NULL; iter = iter->parent)
             {
@@ -1438,7 +1434,7 @@ namespace vm
                 else if (!strcmp(vmethod->name, "Finalize"))
                     s_FinalizerSlot = slot;
             }
-#if !IL2CPP_DOTS
+#if !IL2CPP_TINY
             IL2CPP_ASSERT(s_FinalizerSlot > 0);
             IL2CPP_ASSERT(s_GetHashCodeSlot > 0);
 #endif

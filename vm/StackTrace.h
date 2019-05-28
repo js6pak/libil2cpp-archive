@@ -5,6 +5,10 @@
 #include "il2cpp-config.h"
 #include "il2cpp-metadata.h"
 
+#if IL2CPP_TINY_DEBUGGER
+#include <string>
+#endif
+
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 struct MethodDefinitionKey
 {
@@ -25,7 +29,7 @@ namespace vm
         static void InitializeStackTracesForCurrentThread();
         static void CleanupStackTracesForCurrentThread();
 
-#if IL2CPP_DOTS_DEBUGGER
+#if IL2CPP_TINY_DEBUGGER
         static std::string GetStackTrace();
 #endif
 

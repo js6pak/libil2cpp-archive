@@ -33,6 +33,7 @@
 #include "utils/Runtime.h"
 #include "utils/Environment.h"
 #include "vm-utils/Debugger.h"
+#include "vm-utils/NativeSymbol.h"
 
 #include "gc/GarbageCollector.h"
 #include "gc/GCHandle.h"
@@ -95,11 +96,7 @@ int il2cpp_init(const char* domain_name)
     // will support multiple runtimes.
     // For now we default to the one used by unity and don't
     // allow the callers to change it.
-#if NET_4_0
     return Runtime::Init(domain_name, "v4.0.30319");
-#else
-    return Runtime::Init(domain_name, "v2.0.50727");
-#endif
 }
 
 int il2cpp_init_utf16(const Il2CppChar* domain_name)
@@ -1264,6 +1261,15 @@ void il2cpp_debugger_set_agent_options(const char* options)
 bool il2cpp_is_debugger_attached()
 {
     return il2cpp::utils::Debugger::GetIsDebuggerAttached();
+}
+
+bool il2cpp_debug_get_method_info(const MethodInfo* method, Il2CppMethodDebugInfo* methodDebugInfo)
+{
+#if IL2CPP_ENABLE_NATIVE_STACKTRACES
+    return il2cpp::utils::NativeSymbol::GetMethodDebugInfo(method, methodDebugInfo);
+#else
+    return false;
+#endif
 }
 
 void il2cpp_unity_install_unitytls_interface(const void* unitytlsInterfaceStruct)

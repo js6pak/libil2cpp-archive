@@ -208,9 +208,7 @@ namespace Threading
             return 0;
         }
 
-#if NET_4_0
         uint32_t existingPriority = il2cpp::vm::Thread::GetPriority(thisPtr);
-#endif
 
         thisPtr->GetInternalThread()->handle = thread;
         thisPtr->GetInternalThread()->state &= ~vm::kThreadStateUnstarted;
@@ -220,26 +218,11 @@ namespace Threading
 
         startData->m_Semaphore->Post(1, NULL);
 
-#if NET_4_0
         il2cpp::vm::Thread::SetPriority(thisPtr, existingPriority);
-#endif
 
         // this is just checked against 0 in the calling code
         return reinterpret_cast<intptr_t>(thisPtr->GetInternalThread()->handle);
     }
-
-#if !NET_4_0
-    void Thread::Thread_free_internal(Il2CppThread * thisPtr, intptr_t handle)
-    {
-        delete thisPtr->GetInternalThread()->synch_cs;
-        thisPtr->GetInternalThread()->synch_cs = NULL;
-
-        IL2CPP_FREE(thisPtr->GetInternalThread()->name);
-
-        delete reinterpret_cast<il2cpp::os::Thread*>(handle);
-    }
-
-#endif
 
     static void cache_culture(Il2CppThread *thisPtr, Il2CppObject *culture, int start_idx)
     {
@@ -338,33 +321,6 @@ namespace Threading
         length = arrayLength;
         memcpy(data, il2cpp_array_addr(culture, uint8_t, 0), arrayLength);
     }
-
-#if !NET_4_0
-    Il2CppArray* Thread::GetSerializedCurrentCulture(Il2CppThread* thisPtr)
-    {
-        il2cpp::os::FastAutoLock lock(thisPtr->synch_cs);
-        return GetSerializedCulture(thisPtr->serialized_culture_info, thisPtr->serialized_culture_info_len);
-    }
-
-    void Thread::SetSerializedCurrentCulture(Il2CppThread* thisPtr, Il2CppArray* culture)
-    {
-        il2cpp::os::FastAutoLock lock(thisPtr->synch_cs);
-        SetSerializedCulture(thisPtr->serialized_culture_info, thisPtr->serialized_culture_info_len, culture);
-    }
-
-    Il2CppArray* Thread::GetSerializedCurrentUICulture(Il2CppThread* thisPtr)
-    {
-        il2cpp::os::FastAutoLock lock(thisPtr->synch_cs);
-        return GetSerializedCulture(thisPtr->serialized_ui_culture_info, thisPtr->serialized_ui_culture_info_len);
-    }
-
-    void Thread::SetSerializedCurrentUICulture(Il2CppThread* thisPtr, Il2CppArray* culture)
-    {
-        il2cpp::os::FastAutoLock lock(thisPtr->synch_cs);
-        SetSerializedCulture(thisPtr->serialized_ui_culture_info, thisPtr->serialized_ui_culture_info_len, culture);
-    }
-
-#endif
 
     int32_t Thread::GetNewManagedId_internal()
     {
@@ -505,8 +461,6 @@ namespace Threading
     {
         VolatileWritePtr(address, reinterpret_cast<void*>(value));
     }
-
-#if NET_4_0
 
     Il2CppArray* Thread::ByteArrayToCurrentDomain(Il2CppArray* arr)
     {
@@ -649,15 +603,10 @@ namespace Threading
         NOT_SUPPORTED_IL2CPP(Thread::SuspendInternal, "Thread suspension is obsolete and not supported on IL2CPP.");
     }
 
-#endif
-
-#if NET_4_0
     Il2CppThread* Thread::GetCurrentThread()
     {
         return il2cpp::vm::Thread::Current();
     }
-
-#endif
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

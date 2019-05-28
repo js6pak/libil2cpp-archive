@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#if NET_4_0
-
 #include "gc/GarbageCollector.h"
 #include "mono/ThreadPool/threadpool-ms.h"
 #include "mono/ThreadPool/ThreadPoolDataStructures.h"
@@ -252,5 +250,3 @@ void monitor_ensure_running()
         }
     }
 }
-
-#endif

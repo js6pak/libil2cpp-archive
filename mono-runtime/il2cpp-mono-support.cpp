@@ -89,7 +89,7 @@ static MonoGenericInst* GetSharedGenericInst(MonoGenericInst* inst)
         else if (mono_unity_type_is_enum_type(type) && s_Il2CppCodeGenOptions.enablePrimitiveValueTypeGenericSharing)
         {
             MonoType* underlyingType = mono_type_get_underlying_type(type);
-            switch (underlyingType->type)
+            switch ((Il2CppTypeEnum)underlyingType->type)
             {
                 case IL2CPP_TYPE_I1:
                     type = mono_class_get_type(mono_class_from_name(mono_get_corlib(), "System", "SByteEnum"));

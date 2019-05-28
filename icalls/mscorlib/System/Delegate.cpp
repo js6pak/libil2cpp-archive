@@ -42,7 +42,6 @@ namespace System
         delegate->invoke_impl = invokeMethod->invoker_method;
     }
 
-#if NET_4_0
     Il2CppMulticastDelegate* Delegate::AllocDelegateLike_internal(Il2CppDelegate* d)
     {
         IL2CPP_ASSERT(d->object.klass->parent == il2cpp_defaults.multicastdelegate_class);
@@ -64,8 +63,6 @@ namespace System
         IL2CPP_UNREACHABLE;
         return NULL;
     }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

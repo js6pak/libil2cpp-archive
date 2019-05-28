@@ -474,7 +474,6 @@ namespace vm
         Class::Init(queriedInterface);
         uint16_t vtableCount = queriedInterface->vtable_count;
 
-#if  NET_4_0
         if (targetInterface->generic_class != NULL)
         {
             const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(targetInterface->generic_class->typeDefinitionIndex);
@@ -496,7 +495,6 @@ namespace vm
             }
         }
         else
-#endif
         {
             const Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets = queriedInterface->interfaceOffsets;
             uint16_t interfaceOffsetsCount = queriedInterface->interface_offsets_count;

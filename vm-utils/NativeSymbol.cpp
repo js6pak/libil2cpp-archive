@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 
+#include "il2cpp-class-internals.h"
 #include "os/Environment.h"
 #include "os/File.h"
 #include "os/Image.h"
@@ -140,6 +141,30 @@ namespace utils
         return a.address + a.length < b.address + b.length;
     }
 
+    static SymbolInfo* FindSymbolInfoForNativeMethod(Il2CppMethodPointer nativeMethod)
+    {
+        SymbolInfo* end = s_SymbolInfos + s_SymbolCount;
+
+        // our 'key' could be anywhere within a symbol. Our comparison function compares the end address
+        // of the symbols. By doing this, upper bound returns the first symbol whose end address is greater
+        // than our 'key'. This is our symbol since our end is the first end above an interior value.
+        SymbolInfo interiorSymbol = { (size_t)((char*)nativeMethod - (char*)s_ImageBase), 0 };
+        SymbolInfo* containingSymbol = std::upper_bound(s_SymbolInfos, end, interiorSymbol, &CompareEndOfSymbols);
+
+        if (containingSymbol == end)
+            return NULL;
+
+        // We only include managed methods in the symbol data. A lookup for a native method might find the
+        // previous or next managed method in the data. This will be incorrect, so check the start and the size,
+        // to make sure the interior symbol is really within the method found in the containing symbol.
+        if ((interiorSymbol.address != containingSymbol->address) &&
+            ((interiorSymbol.address < containingSymbol->address) ||
+             (interiorSymbol.address - containingSymbol->address > containingSymbol->length)))
+            return NULL;
+
+        return containingSymbol;
+    }
+
     static bool s_TriedToInitializeSymbolInfo = false;
 
     const VmMethod* NativeSymbol::GetMethodFromNativeSymbol(Il2CppMethodPointer nativeMethod)
@@ -163,23 +188,8 @@ namespace utils
 
         if (s_SymbolCount > 0)
         {
-            SymbolInfo* end = s_SymbolInfos + s_SymbolCount;
-
-            // our 'key' could be anywhere within a symbol. Our comparison function compares the end address
-            // of the symbols. By doing this, upper bound returns the first symbol whose end address is greater
-            // than our 'key'. This is our symbol since our end is the first end above an interior value.
-            SymbolInfo interiorSymbol = { (size_t)((char*)nativeMethod - (char*)s_ImageBase), 0 };
-            SymbolInfo* containingSymbol = std::upper_bound(s_SymbolInfos, end, interiorSymbol, &CompareEndOfSymbols);
-
-            if (containingSymbol == end)
-                return NULL;
-
-            // We only include managed methods in the symbol data. A lookup for a native method might find the
-            // previous or next managed method in the data. This will be incorrect, so check the start and the size,
-            // to make sure the interior symbol is really within the method found in the containing symbol.
-            if ((interiorSymbol.address != containingSymbol->address) &&
-                ((interiorSymbol.address < containingSymbol->address) ||
-                 (interiorSymbol.address - containingSymbol->address > containingSymbol->length)))
+            SymbolInfo* containingSymbol = FindSymbolInfoForNativeMethod(nativeMethod);
+            if (containingSymbol == NULL)
                 return NULL;
 
             nativeMethod = (Il2CppMethodPointer)((char*)s_ImageBase + containingSymbol->address);
@@ -218,6 +228,35 @@ namespace utils
         }
 
         return NULL;
+    }
+
+    bool NativeSymbol::GetMethodDebugInfo(const MethodInfo *method, Il2CppMethodDebugInfo* methodDebugInfo)
+    {
+        Il2CppMethodPointer nativeMethod = method->methodPointer;
+
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+        if (!il2cpp::os::Image::IsInManagedSection((void*)nativeMethod))
+            return false;
+#endif
+
+        int32_t codeSize = 0;
+        if (s_SymbolCount > 0)
+        {
+            SymbolInfo* containingSymbol = FindSymbolInfoForNativeMethod(nativeMethod);
+            if (containingSymbol == NULL)
+                return false;
+
+            codeSize = containingSymbol->length;
+        }
+
+        if (methodDebugInfo != NULL)
+        {
+            methodDebugInfo->methodPointer = method->methodPointer;
+            methodDebugInfo->code_size = codeSize;
+            methodDebugInfo->file = NULL;
+        }
+
+        return true;
     }
 
 #endif

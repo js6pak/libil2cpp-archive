@@ -56,7 +56,6 @@ namespace Threading
         return il2cpp::vm::Monitor::TryEnter(obj, ms);
     }
 
-#if NET_4_0
     bool Monitor::Monitor_test_owner(Il2CppObject* obj)
     {
         IL2CPP_CHECK_ARG_NULL(obj);
@@ -81,8 +80,6 @@ namespace Threading
 
         *lockTaken = Monitor_try_enter(obj, millisecondsTimeout);
     }
-
-#endif
 } /* namespace Threading */
 } /* namespace System */
 } /* namespace mscorlib */

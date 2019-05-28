@@ -20,13 +20,10 @@ namespace System
         return os::Time::GetTicks100NanosecondsMonotonic();
     }
 
-#if NET_4_0
     int64_t DateTime::GetSystemTimeAsFileTime()
     {
         return os::Time::GetSystemTimeAsFileTime();
     }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

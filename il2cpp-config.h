@@ -67,6 +67,8 @@
 #define THISCALL
 #endif
 
+typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
+
 #if defined(__cplusplus)
 #define IL2CPP_EXTERN_C extern "C"
 #define IL2CPP_EXTERN_C_CONST extern "C" const
@@ -148,15 +150,15 @@
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
 #endif
 
-#if IL2CPP_DOTS
-    #if IL2CPP_DOTS_DEBUG_METADATA
+#if IL2CPP_TINY
+    #if IL2CPP_TINY_DEBUG_METADATA
         #define IL2CPP_ENABLE_STACKTRACES 1
     #else
         #define IL2CPP_ENABLE_STACKTRACES 0
-    #endif // IL2CPP_DOTS_DEBUG_METADATA
+    #endif // IL2CPP_TINY_DEBUG_METADATA
 #else
     #define IL2CPP_ENABLE_STACKTRACES 1
-#endif // IL2CPP_DOTS
+#endif // IL2CPP_TINY
 
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
@@ -331,7 +333,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 #define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
 #define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || IL2CPP_DOTS)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || IL2CPP_TINY)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
@@ -366,6 +368,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 #if IL2CPP_MONO_DEBUGGER
 #define STORE_SEQ_POINT(storage, seqPoint) do { (storage).currentSequencePoint = seqPoint; } while (0)
+#define STORE_TRY_ID(storage, id) do { (storage).tryId = id; } while (0)
 #define CHECK_SEQ_POINT(storage, seqPoint) do {  il2cpp_codegen_check_sequence_point(&(storage), seqPoint); } while (0)
 #define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint) do { il2cpp_codegen_check_sequence_point_entry(&(storage), seqPoint); } while (0)
 #define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPoint) MethodExitSequencePointChecker name(&(storage), seqPoint);
@@ -376,6 +379,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define CHECK_PAUSE_POINT il2cpp_codegen_check_pause_point()
 #else
 #define STORE_SEQ_POINT(storage, seqPoint)
+#define STORE_TRY_ID(storage, id)
 #define CHECK_SEQ_POINT(storage, seqPoint)
 #define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint)
 #define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPoint)
@@ -445,6 +449,7 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_RPC_E_WRONG_THREAD            ((il2cpp_hresult_t)0x8001010E)
 #define IL2CPP_DISP_E_PARAMNOTFOUND          ((il2cpp_hresult_t)0x80020004)
 #define IL2CPP_REGDB_E_CLASSNOTREG           ((il2cpp_hresult_t)0x80040154)
+#define IL2CPP_E_FILE_NOT_FOUND              ((il2cpp_hresult_t)0x80070002)
 #define IL2CPP_E_ACCESS_DENIED               ((il2cpp_hresult_t)0x80070005)
 #define IL2CPP_E_OUTOFMEMORY                 ((il2cpp_hresult_t)0x8007000E)
 #define IL2CPP_E_INVALIDARG                  ((il2cpp_hresult_t)0x80070057)
