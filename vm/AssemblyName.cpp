@@ -99,8 +99,6 @@ namespace vm
         return char(hexValue + 87);
     }
 
-#if NET_4_0
-
     uint8_t* EncodeStringBlob(const char* original)
     {
         size_t stringLength = strlen(original);
@@ -160,8 +158,6 @@ namespace vm
             }
         }
     }
-
-#endif
 
     static std::string PublicKeyTokenToString(const uint8_t* public_key_token)
     {

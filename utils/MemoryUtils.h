@@ -133,7 +133,7 @@ namespace utils
             return MemoryCompare(left, right, sizeof(T));
         }
 
-#if IL2CPP_DOTS
+#if IL2CPP_TINY
         template<typename T>
         static int32_t MemHashRef(T* val)
         {

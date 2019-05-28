@@ -298,14 +298,10 @@ namespace os
         s_CurrentThread.SetValue(NULL);
     }
 
-#if NET_4_0
-
     bool Thread::YieldInternal()
     {
         return ThreadImpl::YieldInternal();
     }
-
-#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 
@@ -460,15 +456,11 @@ namespace os
     {
     }
 
-#if NET_4_0
-
     bool Thread::YieldInternal()
     {
         IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return false;
     }
-
-#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 

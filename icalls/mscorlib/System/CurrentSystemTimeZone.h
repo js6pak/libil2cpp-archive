@@ -17,7 +17,6 @@ namespace System
     {
     public:
         static bool GetTimeZoneData40(int year, Il2CppArray * *, Il2CppArray * *, bool * daylight_inverted);
-        static bool GetTimeZoneData(int, Il2CppArray * *, Il2CppArray * *);
     };
 } /* namespace System */
 } /* namespace mscorlib */

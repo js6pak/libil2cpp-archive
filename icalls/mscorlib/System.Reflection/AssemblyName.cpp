@@ -36,7 +36,6 @@ namespace Reflection
         return vm::AssemblyName::ParseName(aname, utils::StringUtils::Utf16ToUtf8(utils::StringUtils::GetChars(assemblyName)));
     }
 
-#if NET_4_0
     void AssemblyName::get_public_token(uint8_t* token, uint8_t* pubkey, int32_t len)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(AssemblyName::get_public_token);
@@ -112,8 +111,6 @@ namespace Reflection
 
         return true;
     }
-
-#endif
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */

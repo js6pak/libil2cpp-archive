@@ -26,9 +26,6 @@ namespace Messaging
 {
     void MonoMethodMessage::InitMessage(Il2CppMethodMessage *this_obj, Il2CppReflectionMethod *method, Il2CppArray *out_args)
     {
-#if !NET_4_0
-        NOT_SUPPORTED_REMOTING(MonoMethodMessage::InitMessage);
-#else
         static Il2CppClass *object_array_klass;
         static Il2CppClass *byte_array_klass;
         static Il2CppClass *string_array_klass;
@@ -107,7 +104,6 @@ namespace Messaging
 
             il2cpp_array_set(this_obj->arg_types, unsigned char, i, arg_type);
         }
-#endif
     }
 } /* namespace Messaging */
 } /* namespace Remoting */

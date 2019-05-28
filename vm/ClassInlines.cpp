@@ -29,7 +29,6 @@ namespace vm
 
     const VirtualInvokeData* ClassInlines::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
     {
-#if NET_4_0
         if (itf->generic_class != NULL)
         {
             const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(itf->generic_class->typeDefinitionIndex);
@@ -45,7 +44,6 @@ namespace vm
                 }
             }
         }
-#endif
 
         return NULL;
     }

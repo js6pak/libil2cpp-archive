@@ -217,7 +217,6 @@ namespace System
         return il2cpp::vm::Reflection::GetTypeObject(etype);
     }
 
-#if NET_4_0
     bool Enum::GetEnumValuesAndNames(Il2CppReflectionRuntimeType* enumType, Il2CppArray** values, Il2CppArray** names)
     {
         return vm::Enum::GetEnumValuesAndNames(vm::Class::FromIl2CppType(enumType->type.type), values, names);
@@ -249,8 +248,6 @@ namespace System
     {
         return reinterpret_cast<Il2CppReflectionRuntimeType*>(get_underlying_type(&enumType->type));
     }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

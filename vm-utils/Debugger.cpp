@@ -48,7 +48,7 @@ extern "C"
     void mono_debugger_install_runtime_callbacks(MonoDebuggerRuntimeCallbacks* cbs);
     int32_t unity_debugger_agent_is_global_breakpoint_active();
     int32_t unity_debugger_agent_is_single_stepping();
-    void unity_debugger_agent_handle_exception(Il2CppException *exc, Il2CppSequencePoint *sequencePoint);
+    void unity_debugger_agent_handle_exception(Il2CppException *exc);
     int32_t il2cpp_mono_methods_match(const MethodInfo* left, const MethodInfo* right);
     void mono_debugger_agent_user_break();
     int32_t mono_debugger_agent_debug_log_is_enabled();
@@ -76,6 +76,11 @@ namespace utils
     typedef dynamic_array<Il2CppSequencePoint*> SequencePointList;
     typedef Il2CppHashMap<const MethodInfo*, SequencePointList*, il2cpp::utils::PointerHash<MethodInfo> > MethodToSequencePointsMap;
     static MethodToSequencePointsMap s_methodToSequencePoints;
+
+    typedef dynamic_array<Il2CppCatchPoint*> CatchPointList;
+    typedef Il2CppHashMap<const MethodInfo*, CatchPointList*, il2cpp::utils::PointerHash<MethodInfo> > MethodToCatchPointsMap;
+    static MethodToCatchPointsMap s_methodToCatchPoints;
+
     typedef Il2CppHashMap<const MethodInfo*, const MethodInfo*, il2cpp::utils::PointerHash<MethodInfo> > MethodToMethodMap;
     static MethodToMethodMap s_uninflatedMethodToInflated;
     SequencePointList s_sequencePoints;
@@ -83,6 +88,9 @@ namespace utils
     typedef dynamic_array<const char*> FileNameList;
     typedef Il2CppHashMap<const Il2CppClass*, FileNameList, il2cpp::utils::PointerHash<Il2CppClass> > TypeSourceFileMap;
     static TypeSourceFileMap *s_typeSourceFiles;
+
+    static MethodToSequencePointsMap::const_iterator GetMethodSequencePointIterator(const MethodInfo *method);
+
 
     void Debugger::RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data)
     {
@@ -173,6 +181,7 @@ namespace utils
             vm::MetadataCache::InitializeAllMethodMetadata();
             InitializeTypeSourceFileMap();
             InitializeMethodToSequencePointMap();
+            InitializeMethodToCatchPointMap();
             Debugger::StartDebuggerThread();
         }
     }
@@ -338,11 +347,60 @@ namespace utils
         return &image->codeGenModule->debuggerMetadata->sequencePoints[id];
     }
 
-    Il2CppSequencePoint* Debugger::GetSequencePoints(const MethodInfo* method, void**iter)
+    struct SeqPointIter
+    {
+        SequencePointList::iterator iter, end;
+    };
+
+    Il2CppSequencePoint* Debugger::GetSequencePoints(const MethodInfo* method, void** iter)
     {
         if (!iter)
             return NULL;
 
+        SeqPointIter *pIter = NULL;
+
+        if (!*iter)
+        {
+            MethodToSequencePointsMap::const_iterator entry = GetMethodSequencePointIterator(method);
+            if (entry == s_methodToSequencePoints.end())
+                return NULL;
+
+            pIter = new SeqPointIter();
+            *iter = pIter;
+            pIter->iter = entry->second->begin();
+            pIter->end = entry->second->end();
+            return *(pIter->iter);
+        }
+
+        pIter = (SeqPointIter*)*iter;
+        pIter->iter++;
+        if (pIter->iter != pIter->end)
+        {
+            return *(pIter->iter);
+        }
+        else
+        {
+            delete pIter;
+            *iter = NULL;
+        }
+
+        return NULL;
+    }
+
+    Il2CppSequencePoint* Debugger::GetAllSequencePoints(void* *iter)
+    {
+        size_t index = (size_t)(intptr_t)*iter;
+
+        if (index >= s_sequencePoints.size())
+            return NULL;
+
+        Il2CppSequencePoint* retVal = s_sequencePoints[index];
+        *iter = (void*)(intptr_t)(index + 1);
+        return retVal;
+    }
+
+    MethodToSequencePointsMap::const_iterator GetMethodSequencePointIterator(const MethodInfo *method)
+    {
         if (method->is_inflated)
             method = method->genericMethod->methodDefinition;
 
@@ -369,24 +427,62 @@ namespace utils
                 }
             }
 
-            entry = s_methodToSequencePoints.find(method);
-            if (entry == s_methodToSequencePoints.end())
-                return NULL;
+            return s_methodToSequencePoints.find(method);
         }
+
+        return entry;
+    }
+
+    Il2CppSequencePoint* Debugger::GetSequencePoint(Il2CppCatchPoint* cp)
+    {
+        const MethodInfo *method = GetCatchPointMethod(cp);
+
+        MethodToSequencePointsMap::const_iterator entry = GetMethodSequencePointIterator(method);
+        if (entry == s_methodToSequencePoints.end())
+            return NULL;
+
+        SequencePointList::iterator iter = entry->second->begin();
+        while (iter != entry->second->end())
+        {
+            if ((*iter)->ilOffset >= cp->ilOffset)
+                return *iter;
+
+            ++iter;
+        }
+
+        return NULL;
+    }
+
+    struct CatchPointIter
+    {
+        CatchPointList::iterator iter, end;
+    };
+
+    Il2CppCatchPoint* Debugger::GetCatchPoints(const MethodInfo* method, void** iter)
+    {
+        if (!iter)
+            return NULL;
+
+        CatchPointIter *pIter = NULL;
 
         if (!*iter)
         {
-            SequencePointList::iterator *pIter = new SequencePointList::iterator();
-            *pIter = entry->second->begin();
+            MethodToCatchPointsMap::const_iterator entry = s_methodToCatchPoints.find(method);
+            if (entry == s_methodToCatchPoints.end())
+                return NULL;
+
+            pIter = new CatchPointIter();
             *iter = pIter;
-            return **pIter;
+            pIter->iter = entry->second->begin();
+            pIter->end = entry->second->end();
+            return *(pIter->iter);
         }
 
-        SequencePointList::iterator *pIter = (SequencePointList::iterator*)*iter;
-        (*pIter)++;
-        if (*pIter != entry->second->end())
+        pIter = (CatchPointIter*)*iter;
+        pIter->iter++;
+        if (pIter->iter != pIter->end)
         {
-            return **pIter;
+            return *(pIter->iter);
         }
         else
         {
@@ -397,27 +493,20 @@ namespace utils
         return NULL;
     }
 
-    Il2CppSequencePoint* Debugger::GetAllSequencePoints(void* *iter)
-    {
-        size_t index = (size_t)(intptr_t)*iter;
-
-        if (index >= s_sequencePoints.size())
-            return NULL;
-
-        Il2CppSequencePoint* retVal = s_sequencePoints[index];
-        *iter = (void*)(intptr_t)(index + 1);
-        return retVal;
-    }
-
-    void Debugger::HandleException(Il2CppException *exc, Il2CppSequencePoint *sequencePoint)
+    void Debugger::HandleException(Il2CppException *exc)
     {
         if (s_IsDebuggerInitialized)
-            unity_debugger_agent_handle_exception(exc, sequencePoint);
+            unity_debugger_agent_handle_exception(exc);
     }
 
     bool SequencePointOffsetLess(const Il2CppSequencePoint *s1, const Il2CppSequencePoint *s2)
     {
         return s1->ilOffset < s2->ilOffset;
+    }
+
+    bool CatchPointOffsetLess(const Il2CppCatchPoint *c1, const Il2CppCatchPoint *c2)
+    {
+        return c1->ilOffset < c2->ilOffset;
     }
 
     void Debugger::InitializeMethodToSequencePointMap()
@@ -430,12 +519,10 @@ namespace utils
             for (int i = 0; i < debuggerMetadata->numSequencePoints; ++i)
             {
                 Il2CppSequencePoint& seqPoint = debuggerMetadata->sequencePoints[i];
-                const MethodInfo *spMethod = GetSequencePointMethod(&seqPoint);
+                const MethodInfo *method = GetSequencePointMethod(&seqPoint);
 
-                if (spMethod != NULL)
+                if (method != NULL)
                 {
-                    const MethodInfo *method = spMethod;
-
                     IL2CPP_ASSERT(!method->is_inflated && "Only open generic methods should have sequence points");
 
                     SequencePointList* list;
@@ -462,6 +549,42 @@ namespace utils
             SequencePointList *seqPoints = methods->second;
             std::sort(seqPoints->begin(), seqPoints->end(), SequencePointOffsetLess);
             s_sequencePoints.insert(s_sequencePoints.end(), seqPoints->begin(), seqPoints->end());
+        }
+    }
+
+    void Debugger::InitializeMethodToCatchPointMap()
+    {
+        vm::AssemblyVector* assemblies = vm::Assembly::GetAllAssemblies();
+        for (vm::AssemblyVector::const_iterator iter = assemblies->begin(); iter != assemblies->end(); ++iter)
+        {
+            const Il2CppDebuggerMetadataRegistration* debuggerMetadata = vm::Assembly::GetImage(*iter)->codeGenModule->debuggerMetadata;
+            for (int i = 0; i < debuggerMetadata->numCatchPoints; ++i)
+            {
+                Il2CppCatchPoint& catchPoint = debuggerMetadata->catchPoints[i];
+                const MethodInfo *method = GetCatchPointMethod(&catchPoint);
+
+                if (method != NULL)
+                {
+                    CatchPointList* list;
+                    MethodToCatchPointsMap::iterator existingList = s_methodToCatchPoints.find(method);
+                    if (existingList == s_methodToCatchPoints.end())
+                    {
+                        list = new CatchPointList();
+                        s_methodToCatchPoints.add(method, list);
+                    }
+                    else
+                    {
+                        list = existingList->second;
+                    }
+                    list->push_back(&catchPoint);
+                }
+            }
+        }
+
+        for (MethodToCatchPointsMap::iterator methods = s_methodToCatchPoints.begin(); methods != s_methodToCatchPoints.end(); ++methods)
+        {
+            CatchPointList *catchPoints = methods->second;
+            std::sort(catchPoints->begin(), catchPoints->end(), CatchPointOffsetLess);
         }
     }
 
@@ -512,6 +635,14 @@ namespace utils
             return NULL;
 
         return il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex(seqPoint->methodDefinitionIndex);
+    }
+
+    const MethodInfo* Debugger::GetCatchPointMethod(Il2CppCatchPoint *catchPoint)
+    {
+        if (catchPoint == NULL)
+            return NULL;
+
+        return il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex(catchPoint->methodDefinitionIndex);
     }
 
     const char* Debugger::GetLocalName(const MethodInfo* method, int32_t index)

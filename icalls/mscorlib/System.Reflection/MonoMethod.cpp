@@ -335,7 +335,6 @@ namespace Reflection
         return il2cpp::vm::Reflection::GetMethodObject(const_cast<MethodInfo*>(methodDefinition), NULL);
     }
 
-#if NET_4_0
     int32_t MonoMethod::get_core_clr_security_level(Il2CppObject* _this)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(MonoMethod::get_core_clr_security_level);
@@ -425,8 +424,6 @@ namespace Reflection
         gc::WriteBarrier::GenericStore(dllName, vm::String::Empty());
         gc::WriteBarrier::GenericStore(entryPoint, vm::String::Empty());
     }
-
-#endif
 } /* namespace Reflection */
 } /* namespace System */
 } /* namespace mscorlib */
