@@ -229,6 +229,11 @@
 #define IL2CPP_THREADS_PSP2 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PSP2)
 #define IL2CPP_THREADS_SWITCH (!IL2CPP_THREADS_STD && IL2CPP_TARGET_SWITCH)
 
+// Not supported on RUNTIME_MONO because we don't really care about it
+// Not supported on TINY because it doesn't support synchronization context
+// Not supported on no runtime because it needs to call back into the runtime!
+#define IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT (IL2CPP_TARGET_WINDOWS) && !RUNTIME_MONO && !IL2CPP_DOTS && !RUNTIME_NONE
+
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \
     IL2CPP_ASSERT((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
