@@ -67,6 +67,8 @@
 #define THISCALL
 #endif
 
+typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
+
 #if defined(__cplusplus)
 #define IL2CPP_EXTERN_C extern "C"
 #define IL2CPP_EXTERN_C_CONST extern "C" const

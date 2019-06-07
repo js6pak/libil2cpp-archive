@@ -1186,6 +1186,7 @@
     <ClInclude Include="icalls\mscorlib\System.Threading\Monitor.h" />
     <ClInclude Include="icalls\mscorlib\System.Threading\Mutex.h" />
     <ClInclude Include="icalls\mscorlib\System.Threading\NativeEventCalls.h" />
+    <ClInclude Include="icalls\mscorlib\System.Threading\OSSpecificSynchronizationContext.h" />
     <ClInclude Include="icalls\mscorlib\System.Threading\Thread.h" />
     <ClInclude Include="icalls\mscorlib\System.Threading\ThreadPool.h" />
     <ClInclude Include="icalls\mscorlib\System.Threading\Timer.h" />
@@ -1375,6 +1376,7 @@
     <ClInclude Include="os\SocketBridge.h" />
     <ClInclude Include="os\StackTrace.h" />
     <ClInclude Include="os\Std\ThreadImpl.h" />
+    <ClInclude Include="os\SynchronizationContext.h" />
     <ClInclude Include="os\Thread.h" />
     <ClInclude Include="os\ThreadLocalValue.h" />
     <ClInclude Include="os\Time.h" />
@@ -1591,6 +1593,7 @@
     <ClCompile Include="icalls\mscorlib\System.Threading\Monitor.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Threading\Mutex.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Threading\NativeEventCalls.cpp" />
+    <ClCompile Include="icalls\mscorlib\System.Threading\OSSpecificSynchronizationContext.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Threading\Thread.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Threading\ThreadPool.cpp" />
     <ClCompile Include="icalls\mscorlib\System.Threading\Timer.cpp" />
@@ -1798,6 +1801,7 @@
     <ClCompile Include="os\Win32\SemaphoreImpl.cpp" />
     <ClCompile Include="os\Win32\SocketImpl.cpp" />
     <ClCompile Include="os\Win32\StackTrace.cpp" />
+    <ClCompile Include="os\Win32\SynchronizationContext.cpp" />
     <ClCompile Include="os\Win32\ThreadImpl.cpp" />
     <ClCompile Include="os\Win32\ThreadLocalValueImpl.cpp" />
     <ClCompile Include="os\Win32\Time.cpp" />
