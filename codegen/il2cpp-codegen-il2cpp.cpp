@@ -30,6 +30,7 @@
 #include "vm/PlatformInvoke.h"
 #include "vm/WindowsRuntime.h"
 #include "vm/StackTrace.h"
+#include "vm/Field.h"
 
 void il2cpp_codegen_marshal_store_last_error()
 {
@@ -609,6 +610,11 @@ void il2cpp_codegen_stacktrace_push_frame(Il2CppStackFrameInfo& frame)
 void il2cpp_codegen_stacktrace_pop_frame()
 {
     il2cpp::vm::StackTrace::PopFrame();
+}
+
+const char* il2cpp_codegen_get_field_data(RuntimeField* field)
+{
+    return il2cpp::vm::Field::GetData(field);
 }
 
 #endif

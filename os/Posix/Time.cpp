@@ -10,6 +10,8 @@
 #include <sys/param.h>
 #if IL2CPP_TARGET_DARWIN
 #include <sys/sysctl.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
 #endif
 
 #include <time.h>
@@ -89,7 +91,17 @@ namespace os
     int64_t Time::GetTicks100NanosecondsMonotonic()
     {
         struct timeval tv;
-#if defined(CLOCK_MONOTONIC) && !IL2CPP_TARGET_DARWIN
+#if IL2CPP_TARGET_DARWIN
+        /* http://developer.apple.com/library/mac/#qa/qa1398/_index.html */
+        static mach_timebase_info_data_t timebase;
+        uint64_t now = mach_absolute_time();
+        if (timebase.denom == 0)
+        {
+            mach_timebase_info(&timebase);
+            timebase.denom *= 100; /* we return 100ns ticks */
+        }
+        return now * timebase.numer / timebase.denom;
+#elif defined(CLOCK_MONOTONIC)
         struct timespec tspec;
         static struct timespec tspec_freq = {0};
         static int can_use_clock = 0;

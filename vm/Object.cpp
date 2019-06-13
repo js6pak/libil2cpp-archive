@@ -211,7 +211,7 @@ namespace vm
                 Il2CppGenericMethod gmethod;
                 gmethod.context = method->genericMethod->context;
                 gmethod.methodDefinition = itfMethod;
-                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod);
+                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
             }
             else
             {
@@ -227,7 +227,7 @@ namespace vm
             Il2CppGenericMethod gmethod;
             gmethod.context = method->genericMethod->context;
             gmethod.methodDefinition = obj->klass->vtable[method->slot].method;
-            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod);
+            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
         }
         else
         {
