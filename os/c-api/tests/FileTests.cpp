@@ -1375,7 +1375,7 @@ SUITE(File)
         int32_t result = UnityPalWrite(handle, buffer, 14, &error);
 
 
-        CHECK_EQUAL(0, result);
+        CHECK_EQUAL(-1, result);
     }
 
     TEST(WriteNormalResultMatchesClass)
