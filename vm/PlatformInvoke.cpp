@@ -384,6 +384,22 @@ namespace vm
         return method->methodDefinition == NULL && method->is_marshaled_from_native;
     }
 
+    static bool IsGenericInstance(const Il2CppType* type)
+    {
+        if (type->type == IL2CPP_TYPE_GENERICINST)
+            return true;
+
+        while (type->type == IL2CPP_TYPE_SZARRAY)
+        {
+            if (type->data.type->type == IL2CPP_TYPE_GENERICINST)
+                return true;
+
+            type = type->data.type;
+        }
+
+        return false;
+    }
+
     intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
         if (d == NULL)
@@ -410,6 +426,19 @@ namespace vm
             {
                 std::string errorMessage = "IL2CPP does not support marshaling delegates that point to instance methods to native code. The method we're attempting to marshal is: " + methodName;
                 vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
+            }
+
+            if (d->method->parameters != NULL)
+            {
+                for (int i = 0; i < d->method->parameters_count; ++i)
+                {
+                    if (IsGenericInstance(d->method->parameters[i].parameter_type))
+                    {
+                        std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
+                        std::string errorMessage = "Cannot marshal method '" + methodName + "' parameter '" + d->method->parameters[i].name + "': Generic types cannot be marshaled.";
+                        vm::Exception::Raise(vm::Exception::GetMarshalDirectiveException(errorMessage.c_str()));
+                    }
+                }
             }
 
             std::string errorMessage = "To marshal a managed method, please add an attribute named 'MonoPInvokeCallback' to the method definition. The method we're attempting to marshal is: " + methodName;
