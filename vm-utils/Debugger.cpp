@@ -35,6 +35,17 @@ struct MonoDebuggerRuntimeCallbacks
     void(*il2cpp_debugger_free_thread_context)(Il2CppThreadUnwindState* context);
 };
 
+struct DebuggerTransport
+{
+    const char *name;
+    void(*connect) (const char *address);
+    int (*wait_for_attach) (void);
+    void(*close1) (void);
+    void(*close2) (void);
+    int (*send) (void *buf, int len);
+    int(*recv) (void *buf, int len);
+};
+
 struct MonoContext;
 extern "C"
 {
@@ -55,6 +66,7 @@ extern "C"
     void mono_debugger_agent_debug_log(int level, Il2CppString *category, Il2CppString *message);
     int32_t unity_pause_point_active();
     void il2cpp_save_current_thread_context_func_exit();
+    void mono_debugger_agent_register_transport(DebuggerTransport *trans);
 
     void* il2cpp_malloc(size_t size)
     {
@@ -140,6 +152,21 @@ namespace utils
     void Debugger::SetAgentOptions(const char* options)
     {
         s_AgentOptions = options;
+    }
+
+    void Debugger::RegisterTransport(const Il2CppDebuggerTransport* transport)
+    {
+#if defined(RUNTIME_IL2CPP)
+        DebuggerTransport mono_transport;
+        mono_transport.name = transport->name;
+        mono_transport.connect = transport->connect;
+        mono_transport.wait_for_attach = transport->wait_for_attach;
+        mono_transport.close1 = transport->close1;
+        mono_transport.close2 = transport->close2;
+        mono_transport.send = transport->send;
+        mono_transport.recv = transport->recv;
+        mono_debugger_agent_register_transport(&mono_transport);
+#endif
     }
 
     void Debugger::InitializeTypeSourceFileMap()
