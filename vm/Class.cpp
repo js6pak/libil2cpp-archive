@@ -203,7 +203,8 @@ namespace vm
         }
         else if (klass->rank > 0)
         {
-            ArrayMetadata::SetupArrayInterfaces(klass, lock);
+            if (klass->implementedInterfaces == NULL)
+                ArrayMetadata::SetupArrayInterfaces(klass, lock);
         }
         else
         {
