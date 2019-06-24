@@ -857,6 +857,14 @@ namespace vm
         return ::il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(type, otherType);
     }
 
+    Il2CppReflectionType* Type::GetTypeFromHandle(intptr_t handle)
+    {
+        const Il2CppType* type = (const Il2CppType*)handle;
+        Il2CppClass *klass = vm::Class::FromIl2CppType(type);
+
+        return il2cpp::vm::Reflection::GetTypeObject(&klass->byval_arg);
+    }
+
     uint32_t Type::GetToken(const Il2CppType *type)
     {
         if (IsGenericInstance(type))
@@ -971,6 +979,9 @@ namespace vm
 */
     void Type::ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
     {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "Type::ConstructDelegatee should not be called with the Tiny profile.");
+#else
         IL2CPP_ASSERT(delegate);
 
         if (method)
@@ -981,6 +992,7 @@ namespace vm
             IL2CPP_OBJECT_SETREF(delegate, target, target);
 
         delegate->invoke_impl = method->invoker_method; //TODO:figure out if this is needed at all
+#endif
     }
 
     Il2CppString* Type::AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName)

@@ -322,7 +322,11 @@ il2cpp::gc::GarbageCollector::FreeFixed(void* addr)
 int32_t
 il2cpp::gc::GarbageCollector::InvokeFinalizers()
 {
+#if IL2CPP_TINY
+    return 0; // The Tiny profile does not have finalizers
+#else
     return (int32_t)GC_invoke_finalizers();
+#endif
 }
 
 bool

@@ -353,6 +353,10 @@ namespace vm
 
     intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "This should not be called with the Tiny profile.");
+        return 0;
+#else
         if (d == NULL)
             return 0;
 
@@ -397,6 +401,7 @@ namespace vm
         }
 
         return reinterpret_cast<intptr_t>(reversePInvokeWrapper);
+#endif
     }
 
     Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)

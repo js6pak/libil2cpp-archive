@@ -127,6 +127,17 @@ typedef struct
     void* (*aligned_realloc_func)(void *ptr, size_t size, size_t alignment);
 } Il2CppMemoryCallbacks;
 
+typedef struct
+{
+    const char *name;
+    void(*connect)(const char *address);
+    int(*wait_for_attach)(void);
+    void(*close1)(void);
+    void(*close2)(void);
+    int(*send)(void *buf, int len);
+    int(*recv)(void *buf, int len);
+} Il2CppDebuggerTransport;
+
 #if !__SNC__ // SNC doesn't like the following define: "warning 1576: predefined meaning of __has_feature discarded"
 #ifndef __has_feature // clang specific __has_feature check
 #define __has_feature(x) 0 // Compatibility with non-clang compilers.

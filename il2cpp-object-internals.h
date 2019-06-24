@@ -524,6 +524,7 @@ typedef struct Il2CppTypedRef
 typedef struct Il2CppDelegate
 {
     Il2CppObject object;
+#if !IL2CPP_TINY
     /* The compiled code of the target method */
     Il2CppMethodPointer method_ptr;
     /* The invoke code */
@@ -550,12 +551,21 @@ typedef struct Il2CppDelegate
     Il2CppObject *data;
 
     bool method_is_virtual;
+#else
+    void* method_ptr;
+    Il2CppObject* m_target;
+    void* m_ReversePInvokeWrapperPtr;
+    bool m_IsDelegateOpen;
+#endif // !IL2CPP_TINY
 } Il2CppDelegate;
 
 typedef struct Il2CppMulticastDelegate
 {
     Il2CppDelegate delegate;
     Il2CppArray *delegates;
+#if IL2CPP_TINY
+    int delegateCount;
+#endif
 } Il2CppMulticastDelegate;
 
 // System.MarshalByRefObject
