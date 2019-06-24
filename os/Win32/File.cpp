@@ -18,6 +18,10 @@
 #include "utils/PathUtils.h"
 #include "il2cpp-vm-support.h"
 
+#if IL2CPP_TARGET_WINRT
+#include "os/WinRT/BrokeredFileSystem.h"
+#endif
+
 #include <stdint.h>
 
 static inline int Win32ErrorToErrorCode(DWORD win32ErrorCode)
@@ -94,7 +98,14 @@ namespace os
         BOOL result = ::GetFileAttributesExW((LPCWSTR)utf16Path.c_str(), GetFileExInfoStandard, &fileAttributes);
         if (result == FALSE)
         {
-            *error = Win32ErrorToErrorCode(::GetLastError());
+            auto lastError = ::GetLastError();
+
+#if IL2CPP_TARGET_WINRT
+            if (lastError == ERROR_ACCESS_DENIED)
+                return BrokeredFileSystem::GetFileAttributesW(utf16Path, error);
+#endif
+
+            *error = Win32ErrorToErrorCode(lastError);
             return static_cast<UnityPalFileAttributes>(INVALID_FILE_ATTRIBUTES);
         }
 
@@ -109,11 +120,17 @@ namespace os
         const UTF16String utf16Path(utils::StringUtils::Utf8ToUtf16(path.c_str()));
 
         *error = kErrorCodeSuccess;
-
         if (::SetFileAttributesW((LPCWSTR)utf16Path.c_str(), attributes))
             return true;
 
-        *error = Win32ErrorToErrorCode(::GetLastError());
+        auto lastError = ::GetLastError();
+
+#if IL2CPP_TARGET_WINRT
+        if (lastError == ERROR_ACCESS_DENIED)
+            return BrokeredFileSystem::SetFileAttributesW(utf16Path, attributes, error);
+#endif
+
+        *error = Win32ErrorToErrorCode(lastError);
         return false;
     }
 
@@ -135,7 +152,14 @@ namespace os
         WIN32_FILE_ATTRIBUTE_DATA data;
         if (!::GetFileAttributesExW((LPCWSTR)utf16Path.c_str(), GetFileExInfoStandard, &data))
         {
-            *error = Win32ErrorToErrorCode(::GetLastError());
+            auto lastError = ::GetLastError();
+
+#if IL2CPP_TARGET_WINRT
+            if (lastError == ERROR_ACCESS_DENIED)
+                return BrokeredFileSystem::GetFileStat(path, utf16Path, stat, error);
+#endif
+
+            *error = Win32ErrorToErrorCode(lastError);
             return false;
         }
 
@@ -168,7 +192,14 @@ namespace os
         if (::CopyFileW((LPWSTR)utf16Src.c_str(), (LPWSTR)utf16Dest.c_str(), overwrite ? FALSE : TRUE))
             return true;
 
-        *error = Win32ErrorToErrorCode(::GetLastError());
+        auto lastError = ::GetLastError();
+
+#if IL2CPP_TARGET_WINRT
+        if (lastError == ERROR_ACCESS_DENIED)
+            return BrokeredFileSystem::CopyFileW(utf16Src, utf16Dest, overwrite, error);
+#endif
+
+        *error = Win32ErrorToErrorCode(lastError);
         return false;
     }
 
@@ -182,7 +213,14 @@ namespace os
         if (::MoveFileExW((LPWSTR)utf16Src.c_str(), (LPWSTR)utf16Dest.c_str(), MOVEFILE_COPY_ALLOWED))
             return true;
 
-        *error = Win32ErrorToErrorCode(::GetLastError());
+        auto lastError = ::GetLastError();
+
+#if IL2CPP_TARGET_WINRT
+        if (lastError == ERROR_ACCESS_DENIED)
+            return BrokeredFileSystem::MoveFileW(utf16Src, utf16Dest, error);
+#endif
+
+        *error = Win32ErrorToErrorCode(lastError);
         return false;
     }
 
@@ -193,7 +231,17 @@ namespace os
         if (::DeleteFileW((LPWSTR)utf16Path.c_str()))
             return true;
 
-        *error = Win32ErrorToErrorCode(::GetLastError());
+        auto lastError = ::GetLastError();
+
+#if IL2CPP_TARGET_WINRT
+        if (lastError == ERROR_ACCESS_DENIED)
+        {
+            *error = BrokeredFileSystem::DeleteFileW(utf16Path);
+            return *error == kErrorCodeSuccess;
+        }
+#endif
+
+        *error = Win32ErrorToErrorCode(lastError);
         return false;
     }
 
@@ -303,7 +351,13 @@ namespace os
 
         if (INVALID_HANDLE_VALUE == handle)
         {
-            *error = Win32ErrorToErrorCode(::GetLastError());
+            auto lastError = ::GetLastError();
+#if IL2CPP_TARGET_WINRT
+            if (lastError == ERROR_ACCESS_DENIED)
+                return BrokeredFileSystem::Open(utf16Path, accessMode, shareMode, openMode, flagsAndAttributes, error);
+#endif
+
+            *error = Win32ErrorToErrorCode(lastError);
             return (FileHandle*)INVALID_HANDLE_VALUE;
         }
 
@@ -434,16 +488,37 @@ namespace os
 
     int32_t File::Write(FileHandle* handle, const char* buffer, int count, int *error)
     {
-        int32_t result;
         int32_t written;
 
-        result = WriteFile((HANDLE)handle, buffer, count, (LPDWORD)&written, NULL);
+        BOOL success = WriteFile((HANDLE)handle, buffer, count, (LPDWORD)&written, NULL);
 
-        /*if (!result)
+        if (!success)
         {
-            *error = GetLastError ();
-            return -1;
-        }*/
+            DWORD originalError = GetLastError();
+            if (originalError == ERROR_INVALID_PARAMETER)
+            {
+                // Maybe this is an async file write, so try with those parameters.
+                OVERLAPPED overlapped = {0};
+                success = WriteFile((HANDLE)handle, buffer, count, NULL, &overlapped);
+                if (success != 0 || GetLastError() == ERROR_IO_PENDING)
+                {
+                    success = TRUE;
+                    // The async write succeeded. Now get the number of bytes written.
+                    if (GetOverlappedResultEx((HANDLE)handle, &overlapped, (LPDWORD)&written, INFINITE, FALSE) == 0)
+                    {
+                        // Oops, we could not get the number of bytes writen, so return an error.
+                        *error = GetLastError();
+                        return -1;
+                    }
+                }
+            }
+
+            if (!success)
+            {
+                *error = originalError;
+                return -1;
+            }
+        }
 #if IL2CPP_ENABLE_PROFILER
         IL2CPP_VM_PROFILE_FILEIO(IL2CPP_PROFILE_FILEIO_WRITE, count);
 #endif

@@ -14,6 +14,7 @@
 #include "vm/COM.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
+#include "vm/Field.h"
 #include "vm/InternalCalls.h"
 #include "vm/LastError.h"
 #include "vm/MarshalAlloc.h"
@@ -1012,4 +1013,9 @@ inline NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod*
 {
     std::string methodName = il2cpp::vm::Method::GetFullName(method);
     il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
+}
+
+inline const char* il2cpp_codegen_get_field_data(RuntimeField* field)
+{
+    return il2cpp::vm::Field::GetData(field);
 }
