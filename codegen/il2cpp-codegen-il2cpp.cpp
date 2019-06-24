@@ -7,6 +7,7 @@
 
 #include "utils/Exception.h"
 
+#include "vm/Class.h"
 #include "vm/LastError.h"
 #include "vm/ThreadPoolMs.h"
 #include "vm/ThreadPool.h"
@@ -30,6 +31,7 @@
 #include "vm/PlatformInvoke.h"
 #include "vm/WindowsRuntime.h"
 #include "vm/StackTrace.h"
+#include "vm/Field.h"
 
 void il2cpp_codegen_marshal_store_last_error()
 {
@@ -602,5 +604,46 @@ void il2cpp_codegen_stacktrace_pop_frame()
 {
     il2cpp::vm::StackTrace::PopFrame();
 }
+
+const char* il2cpp_codegen_get_field_data(RuntimeField* field)
+{
+    return il2cpp::vm::Field::GetData(field);
+}
+
+#if IL2CPP_TINY
+
+MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)type);
+    Il2CppMulticastDelegate* result = reinterpret_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(klass));
+    result->delegates = delegates;
+    result->delegateCount = delegateCount;
+    return reinterpret_cast<MulticastDelegate_t*>(result);
+}
+
+Type_t* il2cpp_codegen_get_type(Il2CppObject* obj)
+{
+    return (Type_t*)il2cpp::vm::Reflection::GetTypeObject(&obj->klass->byval_arg);
+}
+
+Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    if (klass->parent == NULL)
+        return NULL;
+    return (Type_t*)il2cpp::vm::Reflection::GetTypeObject(&klass->parent->byval_arg);
+}
+
+Type_t* il2cpp_codegen_get_type_from_handle(intptr_t handle)
+{
+    return (Type_t*)il2cpp::vm::Type::GetTypeFromHandle(handle);
+}
+
+bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
+{
+    return il2cpp::vm::Class::IsAssignableFrom((Il2CppReflectionType*)left, (Il2CppReflectionType*)right);
+}
+
+#endif
 
 #endif

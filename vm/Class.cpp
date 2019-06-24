@@ -198,7 +198,8 @@ namespace vm
         else if (klass->rank > 0)
         {
 #if !IL2CPP_TINY
-            il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
+            if (klass->implementedInterfaces == NULL)
+                il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
 #endif
         }
         else
@@ -674,6 +675,20 @@ namespace vm
         }
 
         return false;
+    }
+
+    bool Class::IsAssignableFrom(Il2CppReflectionType * type, Il2CppReflectionType * c)
+    {
+        Il2CppClass *klass;
+        Il2CppClass *klassc;
+
+        klass = FromIl2CppType(type->type);
+        klassc = FromIl2CppType(c->type);
+
+        if (type->type->byref && !c->type->byref)
+            return false;
+
+        return IsAssignableFrom(klass, klassc);
     }
 
     bool Class::IsGeneric(const Il2CppClass *klass)

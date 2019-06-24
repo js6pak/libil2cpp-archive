@@ -1263,6 +1263,13 @@ bool il2cpp_is_debugger_attached()
     return il2cpp::utils::Debugger::GetIsDebuggerAttached();
 }
 
+void il2cpp_register_debugger_agent_transport(Il2CppDebuggerTransport * debuggerTransport)
+{
+#if IL2CPP_MONO_DEBUGGER
+    il2cpp::utils::Debugger::RegisterTransport(debuggerTransport);
+#endif
+}
+
 bool il2cpp_debug_get_method_info(const MethodInfo* method, Il2CppMethodDebugInfo* methodDebugInfo)
 {
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
