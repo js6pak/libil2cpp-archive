@@ -582,8 +582,10 @@ void il2cpp_codegen_runtime_class_init(RuntimeClass* klass);
 
 inline void ArrayElementTypeCheck(RuntimeArray* array, void* value)
 {
+#if !IL2CPP_TINY
     if (value != NULL && IsInst((RuntimeObject*)value, array->klass->element_class) == NULL)
         il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
+#endif
 }
 
 inline const RuntimeMethod* GetVirtualMethodInfo(RuntimeObject* pThis, Il2CppMethodSlot slot)
@@ -783,10 +785,13 @@ Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegat
 
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args);
 
+#if !IL2CPP_TINY
 inline bool il2cpp_codegen_delegate_has_invoker(Il2CppDelegate* delegate)
 {
     return delegate->invoke_impl != NULL;
 }
+
+#endif
 
 inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(RuntimeClass* genericClass)
 {
@@ -828,16 +833,15 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object
 
 NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method);
 
+const char* il2cpp_codegen_get_field_data(RuntimeField* field);
+
 #if IL2CPP_TINY
 
 // Add intrinsics used by Tiny.
 
 #include "utils/MemoryUtils.h"
 
-inline Type_t* il2cpp_codegen_get_type(Il2CppObject* obj)
-{
-    return reinterpret_cast<Type_t*>(obj->klass);
-}
+Type_t* il2cpp_codegen_get_type(Il2CppObject* obj);
 
 inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* szArray)
 {
@@ -849,11 +853,7 @@ inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* genArray, int32_t di
     return static_cast<int32_t>(genArray->bounds[dimension].length);
 }
 
-inline MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
-{
-    IL2CPP_ASSERT(0 && "Not implemented yet");
-    return NULL;
-}
+MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount);
 
 inline int il2cpp_codegen_get_offset_to_string_data()
 {
@@ -879,8 +879,7 @@ struct Delegate_t;
 
 inline intptr_t il2cpp_codegen_marshal_get_function_pointer_for_delegate(const Delegate_t* d)
 {
-    IL2CPP_ASSERT(0 && "Not implemented yet");
-    return 0;
+    return reinterpret_cast<intptr_t>(reinterpret_cast<const Il2CppDelegate*>(d)->m_ReversePInvokeWrapperPtr);
 }
 
 inline String_t* il2cpp_codegen_string_new_from_char_array(Il2CppArray* characterArray, size_t startIndex, size_t length)
@@ -894,24 +893,32 @@ inline String_t* il2cpp_codegen_string_new_from_char_array(Il2CppArray* characte
 
 inline String_t* il2cpp_codegen_string_new_length(int length)
 {
-    return reinterpret_cast<String_t*>(il2cpp::vm::String::NewLen("", length));
+    return reinterpret_cast<String_t*>(il2cpp::vm::String::NewSize(length));
 }
 
-inline Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
-{
-    IL2CPP_ASSERT(0 && "Not implemented yet");
-    return NULL;
-}
+Type_t* il2cpp_codegen_get_base_type(const Type_t* t);
 
-inline Type_t* il2cpp_codegen_get_type_from_handle(intptr_t handle)
-{
-    return reinterpret_cast<Type_t*>(handle);
-}
+Type_t* il2cpp_codegen_get_type_from_handle(intptr_t handle);
 
-inline bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
+bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right);
+
+template<typename T>
+struct Il2CppReversePInvokeMethodHolder
 {
-    IL2CPP_ASSERT(0 && "Not implemented yet");
-    return false;
-}
+    Il2CppReversePInvokeMethodHolder(T** storageAddress) :
+        m_LastValue(*storageAddress),
+        m_StorageAddress(storageAddress)
+    {
+    }
+
+    ~Il2CppReversePInvokeMethodHolder()
+    {
+        *m_StorageAddress = m_LastValue;
+    }
+
+private:
+    T* const m_LastValue;
+    T** const m_StorageAddress;
+};
 
 #endif

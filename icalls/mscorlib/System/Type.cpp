@@ -204,10 +204,7 @@ namespace System
 
     Il2CppReflectionType * Type::internal_from_handle(intptr_t ptr)
     {
-        const Il2CppType* type = (const Il2CppType*)ptr;
-        Il2CppClass *klass = vm::Class::FromIl2CppType(type);
-
-        return il2cpp::vm::Reflection::GetTypeObject(&klass->byval_arg);
+        return vm::Type::GetTypeFromHandle(ptr);
     }
 
 #define CHECK_IF_NULL(v)    \
@@ -350,16 +347,7 @@ namespace System
 
     bool Type::type_is_assignable_from(Il2CppReflectionType * type, Il2CppReflectionType * c)
     {
-        Il2CppClass *klass;
-        Il2CppClass *klassc;
-
-        klass = vm::Class::FromIl2CppType(type->type);
-        klassc = vm::Class::FromIl2CppType(c->type);
-
-        if (type->type->byref && !c->type->byref)
-            return false;
-
-        return vm::Class::IsAssignableFrom(klass, klassc);
+        return vm::Class::IsAssignableFrom(type, c);
     }
 
     bool Type::type_is_subtype_of(Il2CppReflectionType *type, Il2CppReflectionType *c, bool check_interfaces)

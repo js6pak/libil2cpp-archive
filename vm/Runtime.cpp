@@ -209,7 +209,9 @@ namespace vm
         DEFAULTS_INIT(generic_ienumerable_class, "System.Collections.Generic", "IEnumerable`1");
         DEFAULTS_INIT(generic_ireadonlylist_class, "System.Collections.Generic", "IReadOnlyList`1");
         DEFAULTS_INIT(generic_ireadonlycollection_class, "System.Collections.Generic", "IReadOnlyCollection`1");
+#endif
         DEFAULTS_INIT(generic_nullable_class, "System", "Nullable`1");
+#if !IL2CPP_TINY
         DEFAULTS_INIT(version, "System", "Version");
         DEFAULTS_INIT(culture_info, "System.Globalization", "CultureInfo");
         DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "Assembly", Il2CppReflectionAssembly);
