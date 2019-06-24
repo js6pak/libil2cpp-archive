@@ -60,6 +60,7 @@ namespace utils
     public:
         static void RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data);
         static void SetAgentOptions(const char* options);
+        static void RegisterTransport(const Il2CppDebuggerTransport* transport);
         static void Init();
         static void Start();
         static void StartDebuggerThread();

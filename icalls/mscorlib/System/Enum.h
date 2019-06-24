@@ -26,6 +26,9 @@ namespace System
         static int32_t InternalCompareTo(Il2CppObject* o1, Il2CppObject* o2);
         static Il2CppObject* InternalBoxEnum(Il2CppReflectionRuntimeType* enumType, int64_t value);
         static Il2CppReflectionRuntimeType* InternalGetUnderlyingType(Il2CppReflectionRuntimeType* enumType);
+#if IL2CPP_TINY
+        static bool TinyEnumEquals(Il2CppObject* left, Il2CppObject* right);
+#endif
     };
 } /* namespace System */
 } /* namespace mscorlib */

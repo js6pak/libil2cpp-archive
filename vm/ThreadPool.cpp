@@ -716,6 +716,9 @@ namespace vm
 
     void ThreadPoolCompartment::WorkerThreadRunLoop()
     {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "This function should never be called with the Tiny profile");
+#else
         bool waitingToTerminate = false;
 
         // Pump AsyncResults until we're killed.
@@ -849,6 +852,7 @@ namespace vm
 
             il2cpp_monitor_exit(&asyncResult->base);
         }
+#endif
     }
 
     static void WorkerThreadEntryPoint(void* data)

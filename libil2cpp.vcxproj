@@ -1415,6 +1415,7 @@
     <ClInclude Include="..\external\zlib\zlib.h" />
     <ClInclude Include="..\external\zlib\zutil.h" />
     <ClInclude Include="os\WindowsRuntime.h" />
+    <ClInclude Include="os\WinRT\BrokeredFileSystem.h" />
     <ClInclude Include="os\WinRT\SynchronousOperation.h" />
     <ClInclude Include="os\WinRT\Win32ApiSharedEmulation.h" />
     <ClInclude Include="os\WinRT\Win32ApiWinRTEmulation.h" />
@@ -1820,6 +1821,7 @@
     <ClCompile Include="..\external\zlib\uncompr.c" />
     <ClCompile Include="..\external\zlib\zutil.c" />
     <ClCompile Include="os\Win32\WindowsRuntime.cpp" />
+    <ClCompile Include="os\WinRT\BrokeredFileSystem.cpp" />
     <ClCompile Include="os\WinRT\Cryptography.cpp" />
     <ClCompile Include="os\WinRT\Environment.cpp" />
     <ClCompile Include="os\WinRT\File.cpp" />

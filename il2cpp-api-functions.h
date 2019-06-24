@@ -264,6 +264,7 @@ DO_API(void, il2cpp_register_log_callback, (Il2CppLogCallback method));
 // Debugger
 DO_API(void, il2cpp_debugger_set_agent_options, (const char* options));
 DO_API(bool, il2cpp_is_debugger_attached, ());
+DO_API(void, il2cpp_register_debugger_agent_transport, (Il2CppDebuggerTransport * debuggerTransport));
 
 // Debug metadata
 DO_API(bool, il2cpp_debug_get_method_info, (const MethodInfo*, Il2CppMethodDebugInfo * methodDebugInfo));

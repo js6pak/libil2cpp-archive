@@ -73,6 +73,7 @@ namespace vm
         //for Unsafe, but more performant version of HasParent, see ClassInlines.h
         static bool HasParent(Il2CppClass *klass, Il2CppClass *parent);
         static bool IsAssignableFrom(Il2CppClass *klass, Il2CppClass *oklass);
+        static bool IsAssignableFrom(Il2CppReflectionType *klass, Il2CppReflectionType *oklass);
         static bool IsGeneric(const Il2CppClass *klass);
         static bool IsInflated(const Il2CppClass *klass);
         static bool IsSubclassOf(Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces);
