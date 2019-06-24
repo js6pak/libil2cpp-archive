@@ -44,7 +44,7 @@ namespace metadata
         vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
     }
 
-    const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod)
+    const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod, bool copyMethodPtr)
     {
         FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
 
@@ -59,6 +59,14 @@ namespace metadata
         Il2CppGenericMethodMap::const_iterator iter = s_GenericMethodMap.find(gmethod);
         if (iter != s_GenericMethodMap.end())
             return iter->second;
+
+        if (copyMethodPtr)
+        {
+            Il2CppGenericMethod *newGMethod = vm::MetadataAllocGenericMethod();
+            newGMethod->methodDefinition = gmethod->methodDefinition;
+            newGMethod->context = gmethod->context;
+            gmethod = newGMethod;
+        }
 
         const MethodInfo* methodDefinition = gmethod->methodDefinition;
         Il2CppClass* declaringClass = methodDefinition->klass;
