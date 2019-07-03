@@ -198,7 +198,8 @@ namespace vm
         else if (klass->rank > 0)
         {
 #if !IL2CPP_DOTS
-            il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
+            if (klass->implementedInterfaces == NULL)
+                il2cpp::metadata::ArrayMetadata::SetupArrayInterfaces(klass, lock);
 #endif
         }
         else
