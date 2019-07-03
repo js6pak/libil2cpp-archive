@@ -427,6 +427,8 @@ namespace metadata
     {
         if (klass->byval_arg.type == IL2CPP_TYPE_SZARRAY)
         {
+            IL2CPP_ASSERT(klass->implementedInterfaces == NULL);
+
             Il2CppTypeVector genericArguments;
             genericArguments.push_back(&klass->element_class->byval_arg);
 
