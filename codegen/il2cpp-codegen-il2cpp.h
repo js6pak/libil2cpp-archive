@@ -828,6 +828,8 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object
 
 NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method);
 
+const char* il2cpp_codegen_get_field_data(RuntimeField* field);
+
 #if IL2CPP_DOTS
 
 // Add intrinsics used by Dots.
