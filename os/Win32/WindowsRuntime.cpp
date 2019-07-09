@@ -356,6 +356,8 @@ namespace os
             if (RoSetErrorReportingFlags == NULL)
                 return;
         }
+
+        const int RO_ERROR_REPORTING_USESETERRORINFO = 0x00000004;
 #endif
 
         il2cpp_hresult_t hr = RoSetErrorReportingFlags(RO_ERROR_REPORTING_USESETERRORINFO);
