@@ -503,7 +503,11 @@ namespace os
                 {
                     success = TRUE;
                     // The async write succeeded. Now get the number of bytes written.
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
+                    if (GetOverlappedResult((HANDLE)handle, &overlapped, (LPDWORD)&written, TRUE) == 0)
+#else
                     if (GetOverlappedResultEx((HANDLE)handle, &overlapped, (LPDWORD)&written, INFINITE, FALSE) == 0)
+#endif
                     {
                         // Oops, we could not get the number of bytes writen, so return an error.
                         *error = GetLastError();
