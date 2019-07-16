@@ -529,6 +529,20 @@ static void wakeup_pipes_init(void)
 		IL2CPP_ASSERT(0 && "wakeup_pipes_init: SetBlocking () failed");
 	}
 
+	status = threadpool_io->wakeup_pipes[0]->SetSocketOption(il2cpp::os::kSocketOptionLevelTcp, il2cpp::os::kSocketOptionNameNoDelay, 1);
+	if (status == kWaitStatusFailure)
+	{
+		threadpool_io->wakeup_pipes[0]->Close();
+		IL2CPP_ASSERT(0 && "wakeup_pipes_init: SetSocketOption () failed");
+	}
+
+	status = threadpool_io->wakeup_pipes[1]->SetSocketOption(il2cpp::os::kSocketOptionLevelTcp, il2cpp::os::kSocketOptionNameNoDelay, 1);
+	if (status == kWaitStatusFailure)
+	{
+		threadpool_io->wakeup_pipes[1]->Close();
+		IL2CPP_ASSERT(0 && "wakeup_pipes_init: SetSocketOption () failed");
+	}
+
 	serverSock.Close();
 #endif
 }
