@@ -921,4 +921,6 @@ private:
     T** const m_StorageAddress;
 };
 
+void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason);
+
 #endif
