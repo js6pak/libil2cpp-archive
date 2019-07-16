@@ -644,6 +644,15 @@ bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
     return il2cpp::vm::Class::IsAssignableFrom((Il2CppReflectionType*)left, (Il2CppReflectionType*)right);
 }
 
+void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason)
+{
+    std::string message = "No reverse pinvoke wrapper exists for method: '";
+    message += methodName;
+    message += "' because ";
+    message += reason;
+    il2cpp_codegen_raise_exception(il2cpp_codegen_get_invalid_operation_exception(message.c_str()));
+}
+
 #endif
 
 #endif

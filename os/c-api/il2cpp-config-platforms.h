@@ -44,6 +44,10 @@
 #define IL2CPP_TARGET_WINDOWS_DESKTOP 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
+// Windows 7 is the min OS we support, so we cannot link newer APIs
+#define NTDDI_VERSION    0x06010000
+#define _WIN32_WINNT     0x0601
+#define WINVER           0x0601
 #endif
 #define _UNICODE 1
 #define UNICODE 1
@@ -73,9 +77,12 @@
 // so we need to check for that *before* we check __ANDROID__ to avoid false
 // positives.
 #elif defined(LUMIN)
+#define IL2CPP_ENABLE_PLATFORM_THREAD_RENAME 1
 #define IL2CPP_TARGET_LUMIN 1
-#define IL2CPP_SUPPORTS_PROCESS 1
 #define IL2CPP_PLATFORM_OVERRIDES_STD_FILE_HANDLES 1
+#define IL2CPP_PLATFORM_SUPPORTS_TIMEZONEINFO 1
+#define IL2CPP_USE_GENERIC_DEBUG_LOG 0
+#define IL2CPP_SUPPORTS_PROCESS 1
 #elif defined(__ANDROID__)
 #define IL2CPP_TARGET_ANDROID 1
 #define IL2CPP_PLATFORM_SUPPORTS_TIMEZONEINFO 1
