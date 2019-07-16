@@ -975,7 +975,7 @@ extern "C" {
 
     static il2cpp::os::Mutex s_il2cpp_gc_root_lock(false);
 
-    int il2cpp_mono_gc_register_root(char* start, size_t size, MonoGCDescriptor descr, MonoGCRootSource source, const char* msg)
+    int il2cpp_mono_gc_register_root(char* start, size_t size, MonoGCDescriptor descr, MonoGCRootSource source, void* key, const char* msg)
     {
         il2cpp::gc::GarbageCollector::RegisterRoot(start, size);
         return 1;

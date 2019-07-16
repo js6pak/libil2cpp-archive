@@ -25,6 +25,7 @@ namespace il2cpp
 namespace os
 {
 #if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TARGET_LUMIN
     std::string Environment::GetMachineName()
     {
         char buf[256];
@@ -34,6 +35,8 @@ namespace os
 
         return buf;
     }
+
+#endif //!IL2CPP_TARGET_LUMIN
 
     int32_t Environment::GetProcessorCount()
     {
