@@ -289,7 +289,8 @@ namespace os
 
     void Thread::DetachCurrentThread()
     {
-#if IL2CPP_DEBUG
+        // PTHREAD cleanup isn't deterministic: it could be that our thread local variables get cleaned up before thread clean up routine runs
+#if IL2CPP_DEBUG && !IL2CPP_THREADS_PTHREAD
         void* value;
         s_CurrentThread.GetValue(&value);
         IL2CPP_ASSERT(value != NULL);

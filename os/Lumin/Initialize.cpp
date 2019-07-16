@@ -11,6 +11,8 @@ namespace il2cpp
     extern void LifecycleInit();
     extern void InitializeFileHandles();
     extern void CleanupFileHandles();
+
+namespace automation { extern void WaitForAppThread(); }
 }}}
 
 void il2cpp::os::Initialize()
@@ -22,6 +24,9 @@ void il2cpp::os::Initialize()
 void il2cpp::os::Uninitialize()
 {
     il2cpp::os::lumin::CleanupFileHandles();
+#if IL2CPP_TARGET_LUMIN_AUTOMATION
+    il2cpp::os::lumin::automation::WaitForAppThread();
+#endif
 }
 
 #endif
