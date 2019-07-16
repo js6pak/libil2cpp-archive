@@ -1734,8 +1734,14 @@
     <ClCompile Include="os\Generic\TimeZoneInfo.cpp" />
     <ClCompile Include="os\Generic\WindowsRuntime.cpp" />
     <ClCompile Include="os\Handle.cpp" />
+    <ClCompile Include="os\Lumin\Automation.cpp" />
+    <ClCompile Include="os\Lumin\Debug.cpp" />
+    <ClCompile Include="os\Lumin\Environment.cpp" />
+    <ClCompile Include="os\Lumin\File.cpp" />
+    <ClCompile Include="os\Lumin\Lifecycle.cpp" />
     <ClCompile Include="os\Lumin\Process.cpp" />
     <ClCompile Include="os\Lumin\StackTrace.cpp" />
+    <ClCompile Include="os\Lumin\TimeZoneInfo.cpp" />
     <ClCompile Include="os\Messages.cpp" />
     <ClCompile Include="os\OSX\Image.cpp" />
     <ClCompile Include="os\OSX\Process.cpp" />
