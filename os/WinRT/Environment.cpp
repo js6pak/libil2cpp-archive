@@ -19,31 +19,31 @@ using namespace Microsoft::WRL::Wrappers;
 namespace winrt_interfaces
 {
     MIDL_INTERFACE("F9C53912-ABC4-46FF-8A2B-DC9D7FA6E52F")
-    IUserDataPaths : IInspectable
+IUserDataPaths: IInspectable
     {
-        virtual HRESULT STDMETHODCALLTYPE get_CameraRoll(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Cookies(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Desktop(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Documents(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Downloads(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Favorites(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_History(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_InternetCache(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_LocalAppData(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_LocalAppDataLow(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Music(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Pictures(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Profile(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Recent(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_RoamingAppData(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_SavedPictures(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Screenshots(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Templates(HSTRING* value) = 0;
-        virtual HRESULT STDMETHODCALLTYPE get_Videos(HSTRING* value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_CameraRoll(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Cookies(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Desktop(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Documents(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Downloads(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Favorites(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_History(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_InternetCache(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_LocalAppData(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_LocalAppDataLow(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Music(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Pictures(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Profile(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Recent(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_RoamingAppData(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_SavedPictures(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Screenshots(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Templates(HSTRING * value) = 0;
+        virtual HRESULT STDMETHODCALLTYPE get_Videos(HSTRING * value) = 0;
     };
 
     MIDL_INTERFACE("01B29DEF-E062-48A1-8B0C-F2C7A9CA56C0")
-    IUserDataPathsStatics : IInspectable
+IUserDataPathsStatics: IInspectable
     {
         virtual HRESULT STDMETHODCALLTYPE GetForUser(struct IUser* user, IUserDataPaths** result) = 0;
         virtual HRESULT STDMETHODCALLTYPE GetDefault(IUserDataPaths** result) = 0;
