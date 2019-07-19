@@ -1,9 +1,10 @@
 #pragma once
 
-#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_PTHREAD && !IL2CPP_DOTS_WITHOUT_DEBUGGER
 
 #include <pthread.h>
 #include <vector>
+#include <atomic>
 
 #include "PosixWaitObject.h"
 #include "os/ErrorCodes.h"
@@ -70,7 +71,7 @@ namespace os
 
         friend class posix::PosixWaitObject; // SetWaitObject(), CheckForAPCAndHandle()
 
-        pthread_t m_Handle;
+        std::atomic<pthread_t> m_Handle;
 
         /// The synchronization primitive that this thread is currently blocked on.
         ///

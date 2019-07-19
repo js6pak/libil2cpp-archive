@@ -1,22 +1,10 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TINY
+#if IL2CPP_DOTS
 
-#include "os/File.h"
-#include "utils/StringUtils.h"
-
-extern "C" void STDCALL Console_WriteLine(const char* message)
-{
-    il2cpp::os::FileHandle* fileHandle = il2cpp::os::File::GetStdOutput();
-    size_t length = il2cpp::utils::StringUtils::StrLen(message);
-
-    int error;
-    il2cpp::os::File::Write(fileHandle, message, static_cast<int>(length), &error);
-#if IL2CPP_TARGET_WINDOWS
-    il2cpp::os::File::Write(fileHandle, "\r\n", 2, &error);
-#else
-    il2cpp::os::File::Write(fileHandle, "\n", 1, &error);
-#endif
-}
+// When the debugger is enabled, we use the big libil2cpp runtime code
+// with the dots profile. We need to build this icall for big libil2cpp,
+// so direcrtly include the .cpp file to avboid code duplication.
+    #include "../libil2cppdots/icalls/mscorlib/System/Console.cpp"
 
 #endif

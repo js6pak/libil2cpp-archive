@@ -35,9 +35,10 @@ extern "C"
 {
     int32_t unity_sequence_point_active_entry(Il2CppSequencePoint *seqPoint);
     int32_t unity_sequence_point_active_exit(Il2CppSequencePoint *seqPoint);
-    extern bool g_unity_pause_point_active;
+    extern int32_t g_unity_pause_point_active;
 }
 #include <stdint.h>
+#include "os/Atomic.h"
 #include "os/ThreadLocalValue.h"
 
 #undef IsLoggingEnabled
@@ -106,9 +107,14 @@ namespace utils
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
 
+        static inline bool AtomicReadIsActive(Il2CppSequencePoint *seqPoint)
+        {
+            return il2cpp::os::Atomic::CompareExchange(&seqPoint->isActive, seqPoint->isActive, -1) > 0;
+        }
+
         static inline bool IsSequencePointActive(Il2CppSequencePoint *seqPoint)
         {
-            return seqPoint->isActive || g_unity_pause_point_active;
+            return AtomicReadIsActive(seqPoint) || g_unity_pause_point_active;
         }
 
         static inline bool IsSequencePointActiveEntry(Il2CppSequencePoint *seqPoint)
@@ -152,6 +158,9 @@ namespace utils
         }
 
         static void CheckPausePoint();
+
+        static const char* GetLocalName(const MethodInfo* method, int32_t index);
+        static const Il2CppMethodScope* GetLocalScope(const MethodInfo* method, int32_t index);
 
         static void GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes);
 

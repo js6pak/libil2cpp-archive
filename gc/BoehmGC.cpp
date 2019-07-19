@@ -22,11 +22,13 @@ static void on_gc_event(GC_EventType eventType);
 static void on_heap_resize(GC_word newSize);
 #endif
 
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
 static GC_push_other_roots_proc default_push_other_roots;
 typedef Il2CppHashMap<char*, char*, il2cpp::utils::PassThroughHash<char*> > RootMap;
 static RootMap s_Roots;
 
 static void push_other_roots(void);
+#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
 
 void
 il2cpp::gc::GarbageCollector::Initialize()
@@ -49,8 +51,10 @@ il2cpp::gc::GarbageCollector::Initialize()
 #endif
 #endif
 
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
     default_push_other_roots = GC_get_push_other_roots();
     GC_set_push_other_roots(push_other_roots);
+#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
 
 #if IL2CPP_ENABLE_PROFILER
     GC_set_on_collection_event(&on_gc_event);
@@ -60,9 +64,13 @@ il2cpp::gc::GarbageCollector::Initialize()
     GC_INIT();
 #if defined(GC_THREADS)
     GC_set_finalize_on_demand(1);
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
     GC_set_finalizer_notifier(&il2cpp::gc::GarbageCollector::NotifyFinalizers);
+#endif
     // We need to call this if we want to manually register threads, i.e. GC_register_my_thread
+    #if !IL2CPP_TARGET_JAVASCRIPT
     GC_allow_register_threads();
+    #endif
 #endif
 #ifdef GC_GCJ_SUPPORT
     GC_init_gcj_malloc(0, NULL);
@@ -161,7 +169,7 @@ il2cpp::gc::GarbageCollector::IsDisabled()
 bool
 il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
 {
-#if defined(GC_THREADS)
+#if defined(GC_THREADS) && !IL2CPP_TARGET_JAVASCRIPT
     struct GC_stack_base sb;
     int res;
 
@@ -187,7 +195,7 @@ il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
 bool
 il2cpp::gc::GarbageCollector::UnregisterThread()
 {
-#if defined(GC_THREADS)
+#if defined(GC_THREADS) && !IL2CPP_TARGET_JAVASCRIPT
     int res;
 
     res = GC_unregister_my_thread();
@@ -278,6 +286,15 @@ void il2cpp::gc::GarbageCollector::StartWorld()
     GC_start_world_external();
 }
 
+#if IL2CPP_DOTS_WITHOUT_DEBUGGER
+void*
+il2cpp::gc::GarbageCollector::Allocate(size_t size)
+{
+    return GC_MALLOC(size);
+}
+
+#endif
+
 void*
 il2cpp::gc::GarbageCollector::AllocateFixed(size_t size, void *descr)
 {
@@ -301,6 +318,7 @@ il2cpp::gc::GarbageCollector::FreeFixed(void* addr)
     GC_FREE(addr);
 }
 
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
 int32_t
 il2cpp::gc::GarbageCollector::InvokeFinalizers()
 {
@@ -312,6 +330,8 @@ il2cpp::gc::GarbageCollector::HasPendingFinalizers()
 {
     return GC_should_invoke_finalizers() != 0;
 }
+
+#endif
 
 int64_t
 il2cpp::gc::GarbageCollector::GetMaxTimeSliceNs()
@@ -366,6 +386,8 @@ typedef struct
     char *end;
 } RootData;
 
+#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+
 static void*
 register_root(void* arg)
 {
@@ -403,5 +425,7 @@ push_other_roots(void)
     if (default_push_other_roots)
         default_push_other_roots();
 }
+
+#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
 
 #endif

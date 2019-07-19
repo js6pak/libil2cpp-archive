@@ -21,6 +21,7 @@
 #include "il2cpp-tabledefs.h"
 #include "vm/Method.h"
 #include "metadata/GenericMethod.h"
+#include "il2cpp-runtime-stats.h"
 
 #if IL2CPP_GC_BOEHM
 #define ALLOC_PTRFREE(obj, vt, size) do { (obj) = (Il2CppObject*)GC_MALLOC_ATOMIC ((size)); (obj)->klass = (vt); (obj)->monitor = NULL;} while (0)

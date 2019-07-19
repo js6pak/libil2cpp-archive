@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "il2cpp-config.h"
 #include "utils/StringView.h"
-#include "../il2cpp-class-internals.h"
+#include "il2cpp-class-internals.h"
 
 struct Il2CppException;
 struct Il2CppImage;

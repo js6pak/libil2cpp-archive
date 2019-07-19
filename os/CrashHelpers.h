@@ -8,6 +8,8 @@ namespace os
     {
     public:
         NORETURN static void Crash();
+    private:
+        NORETURN static void CrashImpl();
     };
 }
 }

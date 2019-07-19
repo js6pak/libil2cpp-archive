@@ -299,13 +299,13 @@ inline uint16_t il2cpp_codegen_method_get_slot(RuntimeMethod* method)
     return method->slot;
 }
 
-FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_virtual_invoke_data(Il2CppMethodSlot slot, const RuntimeObject* obj)
+IL2CPP_FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_virtual_invoke_data(Il2CppMethodSlot slot, const RuntimeObject* obj)
 {
     Assert(slot != kInvalidIl2CppMethodSlot && "il2cpp_codegen_get_virtual_invoke_data got called on a non-virtual method");
     return obj->klass->vtable[slot];
 }
 
-FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke_data(Il2CppMethodSlot slot, RuntimeObject* obj, const RuntimeClass* declaringInterface)
+IL2CPP_FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke_data(Il2CppMethodSlot slot, RuntimeObject* obj, const RuntimeClass* declaringInterface)
 {
     Assert(slot != kInvalidIl2CppMethodSlot && "il2cpp_codegen_get_interface_invoke_data got called on a non-virtual method");
     return il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, declaringInterface, slot);
@@ -313,14 +313,14 @@ FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke_data(I
 
 const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod);
 
-FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj)
+IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj)
 {
     uint16_t slot = method->slot;
     const RuntimeMethod* methodDefinition = obj->klass->vtable[slot].method;
     return il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method);
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const RuntimeMethod* method, const RuntimeObject* obj, VirtualInvokeData* invokeData)
+IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const RuntimeMethod* method, const RuntimeObject* obj, VirtualInvokeData* invokeData)
 {
     const RuntimeMethod* targetRuntimeMethod = il2cpp_codegen_get_generic_virtual_method(method, obj);
 #if IL2CPP_DEBUG
@@ -331,13 +331,13 @@ FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const RuntimeMe
     invokeData->method = targetRuntimeMethod;
 }
 
-FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, RuntimeObject* obj)
+IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, RuntimeObject* obj)
 {
     const RuntimeMethod* methodDefinition = il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, method->klass, method->slot).method;
     return il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method);
 }
 
-FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const RuntimeMethod* method, RuntimeObject* obj, VirtualInvokeData* invokeData)
+IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const RuntimeMethod* method, RuntimeObject* obj, VirtualInvokeData* invokeData)
 {
     const RuntimeMethod* targetRuntimeMethod = il2cpp_codegen_get_generic_interface_method(method, obj);
 
@@ -830,9 +830,9 @@ NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method
 
 const char* il2cpp_codegen_get_field_data(RuntimeField* field);
 
-#if IL2CPP_TINY
+#if IL2CPP_DOTS
 
-// Add intrinsics used by Tiny.
+// Add intrinsics used by Dots.
 
 #include "utils/MemoryUtils.h"
 

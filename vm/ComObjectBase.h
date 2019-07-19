@@ -38,13 +38,13 @@ namespace vm
         virtual il2cpp_hresult_t STDCALL DisconnectObject(uint32_t reserved) IL2CPP_OVERRIDE;
         virtual il2cpp_hresult_t STDCALL GetWeakReference(Il2CppIWeakReference** weakReference) IL2CPP_FINAL IL2CPP_OVERRIDE;
 
-        FORCE_INLINE Il2CppObject* GetManagedObjectInline() const
+        IL2CPP_FORCE_INLINE Il2CppObject* GetManagedObjectInline() const
         {
             return m_ManagedObject;
         }
 
     protected:
-        FORCE_INLINE Il2CppIInspectable* GetIdentity()
+        IL2CPP_FORCE_INLINE Il2CppIInspectable* GetIdentity()
         {
             return this;
         }

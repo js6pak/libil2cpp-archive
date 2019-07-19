@@ -816,8 +816,13 @@ namespace vm
         if (!(state & kThreadStateAbortRequested))
             return;
 
-        // Mark the current thread as being unblocked.
+#if !NET_4_0
+        // Mark the current thread as being unblocked, but not for NET_4_0. The newer
+        // class libraries check the thread state from managed code, so we need to leave
+        // the thread in the abort requested state. The ResetAbort function should clear
+        // this when it is called from the class library code.
         il2cpp::vm::Thread::ClrState(currentThread, kThreadStateAbortRequested);
+#endif
 
         // Throw interrupt exception.
         Il2CppException* abortException = il2cpp::vm::Exception::GetThreadAbortException();

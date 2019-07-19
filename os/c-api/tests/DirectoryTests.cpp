@@ -7,6 +7,7 @@
 #include "../../File.h"
 #include "utils/StringUtils.h"
 #include "PathHelper.h"
+#include <set>
 
 SUITE(Directory)
 {
@@ -510,11 +511,17 @@ SUITE(Directory)
         const char* expectedFile = TEST_DIR_1;
 #endif
         testFind = UnityPalDirectoryFindHandleNew(TEST_PATTERN);
+
+        std::set<std::string> foundFiles;
         returnErrorCode = UnityPalDirectoryFindFirstFile(testFind, TEST_PATTERN, &resultFileName, &resultAttributes);
-        returnErrorCode = UnityPalDirectoryFindNextFile(testFind, &nextResultFileName, &resultAttributes);
-        returnErrorCode = UnityPalDirectoryFindNextFile(testFind, &thirdResultFileName, &resultAttributes);
+        while (returnErrorCode == il2cpp::os::kErrorCodeSuccess)
+        {
+            foundFiles.insert(resultFileName);
+            returnErrorCode = UnityPalDirectoryFindNextFile(testFind, &resultFileName, &resultAttributes);
+        }
+
         UnityPalDirectoryCloseOSHandle(testFind);
-        CHECK_EQUAL(expectedFile, thirdResultFileName);
+        CHECK(foundFiles.find(expectedFile) != foundFiles.end());
     }
 
     TEST_FIXTURE(FileSytemEntriesFixture, FindNextFileResultAttributesAreValid)

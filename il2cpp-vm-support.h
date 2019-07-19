@@ -19,7 +19,7 @@
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) mono_string_new_len(g_MonoDomain, value, length);
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason)))
     #define IL2CPP_VM_NOT_IMPLEMENTED(func) mono_raise_exception(mono_get_exception_not_supported(NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func)))
-    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) key->isGeneric ? GenericMethodFromIndex(key->methodIndex) : MethodFromToken(key->methodIndex, key->method)
+    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) key->isGeneric ? GenericMethodFromIndex(key->methodIndex) : MethodFromToken(key->methodIndex, reinterpret_cast<void(*)()>(reinterpret_cast<intptr_t>(key->method) - 1))
     #define IL2CPP_VM_SHUTDOWN() do { if (mono_runtime_try_shutdown()) mono_runtime_quit(); } while(0)
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
 //    #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (mono_profiler_get_events () & MONO_PROFILE_FILEIO) mono_profiler_fileio (kind, count);
@@ -43,10 +43,18 @@ typedef MonoMethod VmMethod;
     #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
     #define IL2CPP_VM_PROFILE_FILEIO(kind, count) NULL
-#elif IL2CPP_TINY_WITHOUT_DEBUGGER
+#elif IL2CPP_DOTS_WITHOUT_DEBUGGER
+    #include "vm/StackTrace.h"
+    #include "vm/DebugMetadata.h"
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
+#if IL2CPP_DOTS_DEBUG_METADATA
+    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) dots::vm::DebugMetadata::GetMethodNameFromMethodDefinitionIndex(key->methodIndex)
+#else
+    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) NULL
+#endif
+typedef DotsMethod VmMethod;
 #else // Assume the libil2cpp runtime
     #include "vm/Exception.h"
     #include "vm/MetadataCache.h"

@@ -16,6 +16,8 @@
 
 #include "il2cpp-config-api.h"
 
+#include "il2cpp-sanitizers.h"
+
 #ifndef IL2CPP_EXCEPTION_DISABLED
 #define IL2CPP_EXCEPTION_DISABLED 0
 #endif
@@ -65,6 +67,8 @@
 #define THISCALL
 #endif
 
+typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
+
 #if defined(__cplusplus)
 #define IL2CPP_EXTERN_C extern "C"
 #define IL2CPP_EXTERN_C_CONST extern "C" const
@@ -101,7 +105,7 @@
     #define ALIGN_OF(T) __alignof__(T)
     #define ALIGN_TYPE(val) __attribute__((aligned(val)))
     #define ALIGN_FIELD(val) ALIGN_TYPE(val)
-    #define FORCE_INLINE inline __attribute__ ((always_inline))
+    #define IL2CPP_FORCE_INLINE inline __attribute__ ((always_inline))
 #elif defined(_MSC_VER)
     #define ALIGN_OF(T) __alignof(T)
 #if _MSC_VER >= 1900 && defined(__cplusplus)
@@ -110,11 +114,11 @@
     #define ALIGN_TYPE(val) __declspec(align(val))
 #endif
     #define ALIGN_FIELD(val) __declspec(align(val))
-    #define FORCE_INLINE __forceinline
+    #define IL2CPP_FORCE_INLINE __forceinline
 #else
     #define ALIGN_TYPE(size)
     #define ALIGN_FIELD(size)
-    #define FORCE_INLINE inline
+    #define IL2CPP_FORCE_INLINE inline
 #endif
 
 #define IL2CPP_PAGE_SIZE 4096
@@ -146,14 +150,27 @@
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
 #endif
 
-#define IL2CPP_ENABLE_STACKTRACES 1
+#if IL2CPP_DOTS
+    #if IL2CPP_DOTS_DEBUG_METADATA
+        #define IL2CPP_ENABLE_STACKTRACES 1
+    #else
+        #define IL2CPP_ENABLE_STACKTRACES 0
+    #endif // IL2CPP_DOTS_DEBUG_METADATA
+#else
+    #define IL2CPP_ENABLE_STACKTRACES 1
+#endif // IL2CPP_DOTS
+
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
 #define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_LUMIN)
 #endif
 
+#if IL2CPP_ENABLE_STACKTRACES
+
 /* Platforms which use stacktrace sentries */
 #define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS || IL2CPP_TARGET_SWITCH)
+
+#endif // IL2CPP_ENABLE_STACKTRACES
 
 #if (IL2CPP_ENABLE_STACKTRACES && !IL2CPP_ENABLE_NATIVE_STACKTRACES && !IL2CPP_ENABLE_STACKTRACE_SENTRIES)
 #error "If stacktraces are supported, then either native stack traces must be supported, or usage of stacktrace sentries must be enabled!"
@@ -316,7 +333,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 
 #define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
 #define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || IL2CPP_TINY)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || IL2CPP_DOTS)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
@@ -404,6 +421,7 @@ static const uintptr_t kIl2CppUIntPtrMax = UINT32_MAX;
 
 static const int ipv6AddressSize = 16;
 #define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_SWITCH
+#define IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY (IL2CPP_SUPPORT_IPV6 && IL2CPP_TARGET_LINUX)
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
@@ -465,22 +483,6 @@ static const Il2CppChar kIl2CppNewLine[] = { '\r', '\n', '\0' };
 static const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #endif
 
-
-#if IL2CPP_TARGET_ANDROID && defined(__i386__)
-// On Android with x86, function pointers are not aligned, so we
-// need to use all of the bits when comparing them. Hence we mask
-// nothing.
-#define IL2CPP_POINTER_SPARE_BITS 0
-#else
-// On ARMv7 with Thumb instructions the lowest bit is always set.
-// With Thumb2 the second-to-lowest bit is also set. Mask both of
-// them off so that we can do a comparison properly based on the data
-// from the linker map file. On other architectures this operation should
-// not matter, as we assume these two bits are always zero because the pointer
-// will be aligned.
-#define IL2CPP_POINTER_SPARE_BITS 3
-#endif
-
 #define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted."
 #if IL2CPP_COMPILER_MSVC
 #define IL2CPP_ATTRIBUTE_WEAK
@@ -514,3 +516,7 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 #define IL2CPP_ARRAY_SIZE(array) (sizeof(*il2cpp_array_size_helper(array)))
 
 #endif // __cplusplus
+
+#ifndef IL2CPP_MUTATE_METHOD_POINTERS
+#define IL2CPP_MUTATE_METHOD_POINTERS !IL2CPP_TARGET_PS4
+#endif

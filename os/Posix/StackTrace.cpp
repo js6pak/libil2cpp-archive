@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_JAVASCRIPT && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4  && !IL2CPP_TARGET_LUMIN && !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_JAVASCRIPT && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4  && !IL2CPP_TARGET_LUMIN
 
 #include "os/StackTrace.h"
 #include <execinfo.h>
@@ -36,6 +36,27 @@ namespace os
                     break;
             }
         }
+    }
+
+    std::string StackTrace::NativeStackTrace()
+    {
+        void* callstack[kMaxStackFrames];
+        int frames = backtrace(callstack, kMaxStackFrames);
+        char **symbols = backtrace_symbols(callstack, frames);
+
+        std::string stackTrace;
+        if (symbols != NULL)
+        {
+            for (int i = 0; i < frames; ++i)
+            {
+                stackTrace += symbols[i];
+                stackTrace += "\n";
+            }
+
+            free(symbols);
+        }
+
+        return stackTrace;
     }
 }
 }
