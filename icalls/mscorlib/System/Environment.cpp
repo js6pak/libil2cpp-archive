@@ -226,8 +226,7 @@ namespace System
 
     Il2CppString* Environment::get_bundled_machine_config()
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Environment::get_bundled_machine_config);
-        IL2CPP_UNREACHABLE;
+        return NULL;
     }
 
 #endif

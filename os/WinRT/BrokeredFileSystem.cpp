@@ -59,7 +59,7 @@ namespace winrt_interfaces
     };
 
     MIDL_INTERFACE("DF19938F-5462-48A0-BE65-D2A3271A08D6")
-    IStorageFolderHandleAccess : public IUnknown
+IStorageFolderHandleAccess: public IUnknown
     {
     public:
         virtual HRESULT STDMETHODCALLTYPE Create(
@@ -69,11 +69,11 @@ namespace winrt_interfaces
             HANDLE_SHARING_OPTIONS sharingOptions,
             HANDLE_OPTIONS options,
             struct IOplockBreakingHandler* oplockBreakingHandler,
-            HANDLE* interopHandle) = 0;
+            HANDLE * interopHandle) = 0;
     };
 
     MIDL_INTERFACE("5CA296B2-2C25-4D22-B785-B885C8201E6A")
-    IStorageItemHandleAccess : public IUnknown
+IStorageItemHandleAccess: public IUnknown
     {
     public:
         virtual HRESULT STDMETHODCALLTYPE Create(
@@ -81,7 +81,7 @@ namespace winrt_interfaces
             HANDLE_SHARING_OPTIONS sharingOptions,
             HANDLE_OPTIONS options,
             struct IOplockBreakingHandler* oplockBreakingHandler,
-            HANDLE* interopHandle) = 0;
+            HANDLE * interopHandle) = 0;
     };
 }
 
@@ -445,18 +445,21 @@ namespace os
         {
             ComPtr<IStorageItem> item;
             hr = foundItems->GetAt(i, &item);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr))
+                continue;
 
             FileAttributes winrtAttributes;
             hr = item->get_Attributes(&winrtAttributes);
-            if (FAILED(hr)) continue;
+            if (FAILED(hr))
+                continue;
 
             auto palAttributes = TranslateWinRTAttributesToPALAttributes(winrtAttributes);
             if ((palAttributes & attributeMask) == attributes)
             {
                 Microsoft::WRL::Wrappers::HString path;
                 hr = item->get_Path(path.GetAddressOf());
-                if (FAILED(hr)) continue;
+                if (FAILED(hr))
+                    continue;
 
                 uint32_t pathLength;
                 auto pathStr = path.GetRawBuffer(&pathLength);
@@ -624,16 +627,16 @@ namespace os
         using namespace ABI::Windows::Storage;
 
         return MoveOrCopyFile(source, destination, error, [overwrite](IStorageFile* sourceFile, IStorageFolder* destinationFolder, HSTRING destinationFileName)
-        {
-            NameCollisionOption collisionOption = overwrite ? NameCollisionOption_ReplaceExisting : NameCollisionOption_FailIfExists;
+            {
+                NameCollisionOption collisionOption = overwrite ? NameCollisionOption_ReplaceExisting : NameCollisionOption_FailIfExists;
 
-            ComPtr<IAsyncOperation<StorageFile*> > copyOperation;
-            auto hr = sourceFile->CopyOverload(destinationFolder, destinationFileName, collisionOption, &copyOperation);
-            if (FAILED(hr))
-                return hr;
+                ComPtr<IAsyncOperation<StorageFile*> > copyOperation;
+                auto hr = sourceFile->CopyOverload(destinationFolder, destinationFileName, collisionOption, &copyOperation);
+                if (FAILED(hr))
+                    return hr;
 
-            return MakeSynchronousOperation(copyOperation.Get())->Wait();
-        });
+                return MakeSynchronousOperation(copyOperation.Get())->Wait();
+            });
     }
 
     bool BrokeredFileSystem::MoveFileW(const UTF16String& source, const UTF16String& destination, int * error)
@@ -642,14 +645,14 @@ namespace os
         using namespace ABI::Windows::Storage;
 
         return MoveOrCopyFile(source, destination, error, [](IStorageFile* sourceFile, IStorageFolder* destinationFolder, HSTRING destinationFileName)
-        {
-            ComPtr<IAsyncAction> moveOperation;
-            auto hr = sourceFile->MoveOverloadDefaultOptions(destinationFolder, destinationFileName, &moveOperation);
-            if (FAILED(hr))
-                return hr;
+            {
+                ComPtr<IAsyncAction> moveOperation;
+                auto hr = sourceFile->MoveOverloadDefaultOptions(destinationFolder, destinationFileName, &moveOperation);
+                if (FAILED(hr))
+                    return hr;
 
-            return MakeSynchronousOperation(moveOperation.Get())->Wait();
-        });
+                return MakeSynchronousOperation(moveOperation.Get())->Wait();
+            });
     }
 
     int BrokeredFileSystem::DeleteFileW(const UTF16String& path)
@@ -959,12 +962,12 @@ namespace os
 
         HANDLE fileHandle;
         hr = folderHandleAccess->Create(name.c_str(),
-            static_cast<winrt_interfaces::HANDLE_CREATION_OPTIONS>(creationDisposition),
-            static_cast<winrt_interfaces::HANDLE_ACCESS_OPTIONS>(translatedAccess),
-            static_cast<winrt_interfaces::HANDLE_SHARING_OPTIONS>(shareMode),
-            static_cast<winrt_interfaces::HANDLE_OPTIONS>(flagsAndAttributes & winrt_interfaces::HO_ALL_POSSIBLE_OPTIONS),
-            nullptr,
-            &fileHandle);
+                static_cast<winrt_interfaces::HANDLE_CREATION_OPTIONS>(creationDisposition),
+                static_cast<winrt_interfaces::HANDLE_ACCESS_OPTIONS>(translatedAccess),
+                static_cast<winrt_interfaces::HANDLE_SHARING_OPTIONS>(shareMode),
+                static_cast<winrt_interfaces::HANDLE_OPTIONS>(flagsAndAttributes & winrt_interfaces::HO_ALL_POSSIBLE_OPTIONS),
+                nullptr,
+                &fileHandle);
         if (FAILED(hr))
         {
             *error = ERROR_ACCESS_DENIED;
