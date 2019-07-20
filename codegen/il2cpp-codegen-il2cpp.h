@@ -460,7 +460,11 @@ String_t* il2cpp_codegen_marshal_bstring_result(const Il2CppChar* value);
 
 void il2cpp_codegen_marshal_free_bstring(Il2CppChar* value);
 
+char* il2cpp_codegen_marshal_empty_string_builder(StringBuilder_t* stringBuilder);
+
 char* il2cpp_codegen_marshal_string_builder(StringBuilder_t* stringBuilder);
+
+Il2CppChar* il2cpp_codegen_marshal_empty_wstring_builder(StringBuilder_t* stringBuilder);
 
 Il2CppChar* il2cpp_codegen_marshal_wstring_builder(StringBuilder_t* stringBuilder);
 

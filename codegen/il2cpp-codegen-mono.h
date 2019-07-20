@@ -491,9 +491,19 @@ inline void il2cpp_codegen_marshal_free_bstring(Il2CppChar* value)
     IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
 }
 
+inline char* il2cpp_codegen_marshal_empty_string_builder(StringBuilder_t* stringBuilder)
+{
+    return mono::vm::PlatformInvoke::MarshalEmptyStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
 inline char* il2cpp_codegen_marshal_string_builder(StringBuilder_t* stringBuilder)
 {
     return mono::vm::PlatformInvoke::MarshalStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
+inline Il2CppChar* il2cpp_codegen_marshal_empty_wstring_builder(StringBuilder_t* stringBuilder)
+{
+    return (Il2CppChar*)mono::vm::PlatformInvoke::MarshalEmptyWStringBuilder((RuntimeStringBuilder*)stringBuilder);
 }
 
 inline Il2CppChar* il2cpp_codegen_marshal_wstring_builder(StringBuilder_t* stringBuilder)
