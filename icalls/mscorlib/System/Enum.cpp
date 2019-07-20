@@ -32,8 +32,6 @@ namespace System
         memcpy(dst, src, size);
 
         return res;
-
-        return il2cpp::vm::Object::Box(thisPtr->klass->element_class, (char*)thisPtr + sizeof(Il2CppObject));
     }
 
     int Enum::compare_value_to(Il2CppObject * thisPtr, Il2CppObject * other)
