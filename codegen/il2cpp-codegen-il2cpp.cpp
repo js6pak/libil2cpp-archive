@@ -520,9 +520,19 @@ void il2cpp_codegen_marshal_free_bstring(Il2CppChar* value)
     il2cpp::vm::PlatformInvoke::MarshalFreeBString(value);
 }
 
+char* il2cpp_codegen_marshal_empty_string_builder(StringBuilder_t* stringBuilder)
+{
+    return il2cpp::vm::PlatformInvoke::MarshalEmptyStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
 char* il2cpp_codegen_marshal_string_builder(StringBuilder_t* stringBuilder)
 {
     return il2cpp::vm::PlatformInvoke::MarshalStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
+Il2CppChar* il2cpp_codegen_marshal_empty_wstring_builder(StringBuilder_t* stringBuilder)
+{
+    return il2cpp::vm::PlatformInvoke::MarshalEmptyWStringBuilder((RuntimeStringBuilder*)stringBuilder);
 }
 
 Il2CppChar* il2cpp_codegen_marshal_wstring_builder(StringBuilder_t* stringBuilder)
