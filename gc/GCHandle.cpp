@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "gc/GCHandle.h"
 #include "il2cpp-object-internals.h"
+#include "il2cpp-vm-support.h"
 #include "GarbageCollector.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
@@ -179,7 +180,7 @@ namespace gc
 
 #ifndef HAVE_SGEN_GC
         if (track_resurrection)
-            IL2CPP_NOT_IMPLEMENTED(GCHandle::NewWeakref);
+            IL2CPP_VM_NOT_SUPPORTED(GCHandle::NewWeakref, "IL2CPP does not support resurrection for weak references. Pass the trackResurrection with a value of false.");
 #endif
 
         return handle;

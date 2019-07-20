@@ -192,16 +192,13 @@ namespace vm
         IL2CPP_VM_RAISE_IF_FAILED(hr, true);
     }
 
-    char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
+    char* PlatformInvoke::MarshalEmptyStringBuilder(Il2CppStringBuilder* stringBuilder, size_t& stringLength, std::vector<std::string>& utf8Chunks, std::vector<Il2CppStringBuilder*>& builders)
     {
         if (stringBuilder == NULL)
             return NULL;
 
-        size_t stringLength = 0;
+        stringLength = 0;
         Il2CppStringBuilder* currentBuilder = stringBuilder;
-
-        std::vector<std::string> utf8Chunks;
-        std::vector<Il2CppStringBuilder*> builders;
 
         while (true)
         {
@@ -228,6 +225,27 @@ namespace vm
         // chunk utf8String into the nativeString it won't fill everything and we can end up with w/e junk value was in that memory before
         memset(nativeString, 0, sizeof(char) * (stringLength + 1));
 
+        return nativeString;
+    }
+
+    char* PlatformInvoke::MarshalEmptyStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        size_t sizeLength;
+        std::vector<std::string> utf8Chunks;
+        std::vector<Il2CppStringBuilder*> builders;
+        return MarshalEmptyStringBuilder(stringBuilder, sizeLength, utf8Chunks, builders);
+    }
+
+    char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        if (stringBuilder == NULL)
+            return NULL;
+
+        size_t stringLength;
+        std::vector<std::string> utf8Chunks;
+        std::vector<Il2CppStringBuilder*> builders;
+        char* nativeString = MarshalEmptyStringBuilder(stringBuilder, stringLength, utf8Chunks, builders);
+
         if (stringLength > 0)
         {
             int offsetAdjustment = 0;
@@ -246,12 +264,12 @@ namespace vm
         return nativeString;
     }
 
-    Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder)
+    Il2CppChar* PlatformInvoke::MarshalEmptyWStringBuilder(Il2CppStringBuilder* stringBuilder, size_t& stringLength)
     {
         if (stringBuilder == NULL)
             return NULL;
 
-        size_t stringLength = 0;
+        stringLength = 0;
         Il2CppStringBuilder* currentBuilder = stringBuilder;
         while (true)
         {
@@ -263,11 +281,26 @@ namespace vm
             currentBuilder = currentBuilder->chunkPrevious;
         }
 
-        Il2CppChar* nativeString = MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
+        return MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
+    }
+
+    Il2CppChar* PlatformInvoke::MarshalEmptyWStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        size_t stringLength;
+        return MarshalEmptyWStringBuilder(stringBuilder, stringLength);
+    }
+
+    Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        if (stringBuilder == NULL)
+            return NULL;
+
+        size_t stringLength;
+        Il2CppChar* nativeString = MarshalEmptyWStringBuilder(stringBuilder, stringLength);
 
         if (stringLength > 0)
         {
-            currentBuilder = stringBuilder;
+            Il2CppStringBuilder* currentBuilder = stringBuilder;
             while (true)
             {
                 if (currentBuilder == NULL)
