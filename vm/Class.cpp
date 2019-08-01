@@ -1123,7 +1123,7 @@ namespace vm
 
     void SetupNestedTypesLocked(Il2CppClass *klass, const FastAutoLock& lock)
     {
-        if (klass->generic_class)
+        if (klass->generic_class || klass->nestedTypes)
             return;
 
         if (klass->nested_type_count > 0)
@@ -1136,7 +1136,7 @@ namespace vm
 
     void Class::SetupNestedTypes(Il2CppClass *klass)
     {
-        if (klass->generic_class)
+        if (klass->generic_class || klass->nestedTypes)
             return;
 
         if (klass->nested_type_count)
