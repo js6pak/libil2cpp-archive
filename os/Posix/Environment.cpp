@@ -24,20 +24,6 @@ namespace il2cpp
 {
 namespace os
 {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
-#if !IL2CPP_TARGET_LUMIN
-    std::string Environment::GetMachineName()
-    {
-        char buf[256];
-
-        if (gethostname(buf, sizeof(buf)) != 0)
-            return NULL;
-
-        return buf;
-    }
-
-#endif //!IL2CPP_TARGET_LUMIN
-
     int32_t Environment::GetProcessorCount()
     {
         int count = 1;
@@ -58,6 +44,20 @@ namespace os
 #endif
         return count;
     }
+
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TARGET_LUMIN
+    std::string Environment::GetMachineName()
+    {
+        char buf[256];
+
+        if (gethostname(buf, sizeof(buf)) != 0)
+            return NULL;
+
+        return buf;
+    }
+
+#endif //!IL2CPP_TARGET_LUMIN
 
     std::string Environment::GetOsVersionString()
     {

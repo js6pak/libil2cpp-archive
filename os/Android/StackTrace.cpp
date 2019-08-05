@@ -91,6 +91,11 @@ namespace
     {
         return std::string();
     }
+
+    const void* StackTrace::GetStackPointer()
+    {
+        return __builtin_frame_address(0);
+    }
 }
 }
 
