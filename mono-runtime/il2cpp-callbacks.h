@@ -2,6 +2,10 @@
 
 #if RUNTIME_MONO
 
+#ifndef __has_feature // clang specific __has_feature check
+#define __has_feature(x) 0 // Compatibility with non-clang compilers
+#endif
+
 #if _MSC_VER
 typedef wchar_t Il2CppChar;
 #elif __has_feature(cxx_unicode_literals)

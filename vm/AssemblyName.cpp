@@ -159,6 +159,23 @@ namespace vm
         }
     }
 
+    static void PublicKeyTokenToCStringChunk(const uint8_t* public_key_token, void (*chunkReportFunc)(void* data, void* userData), void* userData)
+    {
+        char result[kPublicKeyByteLength * 2];
+        memset(result, 0x00, kPublicKeyByteLength * 2);
+
+        for (int i = 0; i < kPublicKeyByteLength; ++i)
+        {
+            uint8_t hi = (public_key_token[i] & 0xF0) >> 4;
+            uint8_t lo = public_key_token[i] & 0x0F;
+
+            result[i * 2] = HexValueToLowercaseAscii(hi);
+            result[i * 2 + 1] = HexValueToLowercaseAscii(lo);
+        }
+
+        chunkReportFunc(result, userData);
+    }
+
     static std::string PublicKeyTokenToString(const uint8_t* public_key_token)
     {
         std::string result(kPublicKeyByteLength * 2, '0');
@@ -172,6 +189,46 @@ namespace vm
         }
 
         return result;
+    }
+
+    void AssemblyName::AssemblyNameReportChunked(const Il2CppAssemblyName& aname, void(*chunkReportFunction)(void* data, void* userData), void* userData)
+    {
+        char buffer[1024];
+        const char* literalPtr = NULL;
+
+        chunkReportFunction(const_cast<char*>(aname.name), userData);
+        literalPtr = ", Version=";
+        chunkReportFunction(const_cast<char*>(literalPtr), userData);
+        sprintf(buffer, "%d%s", aname.major, ".");
+        chunkReportFunction(buffer, userData);
+        sprintf(buffer, "%d%s", aname.minor, ".");
+        chunkReportFunction(buffer, userData);
+        sprintf(buffer, "%d%s", aname.build, ".");
+        chunkReportFunction(buffer, userData);
+        sprintf(buffer, "%d", aname.build);
+        chunkReportFunction(buffer, userData);
+        sprintf(buffer, "%d", aname.revision);
+        chunkReportFunction(buffer, userData);
+        literalPtr = ", Culture=";
+        chunkReportFunction(const_cast<char*>(literalPtr), userData);
+        chunkReportFunction(const_cast<char*>((aname.culture != NULL && strlen(aname.culture) != 0 ? aname.culture : "neutral")), userData);
+        literalPtr = ", PublicKeyToken=";
+        chunkReportFunction(const_cast<char*>(literalPtr), userData);
+        if (aname.public_key_token[0])
+            PublicKeyTokenToCStringChunk(aname.public_key_token, chunkReportFunction, userData);
+        else
+        {
+            literalPtr = "null";
+            chunkReportFunction(const_cast<char*>(literalPtr), userData);
+        }
+
+        literalPtr = (aname.flags & ASSEMBLYREF_RETARGETABLE_FLAG) ? ", Retargetable=Yes" : "";
+        chunkReportFunction(const_cast<char*>(literalPtr), userData);
+        if (strcmp(aname.name, "WindowsRuntimeMetadata") == 0)
+        {
+            literalPtr = ", ContentType=WindowsRuntime";
+            chunkReportFunction(const_cast<char*>(literalPtr), userData);
+        }
     }
 
     std::string AssemblyName::AssemblyNameToString(const Il2CppAssemblyName& aname)

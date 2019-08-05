@@ -73,6 +73,12 @@ namespace os
 
         return stackTrace;
     }
+
+    const void* StackTrace::GetStackPointer()
+    {
+        // TODO implement to avoid extra WalkStack calls
+        return nullptr;
+    }
 }
 }
 
