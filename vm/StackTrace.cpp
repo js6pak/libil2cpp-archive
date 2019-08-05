@@ -86,6 +86,11 @@ namespace vm
             StackFrames* stackFrames = GetStackFramesRaw();
             stackFrames->pop_back();
         }
+
+        inline const void* GetStackPointer()
+        {
+            return nullptr;
+        }
     };
 
 #endif // IL2CPP_ENABLE_STACKTRACE_SENTRIES
@@ -169,6 +174,12 @@ namespace vm
         inline void PopFrame()
         {
         }
+
+        // Returns SP value or nullptr if not implemented
+        inline const void* GetStackPointer()
+        {
+            return os::StackTrace::GetStackPointer();
+        }
     };
 
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES
@@ -204,6 +215,11 @@ namespace vm
 
         inline void PopFrame()
         {
+        }
+
+        inline const void* GetStackPointer()
+        {
+            return nullptr;
         }
     };
 
@@ -292,6 +308,11 @@ namespace vm
     void StackTrace::PopFrame()
     {
         s_MethodStack.PopFrame();
+    }
+
+    const void* StackTrace::GetStackPointer()
+    {
+        return s_MethodStack.GetStackPointer();
     }
 
 // Remote thread functions

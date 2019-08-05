@@ -26,6 +26,9 @@ namespace os
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
         static std::string NativeStackTrace();
 #endif
+
+        // Returns SP value or nullptr if not implemented
+        static const void* GetStackPointer();
     };
 }
 }
