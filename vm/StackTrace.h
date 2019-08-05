@@ -44,6 +44,8 @@ namespace vm
         static void PushFrame(Il2CppStackFrameInfo& frame);
         static void PopFrame();
 
+        static const void* GetStackPointer();
+
         // Remote thread functions
         static bool GetThreadStackFrameAt(Il2CppThread* thread, int32_t depth, Il2CppStackFrameInfo& frame);
         static void WalkThreadFrameStack(Il2CppThread* thread, Il2CppFrameWalkFunc callback, void* context);

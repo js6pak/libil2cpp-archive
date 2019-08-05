@@ -136,6 +136,12 @@ namespace
     {
         return std::string();
     }
+
+    const void* StackTrace::GetStackPointer()
+    {
+        // TODO implement to avoid extra WalkStack calls
+        return nullptr;
+    }
 }
 }
 

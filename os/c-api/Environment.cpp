@@ -1,13 +1,13 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
-
 #include "os/Environment.h"
 #include "os/c-api/Environment-c-api.h"
 #include "Allocator.h"
 
 extern "C"
 {
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+
     char* UnityPalGetOsUserName()
     {
         return Allocator::CopyToAllocatedStringBuffer(il2cpp::os::Environment::GetOsUserName());
@@ -42,10 +42,10 @@ extern "C"
         return Allocator::CopyToAllocatedStringBuffer(home_directory);
     }
 
+#endif
+
     int32_t UnityPalGetProcessorCount()
     {
         return il2cpp::os::Environment::GetProcessorCount();
     }
 }
-
-#endif
