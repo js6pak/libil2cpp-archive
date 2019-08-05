@@ -473,13 +473,9 @@ SUITE(Directory)
 
     TEST_FIXTURE(FileSytemEntriesFixture, FindFirstFileCorrectlyFillsInResultFileName)
     {
-#if IL2CPP_TARGET_PS4
-        const char* expectedFile = "src"; // PS4 has the test exectuable, src, and test.map files in the current directory as well.
-#else
-        const char* expectedFile = ".";
-#endif
-        testFind = UnityPalDirectoryFindHandleNew(TEST_PATTERN);
-        returnErrorCode = UnityPalDirectoryFindFirstFile(testFind, TEST_PATTERN, &resultFileName, &resultAttributes);
+        const char* expectedFile = TEST_DIR_1;
+        testFind = UnityPalDirectoryFindHandleNew(TEST_DIR_1);
+        returnErrorCode = UnityPalDirectoryFindFirstFile(testFind, TEST_DIR_1, &resultFileName, &resultAttributes);
         UnityPalDirectoryCloseOSHandle(testFind);
         CHECK_EQUAL(expectedFile, resultFileName);
     }

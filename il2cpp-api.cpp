@@ -429,6 +429,16 @@ int il2cpp_class_get_rank(const Il2CppClass *klass)
     return klass->rank;
 }
 
+uint32_t il2cpp_class_get_data_size(const Il2CppClass *klass)
+{
+    return klass->static_fields_size;
+}
+
+void* il2cpp_class_get_static_field_data(const Il2CppClass *klass)
+{
+    return klass->static_fields;
+}
+
 // testing only
 size_t il2cpp_class_get_bitmap_size(const Il2CppClass *klass)
 {
@@ -634,6 +644,11 @@ void il2cpp_field_static_set_value(FieldInfo *field, void *value)
     Field::StaticSetValue(field, value);
 }
 
+bool il2cpp_field_is_literal(FieldInfo *field)
+{
+    return (field->type->attrs & FIELD_ATTRIBUTE_LITERAL) != 0;
+}
+
 // gc
 void il2cpp_gc_collect(int maxGenerations)
 {
@@ -685,6 +700,24 @@ int64_t il2cpp_gc_get_heap_size()
     return GarbageCollector::GetAllocatedHeapSize();
 }
 
+void il2cpp_gc_foreach_heap(void(*func)(void* data, void* context), void* userData)
+{
+    MemoryInformation::IterationContext ctx;
+    ctx.callback = func;
+    ctx.userData = userData;
+    il2cpp::gc::GarbageCollector::ForEachHeapSection(&ctx, MemoryInformation::ReportGcHeapSection);
+}
+
+void il2cpp_stop_gc_world()
+{
+    il2cpp::gc::GarbageCollector::StopWorld();
+}
+
+void il2cpp_start_gc_world()
+{
+    il2cpp::gc::GarbageCollector::StartWorld();
+}
+
 // gchandle
 
 uint32_t il2cpp_gchandle_new(Il2CppObject *obj, bool pinned)
@@ -700,6 +733,14 @@ uint32_t il2cpp_gchandle_new_weakref(Il2CppObject *obj, bool track_resurrection)
 Il2CppObject* il2cpp_gchandle_get_target(uint32_t gchandle)
 {
     return GCHandle::GetTarget(gchandle);
+}
+
+void il2cpp_gchandle_foreach_get_target(void(*func)(void*, void*), void* userData)
+{
+    MemoryInformation::IterationContext ctx;
+    ctx.callback = func;
+    ctx.userData = userData;
+    il2cpp::gc::GCHandle::WalkStrongGCHandleTargets(MemoryInformation::ReportGcHandleTarget, &ctx);
 }
 
 void il2cpp_gc_wbarrier_set_field(Il2CppObject *obj, void **targetAddress, void *object)
@@ -734,6 +775,32 @@ void il2cpp_gc_set_external_wbarrier_tracker(void(*func)(void**))
 void il2cpp_gchandle_free(uint32_t gchandle)
 {
     GCHandle::Free(gchandle);
+}
+
+// vm runtime info
+uint32_t il2cpp_object_header_size()
+{
+    return static_cast<uint32_t>(sizeof(Il2CppObject));
+}
+
+uint32_t il2cpp_array_object_header_size()
+{
+    return static_cast<uint32_t>(kIl2CppSizeOfArray);
+}
+
+uint32_t il2cpp_offset_of_array_length_in_array_object_header()
+{
+    return kIl2CppOffsetOfArrayLength;
+}
+
+uint32_t il2cpp_offset_of_array_bounds_in_array_object_header()
+{
+    return kIl2CppOffsetOfArrayBounds;
+}
+
+uint32_t il2cpp_allocation_granularity()
+{
+    return static_cast<uint32_t>(2 * sizeof(void*));
 }
 
 // liveness
@@ -1196,6 +1263,16 @@ bool il2cpp_type_equals(const Il2CppType* type, const Il2CppType *otherType)
     return Type::IsEqualToType(type, otherType);
 }
 
+bool il2cpp_type_is_static(const Il2CppType *type)
+{
+    return (type->attrs & FIELD_ATTRIBUTE_STATIC) != 0;
+}
+
+bool il2cpp_type_is_pointer_type(const Il2CppType *type)
+{
+    return type->type == IL2CPP_TYPE_PTR;
+}
+
 // image
 
 const Il2CppAssembly* il2cpp_image_get_assembly(const Il2CppImage *image)
@@ -1315,6 +1392,11 @@ void il2cpp_custom_attrs_free(Il2CppCustomAttrInfo *ainfo)
     // nothing to free, we cache everything
 }
 
+void il2cpp_type_get_name_chunked(const Il2CppType * type, void(*chunkReportFunc)(void* data, void* userData), void* userData)
+{
+    Type::GetNameChunkedRecurse(type, IL2CPP_TYPE_NAME_FORMAT_IL, chunkReportFunc, userData);
+}
+
 void il2cpp_class_set_userdata(Il2CppClass* klass, void* userdata)
 {
     klass->unity_user_data = userdata;
@@ -1323,4 +1405,9 @@ void il2cpp_class_set_userdata(Il2CppClass* klass, void* userdata)
 int il2cpp_class_get_userdata_offset()
 {
     return offsetof(struct Il2CppClass, unity_user_data);
+}
+
+void il2cpp_class_for_each(void(*klassReportFunc)(Il2CppClass* klass, void* userData), void* userData)
+{
+    MemoryInformation::ReportIL2CppClasses(klassReportFunc, userData);
 }
