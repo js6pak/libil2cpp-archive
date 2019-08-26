@@ -12,8 +12,10 @@
 #include "WindowsHelpers.h"
 #include "Evntprov.h"
 
+#if WINDOWS_SDK_BUILD_VERSION >= 16299
 #define WINNT // All functions in Evntrace.h are under this define.. Why? I have no idea!
 #include "Evntrace.h"
+#endif
 
 namespace il2cpp
 {
