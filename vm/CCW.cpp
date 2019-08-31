@@ -58,6 +58,13 @@ namespace vm
             *object = NULL;
             return IL2CPP_E_NOINTERFACE;
         }
+
+        virtual il2cpp_hresult_t STDCALL GetIids(uint32_t* iidCount, Il2CppGuid** iids) IL2CPP_OVERRIDE
+        {
+            *iidCount = 0;
+            *iids = NULL;
+            return IL2CPP_S_OK;
+        }
     };
 
     Il2CppIUnknown* CCW::CreateCCW(Il2CppObject* obj)
@@ -77,19 +84,6 @@ namespace vm
         if (memory == NULL)
             Exception::RaiseOutOfMemoryException();
         return static_cast<Il2CppIManagedObjectHolder*>(new(memory) ManagedObject(obj));
-    }
-
-    Il2CppObject* CCW::Unpack(Il2CppIUnknown* unknown)
-    {
-        Il2CppIManagedObjectHolder* managedHolder;
-        il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIManagedObjectHolder::IID, reinterpret_cast<void**>(&managedHolder));
-        Exception::RaiseIfFailed(hr, true);
-
-        Il2CppObject* instance = managedHolder->GetManagedObject();
-        managedHolder->Release();
-
-        IL2CPP_ASSERT(instance);
-        return instance;
     }
 
     static Il2CppString* ValueToStringFallbackToEmpty(Il2CppObject* value)

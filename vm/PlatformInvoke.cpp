@@ -37,21 +37,8 @@ namespace vm
         // Some platforms, like UWP, just don't allow you to load to load system libraries at runtime dynamically.
         // On other platforms (THEY SHALL NOT BE NAMED :O), while the functions that mscorlib.dll wants to P/Invoke into exist,
         // They exist in different system libraries than it is said in the DllImport attribute.
+        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
 
-        Il2CppMethodPointer function = NULL;
-
-#if IL2CPP_TARGET_WINDOWS
-        // On Windows we don't support, nor do we need support hard-coded ANSI functions.  That would break forwarding method names to Unicode MoveFileEx -> MoveFileExW
-        // Doing this here so we don't need to update external implementations of GetHardcodedPInvokeDependencyFunctionPointer on 2019.4
-        // On later versions of IL2CPP this check is only in the Win32 implementation.
-        if (pinvokeArgs.charSet != CHARSET_ANSI)
-        {
-#endif
-        function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
-#if IL2CPP_TARGET_WINDOWS
-    }
-
-#endif
         if (function != NULL)
             return function;
 
@@ -378,7 +365,7 @@ namespace vm
     // that was wrapped in the fake MethodInfo.
     static bool IsFakeDelegateMethodMarshaledFromNativeCode(const MethodInfo* method)
     {
-        return method->is_marshaled_from_native;
+        return method->methodDefinition == NULL && method->is_marshaled_from_native;
     }
 
     static bool IsGenericInstance(const Il2CppType* type)
@@ -406,12 +393,19 @@ namespace vm
         if (d == NULL)
             return 0;
 
+        if (d->method->is_inflated)
+        {
+            std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
+            std::string errorMessage = "IL2CPP does not support marshaling delegates that point to generic methods. The generic method we're attempting to marshal is: " + methodName;
+            vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
+        }
+
         if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
-            return reinterpret_cast<intptr_t>(d->method->nativeFunction);
+            return reinterpret_cast<intptr_t>(d->method->methodPointer);
 
         IL2CPP_ASSERT(d->method->methodDefinition);
 
-        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method);
+        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method->token);
         if (reversePInvokeWrapper == NULL)
         {
             std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
@@ -465,11 +459,11 @@ namespace vm
         {
             const MethodInfo* invoke = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
             MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC(1, sizeof(MethodInfo));
-            memcpy(newMethod, invoke, sizeof(MethodInfo));
-            newMethod->nativeFunction = nativeFunctionPointer;
+            newMethod->methodPointer = nativeFunctionPointer;
+            newMethod->invoker_method = NULL;
+            newMethod->parameters_count = invoke->parameters_count;
             newMethod->slot = kInvalidIl2CppMethodSlot;
             newMethod->is_marshaled_from_native = true;
-            newMethod->flags &= ~METHOD_ATTRIBUTE_VIRTUAL;
             utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }
