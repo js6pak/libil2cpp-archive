@@ -59,13 +59,7 @@ namespace System
         if (bounds != NULL)
             i32bounds = (int32_t*)il2cpp_array_addr(bounds, int32_t, 0);
 
-        int32_t boundsCount = bounds != NULL ? il2cpp::vm::Array::GetLength(bounds) : 0;
-
-        Il2CppClass* arrayType = il2cpp::vm::Class::GetBoundedArrayClass(
-            il2cpp::vm::Class::FromIl2CppType(elementType->type),
-            il2cpp::vm::Array::GetLength(lengths),
-            boundsCount > 2 || (boundsCount == 1 && i32bounds[0] != 0)
-        );
+        Il2CppClass* arrayType = il2cpp::vm::Class::GetArrayClassCached(il2cpp::vm::Class::FromIl2CppType(elementType->type), il2cpp::vm::Array::GetLength(lengths), bounds != NULL);
 
         if (arrayType == NULL)
             vm::Exception::Raise(vm::Exception::GetInvalidOperationException(FormatCreateInstanceException(elementType->type).c_str()));
@@ -128,8 +122,7 @@ namespace System
 
             element_size = il2cpp_array_element_size(dest->klass);
             void *baseAddr = il2cpp_array_addr_with_size(dest, element_size, dest_idx);
-            size_t byte_len = (size_t)length * element_size;
-            memset(baseAddr, 0, byte_len);
+            memset(baseAddr, 0, element_size * length);
             for (i = 0; i < length; ++i)
             {
                 Il2CppObject *elem = il2cpp_array_get(source, Il2CppObject*, source_idx + i);
@@ -143,7 +136,7 @@ namespace System
 
                 memcpy(il2cpp_array_addr_with_size(dest, element_size, dest_idx + i), vm::Object::Unbox(elem), element_size);
             }
-            gc::GarbageCollector::SetWriteBarrier((void**)baseAddr, byte_len);
+            gc::GarbageCollector::SetWriteBarrier((void**)baseAddr, element_size * length);
             return true;
         }
 
@@ -174,14 +167,12 @@ namespace System
 
         IL2CPP_ASSERT(element_size == il2cpp_array_element_size(source->klass));
 
-        size_t byte_len = (size_t)length * element_size;
-
         memmove(
             il2cpp_array_addr_with_size(dest, element_size, dest_idx),
             il2cpp_array_addr_with_size(source, element_size, source_idx),
-            byte_len);
+            length * element_size);
 
-        gc::GarbageCollector::SetWriteBarrier((void**)il2cpp_array_addr_with_size(dest, element_size, dest_idx), byte_len);
+        gc::GarbageCollector::SetWriteBarrier((void**)il2cpp_array_addr_with_size(dest, element_size, dest_idx), length * element_size);
 
         return true;
     }

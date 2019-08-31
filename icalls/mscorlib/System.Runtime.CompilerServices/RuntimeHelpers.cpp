@@ -7,7 +7,6 @@
 #include "vm/Class.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
-#include "vm/Object.h"
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "icalls/mscorlib/System.Runtime.CompilerServices/RuntimeHelpers.h"
@@ -68,10 +67,9 @@ namespace CompilerServices
 
     Il2CppObject* RuntimeHelpers::GetObjectValue(Il2CppObject* obj)
     {
-        if (obj == NULL || !vm::Class::IsValuetype(obj->klass))
-            return obj;
-        else
-            return vm::Object::Clone(obj);
+        NOT_SUPPORTED_IL2CPP(RuntimeHelpers::GetObjectValue, "This icall is not supported by il2cpp.");
+
+        return 0;
     }
 
     void RuntimeHelpers::RunClassConstructor(intptr_t typeIntPtr)

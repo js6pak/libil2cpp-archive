@@ -84,14 +84,12 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #define IL2CPP_NO_ALIAS __declspec(noalias)
-#define IL2CPP_PARAMETER_RESTRICT __restrict
-#define IL2CPP_METHOD_RESTRICT __declspec(restrict)
+#define IL2CPP_RESTRICT __declspec(restrict)
 #define IL2CPP_ASSUME(x) __assume(x)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
 #define IL2CPP_NO_ALIAS
-#define IL2CPP_PARAMETER_RESTRICT
-#define IL2CPP_METHOD_RESTRICT
+#define IL2CPP_RESTRICT
 #define IL2CPP_ASSUME(x)
 #endif
 
@@ -139,12 +137,12 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 
 #define IL2CPP_THREADS_ALL_ACCESS (!IL2CPP_THREADS_STD && IL2CPP_TARGET_XBOXONE)
 
-#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS && !IL2CPP_THREADS_PS4 && !IL2CPP_THREADS_PS5 && !IL2CPP_THREADS_PSP2 && !IL2CPP_THREADS_SWITCH))
+#if (IL2CPP_SUPPORT_THREADS && (!IL2CPP_THREADS_STD && !IL2CPP_THREADS_PTHREAD && !IL2CPP_THREADS_WIN32 && !IL2CPP_THREADS_XBOXONE && !IL2CPP_THREADS_N3DS && !IL2CPP_THREADS_PS4 && !IL2CPP_THREADS_PSP2 && !IL2CPP_THREADS_SWITCH))
 #error "No thread implementation defined"
 #endif
 
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
-#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32 || IL2CPP_TARGET_SWITCH)
+#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32)
 
 #define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS IL2CPP_TARGET_WINDOWS
 
@@ -170,9 +168,7 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #if IL2CPP_ENABLE_STACKTRACES
 
 /* Platforms which use stacktrace sentries */
-#if !defined(IL2CPP_ENABLE_STACKTRACE_SENTRIES)
 #define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS || IL2CPP_TARGET_SWITCH)
-#endif
 
 #endif // IL2CPP_ENABLE_STACKTRACES
 
@@ -249,12 +245,6 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define RUNTIMEMESSAGE(name)    __FILE_UTF8__ "(" $Line ") : FIXME: Missing runtime implementation: " name
 #define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE_UTF8__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
-#ifndef IL2CPP_DEFAULT_DATA_DIR_PATH
-#define IL2CPP_DEFAULT_DATA_DIR_PATH Data
-#endif
-
-#define IL2CPP_DEFAULT_DATA_DIR_PATH_STR MAKE_STRING(STRINGIZE, IL2CPP_DEFAULT_DATA_DIR_PATH)
-
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)
 //  #define PRAGMA_MESSAGE(value) __pragma(message(value))
@@ -325,7 +315,7 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #if IL2CPP_COMPILER_MSVC
     #define IL2CPP_USE_GENERIC_SOCKET_IMPL  0
 #else
-    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  !(IL2CPP_TARGET_POSIX || IL2CPP_TARGET_SWITCH || IL2CPP_SUPPORT_SOCKETS_POSIX_API)
+    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  (!IL2CPP_TARGET_POSIX) &&  (!IL2CPP_TARGET_SWITCH)
 #endif
 
 #ifndef IL2CPP_USE_GENERIC_SOCKET_BRIDGE
@@ -341,20 +331,20 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_USE_GENERIC_ENVIRONMENT  (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 #endif
 
-#define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_WINDOWS_GAMES)
-#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINDOWS_GAMES)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || IL2CPP_TINY || IL2CPP_TARGET_WINDOWS_GAMES)
+#define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS)
+#define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_MONO || RUNTIME_NONE || IL2CPP_TINY)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
-#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINDOWS_GAMES || IL2CPP_TARGET_JAVASCRIPT || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
+#define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_XBOXONE || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))
 #endif
 
 #ifndef IL2CPP_HAS_CLOSE_EXEC
-#define IL2CPP_HAS_CLOSE_EXEC (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5)
+#define IL2CPP_HAS_CLOSE_EXEC (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4)
 #endif
 
 #ifndef IL2CPP_HAS_DUP
-#define IL2CPP_HAS_DUP (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5)
+#define IL2CPP_HAS_DUP (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4)
 #endif
 
 #ifndef IL2CPP_USE_GENERIC_FILE
@@ -373,14 +363,14 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
 #ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 && !__x86_64__ ) )
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 ) )
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-#define STORE_SEQ_POINT(storage, seqPoint) (storage).currentSequencePoint = seqPoint;
-#define STORE_TRY_ID(storage, id) (storage).tryId = id;
-#define CHECK_SEQ_POINT(storage, seqPoint) il2cpp_codegen_check_sequence_point(&(storage), seqPoint);
-#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint) il2cpp_codegen_check_sequence_point_entry(&(storage), seqPoint);
+#define STORE_SEQ_POINT(storage, seqPoint) do { (storage).currentSequencePoint = seqPoint; } while (0)
+#define STORE_TRY_ID(storage, id) do { (storage).tryId = id; } while (0)
+#define CHECK_SEQ_POINT(storage, seqPoint) do {  il2cpp_codegen_check_sequence_point(&(storage), seqPoint); } while (0)
+#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint) do { il2cpp_codegen_check_sequence_point_entry(&(storage), seqPoint); } while (0)
 #define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPoint) MethodExitSequencePointChecker name(&(storage), seqPoint);
 #define DECLARE_METHOD_THIS(variableName, thisAddress) void* variableName[] = { thisAddress }
 #define DECLARE_METHOD_PARAMS(variableName, ...) void* variableName[] = { __VA_ARGS__ }
@@ -432,28 +422,12 @@ static const uintptr_t kIl2CppUIntPtrMax = UINT32_MAX;
 #endif
 
 static const int ipv6AddressSize = 16;
-#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5 && !IL2CPP_TARGET_SWITCH
+#define IL2CPP_SUPPORT_IPV6 !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_SWITCH
 #define IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY (IL2CPP_SUPPORT_IPV6 && IL2CPP_TARGET_LINUX)
-
-#if !defined(IL2CPP_SUPPORT_SEND_FILE)
-#define IL2CPP_SUPPORT_SEND_FILE (!IL2CPP_TARGET_SWITCH)
-#endif
-
-#if !defined(IL2CPP_SUPPORT_RECV_MSG)
-#define IL2CPP_SUPPORT_RECV_MSG (!IL2CPP_TARGET_SWITCH)
-#endif
-
-#if !defined(IL2CPP_SUPPORT_SEND_MSG)
-#define IL2CPP_SUPPORT_SEND_MSG (!IL2CPP_TARGET_SWITCH)
-#endif
-
-#ifndef IL2CPP_USE_NETWORK_ACCESS_HANDLER
-#define IL2CPP_USE_NETWORK_ACCESS_HANDLER 0
-#endif
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
-#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5 && !IL2CPP_TARGET_PSP2 && !IL2CPP_TARGET_LUMIN)
+#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2 && !IL2CPP_TARGET_LUMIN)
 
 #define NO_UNUSED_WARNING(expr) (void)(expr)
 
@@ -461,7 +435,6 @@ typedef int32_t il2cpp_hresult_t;
 
 // Sorted numerically!
 #define IL2CPP_S_OK                          ((il2cpp_hresult_t)0)
-#define IL2CPP_S_FALSE                       ((il2cpp_hresult_t)1)
 #define IL2CPP_E_BOUNDS                      ((il2cpp_hresult_t)0x8000000B)
 #define IL2CPP_E_CHANGED_STATE               ((il2cpp_hresult_t)0x8000000C)
 #define IL2CPP_E_ILLEGAL_METHOD_CALL         ((il2cpp_hresult_t)0x8000000E)
@@ -481,7 +454,6 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_E_OUTOFMEMORY                 ((il2cpp_hresult_t)0x8007000E)
 #define IL2CPP_E_INVALIDARG                  ((il2cpp_hresult_t)0x80070057)
 #define IL2CPP_COR_E_EXCEPTION               ((il2cpp_hresult_t)0x80131500)
-#define IL2CPP_COR_E_EXECUTIONENGINE         ((il2cpp_hresult_t)0x80131506)
 #define IL2CPP_COR_E_INVALIDOPERATION        ((il2cpp_hresult_t)0x80131509)
 #define IL2CPP_COR_E_PLATFORMNOTSUPPORTED    ((il2cpp_hresult_t)0x80131539)
 #define IL2CPP_COR_E_OPERATIONCANCELED       ((il2cpp_hresult_t)0x8013153B)
@@ -521,13 +493,13 @@ static const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #define IL2CPP_ATTRIBUTE_WEAK __attribute__((weak))
 #endif
 
-#if IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5 || IL2CPP_TARGET_PSP2
+#if IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2
 #define IL2CPP_USE_GENERIC_CPU_INFO 1
 #else
 #define IL2CPP_USE_GENERIC_CPU_INFO 0
 #endif
 
-#define IL2CPP_CAN_CHECK_EXECUTABLE IL2CPP_TARGET_WINDOWS || (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5)
+#define IL2CPP_CAN_CHECK_EXECUTABLE IL2CPP_TARGET_WINDOWS || (IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4)
 
 #if IL2CPP_MONO_DEBUGGER
 #define IL2CPP_DEBUG_BREAK() il2cpp::utils::Debugger::UserBreak()
@@ -549,9 +521,5 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 #endif // __cplusplus
 
 #ifndef IL2CPP_MUTATE_METHOD_POINTERS
-#define IL2CPP_MUTATE_METHOD_POINTERS !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5
-#endif
-
-#ifndef IL2CPP_USE_SPARSEHASH
-#define IL2CPP_USE_SPARSEHASH (IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_IOS)
+#define IL2CPP_MUTATE_METHOD_POINTERS !IL2CPP_TARGET_PS4
 #endif

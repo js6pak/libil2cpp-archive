@@ -33,6 +33,7 @@ namespace vm
         {
             std::string name;
             std::string culture;
+            std::string hash_value;
             std::string public_key;
             char public_key_token[kPublicKeyTokenLength];
             uint32_t hash_alg;
@@ -238,7 +239,6 @@ namespace vm
 
         static Il2CppClass* GetClass(const Il2CppType *type);
         static const Il2CppGenericParameter* GetGenericParameter(const Il2CppType *type);
-        static const Il2CppType* GetGenericTypeDefintion(const Il2CppType* type);
 
         static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
 

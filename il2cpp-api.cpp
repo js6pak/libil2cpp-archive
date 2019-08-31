@@ -2,7 +2,6 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-runtime-stats.h"
 
-#include "os/StackTrace.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -93,7 +92,11 @@ int il2cpp_init(const char* domain_name)
     // Use environment's default locale
     setlocale(LC_ALL, "");
 
-    return Runtime::Init(domain_name);
+    // NOTE(gab): the runtime_version needs to change once we
+    // will support multiple runtimes.
+    // For now we default to the one used by unity and don't
+    // allow the callers to change it.
+    return Runtime::Init(domain_name, "v4.0.30319");
 }
 
 int il2cpp_init_utf16(const Il2CppChar* domain_name)
@@ -1208,16 +1211,6 @@ int32_t il2cpp_current_thread_get_stack_depth()
 int32_t il2cpp_thread_get_stack_depth(Il2CppThread *thread)
 {
     return StackTrace::GetThreadStackDepth(thread);
-}
-
-void il2cpp_set_default_thread_affinity(int64_t affinity_mask)
-{
-    Thread::SetDefaultAffinityMask(affinity_mask);
-}
-
-void il2cpp_override_stack_backtrace(Il2CppBacktraceFunc stackBacktraceFunc)
-{
-    il2cpp::os::StackTrace::OverrideStackBacktrace(stackBacktraceFunc);
 }
 
 // type
