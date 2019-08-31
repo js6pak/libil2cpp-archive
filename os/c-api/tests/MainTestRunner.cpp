@@ -4,7 +4,7 @@
 #include "il2cpp-config.h"
 #include "../Allocator.h"
 
-#if IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5
+#if IL2CPP_TARGET_PS4
 size_t g_args;
 const void *g_argp;
 #endif
@@ -33,8 +33,6 @@ int main(int argc, const char* const argv[])
 
 #if IL2CPP_TARGET_WINDOWS_DESKTOP
 #include <windows.h>
-#elif IL2CPP_TARGET_WINDOWS_GAMES
-#include <windows.h>
 #else
 #include "ActivateApp.h"
 #endif
@@ -47,9 +45,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     int returnValue = main(argc, argv);
     LocalFree(argv);
     return returnValue;
-#elif IL2CPP_TARGET_WINDOWS_GAMES
-    int result = main(__argc, __wargv);
-    return result;
 #else
     return WinRT::Activate(main);
 #endif

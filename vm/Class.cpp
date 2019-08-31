@@ -57,7 +57,7 @@ namespace vm
     static bool InitLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock);
     static void SetupVTable(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock);
 
-    Il2CppClass* Class::FromIl2CppType(const Il2CppType* type, bool throwOnError)
+    Il2CppClass* Class::FromIl2CppType(const Il2CppType* type)
     {
 #define RETURN_DEFAULT_TYPE(fieldName) do { IL2CPP_ASSERT(il2cpp_defaults.fieldName); return il2cpp_defaults.fieldName; } while (false)
 
@@ -101,7 +101,7 @@ namespace vm
                 RETURN_DEFAULT_TYPE(typed_reference_class);
             case IL2CPP_TYPE_ARRAY:
             {
-                Il2CppClass* elementClass = FromIl2CppType(type->data.array->etype, throwOnError);
+                Il2CppClass* elementClass = FromIl2CppType(type->data.array->etype);
                 return Class::GetBoundedArrayClass(elementClass, type->data.array->rank, true);
             }
             case IL2CPP_TYPE_PTR:
@@ -111,14 +111,14 @@ namespace vm
                 return NULL; //mono_fnptr_class_get (type->data.method);
             case IL2CPP_TYPE_SZARRAY:
             {
-                Il2CppClass* elementClass = FromIl2CppType(type->data.type, throwOnError);
+                Il2CppClass* elementClass = FromIl2CppType(type->data.type);
                 return Class::GetArrayClass(elementClass, 1);
             }
             case IL2CPP_TYPE_CLASS:
             case IL2CPP_TYPE_VALUETYPE:
                 return Type::GetClass(type);
             case IL2CPP_TYPE_GENERICINST:
-                return GenericClass::GetClass(type->data.generic_class, throwOnError);
+                return GenericClass::GetClass(type->data.generic_class);
             case IL2CPP_TYPE_VAR:
                 return Class::FromGenericParameter(Type::GetGenericParameter(type));
             case IL2CPP_TYPE_MVAR:
@@ -560,31 +560,7 @@ namespace vm
 
         IL2CPP_ASSERT(klass->valuetype);
 
-        if (!klass->size_inited)
-        {
-            // If the size of a value type is not intialized, we cannot continue.
-            // This might mean this is a recursively defined struct, where one value type
-            // has a field of anotehr value type, which in turn has the first as a field.
-            // The runtime should throw a type load exception in this case.
-            std::string message;
-            message += "Could not load type '";
-            if (strlen(klass->namespaze) != 0)
-            {
-                message += klass->namespaze;
-                message += ":";
-            }
-            message += klass->name;
-            message += "'";
-            klass->has_initialization_error = true;
-            Class::UpdateInitializedAndNoError(klass);
-            klass->initializationExceptionGCHandle = gc::GCHandle::New(il2cpp::vm::Exception::GetTypeLoadException(message.c_str()), false);
-
-            size = 1;
-        }
-        else
-        {
-            size = Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
-        }
+        size = Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
 
         if (align)
             *align = klass->minimumAlignment;
@@ -863,22 +839,6 @@ namespace vm
         }
     }
 
-    static size_t UpdateInstanceSizeForGenericClass(Il2CppClass* klass, size_t instanceSize)
-    {
-        // need to set this in case there are no fields in a generic instance type
-        if (klass->generic_class)
-        {
-            const Il2CppClass* genericTypeDef = GenericClass::GetTypeDefinition(klass->generic_class);
-            // If the generic class has an instance size, it was explictly set
-            if (genericTypeDef->instance_size > 0 && genericTypeDef->instance_size > instanceSize)
-                instanceSize = genericTypeDef->instance_size;
-
-            klass->instance_size = static_cast<uint32_t>(instanceSize);
-        }
-
-        return instanceSize;
-    }
-
     static void LayoutFieldsLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
         if (Class::IsGeneric(klass))
@@ -966,7 +926,9 @@ namespace vm
                 klass->actualSize = IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS + sizeof(Il2CppObject);
             }
 
-            instanceSize = UpdateInstanceSizeForGenericClass(klass, instanceSize);
+            // need to set this in case there are no fields in a generic instance type
+            if (klass->generic_class)
+                klass->instance_size = static_cast<uint32_t>(instanceSize);
 
             klass->size_inited = true;
 
@@ -997,7 +959,8 @@ namespace vm
         else
         {
             // need to set this in case there are no fields in a generic instance type
-            instanceSize = UpdateInstanceSizeForGenericClass(klass, instanceSize);
+            if (klass->generic_class)
+                klass->instance_size = static_cast<uint32_t>(instanceSize);
 
             // Always set the actual size, as a derived class without fields could end up
             // with the wrong actual size (i.e. sizeof may be incorrect), if the last
@@ -1121,17 +1084,7 @@ namespace vm
                 const Il2CppMethodDefinition* methodDefinition = MetadataCache::GetMethodDefinitionFromIndex(index);
 
                 newMethod->name = MetadataCache::GetStringFromIndex(methodDefinition->nameIndex);
-
-                if (klass->valuetype)
-                {
-                    Il2CppMethodPointer adjustorThunk = MetadataCache::GetAdjustorThunk(klass->image, methodDefinition->token);
-                    if (adjustorThunk != NULL)
-                        newMethod->methodPointer = adjustorThunk;
-                }
-
-                if (newMethod->methodPointer == NULL)
-                    newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodDefinition->token);
-
+                newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodDefinition->token);
                 newMethod->invoker_method = MetadataCache::GetMethodInvoker(klass->image, methodDefinition->token);
                 newMethod->klass = klass;
                 newMethod->return_type = MetadataCache::GetIl2CppTypeFromIndex(methodDefinition->returnType);
@@ -1179,7 +1132,7 @@ namespace vm
 
     void SetupNestedTypesLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
-        if (klass->generic_class || klass->nestedTypes)
+        if (klass->generic_class)
             return;
 
         if (klass->nested_type_count > 0)
@@ -1192,7 +1145,7 @@ namespace vm
 
     void Class::SetupNestedTypes(Il2CppClass *klass)
     {
-        if (klass->generic_class || klass->nestedTypes)
+        if (klass->generic_class)
             return;
 
         if (klass->nested_type_count)
@@ -1459,11 +1412,7 @@ namespace vm
         klass->genericRecursionDepth++;
 
         if (klass->generic_class)
-        {
-            Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition(klass->generic_class);
-            InitLocked(genericTypeDefinition, lock);
-            klass->is_blittable = genericTypeDefinition->is_blittable;
-        }
+            InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
 
         if (klass->byval_arg.type == IL2CPP_TYPE_ARRAY || klass->byval_arg.type == IL2CPP_TYPE_SZARRAY)
         {
@@ -1511,7 +1460,7 @@ namespace vm
 
         if (klass->generic_class)
         {
-            if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth())
+            if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::MaximumRuntimeGenericDepth)
                 klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTX(klass->image, klass->token, &klass->generic_class->context);
         }
 
@@ -1797,23 +1746,6 @@ namespace vm
         return static_cast<int>(size);
     }
 
-    int Class::GetFieldMarshaledAlignment(const FieldInfo *field)
-    {
-        if (MetadataCache::GetFieldMarshaledSizeForField(field) == 0)
-        {
-            // We have no marshaled field size, so ignore marshaled alignment for this field.
-            return 0;
-        }
-
-        if (field->type->type == IL2CPP_TYPE_BOOLEAN)
-            return 4;
-        if (field->type->type == IL2CPP_TYPE_CHAR)
-            return 1;
-
-        uint8_t alignment = il2cpp::metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).alignment;
-        return static_cast<int>(alignment);
-    }
-
     Il2CppClass* Class::GetPtrClass(const Il2CppType* type)
     {
         return GetPtrClass(Class::FromIl2CppType(type));
@@ -1944,14 +1876,14 @@ namespace vm
                     case IL2CPP_TYPE_ARRAY:
                     case IL2CPP_TYPE_VAR:
                     case IL2CPP_TYPE_MVAR:
-                        IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
+                        IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
                         set_bit(bitmap, offset / sizeof(void*));
                         maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                         break;
                     case IL2CPP_TYPE_GENERICINST:
                         if (!Type::GenericInstIsValuetype(type))
                         {
-                            IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
+                            IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
                             set_bit(bitmap, offset / sizeof(void*));
                             maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                             break;

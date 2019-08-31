@@ -13,7 +13,6 @@
 #include "os/c-api/Allocator.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
-#include "vm/COMEntryPoints.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -61,9 +60,6 @@ extern "C" {
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
-
-static il2cpp::os::FastMutex s_InitLock;
-static int32_t s_RuntimeInitCount;
 
 namespace il2cpp
 {
@@ -120,27 +116,15 @@ namespace vm
         Field::StaticSetValue(stringEmptyField, String::Empty());
     }
 
-    static void SetConfigStr(const std::string& executablePath);
-
-    bool Runtime::Init(const char* domainName)
+    bool Runtime::Init(const char* filename, const char *runtime_version)
     {
-        os::FastAutoLock lock(&s_InitLock);
-
-        IL2CPP_ASSERT(s_RuntimeInitCount >= 0);
-        if (s_RuntimeInitCount++ > 0)
-            return true;
-
         SanityChecks();
 
         os::Initialize();
         os::Locale::Initialize();
         MetadataAllocInitialize();
 
-        // NOTE(gab): the runtime_version needs to change once we
-        // will support multiple runtimes.
-        // For now we default to the one used by unity and don't
-        // allow the callers to change it.
-        s_FrameworkVersion = framework_version_for("v4.0.30319");
+        s_FrameworkVersion = framework_version_for(runtime_version);
 
         os::Image::Initialize();
         os::Thread::Init();
@@ -148,11 +132,7 @@ namespace vm
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
 
         if (!MetadataCache::Initialize())
-        {
-            s_RuntimeInitCount--;
             return false;
-        }
-
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
 
@@ -326,7 +306,7 @@ namespace vm
 
         domain->domain_id = 1; // Only have a single domain ATM.
 
-        domain->friendly_name = basepath(domainName);
+        domain->friendly_name = basepath(filename);
 
         LastError::InitializeLastErrorThreadStatic();
 
@@ -354,28 +334,11 @@ namespace vm
 #if IL2CPP_MONO_DEBUGGER
         il2cpp::utils::Debugger::Start();
 #endif
-
-        std::string executablePath = os::Path::GetExecutablePath();
-        SetConfigStr(executablePath);
-
-        if (utils::Environment::GetNumMainArgs() == 0)
-        {
-            // If main args were never set, we default to 1 arg that is the executable path
-            const char* mainArgs[] = { executablePath.c_str() };
-            utils::Environment::SetMainArgs(mainArgs, 1);
-        }
-
         return true;
     }
 
     void Runtime::Shutdown()
     {
-        os::FastAutoLock lock(&s_InitLock);
-
-        IL2CPP_ASSERT(s_RuntimeInitCount > 0);
-        if (--s_RuntimeInitCount > 0)
-            return;
-
         shutting_down = true;
 
 #if IL2CPP_ENABLE_PROFILER
@@ -410,8 +373,6 @@ namespace vm
 
         vm::Image::ClearCachedResourceData();
         MetadataAllocCleanup();
-
-        vm::COMEntryPoints::FreeCachedData();
 
         os::Locale::UnInitialize();
         os::Uninitialize();

@@ -162,7 +162,7 @@ const DECOVFL power_overflow[] =
 };
 
 
-#define IL2CPP_UInt32x32To64(a, b) ((uint64_t)((uint32_t)(a)) * (uint64_t)((uint32_t)(b)))
+#define UInt32x32To64(a, b) ((uint64_t)((uint32_t)(a)) * (uint64_t)((uint32_t)(b)))
 #define Div64by32(num, den) ((uint32_t)((uint64_t)(num) / (uint32_t)(den)))
 #define Mod64by32(num, den) ((uint32_t)((uint64_t)(num) % (uint32_t)(den)))
 
@@ -203,13 +203,13 @@ UInt64x64To128(SPLIT64 op1, SPLIT64 op2, uint64_t *hi)
     SPLIT64  tmp2;
     SPLIT64  tmp3;
 
-    tmp1.int64 = IL2CPP_UInt32x32To64(op1.u.Lo, op2.u.Lo); // lo partial prod
-    tmp2.int64 = IL2CPP_UInt32x32To64(op1.u.Lo, op2.u.Hi); // mid 1 partial prod
+    tmp1.int64 = UInt32x32To64(op1.u.Lo, op2.u.Lo); // lo partial prod
+    tmp2.int64 = UInt32x32To64(op1.u.Lo, op2.u.Hi); // mid 1 partial prod
     tmp1.u.Hi += tmp2.u.Lo;
     if (tmp1.u.Hi < tmp2.u.Lo)  // test for carry
         tmp2.u.Hi++;
-    tmp3.int64 = IL2CPP_UInt32x32To64(op1.u.Hi, op2.u.Hi) + (uint64_t)tmp2.u.Hi;
-    tmp2.int64 = IL2CPP_UInt32x32To64(op1.u.Hi, op2.u.Lo);
+    tmp3.int64 = UInt32x32To64(op1.u.Hi, op2.u.Hi) + (uint64_t)tmp2.u.Hi;
+    tmp2.int64 = UInt32x32To64(op1.u.Hi, op2.u.Lo);
     tmp1.u.Hi += tmp2.u.Lo;
     if (tmp1.u.Hi < tmp2.u.Lo)  // test for carry
         tmp2.u.Hi++;
@@ -836,12 +836,12 @@ DecAddSub(Il2CppDecimal *left, Il2CppDecimal *right, Il2CppDecimal *result, int8
             // Scaling won't make it larger than 4 uint32_ts
             //
             pwr = power10[scale];
-            DECIMAL_LO64_SET(decTmp, IL2CPP_UInt32x32To64(left->v.v.Lo32, pwr));
-            tmp.int64 = IL2CPP_UInt32x32To64(left->v.v.Mid32, pwr);
+            DECIMAL_LO64_SET(decTmp, UInt32x32To64(left->v.v.Lo32, pwr));
+            tmp.int64 = UInt32x32To64(left->v.v.Mid32, pwr);
             tmp.int64 += decTmp.v.v.Mid32;
             decTmp.v.v.Mid32 = tmp.u.Lo;
             decTmp.Hi32 = tmp.u.Hi;
-            tmp.int64 = IL2CPP_UInt32x32To64(left->Hi32, pwr);
+            tmp.int64 = UInt32x32To64(left->Hi32, pwr);
             tmp.int64 += decTmp.Hi32;
             if (tmp.u.Hi == 0)
             {
@@ -900,7 +900,7 @@ DecAddSub(Il2CppDecimal *left, Il2CppDecimal *right, Il2CppDecimal *result, int8
                 tmp.u.Hi = 0;
                 for (cur = 0; cur <= hi_prod; cur++)
                 {
-                    tmp.int64 = IL2CPP_UInt32x32To64(num[cur], pwr) + tmp.u.Hi;
+                    tmp.int64 = UInt32x32To64(num[cur], pwr) + tmp.u.Hi;
                     num[cur] = tmp.u.Lo;
                 }
 
@@ -1087,8 +1087,8 @@ il2cpp_decimal_from_double(double input_d, Il2CppDecimal *result)
         power = -power;
         if (power < 10)
         {
-            sdlLo.int64 = IL2CPP_UInt32x32To64(sdlMant.u.Lo, (uint32_t)long_power10[power]);
-            sdlMant.int64 = IL2CPP_UInt32x32To64(sdlMant.u.Hi, (uint32_t)long_power10[power]);
+            sdlLo.int64 = UInt32x32To64(sdlMant.u.Lo, (uint32_t)long_power10[power]);
+            sdlMant.int64 = UInt32x32To64(sdlMant.u.Hi, (uint32_t)long_power10[power]);
             sdlMant.int64 += sdlLo.u.Hi;
             sdlLo.u.Hi = sdlMant.u.Lo;
             sdlMant.u.Lo = sdlMant.u.Hi;
@@ -1186,7 +1186,7 @@ static Il2CppDecimalStatus il2cpp_decimal_multiply_result(Il2CppDecimal *left, I
     {
         // Upper 64 bits are zero.
         //
-        tmp.int64 = IL2CPP_UInt32x32To64(left->v.v.Lo32, right->v.v.Lo32);
+        tmp.int64 = UInt32x32To64(left->v.v.Lo32, right->v.v.Lo32);
         if (scale > DEC_SCALE_MAX)
         {
             // Result scale is too big.  Divide result by power of 10 to reduce it.
@@ -1256,12 +1256,12 @@ static Il2CppDecimalStatus il2cpp_decimal_multiply_result(Il2CppDecimal *left, I
         // ------------------------------
         // [p-5][p-4][p-3][p-2][p-1][p-0]   prod[] array
         //
-        tmp.int64 = IL2CPP_UInt32x32To64(left->v.v.Lo32, right->v.v.Lo32);
+        tmp.int64 = UInt32x32To64(left->v.v.Lo32, right->v.v.Lo32);
         prod[0] = tmp.u.Lo;
 
-        tmp2.int64 = IL2CPP_UInt32x32To64(left->v.v.Lo32, right->v.v.Mid32) + tmp.u.Hi;
+        tmp2.int64 = UInt32x32To64(left->v.v.Lo32, right->v.v.Mid32) + tmp.u.Hi;
 
-        tmp.int64 = IL2CPP_UInt32x32To64(left->v.v.Mid32, right->v.v.Lo32);
+        tmp.int64 = UInt32x32To64(left->v.v.Mid32, right->v.v.Lo32);
         tmp.int64 += tmp2.int64; // this could generate carry
         prod[1] = tmp.u.Lo;
         if (tmp.int64 < tmp2.int64) // detect carry
@@ -1270,41 +1270,41 @@ static Il2CppDecimalStatus il2cpp_decimal_multiply_result(Il2CppDecimal *left, I
             tmp2.u.Hi = 0;
         tmp2.u.Lo = tmp.u.Hi;
 
-        tmp.int64 = IL2CPP_UInt32x32To64(left->v.v.Mid32, right->v.v.Mid32) + tmp2.int64;
+        tmp.int64 = UInt32x32To64(left->v.v.Mid32, right->v.v.Mid32) + tmp2.int64;
 
         if (left->Hi32 | right->Hi32)
         {
             // Highest 32 bits is non-zero.  Calculate 5 more partial products.
             //
-            tmp2.int64 = IL2CPP_UInt32x32To64(left->v.v.Lo32, right->Hi32);
+            tmp2.int64 = UInt32x32To64(left->v.v.Lo32, right->Hi32);
             tmp.int64 += tmp2.int64; // this could generate carry
             if (tmp.int64 < tmp2.int64) // detect carry
                 tmp3.u.Hi = 1;
             else
                 tmp3.u.Hi = 0;
 
-            tmp2.int64 = IL2CPP_UInt32x32To64(left->Hi32, right->v.v.Lo32);
+            tmp2.int64 = UInt32x32To64(left->Hi32, right->v.v.Lo32);
             tmp.int64 += tmp2.int64; // this could generate carry
             prod[2] = tmp.u.Lo;
             if (tmp.int64 < tmp2.int64) // detect carry
                 tmp3.u.Hi++;
             tmp3.u.Lo = tmp.u.Hi;
 
-            tmp.int64 = IL2CPP_UInt32x32To64(left->v.v.Mid32, right->Hi32);
+            tmp.int64 = UInt32x32To64(left->v.v.Mid32, right->Hi32);
             tmp.int64 += tmp3.int64; // this could generate carry
             if (tmp.int64 < tmp3.int64) // detect carry
                 tmp3.u.Hi = 1;
             else
                 tmp3.u.Hi = 0;
 
-            tmp2.int64 = IL2CPP_UInt32x32To64(left->Hi32, right->v.v.Mid32);
+            tmp2.int64 = UInt32x32To64(left->Hi32, right->v.v.Mid32);
             tmp.int64 += tmp2.int64; // this could generate carry
             prod[3] = tmp.u.Lo;
             if (tmp.int64 < tmp2.int64) // detect carry
                 tmp3.u.Hi++;
             tmp3.u.Lo = tmp.u.Hi;
 
-            tmp.int64 = IL2CPP_UInt32x32To64(left->Hi32, right->Hi32) + tmp3.int64;
+            tmp.int64 = UInt32x32To64(left->Hi32, right->Hi32) + tmp3.int64;
             prod[4] = tmp.u.Lo;
             prod[5] = tmp.u.Hi;
 
@@ -1405,11 +1405,11 @@ IncreaseScale(uint32_t *num, uint32_t pwr)
 {
     SPLIT64   sdlTmp;
 
-    sdlTmp.int64 = IL2CPP_UInt32x32To64(num[0], pwr);
+    sdlTmp.int64 = UInt32x32To64(num[0], pwr);
     num[0] = sdlTmp.u.Lo;
-    sdlTmp.int64 = IL2CPP_UInt32x32To64(num[1], pwr) + sdlTmp.u.Hi;
+    sdlTmp.int64 = UInt32x32To64(num[1], pwr) + sdlTmp.u.Hi;
     num[1] = sdlTmp.u.Lo;
-    sdlTmp.int64 = IL2CPP_UInt32x32To64(num[2], pwr) + sdlTmp.u.Hi;
+    sdlTmp.int64 = UInt32x32To64(num[2], pwr) + sdlTmp.u.Hi;
     num[2] = sdlTmp.u.Lo;
     return sdlTmp.u.Hi;
 }
@@ -1464,8 +1464,8 @@ Div128By96(uint32_t *num, uint32_t *den)
 
     // Compute full remainder, rem = dividend - (quo * divisor).
     //
-    sdlProd1.int64 = IL2CPP_UInt32x32To64(sdlQuo.u.Lo, den[0]); // quo * lo divisor
-    sdlProd2.int64 = IL2CPP_UInt32x32To64(sdlQuo.u.Lo, den[1]); // quo * mid divisor
+    sdlProd1.int64 = UInt32x32To64(sdlQuo.u.Lo, den[0]); // quo * lo divisor
+    sdlProd2.int64 = UInt32x32To64(sdlQuo.u.Lo, den[1]); // quo * mid divisor
     sdlProd2.int64 += sdlProd1.u.Hi;
     sdlProd1.u.Hi = sdlProd2.u.Lo;
 
@@ -1568,7 +1568,7 @@ Div96By64(uint32_t *num, SPLIT64 den)
 
     // Compute full remainder, rem = dividend - (quo * divisor).
     //
-    prod.int64 = IL2CPP_UInt32x32To64(quo.u.Lo, den.u.Lo); // quo * lo divisor
+    prod.int64 = UInt32x32To64(quo.u.Lo, den.u.Lo); // quo * lo divisor
     sdlNum.int64 -= prod.int64;
 
     if (sdlNum.int64 > ~prod.int64)
@@ -1735,7 +1735,7 @@ il2cpp_decimal_from_float(float input_f, Il2CppDecimal* result)
         power = -power;
         if (power < 10)
         {
-            sdlLo.int64 = IL2CPP_UInt32x32To64(mant, (uint32_t)long_power10[power]);
+            sdlLo.int64 = UInt32x32To64(mant, (uint32_t)long_power10[power]);
 
             DECIMAL_LO32(*result) = sdlLo.u.Lo;
             DECIMAL_MID32(*result) = sdlLo.u.Hi;
@@ -1747,7 +1747,7 @@ il2cpp_decimal_from_float(float input_f, Il2CppDecimal* result)
             //
             if (power > 18)
             {
-                sdlLo.int64 = IL2CPP_UInt32x32To64(mant, (uint32_t)long_power10[power - 18]);
+                sdlLo.int64 = UInt32x32To64(mant, (uint32_t)long_power10[power - 18]);
                 sdlLo.int64 = UInt64x64To128(sdlLo, ten_to_eighteen, &sdlHi.int64);
 
                 if (sdlHi.u.Hi != 0)
@@ -1755,9 +1755,9 @@ il2cpp_decimal_from_float(float input_f, Il2CppDecimal* result)
             }
             else
             {
-                sdlLo.int64 = IL2CPP_UInt32x32To64(mant, (uint32_t)long_power10[power - 9]);
-                sdlHi.int64 = IL2CPP_UInt32x32To64(ten_to_nine, sdlLo.u.Hi);
-                sdlLo.int64 = IL2CPP_UInt32x32To64(ten_to_nine, sdlLo.u.Lo);
+                sdlLo.int64 = UInt32x32To64(mant, (uint32_t)long_power10[power - 9]);
+                sdlHi.int64 = UInt32x32To64(ten_to_nine, sdlLo.u.Hi);
+                sdlLo.int64 = UInt32x32To64(ten_to_nine, sdlLo.u.Lo);
                 sdlHi.int64 += sdlLo.u.Hi;
                 sdlLo.u.Hi = sdlHi.u.Lo;
                 sdlHi.u.Lo = sdlHi.u.Hi;
@@ -1915,12 +1915,8 @@ namespace System
             }
             else
             {
-                // i is signed here, so for 2147483648 we would see -2147483648 here
-                // negating it is undefined behavior by C++ standard (overflow)
-                // if changing this, make sure to check -2147483648 converts to Int32
-                if (i <= INT32_MAX)
-                    return -i;
-                else if (i == INT32_MIN)
+                i = -i;
+                if (i <= 0)
                     return i;
             }
         }
@@ -2115,12 +2111,12 @@ namespace System
                 // Scaling won't make it larger than 4 uint32_ts
                 //
                 pwr = power10[scale];
-                DECIMAL_LO64_SET(decTmp, IL2CPP_UInt32x32To64(DECIMAL_LO32(*left), pwr));
-                sdlTmp.int64 = IL2CPP_UInt32x32To64(DECIMAL_MID32(*left), pwr);
+                DECIMAL_LO64_SET(decTmp, UInt32x32To64(DECIMAL_LO32(*left), pwr));
+                sdlTmp.int64 = UInt32x32To64(DECIMAL_MID32(*left), pwr);
                 sdlTmp.int64 += DECIMAL_MID32(decTmp);
                 DECIMAL_MID32(decTmp) = sdlTmp.u.Lo;
                 DECIMAL_HI32(decTmp) = sdlTmp.u.Hi;
-                sdlTmp.int64 = IL2CPP_UInt32x32To64(DECIMAL_HI32(*left), pwr);
+                sdlTmp.int64 = UInt32x32To64(DECIMAL_HI32(*left), pwr);
                 sdlTmp.int64 += DECIMAL_HI32(decTmp);
                 if (sdlTmp.u.Hi == 0)
                 {
@@ -2179,7 +2175,7 @@ namespace System
                     sdlTmp.u.Hi = 0;
                     for (cur = 0; cur <= hi_prod; cur++)
                     {
-                        sdlTmp.int64 = IL2CPP_UInt32x32To64(num[cur], pwr) + sdlTmp.u.Hi;
+                        sdlTmp.int64 = UInt32x32To64(num[cur], pwr) + sdlTmp.u.Hi;
                         num[cur] = sdlTmp.u.Lo;
                     }
 
@@ -2387,7 +2383,7 @@ namespace System
                     return;
                 }
 
-                sdlTmp.int64 = DivMod64by32(IL2CPP_UInt32x32To64(rem[0], pwr), divisor[0]);
+                sdlTmp.int64 = DivMod64by32(UInt32x32To64(rem[0], pwr), divisor[0]);
                 rem[0] = sdlTmp.u.Hi;
 
                 if (!Add32To96(quo, sdlTmp.u.Lo))
