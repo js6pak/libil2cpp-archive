@@ -33,8 +33,6 @@ namespace os
     static FastMutex s_AliveThreadsMutex;
     static il2cpp::utils::dynamic_array<Thread*> s_AliveThreads;
 
-    int64_t Thread::s_DefaultAffinityMask = kThreadAffinityAll;
-
     static bool GetIsCleaningUpThreads()
     {
         void* value = NULL;
@@ -198,7 +196,7 @@ namespace os
         startData->startFunctionArgument = arg;
         startData->thread = this;
 
-        return m_Thread->Run(RunWrapper, startData, s_DefaultAffinityMask);
+        return m_Thread->Run(RunWrapper, startData);
     }
 
     WaitStatus Thread::Join()
@@ -276,13 +274,6 @@ namespace os
         return reinterpret_cast<Thread*>(value);
     }
 
-    bool Thread::HasCurrentThread()
-    {
-        void* value;
-        s_CurrentThread.GetValue(&value);
-        return value != NULL;
-    }
-
     Thread* Thread::GetOrCreateCurrentThread()
     {
         Thread* thread = NULL;
@@ -311,11 +302,6 @@ namespace os
     bool Thread::YieldInternal()
     {
         return ThreadImpl::YieldInternal();
-    }
-
-    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
-    {
-        s_DefaultAffinityMask = affinityMask;
     }
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
@@ -352,8 +338,6 @@ namespace il2cpp
 {
 namespace os
 {
-    int64_t Thread::s_DefaultAffinityMask = -1;
-
     Thread::Thread()
     {
     }
@@ -372,6 +356,7 @@ namespace os
 
     Thread::ThreadId Thread::Id()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return 0;
     }
 
@@ -385,6 +370,7 @@ namespace os
 
     ThreadPriority Thread::GetPriority()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kThreadPriorityLowest;
     }
 
@@ -425,16 +411,19 @@ namespace os
 
     ApartmentState Thread::GetApartment()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kApartmentStateUnknown;
     }
 
     ApartmentState Thread::GetExplicitApartment()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kApartmentStateUnknown;
     }
 
     ApartmentState Thread::SetApartment(ApartmentState state)
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kApartmentStateUnknown;
     }
 
@@ -448,16 +437,19 @@ namespace os
 
     size_t Thread::CurrentThreadId()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return 0;
     }
 
     Thread* Thread::GetCurrentThread()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return NULL;
     }
 
     Thread* Thread::GetOrCreateCurrentThread()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return NULL;
     }
 
@@ -467,12 +459,8 @@ namespace os
 
     bool Thread::YieldInternal()
     {
+        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return false;
-    }
-
-    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
-    {
-        s_DefaultAffinityMask = affinityMask;
     }
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP

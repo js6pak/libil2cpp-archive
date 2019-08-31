@@ -6,8 +6,6 @@
 #include <unistd.h>
 #include <map>
 #include <pthread.h>
-#include <errno.h>
-#include <string.h>
 
 #if IL2CPP_TARGET_LINUX
 #include <sys/prctl.h>
@@ -48,7 +46,7 @@ namespace os
         pthread_mutex_destroy(&m_PendingAPCsMutex);
     }
 
-    ErrorCode ThreadImpl::Run(Thread::StartFunc func, void* arg, int64_t affinityMask)
+    ErrorCode ThreadImpl::Run(Thread::StartFunc func, void* arg)
     {
         // Store state for run wrapper.
         m_StartFunc = func;
@@ -61,28 +59,9 @@ namespace os
             return kErrorCodeGenFailure;
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
-#if IL2CPP_THREAD_HAS_CPU_SET
-        if (affinityMask != Thread::kThreadAffinityAll)
-        {
-            cpu_set_t cpuset;
-            CPU_ZERO(&cpuset);
-            for (int i = 0; i < 64; ++i)
-            {
-                if (affinityMask & (1 << i))
-                    CPU_SET(i, &cpuset);
-            }
-
-            pthread_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
-        }
-        else
-        {
-            // set create default core affinity
-            pthread_attr_setaffinity_np(&attr, 0, NULL);
-        }
-#else
+        // set create default core affinity
         pthread_attr_setaffinity_np(&attr, 0, NULL);
-#endif // IL2CPP_THREAD_HAS_CPU_SET
-#endif // defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
+#endif
 
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE)
@@ -141,14 +120,8 @@ namespace os
 
 #if IL2CPP_TARGET_DARWIN
         pthread_setname_np(name);
-#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_LUMIN || IL2CPP_TARGET_ANDROID || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
-        if (pthread_setname_np(m_Handle, name) == ERANGE)
-        {
-            char buf[16]; // TASK_COMM_LEN=16
-            strncpy(buf, name, sizeof(buf));
-            buf[sizeof(buf) - 1] = '\0';
-            pthread_setname_np(m_Handle, buf);
-        }
+#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_LUMIN || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
+        pthread_setname_np(m_Handle, name);
 #endif
     }
 

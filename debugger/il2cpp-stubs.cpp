@@ -590,13 +590,13 @@ extern "C" {
     MonoMethod* il2cpp_mono_class_inflate_generic_method_full_checked(MonoMethod* method, MonoClass* klass_hint, MonoGenericContext* context, MonoError* error)
     {
         error_init(error);
-        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, (Il2CppGenericContext*)context);
+        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, (Il2CppClass*)klass_hint, (Il2CppGenericContext*)context);
     }
 
     MonoMethod* il2cpp_mono_class_inflate_generic_method_checked(MonoMethod* method, MonoGenericContext* context, MonoError* error)
     {
         error_init(error);
-        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, (Il2CppGenericContext*)context);
+        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, NULL, (Il2CppGenericContext*)context);
     }
 
     void il2cpp_mono_loader_lock()
@@ -804,18 +804,12 @@ extern "C" {
 
     MonoInternalThread* il2cpp_mono_thread_internal_current()
     {
-        Il2CppThread* currentThread = (Il2CppThread*)il2cpp_mono_thread_current();
-        if (currentThread == NULL)
-            return NULL;
-        return (MonoInternalThread*)currentThread->internal_thread;
+        return (MonoInternalThread*)(((Il2CppThread*)il2cpp_mono_thread_current())->internal_thread);
     }
 
     gboolean il2cpp_mono_thread_internal_is_current(MonoInternalThread* thread)
     {
-        MonoInternalThread* currentThread = il2cpp_mono_thread_internal_current();
-        if (currentThread == NULL)
-            return FALSE;
-        return currentThread == thread;
+        return il2cpp_mono_thread_internal_current() == thread;
     }
 
     void il2cpp_mono_thread_internal_abort(MonoInternalThread* thread, gboolean appdomain_unload)
@@ -1739,12 +1733,6 @@ extern "C" {
     il2cpp_debug_free_locals(MonoDebugLocalsInfo *info)
     {
         g_free(info);
-    }
-
-    size_t
-    il2cpp_type_size(MonoType *t)
-    {
-        return il2cpp::metadata::FieldLayout::GetTypeSizeAndAlignment((Il2CppType*)t).size;
     }
 }
 #endif // RUNTIME_IL2CPP

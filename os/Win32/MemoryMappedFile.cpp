@@ -83,7 +83,7 @@ namespace os
                 *error = CAPACITY_MUST_BE_POSITIVE;
                 return NULL;
             }
-#if IL2CPP_SIZEOF_VOID_P == 4
+#if SIZEOF_VOID_P == 4
             if (*capacity > UINT32_MAX)
             {
                 *error = CAPACITY_LARGER_THAN_LOGICAL_ADDRESS_SPACE;

@@ -13,7 +13,6 @@
 #include "vm/Image.h"
 #include "vm/MetadataCache.h"
 #include "vm/Method.h"
-#include "vm/StackTrace.h"
 #include "vm/Thread.h"
 #include "utils/Environment.h"
 #include "utils/dynamic_array.h"
@@ -705,26 +704,6 @@ namespace utils
         }
         *headerInfo = &debuggerMetadata->methodHeaderInfos[GetTokenRowId(method->token) - 1];
         *scopes = &debuggerMetadata->methodScopes[(*headerInfo)->startScope];
-    }
-
-    void Debugger::GetStackFrames(void* context)
-    {
-        il2cpp::vm::StackFrames* stackFrames = static_cast<il2cpp::vm::StackFrames*>(context);
-
-        Il2CppThreadUnwindState* unwindState = GetThreadStatePointer();
-        if (unwindState == NULL)
-            return; // There might not be any managed code executing yet.
-
-        for (uint32_t i = 0; i < unwindState->frameCount; ++i)
-        {
-            const MethodInfo* method = unwindState->executionContexts[i]->method;
-            if (method != NULL)
-            {
-                Il2CppStackFrameInfo frameInfo = { 0 };
-                frameInfo.method = method;
-                stackFrames->push_back(frameInfo);
-            }
-        }
     }
 }
 }

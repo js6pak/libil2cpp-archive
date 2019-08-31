@@ -17,7 +17,10 @@ namespace os
         // Add and Add64 return the *result* of the addition, not the old value! (i.e. they work like
         // InterlockedAdd and __sync_add_and_fetch).
 
-        static inline void FullMemoryBarrier();
+        static inline void FullMemoryBarrier()
+        {
+            UnityPalFullMemoryBarrier();
+        }
 
         static inline int32_t Add(volatile int32_t* location1, int32_t value)
         {
@@ -160,28 +163,3 @@ namespace os
     };
 }
 }
-
-#if !IL2CPP_SUPPORT_THREADS
-
-namespace il2cpp
-{
-namespace os
-{
-    inline void Atomic::FullMemoryBarrier()
-    {
-        // Do nothing.
-    }
-}
-}
-
-#elif IL2CPP_TARGET_WINDOWS
-#include "os/Win32/AtomicImpl.h"
-#elif IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5
-#include "os/AtomicImpl.h"  // has to come earlier than posix
-#elif IL2CPP_TARGET_PSP2
-#include "os/PSP2/AtomicImpl.h"
-#elif IL2CPP_TARGET_POSIX
-#include "os/Posix/AtomicImpl.h"
-#else
-#include "os/AtomicImpl.h"
-#endif

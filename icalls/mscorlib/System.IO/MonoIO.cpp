@@ -202,10 +202,7 @@ namespace IO
 
         char *buffer = il2cpp_array_addr(dest, char, dest_offset);
 
-        int bytesRead = il2cpp::os::File::Read(h, buffer, count, error);
-        if (*error != 0)
-            return -1;
-        return bytesRead;
+        return il2cpp::os::File::Read(h, buffer, count, error);
     }
 
     bool MonoIO::SetCurrentDirectory(Il2CppString* path, int* error)

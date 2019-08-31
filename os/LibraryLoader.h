@@ -19,8 +19,6 @@ namespace os
         static Il2CppMethodPointer GetFunctionPointer(void* dynamicLibrary, const char* functionName);
         static void CleanupLoadedLibraries();
         static bool CloseLoadedLibrary(void*& dynamicLibrary);
-    private:
-        static bool EntryNameMatches(const il2cpp::utils::StringView<char>& hardcodedEntryPoint, const il2cpp::utils::StringView<char>& entryPoint);
     };
 } /* namespace os */
 } /* namespace il2cpp*/

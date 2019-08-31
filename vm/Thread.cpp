@@ -132,10 +132,8 @@ namespace vm
 
     void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
     {
-#if IL2CPP_SUPPORT_THREADS
         IL2CPP_ASSERT(thread->GetInternalThread()->handle != NULL);
         IL2CPP_ASSERT(thread->GetInternalThread()->synch_cs != NULL);
-#endif
 
 #if IL2CPP_MONO_DEBUGGER
         utils::Debugger::AllocateThreadLocalData();
@@ -192,22 +190,11 @@ namespace vm
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-        // Only raise the event for the debugger if there is a current thread at the OS thread level.
-        // The debugger code will try to take a lock, which requires a current thread. If this
-        // thread is being detached by a call from thread_cleanup_on_cancel, then there might
-        // not be a current thread, as pthreads does not privide TLS entries in thread destructors.
-        if (os::Thread::HasCurrentThread())
-            MONO_PROFILER_RAISE(thread_stopped, ((uintptr_t)thread->GetInternalThread()->tid));
+        MONO_PROFILER_RAISE(thread_stopped, ((uintptr_t)thread->GetInternalThread()->tid));
 #endif
 
-        FreeThreadStaticData(thread);
-
-        // Call Unregister after all access to managed objects (Il2CppThread and Il2CppInternalThread)
-        // is complete. Unregister will remove the managed thread object from the GC tracked vector of
-        // attached threads, and allow it to be finalized and re-used. If runtime code accesses it
-        // after a call to Unregister, there will be a race condition between the GC and the runtime
-        // code for access to that object.
         Unregister(thread);
+        FreeThreadStaticData(thread);
 
 #if IL2CPP_MONO_DEBUGGER
         utils::Debugger::FreeThreadLocalData();
@@ -682,14 +669,11 @@ namespace vm
 
             il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
-            bool attachSuccessful = false;
+            il2cpp::vm::Thread::Initialize(startData->m_Thread, startData->m_Domain);
+            il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateRunning);
+
             try
             {
-                il2cpp::vm::Thread::Initialize(startData->m_Thread, startData->m_Domain);
-                il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateRunning);
-
-                attachSuccessful = true;
-
                 try
                 {
                     ((void(*)(void*))startData->m_Delegate)(startData->m_StartArg);
@@ -713,8 +697,7 @@ namespace vm
 
             il2cpp::vm::Thread::ClrState(startData->m_Thread, kThreadStateRunning);
             il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateStopped);
-            if (attachSuccessful)
-                il2cpp::vm::Thread::Uninitialize(startData->m_Thread);
+            il2cpp::vm::Thread::Uninitialize(startData->m_Thread);
 
             il2cpp::vm::StackTrace::CleanupStackTracesForCurrentThread();
         }
@@ -740,8 +723,8 @@ namespace vm
 
         // use fixed GC memory since we are storing managed object pointers
         StartDataInternal* startData = (StartDataInternal*)gc::GarbageCollector::AllocateFixed(sizeof(StartDataInternal), NULL);
-        gc::WriteBarrier::GenericStore(&startData->m_Thread, thread);
-        gc::WriteBarrier::GenericStore(&startData->m_Domain, Domain::GetCurrent());
+        startData->m_Thread = thread;
+        startData->m_Domain = Domain::GetCurrent();
         startData->m_Delegate = (void*)func;
         startData->m_StartArg = arg;
         startData->m_Semaphore = new il2cpp::os::Semaphore(0);
@@ -798,11 +781,6 @@ namespace vm
     bool Thread::YieldInternal()
     {
         return os::Thread::YieldInternal();
-    }
-
-    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
-    {
-        os::Thread::SetDefaultAffinityMask(affinityMask);
     }
 
     void Thread::CheckCurrentThreadForAbortAndThrowIfNecessary()
