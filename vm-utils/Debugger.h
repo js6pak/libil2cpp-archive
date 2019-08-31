@@ -16,7 +16,7 @@ typedef struct Il2CppSequencePointExecutionContext
     void** params;
     void** locals;
     Il2CppSequencePoint* currentSequencePoint;
-    int32_t tryId;
+    int8_t tryId;
 
 #ifdef __cplusplus
     Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals);
@@ -171,9 +171,6 @@ namespace utils
 
         static void GetMethodExecutionContextInfo(const MethodInfo* method, uint32_t* executionContextInfoCount, const Il2CppMethodExecutionContextInfo **executionContextInfo, const Il2CppMethodHeaderInfo **headerInfo, const Il2CppMethodScope **scopes);
 
-        // The context parameter here is really il2cpp::vm::StackFrames*. We don't want to include vm/StackTrace.h in this file,
-        // as this one is included in generated code.
-        static void GetStackFrames(void* context);
     private:
         static os::ThreadLocalValue s_IsGlobalBreakpointActive;
         static void InitializeMethodToSequencePointMap();

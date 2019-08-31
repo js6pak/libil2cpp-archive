@@ -6,7 +6,7 @@
 # include <malloc.h>
 # define IL2CPP_EXPORT __declspec(dllexport)
 # define IL2CPP_IMPORT __declspec(dllimport)
-#elif IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5
+#elif IL2CPP_TARGET_PSP2 || IL2CPP_TARGET_PS4
 # define IL2CPP_EXPORT __declspec(dllexport)
 # define IL2CPP_IMPORT __declspec(dllimport)
 #else

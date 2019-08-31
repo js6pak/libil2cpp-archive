@@ -15,14 +15,14 @@ namespace os
 {
     const int kMaxStackFrames = 128;
 
-    void StackTrace::WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder)
+    void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder)
     {
         void* callstack[kMaxStackFrames];
         int frames = backtrace(callstack, kMaxStackFrames);
 
         if (walkOrder == kFirstCalledToLastCalled)
         {
-            for (int i = frames - 1; i >= 0; i--)
+            for (size_t i = frames; i--;)
             {
                 if (!callback(reinterpret_cast<Il2CppMethodPointer>(callstack[i]), context))
                     break;

@@ -40,17 +40,6 @@ namespace os
         return GetConsoleMode((HANDLE)fileHandle, &mode) != 0;
     }
 
-#elif IL2CPP_TARGET_WINDOWS_GAMES
-    bool File::Isatty(FileHandle* fileHandle)
-    {
-        IL2CPP_VM_NOT_SUPPORTED("Isatty", "Console functions are not supported on Windows Games platforms.");
-        return false;
-    }
-
-#endif
-
-#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
-
     FileHandle* File::GetStdInput()
     {
         return (FileHandle*)GetStdHandle(STD_INPUT_HANDLE);
@@ -66,7 +55,7 @@ namespace os
         return (FileHandle*)GetStdHandle(STD_OUTPUT_HANDLE);
     }
 
-#endif // IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
+#endif
 
     bool File::CreatePipe(FileHandle** read_handle, FileHandle** write_handle)
     {
@@ -76,7 +65,7 @@ namespace os
 
     bool File::CreatePipe(FileHandle** read_handle, FileHandle** write_handle, int* error)
     {
-#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
         SECURITY_ATTRIBUTES attr;
 
         attr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -93,13 +82,13 @@ namespace os
         }
 
         return true;
-#else // IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
+#else
         IL2CPP_VM_NOT_SUPPORTED("CreatePipe", "Pipes are not supported on WinRT based platforms.");
         return false;
-#endif // IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
+#endif
     }
 
-#if !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
+#if !IL2CPP_TARGET_XBOXONE
     UnityPalFileAttributes File::GetFileAttributes(const std::string& path, int *error)
     {
         const UTF16String utf16Path(utils::StringUtils::Utf8ToUtf16(path.c_str()));
@@ -123,7 +112,7 @@ namespace os
         return static_cast<UnityPalFileAttributes>(fileAttributes.dwFileAttributes);
     }
 
-#endif // !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
+#endif
 
     bool File::SetFileAttributes(const std::string& path, UnityPalFileAttributes attributes, int* error)
     {
@@ -328,26 +317,17 @@ namespace os
     {
         DWORD flagsAndAttributes;
 
-        if (options != 0)
+        if (options & kFileOptionsEncrypted)
         {
-            if (options & kFileOptionsEncrypted)
-                flagsAndAttributes = FILE_ATTRIBUTE_ENCRYPTED;
-            else
-                flagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
-            if (options & kFileOptionsDeleteOnClose)
-                flagsAndAttributes |= FILE_FLAG_DELETE_ON_CLOSE;
-            if (options & kFileOptionsSequentialScan)
-                flagsAndAttributes |= FILE_FLAG_SEQUENTIAL_SCAN;
-            if (options & kFileOptionsRandomAccess)
-                flagsAndAttributes |= FILE_FLAG_RANDOM_ACCESS;
-
-            if (options & kFileOptionsWriteThrough)
-                flagsAndAttributes |= FILE_FLAG_WRITE_THROUGH;
+            flagsAndAttributes = FILE_ATTRIBUTE_ENCRYPTED;
         }
         else
         {
             flagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
         }
+
+        // Temporary flag does not mean temporary file.
+        flagsAndAttributes |= options & ~(kFileOptionsEncrypted | kFileOptionsTemporary);
 
         int error;
         UnityPalFileAttributes currentAttributes = File::GetFileAttributes(path, &error);

@@ -2,7 +2,7 @@
 
 #if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_WINDOWS
 #include "WindowsHelpers.h"
-#if !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
+#if !IL2CPP_TARGET_XBOXONE
 #include <Shlobj.h>
 #endif
 // Windows.h defines GetEnvironmentVariable as GetEnvironmentVariableW for unicode and this will
@@ -67,12 +67,10 @@ namespace os
 
     std::string Environment::GetOsUserName()
     {
-#if !IL2CPP_TARGET_WINDOWS_GAMES
         Il2CppChar user_name[256 + 1];
         DWORD user_name_size = ARRAYSIZE(user_name);
         if (GetUserNameW(user_name, &user_name_size))
             return utils::StringUtils::Utf16ToUtf8(user_name);
-#endif // !IL2CPP_TARGET_WINDOWS_GAMES
 
         return "Unknown";
     }
@@ -272,21 +270,6 @@ namespace os
         }
 
         return false;
-    }
-
-#elif IL2CPP_TARGET_WINDOWS_GAMES
-    std::string Environment::GetWindowsFolderPath(int32_t folder)
-    {
-        return std::string();
-    }
-
-    bool Environment::Is64BitOs()
-    {
-#if _WIN64 // the IsWow64Process(used above) function is not available on Windows Games,this is the best available.
-        return true;
-#else
-        return false;
-#endif
     }
 
 #endif

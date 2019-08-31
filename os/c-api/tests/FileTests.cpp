@@ -96,7 +96,7 @@ SUITE(File)
         UnityPalFileHandle* handle = NULL;
         handle = UnityPalOpen(CURRENT_DIRECTORY("file_does_not_exist"), kFileModeOpen, 0, 0, 0, &error);
 
-#if IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5
+#if IL2CPP_TARGET_PS4
         CHECK_EQUAL(il2cpp::os::kErrorCodePathNotFound, error);
 #else
         CHECK_EQUAL(il2cpp::os::kErrorCodeFileNotFound, error);
@@ -797,7 +797,9 @@ SUITE(File)
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &class_fileStat, &error);
         il2cpp::os::File::Close(handle, &error);
 
-        CHECK_EQUAL(class_fileStat.attributes, api_fileStat.attributes);
+
+        // They dont have to be exact, just in the ballpark
+        CHECK_EQUAL(class_fileStat.last_write_time / 1000000L, api_fileStat.last_write_time / 1000000L);
     }
 
 #if !IL2CPP_USE_GENERIC_FILE
@@ -868,7 +870,7 @@ SUITE(File)
 #endif // IL2CPP_USE_GENERIC_FILE
 
 // The utime function returns -1 on PS4. I'm not sure why.
-#if !IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5
+#if !IL2CPP_TARGET_PS4
     TEST(SetFileTimeNormal)
     {
         int error;
@@ -1550,7 +1552,7 @@ SUITE(File)
         CHECK_EQUAL(class_error, api_error);
     }
 
-#if !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5 && !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
+#if !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
     TEST(CreatePipeNormalResult_ReturnsTrue)
     {
         int error;

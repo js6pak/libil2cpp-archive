@@ -45,7 +45,7 @@ namespace vm
     class LIBIL2CPP_CODEGEN_API Class
     {
     public:
-        static Il2CppClass* FromIl2CppType(const Il2CppType* type, bool throwOnError = true);
+        static Il2CppClass* FromIl2CppType(const Il2CppType* type);
         static Il2CppClass* FromName(const Il2CppImage* image, const char* namespaze, const char *name);
         static Il2CppClass* FromSystemType(Il2CppReflectionType *type);
         static Il2CppClass* FromGenericParameter(const Il2CppGenericParameter *param);
@@ -108,11 +108,15 @@ namespace vm
         static Il2CppClass* InflateGenericClass(Il2CppClass* klass, Il2CppGenericContext *context);
         static const Il2CppType* InflateGenericType(const Il2CppType* type, Il2CppGenericContext *context);
 
+        static Il2CppClass* GetArrayClassCached(Il2CppClass *element_class, uint32_t rank, bool bounded)
+        {
+            return GetBoundedArrayClass(element_class, rank, bounded);
+        }
+
         static const Il2CppGenericContainer* GetGenericContainer(Il2CppClass *klass);
         static const MethodInfo* GetCCtor(Il2CppClass *klass);
         static const char* GetFieldDefaultValue(const FieldInfo *field, const Il2CppType** type);
         static int GetFieldMarshaledSize(const FieldInfo *field);
-        static int GetFieldMarshaledAlignment(const FieldInfo *field);
         static Il2CppClass* GetPtrClass(const Il2CppType* type);
         static Il2CppClass* GetPtrClass(Il2CppClass* elementClass);
         static bool HasReferences(Il2CppClass *klass);
