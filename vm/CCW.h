@@ -21,8 +21,6 @@ namespace vm
             return gc::GarbageCollector::GetOrCreateCCW(obj, iid);
         }
 
-        static Il2CppObject* Unpack(Il2CppIUnknown* unknown);
-
         static il2cpp_hresult_t HandleInvalidIPropertyConversion(const char* fromType, const char* toType);
         static il2cpp_hresult_t HandleInvalidIPropertyConversion(Il2CppObject* value, const char* fromType, const char* toType);
 

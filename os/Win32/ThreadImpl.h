@@ -22,7 +22,7 @@ namespace os
         ~ThreadImpl();
 
         size_t Id();
-        ErrorCode Run(Thread::StartFunc func, void* arg, int64_t affinityMask);
+        ErrorCode Run(Thread::StartFunc func, void* arg);
         void SetName(const char* name);
         void SetPriority(ThreadPriority priority);
         ThreadPriority GetPriority();

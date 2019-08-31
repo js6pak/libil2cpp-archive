@@ -89,7 +89,7 @@ namespace Reflection
                     //newCtx.class_inst = genericContainer->context.class_inst;
                 }
 
-                result = il2cpp::metadata::GenericMetadata::Inflate(method, &newCtx);
+                result = il2cpp::metadata::GenericMetadata::Inflate(method, klass, &newCtx);
                 return result;
             }
         }

@@ -12,7 +12,7 @@ namespace il2cpp
 {
 namespace os
 {
-    void StackTrace::WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder)
+    void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder)
     {
         const uint32_t kMaxFrames = 128;
         void* stack[kMaxFrames];
@@ -41,7 +41,7 @@ namespace os
     {
         std::string stackTrace;
 
-#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
+#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
         HANDLE hProcess = GetCurrentProcess();
         BOOL result = SymInitialize(hProcess, NULL, TRUE);
         if (!result)
@@ -69,7 +69,7 @@ namespace os
                 stackTrace += "\n  ";
             }
         }
-#endif // !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
+#endif // !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
 
         return stackTrace;
     }
