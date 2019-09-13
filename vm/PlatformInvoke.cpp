@@ -393,19 +393,12 @@ namespace vm
         if (d == NULL)
             return 0;
 
-        if (d->method->is_inflated)
-        {
-            std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
-            std::string errorMessage = "IL2CPP does not support marshaling delegates that point to generic methods. The generic method we're attempting to marshal is: " + methodName;
-            vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
-        }
-
         if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
             return reinterpret_cast<intptr_t>(d->method->methodPointer);
 
         IL2CPP_ASSERT(d->method->methodDefinition);
 
-        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method->token);
+        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method);
         if (reversePInvokeWrapper == NULL)
         {
             std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
