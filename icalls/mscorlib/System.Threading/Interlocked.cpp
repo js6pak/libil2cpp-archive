@@ -41,7 +41,7 @@ namespace Threading
 
     intptr_t Interlocked::CompareExchangeIntPtr(intptr_t* location, intptr_t value, intptr_t comparand)
     {
-        return reinterpret_cast<intptr_t>(os::Atomic::CompareExchangePointer(reinterpret_cast<void*volatile*>(location), reinterpret_cast<void*>(value), reinterpret_cast<void*>(comparand)));
+        return reinterpret_cast<intptr_t>(os::Atomic::CompareExchangePointer(reinterpret_cast<void**>(location), reinterpret_cast<void*>(value), reinterpret_cast<void*>(comparand)));
     }
 
     int32_t Interlocked::CompareExchange(int32_t* location, int32_t value, int32_t comparand)
@@ -149,7 +149,7 @@ namespace Threading
 
     intptr_t Interlocked::ExchangeIntPtr(intptr_t* location, intptr_t value)
     {
-        return reinterpret_cast<intptr_t>(os::Atomic::ExchangePointer(reinterpret_cast<void*volatile*>(location), reinterpret_cast<void*>(value)));
+        return reinterpret_cast<intptr_t>(os::Atomic::ExchangePointer(reinterpret_cast<void**>(location), reinterpret_cast<void*>(value)));
     }
 
     int32_t Interlocked::Exchange(int32_t* location1, int32_t value)

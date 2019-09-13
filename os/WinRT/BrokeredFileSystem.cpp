@@ -136,7 +136,7 @@ namespace os
 
     private:
         // Note: It is not a smart pointer for atomicity
-        T* volatile s_Statics;
+        T* s_Statics;
         volatile bool s_Initialized;
     };
 
