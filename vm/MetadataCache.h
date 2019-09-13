@@ -70,7 +70,7 @@ namespace vm
         static Il2CppMethodPointer GetMethodPointer(const Il2CppImage* image, uint32_t token);
         static InvokerMethod GetMethodInvoker(const Il2CppImage* image, uint32_t token);
         static const Il2CppInteropData* GetInteropDataForType(const Il2CppType* type);
-        static Il2CppMethodPointer GetReversePInvokeWrapper(const Il2CppImage* image, uint32_t token);
+        static Il2CppMethodPointer GetReversePInvokeWrapper(const Il2CppImage* image, const MethodInfo* method);
 
         static Il2CppMethodPointer GetUnresolvedVirtualCallStub(const MethodInfo* method);
 

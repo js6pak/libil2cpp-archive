@@ -2,6 +2,9 @@
 
 #include <vector>
 
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
+
 #include "os/ConditionVariable.h"
 #include "os/Mutex.h"
 
@@ -78,7 +81,7 @@ struct ThreadPool
     uint32_t worker_creation_current_count;
     il2cpp::os::FastMutex worker_creation_lock;
 
-    int32_t heuristic_completions;
+    baselib::atomic<int32_t> heuristic_completions;
     int64_t heuristic_sample_start;
     int64_t heuristic_last_dequeue; // ms
     int64_t heuristic_last_adjustment; // ms

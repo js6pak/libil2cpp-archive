@@ -742,14 +742,14 @@ inline Assembly_t* il2cpp_codegen_get_executing_assembly(const RuntimeMethod* me
 
 // Atomic
 
-inline void* il2cpp_codegen_atomic_compare_exchange_pointer(void* volatile* dest, void* exchange, void* comparand)
+inline void* il2cpp_codegen_atomic_compare_exchange_pointer(void** dest, void* exchange, void* comparand)
 {
     IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
     return NULL;
 }
 
 template<typename T>
-inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* newValue, T* oldValue)
+inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T** dest, T* newValue, T* oldValue)
 {
     IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
     return NULL;

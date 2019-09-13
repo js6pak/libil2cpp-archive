@@ -783,7 +783,7 @@ namespace vm
 
             // May have been us and we got here through recursion.
             os::Thread::ThreadId currentThread = os::Thread::CurrentThreadId();
-            if (os::Atomic::CompareExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)currentThread, (size_t*)currentThread) == (size_t*)currentThread)
+            if (os::Atomic::CompareExchangePointer((size_t**)&klass->cctor_thread, (size_t*)currentThread, (size_t*)currentThread) == (size_t*)currentThread)
                 return;
 
             // Wait for other thread to finish executing the constructor.
@@ -795,7 +795,7 @@ namespace vm
         else
         {
             // Let others know we have started executing the constructor.
-            os::Atomic::ExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)os::Thread::CurrentThreadId());
+            os::Atomic::ExchangePointer((size_t**)&klass->cctor_thread, (size_t*)os::Thread::CurrentThreadId());
             os::Atomic::Exchange(&klass->cctor_started, 1);
 
             s_TypeInitializationLock.Unlock();
@@ -810,7 +810,7 @@ namespace vm
 
             // Let other threads know we finished.
             os::Atomic::Exchange(&klass->cctor_finished, 1);
-            os::Atomic::ExchangePointer((size_t*volatile*)&klass->cctor_thread, (size_t*)0);
+            os::Atomic::ExchangePointer((size_t**)&klass->cctor_thread, (size_t*)0);
 
             // Deal with exceptions.
             if (exception != NULL)

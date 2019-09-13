@@ -606,7 +606,7 @@ struct Il2CppComObject : Il2CppObject
     // and gets decremented when Marshal.ReleaseComObject gets called. Fortunately, since we
     // live in a world of fairies and garbage collectors, we don't actually have to release it
     // manually in order for it to get cleaned up automatically in the future.
-    volatile int32_t refCount;
+    int32_t refCount;
 };
 #endif //__cplusplus
 
