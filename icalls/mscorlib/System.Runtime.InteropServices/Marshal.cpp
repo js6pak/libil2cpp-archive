@@ -674,8 +674,9 @@ namespace InteropServices
 
     intptr_t Marshal::AllocCoTaskMemSize(intptr_t sizet)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::AllocCoTaskMemSize);
-        IL2CPP_UNREACHABLE;
+        intptr_t result;
+        result = (intptr_t)vm::MarshalAlloc::Allocate(sizet);
+        return result;
     }
 } /* namespace InteropServices */
 } /* namespace Runtime */

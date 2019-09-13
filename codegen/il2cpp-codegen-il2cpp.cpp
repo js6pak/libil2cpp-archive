@@ -7,6 +7,7 @@
 
 #include "utils/Exception.h"
 
+#include "os/Atomic.h"
 #include "vm/Class.h"
 #include "vm/LastError.h"
 #include "vm/ThreadPoolMs.h"
@@ -32,6 +33,11 @@
 #include "vm/WindowsRuntime.h"
 #include "vm/StackTrace.h"
 #include "vm/Field.h"
+
+void* il2cpp_codegen_atomic_compare_exchange_pointer(void** dest, void* exchange, void* comparand)
+{
+    return il2cpp::os::Atomic::CompareExchangePointer(dest, exchange, comparand);
+}
 
 void il2cpp_codegen_marshal_store_last_error()
 {

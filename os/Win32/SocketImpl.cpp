@@ -2396,7 +2396,7 @@ namespace os
             return kWaitStatusFailure;
         }
 
-        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)&buffers, options))
+        if (!transmitFileProtected(transmitFile, fd, file, 0, 0, NULL, (TRANSMIT_FILE_BUFFERS*)buffers, options))
         {
             StoreLastError();
 
