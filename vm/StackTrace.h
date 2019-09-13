@@ -35,6 +35,7 @@ namespace vm
 
         // Current thread functions
         static const StackFrames* GetStackFrames();
+        static const StackFrames* GetCachedStackFrames(int32_t depth);
         static bool GetStackFrameAt(int32_t depth, Il2CppStackFrameInfo& frame);
         static void WalkFrameStack(Il2CppFrameWalkFunc callback, void* context);
 

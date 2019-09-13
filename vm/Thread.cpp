@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include "os/Atomic.h"
 #include "os/Mutex.h"
 #include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
@@ -26,6 +25,8 @@
 #include <algorithm>
 #include <map>
 
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
 
 #if IL2CPP_MONO_DEBUGGER
 
@@ -55,7 +56,7 @@ namespace vm
 
     static il2cpp::os::ThreadLocalValue s_CurrentThread;
 
-    static volatile int32_t s_NextManagedThreadId = 0;
+    static baselib::atomic<int32_t> s_NextManagedThreadId = {0};
 
     static void
     set_wbarrier_for_attached_threads()
@@ -822,7 +823,7 @@ namespace vm
 
     int32_t Thread::GetNewManagedId()
     {
-        return os::Atomic::Increment(&s_NextManagedThreadId);
+        return ++s_NextManagedThreadId;
     }
 
     uint64_t Thread::GetId(Il2CppThread* thread)
