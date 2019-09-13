@@ -583,6 +583,13 @@ typedef struct Il2CppTokenRangePair
     Il2CppRange range;
 } Il2CppTokenRangePair;
 
+typedef struct Il2CppTokenIndexMethodTuple
+{
+    uint32_t token;
+    int32_t index;
+    void** method;
+} Il2CppTokenIndexMethodTuple;
+
 typedef struct Il2CppCodeGenModule
 {
     const char* moduleName;
@@ -590,7 +597,7 @@ typedef struct Il2CppCodeGenModule
     const Il2CppMethodPointer* methodPointers;
     const int32_t* invokerIndices;
     const uint32_t reversePInvokeWrapperCount;
-    const Il2CppTokenIndexPair* reversePInvokeWrapperIndices;
+    const Il2CppTokenIndexMethodTuple* reversePInvokeWrapperIndices;
     const uint32_t rgctxRangesCount;
     const Il2CppTokenRangePair* rgctxRanges;
     const uint32_t rgctxsCount;
