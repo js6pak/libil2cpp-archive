@@ -43,20 +43,7 @@ namespace Diagnostics
         const int kSkippedFramesFromMSCorlibStackFrameMethods = 2;
         const int kSkippedFramesFromMSCorlibStackTraceMethods = 2;
 
-        // Avoiding calling vm::StackTrace::GetStackFrames() method for the same stack trace with incremented 'skip' value
-        static int32_t cachedSkip = INT_MAX;
-        static const void* cachedSP = nullptr;
-        static const vm::StackFrames* cachedStack = nullptr;
-        const void *sp = vm::StackTrace::GetStackPointer();
-        // We can use cached value if stack pointer is the same and not nullptr, and 'skip' has been incremented since previous call
-        if (cachedStack == nullptr || cachedSP == nullptr || cachedSP != sp || (skip - 1) != cachedSkip)
-        {
-            cachedStack = vm::StackTrace::GetStackFrames();
-            cachedSP = sp;
-        }
-        cachedSkip = skip;
-
-        const vm::StackFrames& stack = *cachedStack;
+        const vm::StackFrames& stack = *vm::StackTrace::GetCachedStackFrames(skip);
 
         // Always ignore the skipped frames from System.Diagnostics.StackFrame, as we know we are always called from it.
         // These frames might be inlined or optimized away by the C++ compiler, so we will inspect the actual stack
