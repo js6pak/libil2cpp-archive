@@ -797,9 +797,7 @@ SUITE(File)
         il2cpp::os::File::GetFileStat(TEST_FILE_NAME, &class_fileStat, &error);
         il2cpp::os::File::Close(handle, &error);
 
-
-        // They dont have to be exact, just in the ballpark
-        CHECK_EQUAL(class_fileStat.last_write_time / 1000000L, api_fileStat.last_write_time / 1000000L);
+        CHECK_EQUAL(class_fileStat.attributes, api_fileStat.attributes);
     }
 
 #if !IL2CPP_USE_GENERIC_FILE

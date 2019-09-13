@@ -782,26 +782,55 @@ const Il2CppInteropData* il2cpp::vm::MetadataCache::GetInteropDataForType(const 
     return interopData;
 }
 
-static int CompareIl2CppTokenIndexPair(const void* pkey, const void* pelem)
+static bool MatchTokens(Il2CppTokenIndexMethodTuple key, Il2CppTokenIndexMethodTuple element)
 {
-    return (int)(((Il2CppTokenIndexPair*)pkey)->token - ((Il2CppTokenIndexPair*)pelem)->token);
+    return key.token < element.token;
 }
 
-Il2CppMethodPointer il2cpp::vm::MetadataCache::GetReversePInvokeWrapper(const Il2CppImage* image, uint32_t token)
+Il2CppMethodPointer il2cpp::vm::MetadataCache::GetReversePInvokeWrapper(const Il2CppImage* image, const MethodInfo* method)
 {
     if (image->codeGenModule->reversePInvokeWrapperCount == 0)
         return NULL;
 
-    Il2CppTokenIndexPair key;
-    memset(&key, 0, sizeof(Il2CppTokenIndexPair));
-    key.token = token;
+    // For each image (i.e. assembly), the reverse pinvoke wrapper indices are in an array sorted by
+    // metadata token. Each entry also might have the method metadata pointer, which is used to further
+    // find methods that have a matching metadata token.
 
-    const Il2CppTokenIndexPair* res = (const Il2CppTokenIndexPair*)bsearch(&key, image->codeGenModule->reversePInvokeWrapperIndices, image->codeGenModule->reversePInvokeWrapperCount, sizeof(Il2CppTokenIndexPair), CompareIl2CppTokenIndexPair);
+    Il2CppTokenIndexMethodTuple key;
+    memset(&key, 0, sizeof(Il2CppTokenIndexMethodTuple));
+    key.token = method->token;
 
-    if (res == NULL)
+    // Binary search for a range which matches the metadata token.
+    auto begin = image->codeGenModule->reversePInvokeWrapperIndices;
+    auto end = image->codeGenModule->reversePInvokeWrapperIndices + image->codeGenModule->reversePInvokeWrapperCount;
+    auto matchingRange = std::equal_range(begin, end, key, &MatchTokens);
+
+    int32_t index = -1;
+    auto numberOfMatches = std::distance(matchingRange.first, matchingRange.second);
+    if (numberOfMatches == 1)
+    {
+        // Normal case - we found one non-generic method.
+        index = matchingRange.first->index;
+    }
+    else if (numberOfMatches > 1)
+    {
+        // Multiple generic instance methods share the same token, since it is from the generic method definition.
+        // To find the proper method, look for the one with a matching method metadata pointer.
+        const Il2CppTokenIndexMethodTuple* currentMatch = matchingRange.first;
+        const Il2CppTokenIndexMethodTuple* lastMatch = matchingRange.second;
+        while (currentMatch != lastMatch)
+        {
+            if (*currentMatch->method == method)
+            {
+                index = currentMatch->index;
+                break;
+            }
+            currentMatch++;
+        }
+    }
+
+    if (index == -1)
         return NULL;
-
-    uint32_t index = res->index;
 
     IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->reversePInvokeWrapperCount);
     return s_Il2CppCodeRegistration->reversePInvokeWrappers[index];
