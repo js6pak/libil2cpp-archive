@@ -47,7 +47,6 @@
 #include "os/Mutex.h"
 #include "os/Time.h"
 #include "utils/CallOnce.h"
-#include "vm/Atomic.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
@@ -634,7 +633,7 @@ static void heuristic_notify_work_completed (void)
 {
 	IL2CPP_ASSERT(g_ThreadPool);
 
-	il2cpp::vm::Atomic::Increment(&g_ThreadPool->heuristic_completions);
+	g_ThreadPool->heuristic_completions++;
 	g_ThreadPool->heuristic_last_dequeue = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
 }
 
@@ -657,7 +656,7 @@ static void heuristic_adjust (void)
 	IL2CPP_ASSERT(g_ThreadPool);
 
 	if (g_ThreadPool->heuristic_lock.TryLock()) {
-		int32_t completions = il2cpp::vm::Atomic::Exchange (&g_ThreadPool->heuristic_completions, 0);
+		int32_t completions = g_ThreadPool->heuristic_completions.exchange(0);
 		int64_t sample_end = il2cpp::os::Time::GetTicksMillisecondsMonotonic();
 		int64_t sample_duration = sample_end - g_ThreadPool->heuristic_sample_start;
 
