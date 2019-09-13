@@ -7,7 +7,6 @@
 #include "utils/Il2CppHStringReference.h"
 #include "utils/RegisterRuntimeInitializeAndCleanup.h"
 
-#include "vm/Atomic.h"
 #include "vm/ClassInlines.h"
 #include "vm/ScopedThreadAttacher.h"
 #include "vm/String.h"
@@ -671,16 +670,7 @@ Assembly_t* il2cpp_codegen_get_executing_assembly(const RuntimeMethod* method);
 
 // Atomic
 
-inline void* il2cpp_codegen_atomic_compare_exchange_pointer(void* volatile* dest, void* exchange, void* comparand)
-{
-    return il2cpp::vm::Atomic::CompareExchangePointer(dest, exchange, comparand);
-}
-
-template<typename T>
-inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* newValue, T* oldValue)
-{
-    return il2cpp::vm::Atomic::CompareExchangePointer(dest, newValue, oldValue);
-}
+void* il2cpp_codegen_atomic_compare_exchange_pointer(void** dest, void* exchange, void* comparand);
 
 // COM
 

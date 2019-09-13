@@ -1,9 +1,9 @@
 #include "il2cpp-config.h"
 #include "il2cpp-string-types.h"
 #include "metadata/GenericMetadata.h"
+#include "os/Atomic.h"
 #include "os/WindowsRuntime.h"
 #include "utils/StringUtils.h"
-#include "vm/Atomic.h"
 #include "vm/Class.h"
 #include "vm/COM.h"
 #include "vm/ComObjectBase.h"
@@ -163,7 +163,7 @@ il2cpp_hresult_t il2cpp::vm::ComObjectBase::GetFreeThreadedMarshalerNoAddRef(Il2
         if (IL2CPP_HR_FAILED(hr))
             return hr;
 
-        if (Atomic::CompareExchangePointer<Il2CppIMarshal>(&m_FreeThreadedMarshaler, freeThreadedMarshaler, NULL) != NULL)
+        if (os::Atomic::CompareExchangePointer<Il2CppIMarshal>(&m_FreeThreadedMarshaler, freeThreadedMarshaler, NULL) != NULL)
         {
             freeThreadedMarshaler->Release();
             freeThreadedMarshaler = m_FreeThreadedMarshaler;

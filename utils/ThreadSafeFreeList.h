@@ -1,6 +1,6 @@
 #pragma once
 
-#include "os/Unity/AtomicQueue.h"
+#include "utils/AtomicQueue.h"
 
 namespace il2cpp
 {
@@ -34,7 +34,7 @@ namespace utils
         void Release(T* instance)
         {
             ThreadSafeFreeListNode* node = static_cast<ThreadSafeFreeListNode*>(instance);
-            m_FreeList.Push(reinterpret_cast<il2cpp::os::AtomicNode*>(node));
+            m_FreeList.Push(reinterpret_cast<AtomicNode*>(node));
         }
 
         ~ThreadSafeFreeList()
@@ -46,7 +46,7 @@ namespace utils
 
     private:
 
-        ALIGN_TYPE(64) il2cpp::os::AtomicStack m_FreeList;
+        ALIGN_TYPE(64) AtomicStack m_FreeList;
     };
 } /* utils */
 } /* il2cpp */

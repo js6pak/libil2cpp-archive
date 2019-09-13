@@ -1,8 +1,10 @@
 #pragma once
 
 #include "NonCopyable.h"
-#include "../os/Atomic.h"
 #include "../os/Mutex.h"
+
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
 
 namespace il2cpp
 {
@@ -12,7 +14,7 @@ namespace utils
 
     struct OnceFlag : NonCopyable
     {
-        OnceFlag() : m_Flag(NULL)
+        OnceFlag() : m_IsSet(false)
         {
         }
 
@@ -20,23 +22,23 @@ namespace utils
 
         bool IsSet()
         {
-            return il2cpp::os::Atomic::ReadPointer(&m_Flag) ? true : false;
+            return m_IsSet;
         }
 
     private:
-        void* m_Flag;
+        baselib::atomic<bool> m_IsSet;
         il2cpp::os::FastMutex m_Mutex;
     };
 
     inline void CallOnce(OnceFlag& flag, CallOnceFunc func, void* arg)
     {
-        if (!il2cpp::os::Atomic::ReadPointer(&flag.m_Flag))
+        if (!flag.m_IsSet)
         {
             os::FastAutoLock lock(&flag.m_Mutex);
-            if (!il2cpp::os::Atomic::ReadPointer(&flag.m_Flag))
+            if (!flag.m_IsSet)
             {
                 func(arg);
-                il2cpp::os::Atomic::ExchangePointer(&flag.m_Flag, (void*)1);
+                flag.m_IsSet = true;
             }
         }
     }
