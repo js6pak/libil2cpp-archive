@@ -588,6 +588,7 @@ typedef struct Il2CppTokenIndexMethodTuple
     uint32_t token;
     int32_t index;
     void** method;
+    uint32_t genericMethodIndex;
 } Il2CppTokenIndexMethodTuple;
 
 typedef struct Il2CppCodeGenModule
