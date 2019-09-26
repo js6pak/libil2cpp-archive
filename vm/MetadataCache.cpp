@@ -820,7 +820,12 @@ Il2CppMethodPointer il2cpp::vm::MetadataCache::GetReversePInvokeWrapper(const Il
         const Il2CppTokenIndexMethodTuple* lastMatch = matchingRange.second;
         while (currentMatch != lastMatch)
         {
-            if (*currentMatch->method == method)
+            // First, check the method metadata, and use it if it has been initialized.
+            // If not, let's fall back to the generic method.
+            const MethodInfo* possibleMatch = (const MethodInfo*)*currentMatch->method;
+            if (possibleMatch == NULL)
+                possibleMatch = il2cpp::metadata::GenericMethod::GetMethod(GetGenericMethodFromIndex(currentMatch->genericMethodIndex));
+            if (possibleMatch == method)
             {
                 index = currentMatch->index;
                 break;
