@@ -24,6 +24,12 @@ namespace vm
         Il2CppClass* parameterType = Class::FromIl2CppType(parameter->parameter_type);
         if (parameterType->valuetype)
         {
+            if (strcmp(parameterType->name, "Nullable`1") == 0 && strcmp(parameterType->namespaze, "System") == 0)
+            {
+                parameterType = parameterType->element_class;
+                typeOfDefaultValue = &parameterType->byval_arg;
+            }
+
             Class::SetupFields(parameterType);
             IL2CPP_ASSERT(parameterType->size_inited);
             void* value = alloca(parameterType->instance_size - sizeof(Il2CppObject));
