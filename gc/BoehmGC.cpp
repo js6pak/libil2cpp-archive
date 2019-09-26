@@ -44,6 +44,11 @@ il2cpp::gc::GarbageCollector::Initialize()
     // Call this before GC_INIT since the initialization logic uses this value.
     GC_set_no_dls(1);
 
+#if !IL2CPP_DEVELOPMENT
+    // Turn off GC logging and warnings for non-development builds
+    GC_set_warn_proc(GC_ignore_warn_proc);
+#endif
+
 #if IL2CPP_ENABLE_WRITE_BARRIERS
     GC_enable_incremental();
 #if IL2CPP_INCREMENTAL_TIME_SLICE
