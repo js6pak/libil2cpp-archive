@@ -394,3 +394,19 @@ inline bool il2cpp_codegen_object_reference_equals(const RuntimeObject *obj1, co
 {
     return obj1 == obj2;
 }
+
+inline bool il2cpp_codegen_platform_is_osx()
+{
+    return IL2CPP_TARGET_OSX != 0;
+}
+
+inline bool il2cpp_codegen_platform_is_freebsd()
+{
+    // we don't currently support FreeBSD
+    return false;
+}
+
+inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
+{
+    return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
+}
