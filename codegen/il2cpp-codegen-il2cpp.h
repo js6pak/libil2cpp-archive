@@ -844,6 +844,9 @@ inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* szArray)
 
 inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* genArray, int32_t dimension)
 {
+    if (genArray->bounds == NULL)
+        return il2cpp_codegen_get_array_length(genArray);
+
     return static_cast<int32_t>(genArray->bounds[dimension].length);
 }
 
