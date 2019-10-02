@@ -17,6 +17,9 @@ void Logging::Write(const char* format, ...)
 {
     assert(s_Callback != NULL);
 
+    if (format == NULL)
+        return;
+
     va_list va;
     va_start(va, format);
 

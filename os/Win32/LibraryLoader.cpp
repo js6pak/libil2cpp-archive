@@ -38,7 +38,7 @@ namespace os
         const HardcodedPInvokeDependencyFunction* functions;
     };
 
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP && !IL2CPP_TARGET_WINDOWS_GAMES
     const HardcodedPInvokeDependencyFunction kAdvapiFunctions[] =
     {
 #if !IL2CPP_TARGET_XBOXONE
@@ -73,7 +73,7 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(GetNetworkParams),
     };
 
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP && !IL2CPP_TARGET_WINDOWS_GAMES
     const HardcodedPInvokeDependencyFunction kTimezoneFunctions[] =
     {
 #if !IL2CPP_TARGET_XBOXONE
@@ -97,7 +97,7 @@ namespace os
 // All these come without ".dll" extension!
     const HardcodedPInvokeDependencyLibrary kHardcodedPInvokeDependencies[] =
     {
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP // Some of these functions are win8+
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP && !IL2CPP_TARGET_WINDOWS_GAMES // Some of these functions are win8+
         HARDCODED_DEPENDENCY_LIBRARY(L"advapi32", kAdvapiFunctions),
         HARDCODED_DEPENDENCY_LIBRARY(L"api-ms-win-core-timezone-l1-1-0", kTimezoneFunctions),
 #endif
