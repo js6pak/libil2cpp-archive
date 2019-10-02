@@ -145,6 +145,13 @@ namespace gc
         return ptr;
     }
 
+    extern "C" void* GC_CALL GC_gcj_vector_malloc(size_t size, void * ptr_to_struct_containing_descr)
+    {
+        void ** ptr = (void**)GC_malloc_wrapper(size, kObject);
+        *ptr = ptr_to_struct_containing_descr;
+        return ptr;
+    }
+
     extern "C" void* GC_malloc_uncollectable(size_t size)
     {
         return GC_malloc_wrapper(size, kUncollectable);
