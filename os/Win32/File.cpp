@@ -32,7 +32,7 @@ namespace il2cpp
 {
 namespace os
 {
-#if IL2CPP_TARGET_WINDOWS_DESKTOP
+#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
 
     bool File::Isatty(FileHandle* fileHandle)
     {
@@ -55,7 +55,7 @@ namespace os
         return (FileHandle*)GetStdHandle(STD_OUTPUT_HANDLE);
     }
 
-#endif
+#endif // IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
 
     bool File::CreatePipe(FileHandle** read_handle, FileHandle** write_handle)
     {
@@ -65,7 +65,7 @@ namespace os
 
     bool File::CreatePipe(FileHandle** read_handle, FileHandle** write_handle, int* error)
     {
-#if IL2CPP_TARGET_WINDOWS_DESKTOP
+#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
         SECURITY_ATTRIBUTES attr;
 
         attr.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -82,13 +82,13 @@ namespace os
         }
 
         return true;
-#else
+#else // IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
         IL2CPP_VM_NOT_SUPPORTED("CreatePipe", "Pipes are not supported on WinRT based platforms.");
         return false;
-#endif
+#endif // IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
     }
 
-#if !IL2CPP_TARGET_XBOXONE
+#if !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
     UnityPalFileAttributes File::GetFileAttributes(const std::string& path, int *error)
     {
         const UTF16String utf16Path(utils::StringUtils::Utf8ToUtf16(path.c_str()));
@@ -112,7 +112,7 @@ namespace os
         return static_cast<UnityPalFileAttributes>(fileAttributes.dwFileAttributes);
     }
 
-#endif
+#endif // !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
 
     bool File::SetFileAttributes(const std::string& path, UnityPalFileAttributes attributes, int* error)
     {

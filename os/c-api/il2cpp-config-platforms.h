@@ -40,6 +40,9 @@
 #elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
 #define IL2CPP_TARGET_WINRT 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
+#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_GAMES)
+#define IL2CPP_TARGET_WINDOWS_GAMES 1
+#define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
 #else
 #define IL2CPP_TARGET_WINDOWS_DESKTOP 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
@@ -113,6 +116,10 @@
 
 #ifndef IL2CPP_TARGET_WINDOWS_DESKTOP
 #define IL2CPP_TARGET_WINDOWS_DESKTOP 0
+#endif
+
+#ifndef IL2CPP_TARGET_WINDOWS_GAMES
+#define IL2CPP_TARGET_WINDOWS_GAMES 0
 #endif
 
 #ifndef IL2CPP_TARGET_WINRT
@@ -244,7 +251,7 @@
 // Not supported on RUNTIME_MONO because we don't really care about it
 // Not supported on TINY because it doesn't support synchronization context
 // Not supported on no runtime because it needs to call back into the runtime!
-#define IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT (IL2CPP_TARGET_WINDOWS) && !RUNTIME_MONO && !IL2CPP_TINY && !RUNTIME_NONE
+#define IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT (IL2CPP_TARGET_WINDOWS) && !RUNTIME_MONO && !IL2CPP_TINY && !RUNTIME_NONE && !IL2CPP_TARGET_WINDOWS_GAMES
 
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \
