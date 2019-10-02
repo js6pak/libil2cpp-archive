@@ -14,7 +14,7 @@
 #include <Windows.h>
 #include <Objidl.h>
 
-#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINRT
+#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINRT || IL2CPP_TARGET_WINDOWS_GAMES
 #include <wincrypt.h>
 #include <Iphlpapi.h>
 #endif

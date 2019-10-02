@@ -9,6 +9,7 @@
 #include "vm/Profiler.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
+#include "il2cpp-object-internals.h"
 
 static bool s_GCInitialized = false;
 
@@ -28,6 +29,56 @@ typedef Il2CppHashMap<char*, char*, il2cpp::utils::PassThroughHash<char*> > Root
 static RootMap s_Roots;
 
 static void push_other_roots(void);
+
+#if !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+#define ELEMENT_CHUNK_SIZE 256
+#define VECTOR_PROC_INDEX 6
+
+#define BYTES_PER_WORD (sizeof(GC_word))
+
+#include <gc_vector.h>
+
+GC_ms_entry* GC_gcj_vector_proc(GC_word* addr, GC_ms_entry* mark_stack_ptr,
+    GC_ms_entry* mark_stack_limit, GC_word env)
+{
+    Il2CppArraySize* a = NULL;
+    if (env)
+    {
+        IL2CPP_ASSERT(env == 1);
+
+        a = (Il2CppArraySize*)GC_base(addr);
+    }
+    else
+    {
+        IL2CPP_ASSERT(addr == GC_base(addr));
+
+        a = (Il2CppArraySize*)addr;
+    }
+
+    if (!a->max_length)
+        return mark_stack_ptr;
+
+    il2cpp_array_size_t length = a->max_length;
+    Il2CppClass* array_type = a->vtable->klass;
+    Il2CppClass* element_type = array_type->element_class;
+    GC_descr element_desc = (GC_descr)element_type->gc_desc;
+
+    IL2CPP_ASSERT((element_desc & GC_DS_TAGS) == GC_DS_BITMAP);
+    IL2CPP_ASSERT(element_type->valuetype);
+
+    int words_per_element = array_type->element_size / BYTES_PER_WORD;
+    GC_word* actual_start = (GC_word*)a->vector;
+
+    /* start at first element or resume from last iteration */
+    GC_word* start = env ? addr : actual_start;
+    /* end at last element or max chunk size */
+    GC_word* actual_end = actual_start + length * words_per_element;
+
+    return GC_gcj_vector_mark_proc(mark_stack_ptr, element_desc, start, actual_end, words_per_element);
+}
+
+#endif // !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+
 #endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 void
@@ -79,6 +130,10 @@ il2cpp::gc::GarbageCollector::Initialize()
 #endif
 #ifdef GC_GCJ_SUPPORT
     GC_init_gcj_malloc(0, NULL);
+#endif
+
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER && !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    GC_init_gcj_vector(VECTOR_PROC_INDEX, (void*)GC_gcj_vector_proc);
 #endif
     s_GCInitialized = true;
 }
