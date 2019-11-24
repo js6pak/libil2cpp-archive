@@ -3258,8 +3258,12 @@ namespace System
             }
             else
             {
-                i = -i;
-                if (i <= 0)
+                // i is signed here, so for 2147483648 we would see -2147483648 here
+                // negating it is undefined behavior by C++ standard (overflow)
+                // if changing this, make sure to check -2147483648 converts to Int32
+                if (i <= INT32_MAX)
+                    return -i;
+                else if (i == INT32_MIN)
                     return i;
             }
         }
