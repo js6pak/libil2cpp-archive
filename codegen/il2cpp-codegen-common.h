@@ -109,6 +109,22 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     return llabs(value);
 }
 
+template<typename TInput, typename TOutput, typename TFloat>
+inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
+{
+#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
+    // On ARM, a cast from a floating point to integer value will use
+    // the min or max value if the cast is out of range (instead of
+    // overflowing like x86/x64). So first do a cast to the output
+    // type (which is signed in .NET - the value stack does not have
+    // unsigned types) to try to get the value into a range that will
+    // actually be cast.
+    if (value < 0)
+        return (TOutput)((TInput)(TOutput)value);
+#endif
+    return (TOutput)((TInput)value);
+}
+
 // Exception support macros
 #define IL2CPP_LEAVE(Offset, Target) \
     __leave_targets.push(Offset); \
