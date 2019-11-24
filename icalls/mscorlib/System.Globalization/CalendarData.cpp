@@ -20,7 +20,7 @@ namespace System
 {
 namespace Globalization
 {
-    static Il2CppArray* calendar_data_create_names_array_idx(const uint16_t* names, int max, const char* strings_array)
+    static Il2CppArray* calendar_data_create_names_array_idx(const uint16_t* names, int max, const char* strings_array, bool padWithEmptyString)
     {
         if (names == NULL)
             return NULL;
@@ -33,12 +33,13 @@ namespace Globalization
             len++;
         }
 
-        Il2CppArray* ret = il2cpp_array_new_specific(il2cpp_array_class_get(il2cpp_defaults.string_class, 1), len + 1);
+        Il2CppArray* ret = il2cpp_array_new_specific(il2cpp_array_class_get(il2cpp_defaults.string_class, 1), padWithEmptyString ? len + 1 : len);
 
         for (int i = 0; i < len; i++)
             il2cpp_array_setref(ret, i, il2cpp_string_new(strings_array + names[i]));
 
-        il2cpp_array_setref(ret, len, vm::String::Empty());
+        if (padWithEmptyString)
+            il2cpp_array_setref(ret, len, vm::String::Empty());
 
         return ret;
     }
@@ -72,26 +73,26 @@ namespace Globalization
         dfe = &datetime_format_entries[ci->datetime_format_index];
 
         IL2CPP_OBJECT_SETREF(_this, NativeName, il2cpp_string_new(idx2string(ci->nativename)));
-        Il2CppArray *short_date_patterns = calendar_data_create_names_array_idx(dfe->short_date_patterns, NUM_SHORT_DATE_PATTERNS, &patterns[0]);
+        Il2CppArray *short_date_patterns = calendar_data_create_names_array_idx(dfe->short_date_patterns, NUM_SHORT_DATE_PATTERNS, &patterns[0], true);
         IL2CPP_OBJECT_SETREF(_this, ShortDatePatterns, short_date_patterns);
-        Il2CppArray *year_month_patterns = calendar_data_create_names_array_idx(dfe->year_month_patterns, NUM_YEAR_MONTH_PATTERNS, &patterns[0]);
+        Il2CppArray *year_month_patterns = calendar_data_create_names_array_idx(dfe->year_month_patterns, NUM_YEAR_MONTH_PATTERNS, &patterns[0], true);
         IL2CPP_OBJECT_SETREF(_this, YearMonthPatterns, year_month_patterns);
-        Il2CppArray *long_date_patterns = calendar_data_create_names_array_idx(dfe->long_date_patterns, NUM_LONG_DATE_PATTERNS, &patterns[0]);
+        Il2CppArray *long_date_patterns = calendar_data_create_names_array_idx(dfe->long_date_patterns, NUM_LONG_DATE_PATTERNS, &patterns[0], true);
         IL2CPP_OBJECT_SETREF(_this, LongDatePatterns, long_date_patterns);
         IL2CPP_OBJECT_SETREF(_this, MonthDayPattern, il2cpp_string_new(pattern2string(dfe->month_day_pattern)));
-        Il2CppArray *day_names = calendar_data_create_names_array_idx(dfe->day_names, NUM_DAYS, &datetime_strings[0]);
+        Il2CppArray *day_names = calendar_data_create_names_array_idx(dfe->day_names, NUM_DAYS, &datetime_strings[0], false);
         IL2CPP_OBJECT_SETREF(_this, DayNames, day_names);
-        Il2CppArray *abbr_day_names = calendar_data_create_names_array_idx(dfe->abbreviated_day_names, NUM_DAYS, &datetime_strings[0]);
+        Il2CppArray *abbr_day_names = calendar_data_create_names_array_idx(dfe->abbreviated_day_names, NUM_DAYS, &datetime_strings[0], true);
         IL2CPP_OBJECT_SETREF(_this, AbbreviatedDayNames, abbr_day_names);
-        Il2CppArray *ss_day_names = calendar_data_create_names_array_idx(dfe->shortest_day_names, NUM_DAYS, &datetime_strings[0]);
+        Il2CppArray *ss_day_names = calendar_data_create_names_array_idx(dfe->shortest_day_names, NUM_DAYS, &datetime_strings[0], true);
         IL2CPP_OBJECT_SETREF(_this, SuperShortDayNames, ss_day_names);
-        Il2CppArray *month_names = calendar_data_create_names_array_idx(dfe->month_names, NUM_MONTHS, &datetime_strings[0]);
+        Il2CppArray *month_names = calendar_data_create_names_array_idx(dfe->month_names, NUM_MONTHS, &datetime_strings[0], true);
         IL2CPP_OBJECT_SETREF(_this, MonthNames, month_names);
-        Il2CppArray *abbr_mon_names = calendar_data_create_names_array_idx(dfe->abbreviated_month_names, NUM_MONTHS, &datetime_strings[0]);
+        Il2CppArray *abbr_mon_names = calendar_data_create_names_array_idx(dfe->abbreviated_month_names, NUM_MONTHS, &datetime_strings[0], true);
         IL2CPP_OBJECT_SETREF(_this, AbbreviatedMonthNames, abbr_mon_names);
-        Il2CppArray *gen_month_names = calendar_data_create_names_array_idx(dfe->month_genitive_names, NUM_MONTHS, &datetime_strings[0]);
+        Il2CppArray *gen_month_names = calendar_data_create_names_array_idx(dfe->month_genitive_names, NUM_MONTHS, &datetime_strings[0], true);
         IL2CPP_OBJECT_SETREF(_this, GenitiveMonthNames, gen_month_names);
-        Il2CppArray *gen_abbr_mon_names = calendar_data_create_names_array_idx(dfe->abbreviated_month_genitive_names, NUM_MONTHS, &datetime_strings[0]);
+        Il2CppArray *gen_abbr_mon_names = calendar_data_create_names_array_idx(dfe->abbreviated_month_genitive_names, NUM_MONTHS, &datetime_strings[0], true);
         IL2CPP_OBJECT_SETREF(_this, GenitiveAbbreviatedMonthNames, gen_abbr_mon_names);
 
         return true;
