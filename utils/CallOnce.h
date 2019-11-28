@@ -1,10 +1,10 @@
 #pragma once
 
 #include "NonCopyable.h"
-#include "../os/Mutex.h"
 
 #include "Baselib.h"
 #include "Cpp/Atomic.h"
+#include "Cpp/Lock.h"
 
 namespace il2cpp
 {
@@ -27,19 +27,20 @@ namespace utils
 
     private:
         baselib::atomic<bool> m_IsSet;
-        il2cpp::os::FastMutex m_Mutex;
+        baselib::Lock m_Lock;
     };
 
     inline void CallOnce(OnceFlag& flag, CallOnceFunc func, void* arg)
     {
         if (!flag.m_IsSet)
         {
-            os::FastAutoLock lock(&flag.m_Mutex);
-            if (!flag.m_IsSet)
-            {
-                func(arg);
-                flag.m_IsSet = true;
-            }
+            flag.m_Lock.AcquireScoped([&flag, &func, &arg] {
+                if (!flag.m_IsSet)
+                {
+                    func(arg);
+                    flag.m_IsSet = true;
+                }
+            });
         }
     }
 }
