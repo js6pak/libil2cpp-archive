@@ -724,8 +724,8 @@ namespace vm
 
         // use fixed GC memory since we are storing managed object pointers
         StartDataInternal* startData = (StartDataInternal*)gc::GarbageCollector::AllocateFixed(sizeof(StartDataInternal), NULL);
-        startData->m_Thread = thread;
-        startData->m_Domain = Domain::GetCurrent();
+        gc::WriteBarrier::GenericStore(&startData->m_Thread, thread);
+        gc::WriteBarrier::GenericStore(&startData->m_Domain, Domain::GetCurrent());
         startData->m_Delegate = (void*)func;
         startData->m_StartArg = arg;
         startData->m_Semaphore = new il2cpp::os::Semaphore(0);
