@@ -24,7 +24,8 @@ namespace System
         static double Log10(double val);
         static double Pow(double val, double exp);
         static double Round(double x);
-        static double Round2(double value, int32_t digits, bool away_from_zero);
+        static double RoundDigits(double x, int32_t digits);
+        static double RoundMidpoint(double value, int32_t digits, bool away_from_zero);
         static double Sin(double val);
         static double Sinh(double val);
         static double Sqrt(double val);
