@@ -20,11 +20,6 @@
 #include <sys/time.h>
 #endif
 
-#if IL2CPP_TARGET_ANDROID
-#include "os/Android/TimeSinceStartupMonotonicBoottimeClockCombiner.h"
-static TimeSinceStartupMonotonicBoottimeClockCombiner s_TimeSinceStartupTracker;
-#endif
-
 /* a made up uptime of 300 seconds */
 #define MADEUP_BOOT_TIME (300 * MTICKS_PER_SEC)
 
@@ -34,28 +29,6 @@ namespace os
 {
     const int64_t MTICKS_PER_SEC = 10000000;
 
-#if defined(CLOCK_MONOTONIC) && !IL2CPP_TARGET_DARWIN
-    static int64_t
-    GetPOSIXTimeForClass(int clockClass)
-    {
-        struct timespec tspec;
-        static struct timespec tspec_freq = {0};
-        static int can_use_clock = 0;
-        if (!tspec_freq.tv_nsec)
-        {
-            can_use_clock = clock_getres(clockClass, &tspec_freq) == 0;
-        }
-        if (can_use_clock)
-        {
-            if (clock_gettime(clockClass, &tspec) == 0)
-            {
-                return ((int64_t)tspec.tv_sec * MTICKS_PER_SEC + tspec.tv_nsec / 100);
-            }
-        }
-        return 0;
-    }
- #endif
- 
     static int64_t
     GetBootTime()
     {
@@ -74,8 +47,6 @@ namespace os
 
         if (sysctl(mib, 2, &boottime, &size, NULL, 0) != -1)
             return (int64_t)((now - boottime.tv_sec) * MTICKS_PER_SEC);
-#elif IL2CPP_TARGET_ANDROID
-        return GetPOSIXTimeForClass(CLOCK_BOOTTIME);
 #else
         FILE *uptime = fopen("/proc/uptime", "r");
 
@@ -100,12 +71,21 @@ namespace os
 
     uint32_t Time::GetTicksMillisecondsMonotonic()
     {
+#if IL2CPP_TARGET_ANDROID
+        struct timespec ts;
+        if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+        {
+            return (int64_t)MADEUP_BOOT_TIME;
+        }
+        return (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
+#else
         static int64_t boot_time = 0;
         int64_t now;
         if (!boot_time)
             boot_time = GetBootTime();
         now = GetTicks100NanosecondsMonotonic();
         return (uint32_t)((now - boot_time) / 10000);
+#endif
     }
 
     int64_t Time::GetTicks100NanosecondsMonotonic()
@@ -122,12 +102,20 @@ namespace os
         }
         return now * timebase.numer / timebase.denom;
 #elif defined(CLOCK_MONOTONIC)
-
-#if IL2CPP_TARGET_ANDROID
-        return s_TimeSinceStartupTracker.GetTimeSinceStartup(GetPOSIXTimeForClass(CLOCK_MONOTONIC), GetBootTime());
-#else
-        return GetPOSIXTimeForClass(CLOCK_MONOTONIC);
-#endif
+        struct timespec tspec;
+        static struct timespec tspec_freq = {0};
+        static int can_use_clock = 0;
+        if (!tspec_freq.tv_nsec)
+        {
+            can_use_clock = clock_getres(CLOCK_MONOTONIC, &tspec_freq) == 0;
+        }
+        if (can_use_clock)
+        {
+            if (clock_gettime(CLOCK_MONOTONIC, &tspec) == 0)
+            {
+                return ((int64_t)tspec.tv_sec * MTICKS_PER_SEC + tspec.tv_nsec / 100);
+            }
+        }
 
 #endif
         if (gettimeofday(&tv, NULL) == 0)
