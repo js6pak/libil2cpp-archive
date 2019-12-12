@@ -411,9 +411,9 @@ inline bool il2cpp_codegen_object_reference_equals(const RuntimeObject *obj1, co
     return obj1 == obj2;
 }
 
-inline bool il2cpp_codegen_platform_is_osx()
+inline bool il2cpp_codegen_platform_is_osx_or_ios()
 {
-    return IL2CPP_TARGET_OSX != 0;
+    return IL2CPP_TARGET_OSX != 0 || IL2CPP_TARGET_IOS != 0;
 }
 
 inline bool il2cpp_codegen_platform_is_freebsd()
