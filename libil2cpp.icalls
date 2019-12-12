@@ -415,7 +415,8 @@ System.Math::Log(System.Double) mscorlib::System::Math::Log
 System.Math::Log10(System.Double) mscorlib::System::Math::Log10
 System.Math::Pow(System.Double,System.Double) mscorlib::System::Math::Pow
 System.Math::Round(System.Double) mscorlib::System::Math::Round
-System.Math::Round2(System.Double,System.Int32,System.Boolean) mscorlib::System::Math::Round2
+System.Math::Round(System.Double,System.Int32) mscorlib::System::Math::RoundDigits
+System.Math::RoundMidpoint(System.Double,System.Int32,System.Boolean) mscorlib::System::Math::RoundMidpoint
 System.Math::Sin(System.Double) mscorlib::System::Math::Sin
 System.Math::Sinh(System.Double) mscorlib::System::Math::Sinh
 System.Math::Sqrt(System.Double) mscorlib::System::Math::Sqrt

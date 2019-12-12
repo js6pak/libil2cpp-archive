@@ -35,12 +35,20 @@ namespace os
             {
                 jobject def = env->CallStaticObjectMethod(localeClass, getDefault);
                 jmethodID toLanguageTag = env->GetMethodID(localeClass, "toLanguageTag", "()Ljava/lang/String;");
-                jstring tag = (jstring)env->CallObjectMethod(def, toLanguageTag);
-                const char *nativeTag = env->GetStringUTFChars(tag, nullptr);
-                __android_log_print(ANDROID_LOG_INFO, "IL2CPP", "Locale %s", nativeTag);
-                locale = nativeTag;
-                env->ReleaseStringUTFChars(tag, nativeTag);
+                // toLanguageTag is available since API 21 only, so returning default locale for Android 4.4
+                if (toLanguageTag != nullptr)
+                {
+                    jstring tag = (jstring)env->CallObjectMethod(def, toLanguageTag);
+                    const char *nativeTag = env->GetStringUTFChars(tag, nullptr);
+                    __android_log_print(ANDROID_LOG_INFO, "IL2CPP", "Locale %s", nativeTag);
+                    locale = nativeTag;
+                    env->ReleaseStringUTFChars(tag, nativeTag);
+                }
             }
+        }
+        if (env->ExceptionCheck())
+        {
+            env->ExceptionClear();
         }
 
         if (detached)

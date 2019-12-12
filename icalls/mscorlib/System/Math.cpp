@@ -126,6 +126,29 @@ namespace System
         return int_part;
     }
 
+    double Math::RoundDigits(double value, int32_t digits)
+    {
+        return RoundMidpoint(value, digits, false);
+    }
+
+    double Math::RoundMidpoint(double value, int32_t digits, bool away_from_zero)
+    {
+        double p;
+        if (value == HUGE_VAL)
+            return HUGE_VAL;
+        if (value == -HUGE_VAL)
+            return -HUGE_VAL;
+        if (digits == 0 && !away_from_zero)
+            return Round(value);
+
+        p = pow(10.0, digits);
+
+        if (away_from_zero)
+            return std::round(value * p) / p;
+        else
+            return std::rint(value * p) / p;
+    }
+
     double Math::Sin(double val)
     {
         return sin(val);
@@ -149,32 +172,6 @@ namespace System
     double Math::Tanh(double val)
     {
         return tanh(val);
-    }
-
-    double Math::Round2(double value, int32_t digits, bool away_from_zero)
-    {
-        double p;
-        if (value == HUGE_VAL)
-            return HUGE_VAL;
-        if (value == -HUGE_VAL)
-            return -HUGE_VAL;
-        if (digits == 0 && !away_from_zero)
-            return Round(value);
-
-        p = pow(10.0, digits);
-
-// Note: Migrate to C++11 when possible
-#if 0
-        if (away_from_zero)
-            return std::round(value * p) / p;
-        else
-            return std::rint(value * p) / p;
-#else
-        if (away_from_zero)
-            return (value >= 0.0) ? floor(value * p + 0.5) / p : ceil(value * p - 0.5) / p;
-        else
-            return (value >= 0.0) ? ceil(value * p - 0.5) / p : floor(value * p + 0.5) / p;
-#endif
     }
 
     double Math::Abs(double value)

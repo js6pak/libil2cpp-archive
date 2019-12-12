@@ -895,9 +895,9 @@ inline String_t* il2cpp_codegen_string_new_length(int length)
 
 Type_t* il2cpp_codegen_get_base_type(const Type_t* t);
 
-Type_t* il2cpp_codegen_get_type_from_handle(intptr_t handle);
-
 bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right);
+
+int il2cpp_codegen_double_to_string(double value, uint8_t* format, uint8_t* buffer, int bufferLength);
 
 template<typename T>
 struct Il2CppReversePInvokeMethodHolder
