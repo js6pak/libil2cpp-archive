@@ -8,6 +8,9 @@
 #include "utils/StringUtils.h"
 #include "utils/Memory.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 namespace il2cpp
 {
 namespace icalls
@@ -22,7 +25,7 @@ namespace IO
 {
 namespace MemoryMappedFiles
 {
-    static os::FastMutex s_Mutex;
+    static baselib::ReentrantLock s_Mutex;
     static std::vector<os::FileHandle*> s_OwnedFileHandles;
 
     typedef struct

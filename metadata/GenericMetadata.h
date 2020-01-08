@@ -40,6 +40,8 @@ namespace metadata
         static void WalkAllGenericClasses(GenericClassWalkCallback callback, void* context);
 
         static const int MaximumRuntimeGenericDepth = 8;
+
+        static void Clear();
     };
 } /* namespace vm */
 } /* namespace il2cpp */

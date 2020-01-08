@@ -67,11 +67,14 @@ namespace vm
         static bool IsProperty(Il2CppObject *obj);
         static bool IsEvent(Il2CppObject *obj);
 
+        static void ClearStatics();
+
 // internal
     public:
         static void Initialize();
         static Il2CppClass* TypeGetHandle(Il2CppReflectionType* ref);
         static Il2CppObject* GetDBNullObject();
+        static Il2CppClass* GetConstructorInfo();
 
         static Il2CppObject* GetCustomAttribute(CustomAttributeIndex index, Il2CppClass* attribute);
         static Il2CppArray* ConstructCustomAttributes(CustomAttributeIndex index);

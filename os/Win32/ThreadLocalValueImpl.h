@@ -1,5 +1,7 @@
 #pragma once
 
+#include "il2cpp-config.h"
+
 #if IL2CPP_THREADS_WIN32
 
 #include "os/c-api/il2cpp-config-platforms.h"
@@ -51,13 +53,14 @@ namespace os
         inline ThreadLocalValueImpl()
         {
             m_Index = TlsAlloc();
-
             IL2CPP_ASSERT(m_Index != IL2CPP_TLS_OUT_OF_INDEXES);
         }
 
         inline ~ThreadLocalValueImpl()
         {
-            IL2CPP_ASSERT(TlsFree(m_Index));
+            bool success = TlsFree(m_Index);
+            NO_UNUSED_WARNING(success);
+            IL2CPP_ASSERT(success);
         }
 
         inline ErrorCode SetValue(void* value)

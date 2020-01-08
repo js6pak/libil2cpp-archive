@@ -101,6 +101,7 @@ DO_API(Il2CppException*, il2cpp_get_exception_argument_null, (const char *arg));
 DO_API(void, il2cpp_format_exception, (const Il2CppException * ex, char* message, int message_size));
 DO_API(void, il2cpp_format_stack_trace, (const Il2CppException * ex, char* output, int output_size));
 DO_API(void, il2cpp_unhandled_exception, (Il2CppException*));
+DO_API(void, il2cpp_native_stack_trace, (const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char* imageUUID));
 
 // field
 DO_API(int, il2cpp_field_get_flags, (FieldInfo * field));
@@ -246,6 +247,7 @@ DO_API(bool, il2cpp_current_thread_get_frame_at, (int32_t offset, Il2CppStackFra
 DO_API(bool, il2cpp_thread_get_frame_at, (Il2CppThread * thread, int32_t offset, Il2CppStackFrameInfo * frame));
 DO_API(int32_t, il2cpp_current_thread_get_stack_depth, ());
 DO_API(int32_t, il2cpp_thread_get_stack_depth, (Il2CppThread * thread));
+DO_API(void, il2cpp_override_stack_backtrace, (Il2CppBacktraceFunc stackBacktraceFunc));
 
 // type
 DO_API(Il2CppObject*, il2cpp_type_get_object, (const Il2CppType * type));

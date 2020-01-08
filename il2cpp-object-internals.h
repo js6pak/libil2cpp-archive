@@ -43,8 +43,15 @@ namespace il2cpp
 {
 namespace os
 {
-    class FastMutex;
     class Thread;
+}
+}
+
+namespace baselib
+{
+    inline namespace il2cpp_baselib
+{
+    class ReentrantLock;
 }
 }
 #endif //__cplusplus
@@ -365,7 +372,7 @@ typedef struct Il2CppInternalThread
     void* appdomain_refs;
     int32_t interruption_requested;
 #ifdef __cplusplus
-    il2cpp::os::FastMutex* synch_cs;
+    baselib::ReentrantLock* synch_cs;
 #else
     void* synch_cs;
 #endif //__cplusplus
