@@ -84,12 +84,14 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #define IL2CPP_NO_ALIAS __declspec(noalias)
-#define IL2CPP_RESTRICT __declspec(restrict)
+#define IL2CPP_PARAMETER_RESTRICT __restrict
+#define IL2CPP_METHOD_RESTRICT __declspec(restrict)
 #define IL2CPP_ASSUME(x) __assume(x)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
 #define IL2CPP_NO_ALIAS
-#define IL2CPP_RESTRICT
+#define IL2CPP_PARAMETER_RESTRICT
+#define IL2CPP_METHOD_RESTRICT
 #define IL2CPP_ASSUME(x)
 #endif
 
@@ -101,6 +103,7 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 
 #define IL2CPP_ENABLE_MONO_BUG_EMULATION 1
 
+#ifndef ALIGN_OF // Baselib header can also define this - if so use their definition.
 #if defined(__GNUC__) || defined(__SNC__) || defined(__clang__)
     #define ALIGN_OF(T) __alignof__(T)
     #define ALIGN_TYPE(val) __attribute__((aligned(val)))
@@ -119,6 +122,7 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
     #define ALIGN_TYPE(size)
     #define ALIGN_FIELD(size)
     #define IL2CPP_FORCE_INLINE inline
+#endif
 #endif
 
 #define IL2CPP_PAGE_SIZE 4096
@@ -163,6 +167,11 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
 #define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_LUMIN)
+#endif
+
+/* Platforms which support native IP emission to crash reporting to enable server-side reconstruction of C# exception stack trace line numbers */
+#if !defined(IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION)
+#define IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID)
 #endif
 
 #if IL2CPP_ENABLE_STACKTRACES
@@ -224,8 +233,8 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #define IL2CPP_UNREACHABLE
 #endif
 
-typedef uint32_t Il2CppMethodSlot;
-static const uint32_t kInvalidIl2CppMethodSlot = 65535;
+typedef uint16_t Il2CppMethodSlot;
+static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 
 /* Debug macros */
 

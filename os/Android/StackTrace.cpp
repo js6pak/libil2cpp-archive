@@ -75,7 +75,7 @@ namespace
     };
 }
 
-    void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder)
+    void StackTrace::WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder)
     {
         AndroidStackTrace callstack = {};
         _Unwind_Backtrace(AndroidStackTrace::Callback, &callstack);

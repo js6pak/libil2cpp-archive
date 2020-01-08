@@ -31,7 +31,21 @@ namespace vm
         kThreadStateWaitSleepJoin = 0x00000020,
         kThreadStateSuspended = 0x00000040,
         kThreadStateAbortRequested = 0x00000080,
-        kThreadStateAborted = 0x00000100
+        kThreadStateAborted = 0x00000100,
+
+        // This enum is used with the ~ operator to clear values. to avoid undefined
+        // behavior in C++, the cleared state of each value should also be present
+        // in the enum.
+        kThreadStateRunningCleared = ~kThreadStateRunning,
+        kThreadStateStopRequestedCleared = ~kThreadStateStopRequested,
+        kThreadStateSuspendRequestedCleared = ~kThreadStateSuspendRequested,
+        kThreadStateBackgroundCleared = ~kThreadStateBackground,
+        kThreadStateUnstartedCleared = ~kThreadStateUnstarted,
+        kThreadStateStoppedCleared = ~kThreadStateStopped,
+        kThreadStateWaitSleepJoinCleared = ~kThreadStateWaitSleepJoin,
+        kThreadStateSuspendedCleared = ~kThreadStateSuspended,
+        kThreadStateAbortRequestedCleared = ~kThreadStateAbortRequested,
+        kThreadStateAbortedCleared = ~kThreadStateAborted,
     };
 
 
@@ -77,7 +91,7 @@ namespace vm
     public:
         // internal
         static void Initialize();
-        static void UnInitialize();
+        static void Uninitialize();
 
         static void AdjustStaticData();
         static int32_t AllocThreadStaticData(int32_t size);

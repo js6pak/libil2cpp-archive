@@ -84,6 +84,12 @@ void il2cpp_codegen_register(const Il2CppCodeRegistration* const codeRegistratio
     il2cpp::vm::MetadataCache::Register(codeRegistration, metadataRegistration, codeGenOptions);
 }
 
+extern MetadataInitializerCleanupFunc g_ClearMethodMetadataInitializedFlags;
+void il2cpp_codegen_register_metadata_initialized_cleanup(MetadataInitializerCleanupFunc cleanup)
+{
+    g_ClearMethodMetadataInitializedFlags = cleanup;
+}
+
 void il2cpp_codegen_initialize_method(uint32_t index)
 {
     il2cpp::vm::MetadataCache::InitializeMethodMetadata(index);
