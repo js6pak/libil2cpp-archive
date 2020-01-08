@@ -120,7 +120,7 @@ namespace
     };
 }
 
-    void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder)
+    void StackTrace::WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder)
     {
         LuminStackTrace callstack = {};
         _Unwind_Backtrace(LuminStackTrace::Callback, &callstack);

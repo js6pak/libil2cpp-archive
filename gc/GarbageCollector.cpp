@@ -9,6 +9,9 @@
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 #if !IL2CPP_TINY_WITHOUT_DEBUGGER
 #include "vm/CCW.h"
 #include "vm/Class.h"
@@ -73,7 +76,7 @@ namespace gc
 
     typedef Il2CppHashMap<Il2CppObject*, CachedCCW, utils::PointerHash<Il2CppObject> > CCWCache;
 
-    static FastMutex s_CCWCacheMutex;
+    static baselib::ReentrantLock s_CCWCacheMutex;
     static CCWCache s_CCWCache;
 
 #if IL2CPP_SUPPORT_THREADS
@@ -136,6 +139,8 @@ namespace gc
         s_FinalizerThread->Join();
         delete s_FinalizerThread;
         s_FinalizerThread = NULL;
+        s_StopFinalizer = false;
+        s_FinalizerThreadObject = NULL;
 #endif
     }
 

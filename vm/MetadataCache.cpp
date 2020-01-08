@@ -46,6 +46,9 @@
 #include "vm-utils/NativeSymbol.h"
 #include "vm-utils/VmStringUtils.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 typedef std::map<Il2CppClass*, Il2CppClass*> PointerTypeMap;
 typedef Il2CppHashMap<const char*, Il2CppClass*, il2cpp::utils::StringUtils::StringHasher<const char*>, il2cpp::utils::VmStringUtils::CaseSensitiveComparer> WindowsRuntimeTypeNameToClassMap;
 typedef Il2CppHashMap<const Il2CppClass*, const char*, il2cpp::utils::PointerHash<Il2CppClass> > ClassToWindowsRuntimeTypeNameMap;
@@ -56,7 +59,7 @@ static Il2CppGenericMethodSet s_GenericMethodSet;
 
 struct Il2CppMetadataCache
 {
-    il2cpp::os::FastMutex m_CacheMutex;
+    baselib::ReentrantLock m_CacheMutex;
     PointerTypeMap m_PointerTypes;
 };
 
@@ -285,6 +288,12 @@ void il2cpp::vm::MetadataCache::InitializeStringLiteralTable()
     s_StringLiteralTable = (Il2CppString**)il2cpp::gc::GarbageCollector::AllocateFixed(s_GlobalMetadataHeader->stringLiteralCount / sizeof(Il2CppStringLiteral) * sizeof(Il2CppString*), NULL);
 }
 
+void ClearStringLiteralTable()
+{
+    il2cpp::gc::GarbageCollector::FreeFixed(s_StringLiteralTable);
+    s_StringLiteralTable = NULL;
+}
+
 void il2cpp::vm::MetadataCache::InitializeGenericMethodTable()
 {
     for (int32_t i = 0; i < s_Il2CppMetadataRegistration->genericMethodTableCount; i++)
@@ -293,6 +302,11 @@ void il2cpp::vm::MetadataCache::InitializeGenericMethodTable()
         const Il2CppGenericMethod* genericMethod = GetGenericMethodFromIndex(genericMethodIndices->genericMethodIndex);
         s_MethodTableMap.insert(std::make_pair(genericMethod, &genericMethodIndices->indices));
     }
+}
+
+void ClearGenericMethodTable()
+{
+    s_MethodTableMap.clear();
 }
 
 void il2cpp::vm::MetadataCache::InitializeWindowsRuntimeTypeNamesTables()
@@ -316,6 +330,11 @@ void il2cpp::vm::MetadataCache::InitializeWindowsRuntimeTypeNamesTables()
 
         s_ClassToWindowsRuntimeTypeNameMap.insert(std::make_pair(klass, name));
     }
+}
+
+void ClearWindowsRuntimeTypeNamesTables()
+{
+    s_ClassToWindowsRuntimeTypeNameMap.clear();
 }
 
 void il2cpp::vm::MetadataCache::InitializeGuidToClassTable()
@@ -346,6 +365,61 @@ void il2cpp::vm::MetadataCache::InitializeGCSafe()
     InitializeGenericMethodTable();
     InitializeWindowsRuntimeTypeNamesTables();
     InitializeGuidToClassTable();
+}
+
+void ClearImageNames()
+{
+    for (int32_t imageIndex = 0; imageIndex < s_ImagesCount; imageIndex++)
+    {
+        Il2CppImage* image = s_ImagesTable + imageIndex;
+        IL2CPP_FREE((void*)image->nameNoExt);
+    }
+}
+
+void FreeAndNull(void** pointer)
+{
+    IL2CPP_FREE(*pointer);
+    *pointer = NULL;
+}
+
+void il2cpp::vm::MetadataCache::Clear()
+{
+    ClearStringLiteralTable();
+    ClearGenericMethodTable();
+    ClearWindowsRuntimeTypeNamesTables();
+
+    delete s_pUnresolvedSignatureMap;
+
+    il2cpp::vm::Assembly::ClearAllAssemblies();
+
+    ClearImageNames();
+
+    FreeAndNull((void**)&s_TypeInfoTable);
+    FreeAndNull((void**)&s_TypeInfoDefinitionTable);
+    FreeAndNull((void**)&s_MethodInfoDefinitionTable);
+    FreeAndNull((void**)&s_GenericMethodTable);
+    s_ImagesCount = 0;
+    FreeAndNull((void**)&s_ImagesTable);
+    s_AssembliesCount = 0;
+    FreeAndNull((void**)&s_AssembliesTable);
+
+    s_GlobalMetadataHeader = NULL;
+
+    vm::MetadataLoader::UnloadMetadataFile(s_GlobalMetadata);
+    s_GlobalMetadata = NULL;
+
+    s_GenericMethodSet.clear();
+
+    metadata::ArrayMetadata::Clear();
+
+    s_GenericInstSet.clear();
+
+    s_Il2CppCodeRegistration = NULL;
+    s_Il2CppMetadataRegistration = NULL;
+    s_Il2CppCodeGenOptions = NULL;
+
+    il2cpp::metadata::GenericMetadata::Clear();
+    il2cpp::metadata::GenericMethod::ClearStatics();
 }
 
 void il2cpp::vm::MetadataCache::InitializeUnresolvedSignatureTable()
@@ -508,7 +582,7 @@ const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const il2cpp:
     return GetGenericInst(&types[0], static_cast<uint32_t>(types.size()));
 }
 
-static il2cpp::os::FastMutex s_GenericMethodMutex;
+static baselib::ReentrantLock s_GenericMethodMutex;
 const Il2CppGenericMethod* il2cpp::vm::MetadataCache::GetGenericMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst)
 {
     Il2CppGenericMethod method = { 0 };

@@ -105,6 +105,7 @@ typedef enum
 typedef struct Il2CppStackFrameInfo
 {
     const MethodInfo *method;
+    uintptr_t raw_ip;
 } Il2CppStackFrameInfo;
 
 typedef void(*Il2CppMethodPointer)();
@@ -173,6 +174,8 @@ typedef void (*Il2CppProfileThreadFunc) (Il2CppProfiler *prof, unsigned long tid
 
 typedef const Il2CppNativeChar* (*Il2CppSetFindPlugInCallback)(const Il2CppNativeChar*);
 typedef void (*Il2CppLogCallback)(const char*);
+
+typedef size_t(*Il2CppBacktraceFunc) (Il2CppMethodPointer* buffer, size_t maxSize);
 
 struct Il2CppManagedMemorySnapshot;
 

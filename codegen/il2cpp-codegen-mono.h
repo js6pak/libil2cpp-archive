@@ -686,6 +686,11 @@ inline void il2cpp_codegen_initialize_method(uint32_t index)
     il2cpp_mono_initialize_method_metadata(index);
 }
 
+inline bool il2cpp_codegen_class_is_value_type(RuntimeClass* type)
+{
+    return mono_class_is_valuetype(type);
+}
+
 inline bool il2cpp_codegen_type_implements_virtual_method(RuntimeClass* type, RuntimeMethod *slot)
 {
     return mono_unity_method_get_class(slot) == type;

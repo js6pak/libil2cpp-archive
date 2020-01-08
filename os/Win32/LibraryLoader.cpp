@@ -11,6 +11,9 @@
 #include "WindowsHelpers.h"
 #include "Evntprov.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 #define WINNT // All functions in Evntrace.h are under this define.. Why? I have no idea!
 #include "Evntrace.h"
 
@@ -20,7 +23,7 @@ namespace os
 {
     static std::vector<std::pair<std::wstring, HMODULE> > s_NativeDllCache;
     typedef std::vector<std::pair<std::wstring, HMODULE> >::const_iterator DllCacheIterator;
-    os::FastMutex s_NativeDllCacheMutex;
+    baselib::ReentrantLock s_NativeDllCacheMutex;
 
 #define HARDCODED_DEPENDENCY_LIBRARY(libraryName, libraryFunctions) { libraryName, ARRAYSIZE(libraryFunctions), libraryFunctions }
 #define HARDCODED_DEPENDENCY_FUNCTION(function) { #function, reinterpret_cast<Il2CppMethodPointer>(function) }

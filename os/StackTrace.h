@@ -29,6 +29,10 @@ namespace os
 
         // Returns SP value or nullptr if not implemented
         static const void* GetStackPointer();
+
+        static void OverrideStackBacktrace(Il2CppBacktraceFunc stackBacktraceFunc);
+    private:
+        static void WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder);
     };
 }
 }

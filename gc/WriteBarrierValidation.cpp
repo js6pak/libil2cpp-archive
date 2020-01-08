@@ -61,8 +61,8 @@ namespace gc
     static void* g_MaxHeap = 0;
     static WriteBarrierValidation::ExternalAllocationTrackerFunction g_ExternalAllocationTrackerFunction = NULL;
     static WriteBarrierValidation::ExternalWriteBarrierTrackerFunction g_ExternalWriteBarrierTrackerFunction = NULL;
-    static FastMutex s_AllocationMutex;
-    static FastMutex s_WriteBarrierMutex;
+    static baselib::ReentrantLock s_AllocationMutex;
+    static baselib::ReentrantLock s_WriteBarrierMutex;
 
     extern "C" void* GC_malloc_kind(size_t size, int k);
 

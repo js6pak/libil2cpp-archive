@@ -23,6 +23,11 @@
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
 
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+#endif
+
 namespace il2cpp
 {
 namespace os
@@ -30,7 +35,7 @@ namespace os
 #if !IL2CPP_TINY_WITHOUT_DEBUGGER
     static std::set<void*> s_NativeHandlesOpen;
     typedef std::set<void*>::const_iterator OpenHandleIterator;
-    os::FastMutex s_NativeHandlesOpenMutex;
+    baselib::ReentrantLock s_NativeHandlesOpenMutex;
 #endif
 
     struct LibraryNamePrefixAndSuffix
