@@ -12,7 +12,7 @@ namespace il2cpp
 {
 namespace os
 {
-    void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder)
+    void StackTrace::WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder)
     {
         const uint32_t kMaxFrames = 128;
         void* stack[kMaxFrames];

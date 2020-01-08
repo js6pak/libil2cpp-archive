@@ -2,6 +2,8 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-runtime-stats.h"
 
+#include "os/StackTrace.h"
+#include "os/Image.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -580,6 +582,38 @@ void il2cpp_format_stack_trace(const Il2CppException* ex, char* output, int outp
 void il2cpp_unhandled_exception(Il2CppException* exc)
 {
     Runtime::UnhandledException(exc);
+}
+
+void il2cpp_native_stack_trace(const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char* imageUUID)
+{
+#if IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION
+    if (ex == NULL || ex->native_trace_ips == NULL)
+    {
+        *numFrames = 0;
+        *addresses = NULL;
+        *imageUUID = '\0';
+        return;
+    }
+
+    *numFrames = il2cpp_array_length(ex->native_trace_ips);
+
+    if (*numFrames <= 0)
+    {
+        *addresses = NULL;
+        *imageUUID = '\0';
+    }
+    else
+    {
+        *addresses = static_cast<uintptr_t*>(il2cpp_alloc((*numFrames) * sizeof(uintptr_t)));
+        for (int i = 0; i < *numFrames; i++)
+        {
+            uintptr_t ptrAddr = il2cpp_array_get(ex->native_trace_ips, uintptr_t, i);
+            (*addresses)[i] = ptrAddr;
+        }
+
+        il2cpp::os::Image::GetImageUUID(imageUUID);
+    }
+#endif
 }
 
 // field
@@ -1211,6 +1245,11 @@ int32_t il2cpp_current_thread_get_stack_depth()
 int32_t il2cpp_thread_get_stack_depth(Il2CppThread *thread)
 {
     return StackTrace::GetThreadStackDepth(thread);
+}
+
+void il2cpp_override_stack_backtrace(Il2CppBacktraceFunc stackBacktraceFunc)
+{
+    il2cpp::os::StackTrace::OverrideStackBacktrace(stackBacktraceFunc);
 }
 
 // type

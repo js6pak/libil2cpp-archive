@@ -23,10 +23,12 @@
 #include "il2cpp-tabledefs.h"
 #include <vector>
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 using namespace il2cpp::vm;
 using il2cpp::metadata::GenericMethod;
 using il2cpp::os::FastAutoLock;
-using il2cpp::os::FastMutex;
 using il2cpp::utils::StringUtils;
 
 using std::vector;
@@ -139,7 +141,7 @@ namespace metadata
         }
     }
 
-    static os::FastMutex s_GenericClassMutex;
+    static baselib::ReentrantLock s_GenericClassMutex;
     typedef Il2CppHashSet<Il2CppGenericClass*, Il2CppGenericClassHash, Il2CppGenericClassCompare> Il2CppGenericClassSet;
     static Il2CppGenericClassSet s_GenericClassSet;
 
@@ -284,6 +286,13 @@ namespace metadata
             if ((*it).key->cached_class != NULL)
                 callback((*it).key->cached_class, context);
         }
+    }
+
+    void GenericMetadata::Clear()
+    {
+        for (Il2CppGenericClassSet::iterator genericClass = s_GenericClassSet.begin(); genericClass != s_GenericClassSet.end(); genericClass++)
+            (*genericClass).key->cached_class = NULL;
+        s_GenericClassSet.clear();
     }
 } /* namespace vm */
 } /* namespace il2cpp */

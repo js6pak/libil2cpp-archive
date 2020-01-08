@@ -5,6 +5,7 @@
 #include "os/StackTrace.h"
 #include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
+#include "os/Image.h"
 #include "vm-utils/NativeSymbol.h"
 
 namespace il2cpp
@@ -156,6 +157,7 @@ namespace vm
             {
                 Il2CppStackFrameInfo frameInfo = { 0 };
                 frameInfo.method = method;
+                frameInfo.raw_ip = reinterpret_cast<uintptr_t>(frame) - reinterpret_cast<uintptr_t>(os::Image::GetImageBase());
                 stackFrames->push_back(frameInfo);
             }
 

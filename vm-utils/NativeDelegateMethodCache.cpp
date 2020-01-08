@@ -3,12 +3,13 @@
 #if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "NativeDelegateMethodCache.h"
+#include "os/Mutex.h"
 
 namespace il2cpp
 {
 namespace utils
 {
-    il2cpp::os::FastMutex NativeDelegateMethodCache::m_CacheMutex;
+    baselib::ReentrantLock NativeDelegateMethodCache::m_CacheMutex;
     NativeDelegateMap NativeDelegateMethodCache::m_NativeDelegateMethods;
 
     const VmMethod* NativeDelegateMethodCache::GetNativeDelegate(Il2CppMethodPointer nativeFunctionPointer)
