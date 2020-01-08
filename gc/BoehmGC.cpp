@@ -144,6 +144,11 @@ void il2cpp::gc::GarbageCollector::UninitializeGC()
     il2cpp::gc::WriteBarrierValidation::Run();
 #endif
     GC_deinit();
+#if IL2CPP_ENABLE_RELOAD
+    s_GCInitialized = false;
+    default_push_other_roots = NULL;
+    s_Roots.clear();
+#endif
 }
 
 int32_t

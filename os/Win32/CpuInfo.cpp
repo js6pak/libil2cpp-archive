@@ -6,8 +6,7 @@
 #include "os/CpuInfo.h"
 #include "utils/Memory.h"
 
-#define WIN32_LEAN_AND_MEAN 1
-#include <Windows.h>
+#include "WindowsHeaders.h"
 
 struct Il2CppCpuUsageState
 {

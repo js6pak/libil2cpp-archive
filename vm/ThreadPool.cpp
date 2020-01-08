@@ -30,6 +30,7 @@
 
 #include "Baselib.h"
 #include "Cpp/Atomic.h"
+#include "Cpp/ReentrantLock.h"
 
 #if IL2CPP_TARGET_POSIX
 #include <unistd.h>
@@ -123,7 +124,7 @@ namespace vm
 /// network requests. It's basically a separate staging step for socket AsyncResults.
     struct SocketPollingThread
     {
-        os::FastMutex mutex;
+        baselib::ReentrantLock mutex;
         AsyncResultQueue queue;
         os::Thread* thread;
         os::Event threadStartupAcknowledged;
@@ -247,7 +248,7 @@ namespace vm
         os::Semaphore signalThreads;
 
         /// Mutex for queue and threads vector.
-        os::FastMutex mutex;
+        baselib::ReentrantLock mutex;
 
         /// Queue of pending items.
         /// NOTE: Requires lock on mutex.

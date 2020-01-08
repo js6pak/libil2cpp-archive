@@ -92,6 +92,9 @@ inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
 
 void il2cpp_codegen_register(const Il2CppCodeRegistration* const codeRegistration, const Il2CppMetadataRegistration* const metadataRegistration, const Il2CppCodeGenOptions* const codeGenOptions);
 
+typedef void (*MetadataInitializerCleanupFunc)();
+void il2cpp_codegen_register_metadata_initialized_cleanup(MetadataInitializerCleanupFunc cleanup);
+
 // type registration
 
 void* il2cpp_codegen_get_thread_static_data(RuntimeClass* klass);

@@ -110,6 +110,11 @@ namespace vm
         s_Assemblies.push_back(assembly);
     }
 
+    void Assembly::ClearAllAssemblies()
+    {
+        s_Assemblies.clear();
+    }
+
     void Assembly::Initialize()
     {
     }

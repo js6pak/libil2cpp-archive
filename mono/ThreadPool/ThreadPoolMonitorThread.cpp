@@ -89,10 +89,10 @@ static bool monitor_should_keep_running(void)
         }
         else
         {
-            g_ThreadPool->domains_lock.Lock();
+            g_ThreadPool->domains_lock.Acquire();
             if (!domain_any_has_request())
                 should_keep_running = false;
-            g_ThreadPool->domains_lock.Unlock();
+            g_ThreadPool->domains_lock.Release();
 
             if (!should_keep_running)
             {
@@ -170,13 +170,13 @@ static void monitor_thread(void* data)
         if (il2cpp::vm::Runtime::IsShuttingDown())
             continue;
 
-        g_ThreadPool->domains_lock.Lock();
+        g_ThreadPool->domains_lock.Acquire();
         if (!domain_any_has_request())
         {
-            g_ThreadPool->domains_lock.Unlock();
+            g_ThreadPool->domains_lock.Release();
             continue;
         }
-        g_ThreadPool->domains_lock.Unlock();
+        g_ThreadPool->domains_lock.Release();
 
         g_ThreadPool->cpu_usage = cpu_info_usage(g_ThreadPool->cpu_usage_state);
 

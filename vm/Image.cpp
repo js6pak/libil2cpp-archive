@@ -15,6 +15,9 @@
 #include "utils/StringUtils.h"
 #include "vm-utils/VmStringUtils.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 struct NamespaceAndNamePairHash
 {
     size_t operator()(const std::pair<const char*, const char*>& pair) const
@@ -145,7 +148,7 @@ namespace vm
         return il2cpp_defaults.corlib;
     }
 
-    static os::FastMutex s_ClassFromNameMutex;
+    static baselib::ReentrantLock s_ClassFromNameMutex;
 
     static void AddNestedTypesToNametoClassHashTable(Il2CppNameToTypeDefinitionIndexHashTable* hashTable, const char *namespaze, const std::string& parentName, Il2CppClass *klass)
     {
@@ -356,7 +359,7 @@ namespace vm
         return parent_class;
     }
 
-    static os::FastMutex s_Mutex;
+    static baselib::ReentrantLock s_Mutex;
     static std::vector<Image::EmbeddedResourceData> s_CachedResourceData;
     static std::map<Il2CppReflectionAssembly*, void*> s_CachedMemoryMappedResourceFiles;
 

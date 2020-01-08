@@ -5,6 +5,9 @@
 #include "vm/Exception.h"
 #include <deque>
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 namespace il2cpp
 {
 namespace vm
@@ -12,7 +15,7 @@ namespace vm
 #if _DEBUG
     static os::ThreadLocalValue s_Allocations;
 
-    static os::FastMutex s_AllocationStorageMutex;
+    static baselib::ReentrantLock s_AllocationStorageMutex;
     static std::deque<std::vector<std::map<void*, size_t> > > s_AllocationStorage;
 
     static std::vector<std::map<void*, size_t> >& GetAllocationsForCurrentThread()

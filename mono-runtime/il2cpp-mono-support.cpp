@@ -24,6 +24,9 @@
 #include "utils/StringUtils.h"
 #include "os/Mutex.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 extern const Il2CppCodeRegistration g_CodeRegistration IL2CPP_ATTRIBUTE_WEAK;
 extern "C" const Il2CppMethodSpec g_Il2CppMethodSpecTable[] IL2CPP_ATTRIBUTE_WEAK;
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
@@ -48,7 +51,7 @@ static InteropDataMap s_InteropDataMap;
 
 typedef Il2CppHashMap<MonoClass*, const Il2CppInteropData*, il2cpp::utils::PointerHash<MonoClass> > InteropDataPointerCacheMap;
 static InteropDataPointerCacheMap s_InteropDataPointerCacheMap;
-static il2cpp::os::FastMutex s_InteropPointerCacheMutex;
+static baselib::ReentrantLock s_InteropPointerCacheMutex;
 
 MonoDomain *g_MonoDomain;
 
@@ -266,7 +269,7 @@ Il2CppCodeGenModule* InitializeCodeGenHandle(MonoImage* image)
     return NULL;
 }
 
-static il2cpp::os::FastMutex s_MonoMethodFunctionPointerInitializationMutex;
+static baselib::ReentrantLock s_MonoMethodFunctionPointerInitializationMutex;
 
 void il2cpp_mono_method_initialize_function_pointers(MonoMethod* method, MonoError* error)
 {
