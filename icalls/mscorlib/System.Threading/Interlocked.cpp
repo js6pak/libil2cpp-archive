@@ -6,6 +6,11 @@
 #include "os/Mutex.h"
 #include "vm/Exception.h"
 
+#if !IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+#endif
+
 union LongDoubleUnion
 {
     int64_t l_val;
@@ -29,7 +34,7 @@ namespace System
 namespace Threading
 {
 #if !IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
-    static os::FastMutex m_Atomic64Mutex;
+    static baselib::ReentrantLock m_Atomic64Mutex;
 #endif
 
     void* Interlocked::CompareExchange_T(void** location, void* value, void* comparand)

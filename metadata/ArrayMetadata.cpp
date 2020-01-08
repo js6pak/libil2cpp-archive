@@ -65,7 +65,7 @@ namespace metadata
         method->flags = METHOD_ATTRIBUTE_PUBLIC;
         method->iflags = METHOD_IMPL_ATTRIBUTE_INTERNAL_CALL;
         method->name = name;
-        method->slot = -1;
+        method->slot = kInvalidIl2CppMethodSlot;
         method->return_type = returnType;
         method->parameters_count = parameterCount;
         ParameterInfo* parameters = (ParameterInfo*)MetadataCalloc(parameterCount, sizeof(ParameterInfo));
@@ -486,6 +486,12 @@ namespace metadata
 
     SZArrayClassMap s_SZArrayClassMap;
     ArrayClassMap s_ArrayClassMap;
+
+    void ArrayMetadata::Clear()
+    {
+        s_SZArrayClassMap.clear();
+        s_ArrayClassMap.clear();
+    }
 
     Il2CppClass* ArrayMetadata::GetBoundedArrayClass(Il2CppClass* elementClass, uint32_t rank, bool bounded)
     {

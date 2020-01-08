@@ -17,6 +17,9 @@
 
 #include "utils/dynamic_array.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 #include <limits>
 
 namespace il2cpp
@@ -30,7 +33,7 @@ namespace os
     // It is thread local for thread safety
     static ThreadLocalValue s_IsCleaningUpThreads;
 
-    static FastMutex s_AliveThreadsMutex;
+    static baselib::ReentrantLock s_AliveThreadsMutex;
     static il2cpp::utils::dynamic_array<Thread*> s_AliveThreads;
 
     static bool GetIsCleaningUpThreads()
@@ -106,6 +109,9 @@ namespace os
 
         s_AliveThreads.clear();
         SetIsCleaningUpThreads(false);
+#if IL2CPP_ENABLE_RELOAD
+        s_CurrentThread.SetValue(NULL);
+#endif
     }
 
     Thread::ThreadId Thread::Id()

@@ -1743,43 +1743,62 @@ namespace os
     {
         IL2CPP_ASSERT(command != 0xC8000006 /* SIO_GET_EXTENSION_FUNCTION_POINTER */ && "SIO_GET_EXTENSION_FUNCTION_POINTER ioctl command not supported");
 
-        uint8_t *buffer = NULL;
-
-        if (in_len > 0)
+        if (command == 0x98000004 /* SIO_KEEPALIVE_VALS */)
         {
-            buffer = (uint8_t*)malloc(in_len);
-            memcpy(buffer, in_data, in_len);
+            if (in_len < 3 * sizeof(uint32_t))
+            {
+                StoreLastError();
+                return kWaitStatusFailure;
+            }
+
+            uint32_t onoff = *((uint32_t*)in_data);
+            int32_t ret = setsockopt(_fd, SOL_SOCKET, SO_KEEPALIVE, &onoff, sizeof(uint32_t));
+            if (ret < 0)
+            {
+                StoreLastError();
+                return kWaitStatusFailure;
+            }
         }
-
-        const int32_t ret = ioctl(_fd, command, buffer);
-        if (ret == -1)
+        else
         {
-            StoreLastError();
+            uint8_t *buffer = NULL;
+
+            if (in_len > 0)
+            {
+                buffer = (uint8_t*)malloc(in_len);
+                memcpy(buffer, in_data, in_len);
+            }
+
+            const int32_t ret = ioctl(_fd, command, buffer);
+            if (ret == -1)
+            {
+                StoreLastError();
+
+                free(buffer);
+
+                return kWaitStatusFailure;
+            }
+
+            if (buffer == NULL)
+            {
+                *written = 0;
+                return kWaitStatusSuccess;
+            }
+
+            // We just copy the buffer to the out_data. Some ioctls
+            // don't even out_data any data, but, well ...
+            //
+            // NB: windows returns WSAEFAULT if out_len is too small
+
+            const int32_t len = (in_len > out_len) ? out_len : in_len;
+
+            if (len > 0 && out_data != NULL)
+                memcpy(out_data, buffer, len);
 
             free(buffer);
 
-            return kWaitStatusFailure;
+            *written = len;
         }
-
-        if (buffer == NULL)
-        {
-            *written = 0;
-            return kWaitStatusSuccess;
-        }
-
-        // We just copy the buffer to the out_data. Some ioctls
-        // don't even out_data any data, but, well ...
-        //
-        // NB: windows returns WSAEFAULT if out_len is too small
-
-        const int32_t len = (in_len > out_len) ? out_len : in_len;
-
-        if (len > 0 && out_data != NULL)
-            memcpy(out_data, buffer, len);
-
-        free(buffer);
-
-        *written = len;
 
         return kWaitStatusSuccess;
     }

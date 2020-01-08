@@ -51,6 +51,9 @@
 #include "mono/ThreadPool/threadpool-ms-io.h"
 //#include "icalls/mscorlib/System.Reflection/Assembly.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 #if IL2CPP_MONO_DEBUGGER
 extern "C" {
 #include <mono/metadata/profiler-private.h>
@@ -61,11 +64,13 @@ Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
 
+MetadataInitializerCleanupFunc g_ClearMethodMetadataInitializedFlags = NULL;
+
 namespace il2cpp
 {
 namespace vm
 {
-    il2cpp::os::FastMutex g_MetadataLock;
+    baselib::ReentrantLock g_MetadataLock;
 
     static int32_t exitcode = 0;
     static std::string s_ConfigDir;
@@ -361,9 +366,13 @@ namespace vm
         il2cpp::gc::GarbageCollector::UninitializeFinalizers();
 
         // after the gc cleanup so the finalizer thread can unregister itself
-        Thread::UnInitialize();
+        Thread::Uninitialize();
 
         os::Thread::Shutdown();
+
+#if IL2CPP_ENABLE_RELOAD
+        MetadataCache::Clear();
+#endif
 
         // We need to do this after thread shut down because it is freeing GC fixed memory
         il2cpp::gc::GarbageCollector::UninitializeGC();
@@ -376,6 +385,13 @@ namespace vm
 
         os::Locale::UnInitialize();
         os::Uninitialize();
+
+        Reflection::ClearStatics();
+
+#if IL2CPP_ENABLE_RELOAD
+        if (g_ClearMethodMetadataInitializedFlags != NULL)
+            g_ClearMethodMetadataInitializedFlags();
+#endif
     }
 
     bool Runtime::IsShuttingDown()
@@ -750,7 +766,7 @@ namespace vm
             utils::Runtime::Abort();
     }
 
-    static il2cpp::os::FastMutex s_TypeInitializationLock;
+    static baselib::ReentrantLock s_TypeInitializationLock;
 
 // We currently call Runtime::ClassInit in 4 places:
 // 1. Just after we allocate storage for a new object (Object::NewAllocSpecific)
@@ -767,19 +783,19 @@ namespace vm
         if (os::Atomic::CompareExchange(&klass->cctor_finished, 1, 1) == 1)
             return;
 
-        s_TypeInitializationLock.Lock();
+        s_TypeInitializationLock.Acquire();
 
         // See if some thread ran it while we acquired the lock.
         if (os::Atomic::CompareExchange(&klass->cctor_finished, 1, 1) == 1)
         {
-            s_TypeInitializationLock.Unlock();
+            s_TypeInitializationLock.Release();
             return;
         }
 
         // See if some other thread got there first and already started running the constructor.
         if (os::Atomic::CompareExchange(&klass->cctor_started, 1, 1) == 1)
         {
-            s_TypeInitializationLock.Unlock();
+            s_TypeInitializationLock.Release();
 
             // May have been us and we got here through recursion.
             os::Thread::ThreadId currentThread = os::Thread::CurrentThreadId();
@@ -798,7 +814,7 @@ namespace vm
             os::Atomic::ExchangePointer((size_t**)&klass->cctor_thread, (size_t*)os::Thread::CurrentThreadId());
             os::Atomic::Exchange(&klass->cctor_started, 1);
 
-            s_TypeInitializationLock.Unlock();
+            s_TypeInitializationLock.Release();
 
             // Run it.
             Il2CppException* exception = NULL;
