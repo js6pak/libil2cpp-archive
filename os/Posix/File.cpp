@@ -20,7 +20,6 @@
 #include "Cpp/ReentrantLock.h"
 #endif
 
-#include <assert.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <unistd.h>

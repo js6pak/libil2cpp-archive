@@ -1,4 +1,4 @@
-#include "os/c-api/il2cpp-config-platforms.h"
+#include "il2cpp-config.h"
 #include "os/ConditionVariable.h"
 #include "os/Mutex.h"
 

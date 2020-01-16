@@ -3,6 +3,7 @@
 #if IL2CPP_TARGET_WINDOWS
 
 #include "WindowsHeaders.h"
+#include <cstdio>
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
