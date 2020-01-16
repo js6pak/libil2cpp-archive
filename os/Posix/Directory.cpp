@@ -10,7 +10,6 @@
 #include "utils/Memory.h"
 #include "utils/PathUtils.h"
 #include "utils/StringUtils.h"
-#include <assert.h>
 #include <errno.h>
 #include <dirent.h>
 #include <stdint.h>

@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include "os/Memory.h"
 #include "utils/Memory.h"
-#include <string>
+#include <cstdlib>
 
 namespace il2cpp
 {

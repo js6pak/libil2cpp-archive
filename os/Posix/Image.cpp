@@ -19,6 +19,8 @@
 
 #endif
 
+#include <cstdio>
+
 extern char __start_il2cpp;
 extern char __stop_il2cpp;
 

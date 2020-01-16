@@ -14,7 +14,6 @@
 #include "os/Environment.h"
 #include "utils/StringUtils.h"
 #include <string>
-#include <assert.h>
 
 #define BUFFER_SIZE 1024
 

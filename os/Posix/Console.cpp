@@ -5,7 +5,7 @@
 #include "os/Console.h"
 #include "os/File.h"
 
-#include <assert.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
