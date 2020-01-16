@@ -8,7 +8,6 @@
 #include "vm/Profiler.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
-#include <assert.h>
 #include <memory>
 
 namespace il2cpp

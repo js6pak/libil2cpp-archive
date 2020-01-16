@@ -45,7 +45,7 @@ static void mono_thread_attach_cb(intptr_t tid, void* stack_start)
 
 static void mono_thread_cleanup_cb(MonoNativeThreadId tid)
 {
-    //assert(tid == il2cpp::os::Thread::CurrentThreadId());
+    //IL2CPP_ASSERT(tid == il2cpp::os::Thread::CurrentThreadId());
     //mono::vm::StackTrace::CleanupStackTracesForCurrentThread();
 }
 
@@ -220,7 +220,7 @@ MonoObject* il2cpp_mono_finalize_runtime_invoke(MonoObject *this_obj, void **par
     MonoMethod* finalizer = mono_class_get_finalizer(mono_object_get_class(this_obj));
     if (finalizer == NULL)
     {
-        assert(0 && "Why did we get a NULL finalizer? Something may not be correct.");
+        IL2CPP_ASSERT(0 && "Why did we get a NULL finalizer? Something may not be correct.");
         return NULL;
     }
 
