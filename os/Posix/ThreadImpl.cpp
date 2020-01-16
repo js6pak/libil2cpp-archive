@@ -16,7 +16,6 @@
 #include "PosixHelpers.h"
 #include "os/Mutex.h"
 
-
 namespace il2cpp
 {
 namespace os
