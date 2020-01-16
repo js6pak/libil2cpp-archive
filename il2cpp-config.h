@@ -1,11 +1,6 @@
 #pragma once
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 /* first setup platform defines*/
 #include "os/c-api/il2cpp-config-platforms.h"
@@ -31,7 +26,6 @@
 #endif
 
 #if defined(__ARMCC_VERSION)
-    #include <assert.h>
     #include <wchar.h>
     #include <ctype.h>
     #define INTPTR_MAX 2147483647
@@ -533,4 +527,15 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 
 #ifndef IL2CPP_MUTATE_METHOD_POINTERS
 #define IL2CPP_MUTATE_METHOD_POINTERS !IL2CPP_TARGET_PS4
+#endif
+
+#if !IL2CPP_DEBUG
+#define IL2CPP_ASSERT(expr) void(0)
+#else
+#if defined(__cplusplus)
+#define IL2CPP_ASSERT(expr) (static_cast<bool>(expr) ? void(0) : il2cpp_assert(#expr, __FILE__, __LINE__))
+#else
+#define IL2CPP_ASSERT(expr) (expr) ? void(0) : il2cpp_assert(#expr, __FILE__, __LINE__))
+#endif
+extern void il2cpp_assert(const char* assertion, const char* file, unsigned int line);
 #endif

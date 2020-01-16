@@ -93,7 +93,7 @@ namespace vm
 
     Il2CppString* String::NewUtf16(const utils::StringView<Il2CppChar>& text)
     {
-        assert(text.Length() < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+        IL2CPP_ASSERT(text.Length() < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
         return NewUtf16(text.Str(), static_cast<int32_t>(text.Length()));
     }
 
