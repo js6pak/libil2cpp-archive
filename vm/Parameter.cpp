@@ -8,8 +8,6 @@
 #include "vm/Object.h"
 #include "vm/Method.h"
 
-#include <assert.h>
-
 namespace il2cpp
 {
 namespace vm

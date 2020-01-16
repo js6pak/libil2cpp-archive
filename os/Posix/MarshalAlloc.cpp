@@ -3,6 +3,7 @@
 #if IL2CPP_TARGET_POSIX || IL2CPP_TARGET_SWITCH && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "os/MarshalAlloc.h"
+#include <stdlib.h>
 
 namespace il2cpp
 {
@@ -19,6 +20,21 @@ namespace os
     }
 
     void MarshalAlloc::Free(void* ptr)
+    {
+        free(ptr);
+    }
+
+    void* MarshalAlloc::AllocateHGlobal(size_t size)
+    {
+        return malloc(size);
+    }
+
+    void* MarshalAlloc::ReAllocHGlobal(void* ptr, size_t size)
+    {
+        return realloc(ptr, size);
+    }
+
+    void MarshalAlloc::FreeHGlobal(void* ptr)
     {
         free(ptr);
     }

@@ -3,6 +3,7 @@
 #include "il2cpp-config.h"
 
 #include <cmath>
+#include <cstdlib>
 
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"

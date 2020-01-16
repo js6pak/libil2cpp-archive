@@ -119,7 +119,7 @@ static MonoGenericInst* GetSharedGenericInst(MonoGenericInst* inst)
                     type = mono_class_get_type(mono_class_from_name(mono_get_corlib(), "System", "UInt64Enum"));
                     break;
                 default:
-                    IL2CPP_ASSERT(0 && "Invalid enum underlying type");
+                    assert(0 && "Invalid enum underlying type");
                     break;
             }
             types.push_back(type);

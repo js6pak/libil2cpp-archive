@@ -1,6 +1,5 @@
 #pragma once
 
-#include <assert.h>
 #include <stddef.h> // ptrdiff_t
 
 #if defined(__aarch64__) && defined(__arm__)
@@ -208,17 +207,6 @@
 
 #ifndef IL2CPP_DEBUG
 #define IL2CPP_DEBUG 0
-#endif
-
-#if !IL2CPP_DEBUG
-#define IL2CPP_ASSERT(expr) (void(0))
-#elif IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
-#include <crtdbg.h>
-#define IL2CPP_ASSERT(expr) \
-    _ASSERTE(expr)
-#else
-#define IL2CPP_ASSERT(expr) \
-    assert(expr)
 #endif
 
 #ifndef IL2CPP_PLATFORM_SUPPORTS_CPU_INFO
