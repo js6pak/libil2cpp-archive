@@ -15,7 +15,7 @@ namespace os
 {
     const int kMaxStackFrames = 128;
 
-    void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder)
+    void StackTrace::WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder)
     {
         void* callstack[kMaxStackFrames];
         int frames = backtrace(callstack, kMaxStackFrames);

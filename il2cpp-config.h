@@ -84,12 +84,14 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #if IL2CPP_COMPILER_MSVC || defined(__ARMCC_VERSION)
 #define IL2CPP_NO_INLINE __declspec(noinline)
 #define IL2CPP_NO_ALIAS __declspec(noalias)
-#define IL2CPP_RESTRICT __declspec(restrict)
+#define IL2CPP_PARAMETER_RESTRICT __restrict
+#define IL2CPP_METHOD_RESTRICT __declspec(restrict)
 #define IL2CPP_ASSUME(x) __assume(x)
 #else
 #define IL2CPP_NO_INLINE __attribute__ ((noinline))
 #define IL2CPP_NO_ALIAS
-#define IL2CPP_RESTRICT
+#define IL2CPP_PARAMETER_RESTRICT
+#define IL2CPP_METHOD_RESTRICT
 #define IL2CPP_ASSUME(x)
 #endif
 
