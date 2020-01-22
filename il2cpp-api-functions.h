@@ -246,6 +246,7 @@ DO_API(bool, il2cpp_current_thread_get_frame_at, (int32_t offset, Il2CppStackFra
 DO_API(bool, il2cpp_thread_get_frame_at, (Il2CppThread * thread, int32_t offset, Il2CppStackFrameInfo * frame));
 DO_API(int32_t, il2cpp_current_thread_get_stack_depth, ());
 DO_API(int32_t, il2cpp_thread_get_stack_depth, (Il2CppThread * thread));
+DO_API(void, il2cpp_override_stack_backtrace, (Il2CppBacktraceFunc stackBacktraceFunc));
 
 // type
 DO_API(Il2CppObject*, il2cpp_type_get_object, (const Il2CppType * type));
