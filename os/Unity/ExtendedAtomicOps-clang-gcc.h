@@ -1,26 +1,3 @@
-#if __cplusplus > 199711L
-#define CompileTimeAssert(condition, message) static_assert(condition, message)
-#else
-#define CompileTimeAssert(condition, message)
-#endif
-
-static inline void atomic_pause()
-{
-#if defined(__i386__) || defined(__x86_64__)
-    __asm__ __volatile__ ("pause");
-#elif defined(__arm__) || defined(__arm64__)
-    #if defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5T__) || defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5TE__)
-    // YIELD instruction is available only for ARMv6K and above.
-    // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0473j/dom1361289926796.html
-    // Thus we do nothing here.
-    #else
-    __asm__ __volatile__("yield" : : : "memory");
-    #endif
-#else
-    #error untested architecture
-#endif
-}
-
 #ifndef UNITY_ATOMIC_FORCE_LOCKFREE_IMPLEMENTATION
 #   define UNITY_ATOMIC_FORCE_LOCKFREE_IMPLEMENTATION 1
 #endif
@@ -44,7 +21,7 @@ namespace detail
 #   define INTERNAL_UNITY_ATOMIC_TYPE(type)                                                     _Atomic(type)
 #   define INTERNAL_UNITY_ATOMIC_IS_LOCK_FREE(type)                                             __c11_atomic_is_lock_free(sizeof(type))
 #elif UNITY_ATOMIC_USE_GCC_ATOMICS
-#   if (__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 7)
+#   if (!PLATFORM_PS4) && ((__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 7))
 #       error "__atomic built-in functions not supported on GCC versions older than 4.7"
 #   endif
 #   if UNITY_ATOMIC_FORCE_LOCKFREE_IMPLEMENTATION
@@ -77,7 +54,7 @@ namespace detail
     inline int MemOrder(memory_order_acquire_t) { return __ATOMIC_ACQUIRE; }
     inline int MemOrder(memory_order_acq_rel_t) { return __ATOMIC_ACQ_REL; }
     inline int MemOrder(memory_order_seq_cst_t) { return __ATOMIC_SEQ_CST; }
-    int MemOrder(...); // generate link error on unsupported mem order types
+    void MemOrder(...); // generate compile error on unsupported mem order types
 
 #define INTERNAL_UNITY_ATOMIC_TYPEDEF(nonatomic, atomic) \
     typedef INTERNAL_UNITY_ATOMIC_TYPE(nonatomic) atomic; \
@@ -90,9 +67,11 @@ namespace detail
 #if UNITY_ATOMIC_FORCE_LOCKFREE_IMPLEMENTATION
     CompileTimeAssert(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 + 0, "requires 32bit CAS");
     CompileTimeAssert(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8 + 0, "requires 64bit CAS");
-#   if __SIZEOF_POINTER__ == 8
+    // we will have special implementation for arm64
+    #if __SIZEOF_POINTER__ == 8 && !defined(__arm64__)
     CompileTimeAssert(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16 + 0, "requires 128bit CAS");
-#   endif
+    #endif
+
 #endif
 
 #undef INTERNAL_UNITY_ATOMIC_TYPEDEF
@@ -184,7 +163,7 @@ static inline T atomic_fetch_sub_explicit(volatile T* p, typename detail::Identi
  */
 static inline void atomic_retain(volatile int* p)
 {
-    atomic_fetch_add_explicit(p, 1, memory_order_relaxed);
+    atomic_fetch_add_explicit(p, 1, ::memory_order_relaxed);
 }
 
 static inline bool atomic_release(volatile int* p)
@@ -194,14 +173,14 @@ static inline bool atomic_release(volatile int* p)
     // the idea is to use a global memory_order_acquire fence instead, but only when the reference count drops to 0.
     // Only then the acquire/release synchronization is needed to make sure everything prior to atomic_release happens before running a d'tor.
 #if defined(__arm__) || defined(__arm64__)
-    bool res = atomic_fetch_sub_explicit(p, 1, memory_order_release) == 1;
+    bool res = atomic_fetch_sub_explicit(p, 1, ::memory_order_release) == 1;
     if (res)
     {
-        atomic_thread_fence(memory_order_acquire);
+        atomic_thread_fence(::memory_order_acquire);
     }
     return res;
 #else
-    return atomic_fetch_sub_explicit(p, 1, memory_order_acq_rel) == 1;
+    return atomic_fetch_sub_explicit(p, 1, ::memory_order_acq_rel) == 1;
 #endif
 }
 
@@ -215,3 +194,128 @@ static inline bool atomic_release(volatile int* p)
 #undef INTERNAL_UNITY_ATOMIC_FETCH_SUB
 #undef INTERNAL_UNITY_ATOMIC_TYPE
 #undef INTERNAL_UNITY_ATOMIC_IS_LOCK_FREE
+
+
+// the only way to get atomic 128-bit memory accesses on ARM64 is to use ld(r|a)ex/st(r|a)ex with a loop
+// going forward we want to get rid of most of it, by undefing ATOMIC_HAS_DCAS and providing custom impl of AtomicQueue and friends
+
+#if __SIZEOF_POINTER__ == 8 && (defined(__arm64__) || defined(__aarch64__))
+
+static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, memory_order_relaxed_t)
+{
+    non_atomic_word2 v; volatile non_atomic_word2* pv = (volatile non_atomic_word2*)&p->v;
+    do
+    {
+        v = __builtin_arm_ldrex(pv);
+    }
+    while (__builtin_arm_strex(v, pv));
+    return (atomic_word2) {.v = v};
+}
+
+static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, memory_order_acquire_t)
+{
+    non_atomic_word2 v; volatile non_atomic_word2* pv = (volatile non_atomic_word2*)&p->v;
+    do
+    {
+        v = __builtin_arm_ldaex(pv);
+    }
+    while (__builtin_arm_strex(v, pv));
+    return (atomic_word2) {.v = v};
+}
+
+static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 v, memory_order_relaxed_t)
+{
+    non_atomic_word2 tmp; volatile non_atomic_word2* pv = &p->v;
+    do
+    {
+        tmp = __builtin_arm_ldrex(pv);
+    }
+    while (__builtin_arm_strex(v.v, pv));
+}
+
+static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 v, memory_order_release_t)
+{
+    non_atomic_word2 tmp; volatile non_atomic_word2* pv = &p->v;
+    do
+    {
+        tmp = __builtin_arm_ldrex(pv);
+    }
+    while (__builtin_arm_stlex(v.v, pv));
+}
+
+static inline atomic_word2 atomic_exchange_explicit(volatile atomic_word2* p, atomic_word2 val, memory_order_acq_rel_t)
+{
+    non_atomic_word2 ret; volatile non_atomic_word2* pv = &p->v;
+    do
+    {
+        ret = __builtin_arm_ldaex(pv);
+    }
+    while (__builtin_arm_stlex(val.v, pv));
+    return (atomic_word2) {.v = ret};
+}
+
+// the story behind this: in arm64 asm impl header we had overloads for memory_order_acquire_t, memory_order_release_t and int
+//   int being taken in all other cases - it was memory_order_acq_rel_t impl below
+// now as we moved them here, int overload "looses" to template above, so it was never taken (and that is why we needed explicit overload)
+
+// for seq_cst being same as acq_rel:
+// first of all - it was the case for asm impl (and it worked for quite some time)
+// second: it seems apple itself uses ldaxr/stlxr in that case (without extra dmb)
+//   this is both the case with some apple open-source code and asm generated for OSAtomicAdd32Barrier and friends
+
+#define COMPARE_EXCHANGE_IMPL(LOAD_FUNC, STORE_FUNC)                                                        \
+    const non_atomic_word2 cmp = oldval->v; volatile non_atomic_word2* pv = &p->v; bool success = false;    \
+    do                                                                                                      \
+    {                                                                                                       \
+        non_atomic_word2 cur = oldval->v = LOAD_FUNC(pv);                                                   \
+        success = (cur == cmp);                                                                             \
+        if (!success)                                                                                       \
+        {                                                                                                   \
+            __builtin_arm_clrex();                                                                          \
+            break;                                                                                          \
+        }                                                                                                   \
+    }                                                                                                       \
+    while (STORE_FUNC(newval.v, pv));                                                                       \
+    return success;                                                                                         \
+
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, memory_order_acquire_t, memory_order_relaxed_t)
+{
+    COMPARE_EXCHANGE_IMPL(__builtin_arm_ldaex, __builtin_arm_strex);
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, memory_order_release_t, memory_order_relaxed_t)
+{
+    COMPARE_EXCHANGE_IMPL(__builtin_arm_ldrex, __builtin_arm_stlex);
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, memory_order_acq_rel_t, memory_order_relaxed_t)
+{
+    COMPARE_EXCHANGE_IMPL(__builtin_arm_ldaex, __builtin_arm_stlex);
+}
+
+static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, memory_order_seq_cst_t, memory_order_relaxed_t)
+{
+    COMPARE_EXCHANGE_IMPL(__builtin_arm_ldaex, __builtin_arm_stlex);
+}
+
+#undef COMPARE_EXCHANGE_IMPL
+
+#endif // __SIZEOF_POINTER__ == 8 && defined(__arm64__)
+
+
+// when implementing atomic operations in arm-specific way we need to take care of armv7/armv8 differences
+// armv8: has ldaex/stlex that add acquire/release semantics
+// armv7: we need to insert fence ourselves
+
+#if defined(__arm__) || defined(__arm64__) || defined(__aarch64__)
+    #if defined(__arm64__) || defined(__aarch64__)
+        #define UNITY_ATOMIC_ARMV7_DMB_ISH
+        #define UNITY_ATOMIC_ARMV8_LDAEX            __builtin_arm_ldaex
+        #define UNITY_ATOMIC_ARMV8_STLEX            __builtin_arm_stlex
+    #else
+        #define UNITY_ATOMIC_ARMV7_DMB_ISH          __builtin_arm_dmb(11);
+        #define UNITY_ATOMIC_ARMV8_LDAEX            __builtin_arm_ldrex
+        #define UNITY_ATOMIC_ARMV8_STLEX            __builtin_arm_strex
+    #endif
+#endif

@@ -1,5 +1,3 @@
-#if NET_4_0
-
 #include "il2cpp-api.h"
 #include "il2cpp-config.h"
 #include "utils/dynamic_array.h"
@@ -18,6 +16,10 @@ namespace vm
 {
     Il2CppAsyncResult* ThreadPoolMs::DelegateBeginInvoke(Il2CppDelegate* delegate, void** params, Il2CppDelegate* asyncCallback, Il2CppObject* state)
     {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "ThreadPoolMs::DelegateBeginInvoke should not be called with the Tiny profile.");
+        return NULL;
+#else
         int numParams = delegate->method->parameters_count;
         il2cpp::utils::dynamic_array<void*> newParams(numParams + 2);
         for (int i = 0; i < numParams; ++i)
@@ -27,10 +29,15 @@ namespace vm
         newParams[numParams + 1] = state;
 
         return threadpool_ms_begin_invoke(il2cpp::vm::Domain::GetCurrent(), (Il2CppObject*)delegate, const_cast<MethodInfo*>(delegate->method), newParams.data());
+#endif
     }
 
     Il2CppObject* ThreadPoolMs::DelegateEndInvoke(Il2CppAsyncResult* asyncResult, void **out_args)
     {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "ThreadPoolMs::DelegateEndInvoke should not be called with the Tiny profile.");
+        return NULL;
+#else
         Il2CppArray *arrayOutArgs;
         Il2CppObject *exc, *retVal;
 
@@ -68,6 +75,7 @@ namespace vm
         }
 
         return retVal;
+#endif
     }
 
     Il2CppObject* ThreadPoolMs::MessageInvoke(Il2CppObject *target, Il2CppMethodMessage *msg, Il2CppObject **exc, Il2CppArray **out_args)
@@ -129,5 +137,3 @@ namespace vm
     }
 } /* namespace vm */
 } /* namespace il2cpp */
-
-#endif

@@ -7,6 +7,7 @@
 
 #include "utils/Exception.h"
 
+#include "vm/Class.h"
 #include "vm/LastError.h"
 #include "vm/ThreadPoolMs.h"
 #include "vm/ThreadPool.h"
@@ -39,20 +40,12 @@ void il2cpp_codegen_marshal_store_last_error()
 
 Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegate, void** params, RuntimeDelegate* asyncCallback, RuntimeObject* state)
 {
-#if NET_4_0
     return il2cpp::vm::ThreadPoolMs::DelegateBeginInvoke(delegate, params, asyncCallback, state);
-#else
-    return il2cpp::vm::ThreadPool::Queue(delegate, params, asyncCallback, state);
-#endif
 }
 
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args)
 {
-#if NET_4_0
     return il2cpp::vm::ThreadPoolMs::DelegateEndInvoke(asyncResult, out_args);
-#else
-    return il2cpp::vm::ThreadPool::Wait(asyncResult, out_args);
-#endif
 }
 
 Il2CppMethodPointer il2cpp_codegen_resolve_icall(const char* name)
@@ -229,14 +222,14 @@ void il2cpp_codegen_profiler_method_exit(const RuntimeMethod* method)
 
 #endif
 
-NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, Il2CppSequencePoint *seqPoint, MethodInfo* lastManagedFrame)
+NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame)
 {
-    il2cpp::vm::Exception::Raise((RuntimeException*)ex, seqPoint, lastManagedFrame);
+    il2cpp::vm::Exception::Raise((RuntimeException*)ex, lastManagedFrame);
 }
 
-NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException, Il2CppSequencePoint *seqPoint)
+NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException)
 {
-    il2cpp::vm::Exception::Raise(hresult, defaultToCOMException, seqPoint);
+    il2cpp::vm::Exception::Raise(hresult, defaultToCOMException);
 }
 
 NORETURN void il2cpp_codegen_raise_out_of_memory_exception()
@@ -244,14 +237,14 @@ NORETURN void il2cpp_codegen_raise_out_of_memory_exception()
     il2cpp::vm::Exception::RaiseOutOfMemoryException();
 }
 
-NORETURN void il2cpp_codegen_raise_null_reference_exception(Il2CppSequencePoint *seqPoint)
+NORETURN void il2cpp_codegen_raise_null_reference_exception()
 {
-    il2cpp::vm::Exception::RaiseNullReferenceException(seqPoint);
+    il2cpp::vm::Exception::RaiseNullReferenceException();
 }
 
-NORETURN void il2cpp_codegen_raise_divide_by_zero_exception(Il2CppSequencePoint *seqPoint)
+NORETURN void il2cpp_codegen_raise_divide_by_zero_exception()
 {
-    il2cpp::vm::Exception::RaiseDivideByZeroException(seqPoint);
+    il2cpp::vm::Exception::RaiseDivideByZeroException();
 }
 
 Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)
@@ -527,9 +520,19 @@ void il2cpp_codegen_marshal_free_bstring(Il2CppChar* value)
     il2cpp::vm::PlatformInvoke::MarshalFreeBString(value);
 }
 
+char* il2cpp_codegen_marshal_empty_string_builder(StringBuilder_t* stringBuilder)
+{
+    return il2cpp::vm::PlatformInvoke::MarshalEmptyStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
 char* il2cpp_codegen_marshal_string_builder(StringBuilder_t* stringBuilder)
 {
     return il2cpp::vm::PlatformInvoke::MarshalStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
+Il2CppChar* il2cpp_codegen_marshal_empty_wstring_builder(StringBuilder_t* stringBuilder)
+{
+    return il2cpp::vm::PlatformInvoke::MarshalEmptyWStringBuilder((RuntimeStringBuilder*)stringBuilder);
 }
 
 Il2CppChar* il2cpp_codegen_marshal_wstring_builder(StringBuilder_t* stringBuilder)
@@ -616,5 +619,50 @@ const char* il2cpp_codegen_get_field_data(RuntimeField* field)
 {
     return il2cpp::vm::Field::GetData(field);
 }
+
+#if IL2CPP_TINY
+
+MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)type);
+    Il2CppMulticastDelegate* result = reinterpret_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(klass));
+    result->delegates = delegates;
+    result->delegateCount = delegateCount;
+    return reinterpret_cast<MulticastDelegate_t*>(result);
+}
+
+Type_t* il2cpp_codegen_get_type(Il2CppObject* obj)
+{
+    return (Type_t*)il2cpp::vm::Reflection::GetTypeObject(&obj->klass->byval_arg);
+}
+
+Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    if (klass->parent == NULL)
+        return NULL;
+    return (Type_t*)il2cpp::vm::Reflection::GetTypeObject(&klass->parent->byval_arg);
+}
+
+Type_t* il2cpp_codegen_get_type_from_handle(intptr_t handle)
+{
+    return (Type_t*)il2cpp::vm::Type::GetTypeFromHandle(handle);
+}
+
+bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
+{
+    return il2cpp::vm::Class::IsAssignableFrom((Il2CppReflectionType*)left, (Il2CppReflectionType*)right);
+}
+
+void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason)
+{
+    std::string message = "No reverse pinvoke wrapper exists for method: '";
+    message += methodName;
+    message += "' because ";
+    message += reason;
+    il2cpp_codegen_raise_exception(il2cpp_codegen_get_invalid_operation_exception(message.c_str()));
+}
+
+#endif
 
 #endif

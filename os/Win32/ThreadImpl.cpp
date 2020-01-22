@@ -380,14 +380,10 @@ namespace
         return thread;
     }
 
-#if NET_4_0
-
     bool ThreadImpl::YieldInternal()
     {
         return SwitchToThread();
     }
-
-#endif
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 

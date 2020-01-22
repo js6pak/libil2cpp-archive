@@ -1,4 +1,3 @@
-#ifdef NET_4_0
 #include "il2cpp-config.h"
 #include "CultureData.h"
 #include "CultureInfoInternals.h"
@@ -113,5 +112,3 @@ namespace Globalization
 } // namespace mscorlib
 } // namespace icalls
 } // namespace il2cpp
-
-#endif

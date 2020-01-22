@@ -65,14 +65,10 @@ namespace os
         abort();
     }
 
-#if NET_4_0
-
     bool Environment::Is64BitOs()
     {
         return false;
     }
-
-#endif
 }
 }
 #endif

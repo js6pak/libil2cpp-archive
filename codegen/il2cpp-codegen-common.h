@@ -154,19 +154,11 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
         goto Target;
 
 
-#if IL2CPP_MONO_DEBUGGER
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint, lastManagedFrame) \
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message, seqPoint, (MethodInfo*)lastManagedFrame);\
+        il2cpp_codegen_raise_exception((Exception_t*)message, (MethodInfo*)lastManagedFrame);\
         il2cpp_codegen_no_return();\
     } while (0)
-#else
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, seqPoint, lastManagedFrame) \
-    do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message, NULL, (MethodInfo*)lastManagedFrame);\
-        il2cpp_codegen_no_return();\
-    } while (0)
-#endif
 
 #if IL2CPP_ENABLE_WRITE_BARRIERS
 void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object);

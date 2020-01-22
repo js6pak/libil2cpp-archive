@@ -24,17 +24,6 @@ namespace il2cpp
 {
 namespace os
 {
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
-    std::string Environment::GetMachineName()
-    {
-        char buf[256];
-
-        if (gethostname(buf, sizeof(buf)) != 0)
-            return NULL;
-
-        return buf;
-    }
-
     int32_t Environment::GetProcessorCount()
     {
         int count = 1;
@@ -55,6 +44,20 @@ namespace os
 #endif
         return count;
     }
+
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !IL2CPP_TARGET_LUMIN
+    std::string Environment::GetMachineName()
+    {
+        char buf[256];
+
+        if (gethostname(buf, sizeof(buf)) != 0)
+            return NULL;
+
+        return buf;
+    }
+
+#endif //!IL2CPP_TARGET_LUMIN
 
     std::string Environment::GetOsVersionString()
     {
@@ -136,21 +139,20 @@ namespace os
         exit(result);
     }
 
-#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
 
     NORETURN void Environment::Abort()
     {
         abort();
     }
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
     std::string Environment::GetWindowsFolderPath(int folder)
     {
         // This should only be called on Windows.
         return std::string();
     }
 
-#if NET_4_0
     bool Environment::Is64BitOs()
     {
         struct utsname name;
@@ -163,8 +165,7 @@ namespace os
         return false;
     }
 
-#endif // NET_4_0
-#endif // !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
 }
 }
 #endif

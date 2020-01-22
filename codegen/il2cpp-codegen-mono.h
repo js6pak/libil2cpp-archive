@@ -83,7 +83,7 @@ inline String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView
     return (String_t*)mono_string_new_utf16(g_MonoDomain, (const mono_unichar2*)str.Str(), (int32_t)str.Length());
 }
 
-inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, Il2CppSequencePoint *seqPoint = NULL, MethodInfo* lastManagedFrame = NULL)
+inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame = NULL)
 {
     mono_raise_exception((RuntimeException*)ex);
     il2cpp_codegen_no_return();
@@ -491,9 +491,19 @@ inline void il2cpp_codegen_marshal_free_bstring(Il2CppChar* value)
     IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
 }
 
+inline char* il2cpp_codegen_marshal_empty_string_builder(StringBuilder_t* stringBuilder)
+{
+    return mono::vm::PlatformInvoke::MarshalEmptyStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
 inline char* il2cpp_codegen_marshal_string_builder(StringBuilder_t* stringBuilder)
 {
     return mono::vm::PlatformInvoke::MarshalStringBuilder((RuntimeStringBuilder*)stringBuilder);
+}
+
+inline Il2CppChar* il2cpp_codegen_marshal_empty_wstring_builder(StringBuilder_t* stringBuilder)
+{
+    return (Il2CppChar*)mono::vm::PlatformInvoke::MarshalEmptyWStringBuilder((RuntimeStringBuilder*)stringBuilder);
 }
 
 inline Il2CppChar* il2cpp_codegen_marshal_wstring_builder(StringBuilder_t* stringBuilder)
@@ -674,6 +684,11 @@ inline void il2cpp_codegen_memory_barrier()
 inline void il2cpp_codegen_initialize_method(uint32_t index)
 {
     il2cpp_mono_initialize_method_metadata(index);
+}
+
+inline bool il2cpp_codegen_class_is_value_type(RuntimeClass* type)
+{
+    return mono_class_is_valuetype(type);
 }
 
 inline bool il2cpp_codegen_type_implements_virtual_method(RuntimeClass* type, RuntimeMethod *slot)

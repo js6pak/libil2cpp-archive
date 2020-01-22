@@ -126,9 +126,6 @@ namespace IO
 
         if (ret)
         {
-#if !NET_4_0
-            gc::WriteBarrier::GenericStore(&stat->name, vm::String::New(fileStat.name.c_str()));
-#endif
             stat->attributes = fileStat.attributes;
             stat->length = fileStat.length;
             stat->creation_time = fileStat.creation_time;
@@ -147,9 +144,6 @@ namespace IO
 
         if (ret)
         {
-#if !NET_4_0
-            gc::WriteBarrier::GenericStore(stat->name, vm::String::New(fileStat.name.c_str()));
-#endif
             stat->attributes = fileStat.attributes;
             stat->length = fileStat.length;
             stat->creation_time = fileStat.creation_time;
@@ -400,8 +394,6 @@ namespace IO
         return false;
     }
 
-#if NET_4_0
-
     static int32_t CloseFindHandle(os::Directory::FindHandle* findHandle)
     {
         int32_t result = findHandle->CloseOSHandle();
@@ -493,9 +485,6 @@ namespace IO
         IL2CPP_UNREACHABLE;
     }
 
-#endif
-
-#if NET_4_0
     bool MonoIO::FindCloseFile(intptr_t hnd)
     {
         return CloseFindHandle(reinterpret_cast<os::Directory::FindHandle*>(hnd));
@@ -555,8 +544,6 @@ namespace IO
 
         return reinterpret_cast<intptr_t>(findHandle);
     }
-
-#endif
 } /* namespace IO */
 } /* namespace System */
 } /* namespace mscorlib */

@@ -12,7 +12,7 @@ namespace il2cpp
 {
 namespace os
 {
-    void StackTrace::WalkStack(WalkStackCallback callback, void* context, WalkOrder walkOrder)
+    void StackTrace::WalkStackNative(WalkStackCallback callback, void* context, WalkOrder walkOrder)
     {
         const uint32_t kMaxFrames = 128;
         void* stack[kMaxFrames];
@@ -72,6 +72,12 @@ namespace os
 #endif // !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
 
         return stackTrace;
+    }
+
+    const void* StackTrace::GetStackPointer()
+    {
+        // TODO implement to avoid extra WalkStack calls
+        return nullptr;
     }
 }
 }

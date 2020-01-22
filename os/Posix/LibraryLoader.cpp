@@ -11,6 +11,10 @@
 #include <dlfcn.h>
 #include <string>
 #include <set>
+#if IL2CPP_TARGET_LINUX
+#include <unistd.h>
+#include <gnu/lib-names.h>
+#endif
 
 #include "il2cpp-runtime-metadata.h"
 #include "os/LibraryLoader.h"
@@ -23,7 +27,7 @@ namespace il2cpp
 {
 namespace os
 {
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
     static std::set<void*> s_NativeHandlesOpen;
     typedef std::set<void*>::const_iterator OpenHandleIterator;
     os::FastMutex s_NativeHandlesOpenMutex;
@@ -92,6 +96,32 @@ namespace os
         return NULL;
     }
 
+#if IL2CPP_TARGET_LINUX
+    static void* LoadLibraryRelativeToExecutableDirectory(const char* name, int flags)
+    {
+        if (name == NULL || name[0] == '/')
+            return NULL;
+
+        char exePath[PATH_MAX + 1];
+        int len;
+
+        if ((len = readlink("/proc/self/exe", exePath, sizeof(exePath))) == -1)
+        {
+#ifdef VERBOSE_OUTPUT
+            printf("Error: %s\n", perror());
+#endif
+            return NULL;
+        }
+        exePath[len] = '\0'; // readlink does not terminate buffer
+        while (len > 0 && exePath[len] != '/')
+            len--;
+        exePath[len] = '\0';
+        std::string libPath = utils::StringUtils::Printf("%s/%s", exePath, name);
+        return dlopen(libPath.c_str(), flags);
+    }
+
+#endif
+
     static void* CheckLibraryVariations(const char* name, int flags)
     {
         int numberOfVariations = sizeof(LibraryNamePrefixAndSuffixVariations) / sizeof(LibraryNamePrefixAndSuffixVariations[0]);
@@ -101,6 +131,12 @@ namespace os
             void* handle = LoadLibraryWithName(libraryName.c_str(), flags);
             if (handle != NULL)
                 return handle;
+#if IL2CPP_TARGET_LINUX
+            // Linux does not search current directory by default
+            handle = LoadLibraryRelativeToExecutableDirectory(libraryName.c_str(), flags);
+            if (handle != NULL)
+                return handle;
+#endif
         }
 
         return NULL;
@@ -129,7 +165,7 @@ namespace os
         // Workaround the fact that on Linux, libc is actually named libc.so.6 instead of libc.so.
         // mscorlib P/Invokes into plain libc, so we need this for those P/Invokes to succeed
         if (strncasecmp(nativeDynamicLibrary.Str(), "libc", nativeDynamicLibrary.Length()) == 0)
-            return LoadLibraryWithName("libc.so.6", flags);
+            return LoadLibraryWithName(LIBC_SO, flags);
 #endif
 
         StringViewAsNullTerminatedStringOf(char, nativeDynamicLibrary, libraryName);
@@ -151,7 +187,7 @@ namespace os
             }
         }
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         if (handle != NULL)
             s_NativeHandlesOpen.insert(handle);
@@ -163,7 +199,7 @@ namespace os
     Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
     {
         StringViewAsNullTerminatedStringOf(char, pinvokeArgs.entryPoint, entryPoint);
-#if IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if IL2CPP_TINY_WITHOUT_DEBUGGER
         return reinterpret_cast<Il2CppMethodPointer>(dlsym(dynamicLibrary, entryPoint));
 #else
 
@@ -223,7 +259,7 @@ namespace os
 
     void LibraryLoader::CleanupLoadedLibraries()
     {
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         for (OpenHandleIterator it = s_NativeHandlesOpen.begin(); it != s_NativeHandlesOpen.end(); it++)
         {
@@ -237,7 +273,7 @@ namespace os
         if (dynamicLibrary == NULL)
             return false;
 
-#if !IL2CPP_DOTS_WITHOUT_DEBUGGER
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         OpenHandleIterator it = s_NativeHandlesOpen.find(dynamicLibrary);
         if (it != s_NativeHandlesOpen.end())

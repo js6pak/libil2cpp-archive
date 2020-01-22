@@ -43,7 +43,7 @@ namespace Diagnostics
         const int kSkippedFramesFromMSCorlibStackFrameMethods = 2;
         const int kSkippedFramesFromMSCorlibStackTraceMethods = 2;
 
-        const vm::StackFrames& stack = *vm::StackTrace::GetStackFrames();
+        const vm::StackFrames& stack = *vm::StackTrace::GetCachedStackFrames(skip);
 
         // Always ignore the skipped frames from System.Diagnostics.StackFrame, as we know we are always called from it.
         // These frames might be inlined or optimized away by the C++ compiler, so we will inspect the actual stack

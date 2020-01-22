@@ -155,7 +155,6 @@ namespace vm
         StaticGetValueInternal(field, value, threadStaticData);
     }
 
-#if NET_4_0
     void Field::StaticGetValueForThread(FieldInfo* field, void* value, Il2CppInternalThread* thread)
     {
         // ensure parent is initialized so that static fields memory has been allocated
@@ -167,8 +166,6 @@ namespace vm
 
         StaticGetValueInternal(field, value, threadStaticData);
     }
-
-#endif
 
     void Field::StaticGetValueInternal(FieldInfo* field, void* value, void* threadStaticData)
     {

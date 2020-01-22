@@ -192,35 +192,13 @@ namespace vm
         IL2CPP_VM_RAISE_IF_FAILED(hr, true);
     }
 
-    char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
+    char* PlatformInvoke::MarshalEmptyStringBuilder(Il2CppStringBuilder* stringBuilder, size_t& stringLength, std::vector<std::string>& utf8Chunks, std::vector<Il2CppStringBuilder*>& builders)
     {
         if (stringBuilder == NULL)
             return NULL;
 
-#if !NET_4_0
-        size_t stringLength = utils::StringUtils::GetLength(stringBuilder->str);
-
-        // not sure if this is necessary but it's better to be safe than sorry
-        IL2CPP_ASSERT(static_cast<int32_t>(stringLength) >= stringBuilder->length);
-        if (static_cast<int32_t>(stringLength) < stringBuilder->length)
-            stringLength = stringBuilder->length;
-
-        std::string utf8String = utils::StringUtils::Utf16ToUtf8(stringBuilder->str->chars, stringBuilder->length);
-
-        if (stringLength < utf8String.length())
-            stringLength = utf8String.length();
-
-        char* nativeString = MarshalAllocateStringBuffer<char>(stringLength + 1);
-        strcpy(nativeString, utf8String.c_str());
-
-        return nativeString;
-
-#else
-        size_t stringLength = 0;
+        stringLength = 0;
         Il2CppStringBuilder* currentBuilder = stringBuilder;
-
-        std::vector<std::string> utf8Chunks;
-        std::vector<Il2CppStringBuilder*> builders;
 
         while (true)
         {
@@ -247,6 +225,27 @@ namespace vm
         // chunk utf8String into the nativeString it won't fill everything and we can end up with w/e junk value was in that memory before
         memset(nativeString, 0, sizeof(char) * (stringLength + 1));
 
+        return nativeString;
+    }
+
+    char* PlatformInvoke::MarshalEmptyStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        size_t sizeLength;
+        std::vector<std::string> utf8Chunks;
+        std::vector<Il2CppStringBuilder*> builders;
+        return MarshalEmptyStringBuilder(stringBuilder, sizeLength, utf8Chunks, builders);
+    }
+
+    char* PlatformInvoke::MarshalStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        if (stringBuilder == NULL)
+            return NULL;
+
+        size_t stringLength;
+        std::vector<std::string> utf8Chunks;
+        std::vector<Il2CppStringBuilder*> builders;
+        char* nativeString = MarshalEmptyStringBuilder(stringBuilder, stringLength, utf8Chunks, builders);
+
         if (stringLength > 0)
         {
             int offsetAdjustment = 0;
@@ -263,31 +262,14 @@ namespace vm
         }
 
         return nativeString;
-#endif
     }
 
-    Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder)
+    Il2CppChar* PlatformInvoke::MarshalEmptyWStringBuilder(Il2CppStringBuilder* stringBuilder, size_t& stringLength)
     {
         if (stringBuilder == NULL)
             return NULL;
 
-#if !NET_4_0
-        int32_t stringLength = utils::StringUtils::GetLength(stringBuilder->str);
-
-        // not sure if this is necessary but it's better to be safe than sorry
-        IL2CPP_ASSERT(stringLength >= stringBuilder->length);
-        if (stringLength < stringBuilder->length)
-            stringLength = stringBuilder->length;
-
-        Il2CppChar* nativeString = MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
-        for (int32_t i = 0; i < stringBuilder->length; ++i)
-            nativeString[i] = stringBuilder->str->chars[i];
-
-        nativeString[stringBuilder->length] = '\0';
-
-        return nativeString;
-#else
-        size_t stringLength = 0;
+        stringLength = 0;
         Il2CppStringBuilder* currentBuilder = stringBuilder;
         while (true)
         {
@@ -299,11 +281,26 @@ namespace vm
             currentBuilder = currentBuilder->chunkPrevious;
         }
 
-        Il2CppChar* nativeString = MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
+        return MarshalAllocateStringBuffer<Il2CppChar>(stringLength + 1);
+    }
+
+    Il2CppChar* PlatformInvoke::MarshalEmptyWStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        size_t stringLength;
+        return MarshalEmptyWStringBuilder(stringBuilder, stringLength);
+    }
+
+    Il2CppChar* PlatformInvoke::MarshalWStringBuilder(Il2CppStringBuilder* stringBuilder)
+    {
+        if (stringBuilder == NULL)
+            return NULL;
+
+        size_t stringLength;
+        Il2CppChar* nativeString = MarshalEmptyWStringBuilder(stringBuilder, stringLength);
 
         if (stringLength > 0)
         {
-            currentBuilder = stringBuilder;
+            Il2CppStringBuilder* currentBuilder = stringBuilder;
             while (true)
             {
                 if (currentBuilder == NULL)
@@ -320,7 +317,6 @@ namespace vm
         nativeString[stringLength] = '\0';
 
         return nativeString;
-#endif
     }
 
     void PlatformInvoke::MarshalStringBuilderResult(Il2CppStringBuilder* stringBuilder, char* buffer)
@@ -328,11 +324,6 @@ namespace vm
         if (stringBuilder == NULL || buffer == NULL)
             return;
 
-#if !NET_4_0
-        Il2CppString* managedString = MarshalCppStringToCSharpStringResult(buffer);
-        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
-        stringBuilder->length = utils::StringUtils::GetLength(managedString);
-#else
         UTF16String utf16String = utils::StringUtils::Utf8ToUtf16(buffer);
 
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkChars, il2cpp::vm::Array::New(il2cpp_defaults.char_class, (int)utf16String.size() + 1));
@@ -345,7 +336,6 @@ namespace vm
         stringBuilder->chunkLength = (int)utf16String.size();
         stringBuilder->chunkOffset = 0;
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
-#endif
     }
 
     void PlatformInvoke::MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, Il2CppChar* buffer)
@@ -353,11 +343,6 @@ namespace vm
         if (stringBuilder == NULL || buffer == NULL)
             return;
 
-#if !NET_4_0
-        Il2CppString* managedString = MarshalCppWStringToCSharpStringResult(buffer);
-        IL2CPP_OBJECT_SETREF(stringBuilder, str, managedString);
-        stringBuilder->length = utils::StringUtils::GetLength(managedString);
-#else
         int len = (int)utils::StringUtils::StrLen(buffer);
 
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkChars, il2cpp::vm::Array::New(il2cpp_defaults.char_class, len + 1));
@@ -370,7 +355,6 @@ namespace vm
         stringBuilder->chunkLength = len;
         stringBuilder->chunkOffset = 0;
         IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
-#endif
     }
 
     // When a delegate is marshalled from native code via Marshal.GetDelegateForFunctionPointer
@@ -402,22 +386,19 @@ namespace vm
 
     intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "This should not be called with the Tiny profile.");
+        return 0;
+#else
         if (d == NULL)
             return 0;
-
-        if (d->method->is_inflated)
-        {
-            std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
-            std::string errorMessage = "IL2CPP does not support marshaling delegates that point to generic methods. The generic method we're attempting to marshal is: " + methodName;
-            vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
-        }
 
         if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
             return reinterpret_cast<intptr_t>(d->method->methodPointer);
 
         IL2CPP_ASSERT(d->method->methodDefinition);
 
-        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method->token);
+        Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method);
         if (reversePInvokeWrapper == NULL)
         {
             std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
@@ -446,6 +427,7 @@ namespace vm
         }
 
         return reinterpret_cast<intptr_t>(reversePInvokeWrapper);
+#endif
     }
 
     Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)

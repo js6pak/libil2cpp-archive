@@ -8,8 +8,7 @@
  * Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 #include "il2cpp-config.h"
-
-#if NET_4_0
+#include "gc/WriteBarrier.h"
 
 #ifndef DISABLE_SOCKETS
 
@@ -366,6 +365,7 @@ static void selector_thread (void* data)
 
 				//exists = mono_g_hash_table_lookup_extended (states, int_TO_POINTER (fd), &k, (void**) &list);
 				list->push_back((Il2CppObject*)job);
+				il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&(*list)[list->size()-1]);
 				states->insert(ThreadPoolStateHash::value_type(fd, list));
 				//mono_g_hash_table_replace (states, int_TO_POINTER (fd), list);
 
@@ -632,7 +632,7 @@ void ves_icall_System_IOSelector_Add (intptr_t handle, Il2CppIOSelectorJob *job)
 
 	update->type = UPDATE_ADD;
 	update->data.add.fd = (int)socketHandle.GetSocket()->GetDescriptor();
-	update->data.add.job = job;
+	il2cpp::gc::WriteBarrier::GenericStore(&update->data.add.job, job);
 	il2cpp::os::Atomic::FullMemoryBarrier(); /* Ensure this is safely published before we wake up the selector */
 
 	selector_thread_wakeup ();
@@ -689,5 +689,4 @@ void threadpool_ms_io_remove_socket (int fd)
 	IL2CPP_ASSERT(0 && "Should not be called");
 }
 
-#endif
 #endif

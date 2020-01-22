@@ -11,10 +11,8 @@
 #include "Exception.h"
 #include "Type.h"
 
-#if NET_4_0
 #include "vm/MetadataCache.h"
 #include "il2cpp-tabledefs.h"
-#endif
 
 
 struct Il2CppClass;
@@ -75,6 +73,7 @@ namespace vm
         //for Unsafe, but more performant version of HasParent, see ClassInlines.h
         static bool HasParent(Il2CppClass *klass, Il2CppClass *parent);
         static bool IsAssignableFrom(Il2CppClass *klass, Il2CppClass *oklass);
+        static bool IsAssignableFrom(Il2CppReflectionType *klass, Il2CppReflectionType *oklass);
         static bool IsGeneric(const Il2CppClass *klass);
         static bool IsInflated(const Il2CppClass *klass);
         static bool IsSubclassOf(Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces);
@@ -118,6 +117,7 @@ namespace vm
         static const MethodInfo* GetCCtor(Il2CppClass *klass);
         static const char* GetFieldDefaultValue(const FieldInfo *field, const Il2CppType** type);
         static int GetFieldMarshaledSize(const FieldInfo *field);
+        static int GetFieldMarshaledAlignment(const FieldInfo *field);
         static Il2CppClass* GetPtrClass(const Il2CppType* type);
         static Il2CppClass* GetPtrClass(Il2CppClass* elementClass);
         static bool HasReferences(Il2CppClass *klass);
@@ -140,7 +140,6 @@ namespace vm
 
         static void UpdateInitializedAndNoError(Il2CppClass *klass);
 
-#if NET_4_0
         static IL2CPP_FORCE_INLINE bool IsGenericClassAssignableFrom(const Il2CppClass* klass, const Il2CppClass* oklass, const Il2CppGenericContainer* genericContainer)
         {
             const Il2CppGenericClass* genericClass = klass->generic_class;
@@ -184,8 +183,6 @@ namespace vm
 
             return true;
         }
-
-#endif
     };
 } /* namespace vm */
 } /* namespace il2cpp */

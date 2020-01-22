@@ -71,8 +71,37 @@ namespace System
         return log10(val);
     }
 
+    static bool IsInteger(double value)
+    {
+        double unused;
+        return std::modf(value, &unused) == 0.0;
+    }
+
     double Math::Pow(double val, double exp)
     {
+        if (std::isnan(val))
+            return val;
+        if (std::isnan(exp))
+            return exp;
+
+        if (val > -1 && val < 1 && exp == -std::numeric_limits<double>::infinity())
+            return std::numeric_limits<double>::infinity();
+
+        if (val > -1 && val < 1 && exp == std::numeric_limits<double>::infinity())
+            return 0.0;
+
+        if ((val < -1 || val > 1) && exp == -std::numeric_limits<double>::infinity())
+            return 0.0;
+
+        if ((val < -1 || val > 1) && exp == std::numeric_limits<double>::infinity())
+            return std::numeric_limits<double>::infinity();
+
+        if (val < 0)
+        {
+            if (!IsInteger(exp) || exp == std::numeric_limits<double>::infinity() || exp == -std::numeric_limits<double>::infinity())
+                return std::numeric_limits<double>::quiet_NaN();
+        }
+
         double res = pow(val, exp);
         if (std::isnan(res))
             return 1.0;
@@ -148,7 +177,6 @@ namespace System
 #endif
     }
 
-#if NET_4_0
     double Math::Abs(double value)
     {
         return fabs(value);
@@ -168,8 +196,6 @@ namespace System
     {
         return fabsf(value);
     }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */

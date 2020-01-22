@@ -592,8 +592,8 @@ namespace InteropServices
                         if (managedOffset != 0) // overlapping fields have a zero offset
                         {
                             offset += vm::Class::GetFieldMarshaledSize(previousField);
-                            int marshaledFieldSize = vm::Class::GetFieldMarshaledSize(field);
-                            offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldSize : std::min((int)type->packingSize, marshaledFieldSize));
+                            int marshaledFieldAlignment = vm::Class::GetFieldMarshaledAlignment(field);
+                            offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldAlignment : std::min((int)type->packingSize, marshaledFieldAlignment));
                         }
                     }
                     else
@@ -646,8 +646,6 @@ namespace InteropServices
         return reinterpret_cast<intptr_t>(il2cpp_array_addr_with_size(arr, il2cpp_array_element_size(arr->klass), index));
     }
 
-#if NET_4_0
-
     intptr_t Marshal::BufferToBSTR(Il2CppArray* ptr, int32_t slen)
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(Marshal::BufferToBSTR);
@@ -673,17 +671,12 @@ namespace InteropServices
         IL2CPP_UNREACHABLE;
     }
 
-#endif
-
-#if NET_4_0
     intptr_t Marshal::AllocCoTaskMemSize(intptr_t sizet)
     {
         intptr_t result;
         result = (intptr_t)vm::MarshalAlloc::Allocate(sizet);
         return result;
     }
-
-#endif
 } /* namespace InteropServices */
 } /* namespace Runtime */
 } /* namespace System */

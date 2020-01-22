@@ -209,6 +209,7 @@ namespace vm
     {
     public:
         // exported
+        static void GetNameChunkedRecurse(const Il2CppType * type, Il2CppTypeNameFormat format, void(*reportFunc)(void *data, void *userData), void * userData);
         static std::string GetName(const Il2CppType *type, Il2CppTypeNameFormat format);
         static int GetType(const Il2CppType *type);
         static Il2CppClass* GetClassOrElementClass(const Il2CppType *type);
@@ -218,9 +219,11 @@ namespace vm
         static Il2CppReflectionType* GetDeclaringType(const Il2CppType* type);
         static Il2CppArray* GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray);
         static bool IsEqualToType(const Il2CppType *type, const Il2CppType *otherType);
+        static Il2CppReflectionType* GetTypeFromHandle(intptr_t handle);
 
     public:
         // internal
+        static void GetNameChunkedRecurseInternal(const Il2CppType * type, Il2CppTypeNameFormat format, bool is_nested, void(*reportFunc)(void *data, void *userData), void * userData);
         static void GetNameInternal(std::string &oss, const Il2CppType *type, Il2CppTypeNameFormat format, bool is_nested);
         static bool IsReference(const Il2CppType* type);
         static bool IsStruct(const Il2CppType* type);

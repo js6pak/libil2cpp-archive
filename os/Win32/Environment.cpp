@@ -246,8 +246,6 @@ namespace os
         return std::string();
     }
 
-#if NET_4_0
-
     typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
     bool Environment::Is64BitOs()
@@ -273,8 +271,6 @@ namespace os
 
         return false;
     }
-
-#endif
 
 #endif
 }

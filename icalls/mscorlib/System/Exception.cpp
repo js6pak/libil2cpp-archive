@@ -1,4 +1,3 @@
-#if NET_4_0
 #include "il2cpp-config.h"
 #include "Exception.h"
 #include "vm/Runtime.h"
@@ -33,4 +32,3 @@ namespace System
 } // namespace mscorlib
 } // namespace icalls
 } // namespace il2cpp
-#endif

@@ -32,8 +32,6 @@ namespace System
         memcpy(dst, src, size);
 
         return res;
-
-        return il2cpp::vm::Object::Box(thisPtr->klass->element_class, (char*)thisPtr + sizeof(Il2CppObject));
     }
 
     int Enum::compare_value_to(Il2CppObject * thisPtr, Il2CppObject * other)
@@ -217,7 +215,6 @@ namespace System
         return il2cpp::vm::Reflection::GetTypeObject(etype);
     }
 
-#if NET_4_0
     bool Enum::GetEnumValuesAndNames(Il2CppReflectionRuntimeType* enumType, Il2CppArray** values, Il2CppArray** names)
     {
         return vm::Enum::GetEnumValuesAndNames(vm::Class::FromIl2CppType(enumType->type.type), values, names);
@@ -248,6 +245,15 @@ namespace System
     Il2CppReflectionRuntimeType* Enum::InternalGetUnderlyingType(Il2CppReflectionRuntimeType* enumType)
     {
         return reinterpret_cast<Il2CppReflectionRuntimeType*>(get_underlying_type(&enumType->type));
+    }
+
+#if IL2CPP_TINY
+    bool Enum::TinyEnumEquals(Il2CppObject* left, Il2CppObject* right)
+    {
+        if (left->klass != right->klass)
+            return false;
+
+        return compare_value_to(left, right) == 0;
     }
 
 #endif

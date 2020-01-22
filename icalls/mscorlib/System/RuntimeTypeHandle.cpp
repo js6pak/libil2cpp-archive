@@ -11,8 +11,6 @@
 #include "vm/Reflection.h"
 #include "vm/MetadataCache.h"
 
-#if NET_4_0
-
 namespace il2cpp
 {
 namespace icalls
@@ -170,5 +168,3 @@ namespace System
 } // namespace mscorlib
 } // namespace icalls
 } // namespace il2cpp
-
-#endif

@@ -228,8 +228,6 @@ namespace os
         return std::string();
     }
 
-#if NET_4_0
-
     bool Environment::Is64BitOs()
     {
 #if IL2CPP_TARGET_WINRT
@@ -238,8 +236,6 @@ namespace os
 #endif
         return true;
     }
-
-#endif
 }
 }
 #endif

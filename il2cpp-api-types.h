@@ -107,6 +107,15 @@ typedef struct Il2CppStackFrameInfo
     const MethodInfo *method;
 } Il2CppStackFrameInfo;
 
+typedef void(*Il2CppMethodPointer)();
+
+typedef struct Il2CppMethodDebugInfo
+{
+    Il2CppMethodPointer methodPointer;
+    int32_t code_size;
+    const char *file;
+} Il2CppMethodDebugInfo;
+
 typedef struct
 {
     void* (*malloc_func)(size_t size);
@@ -117,6 +126,17 @@ typedef struct
     void* (*realloc_func)(void *ptr, size_t size);
     void* (*aligned_realloc_func)(void *ptr, size_t size, size_t alignment);
 } Il2CppMemoryCallbacks;
+
+typedef struct
+{
+    const char *name;
+    void(*connect)(const char *address);
+    int(*wait_for_attach)(void);
+    void(*close1)(void);
+    void(*close2)(void);
+    int(*send)(void *buf, int len);
+    int(*recv)(void *buf, int len);
+} Il2CppDebuggerTransport;
 
 #if !__SNC__ // SNC doesn't like the following define: "warning 1576: predefined meaning of __has_feature discarded"
 #ifndef __has_feature // clang specific __has_feature check
@@ -154,8 +174,9 @@ typedef void (*Il2CppProfileThreadFunc) (Il2CppProfiler *prof, unsigned long tid
 typedef const Il2CppNativeChar* (*Il2CppSetFindPlugInCallback)(const Il2CppNativeChar*);
 typedef void (*Il2CppLogCallback)(const char*);
 
+typedef size_t(*Il2CppBacktraceFunc) (Il2CppMethodPointer* buffer, size_t maxSize);
+
 struct Il2CppManagedMemorySnapshot;
 
-typedef void (*Il2CppMethodPointer)();
 typedef uintptr_t il2cpp_array_size_t;
 #define ARRAY_LENGTH_AS_INT32(a) ((int32_t)a)

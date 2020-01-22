@@ -222,21 +222,22 @@ static inline atomic_word atomic_exchange_explicit(volatile atomic_word* p, atom
 
 #define ATOMIC_CMP_XCHG(PRE, POST) \
     atomic_word res; \
-    atomic_word success = 0; \
+    atomic_word failure; \
     __asm__ __volatile__ \
     ( \
         PRE \
         "ldrex  %2, [%4]\n\t" \
         "teq    %2, %5\n\t" \
-        "it     eq\n\t" \
+        "ite    eq\n\t" \
         "strexeq %0, %3, [%4]\n\t" \
+        "movne  %0, #1\n\t" \
         POST \
-        : "+r" (success), "+m" (*p), "=&r" (res) \
+        : "=&r" (failure), "+m" (*p), "=&r" (res) \
         : "r" (newval), "r" (p), "r" (*oldval) \
         : "cc", "memory" \
     ); \
     *oldval = res; \
-    return success;
+    return (failure == 0);
 
 static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_relaxed_t, memory_order_relaxed_t)
 {
@@ -290,24 +291,25 @@ static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word* p
 #undef ATOMIC_CMP_XCHG
 #define ATOMIC_CMP_XCHG(PRE, POST) \
     atomic_word res; \
-    atomic_word success = 0; \
+    atomic_word failure = 1; \
     __asm__ __volatile__ \
     ( \
         PRE \
     ASM_LABEL (0) \
-        "ldrex  %2, [%4]\n\t" \
-        "teq    %2, %5\n\t" \
-        "bne    1f\n\t" \
+        "mov    %0, #1      \n\t"   /* reset failure each loop */\
+        "ldrex  %2, [%4]    \n\t"\
+        "teq    %2, %5      \n\t"\
+        "bne    1f          \n\t"\
         "strex  %0, %3, [%4]\n\t" \
-        "teq    %0, #0\n\t" \
-        "bne    0b\n\t" \
+        "teq    %0, #0      \n\t"\
+        "bne    0b          \n\t"\
         POST \
-        : "=&r" (success), "+m" (*p), "=&r" (res) \
+        : "+&r" (failure), "+m" (*p), "=&r" (res) \
         : "r" (newval), "r" (p), "r" (*oldval) \
         : "cc", "memory" \
     ); \
     *oldval = res; \
-    return success;
+    return (failure == 0);
 
 static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word* p, atomic_word *oldval, atomic_word newval, memory_order_relaxed_t, memory_order_relaxed_t)
 {
@@ -513,7 +515,7 @@ static inline atomic_word atomic_fetch_add_explicit(volatile atomic_word* p, ato
 #endif
 }
 
-static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t)
+static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_relaxed_t mo)
 {
 #if defined(_MSC_VER)
     return atomic_fetch_add_explicit(p, -v, memory_order_relaxed);
@@ -522,7 +524,7 @@ static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, ato
 #endif
 }
 
-static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t)
+static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_release_t mo)
 {
 #if defined(_MSC_VER)
     return atomic_fetch_add_explicit(p, -v, memory_order_release);
@@ -531,7 +533,7 @@ static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, ato
 #endif
 }
 
-static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_acquire_t)
+static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_acquire_t mo)
 {
 #if defined(_MSC_VER)
     return atomic_fetch_add_explicit(p, -v, memory_order_acquire);
@@ -540,7 +542,7 @@ static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, ato
 #endif
 }
 
-static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_acq_rel_t)
+static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, memory_order_acq_rel_t mo)
 {
 #if defined(_MSC_VER)
     return atomic_fetch_add_explicit(p, -v, memory_order_acq_rel);
@@ -549,7 +551,7 @@ static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, ato
 #endif
 }
 
-static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, int /* memory_order_seq_cst_t */)
+static inline atomic_word atomic_fetch_sub_explicit(volatile atomic_word* p, atomic_word v, int /* memory_order_seq_cst_t */ mo)
 {
 #if defined(_MSC_VER)
     return atomic_fetch_add_explicit(p, -v, memory_order_seq_cst);
@@ -600,7 +602,7 @@ static inline bool atomic_release(volatile int* p)
 static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, memory_order_relaxed_t)
 {
 #if defined(_MSC_VER)
-//  atomic_word2 r; r.v = __iso_volatile_load64 ((volatile __int64*) p); return r;
+    //  atomic_word2 r; r.v = __iso_volatile_load64 ((volatile __int64*) p); return r;
     atomic_word2 r;
     r.v = _InterlockedCompareExchange64_nf((volatile __int64*)p, (__int64)0, (__int64)0);
     return r;
@@ -619,7 +621,7 @@ static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, 
 
         : "=&r" (success), "=&r" (lo), "=&r" (hi)
         : "r" (p)
-        : "cc", "r2", "r3"
+        : "cc"
     );
     atomic_word2 w;
     w.lo = lo;
@@ -650,7 +652,7 @@ static inline atomic_word2 atomic_load_explicit(const volatile atomic_word2* p, 
 
         : "=&r" (success), "=&r" (lo), "=&r" (hi)
         : "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
     atomic_word2 w;
     w.lo = lo;
@@ -687,7 +689,7 @@ static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 
 
         : "=&r" (success), "=m" (*p), "=&r" (l), "=&r" (h)
         : "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
 #endif
 }
@@ -721,7 +723,7 @@ static inline void atomic_store_explicit(volatile atomic_word2* p, atomic_word2 
 
         : "=&r" (success), "=m" (*p), "=&r" (l), "=&r" (h)
         : "r" (lo), "r" (hi), "r" (p)
-        : "cc", "memory", "r2", "r3"
+        : "cc", "memory"
     );
 #endif
 }
@@ -752,7 +754,7 @@ static inline atomic_word2 atomic_exchange_explicit(volatile atomic_word2* p, at
 
         : "=&r" (success), "=m" (*p), "=&r" (l), "=&r" (h)
         : "r" (hi), "r" (lo), "r" (p)
-        : "cc", "memory", "r0", "r1", "r3"
+        : "cc", "memory"
     );
     val.lo = l;
     val.hi = h;
@@ -771,7 +773,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
     register atomic_word h __asm__ ("r3");
     register atomic_word lo __asm__ ("r0") = newval.lo;
     register atomic_word hi __asm__ ("r1") = newval.hi;
-    atomic_word success;
+    atomic_word failure = 1;
 
     __asm__ __volatile__
     (
@@ -788,16 +790,16 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
         ASM_LABEL(1)
         "clrex\n\t"
 
-        : "=&r" (success), "+m" (*p), "=&r" (l), "=&r" (h)
-        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p), "0" (1)
-        : "cc", "memory", "r2", "r3"
+        : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
+        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
+        : "cc", "memory"
     );
-    if (success != 0)
+    if (failure != 0)
     {
         oldval->lo = l;
         oldval->hi = h;
     }
-    return success == 0;
+    return failure == 0;
 #endif
 }
 
@@ -811,7 +813,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
     register atomic_word h __asm__ ("r3");
     register atomic_word lo __asm__ ("r0") = newval.lo;
     register atomic_word hi __asm__ ("r1") = newval.hi;
-    atomic_word success;
+    atomic_word failure = 1;
 
     __asm__ __volatile__
     (
@@ -828,16 +830,16 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
         ASM_LABEL(1)
         "clrex\n\t"
 
-        : "=&r" (success), "+m" (*p), "=&r" (l), "=&r" (h)
-        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p), "0" (1)
-        : "cc", "memory", "r2", "r3"
+        : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
+        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
+        : "cc", "memory"
     );
-    if (success != 0)
+    if (failure != 0)
     {
         oldval->lo = l;
         oldval->hi = h;
     }
-    return success == 0;
+    return failure == 0;
 #endif
 }
 
@@ -852,7 +854,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
     register atomic_word h __asm__ ("r3");
     register atomic_word lo __asm__ ("r0") = newval.lo;
     register atomic_word hi __asm__ ("r1") = newval.hi;
-    atomic_word success;
+    atomic_word failure = 1;
 
     __asm__ __volatile__
     (
@@ -870,16 +872,16 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
         ASM_LABEL(1)
         "clrex\n\t"
 
-        : "=&r" (success), "+m" (*p), "=&r" (l), "=&r" (h)
-        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p), "0" (1)
-        : "cc", "memory", "r2", "r3"
+        : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
+        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
+        : "cc", "memory"
     );
-    if (success != 0)
+    if (failure != 0)
     {
         oldval->lo = l;
         oldval->hi = h;
     }
-    return success == 0;
+    return failure == 0;
 #endif
 }
 
@@ -894,7 +896,7 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
     register atomic_word h __asm__ ("r3");
     register atomic_word lo __asm__ ("r0") = newval.lo;
     register atomic_word hi __asm__ ("r1") = newval.hi;
-    atomic_word success;
+    atomic_word failure = 1;
 
     __asm__ __volatile__
     (
@@ -912,15 +914,27 @@ static inline bool atomic_compare_exchange_strong_explicit(volatile atomic_word2
         ASM_LABEL(1)
         "clrex\n\t"
 
-        : "=&r" (success), "+m" (*p), "=&r" (l), "=&r" (h)
-        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p), "0" (1)
-        : "cc", "memory", "r2", "r3"
+        : "+&r" (failure), "+m" (*p), "=&r" (l), "=&r" (h)
+        : "r" (oldval->lo), "r" (oldval->hi), "r" (lo), "r" (hi), "r" (p)
+        : "cc", "memory"
     );
-    if (success != 0)
+    if (failure != 0)
     {
         oldval->lo = l;
         oldval->hi = h;
     }
-    return success == 0;
+    return failure == 0;
 #endif
+}
+
+template<class SuccOrder, class FailOrder>
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, SuccOrder o1, FailOrder o2)
+{
+    // TODO: implement proper weak compare exchange
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, o1, o2);
+}
+
+static inline bool atomic_compare_exchange_weak_explicit(volatile atomic_word2* p, atomic_word2* oldval, atomic_word2 newval, memory_order_relaxed_t, memory_order_relaxed_t o2)
+{
+    return atomic_compare_exchange_strong_explicit(p, oldval, newval, memory_order_acquire_t(), o2);
 }

@@ -99,11 +99,7 @@ namespace vm
         }
 
         if (!System_Reflection_Assembly)
-#if !NET_4_0
-            System_Reflection_Assembly = il2cpp_defaults.assembly_class;
-#else
             System_Reflection_Assembly = il2cpp_defaults.mono_assembly_class;
-#endif
         res = (Il2CppReflectionAssembly*)Object::New(System_Reflection_Assembly);
         res->assembly = assembly;
 
@@ -174,50 +170,6 @@ namespace vm
         Il2CppClass *klass;
         Il2CppReflectionMethod *ret;
 
-#if !NET_4_0
-        if (method->is_inflated)
-        {
-            refclass = method->klass;
-
-            MethodMap::key_type::wrapped_type key(method, refclass);
-            MethodMap::data_type value = NULL;
-
-            {
-                il2cpp::os::ReaderWriterAutoLock lockShared(&s_ReflectionICallsLock);
-                if (s_MethodMap->TryGetValue(key, &value))
-                    return value;
-            }
-
-            if ((*method->name == '.') && (!strcmp(method->name, ".ctor") || !strcmp(method->name, ".cctor")))
-            {
-                if (!System_Reflection_MonoGenericCMethod)
-                    System_Reflection_MonoGenericCMethod = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "MonoGenericCMethod");
-                klass = System_Reflection_MonoGenericCMethod;
-            }
-            else
-            {
-                if (!System_Reflection_MonoGenericMethod)
-                    System_Reflection_MonoGenericMethod = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "MonoGenericMethod");
-                klass = System_Reflection_MonoGenericMethod;
-            }
-
-            Il2CppReflectionGenericMethod *gret = (Il2CppReflectionGenericMethod*)Object::New(klass);
-            gret->base.method = method;
-
-            IL2CPP_OBJECT_SETREF(gret, base.name, String::New(method->name));
-            IL2CPP_OBJECT_SETREF(gret, base.reftype, GetTypeObject(&refclass->byval_arg));
-
-            ret = &gret->base;
-
-            il2cpp::os::ReaderWriterAutoLock lockExclusive(&s_ReflectionICallsLock, true);
-            if (s_MethodMap->TryGetValue(key, &value))
-                return value;
-
-            s_MethodMap->Add(key, ret);
-            return ret;
-        }
-#endif
-
         if (!refclass)
             refclass = method->klass;
 
@@ -271,11 +223,7 @@ namespace vm
 
         if (!System_Reflection_Module)
         {
-#if !NET_4_0
-            System_Reflection_Module = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "Module");
-#else
             System_Reflection_Module = Class::FromName(il2cpp_defaults.corlib, "System.Reflection", "MonoModule");
-#endif
         }
         res = (Il2CppReflectionModule*)Object::New(System_Reflection_Module);
 
@@ -378,11 +326,8 @@ namespace vm
                 return object;
         }
 
-#if NET_4_0
         Il2CppReflectionType* typeObject = (Il2CppReflectionType*)Object::New(il2cpp_defaults.runtimetype_class);
-#else
-        Il2CppReflectionType* typeObject = (Il2CppReflectionType*)Object::New(il2cpp_defaults.monotype_class);
-#endif
+
         typeObject->type = type;
 
         il2cpp::os::ReaderWriterAutoLock lockExclusive(&s_ReflectionICallsLock, true);
@@ -448,11 +393,7 @@ namespace vm
         {
             Il2CppClass *klass;
 
-#if !NET_4_0
-            klass = il2cpp_defaults.parameter_info_class;
-#else
             klass = il2cpp_defaults.mono_parameter_info_class;
-#endif
             //mono_memory_barrier ();
             System_Reflection_ParameterInfo = klass;
 
@@ -517,11 +458,7 @@ namespace vm
 // TODO: move this somewhere else
     bool Reflection::IsType(Il2CppObject *obj)
     {
-#if NET_4_0
         return (obj->klass == il2cpp_defaults.runtimetype_class);
-#else
-        return (obj->klass == il2cpp_defaults.monotype_class);
-#endif
     }
 
     static bool IsMethod(Il2CppObject *obj)
@@ -581,22 +518,14 @@ namespace vm
     static bool IsParameter(Il2CppObject *obj)
     {
         if (obj->klass->image == il2cpp_defaults.corlib)
-#if !NET_4_0
-            return obj->klass == il2cpp_defaults.parameter_info_class;
-#else
             return obj->klass == il2cpp_defaults.mono_parameter_info_class;
-#endif
         return false;
     }
 
     static bool IsAssembly(Il2CppObject *obj)
     {
         if (obj->klass->image == il2cpp_defaults.corlib)
-#if !NET_4_0
-            return obj->klass == il2cpp_defaults.assembly_class;
-#else
             return obj->klass == il2cpp_defaults.mono_assembly_class;
-#endif
         return false;
     }
 
