@@ -1294,16 +1294,21 @@ namespace Sockets
 #endif // IL2CPP_SUPPORT_IPV6
                     {
                         FieldInfo *group_field_info = vm::Class::GetFieldFromName(obj_val->klass, "group");
-                        FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "localAddress");
-
                         Il2CppObject* group_obj = vm::Field::GetValueObject(group_field_info, obj_val);
-                        Il2CppObject* local_obj = vm::Field::GetValueObject(local_field_info, obj_val);
-
                         const FieldInfo *group_address_field_info = vm::Class::GetFieldFromName(group_obj->klass, "m_Address");
-                        const FieldInfo *local_address_field_info = vm::Class::GetFieldFromName(local_obj->klass, "m_Address");
-
                         const uint32_t group_address = *((uint32_t*)(uint64_t*)((char*)group_obj + group_address_field_info->offset));
-                        const uint32_t local_address = *((uint32_t*)(uint64_t*)((char*)local_obj + local_address_field_info->offset));
+
+                        uint32_t local_address = 0;
+                        FieldInfo *local_field_info = vm::Class::GetFieldFromName(obj_val->klass, "localAddress");
+                        if (local_field_info != NULL)
+                        {
+                            Il2CppObject* local_obj = vm::Field::GetValueObject(local_field_info, obj_val);
+                            if (local_obj != NULL)
+                            {
+                                const FieldInfo *local_address_field_info = vm::Class::GetFieldFromName(local_obj->klass, "m_Address");
+                                local_address = *((uint32_t*)(uint64_t*)((char*)local_obj + local_address_field_info->offset));
+                            }
+                        }
 
                         status = socketHandle->SetSocketOptionMembership(system_level, system_name, group_address, local_address);
                     }

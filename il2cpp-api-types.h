@@ -174,6 +174,8 @@ typedef void (*Il2CppProfileThreadFunc) (Il2CppProfiler *prof, unsigned long tid
 typedef const Il2CppNativeChar* (*Il2CppSetFindPlugInCallback)(const Il2CppNativeChar*);
 typedef void (*Il2CppLogCallback)(const char*);
 
+typedef size_t(*Il2CppBacktraceFunc) (Il2CppMethodPointer* buffer, size_t maxSize);
+
 struct Il2CppManagedMemorySnapshot;
 
 typedef uintptr_t il2cpp_array_size_t;

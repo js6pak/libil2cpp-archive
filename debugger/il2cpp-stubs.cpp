@@ -804,12 +804,18 @@ extern "C" {
 
     MonoInternalThread* il2cpp_mono_thread_internal_current()
     {
-        return (MonoInternalThread*)(((Il2CppThread*)il2cpp_mono_thread_current())->internal_thread);
+        Il2CppThread* currentThread = (Il2CppThread*)il2cpp_mono_thread_current();
+        if (currentThread == NULL)
+            return NULL;
+        return (MonoInternalThread*)currentThread->internal_thread;
     }
 
     gboolean il2cpp_mono_thread_internal_is_current(MonoInternalThread* thread)
     {
-        return il2cpp_mono_thread_internal_current() == thread;
+        MonoInternalThread* currentThread = il2cpp_mono_thread_internal_current();
+        if (currentThread == NULL)
+            return FALSE;
+        return currentThread == thread;
     }
 
     void il2cpp_mono_thread_internal_abort(MonoInternalThread* thread, gboolean appdomain_unload)

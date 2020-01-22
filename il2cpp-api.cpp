@@ -2,6 +2,7 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-runtime-stats.h"
 
+#include "os/StackTrace.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -1211,6 +1212,11 @@ int32_t il2cpp_current_thread_get_stack_depth()
 int32_t il2cpp_thread_get_stack_depth(Il2CppThread *thread)
 {
     return StackTrace::GetThreadStackDepth(thread);
+}
+
+void il2cpp_override_stack_backtrace(Il2CppBacktraceFunc stackBacktraceFunc)
+{
+    il2cpp::os::StackTrace::OverrideStackBacktrace(stackBacktraceFunc);
 }
 
 // type
