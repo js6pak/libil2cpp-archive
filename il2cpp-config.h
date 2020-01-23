@@ -274,6 +274,7 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 
 #else
 
+#include <stdio.h>
 #include <emscripten/emscripten.h>
 // emscripten's assert will throw an exception in js.
 // For now, we don't want that, so just printf and move on.
