@@ -548,6 +548,7 @@ namespace metadata
         klass->rank = rank;
 
         klass->instance_size = Class::GetInstanceSize(arrayClass);
+        klass->size_inited = true;
         klass->vtable_count = static_cast<uint16_t>(slots);
 
         // need this before we access the size or has_references

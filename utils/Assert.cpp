@@ -4,7 +4,7 @@
 
 #if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
 #include <crtdbg.h>
-#include<string>
+#include <string>
 #else
 #include <cstdio>
 #include <cstdlib>
