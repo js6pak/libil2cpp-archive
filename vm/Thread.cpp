@@ -196,7 +196,12 @@ namespace vm
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-        MONO_PROFILER_RAISE(thread_stopped, ((uintptr_t)thread->GetInternalThread()->tid));
+        // Only raise the event for the debugger if there is a current thread at the OS thread level.
+        // The debugger code will try to take a lock, which requires a current thread. If this
+        // thread is being detached by a call from thread_cleanup_on_cancel, then there might
+        // not be a current thread, as pthreads does not privide TLS entries in thread destructors.
+        if (os::Thread::GetCurrentThread() != NULL)
+            MONO_PROFILER_RAISE(thread_stopped, ((uintptr_t)thread->GetInternalThread()->tid));
 #endif
 
         Unregister(thread);
