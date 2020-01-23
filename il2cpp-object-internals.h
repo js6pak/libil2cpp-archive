@@ -911,10 +911,14 @@ typedef struct Il2CppAsyncCall
 
 
 #if RUNTIME_MONO
+#if defined(__cplusplus)
 extern "C"
 {
+#endif // __cplusplus
 #include <mono/metadata/object.h>
+#if defined(__cplusplus)
 }
+#endif // __cplusplus
 #endif
 
 typedef struct Il2CppExceptionWrapper Il2CppExceptionWrapper;
