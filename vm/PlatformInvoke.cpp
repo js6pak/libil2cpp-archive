@@ -5,7 +5,6 @@
 #include "il2cpp-vm-support.h"
 #include "PlatformInvoke.h"
 #include "Exception.h"
-#include "LibraryLoader.h"
 #include "MetadataCache.h"
 #include "Object.h"
 #include "Method.h"
@@ -27,7 +26,7 @@ namespace vm
 {
     void PlatformInvoke::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
     {
-        LibraryLoader::SetFindPluginCallback(method);
+        os::LibraryLoader::SetFindPluginCallback(method);
     }
 
     Il2CppMethodPointer PlatformInvoke::Resolve(const PInvokeArguments& pinvokeArgs)
@@ -44,9 +43,9 @@ namespace vm
 
         void* dynamicLibrary = NULL;
         if (utils::VmStringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
-            dynamicLibrary = LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
+            dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
         else
-            dynamicLibrary = LibraryLoader::LoadDynamicLibrary(pinvokeArgs.moduleName);
+            dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(pinvokeArgs.moduleName);
 
         if (dynamicLibrary == NULL)
         {
