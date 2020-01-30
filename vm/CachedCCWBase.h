@@ -2,7 +2,7 @@
 
 #include "gc/GCHandle.h"
 #include "os/Atomic.h"
-#include "vm/ComObjectBase.h"
+#include "vm/CCWBase.h"
 #include "utils/Memory.h"
 #include "utils/TemplateUtils.h"
 
@@ -27,7 +27,7 @@ namespace vm
 // when the reference count reaches 0; we instead rely on GC finalizer of the managed object to both remove it from
 // CCW cache and also destroy it.
     template<typename TDerived>
-    struct NOVTABLE CachedCCWBase : ComObjectBase
+    struct NOVTABLE CachedCCWBase : CCWBase
     {
     private:
         baselib::atomic<uint32_t> m_RefCount;
@@ -35,7 +35,7 @@ namespace vm
 
     public:
         inline CachedCCWBase(Il2CppObject* obj) :
-            ComObjectBase(obj),
+            CCWBase(obj),
             m_RefCount(0), // We do not hold any references upon its creation
             m_GCHandle(0)
         {

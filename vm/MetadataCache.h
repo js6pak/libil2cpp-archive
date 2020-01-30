@@ -49,6 +49,7 @@ namespace vm
         static Il2CppClass* GetPointerType(Il2CppClass* type);
         static Il2CppClass* GetWindowsRuntimeClass(const char* fullName);
         static const char* GetWindowsRuntimeClassName(const Il2CppClass* klass);
+        static Il2CppMethodPointer GetWindowsRuntimeFactoryCreationFunction(const char* fullName);
         static Il2CppClass* GetClassForGuid(const Il2CppGuid* guid);
         static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
 

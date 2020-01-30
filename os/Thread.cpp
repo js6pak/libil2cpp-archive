@@ -280,6 +280,13 @@ namespace os
         return reinterpret_cast<Thread*>(value);
     }
 
+    bool Thread::HasCurrentThread()
+    {
+        void* value;
+        s_CurrentThread.GetValue(&value);
+        return value != NULL;
+    }
+
     Thread* Thread::GetOrCreateCurrentThread()
     {
         Thread* thread = NULL;

@@ -1,14 +1,18 @@
 #include "LibraryLoader.h"
-#include "os/LibraryLoader.h"
 #include "utils/StringUtils.h"
 
 namespace il2cpp
 {
-namespace vm
+namespace os
 {
     static Il2CppSetFindPlugInCallback s_FindPluginCallback = NULL;
 
-    void* LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar> nativeDynamicLibrary)
+    void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar> nativeDynamicLibrary)
+    {
+        return LoadDynamicLibrary(nativeDynamicLibrary, 0);
+    }
+
+    void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar> nativeDynamicLibrary, int flags)
     {
         if (s_FindPluginCallback)
         {
@@ -18,11 +22,11 @@ namespace vm
             if (modifiedLibraryName != libraryName)
             {
                 utils::StringView<Il2CppNativeChar> modifiedDynamicLibrary(modifiedLibraryName, utils::StringUtils::StrLen(modifiedLibraryName));
-                return os::LibraryLoader::LoadDynamicLibrary(modifiedDynamicLibrary);
+                return os::LibraryLoader::LoadDynamicLibraryImpl(modifiedDynamicLibrary);
             }
         }
 
-        return os::LibraryLoader::LoadDynamicLibrary(nativeDynamicLibrary);
+        return os::LibraryLoader::LoadDynamicLibraryImpl(nativeDynamicLibrary);
     }
 
     void LibraryLoader::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
