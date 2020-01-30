@@ -13,6 +13,7 @@
 #include "os/c-api/Allocator.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
+#include "vm/COMEntryPoints.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -382,6 +383,8 @@ namespace vm
 
         vm::Image::ClearCachedResourceData();
         MetadataAllocCleanup();
+
+        vm::COMEntryPoints::FreeCachedData();
 
         os::Locale::UnInitialize();
         os::Uninitialize();
