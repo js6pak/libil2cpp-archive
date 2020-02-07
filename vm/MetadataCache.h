@@ -44,6 +44,7 @@ namespace vm
         static Il2CppClass* GetPointerType(Il2CppClass* type);
         static Il2CppClass* GetWindowsRuntimeClass(const std::string& fullName);
         static const char* GetWindowsRuntimeClassName(const Il2CppClass* klass);
+        static Il2CppClass* GetClassForGuid(const Il2CppGuid* guid);
         static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
 
         static const Il2CppGenericInst* GetGenericInst(const Il2CppType* const* types, uint32_t typeCount);
@@ -122,6 +123,7 @@ namespace vm
         static void InitializeStringLiteralTable();
         static void InitializeGenericMethodTable();
         static void InitializeWindowsRuntimeTypeNamesTables();
+        static void InitializeGuidToClassTable();
         static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages);
     };
 } // namespace vm
