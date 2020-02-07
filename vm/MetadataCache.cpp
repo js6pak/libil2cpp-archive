@@ -134,6 +134,18 @@ struct InteropDataToTypeConverter
 typedef il2cpp::utils::collections::ArrayValueMap<const Il2CppType*, Il2CppInteropData, InteropDataToTypeConverter, Il2CppTypeLess, Il2CppTypeEqualityComparer> InteropDataMap;
 static InteropDataMap s_InteropData;
 
+template<typename K, typename V>
+struct PairToKeyConverter
+{
+    inline const K& operator()(const std::pair<K, V>& pair) const
+    {
+        return pair.first;
+    }
+};
+
+typedef il2cpp::utils::collections::ArrayValueMap<const Il2CppGuid*, std::pair<const Il2CppGuid*, Il2CppClass*>, PairToKeyConverter<const Il2CppGuid*, Il2CppClass*> > GuidToClassMap;
+static GuidToClassMap s_GuidToNonImportClassMap;
+
 template<typename T>
 static T MetadataOffset(void* metadata, size_t sectionOffset, size_t itemIndex)
 {
@@ -324,12 +336,34 @@ void MetadataCache::InitializeWindowsRuntimeTypeNamesTables()
     }
 }
 
+void il2cpp::vm::MetadataCache::InitializeGuidToClassTable()
+{
+    Il2CppInteropData* interopData = s_Il2CppCodeRegistration->interopData;
+    uint32_t interopDataCount = s_Il2CppCodeRegistration->interopDataCount;
+    std::vector<std::pair<const Il2CppGuid*, Il2CppClass*> > guidToNonImportClassMap;
+    guidToNonImportClassMap.reserve(interopDataCount);
+
+    for (uint32_t i = 0; i < interopDataCount; i++)
+    {
+        // It's important to check for non-import types because type projections will have identical GUIDs (e.g. IEnumerable<T> and IIterable<T>)
+        if (interopData[i].guid != NULL)
+        {
+            Il2CppClass* klass = Class::FromIl2CppType(interopData[i].type);
+            if (!klass->is_import_or_windows_runtime)
+                guidToNonImportClassMap.push_back(std::make_pair(interopData[i].guid, klass));
+        }
+    }
+
+    s_GuidToNonImportClassMap.assign(guidToNonImportClassMap);
+}
+
 // this is called later in the intialization cycle with more systems setup like GC
 void MetadataCache::InitializeGCSafe()
 {
     InitializeStringLiteralTable();
     InitializeGenericMethodTable();
     InitializeWindowsRuntimeTypeNamesTables();
+    InitializeGuidToClassTable();
 }
 
 void MetadataCache::InitializeUnresolvedSignatureTable()
@@ -433,6 +467,17 @@ const char* MetadataCache::GetWindowsRuntimeClassName(const Il2CppClass* klass)
 {
     ClassToWindowsRuntimeTypeNameMap::iterator it = s_ClassToWindowsRuntimeTypeNameMap.find(klass);
     if (it != s_ClassToWindowsRuntimeTypeNameMap.end())
+        return it->second;
+
+    return NULL;
+}
+
+Il2CppClass* MetadataCache::GetClassForGuid(const Il2CppGuid* guid)
+{
+    IL2CPP_ASSERT(guid != NULL);
+
+    GuidToClassMap::iterator it = s_GuidToNonImportClassMap.find_first(guid);
+    if (it != s_GuidToNonImportClassMap.end())
         return it->second;
 
     return NULL;

@@ -86,6 +86,19 @@ namespace vm
         return static_cast<Il2CppIManagedObjectHolder*>(new(memory)ManagedObject(obj));
     }
 
+    Il2CppObject* CCW::Unpack(Il2CppIUnknown* unknown)
+    {
+        Il2CppIManagedObjectHolder* managedHolder;
+        il2cpp_hresult_t hr = unknown->QueryInterface(Il2CppIManagedObjectHolder::IID, reinterpret_cast<void**>(&managedHolder));
+        Exception::RaiseIfFailed(hr, true);
+
+        Il2CppObject* instance = managedHolder->GetManagedObject();
+        managedHolder->Release();
+
+        IL2CPP_ASSERT(instance);
+        return instance;
+    }
+
     static Il2CppString* ValueToStringFallbackToEmpty(Il2CppObject* value)
     {
         Il2CppClass* klass = il2cpp::vm::Object::GetClass(value);
