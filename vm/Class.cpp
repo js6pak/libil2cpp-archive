@@ -27,6 +27,7 @@
 #include "vm/Thread.h"
 #include "vm/Type.h"
 #include "vm/Object.h"
+#include "vm/RCW.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-tabledefs.h"
@@ -1741,6 +1742,23 @@ namespace vm
         return static_cast<int>(size);
     }
 
+    int Class::GetFieldMarshaledAlignment(const FieldInfo *field)
+    {
+        if (MetadataCache::GetFieldMarshaledSizeForField(field) == 0)
+        {
+            // We have no marshaled field size, so ignore marshaled alignment for this field.
+            return 0;
+        }
+
+        if (field->type->type == IL2CPP_TYPE_BOOLEAN)
+            return 4;
+        if (field->type->type == IL2CPP_TYPE_CHAR)
+            return 1;
+
+        uint8_t alignment = il2cpp::metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).alignment;
+        return static_cast<int>(alignment);
+    }
+
     Il2CppClass* Class::GetPtrClass(const Il2CppType* type)
     {
         return GetPtrClass(Class::FromIl2CppType(type));
@@ -2099,7 +2117,7 @@ namespace vm
         return NULL;
     }
 
-    const VirtualInvokeData& Class::GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+    const VirtualInvokeData& Class::GetInterfaceInvokeDataFromVTableSlowPath(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
     {
         const Il2CppClass* klass = obj->klass;
         const VirtualInvokeData* data;
@@ -2110,23 +2128,18 @@ namespace vm
 
         if (klass->is_import_or_windows_runtime)
         {
-            Il2CppIUnknown* iunknown = static_cast<const Il2CppComObject*>(obj)->identity;
+            Il2CppComObject* rcw = static_cast<Il2CppComObject*>(obj);
 
             // It might be null if it's called on a dead (already released) or fake object
-            if (iunknown != NULL)
+            if (rcw->identity != NULL)
             {
-                if (itf->vtable_count > 0)
+                const VirtualInvokeData* invokeData = RCW::GetComInterfaceInvokeData(rcw, itf, slot);
+                if (invokeData != NULL)
                 {
-                    IL2CPP_ASSERT(slot < itf->vtable_count);
-
                     // Nothing will be referencing these types directly, so we need to initialize them here
-                    const VirtualInvokeData& invokeData = itf->vtable[slot];
-                    Init(invokeData.method->klass);
-                    return invokeData;
+                    Class::Init(invokeData->method->klass);
+                    return *invokeData;
                 }
-
-                // TO DO: add support for covariance/contravariance for projected interfaces like
-                // System.Collections.Generic.IEnumerable`1<T>
             }
         }
 

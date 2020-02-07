@@ -974,6 +974,11 @@ namespace Sockets
             return;
 
         int32_t results = 0;
+
+        // The timeout from managed code is in microseconds. Convert it to milliseconds
+        // for the poll implementation.
+        timeout = (timeout >= 0) ? (timeout / 1000) : -1;
+
         const os::WaitStatus result = os::Socket::Poll(requests, timeout, &results, error);
 
         if (result == kWaitStatusFailure)
