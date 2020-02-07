@@ -744,6 +744,20 @@ inline T* il2cpp_codegen_atomic_compare_exchange_pointer(T* volatile* dest, T* n
 
 // COM
 
+template<typename T>
+inline T* il2cpp_codegen_com_query_interface(Il2CppComObject* rcw)
+{
+    IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
+    return NULL;
+}
+
+template<typename T>
+inline T* il2cpp_codegen_com_query_interface_no_throw(Il2CppComObject* rcw)
+{
+    IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");
+    return NULL;
+}
+
 inline void il2cpp_codegen_com_marshal_variant(RuntimeObject* obj, Il2CppVariant* variant)
 {
     IL2CPP_NOT_IMPLEMENTED("COM is not yet supported with the libmonoruntime backend.");

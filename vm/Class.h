@@ -100,7 +100,7 @@ namespace vm
 
     public:
         //internal
-        static FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
+        static FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
         {
             const Il2CppClass* klass = obj->klass;
             IL2CPP_ASSERT(klass->initialized);
@@ -166,6 +166,7 @@ namespace vm
         static const MethodInfo* GetCCtor(Il2CppClass *klass);
         static const char* GetFieldDefaultValue(const FieldInfo *field, const Il2CppType** type);
         static int GetFieldMarshaledSize(const FieldInfo *field);
+        static int GetFieldMarshaledAlignment(const FieldInfo *field);
         static Il2CppClass* GetPtrClass(const Il2CppType* type);
         static Il2CppClass* GetPtrClass(Il2CppClass* elementClass);
         static bool HasReferences(Il2CppClass *klass);
@@ -191,6 +192,7 @@ namespace vm
     private:
         static IL2CPP_NO_INLINE bool InitFromCodegenSlow(Il2CppClass *klass);
 
+    public:
 #if NET_4_0
         static FORCE_INLINE bool IsGenericClassAssignableFrom(const Il2CppClass* klass, const Il2CppClass* oklass, const Il2CppGenericContainer* genericContainer)
         {
@@ -238,8 +240,9 @@ namespace vm
 
 #endif
 
+    private:
         // we don't want this method to get inlined because that makes GetInterfaceInvokeDataFromVTable method itself very large and performance suffers
-        static IL2CPP_NO_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot);
+        static IL2CPP_NO_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTableSlowPath(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot);
         static IL2CPP_NO_INLINE const VirtualInvokeData* GetInterfaceInvokeDataFromVTableSlowPath(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot);
     };
 } /* namespace vm */
