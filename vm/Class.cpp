@@ -1707,6 +1707,23 @@ namespace vm
         return static_cast<int>(size);
     }
 
+    int Class::GetFieldMarshaledAlignment(const FieldInfo *field)
+    {
+        if (MetadataCache::GetFieldMarshaledSizeForField(field) == 0)
+        {
+            // We have no marshaled field size, so ignore marshaled alignment for this field.
+            return 0;
+        }
+
+        if (field->type->type == IL2CPP_TYPE_BOOLEAN)
+            return 4;
+        if (field->type->type == IL2CPP_TYPE_CHAR)
+            return 1;
+
+        uint8_t alignment = il2cpp::metadata::FieldLayout::GetTypeSizeAndAlignment(field->type).alignment;
+        return static_cast<int>(alignment);
+    }
+
     Il2CppClass* Class::GetPtrClass(const Il2CppType* type)
     {
         return GetPtrClass(Class::FromIl2CppType(type));
