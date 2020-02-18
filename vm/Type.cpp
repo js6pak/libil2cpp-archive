@@ -1240,7 +1240,7 @@ namespace vm
 #endif
     }
 
-    Il2CppString* Type::AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName)
+    Il2CppString* Type::AppendAssemblyNameIfNecessary(Il2CppString* typeName, const MethodInfo* callingMethod)
     {
         if (typeName != NULL)
         {
@@ -1254,7 +1254,7 @@ namespace vm
                 if (info.assembly_name().name.empty())
                 {
                     std::string assemblyQualifiedName;
-                    assemblyQualifiedName = name + ", " + assemblyName;
+                    assemblyQualifiedName = name + ", " + callingMethod->klass->image->name;
                     return vm::String::New(assemblyQualifiedName.c_str());
                 }
             }

@@ -103,6 +103,7 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
     #define ALIGN_TYPE(val) __attribute__((aligned(val)))
     #define ALIGN_FIELD(val) ALIGN_TYPE(val)
     #define IL2CPP_FORCE_INLINE inline __attribute__ ((always_inline))
+    #define IL2CPP_MANAGED_FORCE_INLINE IL2CPP_FORCE_INLINE
 #elif defined(_MSC_VER)
     #define ALIGN_OF(T) __alignof(T)
 #if _MSC_VER >= 1900 && defined(__cplusplus)
@@ -112,10 +113,12 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #endif
     #define ALIGN_FIELD(val) __declspec(align(val))
     #define IL2CPP_FORCE_INLINE __forceinline
+    #define IL2CPP_MANAGED_FORCE_INLINE inline
 #else
     #define ALIGN_TYPE(size)
     #define ALIGN_FIELD(size)
     #define IL2CPP_FORCE_INLINE inline
+    #define IL2CPP_MANAGED_FORCE_INLINE IL2CPP_FORCE_INLINE
 #endif
 #endif
 

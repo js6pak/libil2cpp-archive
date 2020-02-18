@@ -242,7 +242,7 @@ namespace vm
 
         static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
 
-        static Il2CppString* AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName);
+        static Il2CppString* AppendAssemblyNameIfNecessary(Il2CppString* typeName, const MethodInfo* callingMethod);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

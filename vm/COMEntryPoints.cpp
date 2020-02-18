@@ -6,6 +6,7 @@
 #include "os/WindowsRuntime.h"
 #include "utils/StringUtils.h"
 #include "vm/MetadataCache.h"
+#include "vm/Runtime.h"
 
 #include <map>
 
@@ -60,6 +61,7 @@ private:
 typedef std::map<Il2CppHString, ActivationFactoryWrapper, HStringLess> FactoryCache;
 static FactoryCache s_FactoryCache;
 static baselib::il2cpp_baselib::ReentrantLock s_FactoryCacheMutex;
+static bool s_InitializedIl2CppFromWindowsRuntime;
 
 typedef Il2CppIActivationFactory* (*FactoryCreationFunction)();
 
@@ -73,6 +75,13 @@ extern "C" IL2CPP_EXPORT il2cpp_hresult_t STDCALL DllGetActivationFactory(Il2Cpp
         return IL2CPP_E_INVALIDARG;
 
     il2cpp::os::FastAutoLock lock(&s_FactoryCacheMutex);
+
+    if (!s_InitializedIl2CppFromWindowsRuntime)
+    {
+        il2cpp::vm::Runtime::Init();
+        s_InitializedIl2CppFromWindowsRuntime = true;
+    }
+
     FactoryCache::iterator it = s_FactoryCache.find(className);
     if (it != s_FactoryCache.end())
     {
@@ -106,6 +115,9 @@ extern "C" IL2CPP_EXPORT il2cpp_hresult_t STDCALL DllGetActivationFactory(Il2Cpp
 
 extern "C" IL2CPP_EXPORT long STDCALL DllCanUnloadNow()
 {
+    if (!s_InitializedIl2CppFromWindowsRuntime)
+        return IL2CPP_S_OK;
+
     // TO DO: we need to track all instantiated COM objects in order to implement this correctly
     return IL2CPP_S_FALSE;
 }

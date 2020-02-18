@@ -4,7 +4,6 @@
 
 #if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
 #include <crtdbg.h>
-#include <string>
 #else
 #include <cstdio>
 #include <cstdlib>
@@ -13,13 +12,11 @@
 void il2cpp_assert(const char* assertion, const char* file, unsigned int line)
 {
 #if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
-    std::string message = "Assertion failed: ";
-    message += assertion;
-    message += " file ";
-    message += file;
-    message += " line ";
-    message += std::to_string(line);
-    _ASSERT_EXPR(0, message.c_str());
+
+    if (_CrtDbgReport(_CRT_ASSERT, file, line, "", "%s", assertion) != 1)
+    {
+        _CrtDbgBreak();
+    }
 #else
     printf("Assertion failed: %s, file %s, line %u", assertion, file, line);
     abort();
