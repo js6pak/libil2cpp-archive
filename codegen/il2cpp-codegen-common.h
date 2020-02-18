@@ -198,6 +198,8 @@ inline void il2cpp_codegen_write_to_stdout(const char* str)
 }
 
 #if IL2CPP_TARGET_LUMIN
+#include <stdarg.h>
+#include <stdio.h>
 inline void il2cpp_codegen_write_to_stdout_args(const char* str, ...)
 {
     va_list args, local;

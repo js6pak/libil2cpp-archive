@@ -704,39 +704,61 @@ inline MethodBase_t* il2cpp_codegen_get_method_object(const RuntimeMethod* metho
     return (MethodBase_t*)mono_unity_method_get_object(const_cast<RuntimeMethod*>(method));
 }
 
-inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, const char* assemblyName)
+inline Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, const RuntimeMethod* callingMethod)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*);
-    MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, assemblyName);
+    MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, const_cast<RuntimeMethod*>(callingMethod));
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName);
+    MonoException* exc = NULL;
+    void* params[] = {assemblyQualifiedTypeName};
+    Type_t* type = (Type_t*)mono_runtime_invoke(const_cast<RuntimeMethod*>(getTypeMethod), NULL, params, (MonoObject**)&exc);
+    if (exc)
+        mono_raise_exception(exc);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName);
+    {
+        params[0] = typeName;
+        type = (Type_t*)mono_runtime_invoke(const_cast<RuntimeMethod*>(getTypeMethod), NULL, params, (MonoObject**)&exc);
+        if (exc)
+            mono_raise_exception(exc);
+    }
     return type;
 }
 
-inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, const char* assemblyName)
+inline Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, const RuntimeMethod* callingMethod)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool);
-    MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, assemblyName);
+    MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, const_cast<RuntimeMethod*>(callingMethod));
 
-    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError);
+    MonoException* exc = NULL;
+    void* params[] = {assemblyQualifiedTypeName, &throwOnError};
+    Type_t* type = (Type_t*)mono_runtime_invoke(const_cast<RuntimeMethod*>(getTypeMethod), NULL, params, (MonoObject**)&exc);
+    if (exc)
+        mono_raise_exception(exc);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError);
+    {
+        params[0] = typeName;
+        type = (Type_t*)mono_runtime_invoke(const_cast<RuntimeMethod*>(getTypeMethod), NULL, params, (MonoObject**)&exc);
+        if (exc)
+            mono_raise_exception(exc);
+    }
     return type;
 }
 
-inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
+inline Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, bool ignoreCase, const RuntimeMethod* callingMethod)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool);
-    MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, assemblyName);
+    MonoString* assemblyQualifiedTypeName = mono_unity_string_append_assembly_name_if_necessary((MonoString*)typeName, const_cast<RuntimeMethod*>(callingMethod));
 
-    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase);
+    MonoException* exc = NULL;
+    void* params[] = {assemblyQualifiedTypeName, &throwOnError, &ignoreCase};
+    Type_t* type = (Type_t*)mono_runtime_invoke(const_cast<RuntimeMethod*>(getTypeMethod), NULL, params, (MonoObject**)&exc);
+    if (exc)
+        mono_raise_exception(exc);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, ignoreCase);
+    {
+        params[0] = typeName;
+        type = (Type_t*)mono_runtime_invoke(const_cast<RuntimeMethod*>(getTypeMethod), NULL, params, (MonoObject**)&exc);
+        if (exc)
+            mono_raise_exception(exc);
+    }
     return type;
 }
 
