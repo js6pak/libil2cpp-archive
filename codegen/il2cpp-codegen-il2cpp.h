@@ -631,43 +631,9 @@ inline MethodBase_t* il2cpp_codegen_get_method_object(const RuntimeMethod* metho
     return il2cpp_codegen_get_method_object_internal(method, method->klass);
 }
 
-RuntimeString* il2cpp_codegen_type_append_assembly_name_if_necessary(RuntimeString* typeName, const char* assemblyName);
-
-inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, const char* assemblyName)
-{
-    typedef Type_t* (*getTypeFuncType)(String_t*);
-    RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, assemblyName);
-
-    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName);
-    if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName);
-    return type;
-}
-
-inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, const char* assemblyName)
-{
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool);
-    RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, assemblyName);
-
-    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError);
-    if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError);
-    return type;
-}
-
-inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
-{
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool);
-    RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, assemblyName);
-    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase);
-    if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, ignoreCase);
-    return type;
-}
+Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, const RuntimeMethod* callingMethod);
+Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, const RuntimeMethod* callingMethod);
+Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, bool ignoreCase, const RuntimeMethod* callingMethod);
 
 Assembly_t* il2cpp_codegen_get_executing_assembly(const RuntimeMethod* method);
 
