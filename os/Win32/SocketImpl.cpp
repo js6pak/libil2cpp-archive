@@ -1384,15 +1384,8 @@ namespace os
         return kWaitStatusSuccess;
     }
 
-    WaitStatus SocketImpl::SendTo(uint32_t address, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
+    WaitStatus SocketImpl::SendToInternal(struct sockaddr *sa, int32_t sa_size, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
     {
-        *len = 0;
-
-        struct sockaddr sa = {0};
-        socklen_t sa_size = 0;
-
-        sockaddr_from_address(htonl(address), htons(port), &sa, &sa_size);
-
         const int32_t c_flags = convert_socket_flags(flags);
 
         if (c_flags == -1)
@@ -1414,7 +1407,7 @@ namespace os
         {
             __try
             {
-                ret = sendto(fd, (char*)data, count, c_flags, &sa, sa_size);
+                ret = sendto(fd, (char*)data, count, c_flags, sa, sa_size);
             }
             __except (SocketExceptionFilter(GetExceptionCode()))
             {
@@ -1435,16 +1428,67 @@ namespace os
         return kWaitStatusSuccess;
     }
 
+    WaitStatus SocketImpl::SendTo(uint32_t address, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
+    {
+        *len = 0;
+
+        struct sockaddr sa = {0};
+        socklen_t sa_size = 0;
+
+        sockaddr_from_address(htonl(address), htons(port), &sa, &sa_size);
+
+        return SendToInternal(&sa, sa_size, data, count, flags, len);
+    }
+
     WaitStatus SocketImpl::SendTo(const char *path, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
     {
-        // NOTE: not supported on Windows.
+        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "Unix sockets are not supported on this platform.");
         return kWaitStatusFailure;
     }
 
     WaitStatus SocketImpl::SendTo(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
     {
-        // NOTE: not supported on Windows.
-        return kWaitStatusFailure;
+        *len = 0;
+
+        struct sockaddr_in6 sa = { 0 };
+        socklen_t sa_size = 0;
+
+        sockaddr_from_address(address, scope, htons(port), &sa, &sa_size);
+
+        return SendToInternal((sockaddr*)&sa, sa_size, data, count, flags, len);
+    }
+
+    WaitStatus SocketImpl::RecvFromInternal(struct sockaddr* sa, int32_t sa_size, const uint8_t* data, int32_t count, os::SocketFlags flags, int32_t* len, os::EndPointInfo& ep)
+    {
+        const int32_t c_flags = convert_socket_flags(flags);
+
+        if (c_flags == -1)
+        {
+            _saved_error = kWSAeopnotsupp;
+            return kWaitStatusFailure;
+        }
+
+        int32_t ret = 0;
+
+        const WaitStatus status = ReceiveFromInternal(data, count, c_flags, len, sa, &sa_size);
+
+        if (status != kWaitStatusSuccess)
+        {
+            ep.family = os::kAddressFamilyError;
+            return status;
+        }
+
+        if (sa_size == 0)
+            return kWaitStatusSuccess;
+
+        if (!socketaddr_to_endpoint_info(sa, sa_size, ep))
+        {
+            ep.family = os::kAddressFamilyError;
+            _saved_error = kWSAeafnosupport;
+            return kWaitStatusFailure;
+        }
+
+        return kWaitStatusSuccess;
     }
 
     WaitStatus SocketImpl::RecvFrom(uint32_t address, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep)
@@ -1456,47 +1500,25 @@ namespace os
 
         sockaddr_from_address(htonl(address), htons(port), &sa, &sa_size);
 
-        const int32_t c_flags = convert_socket_flags(flags);
-
-        if (c_flags == -1)
-        {
-            _saved_error = kWSAeopnotsupp;
-            return kWaitStatusFailure;
-        }
-
-        int32_t ret = 0;
-
-        const WaitStatus status = ReceiveFromInternal(data, count, c_flags, len, &sa, (int32_t*)&sa_size);
-
-        if (status != kWaitStatusSuccess)
-        {
-            ep.family = os::kAddressFamilyError;
-            return status;
-        }
-
-        if (sa_size == 0)
-            return kWaitStatusSuccess;
-
-        if (!socketaddr_to_endpoint_info(&sa, sa_size, ep))
-        {
-            ep.family = os::kAddressFamilyError;
-            _saved_error = kWSAeafnosupport;
-            return kWaitStatusFailure;
-        }
-
-        return kWaitStatusSuccess;
+        return RecvFromInternal(&sa, sa_size, data, count, flags, len, ep);
     }
 
     WaitStatus SocketImpl::RecvFrom(const char *path, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep)
     {
-        // NOTE: not supported on Windows.
+        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "Unix sockets are not supported on this platform.");
         return kWaitStatusFailure;
     }
 
     WaitStatus SocketImpl::RecvFrom(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep)
     {
-        // NOTE: not supported on Windows.
-        return kWaitStatusFailure;
+        *len = 0;
+
+        struct sockaddr_in6 sa = { 0 };
+        socklen_t sa_size = 0;
+
+        sockaddr_from_address(address, scope, htons(port), &sa, &sa_size);
+
+        return RecvFromInternal((sockaddr*)&sa, sa_size, data, count, flags, len, ep);
     }
 
     WaitStatus SocketImpl::Available(int32_t *amount)
