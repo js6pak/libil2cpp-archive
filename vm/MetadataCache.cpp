@@ -134,6 +134,17 @@ struct InteropDataToTypeConverter
 typedef il2cpp::utils::collections::ArrayValueMap<const Il2CppType*, Il2CppInteropData, InteropDataToTypeConverter, Il2CppTypeLess, Il2CppTypeEqualityComparer> InteropDataMap;
 static InteropDataMap s_InteropData;
 
+struct WindowsRuntimeFactoryTableEntryToTypeConverter
+{
+    inline const Il2CppType* operator()(const Il2CppWindowsRuntimeFactoryTableEntry& entry) const
+    {
+        return entry.type;
+    }
+};
+
+typedef il2cpp::utils::collections::ArrayValueMap<const Il2CppType*, Il2CppWindowsRuntimeFactoryTableEntry, WindowsRuntimeFactoryTableEntryToTypeConverter, il2cpp::metadata::Il2CppTypeLess, il2cpp::metadata::Il2CppTypeEqualityComparer> WindowsRuntimeFactoryTable;
+static WindowsRuntimeFactoryTable s_WindowsRuntimeFactories;
+
 template<typename K, typename V>
 struct PairToKeyConverter
 {
@@ -166,6 +177,7 @@ void MetadataCache::Register(const Il2CppCodeRegistration* const codeRegistratio
         s_GenericInstSet.insert(metadataRegistration->genericInsts[i]);
 
     s_InteropData.assign_external(codeRegistration->interopData, codeRegistration->interopDataCount);
+    s_WindowsRuntimeFactories.assign_external(codeRegistration->windowsRuntimeFactoryTable, codeRegistration->windowsRuntimeFactoryCount);
 }
 
 static void* s_GlobalMetadata;
@@ -470,6 +482,19 @@ const char* MetadataCache::GetWindowsRuntimeClassName(const Il2CppClass* klass)
         return it->second;
 
     return NULL;
+}
+
+Il2CppMethodPointer MetadataCache::GetWindowsRuntimeFactoryCreationFunction(const char* fullName)
+{
+    Il2CppClass* klass = GetWindowsRuntimeClass(fullName);
+    if (klass == NULL)
+        return NULL;
+
+    WindowsRuntimeFactoryTable::iterator factoryEntry = s_WindowsRuntimeFactories.find_first(&klass->byval_arg);
+    if (factoryEntry == s_WindowsRuntimeFactories.end())
+        return NULL;
+
+    return factoryEntry->createFactoryFunction;
 }
 
 Il2CppClass* MetadataCache::GetClassForGuid(const Il2CppGuid* guid)

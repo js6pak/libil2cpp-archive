@@ -143,7 +143,9 @@
 #endif
 
 /* Platforms which use stacktrace sentries */
+#if !defined(IL2CPP_ENABLE_STACKTRACE_SENTRIES)
 #define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS || IL2CPP_TARGET_SWITCH)
+#endif
 
 #if (IL2CPP_ENABLE_STACKTRACES && !IL2CPP_ENABLE_NATIVE_STACKTRACES && !IL2CPP_ENABLE_STACKTRACE_SENTRIES)
 #error "If stacktraces are supported, then either native stack traces must be supported, or usage of stacktrace sentries must be enabled!"
@@ -377,6 +379,7 @@ typedef int32_t il2cpp_hresult_t;
 
 // Sorted numerically!
 #define IL2CPP_S_OK                          ((il2cpp_hresult_t)0)
+#define IL2CPP_S_FALSE                       ((il2cpp_hresult_t)1)
 #define IL2CPP_E_BOUNDS                      ((il2cpp_hresult_t)0x8000000B)
 #define IL2CPP_E_CHANGED_STATE               ((il2cpp_hresult_t)0x8000000C)
 #define IL2CPP_E_ILLEGAL_METHOD_CALL         ((il2cpp_hresult_t)0x8000000E)
