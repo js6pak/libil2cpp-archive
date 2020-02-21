@@ -89,15 +89,7 @@ void il2cpp_init(const char* domain_name)
     // Use environment's default locale
     setlocale(LC_ALL, "");
 
-    // NOTE(gab): the runtime_version needs to change once we
-    // will support multiple runtimes.
-    // For now we default to the one used by unity and don't
-    // allow the callers to change it.
-#if NET_4_0
-    Runtime::Init(domain_name, "v4.0.30319");
-#else
-    Runtime::Init(domain_name, "v2.0.50727");
-#endif
+    return Runtime::Init(domain_name);
 }
 
 void il2cpp_init_utf16(const Il2CppChar* domain_name)

@@ -58,13 +58,6 @@ namespace vm
             *object = NULL;
             return IL2CPP_E_NOINTERFACE;
         }
-
-        virtual il2cpp_hresult_t STDCALL GetIids(uint32_t* iidCount, Il2CppGuid** iids) IL2CPP_OVERRIDE
-        {
-            *iidCount = 0;
-            *iids = NULL;
-            return IL2CPP_S_OK;
-        }
     };
 
     Il2CppIUnknown* CCW::CreateCCW(Il2CppObject* obj)
