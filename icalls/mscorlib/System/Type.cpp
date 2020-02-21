@@ -281,8 +281,11 @@ namespace System
 
         if ((strcmp(klass->namespaze, "System") == 0 && strcmp(klass->name, "TypedReference") == 0))
         {
-            std::string message;
-            message + "Could not create array type '" + klass->namespaze + "." + klass->name + "[]'.";
+            std::string message("Could not create array type '");
+            message += klass->namespaze;
+            message += ".";
+            message += klass->name;
+            message += "[]'.";
             il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
         }
     }

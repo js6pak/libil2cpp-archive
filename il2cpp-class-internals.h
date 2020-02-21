@@ -595,6 +595,12 @@ typedef struct Il2CppCodeGenOptions
     bool enablePrimitiveValueTypeGenericSharing;
 } Il2CppCodeGenOptions;
 
+typedef struct Il2CppWindowsRuntimeFactoryTableEntry
+{
+    const Il2CppType* type;
+    Il2CppMethodPointer createFactoryFunction;
+} Il2CppWindowsRuntimeFactoryTableEntry;
+
 typedef struct Il2CppCodeRegistration
 {
     uint32_t methodPointersCount;
@@ -611,6 +617,8 @@ typedef struct Il2CppCodeRegistration
     const Il2CppMethodPointer* unresolvedVirtualCallPointers;
     uint32_t interopDataCount;
     Il2CppInteropData* interopData;
+    uint32_t windowsRuntimeFactoryCount;
+    Il2CppWindowsRuntimeFactoryTableEntry* windowsRuntimeFactoryTable;
 } Il2CppCodeRegistration;
 
 typedef struct Il2CppMetadataRegistration

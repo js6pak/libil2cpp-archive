@@ -17,6 +17,7 @@ namespace os
 #if !IL2CPP_TARGET_WINDOWS // Il2CppChar and Il2CppNativeChar are the same on Windows
         static il2cpp_hresult_t CreateHString(const utils::StringView<Il2CppNativeChar>& str, Il2CppHString* hstring);
 #endif
+        static il2cpp_hresult_t DuplicateHString(Il2CppHString hstring, Il2CppHString* duplicated);
         static il2cpp_hresult_t DeleteHString(Il2CppHString hstring);
 
         static const Il2CppChar* GetHStringBuffer(Il2CppHString hstring, uint32_t* length);
