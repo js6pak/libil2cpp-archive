@@ -382,6 +382,11 @@ Il2CppIUnknown* il2cpp_codegen_com_get_or_create_ccw_internal(RuntimeObject* obj
     return il2cpp::vm::CCW::GetOrCreate(obj, iid);
 }
 
+Il2CppObject* il2cpp_codegen_com_unpack_ccw(Il2CppIUnknown* obj)
+{
+    return il2cpp::vm::CCW::Unpack(obj);
+}
+
 void il2cpp_codegen_com_register_rcw(Il2CppComObject* rcw)
 {
     il2cpp::vm::RCW::Register(rcw);

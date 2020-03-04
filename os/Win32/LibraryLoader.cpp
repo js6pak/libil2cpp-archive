@@ -71,6 +71,10 @@ namespace os
     const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
     {
         HARDCODED_DEPENDENCY_FUNCTION(GetNetworkParams),
+#if !IL2CPP_TARGET_XBOXONE
+        HARDCODED_DEPENDENCY_FUNCTION(GetAdaptersAddresses),
+        HARDCODED_DEPENDENCY_FUNCTION(GetIfEntry),
+#endif
     };
 
 #if !IL2CPP_TARGET_WINDOWS_DESKTOP
