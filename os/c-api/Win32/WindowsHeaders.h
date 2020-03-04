@@ -12,6 +12,7 @@
 
 #if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINRT
 #include <wincrypt.h>
+#include <winsock2.h>
 #include <Iphlpapi.h>
 #endif
 

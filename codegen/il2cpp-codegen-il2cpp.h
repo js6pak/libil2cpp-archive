@@ -759,6 +759,8 @@ inline intptr_t il2cpp_codegen_com_get_iunknown_for_object(RuntimeObject* obj)
     return reinterpret_cast<intptr_t>(il2cpp_codegen_com_get_or_create_ccw_internal(obj, Il2CppIUnknown::IID));
 }
 
+Il2CppObject* il2cpp_codegen_com_unpack_ccw(Il2CppIUnknown* obj);
+
 inline void il2cpp_codegen_com_raise_exception_if_failed(il2cpp_hresult_t hr, bool defaultToCOMException)
 {
     // Copied from il2cpp::vm::Exception::RaiseIfFailed to keep inlined
