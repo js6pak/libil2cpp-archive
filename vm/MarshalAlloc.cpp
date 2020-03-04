@@ -93,20 +93,17 @@ namespace vm
 
     void* MarshalAlloc::AllocateHGlobal(size_t size)
     {
-        // should use Unity's memory management here!
-        return malloc(size);
+        return os::MarshalAlloc::AllocateHGlobal(size);
     }
 
     void* MarshalAlloc::ReAllocHGlobal(void* ptr, size_t size)
     {
-        // should use Unity's memory management here!
-        return realloc(ptr, size);
+        return os::MarshalAlloc::ReAllocHGlobal(ptr, size);
     }
 
     void MarshalAlloc::FreeHGlobal(void* ptr)
     {
-        // should use Unity's memory management here!
-        free(ptr);
+        os::MarshalAlloc::FreeHGlobal(ptr);
     }
 
 #if _DEBUG
