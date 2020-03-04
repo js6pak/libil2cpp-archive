@@ -122,4 +122,60 @@ extern "C"
 
 #endif
 
+#if IL2CPP_TARGET_WINRT
+
+extern "C"
+{
+#if WINDOWS_SDK_BUILD_VERSION < 17134
+
+    #define MAX_INTERFACE_NAME_LEN 256
+    #define MAXLEN_PHYSADDR 8
+
+    typedef enum
+    {
+        IF_OPER_STATUS_NON_OPERATIONAL = 0,
+        IF_OPER_STATUS_UNREACHABLE     = 1,
+        IF_OPER_STATUS_DISCONNECTED    = 2,
+        IF_OPER_STATUS_CONNECTING      = 3,
+        IF_OPER_STATUS_CONNECTED       = 4,
+        IF_OPER_STATUS_OPERATIONAL     = 5,
+    } INTERNAL_IF_OPER_STATUS;
+
+    #define MAXLEN_IFDESCR 256
+
+    typedef struct
+    {
+        WCHAR wszName[MAX_INTERFACE_NAME_LEN];
+        IF_INDEX dwIndex;
+        IFTYPE dwType;
+        DWORD dwMtu;
+        DWORD dwSpeed;
+        DWORD dwPhysAddrLen;
+        UCHAR bPhysAddr[MAXLEN_PHYSADDR];
+        DWORD dwAdminStatus;
+        INTERNAL_IF_OPER_STATUS dwOperStatus;
+        DWORD dwLastChange;
+        DWORD dwInOctets;
+        DWORD dwInUcastPkts;
+        DWORD dwInNUcastPkts;
+        DWORD dwInDiscards;
+        DWORD dwInErrors;
+        DWORD dwInUnknownProtos;
+        DWORD dwOutOctets;
+        DWORD dwOutUcastPkts;
+        DWORD dwOutNUcastPkts;
+        DWORD dwOutDiscards;
+        DWORD dwOutErrors;
+        DWORD dwOutQLen;
+        DWORD dwDescrLen;
+        UCHAR bDescr[MAXLEN_IFDESCR];
+    } MIB_IFROW, *PMIB_IFROW;
+
+#endif
+
+    DWORD WINAPI GetIfEntry(PMIB_IFROW pIfRow);
+} // extern "C"
+
+#endif // IL2CPP_TARGET_WINRT
+
 #endif
