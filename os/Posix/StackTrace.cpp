@@ -20,7 +20,7 @@ namespace os
 
         if (walkOrder == kFirstCalledToLastCalled)
         {
-            for (int i = frames; i >= 0; i--)
+            for (int i = frames - 1; i >= 0; i--)
             {
                 if (!callback(reinterpret_cast<Il2CppMethodPointer>(callstack[i]), context))
                     break;
