@@ -87,6 +87,7 @@ namespace os
 
         static ThreadId CurrentThreadId();
         static Thread* GetCurrentThread();
+        static bool HasCurrentThread();
         static Thread* GetOrCreateCurrentThread();
         static void DetachCurrentThread();
 

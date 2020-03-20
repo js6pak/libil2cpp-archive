@@ -437,6 +437,7 @@ typedef int32_t il2cpp_hresult_t;
 
 // Sorted numerically!
 #define IL2CPP_S_OK                          ((il2cpp_hresult_t)0)
+#define IL2CPP_S_FALSE                       ((il2cpp_hresult_t)1)
 #define IL2CPP_E_BOUNDS                      ((il2cpp_hresult_t)0x8000000B)
 #define IL2CPP_E_CHANGED_STATE               ((il2cpp_hresult_t)0x8000000C)
 #define IL2CPP_E_ILLEGAL_METHOD_CALL         ((il2cpp_hresult_t)0x8000000E)
