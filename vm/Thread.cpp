@@ -194,7 +194,7 @@ namespace vm
         // The debugger code will try to take a lock, which requires a current thread. If this
         // thread is being detached by a call from thread_cleanup_on_cancel, then there might
         // not be a current thread, as pthreads does not privide TLS entries in thread destructors.
-        if (os::Thread::GetCurrentThread() != NULL)
+        if (os::Thread::HasCurrentThread())
             MONO_PROFILER_RAISE(thread_stopped, ((uintptr_t)thread->GetInternalThread()->tid));
 #endif
 
