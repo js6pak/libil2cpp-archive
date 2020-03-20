@@ -164,4 +164,7 @@ il2cpp_type_equals
 
 il2cpp_unity_install_unitytls_interface
 
+DllGetActivationFactory
+DllCanUnloadNow
+
 ____visualizerHelpersPreventLinkerStripping @65535 NONAME DATA
