@@ -591,6 +591,12 @@ typedef struct Il2CppTokenIndexMethodTuple
     uint32_t genericMethodIndex;
 } Il2CppTokenIndexMethodTuple;
 
+typedef struct Il2CppWindowsRuntimeFactoryTableEntry
+{
+    const Il2CppType* type;
+    Il2CppMethodPointer createFactoryFunction;
+} Il2CppWindowsRuntimeFactoryTableEntry;
+
 typedef struct Il2CppCodeGenModule
 {
     const char* moduleName;
@@ -624,6 +630,8 @@ typedef struct Il2CppCodeRegistration
     const Il2CppMethodPointer* unresolvedVirtualCallPointers;
     uint32_t interopDataCount;
     Il2CppInteropData* interopData;
+    uint32_t windowsRuntimeFactoryCount;
+    Il2CppWindowsRuntimeFactoryTableEntry* windowsRuntimeFactoryTable;
     uint32_t codeGenModulesCount;
     const Il2CppCodeGenModule** codeGenModules;
 } Il2CppCodeRegistration;
