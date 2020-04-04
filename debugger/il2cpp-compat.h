@@ -4,6 +4,7 @@
 #if defined(RUNTIME_IL2CPP)
 #include "il2cpp-c-types.h"
 #include "il2cpp-api.h"
+#include "vm/GlobalMetadataFileInternals.h"
 #else
 #include <mono/mini/mini.h>
 #include <mono/sgen/sgen-conf.h>
@@ -494,5 +495,4 @@ MonoDebugLocalsInfo* il2cpp_debug_lookup_locals(MonoMethod *method);
 void il2cpp_debug_free_locals(MonoDebugLocalsInfo *info);
 Il2CppCatchPoint* il2cpp_get_method_catch_points(MonoMethod* method, void* *iter);
 Il2CppSequencePoint* il2cpp_get_seq_point_from_catch_point(Il2CppCatchPoint *cp);
-size_t il2cpp_type_size(MonoType *t);
 #endif // RUNTIME_IL2CPP

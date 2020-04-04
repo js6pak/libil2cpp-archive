@@ -7,8 +7,25 @@
 #include "utils/Runtime.h"
 #include "utils/Logging.h"
 
+
+#if IL2CPP_TARGET_ANDROID && IL2CPP_TINY_DEBUGGER && !IL2CPP_TINY_FROM_IL2CPP_BUILDER
+#include <stdlib.h>
+extern "C"
+{
+    void* loadAsset(const char* path, int *size, void* (*alloc)(size_t));
+}
+#endif
+
 void* il2cpp::vm::MetadataLoader::LoadMetadataFile(const char* fileName)
 {
+#if IL2CPP_TARGET_ANDROID && IL2CPP_TINY_DEBUGGER && !IL2CPP_TINY_FROM_IL2CPP_BUILDER
+    std::string resourcesDirectory = utils::PathUtils::Combine(utils::StringView<char>("Data"), utils::StringView<char>("Metadata"));
+
+    std::string resourceFilePath = utils::PathUtils::Combine(resourcesDirectory, utils::StringView<char>(fileName, strlen(fileName)));
+
+    int size = 0;
+    return loadAsset(resourceFilePath.c_str(), &size, malloc);
+#else
     std::string resourcesDirectory = utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("Metadata"));
 
     std::string resourceFilePath = utils::PathUtils::Combine(resourcesDirectory, utils::StringView<char>(fileName, strlen(fileName)));
@@ -32,11 +49,16 @@ void* il2cpp::vm::MetadataLoader::LoadMetadataFile(const char* fileName)
     }
 
     return fileBuffer;
+#endif
 }
 
 void il2cpp::vm::MetadataLoader::UnloadMetadataFile(void* fileBuffer)
 {
+#if IL2CPP_TARGET_ANDROID && IL2CPP_TINY_DEBUGGER && !IL2CPP_DEBUGGER_TESTS
+    free(fileBuffer);
+#else
     bool success = il2cpp::utils::MemoryMappedFile::Unmap(fileBuffer);
     NO_UNUSED_WARNING(success);
     IL2CPP_ASSERT(success);
+#endif
 }
