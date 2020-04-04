@@ -71,7 +71,7 @@ typedef TinyMethod VmMethod;
     #define IL2CPP_VM_STRING_NEW_LEN(value, length) il2cpp::vm::String::NewLen(value, length)
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) NOT_SUPPORTED_IL2CPP(func, reason)
     #define IL2CPP_VM_NOT_IMPLEMENTED(func) IL2CPP_NOT_IMPLEMENTED_ICALL(func)
-    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex (key->methodIndex)
+    #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodHandle (key->methodHandle)
     #define IL2CPP_VM_SHUTDOWN() il2cpp_shutdown()
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) vm::CCW::GetOrCreate(reinterpret_cast<Il2CppObject*>(ex), Il2CppIUnknown::IID)
     #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (il2cpp::vm::Profiler::ProfileFileIO()) il2cpp::vm::Profiler::FileIO(kind, count);

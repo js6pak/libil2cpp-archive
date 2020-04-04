@@ -364,7 +364,7 @@ namespace vm
     // that was wrapped in the fake MethodInfo.
     static bool IsFakeDelegateMethodMarshaledFromNativeCode(const MethodInfo* method)
     {
-        return method->methodDefinition == NULL && method->is_marshaled_from_native;
+        return method->methodMetadataHandle == NULL && method->is_marshaled_from_native;
     }
 
     static bool IsGenericInstance(const Il2CppType* type)
@@ -395,7 +395,7 @@ namespace vm
         if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
             return reinterpret_cast<intptr_t>(d->method->methodPointer);
 
-        IL2CPP_ASSERT(d->method->methodDefinition);
+        IL2CPP_ASSERT(d->method->methodMetadataHandle);
 
         Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method);
         if (reversePInvokeWrapper == NULL)

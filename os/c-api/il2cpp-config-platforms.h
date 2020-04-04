@@ -17,29 +17,6 @@
 #define IL2CPP_TARGET_ARMV7 0
 #endif
 
-// Large executables on ARM64 and ARMv7 can cause linker errors.
-// Specifically, the arm instruction set limits the range a branch can
-// take (e.g. 128MB on ARM64). Normally, the linker will insert branch
-// islands to bridge gaps larger than the maximum branch range. However,
-// branch islands only work within a section, not across sections. So if
-// IL2CPP puts managed code into a specific section of the binary, branch
-// isalnds won't work. That means that proejcts with a large executable
-// size may fail to link.
-//
-// Set the define IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND to a value of 1
-// work around this issue.
-//
-// The cost of this define is in correctness of managed stack traces.
-// With this define enabled, managed stack traces maybe not be correct
-// in some cases, because the stack trace generation code must use
-// fuzzy heuristics to detemine if a given instrion pointer is in a
-// managed method.
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-#ifndef IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND 0
-#endif
-#endif
-
 #define IL2CPP_BINARY_SECTION_NAME "il2cpp"
 
 #if defined(SN_TARGET_PSP2)
@@ -53,28 +30,18 @@
 #define UNICODE 1
 #elif defined(_MSC_VER)
 #define IL2CPP_TARGET_WINDOWS 1
-
-#if IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#else
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS !IL2CPP_MONO_DEBUGGER
-#endif
-
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
 #define IL2CPP_PLATFORM_SUPPORTS_DEBUGGER_PRESENT 1
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
 #define IL2CPP_METHOD_ATTR  __declspec(code_seg (IL2CPP_BINARY_SECTION_NAME))
-#endif
 #if defined(_XBOX_ONE)
 #define IL2CPP_TARGET_XBOXONE 1
 #define IL2CPP_PLATFORM_SUPPORTS_DEBUGGER_PRESENT 1
-#define IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY 1
 #elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
 #define IL2CPP_TARGET_WINRT 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
 #elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_GAMES)
 #define IL2CPP_TARGET_WINDOWS_GAMES 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
-#define IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY 1
 #else
 #define IL2CPP_TARGET_WINDOWS_DESKTOP 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
@@ -101,13 +68,10 @@
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
 #endif
 
-#if IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#else
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS (!(IL2CPP_TARGET_IOS && IL2CPP_TARGET_ARMV7) && !IL2CPP_MONO_DEBUGGER)
-#endif
-
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS !(IL2CPP_TARGET_IOS && IL2CPP_TARGET_ARMV7)
 #if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+// The following gives managed stack traces (even with bitcode App Store submission), but may cause linker
+// errors on ARMv7 builds.
 #define IL2CPP_METHOD_ATTR __attribute__((section ("__TEXT," IL2CPP_BINARY_SECTION_NAME ",regular,pure_instructions")))
 #endif
 
@@ -124,17 +88,9 @@
 #elif defined(__ANDROID__)
 #define IL2CPP_TARGET_ANDROID 1
 #define IL2CPP_PLATFORM_SUPPORTS_TIMEZONEINFO 1
-#define IL2CPP_ENABLE_PLATFORM_THREAD_RENAME 1
-#if IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#else
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS !IL2CPP_MONO_DEBUGGER
-#endif
-
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
 #define IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE 1
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
 #define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
-#endif
 #elif defined(__EMSCRIPTEN__)
 #define IL2CPP_TARGET_JAVASCRIPT 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
@@ -142,16 +98,8 @@
 #define IL2CPP_TARGET_LINUX 1
 #define IL2CPP_PLATFORM_SUPPORTS_CPU_INFO 1
 #define IL2CPP_PLATFORM_SUPPORTS_SYSTEM_CERTIFICATES 1
-
-#if IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 0
-#else
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS !IL2CPP_MONO_DEBUGGER
-#endif
-
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
 #define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
-#endif
 #elif defined(NN_PLATFORM_CTR)
 #define IL2CPP_TARGET_N3DS 1
 #elif defined(NN_BUILD_TARGET_PLATFORM_NX)

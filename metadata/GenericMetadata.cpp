@@ -63,11 +63,11 @@ namespace metadata
             case IL2CPP_TYPE_VAR:
             {
                 Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                const Il2CppGenericParameter* gp = Type::GetGenericParameter(type);
+                Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
                 IL2CPP_ASSERT(context->class_inst);
-                IL2CPP_ASSERT(gp->num < context->class_inst->type_argc);
+                IL2CPP_ASSERT(gp.num < context->class_inst->type_argc);
 
-                memcpy(inflatedType, context->class_inst->type_argv[gp->num], sizeof(Il2CppType));
+                memcpy(inflatedType, context->class_inst->type_argv[gp.num], sizeof(Il2CppType));
                 inflatedType->byref = type->byref;
                 inflatedType->attrs = type->attrs;
 
@@ -80,10 +80,10 @@ namespace metadata
                 if (context->method_inst)
                 {
                     Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                    const Il2CppGenericParameter* gp = Type::GetGenericParameter(type);
-                    IL2CPP_ASSERT(gp->num < context->method_inst->type_argc);
+                    Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
+                    IL2CPP_ASSERT(gp.num < context->method_inst->type_argc);
 
-                    memcpy(inflatedType, context->method_inst->type_argv[gp->num], sizeof(Il2CppType));
+                    memcpy(inflatedType, context->method_inst->type_argv[gp.num], sizeof(Il2CppType));
                     inflatedType->byref = type->byref;
                     inflatedType->attrs = type->attrs;
 
@@ -148,14 +148,14 @@ namespace metadata
 
     Il2CppGenericClass* GenericMetadata::GetGenericClass(const Il2CppClass* containerClass, const Il2CppGenericInst* inst)
     {
-        return GetGenericClass(MetadataCache::GetIndexForTypeDefinition(containerClass), inst);
+        return GetGenericClass(&containerClass->byval_arg, inst);
     }
 
-    Il2CppGenericClass* GenericMetadata::GetGenericClass(TypeDefinitionIndex elementClassIndex, const Il2CppGenericInst* inst)
+    Il2CppGenericClass* GenericMetadata::GetGenericClass(const Il2CppType* elementType, const Il2CppGenericInst* inst)
     {
         // temporary inst to lookup a permanent one that may already exist
         Il2CppGenericClass genericClass = { 0 };
-        genericClass.typeDefinitionIndex = elementClassIndex;
+        genericClass.type = elementType;
         genericClass.context.class_inst = inst;
 
         FastAutoLock lock(&s_GenericClassMutex);
@@ -164,7 +164,7 @@ namespace metadata
             return *iter;
 
         Il2CppGenericClass* newClass = MetadataAllocGenericClass();
-        newClass->typeDefinitionIndex = elementClassIndex;
+        newClass->type = elementType;
         newClass->context.class_inst = inst;
 
         s_GenericClassSet.insert(newClass);
@@ -174,36 +174,42 @@ namespace metadata
         return newClass;
     }
 
-    const MethodInfo* GenericMetadata::Inflate(const MethodInfo* methodDefinition, const Il2CppGenericContext* context)
+    const MethodInfo* GenericMetadata::Inflate(const MethodInfo* methodDefinition, Il2CppClass* declaringClass, const Il2CppGenericContext* context)
     {
         const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(methodDefinition, context->class_inst, context->method_inst);
         return GenericMethod::GetMethod(gmethod);
     }
 
-    static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst);
-
-    static int RecursiveGenericDepthFor(Il2CppGenericClass* genericClass)
-    {
-        int classInstDepth = RecursiveGenericDepthFor(genericClass->context.class_inst);
-        int methodInstDepth = RecursiveGenericDepthFor(genericClass->context.method_inst);
-        return std::max(classInstDepth, methodInstDepth);
-    }
-
-    static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst)
+    static void RecursiveGenericDepthFor(const Il2CppGenericInst* inst, int& depth)
     {
         if (inst == NULL)
-            return 0;
+            return;
 
-        int maximumDepth = 0;
+        int maximumDepth = depth;
         for (size_t i = 0; i < inst->type_argc; i++)
         {
             if (inst->type_argv[i]->type == IL2CPP_TYPE_GENERICINST)
             {
-                maximumDepth = std::max(maximumDepth, RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class));
+                maximumDepth++;
+
+                int classInstDepth = 0;
+                RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.class_inst, classInstDepth);
+
+                int methodInstDepth = 0;
+                RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.method_inst, methodInstDepth);
+
+                maximumDepth += std::max(classInstDepth, methodInstDepth);
             }
         }
 
-        return maximumDepth + 1;
+        depth = maximumDepth;
+    }
+
+    static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst)
+    {
+        int depth = 0;
+        RecursiveGenericDepthFor(inst, depth);
+        return depth;
     }
 
     const Il2CppGenericMethod* GenericMetadata::Inflate(const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context)
@@ -229,8 +235,7 @@ namespace metadata
         // We have cases where we could infinitely recurse, inflating generics at runtime. This will lead to a stack overflow.
         // As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
         // level, a crash will happen. We'll assume that this code won't actually be executed though.
-        int maximumRuntimeGenericDepth = GetMaximumRuntimeGenericDepth();
-        if (RecursiveGenericDepthFor(classInst) > maximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > maximumRuntimeGenericDepth)
+        if (RecursiveGenericDepthFor(classInst) > MaximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > MaximumRuntimeGenericDepth)
             return NULL;
 
         return MetadataCache::GetGenericMethod(genericMethod->methodDefinition, classInst, methodInst);
@@ -249,13 +254,13 @@ namespace metadata
             switch (definitionData->type)
             {
                 case IL2CPP_RGCTX_DATA_TYPE:
-                    dataValues[rgctxIndex].type = GenericMetadata::InflateIfNeeded(MetadataCache::GetIl2CppTypeFromIndex(definitionData->data.typeIndex), context, true);
+                    dataValues[rgctxIndex].type = GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(definitionData), context, true);
                     break;
                 case IL2CPP_RGCTX_DATA_CLASS:
-                    dataValues[rgctxIndex].klass = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(MetadataCache::GetIl2CppTypeFromIndex(definitionData->data.typeIndex), context, true));
+                    dataValues[rgctxIndex].klass = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(definitionData), context, true));
                     break;
                 case IL2CPP_RGCTX_DATA_METHOD:
-                    dataValues[rgctxIndex].method = GenericMethod::GetMethod(Inflate(MetadataCache::GetGenericMethodFromIndex(definitionData->data.methodIndex), context));
+                    dataValues[rgctxIndex].method = GenericMethod::GetMethod(Inflate(MetadataCache::GetGenericMethodFromRgctxDefinition(definitionData), context));
                     break;
                 default:
                     IL2CPP_ASSERT(0);
@@ -288,18 +293,6 @@ namespace metadata
         for (Il2CppGenericClassSet::iterator genericClass = s_GenericClassSet.begin(); genericClass != s_GenericClassSet.end(); genericClass++)
             (*genericClass).key->cached_class = NULL;
         s_GenericClassSet.clear();
-    }
-
-    static int s_MaximumRuntimeGenericDepth;
-
-    int GenericMetadata::GetMaximumRuntimeGenericDepth()
-    {
-        return s_MaximumRuntimeGenericDepth;
-    }
-
-    void GenericMetadata::SetMaximumRuntimeGenericDepth(int depth)
-    {
-        s_MaximumRuntimeGenericDepth = depth;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

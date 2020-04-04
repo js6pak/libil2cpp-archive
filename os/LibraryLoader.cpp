@@ -31,6 +31,7 @@ namespace os
 
     void LibraryLoader::SetFindPluginCallback(Il2CppSetFindPlugInCallback method)
     {
+        IL2CPP_ASSERT(method == NULL || s_FindPluginCallback == NULL);
         s_FindPluginCallback = method;
     }
 } /* namespace vm */
