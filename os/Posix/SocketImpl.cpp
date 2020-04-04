@@ -2553,7 +2553,7 @@ namespace os
         bool ipv6IsSupported = false;
         for (ifaddrs* iface = interfaces; iface != NULL; iface = iface->ifa_next)
         {
-            if (iface->ifa_addr && iface->ifa_addr->sa_family == AF_INET6)
+            if (iface->ifa_addr->sa_family == AF_INET6)
             {
                 ipv6IsSupported = true;
                 break;

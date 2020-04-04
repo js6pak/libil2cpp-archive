@@ -144,10 +144,8 @@ namespace vm
 
     void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
     {
-#if IL2CPP_SUPPORT_THREADS
         IL2CPP_ASSERT(thread->GetInternalThread()->handle != NULL);
         IL2CPP_ASSERT(thread->GetInternalThread()->synch_cs != NULL);
-#endif
 
 #if IL2CPP_MONO_DEBUGGER
         utils::Debugger::AllocateThreadLocalData();
@@ -689,14 +687,11 @@ namespace vm
 
             il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
-            bool attachSuccessful = false;
+            il2cpp::vm::Thread::Initialize(startData->m_Thread, startData->m_Domain);
+            il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateRunning);
+
             try
             {
-                il2cpp::vm::Thread::Initialize(startData->m_Thread, startData->m_Domain);
-                il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateRunning);
-
-                attachSuccessful = true;
-
                 try
                 {
                     ((void(*)(void*))startData->m_Delegate)(startData->m_StartArg);
@@ -720,8 +715,7 @@ namespace vm
 
             il2cpp::vm::Thread::ClrState(startData->m_Thread, kThreadStateRunning);
             il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateStopped);
-            if (attachSuccessful)
-                il2cpp::vm::Thread::Uninitialize(startData->m_Thread);
+            il2cpp::vm::Thread::Uninitialize(startData->m_Thread);
 
             il2cpp::vm::StackTrace::CleanupStackTracesForCurrentThread();
         }
@@ -809,7 +803,9 @@ namespace vm
 
     void Thread::SetDefaultAffinityMask(int64_t affinityMask)
     {
+#if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
         os::Thread::SetDefaultAffinityMask(affinityMask);
+#endif
     }
 
     void Thread::CheckCurrentThreadForAbortAndThrowIfNecessary()

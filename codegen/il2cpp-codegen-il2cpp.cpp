@@ -90,9 +90,9 @@ void il2cpp_codegen_register_metadata_initialized_cleanup(MetadataInitializerCle
     g_ClearMethodMetadataInitializedFlags = cleanup;
 }
 
-void il2cpp_codegen_initialize_method(uint32_t index)
+void il2cpp_codegen_initialize_method(const Il2CppCodeGenModule* module, uint32_t index)
 {
-    il2cpp::vm::MetadataCache::InitializeMethodMetadata(index);
+    il2cpp::vm::MetadataCache::InitializeMethodMetadata(module, index);
 }
 
 const RuntimeMethod* il2cpp_codegen_get_generic_method_definition(const RuntimeMethod* method)
