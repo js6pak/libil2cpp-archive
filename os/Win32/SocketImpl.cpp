@@ -339,9 +339,6 @@ namespace os
                 add_local_ips = true;
         }
 
-#if IL2CPP_SUPPORT_IPV6
-        return GetAddressInfo(hostname, add_local_ips, name, addresses);
-#else
         struct hostent *he = NULL;
         if (*hostname)
             he = gethostbyname(hostname);
@@ -354,7 +351,6 @@ namespace os
             : hostent_get_info(he, name, aliases, addresses))
             ? kWaitStatusSuccess
             : kWaitStatusFailure;
-#endif
     }
 
     WaitStatus SocketImpl::GetHostByName(const std::string &host, std::string &name, int32_t &family, std::vector<std::string> &aliases, std::vector<void*> &addr_list, int32_t &addr_size)
@@ -1704,7 +1700,11 @@ namespace os
                 break;
 
             case kSocketOptionLevelIP:
+#ifdef SOL_IP
+                *system_level = SOL_IP;
+#else
                 *system_level = IPPROTO_IP;
+#endif
 
                 switch (name)
                 {
@@ -1777,7 +1777,11 @@ namespace os
                 break;
 #if IL2CPP_SUPPORT_IPV6
             case kSocketOptionLevelIPv6:
+        #ifdef SOL_IPV6
+                *system_level = SOL_IPV6;
+        #else
                 *system_level = IPPROTO_IPV6;
+        #endif
 
                 switch (name)
                 {

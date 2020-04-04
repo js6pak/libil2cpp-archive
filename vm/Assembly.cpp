@@ -41,8 +41,7 @@ namespace vm
     {
         for (int32_t sourceIndex = 0; sourceIndex < assembly->referencedAssemblyCount; sourceIndex++)
         {
-            int32_t indexIntoMainAssemblyTable = MetadataCache::GetReferenceAssemblyIndexIntoAssemblyTable(assembly->referencedAssemblyStart + sourceIndex);
-            const Il2CppAssembly* refAssembly = MetadataCache::GetAssemblyFromIndex(indexIntoMainAssemblyTable);
+            const Il2CppAssembly* refAssembly = MetadataCache::GetReferencedAssembly(assembly, sourceIndex);
 
             target->push_back(&refAssembly->aname);
         }

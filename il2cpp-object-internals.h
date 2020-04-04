@@ -49,10 +49,14 @@ namespace os
 
 namespace baselib
 {
+#if !IL2CPP_TINY || IL2CPP_TINY_FROM_IL2CPP_BUILDER
     inline namespace il2cpp_baselib
 {
+#endif
     class ReentrantLock;
+#if !IL2CPP_TINY || IL2CPP_TINY_FROM_IL2CPP_BUILDER
 }
+#endif
 }
 #endif //__cplusplus
 

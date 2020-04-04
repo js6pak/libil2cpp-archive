@@ -2,8 +2,6 @@
 
 #if IL2CPP_TARGET_WINDOWS
 
-#include "os/Image.h"
-
 #include "WindowsHeaders.h"
 #include <cstdio>
 
@@ -15,6 +13,10 @@ namespace os
 {
 namespace Image
 {
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+    static void* s_ManagedSectionStart = NULL;
+    static void* s_ManagedSectionEnd = NULL;
+
     static void InitializeManagedSection()
     {
         PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(((char*)&__ImageBase) + __ImageBase.e_lfanew);
@@ -23,17 +25,20 @@ namespace Image
         {
             if (strncmp(IL2CPP_BINARY_SECTION_NAME, (char*)sectionHeader->Name, IMAGE_SIZEOF_SHORT_NAME) == 0)
             {
-                void* start = (char*)&__ImageBase + sectionHeader->VirtualAddress;
-                void* end = (char*)start + sectionHeader->Misc.VirtualSize;
-                SetManagedSectionStartAndEnd(start, end);
+                s_ManagedSectionStart = (char*)&__ImageBase + sectionHeader->VirtualAddress;
+                s_ManagedSectionEnd = (char*)s_ManagedSectionStart + sectionHeader->Misc.VirtualSize;
             }
             sectionHeader++;
         }
     }
 
+#endif
+
     void Initialize()
     {
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
         InitializeManagedSection();
+#endif
     }
 
     void* GetImageBase()
@@ -76,6 +81,15 @@ namespace Image
                 pdb_info->Guid.Data4[4], pdb_info->Guid.Data4[5], pdb_info->Guid.Data4[6], pdb_info->Guid.Data4[7],
                 pdb_info->Age);
         }
+    }
+
+#endif
+
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+    bool IsInManagedSection(void* ip)
+    {
+        IL2CPP_ASSERT(s_ManagedSectionStart != NULL && s_ManagedSectionEnd != NULL);
+        return s_ManagedSectionStart <= ip && ip <= s_ManagedSectionEnd;
     }
 
 #endif

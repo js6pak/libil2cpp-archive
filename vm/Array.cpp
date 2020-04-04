@@ -101,6 +101,7 @@ namespace vm
         IL2CPP_ASSERT(klass->rank);
         IL2CPP_ASSERT(klass->initialized);
         IL2CPP_ASSERT(klass->element_class->initialized);
+        IL2CPP_ASSERT(klass->byval_arg.type == IL2CPP_TYPE_SZARRAY);
 
         IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Not checking for overflow");
         IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Array::NewSpecific, "Handle allocations with a GC descriptor");
@@ -180,6 +181,10 @@ namespace vm
         /* A single dimensional array with a 0 lower bound is the same as an szarray */
         if (array_class->rank == 1 && ((array_class->byval_arg.type == IL2CPP_TYPE_SZARRAY) || (lower_bounds && lower_bounds[0] == 0)))
         {
+            /* A single dimensional array with a 0 lower bound should be an szarray */
+            /* but the caller asked for an IL2CPP_TYPE_ARRAY, which insn't correct */
+            IL2CPP_ASSERT(array_class->byval_arg.type == IL2CPP_TYPE_SZARRAY);
+
             len = lengths[0];
             if (len > IL2CPP_ARRAY_MAX_INDEX) //MONO_ARRAY_MAX_INDEX
                 RaiseOverflowException();
@@ -187,6 +192,8 @@ namespace vm
         }
         else
         {
+            IL2CPP_ASSERT(array_class->byval_arg.type == IL2CPP_TYPE_ARRAY);
+
             bounds_size = sizeof(Il2CppArrayBounds) * array_class->rank;
 
             for (i = 0; i < array_class->rank; ++i)

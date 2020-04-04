@@ -37,8 +37,8 @@ extern "C" void** const g_MetadataUsages[] IL2CPP_ATTRIBUTE_WEAK;
 extern "C" const MonoGenericInstMetadata* const g_MonoGenericInstMetadataTable[] IL2CPP_ATTRIBUTE_WEAK;
 extern "C" const Il2CppCodeGenOptions s_Il2CppCodeGenOptions IL2CPP_ATTRIBUTE_WEAK;
 
-extern const int g_Il2CppInteropDataCount IL2CPP_ATTRIBUTE_WEAK;
-extern Il2CppInteropData g_Il2CppInteropData[] IL2CPP_ATTRIBUTE_WEAK;
+extern "C" const int g_Il2CppInteropDataCount IL2CPP_ATTRIBUTE_WEAK;
+extern "C" Il2CppInteropData g_Il2CppInteropData[] IL2CPP_ATTRIBUTE_WEAK;
 
 static MonoGenericContext GetSharedContext(const MonoGenericContext* context);
 static MonoAssembly** s_MonoAssemblies;

@@ -157,10 +157,7 @@ namespace vm
         g_CodegenRegistration();
 
         if (!MetadataCache::Initialize())
-        {
-            s_RuntimeInitCount--;
             return false;
-        }
 
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
@@ -373,6 +370,8 @@ namespace vm
             const char* mainArgs[] = { executablePath.c_str() };
             utils::Environment::SetMainArgs(mainArgs, 1);
         }
+
+        vm::MetadataCache::ExecuteModuleInitializers();
 
         return true;
     }

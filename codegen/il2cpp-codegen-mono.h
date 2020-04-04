@@ -681,8 +681,9 @@ inline void il2cpp_codegen_memory_barrier()
     mono_unity_memory_barrier();
 }
 
-inline void il2cpp_codegen_initialize_method(uint32_t index)
+inline void il2cpp_codegen_initialize_method(const Il2CppCodeGenModule* module, uint32_t index)
 {
+    // Il2CppCodeGenModule* module is unused since libmono isn't supporting per assembly metadata
     il2cpp_mono_initialize_method_metadata(index);
 }
 

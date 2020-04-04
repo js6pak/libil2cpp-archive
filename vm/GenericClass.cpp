@@ -33,7 +33,7 @@ namespace vm
         for (uint16_t methodIndex = 0; methodIndex < methodCount; ++methodIndex)
         {
             const MethodInfo* methodDefinition = genericTypeDefinition->methods[methodIndex];
-            methods[methodIndex] = metadata::GenericMetadata::Inflate(methodDefinition, GenericClass::GetContext(genericInstanceType->generic_class));
+            methods[methodIndex] = metadata::GenericMetadata::Inflate(methodDefinition, genericInstanceType, GenericClass::GetContext(genericInstanceType->generic_class));
         }
 
         genericInstanceType->methods = methods;
@@ -49,9 +49,9 @@ namespace vm
         newProperty->token = propertyDefinition->token;
 
         if (propertyDefinition->get)
-            newProperty->get = metadata::GenericMetadata::Inflate(propertyDefinition->get, context);
+            newProperty->get = metadata::GenericMetadata::Inflate(propertyDefinition->get, declaringClass, context);
         if (propertyDefinition->set)
-            newProperty->set = metadata::GenericMetadata::Inflate(propertyDefinition->set, context);
+            newProperty->set = metadata::GenericMetadata::Inflate(propertyDefinition->set, declaringClass, context);
     }
 
     void GenericClass::SetupProperties(Il2CppClass* genericInstanceType)
@@ -86,11 +86,11 @@ namespace vm
         newEvent->token = eventDefinition->token;
 
         if (eventDefinition->add)
-            newEvent->add = metadata::GenericMetadata::Inflate(eventDefinition->add, context);
+            newEvent->add = metadata::GenericMetadata::Inflate(eventDefinition->add, declaringClass, context);
         if (eventDefinition->raise)
-            newEvent->raise = metadata::GenericMetadata::Inflate(eventDefinition->raise, context);
+            newEvent->raise = metadata::GenericMetadata::Inflate(eventDefinition->raise, declaringClass, context);
         if (eventDefinition->remove)
-            newEvent->remove = metadata::GenericMetadata::Inflate(eventDefinition->remove, context);
+            newEvent->remove = metadata::GenericMetadata::Inflate(eventDefinition->remove, declaringClass, context);
     }
 
     void GenericClass::SetupEvents(Il2CppClass* genericInstanceType)
@@ -152,16 +152,12 @@ namespace vm
         genericInstanceType->fields = fields;
     }
 
-    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass *gclass, bool throwOnError)
+    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass *gclass)
     {
         os::FastAutoLock lock(&g_MetadataLock);
         Il2CppClass* definition = GetTypeDefinition(gclass);
         if (definition == NULL)
-        {
-            if (throwOnError)
-                vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
-            return NULL;
-        }
+            vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
 
         if (!gclass->cached_class)
         {
@@ -224,7 +220,7 @@ namespace vm
 
     Il2CppClass* GenericClass::GetTypeDefinition(Il2CppGenericClass *gclass)
     {
-        return MetadataCache::GetTypeInfoFromTypeDefinitionIndex(gclass->typeDefinitionIndex);
+        return MetadataCache::GetTypeInfoFromType(gclass->type);
     }
 
     bool GenericClass::IsEnum(Il2CppGenericClass *gclass)

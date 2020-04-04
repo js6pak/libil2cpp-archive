@@ -16,19 +16,12 @@
 #define IL2CPP_USE_PIPES_FOR_WAKEUP !(IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PSP2)
 #endif
 
-#ifndef IL2CPP_USE_EVENTFD_FOR_WAKEUP
-#define IL2CPP_USE_EVENTFD_FOR_WAKEUP (0)
-#endif
-
-#if !IL2CPP_USE_PIPES_FOR_WAKEUP && !IL2CPP_USE_EVENTFD_FOR_WAKEUP
+#if !IL2CPP_USE_PIPES_FOR_WAKEUP
 #include "os/Win32/WindowsHeaders.h"
 #else
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
-#if IL2CPP_USE_EVENTFD_FOR_WAKEUP
-#include <sys/eventfd.h>
-#endif
 #endif
 
 #include <vector>
@@ -98,7 +91,7 @@ typedef struct {
 	int updates_size;
 	il2cpp::os::FastMutex updates_lock;
 	il2cpp::os::ConditionVariable updates_cond;
-#if IL2CPP_USE_PIPES_FOR_WAKEUP || IL2CPP_USE_EVENTFD_FOR_WAKEUP
+#if IL2CPP_USE_PIPES_FOR_WAKEUP
 	int32_t wakeup_pipes [2];
 #else
 	il2cpp::os::Socket* wakeup_pipes [2];
@@ -161,13 +154,6 @@ static void selector_thread_wakeup (void)
 			break;
 		if (written == -1)
 			break;
-#elif IL2CPP_USE_EVENTFD_FOR_WAKEUP
-		eventfd_t val = 1;
-		int32_t written = eventfd_write(threadpool_io->wakeup_pipes[0], val);
-		if (written == 0)
-			break;
-		if (written == -1)
-			break;
 #else
 		int32_t written = 0;
 		const il2cpp::os::WaitStatus status = threadpool_io->wakeup_pipes[1]->Send((const uint8_t*)&msg, 1, il2cpp::os::kSocketFlagsNone, &written);
@@ -193,16 +179,6 @@ static void selector_thread_wakeup_drain_pipes (void)
 	for (;;) {
 #if IL2CPP_USE_PIPES_FOR_WAKEUP
 		received = read (threadpool_io->wakeup_pipes [0], buffer, sizeof (buffer));
-		if (received == 0)
-			break;
-		if (received == -1) {
-			if (errno != EINTR && errno != EAGAIN)
-				IL2CPP_ASSERT(0 && "selector_thread_wakeup_drain_pipes: read () failed");
-			break;
-		}
-#elif IL2CPP_USE_EVENTFD_FOR_WAKEUP
-		eventfd_t val;
-		received = eventfd_read(threadpool_io->wakeup_pipes[0], &val);
 		if (received == 0)
 			break;
 		if (received == -1) {
@@ -275,7 +251,7 @@ static void wait_callback (int fd, int events, void* user_data)
 	if (il2cpp::vm::Runtime::IsShuttingDown ())
 		return;
 
-#if IL2CPP_USE_PIPES_FOR_WAKEUP || IL2CPP_USE_EVENTFD_FOR_WAKEUP
+#if IL2CPP_USE_PIPES_FOR_WAKEUP
 	if (fd == threadpool_io->wakeup_pipes [0]) {
 #else
 	if (fd == threadpool_io->wakeup_pipes [0]->GetDescriptor()) {
@@ -509,9 +485,6 @@ static void wakeup_pipes_init(void)
 		IL2CPP_ASSERT(0 && "wakeup_pipes_init: pipe () failed");
 	if (fcntl (threadpool_io->wakeup_pipes [0], F_SETFL, O_NONBLOCK) == -1)
 		IL2CPP_ASSERT(0 && "wakeup_pipes_init: fcntl () failed");
-#elif IL2CPP_USE_EVENTFD_FOR_WAKEUP
-	threadpool_io->wakeup_pipes[0] = eventfd(0, EFD_NONBLOCK);
-	threadpool_io->wakeup_pipes[1] = -1;
 #else
 	il2cpp::os::Socket serverSock(NULL);
 
@@ -602,7 +575,7 @@ static void threadpool_ms_io_initialize(void* args)
 
 	wakeup_pipes_init ();
 
-#if IL2CPP_USE_PIPES_FOR_WAKEUP || IL2CPP_USE_EVENTFD_FOR_WAKEUP
+#if IL2CPP_USE_PIPES_FOR_WAKEUP
 	if (!threadpool_io->backend.init ((int)threadpool_io->wakeup_pipes [0]))
 #else
 	if (!threadpool_io->backend.init ((int)threadpool_io->wakeup_pipes [0]->GetDescriptor()))
