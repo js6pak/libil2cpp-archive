@@ -668,8 +668,8 @@ namespace vm
 
             case IL2CPP_TYPE_VAR:
             case IL2CPP_TYPE_MVAR:
-                str += MetadataCache::GetStringFromIndex(Type::GetGenericParameter(type)->nameIndex);
 
+                str += MetadataCache::GetGenericParameterName(Type::GetGenericParameterHandle(type));
                 if (type->byref)
                     str += '&';
                 break;
@@ -732,15 +732,19 @@ namespace vm
                 }
                 else if (Class::IsGeneric(klass) && (format != IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (format != IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED))
                 {
-                    const Il2CppGenericContainer* container = Class::GetGenericContainer(klass);
+                    Il2CppMetadataGenericContainerHandle containerHandle = Class::GetGenericContainer(klass);
 
                     str += (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-                    for (int32_t i = 0; i < container->type_argc; i++)
+                    uint32_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
+                    for (uint32_t i = 0; i < type_argc; i++)
                     {
                         if (i)
                             str += ',';
-                        str += MetadataCache::GetStringFromIndex(GenericContainer::GetGenericParameter(container, i)->nameIndex);
+
+                        Il2CppMetadataGenericParameterHandle handle = MetadataCache::GetGenericParameterFromIndex(containerHandle, i);
+                        const char* name = MetadataCache::GetGenericParameterName(handle);
+                        str += name;
                     }
 
                     str += (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '>' : ']');
@@ -883,7 +887,7 @@ namespace vm
 
             case IL2CPP_TYPE_VAR:
             case IL2CPP_TYPE_MVAR:
-                chunkReportFunc(const_cast<char*>(MetadataCache::GetStringFromIndex(Type::GetGenericParameter(type)->nameIndex)), userData);
+                chunkReportFunc(const_cast<char*>(MetadataCache::GetGenericParameterName(Type::GetGenericParameterHandle(type))), userData);
 
                 if (type->byref)
                 {
@@ -964,15 +968,17 @@ namespace vm
                 }
                 else if (Class::IsGeneric(klass) && (format != IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (format != IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED))
                 {
-                    const Il2CppGenericContainer* container = Class::GetGenericContainer(klass);
+                    Il2CppMetadataGenericContainerHandle containerHandle = Class::GetGenericContainer(klass);
 
                     *bufferIter++ = (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-                    for (int32_t i = 0; i < container->type_argc; ++i)
+                    uint32_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
+                    for (uint32_t i = 0; i < type_argc; ++i)
                     {
                         if (i)
                             *bufferIter++ = ',';
-                        const char* idxStr = MetadataCache::GetStringFromIndex(GenericContainer::GetGenericParameter(container, i)->nameIndex);
+                        Il2CppMetadataGenericParameterHandle handle = GenericContainer::GetGenericParameter(containerHandle, i);
+                        const char* idxStr = MetadataCache::GetGenericParameterName(handle);
                         size_t len = strlen(idxStr);
                         for (size_t l = 0; l < len; ++l)
                         {
@@ -1023,13 +1029,13 @@ namespace vm
             return Class::FromIl2CppType(type->data.type);
 
         // IL2CPP_TYPE_SZARRAY stores element class in klass
-        return MetadataCache::GetTypeInfoFromTypeDefinitionIndex(type->data.klassIndex);
+        return MetadataCache::GetTypeInfoFromType(type);
     }
 
     const Il2CppType* Type::GetUnderlyingType(const Il2CppType *type)
     {
-        if (type->type == IL2CPP_TYPE_VALUETYPE && MetadataCache::GetTypeInfoFromTypeDefinitionIndex(type->data.klassIndex)->enumtype && !type->byref)
-            return Class::GetEnumBaseType(MetadataCache::GetTypeInfoFromTypeDefinitionIndex(type->data.klassIndex));
+        if (type->type == IL2CPP_TYPE_VALUETYPE && !type->byref && MetadataCache::GetTypeInfoFromType(type)->enumtype)
+            return Class::GetEnumBaseType(MetadataCache::GetTypeInfoFromType(type));
         if (IsGenericInstance(type))
         {
             Il2CppClass* definition = GenericClass::GetTypeDefinition(type->data.generic_class);
@@ -1052,9 +1058,7 @@ namespace vm
             return NULL;
         if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
         {
-            const Il2CppGenericParameter* genericParameter = GetGenericParameter(type);
-            const Il2CppGenericContainer* container = MetadataCache::GetGenericContainerFromIndex(genericParameter->ownerIndex);
-            typeInfo = GenericContainer::GetDeclaringType(container);
+            typeInfo = MetadataCache::GetParameterDeclaringType(GetGenericParameterHandle(type));
         }
         else
         {
@@ -1075,11 +1079,11 @@ namespace vm
 
         if (Class::IsGeneric(klass))
         {
-            const Il2CppGenericContainer *container = MetadataCache::GetGenericContainerFromIndex(klass->genericContainerIndex);
-            res = Array::New(arrType, container->type_argc);
-            for (int32_t i = 0; i < container->type_argc; ++i)
+            uint32_t type_argc = MetadataCache::GetGenericContainerCount(klass->genericContainerHandle);
+            res = Array::New(arrType, type_argc);
+            for (uint32_t i = 0; i < type_argc; ++i)
             {
-                pklass = Class::FromGenericParameter(GenericContainer::GetGenericParameter(container, i));
+                pklass = Class::FromGenericParameter(GenericContainer::GetGenericParameter(klass->genericContainerHandle, i));
                 il2cpp_array_setref(res, i, Reflection::GetTypeObject(&pklass->byval_arg));
             }
         }
@@ -1140,7 +1144,7 @@ namespace vm
         if (type->byref)
             return false;
 
-        if (type->type == IL2CPP_TYPE_VALUETYPE && !MetadataCache::GetTypeInfoFromTypeDefinitionIndex(type->data.klassIndex)->enumtype)
+        if (type->type == IL2CPP_TYPE_VALUETYPE && !MetadataCache::GetTypeInfoFromType(type)->enumtype)
             return true;
 
         if (type->type == IL2CPP_TYPE_TYPEDBYREF)
@@ -1177,7 +1181,7 @@ namespace vm
 
     bool Type::IsEmptyType(const Il2CppType *type)
     {
-        return IsGenericInstance(type) && type->data.generic_class->typeDefinitionIndex == kTypeIndexInvalid;
+        return IsGenericInstance(type) && type->data.generic_class->type == NULL;
     }
 
     bool Type::IsSystemDBNull(const Il2CppType *type)
@@ -1201,19 +1205,17 @@ namespace vm
     Il2CppClass* Type::GetClass(const Il2CppType *type)
     {
         IL2CPP_ASSERT(type->type == IL2CPP_TYPE_CLASS || type->type == IL2CPP_TYPE_VALUETYPE);
-        return MetadataCache::GetTypeInfoFromTypeDefinitionIndex(type->data.klassIndex);
+        return MetadataCache::GetTypeInfoFromType(type);
     }
 
-    const Il2CppGenericParameter* Type::GetGenericParameter(const Il2CppType *type)
+    Il2CppMetadataGenericParameterHandle Type::GetGenericParameterHandle(const Il2CppType *type)
     {
-        IL2CPP_ASSERT(type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR);
-        return MetadataCache::GetGenericParameterFromIndex(type->data.genericParameterIndex);
+        return MetadataCache::GetGenericParameterFromType(type);
     }
 
-    const Il2CppType* Type::GetGenericTypeDefintion(const Il2CppType* type)
+    Il2CppGenericParameterInfo Type::GetGenericParameterInfo(const Il2CppType *type)
     {
-        IL2CPP_ASSERT(IsGenericInstance(type));
-        return Class::GetType(GenericClass::GetTypeDefinition(type->data.generic_class));
+        return MetadataCache::GetGenericParameterInfo(MetadataCache::GetGenericParameterFromType(type));
     }
 
 /**

@@ -286,8 +286,7 @@ inline bool il2cpp_codegen_method_is_virtual(RuntimeMethod* method)
 
 inline bool il2cpp_codegen_object_is_of_sealed_type(RuntimeObject* obj)
 {
-    IL2CPP_ASSERT(obj);
-    return (obj->klass->flags & TYPE_ATTRIBUTE_SEALED) != 0;
+    return obj != NULL && (obj->klass->flags & TYPE_ATTRIBUTE_SEALED) != 0;
 }
 
 bool il2cpp_codegen_method_is_generic_instance(RuntimeMethod* method);
@@ -509,14 +508,6 @@ inline T* il2cpp_codegen_marshal_function_ptr_to_delegate(Il2CppMethodPointer fu
 
 void il2cpp_codegen_marshal_store_last_error();
 
-template<typename R, typename S>
-inline R il2cpp_codegen_cast_struct(S* s)
-{
-    static_assert(sizeof(S) == sizeof(R), "Types with different sizes passed to il2cpp_codegen_cast_struct");
-    R r;
-    il2cpp_codegen_memcpy(&r, s, sizeof(R));
-    return r;
-}
 
 #if _DEBUG
 
@@ -618,7 +609,7 @@ inline const RuntimeMethod* GetInterfaceMethodInfo(RuntimeObject* pThis, Il2CppM
     return il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(pThis, declaringInterface, slot).method;
 }
 
-void il2cpp_codegen_initialize_method(uint32_t index);
+void il2cpp_codegen_initialize_method(const Il2CppCodeGenModule* module, uint32_t index);
 
 bool il2cpp_codegen_class_is_value_type(RuntimeClass* type);
 

@@ -13,7 +13,7 @@ void il2cpp_assert(const char* assertion, const char* file, unsigned int line)
 {
 #if IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT
 
-    if (_CrtDbgReport(_CRT_ASSERT, file, line, "", "%s", assertion) != 1)
+    if (_CrtDbgReport(_CRT_ASSERT, file, line, "", "%s", assertion) == 1)
     {
         _CrtDbgBreak();
     }

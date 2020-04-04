@@ -31,13 +31,12 @@ namespace vm
     {
         if (itf->generic_class != NULL)
         {
-            const Il2CppTypeDefinition* genericInterface = MetadataCache::GetTypeDefinitionFromIndex(itf->generic_class->typeDefinitionIndex);
-            const Il2CppGenericContainer* genericContainer = MetadataCache::GetGenericContainerFromIndex(genericInterface->genericContainerIndex);
+            Il2CppMetadataGenericContainerHandle containerHandle = MetadataCache::GetGenericContainerFromGenericClass(itf->image, itf->generic_class);
 
             for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
             {
                 const Il2CppRuntimeInterfaceOffsetPair* pair = klass->interfaceOffsets + i;
-                if (Class::IsGenericClassAssignableFrom(itf, pair->interfaceType, genericContainer))
+                if (Class::IsGenericClassAssignableFrom(itf, pair->interfaceType, itf->image, containerHandle))
                 {
                     IL2CPP_ASSERT(pair->offset + slot < klass->vtable_count);
                     return &klass->vtable[pair->offset + slot];

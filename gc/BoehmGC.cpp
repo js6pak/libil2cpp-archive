@@ -74,7 +74,7 @@ GC_ms_entry* GC_gcj_vector_proc(GC_word* addr, GC_ms_entry* mark_stack_ptr,
     /* end at last element or max chunk size */
     GC_word* actual_end = actual_start + length * words_per_element;
 
-    return GC_gcj_vector_mark_proc(mark_stack_ptr, mark_stack_limit, element_desc, start, actual_end, words_per_element);
+    return GC_gcj_vector_mark_proc(mark_stack_ptr, element_desc, start, actual_end, words_per_element);
 }
 
 #endif // !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION

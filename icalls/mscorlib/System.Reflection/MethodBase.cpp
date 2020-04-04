@@ -82,14 +82,14 @@ namespace Reflection
                 {
                     newCtx.class_inst = klass->generic_class->context.class_inst;
                 }
-                else if (klass->genericContainerIndex != kGenericContainerIndexInvalid)
+                else if (klass->genericContainerHandle != NULL)
                 {
                     IL2CPP_NOT_IMPLEMENTED(il2cpp_method_get_equivalent_method: generic_container_case);
                     //const Il2CppGenericContainer *genericContainer = il2cpp::vm::MetadataCache::GetGenericContainerFromIndex(klass->genericContainerIndex);
                     //newCtx.class_inst = genericContainer->context.class_inst;
                 }
 
-                result = il2cpp::metadata::GenericMetadata::Inflate(method, &newCtx);
+                result = il2cpp::metadata::GenericMetadata::Inflate(method, klass, &newCtx);
                 return result;
             }
         }

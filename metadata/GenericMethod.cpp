@@ -110,11 +110,10 @@ namespace metadata
 
             if (!declaringClass->generic_class)
             {
-                const Il2CppGenericContainer* container = methodDefinition->genericContainer;
-                newMethod->genericContainer = container;
+                newMethod->genericContainerHandle = methodDefinition->genericContainerHandle;
             }
 
-            newMethod->methodDefinition = methodDefinition->methodDefinition;
+            newMethod->methodMetadataHandle = methodDefinition->methodMetadataHandle;
         }
         else
         {
