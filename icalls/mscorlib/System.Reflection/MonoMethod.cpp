@@ -138,14 +138,14 @@ namespace Reflection
             methodInfo = methodInfo->genericMethod->methodDefinition;
         }
 
-        const Il2CppGenericContainer *container = vm::MetadataCache::GetMethodGenericContainer(methodInfo);
+        Il2CppMetadataGenericContainerHandle containerHandle = vm::MetadataCache::GetGenericContainerFromMethod(methodInfo->methodMetadataHandle);
 
-        count = container != NULL ? container->type_argc : 0;
+        count = vm::MetadataCache::GetGenericContainerCount(containerHandle);
         res = vm::Array::New(il2cpp_defaults.systemtype_class, count);
 
         for (uint32_t i = 0; i < count; i++)
         {
-            const Il2CppGenericParameter *param = vm::GenericContainer::GetGenericParameter(container, i);
+            Il2CppMetadataGenericParameterHandle  param = vm::GenericContainer::GetGenericParameter(containerHandle, i);
             Il2CppClass *pklass = vm::Class::FromGenericParameter(param);
             il2cpp_array_setref(res, i, il2cpp::vm::Reflection::GetTypeObject(&pklass->byval_arg));
         }

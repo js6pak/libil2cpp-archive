@@ -41,7 +41,7 @@ namespace os
         const HardcodedPInvokeDependencyFunction* functions;
     };
 
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP && !IL2CPP_TARGET_WINDOWS_GAMES
     const HardcodedPInvokeDependencyFunction kAdvapiFunctions[] =
     {
 #if !IL2CPP_TARGET_XBOXONE
@@ -69,7 +69,6 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
-        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathName),
     };
 
     const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
