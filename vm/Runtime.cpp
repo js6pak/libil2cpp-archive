@@ -157,7 +157,10 @@ namespace vm
         g_CodegenRegistration();
 
         if (!MetadataCache::Initialize())
+        {
+            s_RuntimeInitCount--;
             return false;
+        }
 
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
