@@ -60,7 +60,6 @@ typedef struct Il2CppTypeDefinition
     StringIndex nameIndex;
     StringIndex namespaceIndex;
     TypeIndex byvalTypeIndex;
-    TypeIndex byrefTypeIndex;
 
     TypeIndex declaringTypeIndex;
     TypeIndex parentIndex;
