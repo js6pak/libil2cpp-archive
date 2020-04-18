@@ -14,6 +14,8 @@ extern "C"
 {
     void* loadAsset(const char* path, int *size, void* (*alloc)(size_t));
 }
+#elif IL2CPP_TARGET_JAVASCRIPT && IL2CPP_TINY_DEBUGGER && !IL2CPP_TINY_FROM_IL2CPP_BUILDER
+extern void* g_MetadataForWebTinyDebugger;
 #endif
 
 void* il2cpp::vm::MetadataLoader::LoadMetadataFile(const char* fileName)
@@ -25,6 +27,8 @@ void* il2cpp::vm::MetadataLoader::LoadMetadataFile(const char* fileName)
 
     int size = 0;
     return loadAsset(resourceFilePath.c_str(), &size, malloc);
+#elif IL2CPP_TARGET_JAVASCRIPT && IL2CPP_TINY_DEBUGGER && !IL2CPP_TINY_FROM_IL2CPP_BUILDER
+    return g_MetadataForWebTinyDebugger;
 #else
     std::string resourcesDirectory = utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("Metadata"));
 
