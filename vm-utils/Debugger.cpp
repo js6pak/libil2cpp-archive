@@ -180,6 +180,8 @@ namespace utils
         {
             const Il2CppImage* image = vm::Assembly::GetImage(*iter);
             const Il2CppDebuggerMetadataRegistration* debuggerMetadata = image->codeGenModule->debuggerMetadata;
+            if (debuggerMetadata == NULL)
+                continue;
             for (int i = 0; i < debuggerMetadata->numTypeSourceFileEntries; ++i)
             {
                 Il2CppTypeSourceFilePair& pair = debuggerMetadata->typeSourceFiles[i];
@@ -543,6 +545,8 @@ namespace utils
         {
             const Il2CppImage* image = vm::Assembly::GetImage(*iter);
             const Il2CppDebuggerMetadataRegistration* debuggerMetadata = image->codeGenModule->debuggerMetadata;
+            if (debuggerMetadata == NULL)
+                continue;
             for (int i = 0; i < debuggerMetadata->numSequencePoints; ++i)
             {
                 Il2CppSequencePoint& seqPoint = debuggerMetadata->sequencePoints[i];
@@ -586,6 +590,8 @@ namespace utils
         {
             const Il2CppImage* image = vm::Assembly::GetImage(*iter);
             const Il2CppDebuggerMetadataRegistration* debuggerMetadata = image->codeGenModule->debuggerMetadata;
+            if (debuggerMetadata == NULL)
+                continue;
             for (int i = 0; i < debuggerMetadata->numCatchPoints; ++i)
             {
                 Il2CppCatchPoint& catchPoint = debuggerMetadata->catchPoints[i];

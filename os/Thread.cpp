@@ -319,6 +319,11 @@ namespace os
         return ThreadImpl::YieldInternal();
     }
 
+    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
+    {
+        s_DefaultAffinityMask = affinityMask;
+    }
+
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 
     void Thread::SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction)
@@ -339,11 +344,6 @@ namespace os
     void Thread::SignalExited()
     {
         m_ThreadExitedEvent.Set();
-    }
-
-    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
-    {
-        s_DefaultAffinityMask = affinityMask;
     }
 
 #endif
