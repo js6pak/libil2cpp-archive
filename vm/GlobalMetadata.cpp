@@ -231,7 +231,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 24);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 25);
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->imagesCount / sizeof(Il2CppImageDefinition);
     *assembliesCount = s_GlobalMetadataHeader->assembliesCount / sizeof(Il2CppAssemblyDefinition);
@@ -1287,7 +1287,8 @@ static Il2CppClass* FromTypeDefinition(TypeDefinitionIndex index)
     typeInfo->name = GetStringFromIndex(typeDefinition->nameIndex);
     typeInfo->namespaze = GetStringFromIndex(typeDefinition->namespaceIndex);
     typeInfo->byval_arg = *il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(typeDefinition->byvalTypeIndex);
-    typeInfo->this_arg = *il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(typeDefinition->byrefTypeIndex);
+    typeInfo->this_arg = typeInfo->byval_arg;
+    typeInfo->this_arg.byref = true;
     typeInfo->typeMetadataHandle = reinterpret_cast<const Il2CppMetadataTypeHandle>(typeDefinition);
     typeInfo->genericContainerHandle = GetGenericContainerFromIndex(typeDefinition->genericContainerIndex);
     typeInfo->instance_size = typeDefinitionSizes->instance_size;
