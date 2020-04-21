@@ -25,7 +25,7 @@ namespace vm
     class LIBIL2CPP_CODEGEN_API Runtime
     {
     public:
-        static bool Init(const char* filename, const char *runtime_version);
+        static bool Init(const char* domainName = "IL2CPP Root Domain");
         static void Shutdown();
         static bool IsShuttingDown();
         static void SetConfigDir(const char *path);

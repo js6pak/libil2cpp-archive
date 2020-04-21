@@ -62,6 +62,9 @@ Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
 
+static il2cpp::os::FastMutex s_InitLock;
+static int32_t s_RuntimeInitCount;
+
 namespace il2cpp
 {
 namespace vm
@@ -117,15 +120,27 @@ namespace vm
         Field::StaticSetValue(stringEmptyField, String::Empty());
     }
 
-    bool Runtime::Init(const char* filename, const char *runtime_version)
+    static void SetConfigStr(const std::string& executablePath);
+
+    bool Runtime::Init(const char* domainName)
     {
+        os::FastAutoLock lock(&s_InitLock);
+
+        IL2CPP_ASSERT(s_RuntimeInitCount >= 0);
+        if (s_RuntimeInitCount++ > 0)
+            return true;
+
         SanityChecks();
 
         os::Initialize();
         os::Locale::Initialize();
         MetadataAllocInitialize();
 
-        s_FrameworkVersion = framework_version_for(runtime_version);
+        // NOTE(gab): the runtime_version needs to change once we
+        // will support multiple runtimes.
+        // For now we default to the one used by unity and don't
+        // allow the callers to change it.
+        s_FrameworkVersion = framework_version_for("v4.0.30319");
 
         os::Image::Initialize();
         os::Thread::Init();
@@ -134,6 +149,7 @@ namespace vm
 
         if (!MetadataCache::Initialize())
             return false;
+
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
 
@@ -307,7 +323,7 @@ namespace vm
 
         domain->domain_id = 1; // Only have a single domain ATM.
 
-        domain->friendly_name = basepath(filename);
+        domain->friendly_name = basepath(domainName);
 
         LastError::InitializeLastErrorThreadStatic();
 
@@ -335,11 +351,28 @@ namespace vm
 #if IL2CPP_MONO_DEBUGGER
         il2cpp::utils::Debugger::Start();
 #endif
+
+        std::string executablePath = os::Path::GetExecutablePath();
+        SetConfigStr(executablePath);
+
+        if (utils::Environment::GetNumMainArgs() == 0)
+        {
+            // If main args were never set, we default to 1 arg that is the executable path
+            const char* mainArgs[] = { executablePath.c_str() };
+            utils::Environment::SetMainArgs(mainArgs, 1);
+        }
+
         return true;
     }
 
     void Runtime::Shutdown()
     {
+        os::FastAutoLock lock(&s_InitLock);
+
+        IL2CPP_ASSERT(s_RuntimeInitCount > 0);
+        if (--s_RuntimeInitCount > 0)
+            return;
+
         shutting_down = true;
 
 #if IL2CPP_ENABLE_PROFILER

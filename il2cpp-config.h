@@ -170,7 +170,9 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #if IL2CPP_ENABLE_STACKTRACES
 
 /* Platforms which use stacktrace sentries */
+#if !defined(IL2CPP_ENABLE_STACKTRACE_SENTRIES)
 #define IL2CPP_ENABLE_STACKTRACE_SENTRIES (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_N3DS || IL2CPP_TARGET_SWITCH)
+#endif
 
 #endif // IL2CPP_ENABLE_STACKTRACES
 
