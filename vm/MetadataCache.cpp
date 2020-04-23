@@ -183,9 +183,12 @@ void MetadataCache::Register(const Il2CppCodeRegistration* const codeRegistratio
 static void* s_GlobalMetadata;
 static const Il2CppGlobalMetadataHeader* s_GlobalMetadataHeader;
 
-void MetadataCache::Initialize()
+bool MetadataCache::Initialize()
 {
     s_GlobalMetadata = vm::MetadataLoader::LoadMetadataFile("global-metadata.dat");
+    if (s_GlobalMetadata == NULL)
+        return false;
+
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 24);
@@ -308,6 +311,8 @@ void MetadataCache::Initialize()
 
     il2cpp::utils::NativeSymbol::RegisterMethods(managedMethods);
 #endif
+
+    return true;
 }
 
 void MetadataCache::InitializeStringLiteralTable()

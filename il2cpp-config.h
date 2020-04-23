@@ -203,6 +203,12 @@ const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define RUNTIMEMESSAGE(name)    __FILE__ "(" $Line ") : FIXME: Missing runtime implementation: " name
 #define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
+#ifndef IL2CPP_DEFAULT_DATA_DIR_PATH
+#define IL2CPP_DEFAULT_DATA_DIR_PATH Data
+#endif
+
+#define IL2CPP_DEFAULT_DATA_DIR_PATH_STR MAKE_STRING(STRINGIZE, IL2CPP_DEFAULT_DATA_DIR_PATH)
+
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)
 //  #define PRAGMA_MESSAGE(value) __pragma(message(value))
@@ -316,7 +322,7 @@ const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-#define STORE_SEQ_POINT(storage, seqPointId) do { (storage).currentSequencePoint = seqPointId; } while (0)
+#define STORE_SEQ_POINT(storage, seqPoint) (storage).currentSequencePoint = seqPoint;
 #define CHECK_SEQ_POINT(storage, seqPointId) il2cpp_codegen_check_sequence_point(&(storage), seqPointId)
 #define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPointId) MethodExitSequencePointChecker name(&(storage), seqPointId)
 #define DECLARE_METHOD_THIS(variableName, thisAddress) void* variableName[] = { thisAddress }
@@ -398,6 +404,7 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_E_OUTOFMEMORY                 ((il2cpp_hresult_t)0x8007000E)
 #define IL2CPP_E_INVALIDARG                  ((il2cpp_hresult_t)0x80070057)
 #define IL2CPP_COR_E_EXCEPTION               ((il2cpp_hresult_t)0x80131500)
+#define IL2CPP_COR_E_EXECUTIONENGINE         ((il2cpp_hresult_t)0x80131506)
 #define IL2CPP_COR_E_INVALIDOPERATION        ((il2cpp_hresult_t)0x80131509)
 #define IL2CPP_COR_E_PLATFORMNOTSUPPORTED    ((il2cpp_hresult_t)0x80131539)
 #define IL2CPP_COR_E_OPERATIONCANCELED       ((il2cpp_hresult_t)0x8013153B)
