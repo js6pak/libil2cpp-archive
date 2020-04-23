@@ -30,7 +30,7 @@ namespace vm
 
         static void Register(const Il2CppCodeRegistration * const codeRegistration, const Il2CppMetadataRegistration * const metadataRegistration, const Il2CppCodeGenOptions* const codeGenOptions);
 
-        static void Initialize();
+        static bool Initialize();
         static void InitializeGCSafe();
         static void InitializeAllMethodMetadata();
 
