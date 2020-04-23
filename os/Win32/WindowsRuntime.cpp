@@ -131,7 +131,7 @@ namespace os
 #if LINK_TO_WINDOWSRUNTIME_LIBS
         return WindowsDuplicateString(reinterpret_cast<HSTRING>(hstring), reinterpret_cast<HSTRING*>(duplicated));
 #else
-        typedef il2cpp_hresult_t(STDAPICALLTYPE* WindowsDuplicateStringFunc)(Il2CppHString hstring, Il2CppHString* duplicated);
+        typedef il2cpp_hresult_t(STDAPICALLTYPE * WindowsDuplicateStringFunc)(Il2CppHString hstring, Il2CppHString* duplicated);
         static WindowsDuplicateStringFunc WindowsDuplicateString = NULL;
 
         if (WindowsDuplicateString == NULL)
