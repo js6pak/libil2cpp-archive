@@ -128,17 +128,18 @@ namespace vm
         FieldInfo* stringEmptyField = Class::GetFieldFromName(il2cpp_defaults.string_class, "Empty");
         Field::StaticSetValue(stringEmptyField, String::Empty());
     }
+
 #endif
 
     static void SetConfigStr(const std::string& executablePath);
 
-    void Runtime::Init(const char* domainName)
+    bool Runtime::Init(const char* domainName)
     {
         os::FastAutoLock lock(&s_InitLock);
 
         IL2CPP_ASSERT(s_RuntimeInitCount >= 0);
         if (s_RuntimeInitCount++ > 0)
-            return;
+            return true;
 
         SanityChecks();
 
@@ -161,7 +162,12 @@ namespace vm
 
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
 
-        MetadataCache::Initialize();
+        if (!MetadataCache::Initialize())
+        {
+            s_RuntimeInitCount--;
+            return false;
+        }
+
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
 
@@ -385,6 +391,8 @@ namespace vm
             const char* mainArgs[] = { executablePath.c_str() };
             utils::Environment::SetMainArgs(mainArgs, 1);
         }
+
+        return true;
     }
 
     void Runtime::Shutdown()
