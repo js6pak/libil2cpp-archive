@@ -22,7 +22,7 @@ namespace os
 
         if (walkOrder == kFirstCalledToLastCalled)
         {
-            for (size_t i = frames; i--;)
+            for (int i = frames - 1; i >= 0; i--)
             {
                 if (!callback(reinterpret_cast<Il2CppMethodPointer>(callstack[i]), context))
                     break;

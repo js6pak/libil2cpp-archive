@@ -89,7 +89,7 @@ void il2cpp_init(const char* domain_name)
     // Use environment's default locale
     setlocale(LC_ALL, "");
 
-    return Runtime::Init(domain_name);
+    Runtime::Init(domain_name);
 }
 
 void il2cpp_init_utf16(const Il2CppChar* domain_name)
