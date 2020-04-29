@@ -43,7 +43,6 @@
 #include "vm/InternalCalls.h"
 #include "utils/Collections.h"
 #include "utils/Memory.h"
-#include "utils/RegisterRuntimeInitializeAndCleanup.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 #include "utils/Runtime.h"
@@ -69,6 +68,9 @@ MetadataInitializerCleanupFunc g_ClearMethodMetadataInitializedFlags = NULL;
 
 static baselib::ReentrantLock s_InitLock;
 static int32_t s_RuntimeInitCount;
+
+typedef void (*CodegenRegistrationFunction) ();
+extern CodegenRegistrationFunction g_CodegenRegistration;
 
 namespace il2cpp
 {
@@ -150,10 +152,15 @@ namespace vm
         os::Image::Initialize();
         os::Thread::Init();
 
-        il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
+        // This should be filled in by generated code.
+        IL2CPP_ASSERT(g_CodegenRegistration != NULL);
+        g_CodegenRegistration();
 
         if (!MetadataCache::Initialize())
+        {
+            s_RuntimeInitCount--;
             return false;
+        }
 
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();

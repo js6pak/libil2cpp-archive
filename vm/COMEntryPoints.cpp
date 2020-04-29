@@ -78,7 +78,9 @@ extern "C" IL2CPP_EXPORT il2cpp_hresult_t STDCALL DllGetActivationFactory(Il2Cpp
 
     if (!s_InitializedIl2CppFromWindowsRuntime)
     {
-        il2cpp::vm::Runtime::Init();
+        if (!il2cpp::vm::Runtime::Init())
+            return IL2CPP_COR_E_EXECUTIONENGINE;
+
         s_InitializedIl2CppFromWindowsRuntime = true;
     }
 
