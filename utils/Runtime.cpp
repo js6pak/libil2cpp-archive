@@ -55,7 +55,7 @@ namespace utils
 
         std::string executablePath = os::Path::GetExecutablePath();
         if (!executablePath.empty())
-            return PathUtils::Combine(PathUtils::DirectoryName(executablePath), StringView<char>("Data"));
+            return PathUtils::Combine(PathUtils::DirectoryName(executablePath), StringView<char>(IL2CPP_DEFAULT_DATA_DIR_PATH_STR));
 
         if (s_DataDirFallback.size() == 0 && Environment::GetNumMainArgs() > 0)
         {
