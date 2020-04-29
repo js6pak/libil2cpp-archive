@@ -5,7 +5,6 @@
 #include "icalls/mscorlib/System.Threading/Interlocked.h"
 #include "icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
 #include "utils/Il2CppHStringReference.h"
-#include "utils/RegisterRuntimeInitializeAndCleanup.h"
 
 #include "vm/ClassInlines.h"
 #include "vm/ScopedThreadAttacher.h"
