@@ -148,7 +148,10 @@ namespace vm
         il2cpp::utils::RegisterRuntimeInitializeAndCleanup::ExecuteInitializations();
 
         if (!MetadataCache::Initialize())
+        {
+            s_RuntimeInitCount--;
             return false;
+        }
 
         Assembly::Initialize();
         gc::GarbageCollector::Initialize();
