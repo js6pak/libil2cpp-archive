@@ -249,6 +249,12 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #define RUNTIMEMESSAGE(name)    __FILE_UTF8__ "(" $Line ") : FIXME: Missing runtime implementation: " name
 #define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE_UTF8__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
+#ifndef IL2CPP_DEFAULT_DATA_DIR_PATH
+#define IL2CPP_DEFAULT_DATA_DIR_PATH Data
+#endif
+
+#define IL2CPP_DEFAULT_DATA_DIR_PATH_STR MAKE_STRING(STRINGIZE, IL2CPP_DEFAULT_DATA_DIR_PATH)
+
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)
 //  #define PRAGMA_MESSAGE(value) __pragma(message(value))
@@ -371,10 +377,10 @@ static const uint32_t kInvalidIl2CppMethodSlot = 65535;
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
-#define STORE_SEQ_POINT(storage, seqPoint) do { (storage).currentSequencePoint = seqPoint; } while (0)
-#define STORE_TRY_ID(storage, id) do { (storage).tryId = id; } while (0)
-#define CHECK_SEQ_POINT(storage, seqPoint) do {  il2cpp_codegen_check_sequence_point(&(storage), seqPoint); } while (0)
-#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint) do { il2cpp_codegen_check_sequence_point_entry(&(storage), seqPoint); } while (0)
+#define STORE_SEQ_POINT(storage, seqPoint) (storage).currentSequencePoint = seqPoint;
+#define STORE_TRY_ID(storage, id) (storage).tryId = id;
+#define CHECK_SEQ_POINT(storage, seqPoint) il2cpp_codegen_check_sequence_point(&(storage), seqPoint);
+#define CHECK_METHOD_ENTRY_SEQ_POINT(storage, seqPoint) il2cpp_codegen_check_sequence_point_entry(&(storage), seqPoint);
 #define CHECK_METHOD_EXIT_SEQ_POINT(name, storage, seqPoint) MethodExitSequencePointChecker name(&(storage), seqPoint);
 #define DECLARE_METHOD_THIS(variableName, thisAddress) void* variableName[] = { thisAddress }
 #define DECLARE_METHOD_PARAMS(variableName, ...) void* variableName[] = { __VA_ARGS__ }
@@ -459,6 +465,7 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_E_OUTOFMEMORY                 ((il2cpp_hresult_t)0x8007000E)
 #define IL2CPP_E_INVALIDARG                  ((il2cpp_hresult_t)0x80070057)
 #define IL2CPP_COR_E_EXCEPTION               ((il2cpp_hresult_t)0x80131500)
+#define IL2CPP_COR_E_EXECUTIONENGINE         ((il2cpp_hresult_t)0x80131506)
 #define IL2CPP_COR_E_INVALIDOPERATION        ((il2cpp_hresult_t)0x80131509)
 #define IL2CPP_COR_E_PLATFORMNOTSUPPORTED    ((il2cpp_hresult_t)0x80131539)
 #define IL2CPP_COR_E_OPERATIONCANCELED       ((il2cpp_hresult_t)0x8013153B)

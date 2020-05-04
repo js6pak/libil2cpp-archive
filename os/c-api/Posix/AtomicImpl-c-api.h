@@ -6,17 +6,28 @@
 #include <emscripten/threading.h>
 #endif
 
+#ifdef IL2CPP_TARGET_ARM64
+#define IL2CPP_BARRIER_PATCH(INTRIN) \
+    ({ \
+        __typeof__(INTRIN) atomic_ret__ = (INTRIN); \
+        __sync_synchronize(); \
+        atomic_ret__; \
+    })
+#else
+#define IL2CPP_BARRIER_PATCH(INTRIN) INTRIN;
+#endif
+
 inline int32_t UnityPalAdd(volatile int32_t* location1, int32_t value)
 {
     ASSERT_ALIGNMENT(location1, 4);
-    return __sync_add_and_fetch(location1, value);
+    return IL2CPP_BARRIER_PATCH(__sync_add_and_fetch(location1, value));
 }
 
 #if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalAdd64(volatile int64_t* location1, int64_t value)
 {
     ASSERT_ALIGNMENT(location1, 8);
-    return __sync_add_and_fetch(location1, value);
+    return IL2CPP_BARRIER_PATCH(__sync_add_and_fetch(location1, value));
 }
 
 #endif
@@ -24,14 +35,14 @@ inline int64_t UnityPalAdd64(volatile int64_t* location1, int64_t value)
 inline int32_t UnityPalIncrement(volatile int32_t* value)
 {
     ASSERT_ALIGNMENT(value, 4);
-    return __sync_add_and_fetch(value, 1);
+    return IL2CPP_BARRIER_PATCH(__sync_add_and_fetch(value, 1));
 }
 
 #if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalIncrement64(volatile int64_t* value)
 {
     ASSERT_ALIGNMENT(value, 8);
-    return __sync_add_and_fetch(value, 1);
+    return IL2CPP_BARRIER_PATCH(__sync_add_and_fetch(value, 1));
 }
 
 #endif
@@ -39,14 +50,14 @@ inline int64_t UnityPalIncrement64(volatile int64_t* value)
 inline int32_t UnityPalDecrement(volatile int32_t* value)
 {
     ASSERT_ALIGNMENT(value, 4);
-    return __sync_add_and_fetch(value, -1);
+    return IL2CPP_BARRIER_PATCH(__sync_add_and_fetch(value, -1));
 }
 
 #if IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
 inline int64_t UnityPalDecrement64(volatile int64_t* value)
 {
     ASSERT_ALIGNMENT(value, 8);
-    return __sync_add_and_fetch(value, -1);
+    return IL2CPP_BARRIER_PATCH(__sync_add_and_fetch(value, -1));
 }
 
 #endif
@@ -54,7 +65,7 @@ inline int64_t UnityPalDecrement64(volatile int64_t* value)
 inline int32_t UnityPalCompareExchange(volatile int32_t* dest, int32_t exchange, int32_t comparand)
 {
     ASSERT_ALIGNMENT(dest, 4);
-    return __sync_val_compare_and_swap(dest, comparand, exchange);
+    return IL2CPP_BARRIER_PATCH(__sync_val_compare_and_swap(dest, comparand, exchange));
 }
 
 inline int64_t UnityPalCompareExchange64(volatile int64_t* dest, int64_t exchange, int64_t comparand)
@@ -63,14 +74,14 @@ inline int64_t UnityPalCompareExchange64(volatile int64_t* dest, int64_t exchang
 #ifdef __EMSCRIPTEN__
     return emscripten_atomic_cas_u64((void*)dest, comparand, exchange) == comparand ? comparand : *dest;
 #else
-    return __sync_val_compare_and_swap(dest, comparand, exchange);
+    return IL2CPP_BARRIER_PATCH(__sync_val_compare_and_swap(dest, comparand, exchange));
 #endif
 }
 
 inline void* UnityPalCompareExchangePointer(void* volatile* dest, void* exchange, void* comparand)
 {
     ASSERT_ALIGNMENT(dest, IL2CPP_SIZEOF_VOID_P);
-    return __sync_val_compare_and_swap(dest, comparand, exchange);
+    return IL2CPP_BARRIER_PATCH(__sync_val_compare_and_swap(dest, comparand, exchange));
 }
 
 inline int32_t UnityPalExchange(volatile int32_t* dest, int32_t exchange)
@@ -84,7 +95,7 @@ inline int32_t UnityPalExchange(volatile int32_t* dest, int32_t exchange)
     {
         prev = *dest;
     }
-    while (!__sync_bool_compare_and_swap(dest, prev, exchange));
+    while (!IL2CPP_BARRIER_PATCH(__sync_bool_compare_and_swap(dest, prev, exchange)));
     return prev;
 #endif
 }
@@ -101,7 +112,7 @@ inline int64_t UnityPalExchange64(volatile int64_t* dest, int64_t exchange)
     {
         prev = *dest;
     }
-    while (!__sync_bool_compare_and_swap(dest, prev, exchange));
+    while (!IL2CPP_BARRIER_PATCH(__sync_bool_compare_and_swap(dest, prev, exchange)));
     return prev;
 #endif
 }
@@ -119,7 +130,7 @@ inline void* UnityPalExchangePointer(void* volatile* dest, void* exchange)
     {
         prev = *dest;
     }
-    while (!__sync_bool_compare_and_swap(dest, prev, exchange));
+    while (!IL2CPP_BARRIER_PATCH(__sync_bool_compare_and_swap(dest, prev, exchange)));
     return prev;
 #endif
 }
@@ -127,5 +138,5 @@ inline void* UnityPalExchangePointer(void* volatile* dest, void* exchange)
 inline int64_t UnityPalRead64(volatile int64_t* addr)
 {
     ASSERT_ALIGNMENT(addr, 8);
-    return __sync_fetch_and_add(addr, 0);
+    return IL2CPP_BARRIER_PATCH(__sync_fetch_and_add(addr, 0));
 }
