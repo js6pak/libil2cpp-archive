@@ -746,6 +746,24 @@ void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const cha
     il2cpp_codegen_raise_exception(il2cpp_codegen_get_invalid_operation_exception(message.c_str()));
 }
 
+bool il2cpp_codegen_type_is_interface(Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    return il2cpp::vm::Class::IsInterface(klass);
+}
+
+bool il2cpp_codegen_type_is_abstract(Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    return il2cpp::vm::Class::IsAbstract(klass);
+}
+
+bool il2cpp_codegen_type_is_pointer(Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    return il2cpp::vm::Class::GetType(klass)->type == IL2CPP_TYPE_PTR;
+}
+
 #endif
 
 #endif

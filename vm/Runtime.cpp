@@ -374,6 +374,7 @@ namespace vm
             utils::Environment::SetMainArgs(mainArgs, 1);
         }
 
+        vm::MetadataCache::ExecuteEagerStaticClassConstructors();
         vm::MetadataCache::ExecuteModuleInitializers();
 
         return true;

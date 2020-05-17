@@ -49,6 +49,7 @@ namespace vm
 
         static void Clear();
 
+        static void ExecuteEagerStaticClassConstructors();
         static void ExecuteModuleInitializers();
 
         static Il2CppClass* GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);

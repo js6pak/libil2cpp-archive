@@ -6,9 +6,6 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 #include "os/c-api/il2cpp-config-api-platforms.h"
 
-/* il2cpp-config-api.h need this define */
-#define IL2CPP_COMPILER_MSVC (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
-
 #include "il2cpp-config-api.h"
 
 #include "il2cpp-sanitizers.h"
@@ -39,26 +36,6 @@
 #define IL2CPP_CXX_ABI_MSVC 1
 #else
 #define IL2CPP_CXX_ABI_MSVC 0
-#endif
-
-#if IL2CPP_COMPILER_MSVC
-#ifndef STDCALL
-#define STDCALL __stdcall
-#endif
-#ifndef CDECL
-#define CDECL __cdecl
-#endif
-#ifndef FASTCALL
-#define FASTCALL __fastcall
-#endif
-#ifndef THISCALL
-#define THISCALL __thiscall
-#endif
-#else
-#define STDCALL
-#define CDECL
-#define FASTCALL
-#define THISCALL
 #endif
 
 typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
@@ -143,7 +120,7 @@ typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
 #endif
 
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
-#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32)
+#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32 || IL2CPP_TARGET_SWITCH)
 
 #define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS IL2CPP_TARGET_WINDOWS
 

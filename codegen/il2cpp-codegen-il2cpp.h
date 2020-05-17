@@ -2,9 +2,9 @@
 
 #include "il2cpp-codegen-common.h"
 #include "il2cpp-pinvoke-support.h"
-#include "icalls/mscorlib/System.Threading/Interlocked.h"
 #include "icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
 #include "utils/Il2CppHStringReference.h"
+#include "vm-utils/icalls/mscorlib/System.Threading/Interlocked.h"
 
 #include "vm/ClassInlines.h"
 #include "vm/ScopedThreadAttacher.h"
@@ -889,5 +889,9 @@ private:
 };
 
 void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason);
+
+bool il2cpp_codegen_type_is_interface(Type_t* t);
+bool il2cpp_codegen_type_is_abstract(Type_t* t);
+bool il2cpp_codegen_type_is_pointer(Type_t* t);
 
 #endif
