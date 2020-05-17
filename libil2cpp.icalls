@@ -402,7 +402,7 @@ System.IO.MonoIO::FindFirstFile(System.Char*,System.String&,System.Int32&,System
 System.IO.Path::get_temp_path() mscorlib::System::IO::Path::get_temp_path
 
 // System.Math
->icalls/mscorlib/System/Math.h
+>vm-utils/icalls/mscorlib/System/Math.h
 System.Math::Acos(System.Double) mscorlib::System::Math::Acos
 System.Math::Asin(System.Double) mscorlib::System::Math::Asin
 System.Math::Atan(System.Double) mscorlib::System::Math::Atan
@@ -890,7 +890,7 @@ System.String::FastAllocateString(System.Int32) mscorlib::System::String::FastAl
 System.Text.Encoding::InternalCodePage(System.Int32&) mscorlib::System::Text::Encoding::InternalCodePage
 
 // System.Threading.Interlocked
->icalls/mscorlib/System.Threading/Interlocked.h
+>vm-utils/icalls/mscorlib/System.Threading/Interlocked.h
 System.Threading.Interlocked::Add(System.Int32&,System.Int32) mscorlib::System::Threading::Interlocked::Add
 System.Threading.Interlocked::Add(System.Int64&,System.Int64) mscorlib::System::Threading::Interlocked::Add64
 System.Threading.Interlocked::CompareExchange(System.Double&,System.Double,System.Double) mscorlib::System::Threading::Interlocked::CompareExchangeDouble

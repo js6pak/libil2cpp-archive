@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if IL2CPP_TARGET_POSIX
 
 #include "os/Console.h"
 #include "os/File.h"
@@ -22,6 +22,7 @@ namespace os
 {
 namespace Console
 {
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
     static bool setupComplete = false;
     static int32_t s_terminalSize;
     static struct termios s_initialAttr;
@@ -329,6 +330,13 @@ namespace Console
         atexit(TtyShutdown);
 
         return true;
+    }
+
+#endif
+
+    const char* NewLine()
+    {
+        return "\n";
     }
 }
 }

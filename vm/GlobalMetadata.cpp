@@ -182,9 +182,6 @@ static const MethodInfo* GetMethodInfoFromIndex(EncodedMethodIndex methodIndex)
 {
     uint32_t index = GetDecodedMethodIndex(methodIndex);
 
-    if (index == 0)
-        return NULL;
-
     if (GetEncodedIndexType(methodIndex) == kIl2CppMetadataUsageMethodRef)
         return il2cpp::metadata::GenericMethod::GetMethod(GetGenericMethodFromIndex(index));
     else
@@ -298,6 +295,8 @@ static void InitializeMethodMetadataRange(const Il2CppImage* image, uint32_t sta
                     break;
                 case kIl2CppMetadataUsageStringLiteral:
                     *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetStringLiteralFromIndex(image, decodedIndex);
+                    break;
+                case kIl2CppMetadataUsageInvalid:
                     break;
                 default:
                     IL2CPP_NOT_IMPLEMENTED(il2cpp::vm::GlobalMetadata::InitializeMethodMetadata);
@@ -855,9 +854,12 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromVTableSlot(const 
 
     uint32_t index = typeDefinition->vtableStart + vTableSlot;
     IL2CPP_ASSERT(index >= 0 && index <= s_GlobalMetadataHeader->vtableMethodsCount / sizeof(EncodedMethodIndex));
-    const EncodedMethodIndex* methodReferences = (const EncodedMethodIndex*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->vtableMethodsOffset);
+    const EncodedMethodIndex* vTableMethodReferences = (const EncodedMethodIndex*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->vtableMethodsOffset);
+    EncodedMethodIndex vTableMethodReference = vTableMethodReferences[index];
 
-    return GetMethodInfoFromIndex(methodReferences[index]);
+    if (vTableMethodReference == 0) return NULL;
+
+    return GetMethodInfoFromIndex(vTableMethodReference);
 }
 
 static const Il2CppFieldDefaultValue* GetFieldDefaultValueEntry(const FieldInfo* field)
