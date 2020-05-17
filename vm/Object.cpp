@@ -101,7 +101,8 @@ namespace vm
 
             typeInfo = Class::GetNullableArgument(typeInfo);
             Class::Init(typeInfo);
-            bool hasValue = *reinterpret_cast<bool*>(static_cast<uint8_t*>(val) + typeInfo->instance_size - sizeof(Il2CppObject));
+            uint8_t* hasValueByte = static_cast<uint8_t*>(val) + typeInfo->instance_size - sizeof(Il2CppObject);
+            bool hasValue = *hasValueByte != 0;
 
             if (!hasValue)
                 return NULL;

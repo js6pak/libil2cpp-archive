@@ -610,6 +610,7 @@ typedef struct Il2CppCodeGenModule
     const Il2CppDebuggerMetadataRegistration *debuggerMetadata;
     const CustomAttributesCacheGenerator* customAttributeCacheGenerator;
     const Il2CppMethodPointer moduleInitializer;
+    TypeDefinitionIndex* staticConstructorTypeIndices;
 } Il2CppCodeGenModule;
 
 typedef struct Il2CppCodeRegistration

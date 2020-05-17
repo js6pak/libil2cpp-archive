@@ -177,16 +177,16 @@ inline T VolatileRead(T* location)
     return result;
 }
 
-template<typename T>
-inline void VolatileWrite(T** location, T* value)
+template<typename T, typename U>
+inline void VolatileWrite(T** location, U* value)
 {
     il2cpp_codegen_memory_barrier();
     *location = value;
     Il2CppCodeGenWriteBarrier((void**)location, value);
 }
 
-template<typename T>
-inline void VolatileWrite(T* location, T value)
+template<typename T, typename U>
+inline void VolatileWrite(T* location, U value)
 {
     il2cpp_codegen_memory_barrier();
     *location = value;

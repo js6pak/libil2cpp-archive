@@ -4,7 +4,11 @@
 #include "il2cpp-config.h"
 #include "il2cpp-object-internals.h"
 
+#if IL2CPP_TINY_WITHOUT_DEBUGGER
+namespace tiny
+#else
 namespace il2cpp
+#endif
 {
 namespace icalls
 {
@@ -42,4 +46,4 @@ namespace Threading
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */
-} /* namespace il2cpp */
+} /* namespace tiny */

@@ -278,3 +278,29 @@
 #ifndef IL2CPP_USE_GENERIC_CRASH_HELPERS
 #define IL2CPP_USE_GENERIC_CRASH_HELPERS (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX)
 #endif
+
+#ifndef IL2CPP_SUPPORTS_CONSOLE_EXTENSION
+#define IL2CPP_SUPPORTS_CONSOLE_EXTENSION IL2CPP_TARGET_ANDROID
+#endif
+
+#define IL2CPP_COMPILER_MSVC (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE)
+
+#if IL2CPP_COMPILER_MSVC
+#ifndef STDCALL
+#define STDCALL __stdcall
+#endif
+#ifndef CDECL
+#define CDECL __cdecl
+#endif
+#ifndef FASTCALL
+#define FASTCALL __fastcall
+#endif
+#ifndef THISCALL
+#define THISCALL __thiscall
+#endif
+#else
+#define STDCALL
+#define CDECL
+#define FASTCALL
+#define THISCALL
+#endif
