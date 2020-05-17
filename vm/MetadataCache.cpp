@@ -26,6 +26,7 @@
 #include "vm/MetadataLock.h"
 #include "vm/Method.h"
 #include "vm/Object.h"
+#include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Type.h"
 #include "mono-runtime/il2cpp-mapping.h"
@@ -207,6 +208,25 @@ bool il2cpp::vm::MetadataCache::Initialize()
     il2cpp::utils::NativeSymbol::RegisterMethods(managedMethods);
 #endif
     return true;
+}
+
+void il2cpp::vm::MetadataCache::ExecuteEagerStaticClassConstructors()
+{
+    for (int32_t i = 0; i < s_AssembliesCount; i++)
+    {
+        const Il2CppImage* image = s_AssembliesTable[i].image;
+        if (image->codeGenModule->staticConstructorTypeIndices != NULL)
+        {
+            TypeDefinitionIndex* indexPointer = image->codeGenModule->staticConstructorTypeIndices;
+            while (*indexPointer) // 0 terminated
+            {
+                Il2CppMetadataTypeHandle handle = GetTypeHandleFromIndex(image, *indexPointer);
+                Il2CppClass* klass = GlobalMetadata::GetTypeInfoFromHandle(handle);
+                Runtime::ClassInit(klass);
+                indexPointer++;
+            }
+        }
+    }
 }
 
 void il2cpp::vm::MetadataCache::ExecuteModuleInitializers()
