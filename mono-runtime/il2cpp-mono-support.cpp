@@ -753,6 +753,8 @@ void il2cpp_mono_initialize_method_metadata(uint32_t index)
             case kIl2CppMetadataUsageStringLiteral:
                 *g_MetadataUsages[destinationIndex] = StringFromIndex(decodedIndex);
                 break;
+            case kIl2CppMetadataUsageInvalid:
+                break;
             default:
                 assert(0 && "Unimplemented case for method metadata usage.");
                 break;

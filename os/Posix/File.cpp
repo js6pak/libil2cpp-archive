@@ -9,6 +9,7 @@
 #endif
 
 #include "il2cpp-vm-support.h"
+#include "os/ConsoleExtension.h"
 #include "os/ErrorCodes.h"
 #include "os/File.h"
 #include "os/Mutex.h"
@@ -1063,6 +1064,11 @@ namespace os
 
 #if IL2CPP_ENABLE_PROFILER
         IL2CPP_VM_PROFILE_FILEIO(IL2CPP_PROFILE_FILEIO_WRITE, count);
+#endif
+
+#if IL2CPP_SUPPORTS_CONSOLE_EXTENSION
+        if (handle == GetStdOutput() || handle == GetStdError())
+            os::ConsoleExtension::Write(buffer);
 #endif
         return ret;
     }

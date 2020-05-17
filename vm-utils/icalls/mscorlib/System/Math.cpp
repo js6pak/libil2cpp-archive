@@ -2,10 +2,14 @@
 #include <cmath>
 #include <limits>
 #include <float.h>
-#include "icalls/mscorlib/System/Math.h"
+#include "Math.h"
 #include "vm/Exception.h"
 
+#if IL2CPP_TINY_WITHOUT_DEBUGGER
+namespace tiny
+#else
 namespace il2cpp
+#endif
 {
 namespace icalls
 {
@@ -196,4 +200,4 @@ namespace System
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */
-} /* namespace il2cpp */
+} /* namespace tiny */
