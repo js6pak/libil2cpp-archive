@@ -1,6 +1,6 @@
 #include "os/c-api/il2cpp-config-platforms.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 
 #include "os/SystemCertificates.h"
 #include "os/c-api/SystemCertificates-c-api.h"

@@ -2,7 +2,7 @@
 
 #include "il2cpp-config.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 
 #include <stdint.h>
 #include <stddef.h>
@@ -1097,4 +1097,4 @@ typedef union Il2CppSingle_float
     float f;
 } Il2CppSingle_float;
 
-#endif // IL2CPP_TINY
+#endif // !RUNTIME_TINY
