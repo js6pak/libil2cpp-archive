@@ -23,7 +23,7 @@ union IntFloatUnion
     float f_val;
 };
 
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
+#if RUNTIME_TINY
 namespace tiny
 #else
 namespace il2cpp

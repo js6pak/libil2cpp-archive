@@ -33,7 +33,7 @@ namespace gc
         static void AddMemoryPressure(int64_t value);
         static int32_t GetMaxGeneration();
         static int32_t GetGeneration(void* addr);
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
         static void InitializeFinalizer();
         static bool IsFinalizerThread(Il2CppThread* thread);
         static void UninitializeFinalizers();
@@ -65,7 +65,7 @@ namespace gc
         static void* MakeDescriptorForString();
         static void* MakeDescriptorForArray();
 
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
+#if RUNTIME_TINY
         static void* Allocate(size_t size);
 #endif
 
@@ -75,7 +75,7 @@ namespace gc
         static bool RegisterThread(void *baseptr);
         static bool UnregisterThread();
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
         static bool HasPendingFinalizers();
         static int32_t InvokeFinalizers();
 #endif

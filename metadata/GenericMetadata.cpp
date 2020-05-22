@@ -271,10 +271,16 @@ namespace metadata
     }
 
 // temporary while we generate generics
-    void GenericMetadata::RegisterGenericClass(Il2CppGenericClass *gclass)
+    void GenericMetadata::RegisterGenericClasses(Il2CppGenericClass* const * genericClasses, int32_t genericClassesCount)
     {
+        s_GenericClassSet.resize(genericClassesCount / 2 + 1);
+
         // don't lock, this should only be called from startup and temporarily
-        s_GenericClassSet.insert(gclass);
+        for (int32_t i = 0; i < genericClassesCount; i++)
+        {
+            if (genericClasses[i]->type != NULL)
+                s_GenericClassSet.insert(genericClasses[i]);
+        }
     }
 
     void GenericMetadata::WalkAllGenericClasses(GenericClassWalkCallback callback, void* context)

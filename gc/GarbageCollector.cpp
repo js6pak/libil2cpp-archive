@@ -12,7 +12,7 @@
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 #include "vm/CCW.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
@@ -29,7 +29,7 @@ namespace il2cpp
 {
 namespace gc
 {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 // So COM Callable Wrapper can be created for any kind of managed object,
 // whether it has finalizer or not. If it doesn't then it's an easy case:
 // when creating the CCW, we just register our cleanup method to be the
@@ -319,7 +319,7 @@ namespace gc
         return result;
     }
 
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !RUNTIME_TINY
 
     int32_t GarbageCollector::GetGeneration(void* addr)
     {
