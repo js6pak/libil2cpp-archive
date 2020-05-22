@@ -8,7 +8,7 @@
 
 extern "C"
 {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
     int32_t UnityPalConsoleInternalKeyAvailable(int32_t ms_timeout)
     {
         return il2cpp::os::Console::InternalKeyAvailable(ms_timeout);

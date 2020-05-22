@@ -27,7 +27,7 @@
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
 
-extern const Il2CppCodeRegistration g_CodeRegistration IL2CPP_ATTRIBUTE_WEAK;
+extern "C" const Il2CppCodeRegistration g_CodeRegistration IL2CPP_ATTRIBUTE_WEAK;
 extern "C" const Il2CppMethodSpec g_Il2CppMethodSpecTable[] IL2CPP_ATTRIBUTE_WEAK;
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 #endif // IL2CPP_ENABLE_NATIVE_STACKTRACES

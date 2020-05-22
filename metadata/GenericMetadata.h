@@ -32,7 +32,7 @@ namespace metadata
         static Il2CppRGCTXData* InflateRGCTX(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context);
 
         // temporary while we generate generics
-        static void RegisterGenericClass(Il2CppGenericClass *gclass);
+        static void RegisterGenericClasses(Il2CppGenericClass* const* genericClasses, int32_t genericClassesCount);
 
         static const Il2CppType* InflateIfNeeded(const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars);
 

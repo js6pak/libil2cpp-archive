@@ -110,22 +110,6 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
     return llabs(value);
 }
 
-template<typename TInput, typename TOutput, typename TFloat>
-inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
-{
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-    // On ARM, a cast from a floating point to integer value will use
-    // the min or max value if the cast is out of range (instead of
-    // overflowing like x86/x64). So first do a cast to the output
-    // type (which is signed in .NET - the value stack does not have
-    // unsigned types) to try to get the value into a range that will
-    // actually be cast.
-    if (value < 0)
-        return (TOutput)((TInput)(TOutput)value);
-#endif
-    return (TOutput)((TInput)value);
-}
-
 // Exception support macros
 #define IL2CPP_LEAVE(Offset, Target) \
     __leave_targets.push(Offset); \
@@ -157,7 +141,7 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
 
 #define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message, (MethodInfo*)lastManagedFrame);\
+        il2cpp_codegen_raise_exception((Exception_t*)message, (RuntimeMethod*)lastManagedFrame);\
         il2cpp_codegen_no_return();\
     } while (0)
 
@@ -270,45 +254,6 @@ inline bool il2cpp_codegen_check_sub_overflow(int64_t left, int64_t right)
 {
     return (right >= 0 && left < kIl2CppInt64Min + right) ||
         (right < 0 && left > kIl2CppInt64Max + right);
-}
-
-template<bool, class T, class U>
-struct pick_first;
-
-template<class T, class U>
-struct pick_first<true, T, U>
-{
-    typedef T type;
-};
-
-template<class T, class U>
-struct pick_first<false, T, U>
-{
-    typedef U type;
-};
-
-template<class T, class U>
-struct pick_bigger
-{
-    typedef typename pick_first<(sizeof(T) >= sizeof(U)), T, U>::type type;
-};
-
-template<typename T, typename U>
-inline typename pick_bigger<T, U>::type il2cpp_codegen_multiply(T left, U right)
-{
-    return left * right;
-}
-
-template<typename T, typename U>
-inline typename pick_bigger<T, U>::type il2cpp_codegen_add(T left, U right)
-{
-    return left + right;
-}
-
-template<typename T, typename U>
-inline typename pick_bigger<T, U>::type il2cpp_codegen_subtract(T left, U right)
-{
-    return left - right;
 }
 
 inline void il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)

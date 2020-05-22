@@ -29,7 +29,7 @@ namespace vm
         static bool Initialize(int32_t* imagesCount, int32_t* assembliesCount);
 
         static void InitializeAllMethodMetadata();
-        static void InitializeMethodMetadata(uint32_t index);
+        static void InitializeMethodMetadata(const Il2CppCodeGenModule* module, uint32_t index);
         static void InitializeStringLiteralTable();
         static void InitializeWindowsRuntimeTypeNamesTables(WindowsRuntimeTypeNameToClassMap& windowsRuntimeTypeNameToClassMap, ClassToWindowsRuntimeTypeNameMap& classToWindowsRuntimeTypeNameMap);
         static void InitializeUnresolvedSignatureTable(Il2CppUnresolvedSignatureMap& unresolvedSignatureMap);
