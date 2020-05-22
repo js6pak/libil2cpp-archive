@@ -23,7 +23,7 @@ static void on_gc_event(GC_EventType eventType);
 static void on_heap_resize(GC_word newSize);
 #endif
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 static GC_push_other_roots_proc default_push_other_roots;
 typedef Il2CppHashMap<char*, char*, il2cpp::utils::PassThroughHash<char*> > RootMap;
 static RootMap s_Roots;
@@ -79,7 +79,7 @@ GC_ms_entry* GC_gcj_vector_proc(GC_word* addr, GC_ms_entry* mark_stack_ptr,
 
 #endif // !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
 
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !RUNTIME_TINY
 
 void
 il2cpp::gc::GarbageCollector::Initialize()
@@ -107,10 +107,10 @@ il2cpp::gc::GarbageCollector::Initialize()
 #endif
 #endif
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
     default_push_other_roots = GC_get_push_other_roots();
     GC_set_push_other_roots(push_other_roots);
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !RUNTIME_TINY
 
 #if IL2CPP_ENABLE_PROFILER
     GC_set_on_collection_event(&on_gc_event);
@@ -120,7 +120,7 @@ il2cpp::gc::GarbageCollector::Initialize()
     GC_INIT();
 #if defined(GC_THREADS)
     GC_set_finalize_on_demand(1);
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
     GC_set_finalizer_notifier(&il2cpp::gc::GarbageCollector::NotifyFinalizers);
 #endif
     // We need to call this if we want to manually register threads, i.e. GC_register_my_thread
@@ -132,7 +132,7 @@ il2cpp::gc::GarbageCollector::Initialize()
     GC_init_gcj_malloc(0, NULL);
 #endif
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER && !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+#if !RUNTIME_TINY && !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
     GC_init_gcj_vector(VECTOR_PROC_INDEX, (void*)GC_gcj_vector_proc);
 #endif
     s_GCInitialized = true;
@@ -351,7 +351,7 @@ void il2cpp::gc::GarbageCollector::StartWorld()
     GC_start_world_external();
 }
 
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
+#if RUNTIME_TINY
 void*
 il2cpp::gc::GarbageCollector::Allocate(size_t size)
 {
@@ -383,7 +383,7 @@ il2cpp::gc::GarbageCollector::FreeFixed(void* addr)
     GC_FREE(addr);
 }
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 int32_t
 il2cpp::gc::GarbageCollector::InvokeFinalizers()
 {
@@ -455,7 +455,7 @@ typedef struct
     char *end;
 } RootData;
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 
 static void*
 register_root(void* arg)
@@ -495,6 +495,6 @@ push_other_roots(void)
         default_push_other_roots();
 }
 
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !RUNTIME_TINY
 
 #endif

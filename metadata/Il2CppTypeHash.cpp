@@ -27,7 +27,7 @@ namespace metadata
             case IL2CPP_TYPE_VALUETYPE:
             case IL2CPP_TYPE_CLASS:
             {
-                return HashUtils::Combine(hash, t1->data.__klassIndex);
+                return HashUtils::Combine(hash, reinterpret_cast<size_t>(t1->data.typeHandle));
             }
             case IL2CPP_TYPE_SZARRAY:
             case IL2CPP_TYPE_PTR:

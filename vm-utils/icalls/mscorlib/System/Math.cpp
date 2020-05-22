@@ -5,7 +5,7 @@
 #include "Math.h"
 #include "vm/Exception.h"
 
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
+#if RUNTIME_TINY
 namespace tiny
 #else
 namespace il2cpp
