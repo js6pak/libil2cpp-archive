@@ -4,7 +4,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-object-internals.h"
 
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
+#if RUNTIME_TINY
 namespace tiny
 #else
 namespace il2cpp

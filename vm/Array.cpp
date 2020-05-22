@@ -131,7 +131,7 @@ namespace vm
             memset((char*)o + sizeof(Il2CppObject), 0, byte_len - sizeof(Il2CppObject));
 #endif
         }
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
         else if (klass->element_class->valuetype &&
                  klass->element_class->gc_desc != GC_NO_DESCRIPTOR)
         {

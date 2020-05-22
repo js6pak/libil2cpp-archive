@@ -7,6 +7,8 @@
 
 #include "utils/Exception.h"
 
+#if !RUNTIME_TINY
+
 #include "os/Atomic.h"
 #include "vm/Class.h"
 #include "vm/LastError.h"
@@ -701,7 +703,9 @@ const char* il2cpp_codegen_get_field_data(RuntimeField* field)
     return il2cpp::vm::Field::GetData(field);
 }
 
-#if IL2CPP_TINY
+#endif // !RUNTIME_TINY
+
+#if IL2CPP_TINY_DEBUGGER
 
 MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
 {
@@ -728,13 +732,6 @@ Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
 bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
 {
     return il2cpp::vm::Class::IsAssignableFrom((Il2CppReflectionType*)left, (Il2CppReflectionType*)right);
-}
-
-int il2cpp_codegen_double_to_string(double value, uint8_t* format, uint8_t* buffer, int bufferLength)
-{
-    // return number of characters written to the buffer. if the return value greater than bufferLength
-    // means the number of characters would be written to the buffer if there is enough space
-    return snprintf(reinterpret_cast<char*>(buffer), bufferLength, reinterpret_cast<char*>(format), value);
 }
 
 void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason)

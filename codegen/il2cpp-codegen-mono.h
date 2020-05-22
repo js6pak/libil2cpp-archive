@@ -1,6 +1,7 @@
 #pragma once
 
-#include "il2cpp-codegen-common.h"
+#include "il2cpp-codegen-common-small.h"
+#include "il2cpp-codegen-common-big.h"
 #include "il2cpp-mono-support.h"
 #include "mono-api.h"
 
@@ -83,7 +84,7 @@ inline String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView
     return (String_t*)mono_string_new_utf16(g_MonoDomain, (const mono_unichar2*)str.Str(), (int32_t)str.Length());
 }
 
-inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame = NULL)
+inline NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, RuntimeMethod* lastManagedFrame)
 {
     mono_raise_exception((RuntimeException*)ex);
     il2cpp_codegen_no_return();
@@ -617,11 +618,6 @@ inline void DivideByZeroCheck(int64_t denominator)
         return;
 
     mono_raise_exception(mono_get_exception_divide_by_zero());
-}
-
-inline void il2cpp_codegen_initobj(void* value, size_t size)
-{
-    memset(value, 0, size);
 }
 
 inline bool MethodIsStatic(const RuntimeMethod* method)

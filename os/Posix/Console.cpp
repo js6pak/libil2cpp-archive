@@ -22,7 +22,7 @@ namespace os
 {
 namespace Console
 {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
     static bool setupComplete = false;
     static int32_t s_terminalSize;
     static struct termios s_initialAttr;

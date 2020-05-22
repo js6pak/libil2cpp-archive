@@ -2,7 +2,7 @@
 
 #include "il2cpp-config.h"
 
-#if IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if IL2CPP_THREADS_PTHREAD && !RUNTIME_TINY
 
 #include <pthread.h>
 

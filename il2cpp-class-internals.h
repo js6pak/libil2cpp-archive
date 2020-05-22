@@ -2,8 +2,6 @@
 
 #include "il2cpp-config.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
-
 #include <stdint.h>
 #include "il2cpp-runtime-metadata.h"
 #include "il2cpp-metadata.h"
@@ -12,6 +10,10 @@
 #define THREAD_LOCAL_STATIC_MASK (int32_t)0x80000000
 
 #define IL2CPP_CLASS_IS_ARRAY(c) ((c)->rank)
+
+struct Il2CppCodeGenModule;
+struct Il2CppMetadataRegistration;
+struct Il2CppCodeRegistration;
 
 typedef struct Il2CppClass Il2CppClass;
 typedef struct Il2CppGuid Il2CppGuid;
@@ -22,6 +24,8 @@ typedef struct Il2CppDelegate Il2CppDelegate;
 typedef struct Il2CppAppContext Il2CppAppContext;
 typedef struct Il2CppNameToTypeHandleHashTable Il2CppNameToTypeHandleHashTable;
 typedef struct Il2CppCodeGenModule Il2CppCodeGenModule;
+typedef struct Il2CppMetadataRegistration Il2CppMetadataRegistration;
+typedef struct Il2CppCodeRegistration Il2CppCodeRegistration;
 
 #if RUNTIME_MONO
 #if defined(__cplusplus)
@@ -34,6 +38,9 @@ extern "C"
 #endif // __cplusplus
 #endif
 
+#if RUNTIME_TINY
+typedef Il2CppMethodPointer VirtualInvokeData;
+#else
 typedef struct VirtualInvokeData
 {
     Il2CppMethodPointer methodPtr;
@@ -43,6 +50,7 @@ typedef struct VirtualInvokeData
     const MethodInfo* method;
 #endif
 } VirtualInvokeData;
+#endif
 
 typedef enum Il2CppTypeNameFormat
 {
@@ -611,6 +619,8 @@ typedef struct Il2CppCodeGenModule
     const CustomAttributesCacheGenerator* customAttributeCacheGenerator;
     const Il2CppMethodPointer moduleInitializer;
     TypeDefinitionIndex* staticConstructorTypeIndices;
+    const Il2CppMetadataRegistration* metadataRegistration; // Per-assembly mode only
+    const Il2CppCodeRegistration* codeRegistaration; // Per-assembly mode only
 } Il2CppCodeGenModule;
 
 typedef struct Il2CppCodeRegistration
@@ -735,5 +745,3 @@ typedef struct Il2CppPerfCounters
     unsigned int threadpool_threads;
     unsigned int threadpool_iothreads;
 } Il2CppPerfCounters;
-
-#endif // !IL2CPP_TINY

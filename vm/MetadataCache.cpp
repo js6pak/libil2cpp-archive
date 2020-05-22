@@ -68,6 +68,7 @@ typedef Il2CppThreadLocalStaticOffsetHashMap::iterator Il2CppThreadLocalStaticOf
 static Il2CppThreadLocalStaticOffsetHashMap s_ThreadLocalStaticOffsetMap;
 
 static const Il2CppCodeRegistration * s_Il2CppCodeRegistration;
+static const Il2CppMetadataRegistration* s_MetadataCache_Il2CppMetadataRegistration;
 static const Il2CppCodeGenOptions* s_Il2CppCodeGenOptions;
 
 static il2cpp::vm::WindowsRuntimeTypeNameToClassMap s_WindowsRuntimeTypeNameToClassMap;
@@ -112,17 +113,8 @@ void il2cpp::vm::MetadataCache::Register(const Il2CppCodeRegistration* const cod
     il2cpp::vm::GlobalMetadata::Register(codeRegistration, metadataRegistration, codeGenOptions);
 
     s_Il2CppCodeRegistration = codeRegistration;
+    s_MetadataCache_Il2CppMetadataRegistration = metadataRegistration;
     s_Il2CppCodeGenOptions = codeGenOptions;
-
-    for (int32_t j = 0; j < metadataRegistration->genericClassesCount; j++)
-        if (metadataRegistration->genericClasses[j]->type != NULL)
-            il2cpp::metadata::GenericMetadata::RegisterGenericClass(metadataRegistration->genericClasses[j]);
-
-    for (int32_t i = 0; i < metadataRegistration->genericInstsCount; i++)
-        s_GenericInstSet.insert(metadataRegistration->genericInsts[i]);
-
-    s_InteropData.assign_external(codeRegistration->interopData, codeRegistration->interopDataCount);
-    s_WindowsRuntimeFactories.assign_external(codeRegistration->windowsRuntimeFactoryTable, codeRegistration->windowsRuntimeFactoryCount);
 }
 
 Il2CppClass* il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(const Il2CppImage *image, TypeIndex index)
@@ -156,6 +148,15 @@ bool il2cpp::vm::MetadataCache::Initialize()
     {
         return false;
     }
+
+    il2cpp::metadata::GenericMetadata::RegisterGenericClasses(s_MetadataCache_Il2CppMetadataRegistration->genericClasses, s_MetadataCache_Il2CppMetadataRegistration->genericClassesCount);
+
+    s_GenericInstSet.resize(s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount);
+    for (int32_t i = 0; i < s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount; i++)
+        s_GenericInstSet.insert(s_MetadataCache_Il2CppMetadataRegistration->genericInsts[i]);
+
+    s_InteropData.assign_external(s_Il2CppCodeRegistration->interopData, s_Il2CppCodeRegistration->interopDataCount);
+    s_WindowsRuntimeFactories.assign_external(s_Il2CppCodeRegistration->windowsRuntimeFactoryTable, s_Il2CppCodeRegistration->windowsRuntimeFactoryCount);
 
     // Pre-allocate these arrays so we don't need to lock when reading later.
     // These arrays hold the runtime metadata representation for metadata explicitly
@@ -992,22 +993,7 @@ void il2cpp::vm::MetadataCache::InitializeAllMethodMetadata()
 
 void il2cpp::vm::MetadataCache::InitializeMethodMetadata(const Il2CppCodeGenModule* module, uint32_t index)
 {
-    const Il2CppImage* image = NULL;
-
-    if (module != NULL)
-    {
-        for (uint32_t moduleIdx = 0; moduleIdx < s_Il2CppCodeRegistration->codeGenModulesCount; moduleIdx++)
-        {
-            if (module == s_Il2CppCodeRegistration->codeGenModules[moduleIdx])
-            {
-                image = s_ImagesTable + moduleIdx;
-            }
-        }
-
-        IL2CPP_ASSERT(image != NULL);
-    }
-
-    il2cpp::vm::GlobalMetadata::InitializeMethodMetadata(index);
+    il2cpp::vm::GlobalMetadata::InitializeMethodMetadata(module, index);
 }
 
 void il2cpp::vm::MetadataCache::WalkPointerTypes(WalkTypesCallback callback, void* context)

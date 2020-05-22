@@ -45,7 +45,7 @@ namespace os
         return count;
     }
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 #if !IL2CPP_TARGET_LUMIN
     std::string Environment::GetMachineName()
     {
@@ -139,14 +139,14 @@ namespace os
         exit(result);
     }
 
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !RUNTIME_TINY
 
     NORETURN void Environment::Abort()
     {
         abort();
     }
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
     std::string Environment::GetWindowsFolderPath(int folder)
     {
         // This should only be called on Windows.
@@ -165,7 +165,7 @@ namespace os
         return false;
     }
 
-#endif // !IL2CPP_TINY_WITHOUT_DEBUGGER
+#endif // !RUNTIME_TINY
 }
 }
 #endif

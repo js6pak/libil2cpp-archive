@@ -23,7 +23,7 @@
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
 #endif
@@ -32,7 +32,7 @@ namespace il2cpp
 {
 namespace os
 {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
     static std::set<void*> s_NativeHandlesOpen;
     typedef std::set<void*>::const_iterator OpenHandleIterator;
     baselib::ReentrantLock s_NativeHandlesOpenMutex;
@@ -192,7 +192,7 @@ namespace os
             }
         }
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         if (handle != NULL)
             s_NativeHandlesOpen.insert(handle);
@@ -204,7 +204,7 @@ namespace os
     Il2CppMethodPointer LibraryLoader::GetFunctionPointer(void* dynamicLibrary, const PInvokeArguments& pinvokeArgs)
     {
         StringViewAsNullTerminatedStringOf(char, pinvokeArgs.entryPoint, entryPoint);
-#if IL2CPP_TINY_WITHOUT_DEBUGGER
+#if RUNTIME_TINY
         return reinterpret_cast<Il2CppMethodPointer>(dlsym(dynamicLibrary, entryPoint));
 #else
 
@@ -264,7 +264,7 @@ namespace os
 
     void LibraryLoader::CleanupLoadedLibraries()
     {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         for (OpenHandleIterator it = s_NativeHandlesOpen.begin(); it != s_NativeHandlesOpen.end(); it++)
         {
@@ -278,7 +278,7 @@ namespace os
         if (dynamicLibrary == NULL)
             return false;
 
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
         os::FastAutoLock lock(&s_NativeHandlesOpenMutex);
         OpenHandleIterator it = s_NativeHandlesOpen.find(dynamicLibrary);
         if (it != s_NativeHandlesOpen.end())

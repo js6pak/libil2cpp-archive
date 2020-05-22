@@ -342,6 +342,8 @@ typedef struct Il2CppGlobalMetadataHeader
     int32_t unresolvedVirtualCallParameterRangesCount;
     int32_t windowsRuntimeTypeNamesOffset; // Il2CppWindowsRuntimeTypeNamePair
     int32_t windowsRuntimeTypeNamesSize;
+    int32_t windowsRuntimeStringsOffset; // const char*
+    int32_t windowsRuntimeStringsSize;
     int32_t exportedTypeDefinitionsOffset; // TypeDefinitionIndex
     int32_t exportedTypeDefinitionsCount;
 } Il2CppGlobalMetadataHeader;

@@ -7,7 +7,7 @@
 
 extern "C"
 {
-#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if !RUNTIME_TINY
     uint32_t UnityPalGetTicksMillisecondsMonotonic()
     {
         return il2cpp::os::Time::GetTicksMillisecondsMonotonic();
