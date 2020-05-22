@@ -51,11 +51,13 @@ typedef struct Il2CppType
     {
         // We have this dummy field first because pre C99 compilers (MSVC) can only initializer the first value in a union.
         void* dummy;
-        TypeDefinitionIndex __klassIndex; /* for VALUETYPE and CLASS */
+        TypeDefinitionIndex __klassIndex; /* for VALUETYPE and CLASS at startup */
+        Il2CppMetadataTypeHandle typeHandle; /* for VALUETYPE and CLASS at runtime */
         const Il2CppType *type;   /* for PTR and SZARRAY */
         Il2CppArrayType *array; /* for ARRAY */
         //MonoMethodSignature *method;
-        GenericParameterIndex __genericParameterIndex; /* for VAR and MVAR */
+        GenericParameterIndex __genericParameterIndex; /* for VAR and MVAR at startup */
+        Il2CppMetadataGenericParameterHandle genericParameterHandle; /* for VAR and MVAR at runtime */
         Il2CppGenericClass *generic_class; /* for GENERICINST */
     } data;
     unsigned int attrs    : 16; /* param attributes or field flags */

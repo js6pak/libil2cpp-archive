@@ -31,6 +31,10 @@ typedef MonoAssembly RuntimeAssembly;
 typedef MonoString RuntimeString;
 typedef MonoDelegate RuntimeDelegate;
 
+#elif RUNTIME_TINY
+
+struct RuntimeMethod;
+
 #else
 
 struct TypeInfo;
