@@ -40,7 +40,7 @@ namespace os
         ~ThreadImpl();
 
         uint64_t Id();
-        ErrorCode Run(Thread::StartFunc func, void* arg);
+        ErrorCode Run(Thread::StartFunc func, void* arg, int64_t affinityMask);
         void QueueUserAPC(Thread::APCFunc func, void* context);
         void SetName(const char* name);
         void SetPriority(ThreadPriority priority);

@@ -801,6 +801,11 @@ namespace vm
         return os::Thread::YieldInternal();
     }
 
+    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
+    {
+        os::Thread::SetDefaultAffinityMask(affinityMask);
+    }
+
     void Thread::CheckCurrentThreadForAbortAndThrowIfNecessary()
     {
         Il2CppThread* currentThread = il2cpp::vm::Thread::Current();
