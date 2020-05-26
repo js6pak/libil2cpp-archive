@@ -36,6 +36,8 @@ namespace os
     static baselib::ReentrantLock s_AliveThreadsMutex;
     static il2cpp::utils::dynamic_array<Thread*> s_AliveThreads;
 
+    int64_t Thread::s_DefaultAffinityMask = kThreadAffinityAll;
+
     static bool GetIsCleaningUpThreads()
     {
         void* value = NULL;
@@ -202,7 +204,7 @@ namespace os
         startData->startFunctionArgument = arg;
         startData->thread = this;
 
-        return m_Thread->Run(RunWrapper, startData);
+        return m_Thread->Run(RunWrapper, startData, s_DefaultAffinityMask);
     }
 
     WaitStatus Thread::Join()
@@ -317,6 +319,11 @@ namespace os
         return ThreadImpl::YieldInternal();
     }
 
+    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
+    {
+        s_DefaultAffinityMask = affinityMask;
+    }
+
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
 
     void Thread::SetNativeThreadCleanup(ThreadCleanupFunc cleanupFunction)
@@ -351,6 +358,8 @@ namespace il2cpp
 {
 namespace os
 {
+    int64_t Thread::s_DefaultAffinityMask = -1;
+
     Thread::Thread()
     {
     }
@@ -474,6 +483,11 @@ namespace os
     {
         IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return false;
+    }
+
+    void Thread::SetDefaultAffinityMask(int64_t affinityMask)
+    {
+        s_DefaultAffinityMask = affinityMask;
     }
 
 #if IL2CPP_HAS_NATIVE_THREAD_CLEANUP
