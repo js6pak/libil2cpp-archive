@@ -95,7 +95,7 @@ namespace os
         return (ThreadPriority)ret;
     }
 
-    ErrorCode ThreadImpl::Run(Thread::StartFunc func, void* arg)
+    ErrorCode ThreadImpl::Run(Thread::StartFunc func, void* arg, int64_t affinityMask)
     {
         // It might happen that func will start executing and will try to access m_ThreadId before CreateThread gets a chance to assign it.
         // Therefore m_ThreadId is assigned both by this thread and from the newly created thread (race condition could go the other way too).
@@ -111,6 +111,11 @@ namespace os
 
         if (!threadHandle)
             return kErrorCodeGenFailure;
+
+#if IL2CPP_TARGET_WINDOWS_GAMES || IL2CPP_TARGET_XBOXONE
+        if (affinityMask != Thread::kThreadAffinityAll)
+            SetThreadAffinityMask(threadHandle, static_cast<DWORD_PTR>(affinityMask));
+#endif
 
         m_ThreadHandle = threadHandle;
         m_ThreadId = threadId;
