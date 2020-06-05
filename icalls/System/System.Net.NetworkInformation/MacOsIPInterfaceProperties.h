@@ -1,4 +1,5 @@
 #pragma once
+
 namespace il2cpp
 {
 namespace icalls
