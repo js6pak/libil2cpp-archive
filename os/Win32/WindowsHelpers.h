@@ -13,6 +13,11 @@
 #include "os/XboxOne/Win32ApiXboxEmulation.h"
 #endif
 
+
+#if IL2CPP_TARGET_WINDOWS_GAMES
+#include "os/WindowsGames/Win32ApiWindowsGamesEmulation.h"
+#endif
+
 #if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
 #include "os/WinRT/Win32ApiSharedEmulation.h"
 #endif
