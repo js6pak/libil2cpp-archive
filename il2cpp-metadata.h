@@ -75,18 +75,6 @@ typedef enum Il2CppRGCTXDataType
     IL2CPP_RGCTX_DATA_ARRAY,
 } Il2CppRGCTXDataType;
 
-#if RUNTIME_MONO
-
-typedef struct MonoRGCTXDefinition
-{
-    Il2CppRGCTXDataType type;
-    AssemblyIndex assemblyIndex;
-    int32_t token;
-    int32_t generic_parameter_index;
-} MonoRGCTXDefinition;
-
-#else
-
 typedef union Il2CppRGCTXDefinitionData
 {
     int32_t rgctxDataDummy;
@@ -99,8 +87,6 @@ typedef struct Il2CppRGCTXDefinition
     Il2CppRGCTXDataType type;
     Il2CppRGCTXDefinitionData data;
 } Il2CppRGCTXDefinition;
-
-#endif
 
 typedef struct
 {

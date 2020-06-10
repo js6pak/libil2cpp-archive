@@ -463,9 +463,16 @@ namespace System
 
     void Type::GetPacking(Il2CppReflectionType* type, int32_t* packing, int32_t* size)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Type::GetPacking, "In progress, need this function to not assert to test other aspects of StructLayout attribute");
-        *packing = 8;
-        *size = 0;
+        Il2CppMetadataTypeHandle handle = il2cpp::vm::MetadataCache::GetTypeHandleFromType(type->type);
+        if (vm::MetadataCache::StructLayoutPackIsDefault(handle))
+            *packing = 8;
+        else
+            *packing = vm::MetadataCache::StructLayoutPack(handle);
+
+        if (vm::MetadataCache::StructLayoutSizeIsDefault(handle))
+            *size = 0;
+        else
+            *size = vm::Class::FromIl2CppType(type->type)->native_size;
     }
 } /* namespace System */
 } /* namespace mscorlib */
