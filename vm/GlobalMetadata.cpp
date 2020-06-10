@@ -45,7 +45,6 @@
 #include "vm/Object.h"
 #include "vm/String.h"
 #include "vm/Type.h"
-#include "mono-runtime/il2cpp-mapping.h"
 #include "vm-utils/NativeSymbol.h"
 #include "vm-utils/VmStringUtils.h"
 
@@ -99,6 +98,9 @@ static const int kBitHasStaticConstructor = 4;
 static const int kBitIsBlittable = 5;
 static const int kBitIsImportOrWindowsRuntime = 6;
 static const int kPackingSize = 7;     // This uses 4 bits from bit 7 to bit 10
+static const int kPackingSizeIsDefault = 11;
+static const int kClassSizeIsDefault = 12;
+static const int kSpecifiedPackingSize = 13; // This uses 4 bits from bit 13 to bit 16
 
 template<typename T>
 static T MetadataOffset(const void* metadata, size_t sectionOffset, size_t itemIndex)
@@ -189,14 +191,24 @@ static const Il2CppGenericMethod* GetGenericMethodFromIndex(GenericMethodIndex i
     return s_GenericMethodTable[index];
 }
 
-static const MethodInfo* GetMethodInfoFromIndex(EncodedMethodIndex methodIndex)
+static const MethodInfo* GetMethodInfoFromEncodedIndex(EncodedMethodIndex methodIndex)
 {
+    Il2CppMetadataUsage usage = GetEncodedIndexType(methodIndex);
+
     uint32_t index = GetDecodedMethodIndex(methodIndex);
 
-    if (GetEncodedIndexType(methodIndex) == kIl2CppMetadataUsageMethodRef)
-        return il2cpp::metadata::GenericMethod::GetMethod(GetGenericMethodFromIndex(index));
-    else
-        return GetMethodInfoFromMethodDefinitionIndex(index);
+    switch (GetEncodedIndexType(methodIndex))
+    {
+        case kIl2CppMetadataUsageMethodRef:
+            return il2cpp::metadata::GenericMethod::GetMethod(GetGenericMethodFromIndex(index));
+        case kIl2CppMetadataUsageMethodDef:
+            return GetMethodInfoFromMethodDefinitionIndex(index);
+        default:
+            IL2CPP_ASSERT(0);
+            break;
+    }
+
+    return NULL;
 }
 
 static Il2CppString* GetStringLiteralFromIndex(StringLiteralIndex index)
@@ -303,7 +315,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 26);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 27);
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->imagesCount / sizeof(Il2CppImageDefinition);
     *assembliesCount = s_GlobalMetadataHeader->assembliesCount / sizeof(Il2CppAssemblyDefinition);
@@ -323,89 +335,72 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
     return true;
 }
 
-static bool IsMatchingUsage(Il2CppMetadataUsage usage, const il2cpp::utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages)
+void il2cpp::vm::GlobalMetadata::InitializeAllMethodMetadata()
 {
-    if (expectedUsages.empty())
-        return true;
-
-    size_t numberOfExpectedUsages = expectedUsages.size();
-    for (size_t i = 0; i < numberOfExpectedUsages; ++i)
+    for (size_t i = 0; i < s_Il2CppMetadataRegistration->metadataUsagesCount; i++)
     {
-        if (expectedUsages[i] == usage)
-            return true;
+        uintptr_t* metadataPointer = reinterpret_cast<uintptr_t*>(s_Il2CppMetadataRegistration->metadataUsages[i]);
+        Il2CppMetadataUsage usage = GetEncodedIndexType(static_cast<uint32_t>(*metadataPointer));
+        switch (usage)
+        {
+            case kIl2CppMetadataUsageTypeInfo:
+            case kIl2CppMetadataUsageMethodDef:
+            case kIl2CppMetadataUsageMethodRef:
+                InitializeRuntimeMetadata(metadataPointer);
+                break;
+            default:
+                break;
+        }
     }
-
-    return false;
 }
 
 // This method can be called from multiple threads, so it does have a data race. However, each
 // thread is reading from the same read-only metadata, so each thread will set the same values.
 // Therefore, we can safely ignore thread sanitizer issues in this method.
-static void InitializeMethodMetadataRange(const Il2CppCodeGenModule* module, uint32_t start, uint32_t count, const il2cpp::utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages) IL2CPP_DISABLE_TSAN
+void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataPointer) IL2CPP_DISABLE_TSAN
 {
-    const Il2CppMetadataRegistration* metadataRegistartion = module != NULL ? module->metadataRegistration : s_Il2CppMetadataRegistration;
+    // This must be the only read of *metadataPointer
+    // This code has no locks and we need to ensure that we only read metadataPointer once
+    // so we don't read it once as an encoded token and once as an initialized pointer
+    uintptr_t metadataValue = (uintptr_t)UnityPalReadPtrVal((intptr_t*)metadataPointer);
 
-    for (uint32_t i = 0; i < count; i++)
+    if (IsRuntimeMetadataInitialized(metadataValue))
+        return (void*)metadataValue;
+
+    uint32_t encodedToken = static_cast<uint32_t>(metadataValue);
+    Il2CppMetadataUsage usage = GetEncodedIndexType(encodedToken);
+    uint32_t decodedIndex = GetDecodedMethodIndex(encodedToken);
+
+    void* initialized = NULL;
+
+    switch (usage)
     {
-        uint32_t offset = start + i;
-        IL2CPP_ASSERT(s_GlobalMetadataHeader->metadataUsagePairsCount >= 0 && offset <= static_cast<uint32_t>(s_GlobalMetadataHeader->metadataUsagePairsCount));
-        const Il2CppMetadataUsagePair* metadataUsagePairs = MetadataOffset<const Il2CppMetadataUsagePair*>(s_GlobalMetadata, s_GlobalMetadataHeader->metadataUsagePairsOffset, offset);
-        uint32_t destinationIndex = metadataUsagePairs->destinationIndex;
-        uint32_t encodedSourceIndex = metadataUsagePairs->encodedSourceIndex;
-
-        Il2CppMetadataUsage usage = GetEncodedIndexType(encodedSourceIndex);
-        if (IsMatchingUsage(usage, expectedUsages))
-        {
-            uint32_t decodedIndex = GetDecodedMethodIndex(encodedSourceIndex);
-            switch (usage)
-            {
-                case kIl2CppMetadataUsageTypeInfo:
-                    *metadataRegistartion->metadataUsages[destinationIndex] = il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(decodedIndex);
-                    break;
-                case kIl2CppMetadataUsageIl2CppType:
-                    *metadataRegistartion->metadataUsages[destinationIndex] = const_cast<Il2CppType*>(il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(decodedIndex));
-                    break;
-                case kIl2CppMetadataUsageMethodDef:
-                case kIl2CppMetadataUsageMethodRef:
-                    *metadataRegistartion->metadataUsages[destinationIndex] = const_cast<MethodInfo*>(GetMethodInfoFromIndex(encodedSourceIndex));
-                    break;
-                case kIl2CppMetadataUsageFieldInfo:
-                    *metadataRegistartion->metadataUsages[destinationIndex] = GetFieldInfoFromIndex(decodedIndex);
-                    break;
-                case kIl2CppMetadataUsageStringLiteral:
-                    *metadataRegistartion->metadataUsages[destinationIndex] = GetStringLiteralFromIndex(decodedIndex);
-                    break;
-                case kIl2CppMetadataUsageInvalid:
-                    break;
-                default:
-                    IL2CPP_NOT_IMPLEMENTED(il2cpp::vm::GlobalMetadata::InitializeMethodMetadata);
-                    break;
-            }
-        }
+        case kIl2CppMetadataUsageTypeInfo:
+            initialized = (void*)il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(decodedIndex);
+            break;
+        case kIl2CppMetadataUsageIl2CppType:
+            initialized = (void*)il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(decodedIndex);
+            break;
+        case kIl2CppMetadataUsageMethodDef:
+        case kIl2CppMetadataUsageMethodRef:
+            initialized = (void*)GetMethodInfoFromEncodedIndex(encodedToken);
+            break;
+        case kIl2CppMetadataUsageFieldInfo:
+            initialized = (void*)GetFieldInfoFromIndex(decodedIndex);
+            break;
+        case kIl2CppMetadataUsageStringLiteral:
+            initialized = (void*)GetStringLiteralFromIndex(decodedIndex);
+            break;
+        case kIl2CppMetadataUsageInvalid:
+            break;
+        default:
+            IL2CPP_NOT_IMPLEMENTED(il2cpp::vm::GlobalMetadata::InitializeMethodMetadata);
+            break;
     }
-}
 
-void il2cpp::vm::GlobalMetadata::InitializeAllMethodMetadata()
-{
-    il2cpp::utils::dynamic_array<Il2CppMetadataUsage> onlyAcceptMethodUsages;
-    onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageMethodDef);
-    onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageMethodRef);
-    onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageTypeInfo);
+    *metadataPointer = (uintptr_t)initialized;
 
-    InitializeMethodMetadataRange(NULL, 0, s_GlobalMetadataHeader->metadataUsagePairsCount / sizeof(Il2CppMetadataUsagePair), onlyAcceptMethodUsages);
-}
-
-void il2cpp::vm::GlobalMetadata::InitializeMethodMetadata(const Il2CppCodeGenModule* module, uint32_t index)
-{
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->metadataUsageListsCount >= 0 && index <= static_cast<uint32_t>(s_GlobalMetadataHeader->metadataUsageListsCount));
-
-    const Il2CppMetadataUsageList* metadataUsageLists = MetadataOffset<const Il2CppMetadataUsageList*>(s_GlobalMetadata, s_GlobalMetadataHeader->metadataUsageListsOffset, index);
-
-    uint32_t start = metadataUsageLists->start;
-    uint32_t count = metadataUsageLists->count;
-
-    il2cpp::utils::dynamic_array<Il2CppMetadataUsage> acceptAllUsages;
-    InitializeMethodMetadataRange(module, start, count, acceptAllUsages);
+    return initialized;
 }
 
 void il2cpp::vm::GlobalMetadata::InitializeStringLiteralTable()
@@ -711,6 +706,16 @@ bool il2cpp::vm::GlobalMetadata::TypeIsValueType(Il2CppMetadataTypeHandle handle
     return (reinterpret_cast<const Il2CppTypeDefinition*>(handle)->bitfield >> (kBitIsValueType - 1)) & 0x1;
 }
 
+bool il2cpp::vm::GlobalMetadata::StructLayoutPackIsDefault(Il2CppMetadataTypeHandle handle)
+{
+    return (reinterpret_cast<const Il2CppTypeDefinition*>(handle)->bitfield >> (kPackingSizeIsDefault - 1)) & 0x1;
+}
+
+bool il2cpp::vm::GlobalMetadata::StructLayoutSizeIsDefault(Il2CppMetadataTypeHandle handle)
+{
+    return (reinterpret_cast<const Il2CppTypeDefinition*>(handle)->bitfield >> (kClassSizeIsDefault - 1)) & 0x1;
+}
+
 std::pair<const char*, const char*> il2cpp::vm::GlobalMetadata::GetTypeNamespaceAndName(Il2CppMetadataTypeHandle handle)
 {
     const Il2CppTypeDefinition* typeDefinition = reinterpret_cast<const Il2CppTypeDefinition*>(handle);
@@ -945,7 +950,7 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromVTableSlot(const 
 
     if (vTableMethodReference == 0) return NULL;
 
-    return GetMethodInfoFromIndex(vTableMethodReference);
+    return GetMethodInfoFromEncodedIndex(vTableMethodReference);
 }
 
 static const Il2CppFieldDefaultValue* GetFieldDefaultValueEntry(const FieldInfo* field)
@@ -1342,6 +1347,11 @@ static uint8_t ConvertPackingSizeEnumToValue(PackingSize packingSize)
     }
 }
 
+int32_t il2cpp::vm::GlobalMetadata::StructLayoutPack(Il2CppMetadataTypeHandle handle)
+{
+    return ConvertPackingSizeEnumToValue(static_cast<PackingSize>((reinterpret_cast<const Il2CppTypeDefinition*>(handle)->bitfield >> (kSpecifiedPackingSize - 1)) & 0xF));
+}
+
 static const Il2CppImage* GetImageForTypeDefinitionIndex(TypeDefinitionIndex index)
 {
     for (int32_t imageIndex = 0; imageIndex < s_MetadataImagesCount; imageIndex++)
@@ -1477,12 +1487,12 @@ uint16_t il2cpp::vm::GlobalMetadata::GetGenericParameterFlags(Il2CppMetadataGene
 
 const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromCatchPoint(const Il2CppCatchPoint* cp)
 {
-    return GetMethodInfoFromIndex(cp->__methodDefinitionIndex);
+    return GetMethodInfoFromMethodDefinitionIndex(cp->__methodDefinitionIndex);
 }
 
 const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromSequencePoint(const Il2CppSequencePoint* seqPoint)
 {
-    return GetMethodInfoFromIndex(seqPoint->__methodDefinitionIndex);
+    return GetMethodInfoFromMethodDefinitionIndex(seqPoint->__methodDefinitionIndex);
 }
 
 Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeSourcePair(const Il2CppTypeSourceFilePair* pair)
