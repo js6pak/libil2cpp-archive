@@ -29,7 +29,7 @@ namespace vm
         static bool Initialize(int32_t* imagesCount, int32_t* assembliesCount);
 
         static void InitializeAllMethodMetadata();
-        static void InitializeMethodMetadata(const Il2CppCodeGenModule* module, uint32_t index);
+        static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer);
         static void InitializeStringLiteralTable();
         static void InitializeWindowsRuntimeTypeNamesTables(WindowsRuntimeTypeNameToClassMap& windowsRuntimeTypeNameToClassMap, ClassToWindowsRuntimeTypeNameMap& classToWindowsRuntimeTypeNameMap);
         static void InitializeUnresolvedSignatureTable(Il2CppUnresolvedSignatureMap& unresolvedSignatureMap);
@@ -53,6 +53,9 @@ namespace vm
         static Il2CppMetadataTypeHandle GetTypeHandleFromType(const Il2CppType* type);
         static bool TypeIsNested(Il2CppMetadataTypeHandle handle);
         static bool TypeIsValueType(Il2CppMetadataTypeHandle handle);
+        static bool StructLayoutPackIsDefault(Il2CppMetadataTypeHandle handle);
+        static int32_t StructLayoutPack(Il2CppMetadataTypeHandle handle);
+        static bool StructLayoutSizeIsDefault(Il2CppMetadataTypeHandle handle);
         static std::pair<const char*, const char*> GetTypeNamespaceAndName(Il2CppMetadataTypeHandle handle);
 
         static Il2CppClass* GetNestedTypeFromOffset(const Il2CppClass* klass, TypeNestedTypeIndex offset);
@@ -103,6 +106,15 @@ namespace vm
 
         static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index);
         static const Il2CppType* GetIl2CppTypeFromIndex(TypeIndex index);
+
+        template<typename T>
+        static inline bool IsRuntimeMetadataInitialized(T item)
+        {
+            // Runtime metadata items are initialized to an encoded token with the low bit set
+            // on startup and when intialized are a pointer to an runtime metadata item
+            // So we can rely on pointer allignment being > 1 on our supported platforms
+            return !((uintptr_t)item & 1);
+        }
 
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
         static void GetAllManagedMethods(std::vector<MethodDefinitionKey>& managedMethods);

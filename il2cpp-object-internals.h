@@ -541,12 +541,7 @@ typedef struct Il2CppDelegate
     /* The invoke code */
     InvokerMethod invoke_impl;
     Il2CppObject *target;
-
-#if RUNTIME_MONO
-    const MonoMethod *method;
-#else
     const MethodInfo *method;
-#endif
 
     void* delegate_trampoline;
 
@@ -913,32 +908,13 @@ typedef struct Il2CppAsyncCall
     Il2CppArray *out_args;
 } Il2CppAsyncCall;
 
-
-#if RUNTIME_MONO
-#if defined(__cplusplus)
-extern "C"
-{
-#endif // __cplusplus
-#include <mono/metadata/object.h>
-#if defined(__cplusplus)
-}
-#endif // __cplusplus
-#endif
-
 typedef struct Il2CppExceptionWrapper Il2CppExceptionWrapper;
 typedef struct Il2CppExceptionWrapper
 {
-#if RUNTIME_MONO
-    MonoException* ex;
-#ifdef __cplusplus
-    Il2CppExceptionWrapper(MonoException* ex) : ex(ex) {}
-#endif //__cplusplus
-#else
     Il2CppException* ex;
 #ifdef __cplusplus
     Il2CppExceptionWrapper(Il2CppException* ex) : ex(ex) {}
 #endif //__cplusplus
-#endif
 } Il2CppExceptionWrapper;
 
 typedef struct Il2CppIOAsyncResult

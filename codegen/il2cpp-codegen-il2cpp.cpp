@@ -1,5 +1,3 @@
-#if !RUNTIME_MONO
-
 #include <string>
 
 #include "il2cpp-config.h"
@@ -92,9 +90,14 @@ void il2cpp_codegen_register_metadata_initialized_cleanup(MetadataInitializerCle
     g_ClearMethodMetadataInitializedFlags = cleanup;
 }
 
-void il2cpp_codegen_initialize_method(const Il2CppCodeGenModule* module, uint32_t index)
+void il2cpp_codegen_initialize_runtime_metadata(uintptr_t* metadataPointer)
 {
-    il2cpp::vm::MetadataCache::InitializeMethodMetadata(module, index);
+    il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(metadataPointer);
+}
+
+void* il2cpp_codegen_initialize_runtime_metadata_inline(uintptr_t* metadataPointer)
+{
+    return il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(metadataPointer);
 }
 
 const RuntimeMethod* il2cpp_codegen_get_generic_method_definition(const RuntimeMethod* method)
@@ -760,7 +763,5 @@ bool il2cpp_codegen_type_is_pointer(Type_t* t)
     Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
     return il2cpp::vm::Class::GetType(klass)->type == IL2CPP_TYPE_PTR;
 }
-
-#endif
 
 #endif

@@ -114,6 +114,11 @@ il2cpp::gc::GarbageCollector::CollectALittle()
 }
 
 void
+il2cpp::gc::GarbageCollector::StartIncrementalCollection()
+{
+}
+
+void
 il2cpp::gc::GarbageCollector::Enable()
 {
 }

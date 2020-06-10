@@ -690,6 +690,11 @@ int32_t il2cpp_gc_collect_a_little()
     return GarbageCollector::CollectALittle();
 }
 
+void il2cpp_gc_start_incremental_collection()
+{
+    GarbageCollector::StartIncrementalCollection();
+}
+
 void il2cpp_gc_enable()
 {
     GarbageCollector::Enable();
