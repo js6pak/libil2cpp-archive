@@ -90,3 +90,8 @@ inline int64_t UnityPalRead64(int64_t* addr)
 {
     return Baselib_atomic_fetch_add_64_seq_cst(addr, 0);
 }
+
+inline intptr_t UnityPalReadPtrVal(intptr_t* addr)
+{
+    return Baselib_atomic_fetch_add_ptr_seq_cst(addr, 0);
+}

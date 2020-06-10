@@ -77,7 +77,7 @@ namespace vm
         static const Il2CppGenericMethod* GetGenericMethodFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
 
         static void InitializeAllMethodMetadata();
-        static void InitializeMethodMetadata(const Il2CppCodeGenModule* module, uint32_t index);
+        static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer);
 
         static Il2CppMethodPointer GetMethodPointer(const Il2CppImage* image, uint32_t token);
         static InvokerMethod GetMethodInvoker(const Il2CppImage* image, uint32_t token);
@@ -127,6 +127,10 @@ namespace vm
         static Il2CppMetadataTypeHandle GetTypeHandleFromType(const Il2CppType* type);
         static bool TypeIsNested(Il2CppMetadataTypeHandle handle);
         static bool TypeIsValueType(Il2CppMetadataTypeHandle handle);
+        static bool StructLayoutPackIsDefault(Il2CppMetadataTypeHandle handle);
+        static int32_t StructLayoutPack(Il2CppMetadataTypeHandle handle);
+        static bool StructLayoutSizeIsDefault(Il2CppMetadataTypeHandle handle);
+
         static std::pair<const char*, const char*> GetTypeNamespaceAndName(Il2CppMetadataTypeHandle handle);
         static Il2CppMetadataTypeHandle GetNestedTypes(Il2CppClass* klass, void** iter);
         static Il2CppMetadataTypeHandle GetNestedTypes(Il2CppMetadataTypeHandle handle, void** iter);

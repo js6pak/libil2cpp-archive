@@ -153,7 +153,6 @@ namespace metadata
 
     static void CollectImplicitArrayInterfacesFromElementClass(Il2CppClass* elementClass, ::std::vector<Il2CppClass*>& interfaces)
     {
-#if !IL2CPP_TINY
         while (elementClass != NULL)
         {
             interfaces.push_back(elementClass);
@@ -187,7 +186,6 @@ namespace metadata
             if (elementClass != NULL && (elementClass->valuetype || elementClass == il2cpp_defaults.value_type_class || elementClass == il2cpp_defaults.enum_class))
                 break;
         }
-#endif
     }
 
     static void CollectImplicitArrayInterfaces(Il2CppClass* arrayClass, ::std::vector<Il2CppClass*>& interfaces)
@@ -245,6 +243,9 @@ namespace metadata
                 methodName = method->name + 15;
                 name = StringUtils::Printf("System.Collections.Generic.IList`1.%s", method->name + 15);
             }
+
+            Class::Init(implementingInterface);
+
             const MethodInfo* matchingInterfacesMethod = NULL;
             for (int methodIndex = 0; methodIndex < implementingInterface->method_count; methodIndex++)
             {
@@ -443,9 +444,7 @@ namespace metadata
         IL2CPP_ASSERT(klass->element_class->initialized);
 
         SetupCastClass(klass);
-#if !IL2CPP_TINY
         SetupArrayVTableAndInterfaceOffsets(klass);
-#endif
         SetupArrayMethods(klass);
     }
 
@@ -525,15 +524,9 @@ namespace metadata
         if (rank <= 1 && !bounded)
             CollectImplicitArrayInterfacesFromElementClass(elementClass, interfaces);
 
-#if IL2CPP_TINY
-        size_t slots = arrayClass->vtable_count;
-#else
         size_t slots = arrayClass->vtable_count + interfaces.size() * (il2cpp_defaults.generic_ilist_class->method_count + il2cpp_defaults.generic_icollection_class->method_count + il2cpp_defaults.generic_ienumerable_class->method_count);
-#endif
 
-#if !IL2CPP_TINY
         slots += interfaces.size() * (il2cpp_defaults.generic_ireadonlylist_class->method_count + il2cpp_defaults.generic_ireadonlycollection_class->method_count);
-#endif
 
         Il2CppClass* klass = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass) + (slots * sizeof(VirtualInvokeData)));
         klass->klass = klass;

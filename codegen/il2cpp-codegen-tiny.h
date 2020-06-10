@@ -355,8 +355,7 @@ inline Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
 
 inline MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
 {
-    Il2CppReflectionType* reflectionType = tiny::vm::Type::GetTypeFromHandle((intptr_t) reinterpret_cast<Il2CppReflectionType*>(type)->typeHandle);
-    Il2CppMulticastDelegate* result = static_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(sizeof(Il2CppMulticastDelegate), const_cast<TinyType*>(reflectionType->typeHandle)));
+    Il2CppMulticastDelegate* result = static_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(sizeof(Il2CppMulticastDelegate), const_cast<TinyType*>(reinterpret_cast<Il2CppReflectionType*>(type)->typeHandle)));
     result->delegates = delegates;
     result->delegateCount = delegateCount;
     return reinterpret_cast<MulticastDelegate_t*>(result);
@@ -480,11 +479,6 @@ inline void il2cpp_codegen_marshal_string_fixed(String_t* string, char* buffer, 
 
     Il2CppString* managedString = ((Il2CppString*)string);
     tiny::vm::PlatformInvoke::MarshalCSharpStringToFixedCppStringBuffer(managedString->chars, managedString->length, buffer, numberOfCharacters);
-}
-
-inline intptr_t il2cpp_codegen_marshal_get_function_pointer_for_delegate(const Delegate_t* d)
-{
-    return reinterpret_cast<intptr_t>(reinterpret_cast<const Il2CppDelegate*>(d)->m_ReversePInvokeWrapperPtr);
 }
 
 inline Il2CppChar* il2cpp_codegen_marshal_wstring(String_t* string)
@@ -658,4 +652,16 @@ inline bool il2cpp_codegen_type_is_pointer(Type_t* t)
     if (IL2CPP_TINY_ADDITIONAL_TYPE_METADATA(tinyType->packedVtableSizeAndAdditionalTypeMetadata) & IL2CPP_TINY_IS_POINTER)
         return true;
     return false;
+}
+
+template<typename T>
+void ArrayGetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, T* value)
+{
+    memcpy(value, ((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), sizeof(T));
+}
+
+template<typename T>
+void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, T* value)
+{
+    memcpy(((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), value, sizeof(T));
 }

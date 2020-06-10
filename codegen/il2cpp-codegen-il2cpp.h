@@ -605,7 +605,9 @@ inline const RuntimeMethod* GetInterfaceMethodInfo(RuntimeObject* pThis, Il2CppM
     return il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(pThis, declaringInterface, slot).method;
 }
 
-void il2cpp_codegen_initialize_method(const Il2CppCodeGenModule* module, uint32_t index);
+void il2cpp_codegen_initialize_runtime_metadata(uintptr_t* metadataPointer);
+
+void* il2cpp_codegen_initialize_runtime_metadata_inline(uintptr_t* metadataPointer);
 
 bool il2cpp_codegen_class_is_value_type(RuntimeClass* type);
 
@@ -829,11 +831,6 @@ inline void il2cpp_codegen_marshal_string_free_co_task_mem(intptr_t ptr)
 }
 
 struct Delegate_t;
-
-inline intptr_t il2cpp_codegen_marshal_get_function_pointer_for_delegate(const Delegate_t* d)
-{
-    return reinterpret_cast<intptr_t>(reinterpret_cast<const Il2CppDelegate*>(d)->m_ReversePInvokeWrapperPtr);
-}
 
 inline String_t* il2cpp_codegen_string_new_length(int length)
 {

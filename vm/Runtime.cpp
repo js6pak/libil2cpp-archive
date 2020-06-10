@@ -233,12 +233,12 @@ namespace vm
         DEFAULTS_INIT_TYPE(stack_frame_class, "System.Diagnostics", "StackFrame", Il2CppStackFrame);
         DEFAULTS_INIT(stack_trace_class, "System.Diagnostics", "StackTrace");
         DEFAULTS_INIT_TYPE(typed_reference_class, "System", "TypedReference", Il2CppTypedRef);
+#endif
         DEFAULTS_INIT(generic_ilist_class, "System.Collections.Generic", "IList`1");
         DEFAULTS_INIT(generic_icollection_class, "System.Collections.Generic", "ICollection`1");
         DEFAULTS_INIT(generic_ienumerable_class, "System.Collections.Generic", "IEnumerable`1");
         DEFAULTS_INIT(generic_ireadonlylist_class, "System.Collections.Generic", "IReadOnlyList`1");
         DEFAULTS_INIT(generic_ireadonlycollection_class, "System.Collections.Generic", "IReadOnlyCollection`1");
-#endif
         DEFAULTS_INIT(generic_nullable_class, "System", "Nullable`1");
 #if !IL2CPP_TINY
         DEFAULTS_INIT(version, "System", "Version");

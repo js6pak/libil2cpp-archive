@@ -29,7 +29,6 @@
 #include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Type.h"
-#include "mono-runtime/il2cpp-mapping.h"
 #include "vm-utils/NativeSymbol.h"
 
 #include "Baselib.h"
@@ -729,7 +728,7 @@ Il2CppMethodPointer il2cpp::vm::MetadataCache::GetReversePInvokeWrapper(const Il
             // First, check the method metadata, and use it if it has been initialized.
             // If not, let's fall back to the generic method.
             const MethodInfo* possibleMatch = (const MethodInfo*)*currentMatch->method;
-            if (possibleMatch == NULL)
+            if (!il2cpp::vm::GlobalMetadata::IsRuntimeMetadataInitialized(possibleMatch))
                 possibleMatch = il2cpp::metadata::GenericMethod::GetMethod(il2cpp::vm::GlobalMetadata::GetGenericMethodFromTokenMethodTuple(currentMatch));
             if (possibleMatch == method)
             {
@@ -991,9 +990,9 @@ void il2cpp::vm::MetadataCache::InitializeAllMethodMetadata()
     il2cpp::vm::GlobalMetadata::InitializeAllMethodMetadata();
 }
 
-void il2cpp::vm::MetadataCache::InitializeMethodMetadata(const Il2CppCodeGenModule* module, uint32_t index)
+void* il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(uintptr_t* metadataPointer)
 {
-    il2cpp::vm::GlobalMetadata::InitializeMethodMetadata(module, index);
+    return il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(metadataPointer);
 }
 
 void il2cpp::vm::MetadataCache::WalkPointerTypes(WalkTypesCallback callback, void* context)
@@ -1023,6 +1022,21 @@ bool il2cpp::vm::MetadataCache::TypeIsNested(Il2CppMetadataTypeHandle handle)
 bool il2cpp::vm::MetadataCache::TypeIsValueType(Il2CppMetadataTypeHandle handle)
 {
     return il2cpp::vm::GlobalMetadata::TypeIsValueType(handle);
+}
+
+bool il2cpp::vm::MetadataCache::StructLayoutPackIsDefault(Il2CppMetadataTypeHandle handle)
+{
+    return il2cpp::vm::GlobalMetadata::StructLayoutPackIsDefault(handle);
+}
+
+int32_t il2cpp::vm::MetadataCache::StructLayoutPack(Il2CppMetadataTypeHandle handle)
+{
+    return il2cpp::vm::GlobalMetadata::StructLayoutPack(handle);
+}
+
+bool il2cpp::vm::MetadataCache::StructLayoutSizeIsDefault(Il2CppMetadataTypeHandle handle)
+{
+    return il2cpp::vm::GlobalMetadata::StructLayoutSizeIsDefault(handle);
 }
 
 std::pair<const char*, const char*> il2cpp::vm::MetadataCache::GetTypeNamespaceAndName(Il2CppMetadataTypeHandle handle)

@@ -25,10 +25,6 @@ typedef void (*PInvokeMarshalFromNativeFunc)(void* marshaledStructure, void* man
 typedef void (*PInvokeMarshalCleanupFunc)(void* marshaledStructure);
 typedef struct Il2CppIUnknown* (*CreateCCWFunc)(Il2CppObject* obj);
 
-#if RUNTIME_MONO
-#include "il2cpp-mapping.h"
-#endif
-
 typedef struct Il2CppInteropData
 {
     Il2CppMethodPointer delegatePInvokeWrapperFunction;
@@ -37,12 +33,7 @@ typedef struct Il2CppInteropData
     PInvokeMarshalCleanupFunc pinvokeMarshalCleanupFunction;
     CreateCCWFunc createCCWFunction;
     const Il2CppGuid* guid;
-#if RUNTIME_MONO
-    MonoMetadataToken typeToken;
-    uint64_t hash;
-#else
     const Il2CppType* type;
-#endif
 } Il2CppInteropData;
 
 #if defined(__cplusplus)

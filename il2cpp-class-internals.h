@@ -27,28 +27,13 @@ typedef struct Il2CppCodeGenModule Il2CppCodeGenModule;
 typedef struct Il2CppMetadataRegistration Il2CppMetadataRegistration;
 typedef struct Il2CppCodeRegistration Il2CppCodeRegistration;
 
-#if RUNTIME_MONO
-#if defined(__cplusplus)
-extern "C"
-{
-#endif // __cplusplus
-#include <mono/metadata/metadata.h>
-#if defined(__cplusplus)
-}
-#endif // __cplusplus
-#endif
-
 #if RUNTIME_TINY
 typedef Il2CppMethodPointer VirtualInvokeData;
 #else
 typedef struct VirtualInvokeData
 {
     Il2CppMethodPointer methodPtr;
-#if RUNTIME_MONO
-    const MonoMethod* method;
-#else
     const MethodInfo* method;
-#endif
 } VirtualInvokeData;
 #endif
 
@@ -255,11 +240,7 @@ typedef struct ParameterInfo
     const Il2CppType* parameter_type;
 } ParameterInfo;
 
-#if RUNTIME_MONO
-typedef void* (*InvokerMethod)(Il2CppMethodPointer, const MonoMethod*, void*, void**);
-#else
 typedef void* (*InvokerMethod)(Il2CppMethodPointer, const MethodInfo*, void*, void**);
-#endif
 
 typedef enum MethodVariableKind
 {
@@ -610,11 +591,7 @@ typedef struct Il2CppCodeGenModule
     const uint32_t rgctxRangesCount;
     const Il2CppTokenRangePair* rgctxRanges;
     const uint32_t rgctxsCount;
-#if RUNTIME_MONO
-    const MonoRGCTXDefinition* rgctxs;
-#else
     const Il2CppRGCTXDefinition* rgctxs;
-#endif
     const Il2CppDebuggerMetadataRegistration *debuggerMetadata;
     const CustomAttributesCacheGenerator* customAttributeCacheGenerator;
     const Il2CppMethodPointer moduleInitializer;

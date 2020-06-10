@@ -81,6 +81,16 @@ namespace System
         return std::modf(value, &unused) == 0.0;
     }
 
+    // Use this function to test for odd integers instead of converting a
+    // double to int64_t then ANDing with 1 (or modulo). In C++, double to integer
+    // conversions are truncated but the behavior is undefined if the truncated
+    // value cannot be represented in the destination type. This means that huge
+    // doubles may not be handled correctly.
+    static bool IsOddInteger(double value)
+    {
+        return std::fmod(value, 2.0) == std::copysign(1.0, value);
+    }
+
     double Math::Pow(double val, double exp)
     {
         if (std::isnan(val))
@@ -99,6 +109,19 @@ namespace System
 
         if ((val < -1 || val > 1) && exp == std::numeric_limits<double>::infinity())
             return std::numeric_limits<double>::infinity();
+
+        if (val == -std::numeric_limits<double>::infinity())
+        {
+            if (exp < 0)
+                return 0.0;
+
+            if (exp > 0)
+            {
+                return IsOddInteger(exp) ? -std::numeric_limits<double>::infinity() : std::numeric_limits<double>::infinity();
+            }
+
+            return 1.0;
+        }
 
         if (val < 0)
         {
