@@ -44,7 +44,7 @@ static inline Il2CppMetadataUsage GetEncodedIndexType(EncodedMethodIndex index)
 
 static inline uint32_t GetDecodedMethodIndex(EncodedMethodIndex index)
 {
-    return index & 0x1FFFFFFFU;
+    return (index & 0x1FFFFFFEU) >> 1;
 }
 
 #endif
@@ -95,6 +95,9 @@ typedef struct Il2CppTypeDefinition
     // 05 - is_blittable;
     // 06 - is_import_or_windows_runtime;
     // 07-10 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
+    // 11 - PackingSize is default
+    // 12 - ClassSize is default
+    // 13-16 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128) - the specified packing size (even for explicit layouts)
     uint32_t bitfield;
     uint32_t token;
 } Il2CppTypeDefinition;
@@ -222,18 +225,6 @@ typedef struct Il2CppAssemblyDefinition
     Il2CppAssemblyNameDefinition aname;
 } Il2CppAssemblyDefinition;
 
-typedef struct Il2CppMetadataUsageList
-{
-    uint32_t start;
-    uint32_t count;
-} Il2CppMetadataUsageList;
-
-typedef struct Il2CppMetadataUsagePair
-{
-    uint32_t destinationIndex;
-    uint32_t encodedSourceIndex;
-} Il2CppMetadataUsagePair;
-
 typedef struct Il2CppCustomAttributeTypeRange
 {
     uint32_t token;
@@ -324,10 +315,6 @@ typedef struct Il2CppGlobalMetadataHeader
     int32_t imagesCount;
     int32_t assembliesOffset; // Il2CppAssemblyDefinition
     int32_t assembliesCount;
-    int32_t metadataUsageListsOffset; // Il2CppMetadataUsageList
-    int32_t metadataUsageListsCount;
-    int32_t metadataUsagePairsOffset; // Il2CppMetadataUsagePair
-    int32_t metadataUsagePairsCount;
     int32_t fieldRefsOffset; // Il2CppFieldRef
     int32_t fieldRefsCount;
     int32_t referencedAssembliesOffset; // int32_t
@@ -348,37 +335,3 @@ typedef struct Il2CppGlobalMetadataHeader
     int32_t exportedTypeDefinitionsCount;
 } Il2CppGlobalMetadataHeader;
 #pragma pack(pop, p1)
-
-#if RUNTIME_MONO
-
-#pragma pack(push, p1,4)
-typedef struct Il2CppGlobalMonoMetadataHeader
-{
-    int32_t sanity;
-    int32_t version;
-    int32_t stringOffset; // string data for metadata
-    int32_t stringCount;
-    int32_t genericMethodInfoMappingOffset; // hash -> generic MonoMethodInfo mapping
-    int32_t genericMethodInfoMappingCount;
-
-    int32_t monoStringOffset; // mono strings
-    int32_t monoStringCount;
-    int32_t methodMetadataOffset; // method metadata
-    int32_t methodMetadataCount;
-    int32_t genericArgumentIndicesOffset; // generic argument indices
-    int32_t genericArgumentIndicesCount;
-    int32_t typeTableOffset; // type table
-    int32_t typeTableCount;
-    int32_t fieldTableOffset; // field table
-    int32_t fieldTableCount;
-    int32_t genericMethodIndexTableOffset; // generic method index table
-    int32_t genericMethodIndexTableCount;
-    int32_t metaDataUsageListsTableOffset; // meta data usage lists table
-    int32_t metaDataUsageListsTableCount;
-    int32_t metaDataUsagePairsTableOffset; // meta data usage pairs table
-    int32_t metaDataUsagePairsTableCount;
-    int32_t assemblyNameTableOffset; // assembly names
-    int32_t assemblyNameTableCount;
-} Il2CppGlobalMonoMetadataHeader;
-#pragma pack(pop, p1)
-#endif

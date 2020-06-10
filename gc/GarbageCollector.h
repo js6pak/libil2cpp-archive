@@ -53,6 +53,7 @@ namespace gc
         static bool IsDisabled();
 
         static bool IsIncremental();
+        static void StartIncrementalCollection();
 
         static int64_t GetMaxTimeSliceNs();
         static void SetMaxTimeSliceNs(int64_t maxTimeSlice);

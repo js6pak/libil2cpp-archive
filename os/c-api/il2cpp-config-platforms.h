@@ -240,10 +240,9 @@
 
 #define IL2CPP_THREAD_HAS_CPU_SET IL2CPP_TARGET_POSIX && !IL2CPP_THREADS_PS4
 
-// Not supported on RUNTIME_MONO because we don't really care about it
 // Not supported on TINY because it doesn't support synchronization context
 // Not supported on no runtime because it needs to call back into the runtime!
-#define IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT (IL2CPP_TARGET_WINDOWS) && !RUNTIME_MONO && !IL2CPP_TINY && !RUNTIME_NONE && !IL2CPP_TARGET_WINDOWS_GAMES
+#define IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT (IL2CPP_TARGET_WINDOWS) && !IL2CPP_TINY && !RUNTIME_NONE && !IL2CPP_TARGET_WINDOWS_GAMES
 
 /* Trigger assert if 'ptr' is not aligned to 'alignment'. */
 #define ASSERT_ALIGNMENT(ptr, alignment) \

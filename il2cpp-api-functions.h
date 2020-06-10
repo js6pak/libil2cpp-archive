@@ -120,6 +120,7 @@ DO_API(bool, il2cpp_field_is_literal, (FieldInfo * field));
 // gc
 DO_API(void, il2cpp_gc_collect, (int maxGenerations));
 DO_API(int32_t, il2cpp_gc_collect_a_little, ());
+DO_API(void, il2cpp_gc_start_incremental_collection , ());
 DO_API(void, il2cpp_gc_disable, ());
 DO_API(void, il2cpp_gc_enable, ());
 DO_API(bool, il2cpp_gc_is_disabled, ());

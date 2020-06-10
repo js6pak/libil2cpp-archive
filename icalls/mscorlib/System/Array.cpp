@@ -128,7 +128,8 @@ namespace System
 
             element_size = il2cpp_array_element_size(dest->klass);
             void *baseAddr = il2cpp_array_addr_with_size(dest, element_size, dest_idx);
-            memset(baseAddr, 0, element_size * length);
+            size_t byte_len = (size_t)length * element_size;
+            memset(baseAddr, 0, byte_len);
             for (i = 0; i < length; ++i)
             {
                 Il2CppObject *elem = il2cpp_array_get(source, Il2CppObject*, source_idx + i);
@@ -142,7 +143,7 @@ namespace System
 
                 memcpy(il2cpp_array_addr_with_size(dest, element_size, dest_idx + i), vm::Object::Unbox(elem), element_size);
             }
-            gc::GarbageCollector::SetWriteBarrier((void**)baseAddr, element_size * length);
+            gc::GarbageCollector::SetWriteBarrier((void**)baseAddr, byte_len);
             return true;
         }
 
@@ -173,12 +174,14 @@ namespace System
 
         IL2CPP_ASSERT(element_size == il2cpp_array_element_size(source->klass));
 
+        size_t byte_len = (size_t)length * element_size;
+
         memmove(
             il2cpp_array_addr_with_size(dest, element_size, dest_idx),
             il2cpp_array_addr_with_size(source, element_size, source_idx),
-            length * element_size);
+            byte_len);
 
-        gc::GarbageCollector::SetWriteBarrier((void**)il2cpp_array_addr_with_size(dest, element_size, dest_idx), length * element_size);
+        gc::GarbageCollector::SetWriteBarrier((void**)il2cpp_array_addr_with_size(dest, element_size, dest_idx), byte_len);
 
         return true;
     }

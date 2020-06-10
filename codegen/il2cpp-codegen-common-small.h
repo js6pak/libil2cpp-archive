@@ -91,4 +91,11 @@ inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* szArray)
 
 int il2cpp_codegen_double_to_string(double value, uint8_t* format, uint8_t* buffer, int bufferLength);
 
+struct Delegate_t;
+
+inline intptr_t il2cpp_codegen_marshal_get_function_pointer_for_delegate(const Delegate_t* d)
+{
+    return reinterpret_cast<intptr_t>(reinterpret_cast<const Il2CppDelegate*>(d)->m_ReversePInvokeWrapperPtr);
+}
+
 #endif // IL2CPP_TINY
