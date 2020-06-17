@@ -1048,6 +1048,27 @@ static const int kBitHasStaticConstructor = 4;
 static const int kBitIsBlittable = 5;
 static const int kBitIsImportOrWindowsRuntime = 6;
 static const int kPackingSize = 7; // This uses 4 bits from bit 7 to bit 10
+static const int kPackingSizeIsDefault = 11;
+static const int kClassSizeIsDefault = 12;
+static const int kSpecifiedPackingSize = 13; // This uses 4 bits from bit 13 to bit 16
+
+int32_t il2cpp::vm::MetadataCache::StructLayoutPack(TypeDefinitionIndex index)
+{
+    const Il2CppTypeDefinition* typeDefinition = GetTypeDefinitionFromIndex(index);
+    return ConvertPackingSizeEnumToValue(static_cast<PackingSize>((typeDefinition->bitfield >> (kSpecifiedPackingSize - 1)) & 0xF));
+}
+
+bool il2cpp::vm::MetadataCache::StructLayoutPackIsDefault(TypeDefinitionIndex index)
+{
+    const Il2CppTypeDefinition* typeDefinition = GetTypeDefinitionFromIndex(index);
+    return (typeDefinition->bitfield >> (kPackingSizeIsDefault - 1)) & 0x1;
+}
+
+bool il2cpp::vm::MetadataCache::StructLayoutSizeIsDefault(TypeDefinitionIndex index)
+{
+    const Il2CppTypeDefinition* typeDefinition = GetTypeDefinitionFromIndex(index);
+    return (typeDefinition->bitfield >> (kClassSizeIsDefault - 1)) & 0x1;
+}
 
 static Il2CppClass* FromTypeDefinition(TypeDefinitionIndex index)
 {
