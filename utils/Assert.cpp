@@ -18,7 +18,7 @@ void il2cpp_assert(const char* assertion, const char* file, unsigned int line)
         _CrtDbgBreak();
     }
 #else
-    printf("Assertion failed: %s, file %s, line %u", assertion, file, line);
+    printf("Assertion failed: %s, file %s, line %u\n", assertion, file, line);
     abort();
 #endif
 }
