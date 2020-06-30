@@ -50,12 +50,11 @@ inline RuntimeObject* il2cpp_codegen_object_new(size_t size, TinyType* typeInfo)
     return (RuntimeObject*)tiny::vm::Object::New(size, typeInfo);
 }
 
-template<typename T>
-inline Il2CppObject* Box(TinyType* type, T* value)
+inline Il2CppObject* Box(TinyType* type, void* value, size_t size)
 {
     COMPILE_TIME_CONST size_t alignedObjectSize = IL2CPP_ALIGNED_OBJECT_SIZE;
-    Il2CppObject* obj = il2cpp_codegen_object_new(sizeof(T) + alignedObjectSize, type);
-    il2cpp::utils::MemoryUtils::MemoryCopy(reinterpret_cast<uint8_t*>(obj) + alignedObjectSize, value, sizeof(T));
+    Il2CppObject* obj = il2cpp_codegen_object_new(size + alignedObjectSize, type);
+    memcpy(reinterpret_cast<uint8_t*>(obj) + alignedObjectSize, value, size);
     return obj;
 }
 
@@ -77,7 +76,7 @@ inline Il2CppObject* BoxNullable(TinyType* type, NullableType* value)
     if (!hasValue)
         return NULL;
 
-    return Box(type, value);
+    return Box(type, value, valueSize);
 }
 
 inline void* UnBox(Il2CppObject* obj)
@@ -114,7 +113,7 @@ inline void UnBoxNullable(Il2CppObject* obj, TinyType* expectedBoxedClass, void*
     }
     else
     {
-        il2cpp::utils::MemoryUtils::MemoryCopy(storage, UnBox(obj), valueSize);
+        memcpy(storage, UnBox(obj), valueSize);
         *(static_cast<uint8_t*>(storage) + valueSize) = true;
     }
 }
