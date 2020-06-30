@@ -64,6 +64,16 @@ inline typename pick_bigger<T, U>::type il2cpp_codegen_subtract(T left, U right)
 
 NORETURN void il2cpp_codegen_raise_exception(Exception_t* ex, RuntimeMethod* lastManagedFrame = NULL);
 
+// NativeArray macros
+#define IL2CPP_NATIVEARRAY_GET_ITEM(TElementType, TTField, TIndex) \
+    *(reinterpret_cast<TElementType*>(TTField) + TIndex)
+
+#define IL2CPP_NATIVEARRAY_SET_ITEM(TElementType, TTField, TIndex, TValue) \
+   *(reinterpret_cast<TElementType*>(TTField) + TIndex) = TValue;
+
+#define IL2CPP_NATIVEARRAY_GET_LENGTH(TLengthField) \
+   (TLengthField)
+
 #if IL2CPP_TINY
 
 #include "utils/StringUtils.h"
