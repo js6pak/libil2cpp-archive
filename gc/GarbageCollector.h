@@ -48,9 +48,15 @@ namespace gc
 
         // functions implemented in a GC specific manner
         static void Initialize();
+
+        // Deprecated. Remove when Unity has switched to mono_unity_gc_set_mode
         static void Enable();
+        // Deprecated. Remove when Unity has switched to mono_unity_gc_set_mode
         static void Disable();
+        // Deprecated. Remove when Unity has switched to mono_unity_gc_set_mode
         static bool IsDisabled();
+
+        static void SetMode(Il2CppGCMode mode);
 
         static bool IsIncremental();
         static void StartIncrementalCollection();

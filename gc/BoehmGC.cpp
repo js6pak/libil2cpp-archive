@@ -237,6 +237,30 @@ il2cpp::gc::GarbageCollector::IsDisabled()
     return GC_is_disabled();
 }
 
+void
+il2cpp::gc::GarbageCollector::SetMode(Il2CppGCMode mode)
+{
+    switch (mode)
+    {
+        case IL2CPP_GC_MODE_ENABLED:
+            if (GC_is_disabled())
+                GC_enable();
+            GC_set_disable_automatic_collection(false);
+            break;
+
+        case IL2CPP_GC_MODE_DISABLED:
+            if (!GC_is_disabled())
+                GC_disable();
+            break;
+
+        case IL2CPP_GC_MODE_MANUAL:
+            if (GC_is_disabled())
+                GC_enable();
+            GC_set_disable_automatic_collection(true);
+            break;
+    }
+}
+
 bool
 il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
 {

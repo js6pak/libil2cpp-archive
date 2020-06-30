@@ -332,16 +332,6 @@ public:
 #define IL2CPP_ENABLE_OPTIMIZATIONS
 #endif
 
-// NativeArray macros
-#define IL2CPP_NATIVEARRAY_GET_ITEM(TElementType, TTField, TIndex) \
-    *(reinterpret_cast<TElementType*>(TTField) + TIndex)
-
-#define IL2CPP_NATIVEARRAY_SET_ITEM(TElementType, TTField, TIndex, TValue) \
-   *(reinterpret_cast<TElementType*>(TTField) + TIndex) = TValue;
-
-#define IL2CPP_NATIVEARRAY_GET_LENGTH(TLengthField) \
-   (TLengthField)
-
 // Array Unsafe
 #define IL2CPP_ARRAY_UNSAFE_LOAD(TArray, TIndex) \
     (TArray)->GetAtUnchecked(static_cast<il2cpp_array_size_t>(TIndex))
