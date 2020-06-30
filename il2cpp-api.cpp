@@ -710,6 +710,11 @@ bool il2cpp_gc_is_disabled()
     return GarbageCollector::IsDisabled();
 }
 
+void il2cpp_gc_set_mode(Il2CppGCMode mode)
+{
+    GarbageCollector::SetMode(mode);
+}
+
 bool il2cpp_gc_is_incremental()
 {
     return GarbageCollector::IsIncremental();

@@ -223,7 +223,7 @@ namespace os
         if (code == ENOENT)
         {
             const std::string dirname(il2cpp::utils::PathUtils::DirectoryName(path));
-#if !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2
+#if !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2  && !IL2CPP_HAS_NOACCESS
             if (access(dirname.c_str(), F_OK) == 0)
                 return kErrorCodeFileNotFound;
             else

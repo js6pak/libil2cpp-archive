@@ -128,6 +128,11 @@ il2cpp::gc::GarbageCollector::Disable()
 {
 }
 
+void
+il2cpp::gc::GarbageCollector::SetMode(Il2CppGCMode mode)
+{
+}
+
 bool
 il2cpp::gc::GarbageCollector::IsDisabled()
 {
