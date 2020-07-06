@@ -188,6 +188,9 @@ typedef struct Il2CppTypeDefinition
     // 05 - is_blittable;
     // 06 - is_import_or_windows_runtime;
     // 07-10 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128)
+    // 11 - PackingSize is default
+    // 12 - ClassSize is default
+    // 13-16 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128) - the specified packing size (even for explicit layouts)
     uint32_t bitfield;
     uint32_t token;
 } Il2CppTypeDefinition;
