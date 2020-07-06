@@ -122,6 +122,9 @@ namespace vm
         typedef void(*WalkTypesCallback)(Il2CppClass* type, void* context);
         static void WalkPointerTypes(WalkTypesCallback callback, void* context);
 
+        static bool StructLayoutPackIsDefault(TypeDefinitionIndex index);
+        static int32_t StructLayoutPack(TypeDefinitionIndex index);
+        static bool StructLayoutSizeIsDefault(TypeDefinitionIndex index);
     private:
         static void InitializeUnresolvedSignatureTable();
         static void InitializeStringLiteralTable();
