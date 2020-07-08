@@ -207,7 +207,7 @@ namespace
         return kApartmentStateUnknown;
     }
 
-#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
 
     ApartmentState GetApartmentWindowsXp(bool* implicit)
     {
