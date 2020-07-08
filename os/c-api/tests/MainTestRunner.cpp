@@ -4,7 +4,7 @@
 #include "il2cpp-config.h"
 #include "../Allocator.h"
 
-#if IL2CPP_TARGET_PS4
+#if IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5
 size_t g_args;
 const void *g_argp;
 #endif
