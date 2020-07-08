@@ -147,6 +147,11 @@ inline void il2cpp_codegen_raise_out_of_memory_exception()
     il2cpp::vm::Exception::RaiseOutOfMemoryException();
 }
 
+inline void il2cpp_codegen_raise_null_reference_exception()
+{
+    il2cpp::vm::Exception::RaiseNullReferenceException();
+}
+
 inline Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)
 {
     return (Exception_t*)il2cpp::vm::Exception::GetArgumentException(param, msg);
