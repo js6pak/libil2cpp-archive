@@ -61,7 +61,6 @@ namespace vm
             }
 
             IL2CPP_ASSERT(ips != NULL);
-            IL2CPP_ASSERT(raw_ips != NULL);
             IL2CPP_OBJECT_SETREF(ex, trace_ips, ips);
             IL2CPP_OBJECT_SETREF(ex, native_trace_ips, raw_ips);
         }
