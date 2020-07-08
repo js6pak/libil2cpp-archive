@@ -236,6 +236,9 @@ namespace vm
                 return GetPlatformNotSupportedException(message);
             }
 
+            case IL2CPP_E_FILE_NOT_FOUND:
+                return GetFileNotFoundException(message);
+
             default:
                 return defaultToCOMException
                     ? Exception::FromNameMsg(vm::Image::GetCorlib(), "System.Runtime.InteropServices", "COMException", message, hresult)
@@ -587,6 +590,11 @@ namespace vm
     Il2CppException* Exception::GetFileLoadException(const char* msg)
     {
         return FromNameMsg(Image::GetCorlib(), "System.IO", "FileLoadException", msg);
+    }
+
+    Il2CppException* Exception::GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg)
+    {
+        return FromNameMsg(Image::GetCorlib(), "System.IO", "FileNotFoundException", msg);
     }
 
     void Exception::StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString)
