@@ -84,6 +84,7 @@ namespace vm
         static Il2CppException* GetDivideByZeroException();
         static Il2CppException* GetPlatformNotSupportedException(const utils::StringView<Il2CppChar>& msg);
         static Il2CppException* GetFileLoadException(const char* msg);
+        static Il2CppException* GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg);
 
         static Il2CppException* GetMaxmimumNestedGenericsException();
 
