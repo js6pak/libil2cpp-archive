@@ -128,7 +128,7 @@
 #endif
 
 /* Platform support to cleanup attached threads even when native threads are not exited cleanly */
-#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32)
+#define IL2CPP_HAS_NATIVE_THREAD_CLEANUP (IL2CPP_THREADS_PTHREAD || IL2CPP_THREADS_WIN32 || IL2CPP_TARGET_SWITCH)
 
 #define IL2CPP_THREAD_IMPL_HAS_COM_APARTMENTS IL2CPP_TARGET_WINDOWS
 
@@ -400,6 +400,7 @@ typedef int32_t il2cpp_hresult_t;
 #define IL2CPP_RPC_E_WRONG_THREAD            ((il2cpp_hresult_t)0x8001010E)
 #define IL2CPP_DISP_E_PARAMNOTFOUND          ((il2cpp_hresult_t)0x80020004)
 #define IL2CPP_REGDB_E_CLASSNOTREG           ((il2cpp_hresult_t)0x80040154)
+#define IL2CPP_E_FILE_NOT_FOUND              ((il2cpp_hresult_t)0x80070002)
 #define IL2CPP_E_ACCESS_DENIED               ((il2cpp_hresult_t)0x80070005)
 #define IL2CPP_E_OUTOFMEMORY                 ((il2cpp_hresult_t)0x8007000E)
 #define IL2CPP_E_INVALIDARG                  ((il2cpp_hresult_t)0x80070057)
