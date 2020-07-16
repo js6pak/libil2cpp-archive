@@ -2,6 +2,10 @@
 
 #include <vector>
 
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
+#include "Cpp/ReentrantLock.h"
+
 #include "os/ConditionVariable.h"
 #include "os/Mutex.h"
 
@@ -67,7 +71,7 @@ struct ThreadPool
     ThreadPoolCounter counters;
 
     std::vector<ThreadPoolDomain*> domains;
-    il2cpp::os::FastMutex domains_lock;
+    baselib::ReentrantLock domains_lock;
 
     std::vector<Il2CppInternalThread*> working_threads;
     int32_t parked_threads_count;
@@ -76,15 +80,15 @@ struct ThreadPool
 
     uint32_t worker_creation_current_second;
     uint32_t worker_creation_current_count;
-    il2cpp::os::FastMutex worker_creation_lock;
+    baselib::ReentrantLock worker_creation_lock;
 
-    int32_t heuristic_completions;
+    baselib::atomic<int32_t> heuristic_completions;
     int64_t heuristic_sample_start;
     int64_t heuristic_last_dequeue; // ms
     int64_t heuristic_last_adjustment; // ms
     int64_t heuristic_adjustment_interval; // ms
     ThreadPoolHillClimbing heuristic_hill_climbing;
-    il2cpp::os::Mutex heuristic_lock;
+    baselib::ReentrantLock heuristic_lock;
 
     int32_t limit_worker_min;
     int32_t limit_worker_max;

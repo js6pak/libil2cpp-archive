@@ -15,7 +15,11 @@
 #include "os/Posix/Error.h"
 #include "utils/PathUtils.h"
 
-#include <assert.h>
+#if IL2CPP_SUPPORT_THREADS
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+#endif
+
 #include <fcntl.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -37,7 +41,7 @@ namespace os
     static FileHandle* s_fileHandleHead = NULL;
     static FileHandle* s_fileHandleTail = NULL;
 #if IL2CPP_SUPPORT_THREADS
-    static FastMutex s_fileHandleMutex;
+    static baselib::ReentrantLock s_fileHandleMutex;
 #endif
 
     static void AddFileHandle(FileHandle *fileHandle)

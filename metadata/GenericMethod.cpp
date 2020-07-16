@@ -165,5 +165,10 @@ namespace metadata
 
         return output;
     }
+
+    void GenericMethod::ClearStatics()
+    {
+        s_GenericMethodMap.clear();
+    }
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -1,13 +1,16 @@
 #pragma once
 
 #include "os/WindowsRuntime.h"
-#include "vm/Atomic.h"
 #include "vm/ComObjectBase.h"
 #include "vm/Exception.h"
 #include "utils/Memory.h"
 #include "utils/TemplateUtils.h"
 
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
+
 #include <new>
+
 namespace il2cpp
 {
 namespace vm
@@ -16,7 +19,7 @@ namespace vm
     struct NOVTABLE ActivationFactoryBase : public ComObjectBase, Il2CppIActivationFactory
     {
     private:
-        volatile uint32_t m_RefCount;
+        baselib::atomic<uint32_t> m_RefCount;
 
     public:
         ActivationFactoryBase() :
@@ -32,12 +35,12 @@ namespace vm
 
         IL2CPP_FORCE_INLINE uint32_t AddRefImpl()
         {
-            return Atomic::Increment(&m_RefCount);
+            return ++m_RefCount;
         }
 
         IL2CPP_FORCE_INLINE uint32_t ReleaseImpl()
         {
-            const uint32_t count = Atomic::Decrement(&m_RefCount);
+            const uint32_t count = --m_RefCount;
             if (count == 0)
                 Destroy();
 

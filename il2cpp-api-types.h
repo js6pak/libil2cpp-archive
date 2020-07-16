@@ -105,6 +105,7 @@ typedef enum
 typedef struct Il2CppStackFrameInfo
 {
     const MethodInfo *method;
+    uintptr_t raw_ip;
 } Il2CppStackFrameInfo;
 
 typedef void(*Il2CppMethodPointer)();

@@ -7,6 +7,7 @@
 
 #include "utils/Exception.h"
 
+#include "os/Atomic.h"
 #include "vm/Class.h"
 #include "vm/LastError.h"
 #include "vm/ThreadPoolMs.h"
@@ -32,6 +33,11 @@
 #include "vm/WindowsRuntime.h"
 #include "vm/StackTrace.h"
 #include "vm/Field.h"
+
+void* il2cpp_codegen_atomic_compare_exchange_pointer(void** dest, void* exchange, void* comparand)
+{
+    return il2cpp::os::Atomic::CompareExchangePointer(dest, exchange, comparand);
+}
 
 void il2cpp_codegen_marshal_store_last_error()
 {
@@ -76,6 +82,12 @@ Assembly_t* il2cpp_codegen_get_executing_assembly(const RuntimeMethod* method)
 void il2cpp_codegen_register(const Il2CppCodeRegistration* const codeRegistration, const Il2CppMetadataRegistration* const metadataRegistration, const Il2CppCodeGenOptions* const codeGenOptions)
 {
     il2cpp::vm::MetadataCache::Register(codeRegistration, metadataRegistration, codeGenOptions);
+}
+
+extern MetadataInitializerCleanupFunc g_ClearMethodMetadataInitializedFlags;
+void il2cpp_codegen_register_metadata_initialized_cleanup(MetadataInitializerCleanupFunc cleanup)
+{
+    g_ClearMethodMetadataInitializedFlags = cleanup;
 }
 
 void il2cpp_codegen_initialize_method(uint32_t index)
@@ -438,9 +450,73 @@ String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView<Il2Cpp
     return (String_t*)il2cpp::vm::String::NewUtf16(str.Str(), static_cast<int32_t>(str.Length()));
 }
 
-RuntimeString* il2cpp_codegen_type_append_assembly_name_if_necessary(RuntimeString* typeName, const char* assemblyName)
+RuntimeString* il2cpp_codegen_type_append_assembly_name_if_necessary(RuntimeString* typeName, const RuntimeMethod* callingMethod)
 {
-    return il2cpp::vm::Type::AppendAssemblyNameIfNecessary(typeName, assemblyName);
+    return il2cpp::vm::Type::AppendAssemblyNameIfNecessary(typeName, callingMethod);
+}
+
+Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, const RuntimeMethod* callingMethod)
+{
+    RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, callingMethod);
+
+    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
+    Il2CppException* exc = NULL;
+    void* params[] = {assemblyQualifiedTypeName};
+    Type_t* type = (Type_t*)il2cpp::vm::Runtime::Invoke(getTypeMethod, NULL, params, &exc);
+    if (exc)
+        il2cpp::vm::Exception::Raise(exc);
+    if (type == NULL)
+    {
+        params[0] = typeName;
+        type = (Type_t*)il2cpp::vm::Runtime::Invoke(getTypeMethod, NULL, params, &exc);
+        if (exc)
+            il2cpp::vm::Exception::Raise(exc);
+    }
+    return type;
+}
+
+Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, const RuntimeMethod* callingMethod)
+{
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool);
+    RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, callingMethod);
+
+    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
+    Il2CppException* exc = NULL;
+    void* params[] = {assemblyQualifiedTypeName, &throwOnError};
+    Type_t* type = (Type_t*)il2cpp::vm::Runtime::Invoke(getTypeMethod, NULL, params, &exc);
+    if (exc)
+        il2cpp::vm::Exception::Raise(exc);
+
+    if (type == NULL)
+    {
+        params[0] = typeName;
+        type = (Type_t*)il2cpp::vm::Runtime::Invoke(getTypeMethod, NULL, params, &exc);
+        if (exc)
+            il2cpp::vm::Exception::Raise(exc);
+    }
+    return type;
+}
+
+Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, bool ignoreCase, const RuntimeMethod* callingMethod)
+{
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool);
+    RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, callingMethod);
+    // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
+
+    Il2CppException* exc = NULL;
+    void* params[] = {assemblyQualifiedTypeName, &throwOnError, &ignoreCase};
+    Type_t* type = (Type_t*)il2cpp::vm::Runtime::Invoke(getTypeMethod, NULL, params, &exc);
+    if (exc)
+        il2cpp::vm::Exception::Raise(exc);
+
+    if (type == NULL)
+    {
+        params[0] = typeName;
+        type = (Type_t*)il2cpp::vm::Runtime::Invoke(getTypeMethod, NULL, params, &exc);
+        if (exc)
+            il2cpp::vm::Exception::Raise(exc);
+    }
+    return type;
 }
 
 NORETURN void RaiseInvalidCastException(RuntimeObject* obj, RuntimeClass* targetType)
@@ -649,14 +725,16 @@ Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
     return (Type_t*)il2cpp::vm::Reflection::GetTypeObject(&klass->parent->byval_arg);
 }
 
-Type_t* il2cpp_codegen_get_type_from_handle(intptr_t handle)
-{
-    return (Type_t*)il2cpp::vm::Type::GetTypeFromHandle(handle);
-}
-
 bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
 {
     return il2cpp::vm::Class::IsAssignableFrom((Il2CppReflectionType*)left, (Il2CppReflectionType*)right);
+}
+
+int il2cpp_codegen_double_to_string(double value, uint8_t* format, uint8_t* buffer, int bufferLength)
+{
+    // return number of characters written to the buffer. if the return value greater than bufferLength
+    // means the number of characters would be written to the buffer if there is enough space
+    return snprintf(reinterpret_cast<char*>(buffer), bufferLength, reinterpret_cast<char*>(format), value);
 }
 
 void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason)

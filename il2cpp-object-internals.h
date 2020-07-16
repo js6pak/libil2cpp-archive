@@ -43,8 +43,15 @@ namespace il2cpp
 {
 namespace os
 {
-    class FastMutex;
     class Thread;
+}
+}
+
+namespace baselib
+{
+    inline namespace il2cpp_baselib
+{
+    class ReentrantLock;
 }
 }
 #endif //__cplusplus
@@ -149,7 +156,7 @@ typedef struct Il2CppReflectionType
 typedef struct Il2CppReflectionRuntimeType
 {
     Il2CppReflectionType type;
-    Il2CppObject *type_info;
+    Il2CppObject* type_info;
     Il2CppObject* genericCache;
     Il2CppObject* serializationCtor;
 } Il2CppReflectionRuntimeType;
@@ -365,7 +372,7 @@ typedef struct Il2CppInternalThread
     void* appdomain_refs;
     int32_t interruption_requested;
 #ifdef __cplusplus
-    il2cpp::os::FastMutex* synch_cs;
+    baselib::ReentrantLock* synch_cs;
 #else
     void* synch_cs;
 #endif //__cplusplus
@@ -606,7 +613,7 @@ struct Il2CppComObject : Il2CppObject
     // and gets decremented when Marshal.ReleaseComObject gets called. Fortunately, since we
     // live in a world of fairies and garbage collectors, we don't actually have to release it
     // manually in order for it to get cleaned up automatically in the future.
-    volatile int32_t refCount;
+    int32_t refCount;
 };
 #endif //__cplusplus
 
@@ -904,10 +911,14 @@ typedef struct Il2CppAsyncCall
 
 
 #if RUNTIME_MONO
+#if defined(__cplusplus)
 extern "C"
 {
+#endif // __cplusplus
 #include <mono/metadata/object.h>
+#if defined(__cplusplus)
 }
+#endif // __cplusplus
 #endif
 
 typedef struct Il2CppExceptionWrapper Il2CppExceptionWrapper;

@@ -1,14 +1,17 @@
 #include "il2cpp-config.h"
 
-#if !RUNTIME_TINY
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "MemoryMappedFile.h"
+
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
 
 namespace il2cpp
 {
 namespace utils
 {
-    static os::FastMutex s_Mutex;
+    static baselib::ReentrantLock s_Mutex;
     static std::map<void*, os::FileHandle*> s_MappedAddressToMappedFileObject;
     static std::map<void*, int64_t> s_MappedAddressToMappedLength;
 

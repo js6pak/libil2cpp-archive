@@ -6,6 +6,9 @@
 #include "utils/TemplateUtils.h"
 #include "utils/Memory.h"
 
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
+
 namespace il2cpp
 {
 namespace vm
@@ -14,7 +17,7 @@ namespace vm
     struct NOVTABLE NonCachedCCWBase : CCWBase
     {
     private:
-        volatile uint32_t m_RefCount;
+        baselib::atomic<uint32_t> m_RefCount;
         uint32_t m_GCHandle;
 
     public:
@@ -36,12 +39,12 @@ namespace vm
 
         IL2CPP_FORCE_INLINE uint32_t AddRefImpl()
         {
-            return Atomic::Increment(&m_RefCount);
+            return ++m_RefCount;
         }
 
         IL2CPP_FORCE_INLINE uint32_t ReleaseImpl()
         {
-            const uint32_t count = Atomic::Decrement(&m_RefCount);
+            const uint32_t count = --m_RefCount;
             if (count == 0)
                 Destroy();
 

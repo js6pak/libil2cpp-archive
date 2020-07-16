@@ -8,7 +8,6 @@
 #include "vm/Profiler.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
-#include <assert.h>
 #include <memory>
 
 namespace il2cpp
@@ -131,6 +130,13 @@ namespace vm
             memset((char*)o + sizeof(Il2CppObject), 0, byte_len - sizeof(Il2CppObject));
 #endif
         }
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+        else if (klass->element_class->valuetype &&
+                 klass->element_class->gc_desc != GC_NO_DESCRIPTOR)
+        {
+            o = (Il2CppObject*)GC_gcj_vector_malloc(byte_len, klass);
+        }
+#endif
 #if IL2CPP_HAS_GC_DESCRIPTORS
         else if (klass->gc_desc != GC_NO_DESCRIPTOR)
         {

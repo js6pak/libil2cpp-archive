@@ -16,6 +16,9 @@
 #include "vm/String.h"
 #include "vm/Thread.h"
 
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+
 namespace il2cpp
 {
 namespace icalls
@@ -269,7 +272,7 @@ namespace Sockets
 
     static bool check_thread_status()
     {
-        static os::FastMutex _mutex;
+        static baselib::ReentrantLock _mutex;
 
         os::FastAutoLock lock(&_mutex);
 

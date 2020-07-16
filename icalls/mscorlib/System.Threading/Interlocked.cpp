@@ -6,6 +6,11 @@
 #include "os/Mutex.h"
 #include "vm/Exception.h"
 
+#if !IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+#endif
+
 union LongDoubleUnion
 {
     int64_t l_val;
@@ -29,7 +34,7 @@ namespace System
 namespace Threading
 {
 #if !IL2CPP_ENABLE_INTERLOCKED_64_REQUIRED_ALIGNMENT
-    static os::FastMutex m_Atomic64Mutex;
+    static baselib::ReentrantLock m_Atomic64Mutex;
 #endif
 
     void* Interlocked::CompareExchange_T(void** location, void* value, void* comparand)
@@ -41,7 +46,7 @@ namespace Threading
 
     intptr_t Interlocked::CompareExchangeIntPtr(intptr_t* location, intptr_t value, intptr_t comparand)
     {
-        return reinterpret_cast<intptr_t>(os::Atomic::CompareExchangePointer(reinterpret_cast<void*volatile*>(location), reinterpret_cast<void*>(value), reinterpret_cast<void*>(comparand)));
+        return reinterpret_cast<intptr_t>(os::Atomic::CompareExchangePointer(reinterpret_cast<void**>(location), reinterpret_cast<void*>(value), reinterpret_cast<void*>(comparand)));
     }
 
     int32_t Interlocked::CompareExchange(int32_t* location, int32_t value, int32_t comparand)
@@ -149,7 +154,7 @@ namespace Threading
 
     intptr_t Interlocked::ExchangeIntPtr(intptr_t* location, intptr_t value)
     {
-        return reinterpret_cast<intptr_t>(os::Atomic::ExchangePointer(reinterpret_cast<void*volatile*>(location), reinterpret_cast<void*>(value)));
+        return reinterpret_cast<intptr_t>(os::Atomic::ExchangePointer(reinterpret_cast<void**>(location), reinterpret_cast<void*>(value)));
     }
 
     int32_t Interlocked::Exchange(int32_t* location1, int32_t value)

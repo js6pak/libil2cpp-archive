@@ -286,7 +286,6 @@ typedef struct
 {
     MethodIndex methodIndex;
     MethodIndex invokerIndex;
-    MethodIndex adjustorThunkIndex;
 } Il2CppGenericMethodIndices;
 
 typedef struct Il2CppGenericMethodFunctionsDefinitions
@@ -302,6 +301,7 @@ typedef struct Il2CppAssemblyNameDefinition
 {
     StringIndex nameIndex;
     StringIndex cultureIndex;
+    StringIndex hashValueIndex;
     StringIndex publicKeyIndex;
     uint32_t hash_alg;
     int32_t hash_len;

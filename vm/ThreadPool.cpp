@@ -11,7 +11,6 @@
 #include "vm/Thread.h"
 #include "vm/ThreadPool.h"
 #include "vm/WaitHandle.h"
-#include "os/Atomic.h"
 #include "os/Environment.h"
 #include "os/Event.h"
 #include "os/Mutex.h"
@@ -28,6 +27,10 @@
 #include <list>
 #include <limits>
 #include <algorithm>
+
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
+#include "Cpp/ReentrantLock.h"
 
 #if IL2CPP_TARGET_POSIX
 #include <unistd.h>
@@ -121,7 +124,7 @@ namespace vm
 /// network requests. It's basically a separate staging step for socket AsyncResults.
     struct SocketPollingThread
     {
-        os::FastMutex mutex;
+        baselib::ReentrantLock mutex;
         AsyncResultQueue queue;
         os::Thread* thread;
         os::Event threadStartupAcknowledged;
@@ -239,13 +242,13 @@ namespace vm
 
         /// Number of threads currently waiting for new work.
         /// NOTE: Changed atomically.
-        volatile int32_t numIdleThreads;
+        baselib::atomic<uint32_t> numIdleThreads;
 
         /// Semaphore that worker threads listen on.
         os::Semaphore signalThreads;
 
         /// Mutex for queue and threads vector.
-        os::FastMutex mutex;
+        baselib::ReentrantLock mutex;
 
         /// Queue of pending items.
         /// NOTE: Requires lock on mutex.
@@ -659,7 +662,7 @@ namespace vm
             queue.push(asyncResult);
             gc::GarbageCollector::SetWriteBarrier((void**)&queue.back());
             IL2CPP_ASSERT(numIdleThreads >= 0);
-            if (queue.size() > static_cast<uint32_t>(numIdleThreads))
+            if (queue.size() > numIdleThreads)
                 forceNewThread = true;
         }
 
@@ -748,12 +751,12 @@ namespace vm
                 // No item so wait for signal. We need to allow interruptions here as we don't yet
                 // have proper abort support and the runtime currently uses interruptions to get
                 // background threads to exit.
-                os::Atomic::Increment(&numIdleThreads);
+                numIdleThreads++;
                 if (waitingToTerminate)
                     signalThreads.Wait(kGracePeriodBeforeExtranenousWorkerThreadTerminates, true);
                 else
                     signalThreads.Wait(true);
-                os::Atomic::Decrement(&numIdleThreads);
+                numIdleThreads--;
 
                 // Try again.
                 continue;

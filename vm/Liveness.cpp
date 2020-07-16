@@ -93,7 +93,8 @@ namespace vm
         callback_userdata(NULL),
         filter_callback(NULL),
         onWorldStarted(onWorldStarted),
-        onWorldStopped(onWorldStopped)
+        onWorldStopped(onWorldStopped),
+        traverse_depth(0)
     {
 // construct liveness_state;
 // allocate memory for the following structs

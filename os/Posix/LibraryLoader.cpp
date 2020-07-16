@@ -23,6 +23,11 @@
 #include "utils/StringUtils.h"
 #include "utils/Environment.h"
 
+#if !IL2CPP_TINY_WITHOUT_DEBUGGER
+#include "Baselib.h"
+#include "Cpp/ReentrantLock.h"
+#endif
+
 namespace il2cpp
 {
 namespace os
@@ -30,7 +35,7 @@ namespace os
 #if !IL2CPP_TINY_WITHOUT_DEBUGGER
     static std::set<void*> s_NativeHandlesOpen;
     typedef std::set<void*>::const_iterator OpenHandleIterator;
-    os::FastMutex s_NativeHandlesOpenMutex;
+    baselib::ReentrantLock s_NativeHandlesOpenMutex;
 #endif
 
     struct LibraryNamePrefixAndSuffix
@@ -147,12 +152,12 @@ namespace os
         return NULL;
     }
 
-    void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
+    void* LibraryLoader::LoadDynamicLibraryImpl(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary)
     {
-        return LoadDynamicLibrary(nativeDynamicLibrary, RTLD_LAZY);
+        return LoadDynamicLibraryImpl(nativeDynamicLibrary, RTLD_LAZY);
     }
 
-    void* LibraryLoader::LoadDynamicLibrary(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, int flags)
+    void* LibraryLoader::LoadDynamicLibraryImpl(const utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, int flags)
     {
 #ifdef VERBOSE_OUTPUT
         printf("Attempting to load dynamic library: %s\n", nativeDynamicLibrary.Str());

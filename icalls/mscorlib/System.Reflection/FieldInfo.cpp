@@ -40,12 +40,10 @@ namespace Reflection
         if (il2cppType == NULL)
             return vm::Reflection::GetFieldObject(fieldInfo->parent, fieldInfo);
 
-        Il2CppClass* originalClass = vm::Class::FromIl2CppType(il2cppType);
-
-        for (Il2CppClass* k = originalClass; k; k = k->parent)
+        for (Il2CppClass* k = vm::Class::FromIl2CppType(il2cppType); k; k = k->parent)
         {
             if (k == fieldInfo->parent)
-                return vm::Reflection::GetFieldObject(originalClass, fieldInfo);
+                return vm::Reflection::GetFieldObject(fieldInfo->parent, fieldInfo);
         }
 
         return NULL;

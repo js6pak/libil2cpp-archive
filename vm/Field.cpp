@@ -227,8 +227,8 @@ namespace vm
 
     void Field::SetInstanceFieldValueObject(Il2CppObject* objectInstance, FieldInfo* field, Il2CppObject* value)
     {
-        assert(!(field->type->attrs & FIELD_ATTRIBUTE_LITERAL));
-        assert(!Class::FromIl2CppType(field->type)->valuetype);
+        IL2CPP_ASSERT(!(field->type->attrs & FIELD_ATTRIBUTE_LITERAL));
+        IL2CPP_ASSERT(!Class::FromIl2CppType(field->type)->valuetype);
         gc::WriteBarrier::GenericStore(reinterpret_cast<uint8_t*>(objectInstance) + field->offset, value);
     }
 
@@ -268,7 +268,7 @@ namespace vm
                 *p = value ? *(Il2CppChar*)value : 0;
                 return;
             }
-#if IL2CPP_SIZEOF_VOID_P == 4
+#if SIZEOF_VOID_P == 4
             case IL2CPP_TYPE_I:
             case IL2CPP_TYPE_U:
 #endif
@@ -279,7 +279,7 @@ namespace vm
                 *p = value ? *(int32_t*)value : 0;
                 return;
             }
-#if IL2CPP_SIZEOF_VOID_P == 8
+#if SIZEOF_VOID_P == 8
             case IL2CPP_TYPE_I:
             case IL2CPP_TYPE_U:
 #endif

@@ -46,10 +46,10 @@ namespace gc
         return -1;
     }
 
-    static os::FastMutex g_HandlesMutex;
+    static baselib::ReentrantLock g_HandlesMutex;
 
-#define lock_handles(handles) g_HandlesMutex.Lock ()
-#define unlock_handles(handles) g_HandlesMutex.Unlock ()
+#define lock_handles(handles) g_HandlesMutex.Acquire ()
+#define unlock_handles(handles) g_HandlesMutex.Release ()
 
     static uint32_t
     alloc_handle(HandleData *handles, Il2CppObject *obj, bool track)

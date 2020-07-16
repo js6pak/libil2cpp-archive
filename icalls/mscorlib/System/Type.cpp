@@ -279,7 +279,7 @@ namespace System
         if ((strcmp(klass->namespaze, "System") == 0 && strcmp(klass->name, "TypedReference") == 0))
         {
             std::string message;
-            message = "Could not create array type '" + std::string(klass->namespaze) + "." + klass->name + "[]'.";
+            message + "Could not create array type '" + klass->namespaze + "." + klass->name + "[]'.";
             il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
         }
     }
@@ -458,8 +458,7 @@ namespace System
 
     void Type::GetPacking(Il2CppReflectionType* type, int32_t* packing, int32_t* size)
     {
-        const Il2CppType* runtimeType = vm::Type::IsGenericInstance(type->type) ? vm::Type::GetGenericTypeDefintion(type->type) : type->type;
-        Il2CppClass* klass = vm::Class::FromIl2CppType(runtimeType);
+        Il2CppClass* klass = vm::Class::FromIl2CppType(type->type);
         TypeDefinitionIndex index = vm::MetadataCache::GetIndexForTypeDefinition(klass);
         if (vm::MetadataCache::StructLayoutPackIsDefault(index))
             *packing = 8;

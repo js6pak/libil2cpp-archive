@@ -1210,12 +1210,6 @@ namespace vm
         return MetadataCache::GetGenericParameterFromIndex(type->data.genericParameterIndex);
     }
 
-    const Il2CppType* Type::GetGenericTypeDefintion(const Il2CppType* type)
-    {
-        IL2CPP_ASSERT(IsGenericInstance(type));
-        return Class::GetType(GenericClass::GetTypeDefinition(type->data.generic_class));
-    }
-
 /**
 * Type::ConstructDelegate:
 * @delegate: pointer to an uninitialized delegate object
@@ -1246,7 +1240,7 @@ namespace vm
 #endif
     }
 
-    Il2CppString* Type::AppendAssemblyNameIfNecessary(Il2CppString* typeName, const char* assemblyName)
+    Il2CppString* Type::AppendAssemblyNameIfNecessary(Il2CppString* typeName, const MethodInfo* callingMethod)
     {
         if (typeName != NULL)
         {
@@ -1260,7 +1254,7 @@ namespace vm
                 if (info.assembly_name().name.empty())
                 {
                     std::string assemblyQualifiedName;
-                    assemblyQualifiedName = name + ", " + assemblyName;
+                    assemblyQualifiedName = name + ", " + callingMethod->klass->image->name;
                     return vm::String::New(assemblyQualifiedName.c_str());
                 }
             }

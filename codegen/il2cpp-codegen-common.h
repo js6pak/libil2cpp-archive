@@ -3,6 +3,7 @@
 #include "il2cpp-config.h"
 
 #include <cmath>
+#include <cstdlib>
 
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
@@ -125,21 +126,6 @@ inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
     return (TOutput)((TInput)value);
 }
 
-// ARM targets handle a cast of floating point positive infinity (0x7F800000)
-// differently from Intel targets. The expected behavior for .NET is from Intel,
-// where the cast to a 32-bit int produces the value 0x80000000. On ARM, the sign
-// is unchanged, producing 0x7FFFFFFF. To work around this change the positive
-// infinity value to negative infinity.
-template<typename T>
-inline T il2cpp_codegen_cast_double_to_int(double value)
-{
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-    if (value == INFINITY)
-        return (T)-value;
-#endif
-    return (T)value;
-}
-
 // Exception support macros
 #define IL2CPP_LEAVE(Offset, Target) \
     __leave_targets.push(Offset); \
@@ -191,16 +177,16 @@ inline T VolatileRead(T* location)
     return result;
 }
 
-template<typename T, typename U>
-inline void VolatileWrite(T** location, U* value)
+template<typename T>
+inline void VolatileWrite(T** location, T* value)
 {
     il2cpp_codegen_memory_barrier();
     *location = value;
     Il2CppCodeGenWriteBarrier((void**)location, value);
 }
 
-template<typename T, typename U>
-inline void VolatileWrite(T* location, U value)
+template<typename T>
+inline void VolatileWrite(T* location, T value)
 {
     il2cpp_codegen_memory_barrier();
     *location = value;
@@ -212,6 +198,8 @@ inline void il2cpp_codegen_write_to_stdout(const char* str)
 }
 
 #if IL2CPP_TARGET_LUMIN
+#include <stdarg.h>
+#include <stdio.h>
 inline void il2cpp_codegen_write_to_stdout_args(const char* str, ...)
 {
     va_list args, local;
@@ -432,28 +420,4 @@ inline bool il2cpp_codegen_platform_is_freebsd()
 inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
 {
     return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
-}
-
-template<typename T>
-inline T il2cpp_unsafe_read_unaligned(void* location)
-{
-    T result;
-#if IL2CPP_TARGET_ARMV7 || IL2CPP_TARGET_JAVASCRIPT
-    memcpy(&result, location, sizeof(T));
-#else
-    result = *((T*)location);
-#endif
-    return result;
-}
-
-#define IL2CPP_UNSAFE_READ_UNALIGNED(TReturnType, location) il2cpp_unsafe_read_unaligned<TReturnType>(location)
-
-template<typename T>
-inline void il2cpp_unsafe_write_unaligned(void* location, T value)
-{
-#if IL2CPP_TARGET_ARMV7 || IL2CPP_TARGET_JAVASCRIPT
-    memcpy(location, &value, sizeof(T));
-#else
-    *((T*)location) = value;
-#endif
 }

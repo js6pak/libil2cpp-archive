@@ -33,3 +33,10 @@ void* il2cpp::vm::MetadataLoader::LoadMetadataFile(const char* fileName)
 
     return fileBuffer;
 }
+
+void il2cpp::vm::MetadataLoader::UnloadMetadataFile(void* fileBuffer)
+{
+    bool success = il2cpp::utils::MemoryMappedFile::Unmap(fileBuffer);
+    NO_UNUSED_WARNING(success);
+    IL2CPP_ASSERT(success);
+}

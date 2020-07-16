@@ -37,6 +37,8 @@ namespace vm
         static void InitializeGCSafe();
         static void InitializeAllMethodMetadata();
 
+        static void Clear();
+
         static Il2CppClass* GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
         static const MethodInfo* GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const Il2CppGenericContext* context);
         static const MethodInfo* GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
@@ -58,7 +60,7 @@ namespace vm
         static InvokerMethod GetInvokerMethodPointer(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
         static Il2CppMethodPointer GetMethodPointer(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
 
-        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError = true);
+        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index);
         static const Il2CppType* GetIl2CppTypeFromIndex(TypeIndex index);
         static const MethodInfo* GetMethodInfoFromIndex(EncodedMethodIndex index);
         static const Il2CppGenericMethod* GetGenericMethodFromIndex(GenericMethodIndex index);
@@ -68,7 +70,6 @@ namespace vm
         static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index);
         static void InitializeMethodMetadata(uint32_t index);
 
-        static Il2CppMethodPointer GetAdjustorThunk(const Il2CppImage* image, uint32_t token);
         static Il2CppMethodPointer GetMethodPointer(const Il2CppImage* image, uint32_t token);
         static InvokerMethod GetMethodInvoker(const Il2CppImage* image, uint32_t token);
         static const Il2CppInteropData* GetInteropDataForType(const Il2CppType* type);
@@ -132,7 +133,7 @@ namespace vm
         static void InitializeGenericMethodTable();
         static void InitializeWindowsRuntimeTypeNamesTables();
         static void InitializeGuidToClassTable();
-        static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages, bool throwOnError);
+        static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages);
     };
 } // namespace vm
 } // namespace il2cpp
