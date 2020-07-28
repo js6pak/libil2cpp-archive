@@ -41,7 +41,7 @@ namespace os
         const HardcodedPInvokeDependencyFunction* functions;
     };
 
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP && !IL2CPP_TARGET_WINDOWS_GAMES
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP
     const HardcodedPInvokeDependencyFunction kAdvapiFunctions[] =
     {
 #if !IL2CPP_TARGET_XBOXONE
