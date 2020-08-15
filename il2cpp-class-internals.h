@@ -310,8 +310,8 @@ typedef struct Il2CppCatchPoint
     MethodIndex __methodDefinitionIndex;
     TypeIndex catchTypeIndex;
     int32_t ilOffset;
-    int8_t tryId;
-    int8_t parentTryId;
+    int32_t tryId;
+    int32_t parentTryId;
 } Il2CppCatchPoint;
 
 typedef struct Il2CppDebuggerMetadataRegistration
