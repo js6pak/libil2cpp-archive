@@ -22,8 +22,7 @@
 #include "metadata/Il2CppGenericInstHash.h"
 #include "metadata/Il2CppGenericMethodCompare.h"
 #include "metadata/Il2CppGenericMethodHash.h"
-#include "metadata/Il2CppSignatureCompare.h"
-#include "metadata/Il2CppSignatureHash.h"
+#include "metadata/Il2CppSignature.h"
 #include "os/Atomic.h"
 #include "os/Mutex.h"
 #include "utils/CallOnce.h"
@@ -436,19 +435,23 @@ void il2cpp::vm::GlobalMetadata::InitializeWindowsRuntimeTypeNamesTables(Windows
 
 void il2cpp::vm::GlobalMetadata::InitializeUnresolvedSignatureTable(Il2CppUnresolvedSignatureMap& unresolvedSignatureMap)
 {
+    unresolvedSignatureMap.resize(s_GlobalMetadata_CodeRegistration->unresolvedVirtualCallCount);
+
     for (uint32_t i = 0; i < s_GlobalMetadata_CodeRegistration->unresolvedVirtualCallCount; ++i)
     {
         const Il2CppMetadataRange* range = MetadataOffset<Il2CppMetadataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->unresolvedVirtualCallParameterRangesOffset, i);
-        il2cpp::utils::dynamic_array<const Il2CppType*> signature;
+        il2cpp::metadata::Il2CppSignature signature;
+        signature.Count = range->length;
+        signature.Types = (const Il2CppType**)MetadataMalloc(range->length * sizeof(Il2CppType*));
 
         for (int j = 0; j < range->length; ++j)
         {
             TypeIndex typeIndex = *MetadataOffset<TypeIndex*>(s_GlobalMetadata, s_GlobalMetadataHeader->unresolvedVirtualCallParameterTypesOffset, range->start + j);
             const Il2CppType* type = GetIl2CppTypeFromIndex(typeIndex);
-            signature.push_back(type);
+            signature.Types[j] = type;
         }
 
-        unresolvedSignatureMap[signature] = s_GlobalMetadata_CodeRegistration->unresolvedVirtualCallPointers[i];
+        unresolvedSignatureMap.insert(std::make_pair(signature, s_GlobalMetadata_CodeRegistration->unresolvedVirtualCallPointers[i]));
     }
 }
 
@@ -1533,6 +1536,9 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodHandle(Il2C
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
 void il2cpp::vm::GlobalMetadata::GetAllManagedMethods(std::vector<MethodDefinitionKey>& managedMethods)
 {
+    size_t methodDefinitionsCount = s_GlobalMetadataHeader->methodsCount / sizeof(Il2CppMethodDefinition);
+    managedMethods.reserve(methodDefinitionsCount + s_Il2CppMetadataRegistration->genericMethodTableCount);
+
     const Il2CppTypeDefinition* typeDefinitions = (const Il2CppTypeDefinition*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->typeDefinitionsOffset);
     for (int32_t i = 0; i < s_MetadataImagesCount; i++)
     {
