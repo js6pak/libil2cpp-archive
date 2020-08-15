@@ -179,7 +179,7 @@ namespace vm
 
         for (uint16_t i = 0; i < 2; i++)
         {
-            const MethodInfo* methodToInvoke;
+            const MethodInfo* methodToInvoke = NULL;
             const FieldInfo& field = keyValuePairGenericInstance->fields[i];
 
             // Figure out which getter to call
