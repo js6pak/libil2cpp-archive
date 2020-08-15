@@ -185,7 +185,7 @@ namespace utils
     const CharType* variableName; \
     do \
     { \
-        if (stringView.IsNullTerminated()) \
+        if (!stringView.IsEmpty() && stringView.IsNullTerminated()) \
         { \
             variableName = stringView.Str(); \
         } \
