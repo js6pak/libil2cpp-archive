@@ -561,7 +561,31 @@ namespace vm
 
         IL2CPP_ASSERT(klass->valuetype);
 
-        size = Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
+        if (!klass->size_inited)
+        {
+            // If the size of a value type is not intialized, we cannot continue.
+            // This might mean this is a recursively defined struct, where one value type
+            // has a field of anotehr value type, which in turn has the first as a field.
+            // The runtime should throw a type load exception in this case.
+            std::string message;
+            message += "Could not load type '";
+            if (strlen(klass->namespaze) != 0)
+            {
+                message += klass->namespaze;
+                message += ":";
+            }
+            message += klass->name;
+            message += "'";
+            klass->has_initialization_error = true;
+            Class::UpdateInitializedAndNoError(klass);
+            klass->initializationExceptionGCHandle = gc::GCHandle::New(il2cpp::vm::Exception::GetTypeLoadException(message.c_str()), false);
+
+            size = 1;
+        }
+        else
+        {
+            size = Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
+        }
 
         if (align)
             *align = klass->minimumAlignment;
@@ -837,6 +861,22 @@ namespace vm
         }
     }
 
+    static size_t UpdateInstanceSizeForGenericClass(Il2CppClass* klass, size_t instanceSize)
+    {
+        // need to set this in case there are no fields in a generic instance type
+        if (klass->generic_class)
+        {
+            const Il2CppClass* genericTypeDef = il2cpp::vm::MetadataCache::GetTypeInfoFromType(klass->generic_class->type);
+            // If the generic class has an instance size, it was explictly set
+            if (genericTypeDef->instance_size > 0 && genericTypeDef->instance_size > instanceSize)
+                instanceSize = genericTypeDef->instance_size;
+
+            klass->instance_size = static_cast<uint32_t>(instanceSize);
+        }
+
+        return instanceSize;
+    }
+
     static void LayoutFieldsLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
         if (Class::IsGeneric(klass))
@@ -924,9 +964,7 @@ namespace vm
                 klass->actualSize = IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS + sizeof(Il2CppObject);
             }
 
-            // need to set this in case there are no fields in a generic instance type
-            if (klass->generic_class)
-                klass->instance_size = static_cast<uint32_t>(instanceSize);
+            instanceSize = UpdateInstanceSizeForGenericClass(klass, instanceSize);
 
             klass->size_inited = true;
 
@@ -957,8 +995,7 @@ namespace vm
         else
         {
             // need to set this in case there are no fields in a generic instance type
-            if (klass->generic_class)
-                klass->instance_size = static_cast<uint32_t>(instanceSize);
+            instanceSize = UpdateInstanceSizeForGenericClass(klass, instanceSize);
 
             // Always set the actual size, as a derived class without fields could end up
             // with the wrong actual size (i.e. sizeof may be incorrect), if the last
@@ -1066,8 +1103,8 @@ namespace vm
                 return;
             }
 
-            klass->methods = (const MethodInfo**)IL2CPP_CALLOC(klass->method_count, sizeof(MethodInfo*));
-            MethodInfo* methods = (MethodInfo*)IL2CPP_CALLOC(klass->method_count, sizeof(MethodInfo));
+            klass->methods = (const MethodInfo**)MetadataCalloc(klass->method_count, sizeof(MethodInfo*));
+            MethodInfo* methods = (MethodInfo*)MetadataCalloc(klass->method_count, sizeof(MethodInfo));
             MethodInfo* newMethod = methods;
 
             MethodIndex end = klass->method_count;
@@ -1084,7 +1121,7 @@ namespace vm
 
                 newMethod->parameters_count = (uint8_t)methodInfo.parameterCount;
 
-                ParameterInfo* parameters = (ParameterInfo*)IL2CPP_CALLOC(methodInfo.parameterCount, sizeof(ParameterInfo));
+                ParameterInfo* parameters = (ParameterInfo*)MetadataCalloc(methodInfo.parameterCount, sizeof(ParameterInfo));
                 ParameterInfo* newParameter = parameters;
                 for (uint16_t paramIndex = 0; paramIndex < methodInfo.parameterCount; ++paramIndex)
                 {
@@ -1249,7 +1286,7 @@ namespace vm
             // we need methods initialized since we reference them via index below
             SetupMethodsLocked(klass, lock);
 
-            EventInfo* events = (EventInfo*)IL2CPP_CALLOC(klass->event_count, sizeof(EventInfo));
+            EventInfo* events = (EventInfo*)MetadataCalloc(klass->event_count, sizeof(EventInfo));
             EventInfo* newEvent = events;
 
             EventIndex end = klass->event_count;
@@ -1294,7 +1331,7 @@ namespace vm
             // we need methods initialized since we reference them via index below
             SetupMethodsLocked(klass, lock);
 
-            PropertyInfo* properties = (PropertyInfo*)IL2CPP_CALLOC(klass->property_count, sizeof(PropertyInfo));
+            PropertyInfo* properties = (PropertyInfo*)MetadataCalloc(klass->property_count, sizeof(PropertyInfo));
             PropertyInfo* newProperty = properties;
 
             PropertyIndex end = klass->property_count;

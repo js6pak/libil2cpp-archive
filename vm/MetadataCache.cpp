@@ -439,9 +439,9 @@ const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const Il2CppT
     if (iter != s_GenericInstSet.end())
         return *iter;
 
-    Il2CppGenericInst* newInst = (Il2CppGenericInst*)IL2CPP_MALLOC(sizeof(Il2CppGenericInst));
+    Il2CppGenericInst* newInst = (Il2CppGenericInst*)MetadataMalloc(sizeof(Il2CppGenericInst));
     newInst->type_argc = typeCount;
-    newInst->type_argv = (const Il2CppType**)IL2CPP_MALLOC(newInst->type_argc * sizeof(Il2CppType*));
+    newInst->type_argv = (const Il2CppType**)MetadataMalloc(newInst->type_argc * sizeof(Il2CppType*));
 
     index = 0;
     for (const Il2CppType* const* iter = types; iter != typesEnd; ++iter, ++index)
@@ -779,11 +779,13 @@ static const Il2CppType* GetReducedType(const Il2CppType* type)
 
 Il2CppMethodPointer il2cpp::vm::MetadataCache::GetUnresolvedVirtualCallStub(const MethodInfo* method)
 {
-    il2cpp::utils::dynamic_array<const Il2CppType*> signature;
+    il2cpp::metadata::Il2CppSignature signature;
+    signature.Count = method->parameters_count + 1;
+    signature.Types = (const Il2CppType**)alloca(signature.Count * sizeof(Il2CppType*));
 
-    signature.push_back(GetReducedType(method->return_type));
+    signature.Types[0] = GetReducedType(method->return_type);
     for (int i = 0; i < method->parameters_count; ++i)
-        signature.push_back(GetReducedType(method->parameters[i].parameter_type));
+        signature.Types[i + 1] = GetReducedType(method->parameters[i].parameter_type);
 
     Il2CppUnresolvedSignatureMapIter it = s_pUnresolvedSignatureMap->find(signature);
     if (it != s_pUnresolvedSignatureMap->end())

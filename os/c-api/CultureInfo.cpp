@@ -4,6 +4,7 @@
 
 #include "os/Locale.h"
 #include "os/MarshalAlloc.h"
+#include <cstring>
 
 extern "C"
 {
