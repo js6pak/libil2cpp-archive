@@ -43,9 +43,14 @@ namespace Image
         {
             const char* imageName = _dyld_get_image_name(i);
             if (strstr(imageName, "GameAssembly.dylib") != NULL || strstr(imageName, "UnityFramework.framework/UnityFramework") != NULL)
+            {
                 gameAssemblyImageIndex = i;
+                break;
+            }
             else if (strcmp(imageName, &path[0]) == 0)
+            {
                 executableImageIndex = i;
+            }
         }
 
         if (gameAssemblyImageIndex != -1)
