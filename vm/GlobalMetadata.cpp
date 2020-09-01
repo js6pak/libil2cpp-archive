@@ -345,7 +345,7 @@ void il2cpp::vm::GlobalMetadata::InitializeAllMethodMetadata()
             case kIl2CppMetadataUsageTypeInfo:
             case kIl2CppMetadataUsageMethodDef:
             case kIl2CppMetadataUsageMethodRef:
-                InitializeRuntimeMetadata(metadataPointer);
+                InitializeRuntimeMetadata(metadataPointer, false);
                 break;
             default:
                 break;
@@ -356,7 +356,7 @@ void il2cpp::vm::GlobalMetadata::InitializeAllMethodMetadata()
 // This method can be called from multiple threads, so it does have a data race. However, each
 // thread is reading from the same read-only metadata, so each thread will set the same values.
 // Therefore, we can safely ignore thread sanitizer issues in this method.
-void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataPointer) IL2CPP_DISABLE_TSAN
+void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataPointer, bool throwOnError) IL2CPP_DISABLE_TSAN
 {
     // This must be the only read of *metadataPointer
     // This code has no locks and we need to ensure that we only read metadataPointer once
@@ -375,7 +375,7 @@ void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataP
     switch (usage)
     {
         case kIl2CppMetadataUsageTypeInfo:
-            initialized = (void*)il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(decodedIndex);
+            initialized = (void*)il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(decodedIndex, throwOnError);
             break;
         case kIl2CppMetadataUsageIl2CppType:
             initialized = (void*)il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(decodedIndex);
@@ -397,7 +397,8 @@ void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataP
             break;
     }
 
-    *metadataPointer = (uintptr_t)initialized;
+    if (initialized != NULL)
+        *metadataPointer = (uintptr_t)initialized;
 
     return initialized;
 }
@@ -1503,7 +1504,7 @@ Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeSourcePair(const Il2
     return GetTypeInfoFromTypeDefinitionIndex(pair->__klassIndex);
 }
 
-Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(TypeIndex index)
+Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError)
 {
     if (index == kTypeIndexInvalid)
         return NULL;
@@ -1514,9 +1515,12 @@ Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(TypeIndex inde
         return s_TypeInfoTable[index];
 
     const Il2CppType* type = s_Il2CppMetadataRegistration->types[index];
-    Il2CppClass *klass = Class::FromIl2CppType(type);
-    ClassInlines::InitFromCodegen(klass);
-    s_TypeInfoTable[index] = klass;
+    Il2CppClass *klass = Class::FromIl2CppType(type, throwOnError);
+    if (klass != NULL)
+    {
+        ClassInlines::InitFromCodegen(klass);
+        s_TypeInfoTable[index] = klass;
+    }
 
     return s_TypeInfoTable[index];
 }
