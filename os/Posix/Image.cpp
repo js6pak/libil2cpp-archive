@@ -30,8 +30,10 @@ namespace os
 {
 namespace Image
 {
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
     static char* s_ManagedSectionStart = NULL;
     static char* s_ManagedSectionEnd = NULL;
+#endif
 
     void* GetImageBase()
     {
@@ -48,6 +50,7 @@ namespace Image
 #endif
     }
 
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
     static IL2CPP_METHOD_ATTR void NoGeneratedCodeWorkaround()
     {
     }
@@ -58,6 +61,8 @@ namespace Image
         s_ManagedSectionStart = &__start_il2cpp;
         s_ManagedSectionEnd = &__stop_il2cpp;
     }
+
+#endif
 
     void Initialize()
     {
