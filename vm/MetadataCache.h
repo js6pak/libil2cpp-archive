@@ -60,7 +60,7 @@ namespace vm
         static InvokerMethod GetInvokerMethodPointer(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
         static Il2CppMethodPointer GetMethodPointer(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
 
-        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index);
+        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError = true);
         static const Il2CppType* GetIl2CppTypeFromIndex(TypeIndex index);
         static const MethodInfo* GetMethodInfoFromIndex(EncodedMethodIndex index);
         static const Il2CppGenericMethod* GetGenericMethodFromIndex(GenericMethodIndex index);
@@ -133,7 +133,7 @@ namespace vm
         static void InitializeGenericMethodTable();
         static void InitializeWindowsRuntimeTypeNamesTables();
         static void InitializeGuidToClassTable();
-        static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages);
+        static void IntializeMethodMetadataRange(uint32_t start, uint32_t count, const utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages, bool throwOnError);
     };
 } // namespace vm
 } // namespace il2cpp

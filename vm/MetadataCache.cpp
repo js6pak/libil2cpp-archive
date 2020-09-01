@@ -777,7 +777,7 @@ Il2CppMethodPointer il2cpp::vm::MetadataCache::GetMethodPointer(const MethodInfo
     return NULL;
 }
 
-Il2CppClass* il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(TypeIndex index)
+Il2CppClass* il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError)
 {
     if (index == kTypeIndexInvalid)
         return NULL;
@@ -788,9 +788,12 @@ Il2CppClass* il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(TypeIndex index
         return s_TypeInfoTable[index];
 
     const Il2CppType* type = s_Il2CppMetadataRegistration->types[index];
-    Il2CppClass *klass = il2cpp::vm::Class::FromIl2CppType(type);
-    il2cpp::vm::ClassInlines::InitFromCodegen(klass);
-    s_TypeInfoTable[index] = klass;
+    Il2CppClass *klass = il2cpp::vm::Class::FromIl2CppType(type, throwOnError);
+    if (klass)
+    {
+        il2cpp::vm::ClassInlines::InitFromCodegen(klass);
+        s_TypeInfoTable[index] = klass;
+    }
 
     return s_TypeInfoTable[index];
 }
@@ -1645,7 +1648,7 @@ static bool IsMatchingUsage(Il2CppMetadataUsage usage, const il2cpp::utils::dyna
 // This method can be called from multiple threads, so it does have a data race. However, each
 // thread is reading from the same read-only metadata, so each thread will set the same values.
 // Therefore, we can safely ignore thread sanitizer issues in this method.
-void il2cpp::vm::MetadataCache::IntializeMethodMetadataRange(uint32_t start, uint32_t count, const il2cpp::utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages) IL2CPP_DISABLE_TSAN
+void il2cpp::vm::MetadataCache::IntializeMethodMetadataRange(uint32_t start, uint32_t count, const il2cpp::utils::dynamic_array<Il2CppMetadataUsage>& expectedUsages, bool throwOnError) IL2CPP_DISABLE_TSAN
 {
     for (uint32_t i = 0; i < count; i++)
     {
@@ -1662,7 +1665,7 @@ void il2cpp::vm::MetadataCache::IntializeMethodMetadataRange(uint32_t start, uin
             switch (usage)
             {
                 case kIl2CppMetadataUsageTypeInfo:
-                    *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetTypeInfoFromTypeIndex(decodedIndex);
+                    *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = GetTypeInfoFromTypeIndex(decodedIndex, throwOnError);
                     break;
                 case kIl2CppMetadataUsageIl2CppType:
                     *s_Il2CppMetadataRegistration->metadataUsages[destinationIndex] = const_cast<Il2CppType*>(GetIl2CppTypeFromIndex(decodedIndex));
@@ -1691,7 +1694,7 @@ void il2cpp::vm::MetadataCache::InitializeAllMethodMetadata()
     onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageMethodDef);
     onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageMethodRef);
     onlyAcceptMethodUsages.push_back(kIl2CppMetadataUsageTypeInfo);
-    IntializeMethodMetadataRange(0, s_GlobalMetadataHeader->metadataUsagePairsCount / sizeof(Il2CppMetadataUsagePair), onlyAcceptMethodUsages);
+    IntializeMethodMetadataRange(0, s_GlobalMetadataHeader->metadataUsagePairsCount / sizeof(Il2CppMetadataUsagePair), onlyAcceptMethodUsages, false);
 }
 
 void il2cpp::vm::MetadataCache::InitializeMethodMetadata(uint32_t index)
@@ -1704,7 +1707,7 @@ void il2cpp::vm::MetadataCache::InitializeMethodMetadata(uint32_t index)
     uint32_t count = metadataUsageLists->count;
 
     il2cpp::utils::dynamic_array<Il2CppMetadataUsage> acceptAllUsages;
-    IntializeMethodMetadataRange(start, count, acceptAllUsages);
+    IntializeMethodMetadataRange(start, count, acceptAllUsages, true);
 }
 
 void il2cpp::vm::MetadataCache::WalkPointerTypes(WalkTypesCallback callback, void* context)
