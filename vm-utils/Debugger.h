@@ -16,7 +16,7 @@ typedef struct Il2CppSequencePointExecutionContext
     void** params;
     void** locals;
     Il2CppSequencePoint* currentSequencePoint;
-    int8_t tryId;
+    int32_t tryId;
 
 #ifdef __cplusplus
     Il2CppSequencePointExecutionContext(const MethodInfo* method, void** thisArg, void** params, void** locals);
