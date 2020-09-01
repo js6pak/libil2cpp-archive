@@ -286,7 +286,8 @@ inline bool il2cpp_codegen_method_is_virtual(RuntimeMethod* method)
 
 inline bool il2cpp_codegen_object_is_of_sealed_type(RuntimeObject* obj)
 {
-    return obj != NULL && (obj->klass->flags & TYPE_ATTRIBUTE_SEALED) != 0;
+    IL2CPP_ASSERT(obj);
+    return (obj->klass->flags & TYPE_ATTRIBUTE_SEALED) != 0;
 }
 
 bool il2cpp_codegen_method_is_generic_instance(RuntimeMethod* method);
