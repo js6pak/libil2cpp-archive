@@ -994,7 +994,7 @@ void il2cpp::vm::MetadataCache::InitializeAllMethodMetadata()
 
 void* il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(uintptr_t* metadataPointer)
 {
-    return il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(metadataPointer);
+    return il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(metadataPointer, true);
 }
 
 void il2cpp::vm::MetadataCache::WalkPointerTypes(WalkTypesCallback callback, void* context)

@@ -374,7 +374,7 @@ inline const VirtualInvokeData& il2cpp_codegen_get_interface_invoke_data(Il2CppM
             return il2cpp_codegen_get_virtual_invoke_data((Il2CppMethodSlot)obj->klass->GetInterfaceOffsets()[i] + slot, obj);
     }
 
-    tiny::vm::Exception::Raise(NULL);
+    tiny::vm::Exception::Raise();
     IL2CPP_UNREACHABLE;
 }
 
@@ -404,11 +404,13 @@ NORETURN inline void il2cpp_codegen_raise_exception(Exception_t* ex, RuntimeMeth
     IL2CPP_UNREACHABLE;
 }
 
-NORETURN inline void il2cpp_codegen_raise_execution_engine_exception(const void* method)
+NORETURN inline void il2cpp_codegen_raise_execution_engine_exception(const char* message)
 {
-    tiny::vm::Exception::Raise(NULL);
+    tiny::vm::Exception::Raise(message);
     IL2CPP_UNREACHABLE;
 }
+
+NORETURN void il2cpp_codegen_raise_generic_virtual_method_exception(const char* methodFullName);
 
 inline Exception_t* il2cpp_codegen_get_marshal_directive_exception(const char* msg)
 {
@@ -608,7 +610,7 @@ private:
 inline const RuntimeMethod* GetVirtualMethodInfo(RuntimeObject* pThis, Il2CppMethodSlot slot)
 {
     if (!pThis)
-        tiny::vm::Exception::Raise(NULL);
+        tiny::vm::Exception::Raise();
 
     return (const RuntimeMethod*)pThis->klass->GetVTable()[slot];
 }
@@ -664,3 +666,5 @@ void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, T* value)
 {
     memcpy(((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), value, sizeof(T));
 }
+
+void il2cpp_codegen_marshal_store_last_error();

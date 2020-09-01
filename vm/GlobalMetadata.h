@@ -29,7 +29,7 @@ namespace vm
         static bool Initialize(int32_t* imagesCount, int32_t* assembliesCount);
 
         static void InitializeAllMethodMetadata();
-        static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer);
+        static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer, bool throwOnError);
         static void InitializeStringLiteralTable();
         static void InitializeWindowsRuntimeTypeNamesTables(WindowsRuntimeTypeNameToClassMap& windowsRuntimeTypeNameToClassMap, ClassToWindowsRuntimeTypeNameMap& classToWindowsRuntimeTypeNameMap);
         static void InitializeUnresolvedSignatureTable(Il2CppUnresolvedSignatureMap& unresolvedSignatureMap);
@@ -104,7 +104,7 @@ namespace vm
         static const MethodInfo* GetMethodInfoFromSequencePoint(const Il2CppSequencePoint* cp);
         static Il2CppClass* GetTypeInfoFromTypeSourcePair(const Il2CppTypeSourceFilePair* pair);
 
-        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index);
+        static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError = true);
         static const Il2CppType* GetIl2CppTypeFromIndex(TypeIndex index);
 
         template<typename T>
