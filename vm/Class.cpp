@@ -64,7 +64,7 @@ namespace vm
     static bool InitLocked(Il2CppClass *klass, const FastAutoLock& lock);
     static void SetupVTable(Il2CppClass *klass, const FastAutoLock& lock);
 
-    Il2CppClass* Class::FromIl2CppType(const Il2CppType* type)
+    Il2CppClass* Class::FromIl2CppType(const Il2CppType* type, bool throwOnError)
     {
 #define RETURN_DEFAULT_TYPE(fieldName) do { IL2CPP_ASSERT(il2cpp_defaults.fieldName); return il2cpp_defaults.fieldName; } while (false)
 
@@ -108,7 +108,7 @@ namespace vm
                 RETURN_DEFAULT_TYPE(typed_reference_class);
             case IL2CPP_TYPE_ARRAY:
             {
-                Il2CppClass* elementClass = FromIl2CppType(type->data.array->etype);
+                Il2CppClass* elementClass = FromIl2CppType(type->data.array->etype, throwOnError);
                 return Class::GetBoundedArrayClass(elementClass, type->data.array->rank, true);
             }
             case IL2CPP_TYPE_PTR:
@@ -118,14 +118,14 @@ namespace vm
                 return NULL; //mono_fnptr_class_get (type->data.method);
             case IL2CPP_TYPE_SZARRAY:
             {
-                Il2CppClass* elementClass = FromIl2CppType(type->data.type);
+                Il2CppClass* elementClass = FromIl2CppType(type->data.type, throwOnError);
                 return Class::GetArrayClass(elementClass, 1);
             }
             case IL2CPP_TYPE_CLASS:
             case IL2CPP_TYPE_VALUETYPE:
                 return Type::GetClass(type);
             case IL2CPP_TYPE_GENERICINST:
-                return GenericClass::GetClass(type->data.generic_class);
+                return GenericClass::GetClass(type->data.generic_class, throwOnError);
             case IL2CPP_TYPE_VAR:
                 return Class::FromGenericParameter(Type::GetGenericParameter(type));
             case IL2CPP_TYPE_MVAR:
