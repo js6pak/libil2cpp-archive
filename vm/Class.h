@@ -45,7 +45,7 @@ namespace vm
     class LIBIL2CPP_CODEGEN_API Class
     {
     public:
-        static Il2CppClass* FromIl2CppType(const Il2CppType* type);
+        static Il2CppClass* FromIl2CppType(const Il2CppType* type, bool throwOnError = true);
         static Il2CppClass* FromName(const Il2CppImage* image, const char* namespaze, const char *name);
         static Il2CppClass* FromSystemType(Il2CppReflectionType *type);
         static Il2CppClass* FromGenericParameter(const Il2CppGenericParameter *param);
