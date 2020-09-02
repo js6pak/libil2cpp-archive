@@ -154,12 +154,16 @@ namespace vm
         genericInstanceType->fields = fields;
     }
 
-    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass *gclass)
+    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass *gclass, bool throwOnError)
     {
         FastAutoLock lock(&g_MetadataLock);
         Il2CppClass* definition = GetTypeDefinition(gclass);
         if (definition == NULL)
-            vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
+        {
+            if (throwOnError)
+                vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
+            return NULL;
+        }
 
         if (!gclass->cached_class)
         {
