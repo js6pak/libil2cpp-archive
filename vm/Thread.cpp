@@ -687,11 +687,14 @@ namespace vm
 
             il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
-            il2cpp::vm::Thread::Initialize(startData->m_Thread, startData->m_Domain);
-            il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateRunning);
-
+            bool attachSuccessful = false;
             try
             {
+                il2cpp::vm::Thread::Initialize(startData->m_Thread, startData->m_Domain);
+                il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateRunning);
+
+                attachSuccessful = true;
+
                 try
                 {
                     ((void(*)(void*))startData->m_Delegate)(startData->m_StartArg);
@@ -715,7 +718,8 @@ namespace vm
 
             il2cpp::vm::Thread::ClrState(startData->m_Thread, kThreadStateRunning);
             il2cpp::vm::Thread::SetState(startData->m_Thread, kThreadStateStopped);
-            il2cpp::vm::Thread::Uninitialize(startData->m_Thread);
+            if (attachSuccessful)
+                il2cpp::vm::Thread::Uninitialize(startData->m_Thread);
 
             il2cpp::vm::StackTrace::CleanupStackTracesForCurrentThread();
         }

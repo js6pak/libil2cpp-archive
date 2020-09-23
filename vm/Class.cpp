@@ -560,7 +560,31 @@ namespace vm
 
         IL2CPP_ASSERT(klass->valuetype);
 
-        size = Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
+        if (!klass->size_inited)
+        {
+            // If the size of a value type is not intialized, we cannot continue.
+            // This might mean this is a recursively defined struct, where one value type
+            // has a field of anotehr value type, which in turn has the first as a field.
+            // The runtime should throw a type load exception in this case.
+            std::string message;
+            message += "Could not load type '";
+            if (strlen(klass->namespaze) != 0)
+            {
+                message += klass->namespaze;
+                message += ":";
+            }
+            message += klass->name;
+            message += "'";
+            klass->has_initialization_error = true;
+            Class::UpdateInitializedAndNoError(klass);
+            klass->initializationExceptionGCHandle = gc::GCHandle::New(il2cpp::vm::Exception::GetTypeLoadException(message.c_str()), false);
+
+            size = 1;
+        }
+        else
+        {
+            size = Class::GetInstanceSize(klass) - sizeof(Il2CppObject);
+        }
 
         if (align)
             *align = klass->minimumAlignment;
@@ -839,6 +863,22 @@ namespace vm
         }
     }
 
+    static size_t UpdateInstanceSizeForGenericClass(Il2CppClass* klass, size_t instanceSize)
+    {
+        // need to set this in case there are no fields in a generic instance type
+        if (klass->generic_class)
+        {
+            const Il2CppClass* genericTypeDef = GenericClass::GetTypeDefinition(klass->generic_class);
+            // If the generic class has an instance size, it was explictly set
+            if (genericTypeDef->instance_size > 0 && genericTypeDef->instance_size > instanceSize)
+                instanceSize = genericTypeDef->instance_size;
+
+            klass->instance_size = static_cast<uint32_t>(instanceSize);
+        }
+
+        return instanceSize;
+    }
+
     static void LayoutFieldsLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
         if (Class::IsGeneric(klass))
@@ -926,9 +966,7 @@ namespace vm
                 klass->actualSize = IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS + sizeof(Il2CppObject);
             }
 
-            // need to set this in case there are no fields in a generic instance type
-            if (klass->generic_class)
-                klass->instance_size = static_cast<uint32_t>(instanceSize);
+            instanceSize = UpdateInstanceSizeForGenericClass(klass, instanceSize);
 
             klass->size_inited = true;
 
@@ -959,8 +997,7 @@ namespace vm
         else
         {
             // need to set this in case there are no fields in a generic instance type
-            if (klass->generic_class)
-                klass->instance_size = static_cast<uint32_t>(instanceSize);
+            instanceSize = UpdateInstanceSizeForGenericClass(klass, instanceSize);
 
             // Always set the actual size, as a derived class without fields could end up
             // with the wrong actual size (i.e. sizeof may be incorrect), if the last
