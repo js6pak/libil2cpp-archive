@@ -1740,5 +1740,11 @@ extern "C" {
     {
         g_free(info);
     }
+
+    size_t
+    il2cpp_type_size(MonoType *t)
+    {
+        return il2cpp::metadata::FieldLayout::GetTypeSizeAndAlignment((Il2CppType*)t).size;
+    }
 }
 #endif // RUNTIME_IL2CPP

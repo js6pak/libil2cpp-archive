@@ -69,6 +69,7 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
+        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathName),
     };
 
     const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
