@@ -2,6 +2,8 @@
 
 #if (IL2CPP_TARGET_JAVASCRIPT || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_LUMIN && !IL2CPP_TINY_WITHOUT_DEBUGGER) || IL2CPP_TARGET_ANDROID
 
+#include "os/Image.h"
+
 #if IL2CPP_TARGET_JAVASCRIPT
 #include <emscripten/emscripten.h>
 #else
@@ -30,9 +32,6 @@ namespace os
 {
 namespace Image
 {
-    static char* s_ManagedSectionStart = NULL;
-    static char* s_ManagedSectionEnd = NULL;
-
     void* GetImageBase()
     {
 #if IL2CPP_TARGET_JAVASCRIPT
@@ -55,15 +54,19 @@ namespace Image
     void InitializeManagedSection()
     {
         NoGeneratedCodeWorkaround();
-        s_ManagedSectionStart = &__start_il2cpp;
-        s_ManagedSectionEnd = &__stop_il2cpp;
+        // Since the native linker creates the __start_il2cpp and __stop_il2cpp
+        // globals, we can only use them when IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+        // is defined. Otherwise, they will not exist, and this usage of them will cause
+        // an unresolved external error in the native linker. This should be the only
+        // place in runtime code that IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS is used.
+#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
+        SetManagedSectionStartAndEnd(&__start_il2cpp, &__stop_il2cpp);
+#endif
     }
 
     void Initialize()
     {
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
         InitializeManagedSection();
-#endif
     }
 
 #if IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION
@@ -108,15 +111,6 @@ namespace Image
 #else
 #error Implement GetImageUUID for this platform
 #endif
-    }
-
-#endif
-
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
-    bool IsInManagedSection(void* ip)
-    {
-        IL2CPP_ASSERT(s_ManagedSectionStart != NULL && s_ManagedSectionEnd != NULL);
-        return s_ManagedSectionStart <= ip && ip <= s_ManagedSectionEnd;
     }
 
 #endif
