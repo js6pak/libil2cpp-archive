@@ -458,7 +458,8 @@ namespace System
 
     void Type::GetPacking(Il2CppReflectionType* type, int32_t* packing, int32_t* size)
     {
-        Il2CppClass* klass = vm::Class::FromIl2CppType(type->type);
+        const Il2CppType* runtimeType = vm::Type::IsGenericInstance(type->type) ? vm::Type::GetGenericTypeDefintion(type->type) : type->type;
+        Il2CppClass* klass = vm::Class::FromIl2CppType(runtimeType);
         TypeDefinitionIndex index = vm::MetadataCache::GetIndexForTypeDefinition(klass);
         if (vm::MetadataCache::StructLayoutPackIsDefault(index))
             *packing = 8;
