@@ -268,7 +268,7 @@ namespace vm
                 *p = value ? *(Il2CppChar*)value : 0;
                 return;
             }
-#if SIZEOF_VOID_P == 4
+#if IL2CPP_SIZEOF_VOID_P == 4
             case IL2CPP_TYPE_I:
             case IL2CPP_TYPE_U:
 #endif
@@ -279,7 +279,7 @@ namespace vm
                 *p = value ? *(int32_t*)value : 0;
                 return;
             }
-#if SIZEOF_VOID_P == 8
+#if IL2CPP_SIZEOF_VOID_P == 8
             case IL2CPP_TYPE_I:
             case IL2CPP_TYPE_U:
 #endif
