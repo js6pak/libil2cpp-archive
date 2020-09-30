@@ -8,9 +8,9 @@ namespace Image
 {
     void Initialize();
     void* GetImageBase();
-#if IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS
     bool IsInManagedSection(void*ip);
-#endif
+    bool ManagedSectionExists();
+    void SetManagedSectionStartAndEnd(void* start, void* end);
 }
 }
 }
