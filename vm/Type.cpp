@@ -1210,6 +1210,12 @@ namespace vm
         return MetadataCache::GetGenericParameterFromIndex(type->data.genericParameterIndex);
     }
 
+    const Il2CppType* Type::GetGenericTypeDefintion(const Il2CppType* type)
+    {
+        IL2CPP_ASSERT(IsGenericInstance(type));
+        return Class::GetType(GenericClass::GetTypeDefinition(type->data.generic_class));
+    }
+
 /**
 * Type::ConstructDelegate:
 * @delegate: pointer to an uninitialized delegate object
