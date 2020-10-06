@@ -186,7 +186,6 @@ typedef struct Il2CppAssemblyNameDefinition
 {
     StringIndex nameIndex;
     StringIndex cultureIndex;
-    StringIndex hashValueIndex;
     StringIndex publicKeyIndex;
     uint32_t hash_alg;
     int32_t hash_len;

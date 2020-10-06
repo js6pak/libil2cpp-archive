@@ -364,7 +364,11 @@ namespace utils
             Il2CppThreadUnwindState* unwindState;
             s_ExecutionContexts.GetValue(reinterpret_cast<void**>(&unwindState));
             s_ExecutionContexts.SetValue(NULL);
-            free(unwindState);
+            if (unwindState != NULL)
+            {
+                free(unwindState->executionContexts);
+                free(unwindState);
+            }
         }
     }
 
