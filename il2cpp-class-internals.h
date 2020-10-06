@@ -505,8 +505,7 @@ typedef struct Il2CppAssemblyName
 {
     const char* name;
     const char* culture;
-    const char* hash_value;
-    const char* public_key;
+    const uint8_t* public_key;
     uint32_t hash_alg;
     int32_t hash_len;
     uint32_t flags;
@@ -552,6 +551,7 @@ typedef struct Il2CppAssembly
 typedef struct Il2CppCodeGenOptions
 {
     bool enablePrimitiveValueTypeGenericSharing;
+    int maximumRuntimeGenericDepth;
 } Il2CppCodeGenOptions;
 
 typedef struct Il2CppRange
