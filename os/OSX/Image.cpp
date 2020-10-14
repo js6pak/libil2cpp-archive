@@ -125,7 +125,6 @@ namespace Image
     {
         return s_ImageBase;
     }
-
 }
 }
 }
