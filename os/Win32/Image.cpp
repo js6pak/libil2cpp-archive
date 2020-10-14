@@ -39,7 +39,6 @@ namespace Image
     {
         return &__ImageBase;
     }
-
 }
 }
 }
