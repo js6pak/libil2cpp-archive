@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <map>
 #include <pthread.h>
+#include <errno.h>
+#include <string.h>
 
 #if IL2CPP_TARGET_LINUX
 #include <sys/prctl.h>
@@ -139,8 +141,14 @@ namespace os
 
 #if IL2CPP_TARGET_DARWIN
         pthread_setname_np(name);
-#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_LUMIN || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
-        pthread_setname_np(m_Handle, name);
+#elif IL2CPP_TARGET_LINUX || IL2CPP_TARGET_LUMIN || IL2CPP_TARGET_ANDROID || IL2CPP_ENABLE_PLATFORM_THREAD_RENAME
+        if (pthread_setname_np(m_Handle, name) == ERANGE)
+        {
+            char buf[16]; // TASK_COMM_LEN=16
+            strncpy(buf, name, sizeof(buf));
+            buf[sizeof(buf) - 1] = '\0';
+            pthread_setname_np(m_Handle, buf);
+        }
 #endif
     }
 
