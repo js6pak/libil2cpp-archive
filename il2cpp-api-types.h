@@ -113,6 +113,9 @@ typedef struct Il2CppStackFrameInfo
 {
     const MethodInfo *method;
     uintptr_t raw_ip;
+    int sourceCodeLineNumber;
+    int ilOffset;
+    const char* filePath;
 } Il2CppStackFrameInfo;
 
 typedef void(*Il2CppMethodPointer)();

@@ -13,7 +13,7 @@
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "vm/TypeUniverse.h"
-#include "utils/ExceptionSupportStack.h"
+#include "utils/LeaveTargetStack.h"
 #include "utils/MemoryUtils.h"
 #include "utils/StringView.h"
 #include <string>
@@ -109,7 +109,6 @@ inline void UnBoxNullable(Il2CppObject* obj, TinyType* expectedBoxedClass, void*
 
     if (obj == NULL)
     {
-        memset(storage, 0, valueSize);
         *(static_cast<uint8_t*>(storage) + valueSize) = false;
     }
     else
@@ -125,16 +124,6 @@ inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
 }
 
 // Exception support macros
-
-#define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
-    __active_exceptions.push(Exception)
-
-#define IL2CPP_POP_ACTIVE_EXCEPTION() \
-    __active_exceptions.pop()
-
-#define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
-    (ExcType)__active_exceptions.top()
-
 #define IL2CPP_LEAVE(Offset, Target) \
     __leave_targets.push(Offset); \
     goto Target;
@@ -415,7 +404,7 @@ NORETURN inline void il2cpp_codegen_raise_exception(Exception_t* ex, RuntimeMeth
     IL2CPP_UNREACHABLE;
 }
 
-NORETURN inline void il2cpp_codegen_raise_execution_engine_exception(const char* message)
+NORETURN inline void il2cpp_codegen_raise_exception(const char* message)
 {
     tiny::vm::Exception::Raise(message);
     IL2CPP_UNREACHABLE;
@@ -679,9 +668,3 @@ void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, T* value)
 }
 
 void il2cpp_codegen_marshal_store_last_error();
-
-template<typename T>
-inline void* il2cpp_codegen_unsafe_cast(T* ptr)
-{
-    return reinterpret_cast<void*>(ptr);
-}

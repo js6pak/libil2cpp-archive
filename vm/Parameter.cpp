@@ -20,7 +20,7 @@ namespace vm
             return NULL;
 
         Il2CppClass* parameterType = Class::FromIl2CppType(parameter->parameter_type);
-        if (parameterType->valuetype)
+        if (parameterType->byval_arg.valuetype)
         {
             if (strcmp(parameterType->name, "Nullable`1") == 0 && strcmp(parameterType->namespaze, "System") == 0)
             {
