@@ -107,8 +107,6 @@ namespace utils
         std::string symbolMapFileName = "SymbolMap-ARMv7";
     #elif defined(__aarch64__)
         std::string symbolMapFileName = "SymbolMap-ARM64";
-    #elif defined(__x86_64__)
-        std::string symbolMapFileName = "SymbolMap-x86_64";
     #else
         #error Unknown symbol map file name
     #endif
@@ -124,7 +122,7 @@ namespace utils
     #endif
 #endif
 
-        void* result = LoadSymbolInfoFileFrom(il2cpp::utils::PathUtils::Combine(il2cpp::os::Path::GetApplicationFolder(), symbolMapFileName));
+        void* result = LoadSymbolInfoFileFrom(il2cpp::utils::PathUtils::Combine(il2cpp::utils::PathUtils::DirectoryName(il2cpp::os::Path::GetExecutablePath()), symbolMapFileName));
         if (result != NULL)
             return result;
 

@@ -85,7 +85,7 @@ namespace vm
     Il2CppObject* Object::Box(Il2CppClass *typeInfo, void* val)
     {
         Class::Init(typeInfo);
-        if (!typeInfo->valuetype)
+        if (!typeInfo->byval_arg.valuetype)
             return *(Il2CppObject**)val;
 
         if (Class::IsNullable(typeInfo))
@@ -196,26 +196,45 @@ namespace vm
         }
     }
 
-    const MethodInfo* Object::GetVirtualMethod(Il2CppObject *obj, const MethodInfo *virtualMethod)
+    const MethodInfo* Object::GetVirtualMethod(Il2CppObject *obj, const MethodInfo *method)
     {
-        if ((virtualMethod->flags & METHOD_ATTRIBUTE_FINAL) || !(virtualMethod->flags & METHOD_ATTRIBUTE_VIRTUAL))
-            return virtualMethod;
+        if ((method->flags & METHOD_ATTRIBUTE_FINAL) || !(method->flags & METHOD_ATTRIBUTE_VIRTUAL))
+            return method;
 
-        Il2CppClass* methodDeclaringType = virtualMethod->klass;
-        const MethodInfo* vtableSlotMethod;
+        Il2CppClass* methodDeclaringType = method->klass;
         if (Class::IsInterface(methodDeclaringType))
         {
-            vtableSlotMethod = ClassInlines::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, virtualMethod->slot).method;
+            const MethodInfo* itfMethod = ClassInlines::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, method->slot).method;
+            if (Method::IsGenericInstance(method))
+            {
+                if (itfMethod->methodPointer)
+                    return itfMethod;
+
+                Il2CppGenericMethod gmethod;
+                gmethod.context = method->genericMethod->context;
+                gmethod.methodDefinition = itfMethod;
+                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+            }
+            else
+            {
+                return itfMethod;
+            }
+        }
+
+        if (Method::IsGenericInstance(method))
+        {
+            if (method->methodPointer)
+                return method;
+
+            Il2CppGenericMethod gmethod;
+            gmethod.context = method->genericMethod->context;
+            gmethod.methodDefinition = obj->klass->vtable[method->slot].method;
+            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
         }
         else
         {
-            IL2CPP_ASSERT(virtualMethod->slot < obj->klass->vtable_count);
-            vtableSlotMethod = obj->klass->vtable[virtualMethod->slot].method;
+            return obj->klass->vtable[method->slot].method;
         }
-
-        if (Method::IsGenericInstanceMethod(virtualMethod))
-            return il2cpp::metadata::GenericMethod::GetGenericVirtualMethod(vtableSlotMethod, virtualMethod);
-        return vtableSlotMethod;
     }
 
     Il2CppObject* Object::IsInst(Il2CppObject *obj, Il2CppClass *klass)
@@ -342,7 +361,6 @@ namespace vm
 
         if (obj == NULL)
         {
-            memset(storage, 0, valueSize);
             *(static_cast<uint8_t*>(storage) + valueSize) = false;
         }
         else

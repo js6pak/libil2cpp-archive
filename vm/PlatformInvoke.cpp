@@ -36,35 +36,40 @@ namespace vm
         // Some platforms, like UWP, just don't allow you to load to load system libraries at runtime dynamically.
         // On other platforms (THEY SHALL NOT BE NAMED :O), while the functions that mscorlib.dll wants to P/Invoke into exist,
         // They exist in different system libraries than it is said in the DllImport attribute.
-        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint, pinvokeArgs.charSet);
+        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
+
         if (function != NULL)
             return function;
 
-        void* dynamicLibrary = NULL;
+        Baselib_DynamicLibrary_Handle dynamicLibrary = Baselib_DynamicLibrary_Handle_Invalid;
+        std::string detailedLoadError;
         if (utils::VmStringUtils::CaseSensitiveEquals(il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str()).c_str(), "__InternalDynamic"))
-            dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty());
+            dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(il2cpp::utils::StringView<Il2CppNativeChar>::Empty(), detailedLoadError);
         else
-            dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(pinvokeArgs.moduleName);
+            dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(pinvokeArgs.moduleName, detailedLoadError);
 
-        if (dynamicLibrary == NULL)
+        if (dynamicLibrary == Baselib_DynamicLibrary_Handle_Invalid)
         {
-            std::basic_string<Il2CppNativeChar> message;
-            message += IL2CPP_NATIVE_STRING("Unable to load DLL '");
-            message += pinvokeArgs.moduleName.Str();
-            message += IL2CPP_NATIVE_STRING("': The specified module could not be found.");
-            Exception::Raise(Exception::GetDllNotFoundException(il2cpp::utils::StringUtils::NativeStringToUtf8(message).c_str()));
+            std::string message;
+            message += "Unable to load DLL '";
+            message += il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str());
+            message += "'. Tried the load the following dynamic libraries: ";
+            message += detailedLoadError;
+            Exception::Raise(Exception::GetDllNotFoundException(message.c_str()));
         }
 
-        function = os::LibraryLoader::GetFunctionPointer(dynamicLibrary, pinvokeArgs);
+        std::string detailedGetFunctionError;
+        function = os::LibraryLoader::GetFunctionPointer(dynamicLibrary, pinvokeArgs, detailedGetFunctionError);
         if (function == NULL)
         {
-            std::basic_string<Il2CppNativeChar> message;
-            message += IL2CPP_NATIVE_STRING("Unable to find an entry point named '");
-            message += il2cpp::utils::StringUtils::Utf8ToNativeString(pinvokeArgs.entryPoint.Str());
-            message += IL2CPP_NATIVE_STRING("' in '");
-            message += pinvokeArgs.moduleName.Str();
-            message += IL2CPP_NATIVE_STRING("'.");
-            Exception::Raise(Exception::GetEntryPointNotFoundException(il2cpp::utils::StringUtils::NativeStringToUtf8(message).c_str()));
+            std::string message;
+            message += "Unable to find an entry point named '";
+            message += pinvokeArgs.entryPoint.Str();
+            message += "' in '";
+            message += il2cpp::utils::StringUtils::NativeStringToUtf8(pinvokeArgs.moduleName.Str());
+            message += "'. Tried the following entry points: ";
+            message += detailedGetFunctionError;
+            Exception::Raise(Exception::GetEntryPointNotFoundException(message.c_str()));
         }
 
         return function;
@@ -363,7 +368,7 @@ namespace vm
     // that was wrapped in the fake MethodInfo.
     static bool IsFakeDelegateMethodMarshaledFromNativeCode(const MethodInfo* method)
     {
-        return method->is_marshaled_from_native;
+        return method->methodMetadataHandle == NULL && method->is_marshaled_from_native;
     }
 
     static bool IsGenericInstance(const Il2CppType* type)
@@ -392,7 +397,7 @@ namespace vm
             return 0;
 
         if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
-            return reinterpret_cast<intptr_t>(d->method->nativeFunction);
+            return reinterpret_cast<intptr_t>(d->method->methodPointer);
 
         IL2CPP_ASSERT(d->method->methodMetadataHandle);
 
@@ -450,12 +455,12 @@ namespace vm
         {
             const MethodInfo* invoke = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
             MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC(1, sizeof(MethodInfo));
-            memcpy(newMethod, invoke, sizeof(MethodInfo));
-            newMethod->methodPointer = managedToNativeWrapperMethodPointer;
-            newMethod->nativeFunction = nativeFunctionPointer;
+            newMethod->methodPointer = nativeFunctionPointer;
+            // If calling delegates via invokers managedToNativeWrapperMethodPointer is an invoker, otherwise it won't be called
+            newMethod->invoker_method = (InvokerMethod)managedToNativeWrapperMethodPointer;
+            newMethod->parameters_count = invoke->parameters_count;
             newMethod->slot = kInvalidIl2CppMethodSlot;
             newMethod->is_marshaled_from_native = true;
-            newMethod->flags &= ~METHOD_ATTRIBUTE_VIRTUAL;
             utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }

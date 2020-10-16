@@ -51,7 +51,6 @@ struct MonoContext;
 extern "C"
 {
     void mono_debugger_agent_parse_options(const char *options);
-    void mono_debugger_agent_init_minimal();
     void mono_debugger_agent_init();
     void mono_debugger_run_debugger_thread_func(void* arg);
     void debugger_agent_single_step_from_context(MonoContext *ctx, Il2CppSequencePoint* sequencePoint);
@@ -229,10 +228,9 @@ namespace utils
 
     void Debugger::Init()
     {
-        bool debuggerIsInitialized = false;
         if (!s_AgentOptions.empty())
         {
-            debuggerIsInitialized = TryInitializeDebugger(s_AgentOptions);
+            TryInitializeDebugger(s_AgentOptions);
         }
         else
         {
@@ -240,14 +238,10 @@ namespace utils
             for (std::vector<UTF16String>::const_iterator arg = args.begin(); arg != args.end(); ++arg)
             {
                 std::string argument = StringUtils::Utf16ToUtf8(*arg);
-                debuggerIsInitialized = TryInitializeDebugger(argument);
-                if (debuggerIsInitialized)
+                if (TryInitializeDebugger(argument))
                     break;
             }
         }
-
-        if (!debuggerIsInitialized)
-            mono_debugger_agent_init_minimal();
     }
 
     static Debugger::OnBreakPointHitCallback s_BreakCallback;
@@ -261,6 +255,7 @@ namespace utils
     void Debugger::StartDebuggerThread()
     {
 #if defined(RUNTIME_IL2CPP)
+        // This thread is allocated here once and never deallocated.
         s_DebuggerThread = new os::Thread();
         s_DebuggerThread->Run(mono_debugger_run_debugger_thread_func, NULL);
 #else
@@ -350,13 +345,6 @@ namespace utils
         return thread == s_DebuggerThread;
     }
 
-    static void InitializeUnwindState(Il2CppThreadUnwindState* unwindState, uint32_t frameCapacity)
-    {
-        unwindState->frameCount = 0;
-        unwindState->frameCapacity = frameCapacity;
-        unwindState->executionContexts = (Il2CppSequencePointExecutionContext**)calloc(frameCapacity, sizeof(Il2CppSequencePointExecutionContext*));
-    }
-
     void Debugger::AllocateThreadLocalData()
     {
         Il2CppThreadUnwindState* unwindState;
@@ -364,26 +352,10 @@ namespace utils
         if (unwindState == NULL)
         {
             unwindState = (Il2CppThreadUnwindState*)calloc(1, sizeof(Il2CppThreadUnwindState));
-            InitializeUnwindState(unwindState, 512);
+            unwindState->frameCapacity = 512;
+            unwindState->executionContexts = (Il2CppSequencePointExecutionContext**)calloc(512, sizeof(Il2CppSequencePointExecutionContext*));
             s_ExecutionContexts.SetValue(unwindState);
         }
-    }
-
-    void Debugger::GrowFrameCapacity(Il2CppThreadUnwindState* unwindState)
-    {
-        // Create a new unwind state object to hold the large array of execution context pointers
-        Il2CppThreadUnwindState newUnwindState;
-        InitializeUnwindState(&newUnwindState, unwindState->frameCapacity * 2);
-
-        // Copy the existing execution context pointers into the new one
-        memcpy(newUnwindState.executionContexts, unwindState->executionContexts, unwindState->frameCapacity * sizeof(Il2CppSequencePointExecutionContext*));
-
-        // Free the existing one
-        free(unwindState->executionContexts);
-
-        // Set the new data into the existing one, so the client can keep its object reference
-        unwindState->frameCapacity = newUnwindState.frameCapacity;
-        unwindState->executionContexts = newUnwindState.executionContexts;
     }
 
     void Debugger::FreeThreadLocalData()
@@ -762,6 +734,17 @@ namespace utils
                 Il2CppStackFrameInfo frameInfo = { 0 };
                 frameInfo.method = method;
                 frameInfo.raw_ip = (uintptr_t)method->methodPointer;
+                if (unwindState->executionContexts[i]->currentSequencePoint != NULL)
+                {
+                    const Il2CppDebuggerMetadataRegistration* debuggerMetadata = method->klass->image->codeGenModule->debuggerMetadata;
+                    if (debuggerMetadata != NULL)
+                    {
+                        int32_t sourceFileIndex = unwindState->executionContexts[i]->currentSequencePoint->sourceFileIndex;
+                        frameInfo.filePath = debuggerMetadata->sequencePointSourceFiles[sourceFileIndex].file;
+                        frameInfo.sourceCodeLineNumber = unwindState->executionContexts[i]->currentSequencePoint->lineStart;
+                        frameInfo.ilOffset = unwindState->executionContexts[i]->currentSequencePoint->ilOffset;
+                    }
+                }
                 stackFrames->push_back(frameInfo);
             }
         }
