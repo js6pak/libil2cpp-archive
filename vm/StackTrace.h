@@ -34,7 +34,7 @@ namespace vm
         static void CleanupStackTracesForCurrentThread();
 
 #if IL2CPP_TINY_DEBUGGER
-        static std::string GetStackTrace();
+        static const char* GetStackTrace();
 #endif
 
         // Current thread functions

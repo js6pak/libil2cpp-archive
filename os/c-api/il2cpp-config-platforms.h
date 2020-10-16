@@ -51,8 +51,6 @@
 #define IL2CPP_TARGET_PS4 1
 #define _UNICODE 1
 #define UNICODE 1
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
-#define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
 #elif defined(_MSC_VER)
 #define IL2CPP_TARGET_WINDOWS 1
 
@@ -164,11 +162,6 @@
 // defined handled externally
 #else
 #error please define your target platform
-#endif
-
-#if IL2CPP_TARGET_PS5
-#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
-#define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
 #endif
 
 #ifndef IL2CPP_TARGET_WINDOWS
@@ -289,9 +282,6 @@
 #define IL2CPP_PLATFORM_SUPPORTS_BACKTRACE_CALL !IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_LUMIN && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5
 #endif //IL2CPP_PLATFORM_SUPPORTS_BACKTRACE_CALL
 
-#ifndef IL2CPP_SUPPORT_SOCKETS_POSIX_API
-#define IL2CPP_SUPPORT_SOCKETS_POSIX_API 0
-#endif
 
 #define IL2CPP_USE_STD_THREAD 0
 
@@ -302,12 +292,6 @@
 #define IL2CPP_THREADS_PS4 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PS4)
 #define IL2CPP_THREADS_PSP2 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PSP2)
 #define IL2CPP_THREADS_SWITCH (!IL2CPP_THREADS_STD && IL2CPP_TARGET_SWITCH)
-
-// Set to 1 to use the baselib based version of the FastReaderReaderWriterLock
-// Use if the baselib::Lock implementation on the platform is faster than the il2cpp::os based version
-#ifndef IL2CPP_USE_BASELIB_FAST_READER_RWL
-#define IL2CPP_USE_BASELIB_FAST_READER_RWL 0
-#endif
 
 #define IL2CPP_THREAD_HAS_CPU_SET IL2CPP_TARGET_POSIX && !IL2CPP_THREADS_PS4
 

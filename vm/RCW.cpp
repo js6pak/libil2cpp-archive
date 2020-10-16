@@ -200,7 +200,7 @@ namespace vm
                 Exception::Raise(exception);
 
             // Set the field in our reboxed key value pair instance
-            if (Class::FromIl2CppType(field.type)->valuetype)
+            if (Class::FromIl2CppType(field.type)->byval_arg.valuetype)
             {
                 Field::SetValue(reboxed, &field, Object::Unbox(fieldValue));
             }
@@ -479,14 +479,16 @@ namespace vm
 
         if (targetInterface->generic_class != NULL)
         {
-            if (Class::IsGenericClassAssignableFrom(targetInterface, queriedInterface))
+            Il2CppMetadataGenericContainerHandle containerHandle = MetadataCache::GetGenericContainerFromGenericClass(targetInterface->image, targetInterface->generic_class);
+
+            if (Class::IsGenericClassAssignableFrom(targetInterface, queriedInterface, targetInterface->image, containerHandle))
                 return NULL;
 
             const Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets = queriedInterface->interfaceOffsets;
             uint16_t interfaceOffsetsCount = queriedInterface->interface_offsets_count;
             for (uint16_t i = 0; i < interfaceOffsetsCount; i++)
             {
-                if (Class::IsGenericClassAssignableFrom(targetInterface, interfaceOffsets[i].interfaceType))
+                if (Class::IsGenericClassAssignableFrom(targetInterface, interfaceOffsets[i].interfaceType, targetInterface->image, containerHandle))
                 {
                     Il2CppMethodSlot slotWithOffset = interfaceOffsets[i].offset + slot;
                     if (slotWithOffset < vtableCount)

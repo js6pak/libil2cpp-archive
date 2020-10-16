@@ -50,7 +50,6 @@ namespace vm
     static il2cpp::utils::dynamic_array<Il2CppClass*> s_staticFieldData;
     static int32_t s_FinalizerSlot = -1;
     static int32_t s_GetHashCodeSlot = -1;
-    static Il2CppClass* s_EmptyClassList[] = {NULL};
 
     static void SetupGCDescriptor(Il2CppClass* klass);
     static void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset);
@@ -133,6 +132,47 @@ namespace vm
 #undef RETURN_DEFAULT_TYPE
     }
 
+/* From ECMA-335, I.8.7 Assignment compatibility:
+
+    The reduced type of a type T is the following:
+
+    1. If the underlying type of T is:
+        a. int8, or unsigned int8, then its reduced type is int8.
+        b. int16, or unsigned int16, then its reduced type is int16.
+        c. int32, or unsigned int32, then its reduced type is int32.
+        d. int64, or unsigned int64, then its reduced type is int64.
+        e. native int, or unsigned native int, then its reduced type is native int.
+    2. Otherwise, the reduced type is itself.
+*/
+    static inline const Il2CppClass* GetReducedType(const Il2CppClass* type)
+    {
+        switch (type->byval_arg.type)
+        {
+            case IL2CPP_TYPE_I1:
+            case IL2CPP_TYPE_U1:
+                return il2cpp_defaults.sbyte_class;
+
+            case IL2CPP_TYPE_I2:
+            case IL2CPP_TYPE_U2:
+                return il2cpp_defaults.int16_class;
+
+            case IL2CPP_TYPE_I4:
+            case IL2CPP_TYPE_U4:
+                return il2cpp_defaults.int32_class;
+
+            case IL2CPP_TYPE_I8:
+            case IL2CPP_TYPE_U8:
+                return il2cpp_defaults.int64_class;
+
+            case IL2CPP_TYPE_I:
+            case IL2CPP_TYPE_U:
+                return il2cpp_defaults.int_class;
+
+            default:
+                return type;
+        }
+    }
+
     Il2CppClass* Class::FromSystemType(Il2CppReflectionType *type)
     {
         Il2CppClass *klass = Class::FromIl2CppType(type->type);
@@ -168,12 +208,6 @@ namespace vm
                 for (uint16_t i = 0; i < klass->interfaces_count; i++)
                     klass->implementedInterfaces[i] = Class::FromIl2CppType(MetadataCache::GetInterfaceFromOffset(klass, i));
             }
-        }
-
-        if (klass->implementedInterfaces == NULL)
-        {
-            IL2CPP_ASSERT(klass->interfaces_count == 0);
-            klass->implementedInterfaces = s_EmptyClassList;
         }
     }
 
@@ -522,10 +556,10 @@ namespace vm
     {
         int32_t size;
 
-        if (!klass->size_init_pending)
-            SetupFields(klass);
+        if (!klass->init_pending)
+            Init(klass);
 
-        IL2CPP_ASSERT(klass->valuetype);
+        IL2CPP_ASSERT(klass->byval_arg.valuetype);
 
         if (!klass->size_inited)
         {
@@ -585,11 +619,11 @@ namespace vm
                 if (oklass->rank != klass->rank)
                     return false;
 
-                if (Class::IsValuetype(oklass->castClass))
+                if (oklass->castClass->byval_arg.valuetype)
                 {
                     // Full array covariance is defined only for reference types.
                     // For value types, array element reduced types must match
-                    return klass->castClass == oklass->castClass;
+                    return GetReducedType(klass->castClass) == GetReducedType(oklass->castClass);
                 }
 
                 return Class::IsAssignableFrom(klass->castClass, oklass->castClass);
@@ -610,7 +644,8 @@ namespace vm
 
             if (klass->parent == il2cpp_defaults.multicastdelegate_class && klass->generic_class != NULL)
             {
-                if (IsGenericClassAssignableFrom(klass, oklass, oklass))
+                Il2CppMetadataGenericContainerHandle containerHandle = MetadataCache::GetGenericContainerFromGenericClass(klass->image, klass->generic_class);
+                if (IsGenericClassAssignableFrom(klass, oklass, klass->image, containerHandle))
                     return true;
             }
 
@@ -620,20 +655,23 @@ namespace vm
         if (klass->generic_class != NULL)
         {
             // checking for simple reference equality is not enough in this case because generic interface might have covariant and/or contravariant parameters
+
+            Il2CppMetadataGenericContainerHandle containerHandle = MetadataCache::GetGenericContainerFromGenericClass(klass->image, klass->generic_class);
+
             for (Il2CppClass* iter = oklass; iter != NULL; iter = iter->parent)
             {
-                if (IsGenericClassAssignableFrom(klass, iter, oklass))
+                if (IsGenericClassAssignableFrom(klass, iter, klass->image, containerHandle))
                     return true;
 
                 for (uint16_t i = 0; i < iter->interfaces_count; ++i)
                 {
-                    if (IsGenericClassAssignableFrom(klass, iter->implementedInterfaces[i], oklass))
+                    if (IsGenericClassAssignableFrom(klass, iter->implementedInterfaces[i], klass->image, containerHandle))
                         return true;
                 }
 
                 for (uint16_t i = 0; i < iter->interface_offsets_count; ++i)
                 {
-                    if (IsGenericClassAssignableFrom(klass, iter->interfaceOffsets[i].interfaceType, oklass))
+                    if (IsGenericClassAssignableFrom(klass, iter->interfaceOffsets[i].interfaceType, klass->image, containerHandle))
                         return true;
                 }
             }
@@ -683,11 +721,6 @@ namespace vm
     bool Class::IsInflated(const Il2CppClass *klass)
     {
         return klass->generic_class != NULL;
-    }
-
-    bool Class::IsGenericTypeDefinition(const Il2CppClass* klass)
-    {
-        return IsGeneric(klass) && !IsInflated(klass);
     }
 
     bool Class::IsSubclassOf(Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces)
@@ -740,7 +773,7 @@ namespace vm
 
     bool Class::IsValuetype(const Il2CppClass *klass)
     {
-        return klass->valuetype;
+        return klass->byval_arg.valuetype;
     }
 
     bool Class::IsBlittable(const Il2CppClass *klass)
@@ -857,7 +890,7 @@ namespace vm
             klass->has_references |= klass->parent->has_references;
             instanceSize = klass->parent->instance_size;
             actualSize = klass->parent->actualSize;
-            if (klass->valuetype)
+            if (klass->byval_arg.valuetype)
                 klass->minimumAlignment = 1;
             else
                 klass->minimumAlignment = klass->parent->minimumAlignment;
@@ -925,7 +958,7 @@ namespace vm
             instanceSize = layoutData.classSize;
 
             // This is a value type with no instance fields, but at least one static field.
-            if (klass->valuetype && fieldTypes.size() == 0)
+            if (klass->byval_arg.valuetype && fieldTypes.size() == 0)
             {
                 instanceSize = IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS + sizeof(Il2CppObject);
                 klass->actualSize = IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS + sizeof(Il2CppObject);
@@ -1016,8 +1049,6 @@ namespace vm
         if (klass->size_inited)
             return;
 
-        klass->size_init_pending = true;
-
         if (klass->parent && !klass->parent->size_inited)
             SetupFieldsLocked(klass->parent, lock);
 
@@ -1035,8 +1066,6 @@ namespace vm
 
         if (!Class::IsGeneric(klass))
             LayoutFieldsLocked(klass, lock);
-
-        klass->size_init_pending = false;
 
         klass->size_inited = true;
     }
@@ -1085,20 +1114,11 @@ namespace vm
                 Il2CppMetadataMethodInfo methodInfo = MetadataCache::GetMethodInfo(klass, index);
 
                 newMethod->name = methodInfo.name;
-
-                if (klass->valuetype)
-                {
-                    Il2CppMethodPointer adjustorThunk = MetadataCache::GetAdjustorThunk(klass->image, methodInfo.token);
-                    if (adjustorThunk != NULL)
-                        newMethod->methodPointer = adjustorThunk;
-                }
-
-                // We did not find an adjustor thunk, or maybe did not need to look for one. Let's get the real method pointer.
-                if (newMethod->methodPointer == NULL)
-                    newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodInfo.token);
-
-                newMethod->invoker_method = MetadataCache::GetMethodInvoker(klass->image, methodInfo.token);
-
+                newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodInfo.token);
+                if (newMethod->methodPointer)
+                    newMethod->invoker_method = MetadataCache::GetMethodInvoker(klass->image, methodInfo.token);
+                else
+                    newMethod->invoker_method = Runtime::GetMissingMethodInvoker();
                 newMethod->klass = klass;
                 newMethod->return_type = methodInfo.return_type;
 
@@ -1373,20 +1393,14 @@ namespace vm
 
     void Class::SetupTypeHierarchy(Il2CppClass *klass)
     {
-        if (klass->typeHierarchy == NULL)
-        {
-            il2cpp::os::FastAutoLock lock(&g_MetadataLock);
-            SetupTypeHierarchyLocked(klass, lock);
-        }
+        il2cpp::os::FastAutoLock lock(&g_MetadataLock);
+        SetupTypeHierarchyLocked(klass, lock);
     }
 
     void Class::SetupInterfaces(Il2CppClass *klass)
     {
-        if (klass->implementedInterfaces == NULL)
-        {
-            il2cpp::os::FastAutoLock lock(&g_MetadataLock);
-            SetupInterfacesLocked(klass, lock);
-        }
+        il2cpp::os::FastAutoLock lock(&g_MetadataLock);
+        SetupInterfacesLocked(klass, lock);
     }
 
     static bool InitLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
@@ -1415,11 +1429,7 @@ namespace vm
         klass->genericRecursionDepth++;
 
         if (klass->generic_class)
-        {
-            Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition(klass->generic_class);
-            InitLocked(genericTypeDefinition, lock);
-            klass->is_blittable = genericTypeDefinition->is_blittable;
-        }
+            InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
 
         if (klass->byval_arg.type == IL2CPP_TYPE_ARRAY || klass->byval_arg.type == IL2CPP_TYPE_SZARRAY)
         {
@@ -1461,18 +1471,14 @@ namespace vm
             IL2CPP_ASSERT(s_GetHashCodeSlot > 0);
 #endif
         }
-        bool canBeInstantiated = !Class::IsGeneric(klass) && !il2cpp::metadata::GenericMetadata::ContainsGenericParameters(klass);
 
-        if (canBeInstantiated)
+        if (!Class::IsGeneric(klass))
+            SetupGCDescriptor(klass);
+
+        if (klass->generic_class)
         {
-            if (!Class::IsGeneric(klass))
-                SetupGCDescriptor(klass);
-
-            if (klass->generic_class)
-            {
-                if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth())
-                    klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTX(klass->image, klass->token, &klass->generic_class->context);
-            }
+            if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth())
+                klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTX(klass->image, klass->token, &klass->generic_class->context);
         }
 
         klass->initialized = true;
@@ -1772,15 +1778,9 @@ namespace vm
 
     Il2CppClass* Class::GetPtrClass(Il2CppClass* elementClass)
     {
-        // Check if the pointer class was created before taking the g_MetadataLock
-        Il2CppClass* pointerClass = MetadataCache::GetPointerType(elementClass);
-        if (pointerClass)
-            return pointerClass;
-
         il2cpp::os::FastAutoLock lock(&g_MetadataLock);
 
-        // Check if the pointer class was created while we were waiting for the g_MetadataLock
-        pointerClass = MetadataCache::GetPointerType(elementClass);
+        Il2CppClass* pointerClass = MetadataCache::GetPointerType(elementClass);
         if (pointerClass)
             return pointerClass;
 
@@ -1802,22 +1802,21 @@ namespace vm
         pointerClass->parent = NULL;
         pointerClass->castClass = pointerClass->element_class = elementClass;
 
-        MetadataCache::AddPointerTypeLocked(elementClass, pointerClass, lock);
+        MetadataCache::AddPointerType(elementClass, pointerClass);
 
         return pointerClass;
     }
 
     bool Class::HasReferences(Il2CppClass *klass)
     {
-        if (klass->size_init_pending)
+        if (klass->init_pending)
         {
-            abort();
             /* Be conservative */
             return true;
         }
         else
         {
-            SetupFields(klass);
+            Init(klass);
 
             return klass->has_references;
         }
@@ -1902,14 +1901,14 @@ namespace vm
                     case IL2CPP_TYPE_ARRAY:
                     case IL2CPP_TYPE_VAR:
                     case IL2CPP_TYPE_MVAR:
-                        IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
+                        IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
                         set_bit(bitmap, offset / sizeof(void*));
                         maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                         break;
                     case IL2CPP_TYPE_GENERICINST:
                         if (!Type::GenericInstIsValuetype(type))
                         {
-                            IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
+                            IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
                             set_bit(bitmap, offset / sizeof(void*));
                             maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                             break;

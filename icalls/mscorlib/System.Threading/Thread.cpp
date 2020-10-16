@@ -119,11 +119,6 @@ namespace Threading
         ClrState(thread, vm::kThreadStateWaitSleepJoin);
     }
 
-    void Thread::Thread_init(Il2CppThread * thisPtr)
-    {
-        il2cpp::vm::Thread::Setup(thisPtr);
-    }
-
     struct StartData
     {
         Il2CppThread* m_Thread;
@@ -146,7 +141,7 @@ namespace Threading
 
             il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
-            il2cpp::vm::Thread::Initialize(startData->m_Thread, startData->m_Domain);
+            il2cpp::vm::Thread::InitializeManagedThread(startData->m_Thread, startData->m_Domain);
             il2cpp::vm::Thread::SetState(startData->m_Thread, vm::kThreadStateRunning);
 
             try
@@ -166,7 +161,7 @@ namespace Threading
 
             il2cpp::vm::Thread::ClrState(startData->m_Thread, vm::kThreadStateRunning);
             il2cpp::vm::Thread::SetState(startData->m_Thread, vm::kThreadStateStopped);
-            il2cpp::vm::Thread::Uninitialize(startData->m_Thread);
+            il2cpp::vm::Thread::UninitializeManagedThread(startData->m_Thread);
 
             il2cpp::vm::StackTrace::CleanupStackTracesForCurrentThread();
         }
@@ -197,21 +192,27 @@ namespace Threading
         GarbageCollector::SetWriteBarrier((void**)&startData->m_StartArg);
         startData->m_Semaphore = new il2cpp::os::Semaphore(0);
 
-        il2cpp::os::Thread* thread = thisPtr->GetInternalThread()->handle;
+        il2cpp::os::Thread* thread = new il2cpp::os::Thread();
         thread->SetStackSize(thisPtr->GetInternalThread()->stack_size);
         thread->SetExplicitApartment(static_cast<il2cpp::os::ApartmentState>(thisPtr->GetInternalThread()->apartment_state));
         il2cpp::os::ErrorCode status = thread->Run(&ThreadStart, startData);
         if (status != il2cpp::os::kErrorCodeSuccess)
         {
+            delete thread;
             return 0;
         }
 
+        uint32_t existingPriority = il2cpp::vm::Thread::GetPriority(thisPtr);
+
+        thisPtr->GetInternalThread()->handle = thread;
         thisPtr->GetInternalThread()->state &= ~vm::kThreadStateUnstarted;
         thisPtr->GetInternalThread()->tid = thread->Id();
         if (!thisPtr->GetInternalThread()->managed_id)
             thisPtr->GetInternalThread()->managed_id = il2cpp::vm::Thread::GetNewManagedId();
 
         startData->m_Semaphore->Post(1, NULL);
+
+        il2cpp::vm::Thread::SetPriority(thisPtr, existingPriority);
 
         // this is just checked against 0 in the calling code
         return reinterpret_cast<intptr_t>(thisPtr->GetInternalThread()->handle);
@@ -363,51 +364,44 @@ namespace Threading
 
     int8_t Thread::VolatileReadInt8(volatile void* address)
     {
-        int8_t tmp = *reinterpret_cast<volatile int8_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return tmp;
+        return *reinterpret_cast<volatile int8_t*>(address);
     }
 
     int16_t Thread::VolatileReadInt16(volatile void* address)
     {
-        int16_t tmp = *reinterpret_cast<volatile int16_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return tmp;
+        return *reinterpret_cast<volatile int16_t*>(address);
     }
 
     int32_t Thread::VolatileReadInt32(volatile void* address)
     {
-        int32_t tmp = *reinterpret_cast<volatile int32_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return tmp;
+        return *reinterpret_cast<volatile int32_t*>(address);
     }
 
     int64_t Thread::VolatileReadInt64(volatile void* address)
     {
-        int64_t tmp = *reinterpret_cast<volatile int64_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return tmp;
+        return *reinterpret_cast<volatile int64_t*>(address);
     }
 
     float Thread::VolatileReadFloat(volatile void* address)
     {
-        float tmp = *reinterpret_cast<volatile float*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return tmp;
+        return *reinterpret_cast<volatile float*>(address);
     }
 
     double Thread::VolatileReadDouble(volatile void* address)
     {
-        double tmp = *reinterpret_cast<volatile double*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return tmp;
+        return *reinterpret_cast<volatile double*>(address);
     }
 
     void* Thread::VolatileReadPtr(volatile void* address)
     {
-        void* tmp = *reinterpret_cast<void* volatile*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return tmp;
+        return *reinterpret_cast<void* volatile*>(address);
     }
 
     intptr_t Thread::VolatileReadIntPtr(volatile void* address)
@@ -417,44 +411,44 @@ namespace Threading
 
     void Thread::VolatileWriteInt8(volatile void* address, int8_t value)
     {
-        il2cpp::os::Atomic::FullMemoryBarrier();
         *reinterpret_cast<volatile int8_t*>(address) = value;
+        il2cpp::os::Atomic::FullMemoryBarrier();
     }
 
     void Thread::VolatileWriteInt16(volatile void* address, int16_t value)
     {
-        il2cpp::os::Atomic::FullMemoryBarrier();
         *reinterpret_cast<volatile int16_t*>(address) = value;
+        il2cpp::os::Atomic::FullMemoryBarrier();
     }
 
     void Thread::VolatileWriteInt32(volatile void* address, int32_t value)
     {
-        il2cpp::os::Atomic::FullMemoryBarrier();
         *reinterpret_cast<volatile int32_t*>(address) = value;
+        il2cpp::os::Atomic::FullMemoryBarrier();
     }
 
     void Thread::VolatileWriteInt64(volatile void* address, int64_t value)
     {
-        il2cpp::os::Atomic::FullMemoryBarrier();
         *reinterpret_cast<volatile int64_t*>(address) = value;
+        il2cpp::os::Atomic::FullMemoryBarrier();
     }
 
     void Thread::VolatileWriteFloat(volatile void* address, float value)
     {
-        il2cpp::os::Atomic::FullMemoryBarrier();
         *reinterpret_cast<volatile float*>(address) = value;
+        il2cpp::os::Atomic::FullMemoryBarrier();
     }
 
     void Thread::VolatileWriteDouble(volatile void* address, double value)
     {
-        il2cpp::os::Atomic::FullMemoryBarrier();
         *reinterpret_cast<volatile double*>(address) = value;
+        il2cpp::os::Atomic::FullMemoryBarrier();
     }
 
     void Thread::VolatileWritePtr(volatile void* address, void* value)
     {
-        il2cpp::os::Atomic::FullMemoryBarrier();
         *reinterpret_cast<void* volatile*>(address) = value;
+        il2cpp::os::Atomic::FullMemoryBarrier();
     }
 
     void Thread::VolatileWriteIntPtr(volatile void* address, intptr_t value)
@@ -511,13 +505,6 @@ namespace Threading
 
     int32_t Thread::GetState40(Il2CppInternalThread* thread)
     {
-        // There is a chance that the managed thread object can be used from code (like a
-        // finalizer) after it has been destroyed. In that case, the objects that
-        // the runtime uses to track this thread may have been freed. Try to check for
-        // that case here and return early.
-        if (thread == NULL || thread->synch_cs == NULL)
-            return vm::kThreadStateStopped;
-
         il2cpp::os::FastAutoLock lock(thread->synch_cs);
         return (il2cpp::vm::ThreadState)thread->state;
     }
@@ -534,19 +521,10 @@ namespace Threading
 
     void Thread::ConstructInternalThread(Il2CppThread* _this)
     {
-        os::Thread* osThread = new os::Thread();
-
-        // Create managed object representing the current thread.
-
-        Il2CppInternalThread* internal = (Il2CppInternalThread*)vm::Object::New(il2cpp_defaults.internal_thread_class);
-        internal->state = vm::kThreadStateUnstarted;
-        internal->handle = osThread;
-        internal->tid = osThread->Id();
-        internal->synch_cs = new baselib::ReentrantLock;
-        internal->apartment_state = il2cpp::os::kApartmentStateUnknown;
-        internal->managed_id = GetNewManagedId_internal();
-        os::Atomic::CompareExchangePointer<Il2CppInternalThread>(&_this->internal_thread, internal, NULL);
-        il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&_this->internal_thread);
+        // The os::Thread object is deallocated in the InternalThread::Thread_free_internal icall, which
+        // is called from the managed thread finalizer.
+        vm::Thread::SetupInternalManagedThread(_this, new os::Thread());
+        _this->GetInternalThread()->state = vm::kThreadStateUnstarted;
     }
 
     void Thread::GetStackTraces(Il2CppArray** threads, Il2CppArray** stack_frames)

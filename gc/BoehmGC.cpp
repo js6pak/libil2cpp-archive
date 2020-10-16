@@ -6,14 +6,10 @@
 #include "gc_wrapper.h"
 #include "GarbageCollector.h"
 #include "WriteBarrierValidation.h"
-#include "os/Mutex.h"
 #include "vm/Profiler.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
 #include "il2cpp-object-internals.h"
-
-#include "Baselib.h"
-#include "Cpp/ReentrantLock.h"
 
 static bool s_GCInitialized = false;
 
@@ -68,7 +64,7 @@ GC_ms_entry* GC_gcj_vector_proc(GC_word* addr, GC_ms_entry* mark_stack_ptr,
     GC_descr element_desc = (GC_descr)element_type->gc_desc;
 
     IL2CPP_ASSERT((element_desc & GC_DS_TAGS) == GC_DS_BITMAP);
-    IL2CPP_ASSERT(element_type->valuetype);
+    IL2CPP_ASSERT(element_type->byval_arg.valuetype);
 
     int words_per_element = array_type->element_size / BYTES_PER_WORD;
     GC_word* actual_start = (GC_word*)a->vector;
@@ -241,12 +237,9 @@ il2cpp::gc::GarbageCollector::IsDisabled()
     return GC_is_disabled();
 }
 
-static baselib::ReentrantLock s_GCSetModeLock;
-
 void
 il2cpp::gc::GarbageCollector::SetMode(Il2CppGCMode mode)
 {
-    os::FastAutoLock lock(&s_GCSetModeLock);
     switch (mode)
     {
         case IL2CPP_GC_MODE_ENABLED:
@@ -362,15 +355,7 @@ il2cpp::gc::GarbageCollector::MakeDescriptorForObject(size_t *bitmap, int numbit
     if (numbits >= 30)
         return GC_NO_DESCRIPTOR;
     else
-    {
-        GC_descr desc = GC_make_descriptor((GC_bitmap)bitmap, numbits);
-        // we should always have a GC_DS_BITMAP descriptor, as we:
-        // 1) Always want a precise marker.
-        // 2) Can never be GC_DS_LENGTH since we always have an object header
-        //    at the beginning of the allocation.
-        IL2CPP_ASSERT((desc & GC_DS_TAGS) == GC_DS_BITMAP || (desc & GC_DS_TAGS) == (GC_descr)GC_NO_DESCRIPTOR);
-        return (void*)desc;
-    }
+        return (void*)GC_make_descriptor((GC_bitmap)bitmap, numbits);
 #else
     return 0;
 #endif

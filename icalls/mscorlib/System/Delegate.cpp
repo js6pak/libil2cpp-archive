@@ -4,6 +4,7 @@
 #include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/Type.h"
+#include "vm/Reflection.h"
 #include "vm/Runtime.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
@@ -41,8 +42,6 @@ namespace System
 #if IL2CPP_TINY
         IL2CPP_NOT_IMPLEMENTED_ICALL(Delegate::SetMulticastInvoke);
 #else
-        const MethodInfo* invokeMethod = il2cpp::vm::Runtime::GetDelegateInvoke(delegate->object.klass);
-        delegate->invoke_impl = invokeMethod->invoker_method;
 #endif
     }
 
@@ -59,18 +58,19 @@ namespace System
         Il2CppMethodPointer func = d->method_ptr;
         il2cpp::vm::Type::ConstructDelegate(&ret->delegate, NULL, func, d->method);
 
-        const MethodInfo* invokeMethod = il2cpp::vm::Runtime::GetDelegateInvoke(d->object.klass);
-        ret->delegate.invoke_impl = invokeMethod->invoker_method;
-
         return ret;
 #endif
     }
 
-    Il2CppObject* Delegate::GetVirtualMethod_internal(Il2CppObject* _this)
+    Il2CppReflectionMethod* Delegate::GetVirtualMethod_internal(Il2CppDelegate* _this)
     {
+#if IL2CPP_TINY
         IL2CPP_NOT_IMPLEMENTED_ICALL(Delegate::GetVirtualMethod_internal);
-        IL2CPP_UNREACHABLE;
         return NULL;
+#else
+        const MethodInfo* resolvedMethod = _this->target != NULL ? il2cpp::vm::Object::GetVirtualMethod(_this->target, _this->method) : _this->method;
+        return il2cpp::vm::Reflection::GetMethodObject(resolvedMethod, NULL);
+#endif
     }
 } /* namespace System */
 } /* namespace mscorlib */

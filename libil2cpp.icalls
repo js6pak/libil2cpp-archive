@@ -984,7 +984,6 @@ System.Threading.Thread::SetState(System.Threading.ThreadState) mscorlib::System
 System.Threading.Thread::Sleep_internal(System.Int32) mscorlib::System::Threading::Thread::Sleep_internal
 System.Threading.Thread::SpinWait_nop() mscorlib::System::Threading::Thread::SpinWait_nop
 System.Threading.Thread::Suspend_internal() mscorlib::System::Threading::Thread::Suspend_internal
-System.Threading.Thread::Thread_init() mscorlib::System::Threading::Thread::Thread_init
 System.Threading.Thread::Thread_internal(System.MulticastDelegate) mscorlib::System::Threading::Thread::Thread_internal
 System.Threading.Thread::VolatileRead(System.Byte&) mscorlib::System::Threading::Thread::VolatileReadInt8
 System.Threading.Thread::VolatileRead(System.Double&) mscorlib::System::Threading::Thread::VolatileReadDouble
