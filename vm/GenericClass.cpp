@@ -1,6 +1,5 @@
 #include "il2cpp-config.h"
 #include "metadata/GenericMetadata.h"
-#include "os/Atomic.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
 #include "vm/Class.h"
@@ -34,7 +33,7 @@ namespace vm
         for (uint16_t methodIndex = 0; methodIndex < methodCount; ++methodIndex)
         {
             const MethodInfo* methodDefinition = genericTypeDefinition->methods[methodIndex];
-            methods[methodIndex] = metadata::GenericMetadata::Inflate(methodDefinition, GenericClass::GetContext(genericInstanceType->generic_class));
+            methods[methodIndex] = metadata::GenericMetadata::Inflate(methodDefinition, genericInstanceType, GenericClass::GetContext(genericInstanceType->generic_class));
         }
 
         genericInstanceType->methods = methods;
@@ -50,9 +49,9 @@ namespace vm
         newProperty->token = propertyDefinition->token;
 
         if (propertyDefinition->get)
-            newProperty->get = metadata::GenericMetadata::Inflate(propertyDefinition->get, context);
+            newProperty->get = metadata::GenericMetadata::Inflate(propertyDefinition->get, declaringClass, context);
         if (propertyDefinition->set)
-            newProperty->set = metadata::GenericMetadata::Inflate(propertyDefinition->set, context);
+            newProperty->set = metadata::GenericMetadata::Inflate(propertyDefinition->set, declaringClass, context);
     }
 
     void GenericClass::SetupProperties(Il2CppClass* genericInstanceType)
@@ -87,11 +86,11 @@ namespace vm
         newEvent->token = eventDefinition->token;
 
         if (eventDefinition->add)
-            newEvent->add = metadata::GenericMetadata::Inflate(eventDefinition->add, context);
+            newEvent->add = metadata::GenericMetadata::Inflate(eventDefinition->add, declaringClass, context);
         if (eventDefinition->raise)
-            newEvent->raise = metadata::GenericMetadata::Inflate(eventDefinition->raise, context);
+            newEvent->raise = metadata::GenericMetadata::Inflate(eventDefinition->raise, declaringClass, context);
         if (eventDefinition->remove)
-            newEvent->remove = metadata::GenericMetadata::Inflate(eventDefinition->remove, context);
+            newEvent->remove = metadata::GenericMetadata::Inflate(eventDefinition->remove, declaringClass, context);
     }
 
     void GenericClass::SetupEvents(Il2CppClass* genericInstanceType)
@@ -153,16 +152,9 @@ namespace vm
         genericInstanceType->fields = fields;
     }
 
-    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass* gclass, bool throwOnError)
+    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass *gclass, bool throwOnError)
     {
-        Il2CppClass* cachedClass = os::Atomic::LoadPointerRelaxed(&gclass->cached_class);
-        if (cachedClass)
-            return cachedClass;
-        return CreateClass(gclass, throwOnError);
-    }
-
-    Il2CppClass* GenericClass::CreateClass(Il2CppGenericClass *gclass, bool throwOnError)
-    {
+        os::FastAutoLock lock(&g_MetadataLock);
         Il2CppClass* definition = GetTypeDefinition(gclass);
         if (definition == NULL)
         {
@@ -171,11 +163,9 @@ namespace vm
             return NULL;
         }
 
-        os::FastAutoLock lock(&g_MetadataLock);
-
         if (!gclass->cached_class)
         {
-            Il2CppClass* klass = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass) + (sizeof(VirtualInvokeData) * definition->vtable_count));
+            Il2CppClass* klass = gclass->cached_class = (Il2CppClass*)MetadataCalloc(1, sizeof(Il2CppClass) + (sizeof(VirtualInvokeData) * definition->vtable_count));
             klass->klass = klass;
 
             klass->name = definition->name;
@@ -198,6 +188,7 @@ namespace vm
             klass->this_arg.type = klass->byval_arg.type = IL2CPP_TYPE_GENERICINST;
             klass->this_arg.data.generic_class = klass->byval_arg.data.generic_class = gclass;
             klass->this_arg.byref = true;
+            klass->byval_arg.valuetype = genericTypeDefinition->byval_arg.valuetype;
 
             klass->event_count = definition->event_count;
             klass->field_count = definition->field_count;
@@ -206,7 +197,6 @@ namespace vm
             klass->property_count = definition->property_count;
 
             klass->enumtype = definition->enumtype;
-            klass->valuetype = definition->valuetype;
             klass->element_class = klass->castClass = klass;
 
             klass->has_cctor = definition->has_cctor;
@@ -219,13 +209,9 @@ namespace vm
                 klass->element_class = klass->castClass  = Class::GetNullableArgument(klass);
 
             if (klass->enumtype)
-                klass->element_class = klass->castClass = definition->element_class;
+                klass->element_class = klass->castClass =  definition->element_class;
 
             klass->is_import_or_windows_runtime = definition->is_import_or_windows_runtime;
-
-            // Do not update gclass->cached_class until `klass` is fully initialized
-            // And do so with an atomic barrier so no threads observer the writes out of order
-            il2cpp::os::Atomic::ExchangePointer(&gclass->cached_class, klass);
         }
 
         return gclass->cached_class;
@@ -248,7 +234,7 @@ namespace vm
 
     bool GenericClass::IsValueType(Il2CppGenericClass *gclass)
     {
-        return GetTypeDefinition(gclass)->valuetype;
+        return GetTypeDefinition(gclass)->byval_arg.valuetype;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

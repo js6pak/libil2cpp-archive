@@ -56,51 +56,36 @@ namespace metadata
         return inflatedParameters;
     }
 
-    static const Il2CppType* InflateGenericParameterIfNeeded(const Il2CppType* type, const Il2CppGenericInst* inst)
-    {
-        IL2CPP_ASSERT(inst);
-
-        Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
-        IL2CPP_ASSERT(gp.num < inst->type_argc);
-
-        const Il2CppType* genericArgument = inst->type_argv[gp.num];
-        if (genericArgument->attrs == type->attrs && genericArgument->byref == type->byref)
-            return genericArgument;
-
-        Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-        memcpy(inflatedType,  genericArgument, sizeof(Il2CppType));
-        inflatedType->byref = type->byref;
-        inflatedType->attrs = type->attrs;
-
-        ++il2cpp_runtime_stats.inflated_type_count;
-
-        return inflatedType;
-    }
-
     const Il2CppType* GenericMetadata::InflateIfNeeded(const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars)
     {
         switch (type->type)
         {
             case IL2CPP_TYPE_VAR:
-                return InflateGenericParameterIfNeeded(type, context->class_inst);
+            {
+                Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
+                Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
+                IL2CPP_ASSERT(context->class_inst);
+                IL2CPP_ASSERT(gp.num < context->class_inst->type_argc);
+
+                memcpy(inflatedType, context->class_inst->type_argv[gp.num], sizeof(Il2CppType));
+                inflatedType->byref = type->byref;
+                inflatedType->attrs = type->attrs;
+
+                ++il2cpp_runtime_stats.inflated_type_count;
+
+                return inflatedType;
+            }
             case IL2CPP_TYPE_MVAR:
             {
                 if (context->method_inst)
-                    return InflateGenericParameterIfNeeded(type, context->method_inst);
-                return type;
-            }
-            case IL2CPP_TYPE_ARRAY:
-            {
-                const Il2CppType* inflatedElementType = InflateIfNeeded(type->data.array->etype, context, inflateMethodVars);
-                if (!Il2CppTypeEqualityComparer::AreEqual(inflatedElementType, type->data.array->etype))
                 {
                     Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                    memcpy(inflatedType, type, sizeof(Il2CppType));
+                    Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
+                    IL2CPP_ASSERT(gp.num < context->method_inst->type_argc);
 
-                    Il2CppArrayType* arrayType = (Il2CppArrayType*)MetadataMalloc(sizeof(Il2CppArrayType));
-                    memcpy(arrayType, type->data.array, sizeof(Il2CppArrayType));
-                    arrayType->etype = inflatedElementType;
-                    inflatedType->data.array = arrayType;
+                    memcpy(inflatedType, context->method_inst->type_argv[gp.num], sizeof(Il2CppType));
+                    inflatedType->byref = type->byref;
+                    inflatedType->attrs = type->attrs;
 
                     ++il2cpp_runtime_stats.inflated_type_count;
 
@@ -108,44 +93,50 @@ namespace metadata
                 }
                 return type;
             }
-            case IL2CPP_TYPE_PTR:
+            case IL2CPP_TYPE_ARRAY:
+            {
+                Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
+                memcpy(inflatedType, type, sizeof(Il2CppType));
+
+                Il2CppArrayType* arrayType = (Il2CppArrayType*)MetadataMalloc(sizeof(Il2CppArrayType));
+                memcpy(arrayType, type->data.array, sizeof(Il2CppArrayType));
+                arrayType->etype = InflateIfNeeded(type->data.array->etype, context, inflateMethodVars);
+
+                inflatedType->data.array = arrayType;
+
+                ++il2cpp_runtime_stats.inflated_type_count;
+
+                return inflatedType;
+            }
             case IL2CPP_TYPE_SZARRAY:
             {
-                const Il2CppType* inflatedElementType = InflateIfNeeded(type->data.type, context, inflateMethodVars);
-                if (!Il2CppTypeEqualityComparer::AreEqual(inflatedElementType, type->data.type))
-                {
-                    Il2CppType* arrayType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                    memcpy(arrayType, type, sizeof(Il2CppType));
-                    arrayType->data.type = inflatedElementType;
+                Il2CppType* arrayType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
+                memcpy(arrayType, type, sizeof(Il2CppType));
+                arrayType->data.type = InflateIfNeeded(type->data.type, context, inflateMethodVars);
 
-                    ++il2cpp_runtime_stats.inflated_type_count;
+                ++il2cpp_runtime_stats.inflated_type_count;
 
-                    return arrayType;
-                }
-                return type;
+                return arrayType;
             }
             case IL2CPP_TYPE_GENERICINST:
             {
+                Il2CppType* genericType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
+                memcpy(genericType, type, sizeof(Il2CppType));
+
                 const Il2CppGenericInst* inst = type->data.generic_class->context.class_inst;
+                if (inst == NULL)
+                    return NULL; // This is a generic type that was too deeply nested to generate
 
                 Il2CppTypeVector types;
                 for (uint32_t i = 0; i < inst->type_argc; i++)
                     types.push_back(InflateIfNeeded(inst->type_argv[i], context, inflateMethodVars));
 
                 const Il2CppGenericInst* inflatedInst = MetadataCache::GetGenericInst(types);
-                Il2CppGenericClass* genericClass = GenericMetadata::GetGenericClass(GenericClass::GetTypeDefinition(type->data.generic_class), inflatedInst);
-                if (genericClass != type->data.generic_class)
-                {
-                    Il2CppType* genericType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                    memcpy(genericType, type, sizeof(Il2CppType));
-                    genericType->data.generic_class = genericClass;
+                genericType->data.generic_class = GenericMetadata::GetGenericClass(GenericClass::GetTypeDefinition(type->data.generic_class), inflatedInst);
 
-                    ++il2cpp_runtime_stats.inflated_type_count;
+                ++il2cpp_runtime_stats.inflated_type_count;
 
-                    return genericType;
-                }
-
-                return type;
+                return genericType;
             }
             default:
                 return type;
@@ -157,19 +148,16 @@ namespace metadata
     static Il2CppGenericClassSet s_GenericClassSet;
 
 
-    Il2CppGenericClass* GenericMetadata::GetGenericClass(const Il2CppClass* genericTypeDefinition, const Il2CppGenericInst* inst)
+    Il2CppGenericClass* GenericMetadata::GetGenericClass(const Il2CppClass* containerClass, const Il2CppGenericInst* inst)
     {
-        return GetGenericClass(&genericTypeDefinition->byval_arg, inst);
+        return GetGenericClass(&containerClass->byval_arg, inst);
     }
 
-    Il2CppGenericClass* GenericMetadata::GetGenericClass(const Il2CppType* genericTypeDefinition, const Il2CppGenericInst* inst)
+    Il2CppGenericClass* GenericMetadata::GetGenericClass(const Il2CppType* elementType, const Il2CppGenericInst* inst)
     {
-        // Assert that the element type is a non-inflated generic type defintion
-        IL2CPP_ASSERT(il2cpp::vm::Class::IsGenericTypeDefinition(vm::Class::FromIl2CppType(genericTypeDefinition)));
-
         // temporary inst to lookup a permanent one that may already exist
         Il2CppGenericClass genericClass = { 0 };
-        genericClass.type = genericTypeDefinition;
+        genericClass.type = elementType;
         genericClass.context.class_inst = inst;
 
         FastAutoLock lock(&s_GenericClassMutex);
@@ -178,7 +166,7 @@ namespace metadata
             return *iter;
 
         Il2CppGenericClass* newClass = MetadataAllocGenericClass();
-        newClass->type = genericTypeDefinition;
+        newClass->type = elementType;
         newClass->context.class_inst = inst;
 
         s_GenericClassSet.insert(newClass);
@@ -188,36 +176,42 @@ namespace metadata
         return newClass;
     }
 
-    const MethodInfo* GenericMetadata::Inflate(const MethodInfo* methodDefinition, const Il2CppGenericContext* context)
+    const MethodInfo* GenericMetadata::Inflate(const MethodInfo* methodDefinition, Il2CppClass* declaringClass, const Il2CppGenericContext* context)
     {
         const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(methodDefinition, context->class_inst, context->method_inst);
         return GenericMethod::GetMethod(gmethod);
     }
 
-    static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst);
-
-    static int RecursiveGenericDepthFor(Il2CppGenericClass* genericClass)
-    {
-        int classInstDepth = RecursiveGenericDepthFor(genericClass->context.class_inst);
-        int methodInstDepth = RecursiveGenericDepthFor(genericClass->context.method_inst);
-        return std::max(classInstDepth, methodInstDepth);
-    }
-
-    static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst)
+    static void RecursiveGenericDepthFor(const Il2CppGenericInst* inst, int& depth)
     {
         if (inst == NULL)
-            return 0;
+            return;
 
-        int maximumDepth = 0;
+        int maximumDepth = depth;
         for (size_t i = 0; i < inst->type_argc; i++)
         {
             if (inst->type_argv[i]->type == IL2CPP_TYPE_GENERICINST)
             {
-                maximumDepth = std::max(maximumDepth, RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class));
+                maximumDepth++;
+
+                int classInstDepth = 0;
+                RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.class_inst, classInstDepth);
+
+                int methodInstDepth = 0;
+                RecursiveGenericDepthFor(inst->type_argv[i]->data.generic_class->context.method_inst, methodInstDepth);
+
+                maximumDepth += std::max(classInstDepth, methodInstDepth);
             }
         }
 
-        return maximumDepth + 1;
+        depth = maximumDepth;
+    }
+
+    static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst)
+    {
+        int depth = 0;
+        RecursiveGenericDepthFor(inst, depth);
+        return depth;
     }
 
     const Il2CppGenericMethod* GenericMetadata::Inflate(const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context)
@@ -290,59 +284,6 @@ namespace metadata
             if (genericClasses[i]->type != NULL)
                 s_GenericClassSet.insert(genericClasses[i]);
         }
-    }
-
-    bool GenericMetadata::ContainsGenericParameters(const Il2CppClass* klass)
-    {
-        if (!klass->generic_class)
-            return false;
-
-        return ContainsGenericParameters(klass->generic_class->context.class_inst);
-    }
-
-    bool GenericMetadata::ContainsGenericParameters(const MethodInfo* method)
-    {
-        if (!method->is_inflated)
-            return false;
-
-        if (ContainsGenericParameters(method->genericMethod->context.method_inst))
-            return true;
-        if (method->genericMethod->context.class_inst == NULL)
-            return false;
-        return ContainsGenericParameters(method->genericMethod->context.class_inst);
-    }
-
-    bool GenericMetadata::ContainsGenericParameters(const Il2CppGenericInst* inst)
-    {
-        for (uint32_t i = 0; i < inst->type_argc; i++)
-        {
-            if (ContainsGenericParameters(inst->type_argv[i]))
-                return true;
-        }
-
-        return false;
-    }
-
-    bool GenericMetadata::ContainsGenericParameters(const Il2CppType* type)
-    {
-        switch (type->type)
-        {
-            case IL2CPP_TYPE_VAR:
-            case IL2CPP_TYPE_MVAR:
-                return true;
-            case IL2CPP_TYPE_GENERICINST:
-                return ContainsGenericParameters(type->data.generic_class->context.class_inst);
-            case IL2CPP_TYPE_ARRAY:
-                return ContainsGenericParameters(type->data.array->etype);
-            case IL2CPP_TYPE_SZARRAY:
-            case IL2CPP_TYPE_PTR:
-            case IL2CPP_TYPE_BYREF:
-                return ContainsGenericParameters(type->data.type);
-            default:
-                return false;
-        }
-
-        return false;
     }
 
     void GenericMetadata::WalkAllGenericClasses(GenericClassWalkCallback callback, void* context)

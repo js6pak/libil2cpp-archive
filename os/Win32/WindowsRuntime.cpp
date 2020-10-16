@@ -3,10 +3,10 @@
 #if IL2CPP_TARGET_WINDOWS && !IL2CPP_USE_GENERIC_WINDOWSRUNTIME
 
 #include "il2cpp-class-internals.h"
-#include "il2cpp-object-internals.h"
 #include "il2cpp-string-types.h"
 #include "il2cpp-vm-support.h"
 #include "os/WindowsRuntime.h"
+#include "utils/Il2CppHStringReference.h"
 #include "utils/StringUtils.h"
 #include "vm/CCW.h"
 #include "WindowsHeaders.h"
@@ -338,13 +338,8 @@ namespace os
 
     void WindowsRuntime::OriginateLanguageException(Il2CppException* ex, Il2CppString* exceptionString)
     {
-        Il2CppHString messageHString;
-        Il2CppHStringHeader hstringHeader;
         utils::StringView<Il2CppNativeChar> message(utils::StringUtils::GetChars(exceptionString), utils::StringUtils::GetLength(exceptionString));
-
-        auto hr = CreateHStringReference(message, &hstringHeader, &messageHString);
-        if (FAILED(hr))
-            return; // probably running on Windows 7
+        utils::Il2CppHStringReference messageHString(message);
 
 #if IL2CPP_TARGET_XBOXONE
         OriginateErrorNoLanguageException(ex, messageHString);

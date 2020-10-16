@@ -54,16 +54,17 @@ namespace vm
         Il2CppNativeChar* nativeDll = static_cast<Il2CppNativeChar*>(alloca((namespaceEnd + 5) * sizeof(Il2CppNativeChar)));
         memcpy(nativeDll, runtimeClassName.Str(), namespaceEnd * sizeof(Il2CppNativeChar));
 
+        std::string detailedError;
         while (namespaceEnd > 0)
         {
             memcpy(nativeDll + namespaceEnd, IL2CPP_NATIVE_STRING(".dll"), 4 * sizeof(Il2CppNativeChar));
             nativeDll[namespaceEnd + 4] = 0;
 
-            void* dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(utils::StringView<Il2CppNativeChar>(nativeDll, namespaceEnd + 4));
-            if (dynamicLibrary != NULL)
+            Baselib_DynamicLibrary_Handle dynamicLibrary = os::LibraryLoader::LoadDynamicLibrary(utils::StringView<Il2CppNativeChar>(nativeDll, namespaceEnd + 4), detailedError);
+            if (dynamicLibrary != Baselib_DynamicLibrary_Handle_Invalid)
             {
                 typedef il2cpp_hresult_t(STDCALL * DllGetActivationFactory)(Il2CppHString activatableClassId, Il2CppIActivationFactory** factory);
-                DllGetActivationFactory dllGetActivationFactory = reinterpret_cast<DllGetActivationFactory>(os::LibraryLoader::GetFunctionPointer(dynamicLibrary, "DllGetActivationFactory"));
+                DllGetActivationFactory dllGetActivationFactory = reinterpret_cast<DllGetActivationFactory>(os::LibraryLoader::GetFunctionPointer(dynamicLibrary, "DllGetActivationFactory", detailedError));
 
                 if (dllGetActivationFactory != NULL)
                 {

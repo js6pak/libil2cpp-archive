@@ -49,5 +49,14 @@ namespace utils
 
         return "";
     }
+
+    std::string Exception::FormatBaselibErrorState(const Baselib_ErrorState& errorState)
+    {
+        const auto len = Baselib_ErrorState_Explain(&errorState, nullptr, 0, Baselib_ErrorState_ExplainVerbosity_ErrorType_SourceLocation_Explanation);
+        std::string buffer(len, ' ');
+        // std::string::data() is const only until C++17
+        Baselib_ErrorState_Explain(&errorState, &buffer[0], len, Baselib_ErrorState_ExplainVerbosity_ErrorType_SourceLocation_Explanation);
+        return buffer;
+    }
 } // utils
 } // il2cpp

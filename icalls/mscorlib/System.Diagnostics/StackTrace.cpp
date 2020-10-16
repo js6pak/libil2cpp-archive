@@ -18,31 +18,28 @@ namespace Diagnostics
 {
     Il2CppArray* StackTrace::get_trace(Il2CppException *exc, int32_t skip, bool need_file_info)
     {
-        Il2CppArray *res;
-        Il2CppArray *ta = exc->trace_ips;
-        int i, len;
-
-        if (ta == NULL)
-        {
-            /* Exception is not thrown yet */
+        /* Exception is not thrown yet */
+        if (exc->trace_ips == NULL)
             return vm::Array::New(il2cpp_defaults.stack_frame_class, 0);
-        }
 
-        len = vm::Array::GetLength(ta);
+        int len = vm::Array::GetLength(exc->trace_ips);
+        Il2CppArray* stackFrames = vm::Array::New(il2cpp_defaults.stack_frame_class, len > skip ? len - skip : 0);
 
-        res = vm::Array::New(il2cpp_defaults.stack_frame_class, len > skip ? len - skip : 0);
-
-        for (i = skip; i < len; i++)
+        for (int i = skip; i < len; i++)
         {
-            Il2CppStackFrame *sf = (Il2CppStackFrame*)vm::Object::New(il2cpp_defaults.stack_frame_class);
-            MethodInfo* method = il2cpp_array_get(ta, MethodInfo*, i);
+            Il2CppStackFrame* stackFrame = NULL;
+#if IL2CPP_MONO_DEBUGGER
+            stackFrame = il2cpp_array_get(exc->trace_ips, Il2CppStackFrame*, i);
+#else
+            stackFrame = (Il2CppStackFrame*)vm::Object::New(il2cpp_defaults.stack_frame_class);
+            MethodInfo* method = il2cpp_array_get(exc->trace_ips, MethodInfo*, i);
 
-            IL2CPP_OBJECT_SETREF(sf, method, vm::Reflection::GetMethodObject(method, NULL));
-
-            il2cpp_array_setref(res, i, sf);
+            IL2CPP_OBJECT_SETREF(stackFrame, method, vm::Reflection::GetMethodObject(method, NULL));
+#endif
+            il2cpp_array_setref(stackFrames, i, stackFrame);
         }
 
-        return res;
+        return stackFrames;
     }
 } /* namespace Diagnostics */
 } /* namespace System */

@@ -34,7 +34,7 @@ namespace vm
 
     typedef Il2CppHashMap<const char*, Il2CppClass*, il2cpp::utils::StringUtils::StringHasher<const char*>, il2cpp::utils::VmStringUtils::CaseSensitiveComparer> WindowsRuntimeTypeNameToClassMap;
     typedef Il2CppHashMap<const Il2CppClass*, const char*, il2cpp::utils::PointerHash<Il2CppClass> > ClassToWindowsRuntimeTypeNameMap;
-    typedef Il2CppHashMap<il2cpp::metadata::Il2CppSignature, Il2CppMethodPointer, il2cpp::metadata::Il2CppSignatureHash, il2cpp::metadata::Il2CppSignatureCompare> Il2CppUnresolvedSignatureMap;
+    typedef Il2CppHashMap<const il2cpp::metadata::Il2CppSignature, Il2CppMethodPointer, il2cpp::metadata::Il2CppSignatureHash, il2cpp::metadata::Il2CppSignatureCompare> Il2CppUnresolvedSignatureMap;
     typedef Il2CppHashMap<const Il2CppGenericMethod*, const Il2CppGenericMethodIndices*, il2cpp::metadata::Il2CppGenericMethodHash, il2cpp::metadata::Il2CppGenericMethodCompare> Il2CppMethodTableMap;
 
     class LIBIL2CPP_CODEGEN_API MetadataCache
@@ -61,7 +61,7 @@ namespace vm
         static const char* GetWindowsRuntimeClassName(const Il2CppClass* klass);
         static Il2CppMethodPointer GetWindowsRuntimeFactoryCreationFunction(const char* fullName);
         static Il2CppClass* GetClassForGuid(const Il2CppGuid* guid);
-        static void AddPointerTypeLocked(Il2CppClass* type, Il2CppClass* pointerType, const il2cpp::os::FastAutoLock& lock);
+        static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
 
         static const Il2CppGenericInst* GetGenericInst(const Il2CppType* const* types, uint32_t typeCount);
         static const Il2CppGenericInst* GetGenericInst(const il2cpp::metadata::Il2CppTypeVector& types);
@@ -78,7 +78,6 @@ namespace vm
         static void InitializeAllMethodMetadata();
         static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer);
 
-        static Il2CppMethodPointer GetAdjustorThunk(const Il2CppImage* image, uint32_t token);
         static Il2CppMethodPointer GetMethodPointer(const Il2CppImage* image, uint32_t token);
         static InvokerMethod GetMethodInvoker(const Il2CppImage* image, uint32_t token);
         static const Il2CppInteropData* GetInteropDataForType(const Il2CppType* type);
