@@ -81,14 +81,6 @@ struct Il2CppFakeBox : RuntimeObject
     }
 };
 
-struct Il2CppMetadataObject : RuntimeObject
-{
-    Il2CppMetadataObject(RuntimeClass* boxedType)
-    {
-        klass = boxedType;
-    }
-};
-
 inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
 {
     return object->monitor == IL2CPP_FAKE_BOX_SENTRY;
@@ -280,7 +272,7 @@ int32_t il2cpp_codgen_class_get_instance_size(RuntimeClass* klass);
 
 inline uint32_t il2cpp_codegen_sizeof(RuntimeClass* klass)
 {
-    if (!klass->valuetype)
+    if (!klass->byval_arg.valuetype)
     {
         return sizeof(void*);
     }
@@ -400,7 +392,6 @@ inline void ArrayGetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, void* v
 inline void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, void* value)
 {
     memcpy(((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * thisPtr->klass->element_size, value, thisPtr->klass->element_size);
-    Il2CppCodeGenWriteBarrier((void**)(((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * thisPtr->klass->element_size), value);
 }
 
 RuntimeArray* SZArrayNew(RuntimeClass* arrayType, uint32_t length);
@@ -765,14 +756,6 @@ Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegat
 
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args);
 
-#if !IL2CPP_TINY
-inline bool il2cpp_codegen_delegate_has_invoker(Il2CppDelegate* delegate)
-{
-    return delegate->invoke_impl != NULL;
-}
-
-#endif
-
 inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(RuntimeClass* genericClass)
 {
     IL2CPP_ASSERT(genericClass->generic_class);
@@ -814,12 +797,6 @@ inline intptr_t il2cpp_codegen_get_com_interface_for_object(Il2CppObject* object
 NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method);
 
 const char* il2cpp_codegen_get_field_data(RuntimeField* field);
-
-template<typename T>
-inline void* il2cpp_codegen_unsafe_cast(T* ptr)
-{
-    return reinterpret_cast<void*>(ptr);
-}
 
 #if IL2CPP_TINY
 
@@ -889,5 +866,7 @@ void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const cha
 bool il2cpp_codegen_type_is_interface(Type_t* t);
 bool il2cpp_codegen_type_is_abstract(Type_t* t);
 bool il2cpp_codegen_type_is_pointer(Type_t* t);
+
+NORETURN void il2cpp_codegen_raise_exception(const char* message);
 
 #endif

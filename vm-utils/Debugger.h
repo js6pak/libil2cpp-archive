@@ -71,7 +71,9 @@ namespace utils
             s_ExecutionContexts.GetValue(reinterpret_cast<void**>(&unwindState));
 
             if (unwindState->frameCount == unwindState->frameCapacity)
-                GrowFrameCapacity(unwindState);
+            {
+                IL2CPP_ASSERT(0);
+            }
 
             unwindState->executionContexts[unwindState->frameCount] = executionContext;
             unwindState->frameCount++;
@@ -111,9 +113,14 @@ namespace utils
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
 
+        static inline bool AtomicReadIsActive(Il2CppSequencePoint *seqPoint)
+        {
+            return il2cpp::os::Atomic::CompareExchange(&seqPoint->isActive, seqPoint->isActive, -1) > 0;
+        }
+
         static inline bool IsSequencePointActive(Il2CppSequencePoint *seqPoint)
         {
-            return il2cpp::os::Atomic::LoadRelaxed(&seqPoint->isActive) || g_unity_pause_point_active;
+            return AtomicReadIsActive(seqPoint) || g_unity_pause_point_active;
         }
 
         static inline bool IsSequencePointActiveEntry(Il2CppSequencePoint *seqPoint)
@@ -167,12 +174,12 @@ namespace utils
         // The context parameter here is really il2cpp::vm::StackFrames*. We don't want to include vm/StackTrace.h in this file,
         // as this one is included in generated code.
         static void GetStackFrames(void* context);
+
     private:
         static os::ThreadLocalValue s_IsGlobalBreakpointActive;
         static void InitializeMethodToSequencePointMap();
         static void InitializeTypeSourceFileMap();
         static void InitializeMethodToCatchPointMap();
-        static void GrowFrameCapacity(Il2CppThreadUnwindState* unwindState);
     };
 }
 }

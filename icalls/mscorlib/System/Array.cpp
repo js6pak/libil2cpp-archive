@@ -117,7 +117,7 @@ namespace System
         dest_class = dest->klass->element_class;
 
         // object[] -> valuetype[]
-        if (src_class == il2cpp_defaults.object_class && dest_class->valuetype)
+        if (src_class == il2cpp_defaults.object_class && dest_class->byval_arg.valuetype)
         {
             for (i = source_idx; i < source_idx + length; ++i)
             {
@@ -272,7 +272,7 @@ namespace System
 
         ea = (void**)load_array_elema(thisPtr, pos, typeInfo->element_size);
 
-        if (typeInfo->element_class->valuetype)
+        if (typeInfo->element_class->byval_arg.valuetype)
             return il2cpp::vm::Object::Box(typeInfo->element_class, ea);
 
         return (Il2CppObject*)*ea;

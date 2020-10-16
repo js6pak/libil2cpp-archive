@@ -240,7 +240,7 @@ typedef struct ParameterInfo
     const Il2CppType* parameter_type;
 } ParameterInfo;
 
-typedef void* (*InvokerMethod)(Il2CppMethodPointer, const MethodInfo*, void*, void**);
+typedef void (*InvokerMethod)(Il2CppMethodPointer, const MethodInfo*, void*, void**, void*);
 
 typedef enum MethodVariableKind
 {
@@ -358,7 +358,6 @@ typedef struct MethodInfo
     {
         const Il2CppGenericMethod* genericMethod; /* is_inflated is true */
         Il2CppMetadataGenericContainerHandle genericContainerHandle; /* is_inflated is false and is_generic is true */
-        Il2CppMethodPointer nativeFunction; /* if is_marshaled_from_native is true */
     };
 
     uint32_t token;
@@ -429,7 +428,7 @@ typedef struct Il2CppClass
 
     // Remaining fields are always valid except where noted
     Il2CppMetadataGenericContainerHandle genericContainerHandle;
-    uint32_t instance_size; // valid when size_inited is true
+    uint32_t instance_size;
     uint32_t actualSize;
     uint32_t element_size;
     int32_t native_size;
@@ -459,13 +458,11 @@ typedef struct Il2CppClass
     // Use Class::UpdateInitializedAndNoError to update
     uint8_t initialized_and_no_error : 1;
 
-    uint8_t valuetype : 1;
     uint8_t initialized : 1;
     uint8_t enumtype : 1;
     uint8_t is_generic : 1;
-    uint8_t has_references : 1; // valid when size_inited is true
+    uint8_t has_references : 1;
     uint8_t init_pending : 1;
-    uint8_t size_init_pending : 1;
     uint8_t size_inited : 1;
     uint8_t has_finalize : 1;
     uint8_t has_cctor : 1;
@@ -576,12 +573,6 @@ typedef struct Il2CppTokenIndexMethodTuple
     uint32_t __genericMethodIndex;
 } Il2CppTokenIndexMethodTuple;
 
-typedef struct Il2CppTokenAdjustorThunkPair
-{
-    uint32_t token;
-    Il2CppMethodPointer adjustorThunk;
-} Il2CppTokenAdjustorThunkPair;
-
 typedef struct Il2CppWindowsRuntimeFactoryTableEntry
 {
     const Il2CppType* type;
@@ -593,8 +584,6 @@ typedef struct Il2CppCodeGenModule
     const char* moduleName;
     const uint32_t methodPointerCount;
     const Il2CppMethodPointer* methodPointers;
-    const uint32_t adjustorThunkCount;
-    const Il2CppTokenAdjustorThunkPair* adjustorThunks;
     const int32_t* invokerIndices;
     const uint32_t reversePInvokeWrapperCount;
     const Il2CppTokenIndexMethodTuple* reversePInvokeWrapperIndices;
@@ -616,7 +605,6 @@ typedef struct Il2CppCodeRegistration
     const Il2CppMethodPointer* reversePInvokeWrappers;
     uint32_t genericMethodPointersCount;
     const Il2CppMethodPointer* genericMethodPointers;
-    const Il2CppMethodPointer* genericAdjustorThunks;
     uint32_t invokerPointersCount;
     const InvokerMethod* invokerPointers;
     uint32_t unresolvedVirtualCallCount;

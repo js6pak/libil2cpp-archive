@@ -43,18 +43,8 @@ namespace utils
             }
             else
             {
-                if (nameIndex == nameLength)
-                {
-                    // A pattern ending with .* should match a file with no extension
-                    // The pattern "file.*" should match "file"
-                    if (c == '.' && i + 2 == patternLength && pattern[i + 1] == '*')
-                        return true;
+                if (nameIndex == nameLength || name[nameIndex] != c)
                     return false;
-                }
-                else if (name[nameIndex] != c)
-                {
-                    return false;
-                }
 
                 nameIndex++;
             }

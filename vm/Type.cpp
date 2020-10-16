@@ -13,6 +13,7 @@
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
 #include "vm/MetadataCache.h"
+#include "vm/Object.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
 #include "vm/Type.h"
@@ -1164,11 +1165,6 @@ namespace vm
         return GenericClass::IsValueType(type->data.generic_class);
     }
 
-    bool Type::IsArray(const Il2CppType *type)
-    {
-        return type->type == IL2CPP_TYPE_SZARRAY || type->type == IL2CPP_TYPE_ARRAY;
-    }
-
     bool Type::IsEnum(const Il2CppType *type)
     {
         if (type->type != IL2CPP_TYPE_VALUETYPE)
@@ -1180,8 +1176,7 @@ namespace vm
 
     bool Type::IsValueType(const Il2CppType *type)
     {
-        Il2CppClass* klass = GetClass(type);
-        return klass->valuetype;
+        return type->valuetype;
     }
 
     bool Type::IsEmptyType(const Il2CppType *type)
@@ -1248,14 +1243,25 @@ namespace vm
 #else
         IL2CPP_ASSERT(delegate);
 
-        if (method)
-            delegate->method = method;
-
         delegate->method_ptr = addr;
+
+        if (method)
+        {
+            delegate->method = method;
+            bool isVirtualMethod = method->slot != kInvalidIl2CppMethodSlot && !(method->flags & METHOD_ATTRIBUTE_FINAL);
+            if (isVirtualMethod && target != NULL && addr == method->methodPointer)
+            {
+                delegate->method = il2cpp::vm::Object::GetVirtualMethod(target, method);
+                delegate->method_ptr = delegate->method->methodPointer;
+            }
+            else
+            {
+                delegate->method_is_virtual = isVirtualMethod;
+            }
+        }
+
         if (target != NULL)
             IL2CPP_OBJECT_SETREF(delegate, target, target);
-
-        delegate->invoke_impl = method->invoker_method; //TODO:figure out if this is needed at all
 #endif
     }
 
