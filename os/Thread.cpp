@@ -296,6 +296,8 @@ namespace os
         if (thread)
             return thread;
 
+        // The os::Thread object is deallocated in the InternalThread::Thread_free_internal icall, which
+        // is called from the managed thread finalizer.
         thread = new Thread(ThreadImpl::CreateForCurrentThread());
         s_CurrentThread.SetValue(thread);
 

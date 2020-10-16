@@ -87,7 +87,7 @@ namespace MemoryInformation
             }
             else
             {
-                type.flags = (typeInfo->valuetype || typeInfo->byval_arg.type == IL2CPP_TYPE_PTR) ? kValueType : kNone;
+                type.flags = (typeInfo->byval_arg.valuetype || typeInfo->byval_arg.type == IL2CPP_TYPE_PTR) ? kValueType : kNone;
                 type.fieldCount = 0;
 
                 if (typeInfo->field_count > 0)
@@ -135,7 +135,7 @@ namespace MemoryInformation
             memcpy(type.name, typeName.c_str(), typeName.length() + 1);
 
             type.typeInfoAddress = reinterpret_cast<uint64_t>(typeInfo);
-            type.size = (typeInfo->valuetype) != 0 ? (typeInfo->instance_size - sizeof(Il2CppObject)) : typeInfo->instance_size;
+            type.size = (typeInfo->byval_arg.valuetype) != 0 ? (typeInfo->instance_size - sizeof(Il2CppObject)) : typeInfo->instance_size;
         }
     }
 

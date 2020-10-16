@@ -20,8 +20,10 @@ namespace Threading
         _this->synch_cs = NULL;
 
         IL2CPP_FREE(_this->name);
+        _this->name = NULL;
 
         delete reinterpret_cast<il2cpp::os::Thread*>(_this->handle);
+        _this->handle = NULL;
     }
 } // namespace Threading
 } // namespace System
