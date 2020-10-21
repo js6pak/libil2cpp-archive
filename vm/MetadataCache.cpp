@@ -164,6 +164,8 @@ bool il2cpp::vm::MetadataCache::Initialize()
     if (!s_GlobalMetadata)
         return false;
 
+    il2cpp::metadata::GenericMetadata::SetMaximumRuntimeGenericDepth(s_Il2CppCodeGenOptions->maximumRuntimeGenericDepth);
+
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 24);
@@ -228,10 +230,7 @@ bool il2cpp::vm::MetadataCache::Initialize()
 
         assemblyName->name = GetStringFromIndex(assemblyNameDefinition->nameIndex);
         assemblyName->culture = GetStringFromIndex(assemblyNameDefinition->cultureIndex);
-        assemblyName->hash_value = GetStringFromIndex(assemblyNameDefinition->hashValueIndex);
-        assemblyName->public_key = GetStringFromIndex(assemblyNameDefinition->publicKeyIndex);
-        if (strcmp(assemblyName->public_key, "NULL") == 0)
-            assemblyName->public_key = NULL;
+        assemblyName->public_key = (const uint8_t*)GetStringFromIndex(assemblyNameDefinition->publicKeyIndex);
         assemblyName->hash_alg = assemblyNameDefinition->hash_alg;
         assemblyName->hash_len = assemblyNameDefinition->hash_len;
         assemblyName->flags = assemblyNameDefinition->flags;
