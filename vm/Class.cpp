@@ -1497,7 +1497,7 @@ namespace vm
 
         if (klass->generic_class)
         {
-            if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::MaximumRuntimeGenericDepth)
+            if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth())
                 klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTX(klass->image, klass->token, &klass->generic_class->context);
         }
 
