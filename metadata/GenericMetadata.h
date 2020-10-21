@@ -39,7 +39,8 @@ namespace metadata
         typedef void(*GenericClassWalkCallback)(Il2CppClass* type, void* context);
         static void WalkAllGenericClasses(GenericClassWalkCallback callback, void* context);
 
-        static const int MaximumRuntimeGenericDepth = 8;
+        static int GetMaximumRuntimeGenericDepth();
+        static void SetMaximumRuntimeGenericDepth(int depth);
 
         static void Clear();
     };
