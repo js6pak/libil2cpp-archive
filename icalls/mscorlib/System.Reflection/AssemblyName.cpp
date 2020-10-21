@@ -95,7 +95,6 @@ namespace Reflection
         else
             aname->culture = il2cpp::utils::StringUtils::StringDuplicate(parsedName.culture.c_str());
 
-        aname->hash_value = il2cpp::utils::StringUtils::StringDuplicate(parsedName.hash_value.c_str());
         aname->public_key = reinterpret_cast<uint8_t*>(il2cpp::utils::StringUtils::StringDuplicate(parsedName.public_key.c_str()));
 
         for (int i = 0; i < il2cpp::vm::kPublicKeyTokenLength; ++i)
