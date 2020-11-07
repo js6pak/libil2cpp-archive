@@ -252,6 +252,7 @@ namespace vm
         klass->thread_static_fields_size = -1;
         klass->native_size = -1;
         klass->size_inited = true;
+        klass->typeHierarchyDepth = 1;
 
         s_GenericParameterMap.insert(std::make_pair(param, klass));
 
@@ -1490,7 +1491,7 @@ namespace vm
         return true;
     }
 
-    bool Class::Init(Il2CppClass *klass)
+    void Class::Init(Il2CppClass *klass)
     {
         IL2CPP_ASSERT(klass);
 
@@ -1499,8 +1500,6 @@ namespace vm
             il2cpp::os::FastAutoLock lock(&g_MetadataLock);
             InitLocked(klass, lock);
         }
-
-        return true;
     }
 
     void Class::UpdateInitializedAndNoError(Il2CppClass *klass)
@@ -1800,6 +1799,7 @@ namespace vm
         pointerClass->this_arg.byref = true;
 
         pointerClass->parent = NULL;
+        pointerClass->typeHierarchyDepth = 1;
         pointerClass->castClass = pointerClass->element_class = elementClass;
 
         MetadataCache::AddPointerType(elementClass, pointerClass);

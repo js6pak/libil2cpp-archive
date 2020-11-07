@@ -33,7 +33,7 @@ namespace vm
         for (uint16_t methodIndex = 0; methodIndex < methodCount; ++methodIndex)
         {
             const MethodInfo* methodDefinition = genericTypeDefinition->methods[methodIndex];
-            methods[methodIndex] = metadata::GenericMetadata::Inflate(methodDefinition, genericInstanceType, GenericClass::GetContext(genericInstanceType->generic_class));
+            methods[methodIndex] = metadata::GenericMetadata::Inflate(methodDefinition, GenericClass::GetContext(genericInstanceType->generic_class));
         }
 
         genericInstanceType->methods = methods;
@@ -49,9 +49,9 @@ namespace vm
         newProperty->token = propertyDefinition->token;
 
         if (propertyDefinition->get)
-            newProperty->get = metadata::GenericMetadata::Inflate(propertyDefinition->get, declaringClass, context);
+            newProperty->get = metadata::GenericMetadata::Inflate(propertyDefinition->get, context);
         if (propertyDefinition->set)
-            newProperty->set = metadata::GenericMetadata::Inflate(propertyDefinition->set, declaringClass, context);
+            newProperty->set = metadata::GenericMetadata::Inflate(propertyDefinition->set, context);
     }
 
     void GenericClass::SetupProperties(Il2CppClass* genericInstanceType)
@@ -86,11 +86,11 @@ namespace vm
         newEvent->token = eventDefinition->token;
 
         if (eventDefinition->add)
-            newEvent->add = metadata::GenericMetadata::Inflate(eventDefinition->add, declaringClass, context);
+            newEvent->add = metadata::GenericMetadata::Inflate(eventDefinition->add, context);
         if (eventDefinition->raise)
-            newEvent->raise = metadata::GenericMetadata::Inflate(eventDefinition->raise, declaringClass, context);
+            newEvent->raise = metadata::GenericMetadata::Inflate(eventDefinition->raise, context);
         if (eventDefinition->remove)
-            newEvent->remove = metadata::GenericMetadata::Inflate(eventDefinition->remove, declaringClass, context);
+            newEvent->remove = metadata::GenericMetadata::Inflate(eventDefinition->remove, context);
     }
 
     void GenericClass::SetupEvents(Il2CppClass* genericInstanceType)

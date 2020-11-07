@@ -13,7 +13,7 @@
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "vm/TypeUniverse.h"
-#include "utils/LeaveTargetStack.h"
+#include "utils/ExceptionSupportStack.h"
 #include "utils/MemoryUtils.h"
 #include "utils/StringView.h"
 #include <string>
@@ -124,6 +124,16 @@ inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
 }
 
 // Exception support macros
+
+#define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
+    __active_exceptions.push(Exception)
+
+#define IL2CPP_POP_ACTIVE_EXCEPTION() \
+    __active_exceptions.pop()
+
+#define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
+    (ExcType)__active_exceptions.top()
+
 #define IL2CPP_LEAVE(Offset, Target) \
     __leave_targets.push(Offset); \
     goto Target;
