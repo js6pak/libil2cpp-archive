@@ -10,7 +10,7 @@
 #include "il2cpp-tabledefs.h"
 
 #include "vm-utils/Debugger.h"
-#include "utils/LeaveTargetStack.h"
+#include "utils/ExceptionSupportStack.h"
 #include "utils/Output.h"
 
 REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
@@ -120,6 +120,15 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 
 #define IL2CPP_CLEANUP(Id) \
     __CLEANUP_ ## Id:
+
+#define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
+    __active_exceptions.push(Exception)
+
+#define IL2CPP_POP_ACTIVE_EXCEPTION() \
+    __active_exceptions.pop()
+
+#define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
+    (ExcType)__active_exceptions.top()
 
 #define IL2CPP_RETHROW_IF_UNHANDLED(ExcType) \
     if(__last_unhandled_exception) { \
