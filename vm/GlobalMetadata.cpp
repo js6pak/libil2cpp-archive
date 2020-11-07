@@ -1513,28 +1513,11 @@ Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(TypeIndex inde
 
     const Il2CppType* type = s_Il2CppMetadataRegistration->types[index];
 
-    // When the debugger is enabled, all metadata is initialized when the process starts.
-    // If there are types which did not get generated because they were too deeply nested,
-    // Class::FromIl2CppType will throw a managed exception. For the debugger, let's catch
-    // that exception and continue. This means that if that type is used when the debugger
-    // is enabled, the user won't get a nice managed exception, but that seems like a very
-    // uncommon case, so let's ignore it.
-#if IL2CPP_MONO_DEBUGGER
-    try
+    Il2CppClass *klass = Class::FromIl2CppType(type, throwOnError);
+    if (klass != NULL)
     {
-#endif // IL2CPP_MONO_DEBUGGER
-    Il2CppClass *klass = Class::FromIl2CppType(type);
-    ClassInlines::InitFromCodegen(klass);
-    s_TypeInfoTable[index] = klass;
-#if IL2CPP_MONO_DEBUGGER
-}
-
-catch (Il2CppExceptionWrapper)
-{
-    s_TypeInfoTable[index] = NULL;
-}
-#endif // IL2CPP_MONO_DEBUGGER
-
+        s_TypeInfoTable[index] = ClassInlines::InitFromCodegenSlow(klass, throwOnError);
+    }
     return s_TypeInfoTable[index];
 }
 

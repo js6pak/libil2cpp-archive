@@ -354,8 +354,7 @@ IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const 
 
 inline RuntimeClass* InitializedTypeInfo(RuntimeClass* klass)
 {
-    il2cpp::vm::ClassInlines::InitFromCodegen(klass);
-    return klass;
+    return il2cpp::vm::ClassInlines::InitFromCodegen(klass);
 }
 
 RuntimeClass* il2cpp_codegen_class_from_type_internal(const RuntimeType* type);
