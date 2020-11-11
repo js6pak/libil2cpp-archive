@@ -509,6 +509,14 @@ inline T* il2cpp_codegen_marshal_function_ptr_to_delegate(Il2CppMethodPointer fu
 
 void il2cpp_codegen_marshal_store_last_error();
 
+template<typename R, typename S>
+inline R il2cpp_codegen_cast_struct(S* s)
+{
+    static_assert(sizeof(S) == sizeof(R), "Types with different sizes passed to il2cpp_codegen_cast_struct");
+    R r;
+    il2cpp_codegen_memcpy(&r, s, sizeof(R));
+    return r;
+}
 
 #if _DEBUG
 
