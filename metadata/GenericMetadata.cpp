@@ -233,7 +233,8 @@ namespace metadata
         // We have cases where we could infinitely recurse, inflating generics at runtime. This will lead to a stack overflow.
         // As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
         // level, a crash will happen. We'll assume that this code won't actually be executed though.
-        if (RecursiveGenericDepthFor(classInst) > MaximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > MaximumRuntimeGenericDepth)
+        int maximumRuntimeGenericDepth = GetMaximumRuntimeGenericDepth();
+        if (RecursiveGenericDepthFor(classInst) > maximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > maximumRuntimeGenericDepth)
             return NULL;
 
         return MetadataCache::GetGenericMethod(genericMethod->methodDefinition, classInst, methodInst);
@@ -284,6 +285,18 @@ namespace metadata
             if ((*it).key->cached_class != NULL)
                 callback((*it).key->cached_class, context);
         }
+    }
+
+    static int s_MaximumRuntimeGenericDepth;
+
+    int GenericMetadata::GetMaximumRuntimeGenericDepth()
+    {
+        return s_MaximumRuntimeGenericDepth;
+    }
+
+    void GenericMetadata::SetMaximumRuntimeGenericDepth(int depth)
+    {
+        s_MaximumRuntimeGenericDepth = depth;
     }
 } /* namespace vm */
 } /* namespace il2cpp */
