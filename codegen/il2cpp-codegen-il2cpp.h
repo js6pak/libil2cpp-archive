@@ -508,6 +508,14 @@ inline T* il2cpp_codegen_marshal_function_ptr_to_delegate(Il2CppMethodPointer fu
 
 void il2cpp_codegen_marshal_store_last_error();
 
+template<typename R, typename S>
+inline R il2cpp_codegen_cast_struct(S* s)
+{
+    static_assert(sizeof(S) == sizeof(R), "Types with different sizes passed to il2cpp_codegen_cast_struct");
+    R r;
+    il2cpp_codegen_memcpy(&r, s, sizeof(R));
+    return r;
+}
 
 #if _DEBUG
 
@@ -634,37 +642,37 @@ RuntimeString* il2cpp_codegen_type_append_assembly_name_if_necessary(RuntimeStri
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*);
+    typedef Type_t* (*getTypeFuncType)(String_t*, const RuntimeMethod*);
     RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, assemblyName);
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, NULL);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName);
+        return ((getTypeFuncType)getTypeFunction)(typeName, NULL);
     return type;
 }
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool);
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool, const RuntimeMethod*);
     RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, assemblyName);
 
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, NULL);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError);
+        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, NULL);
     return type;
 }
 
 inline Type_t* il2cpp_codegen_get_type(Il2CppMethodPointer getTypeFunction, String_t* typeName, bool throwOnError, bool ignoreCase, const char* assemblyName)
 {
-    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool);
+    typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool, const RuntimeMethod*);
     RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, assemblyName);
     // Try to find the type using a hint about about calling assembly. If it is not found, fall back to calling GetType without the hint.
 
-    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase);
+    Type_t* type = ((getTypeFuncType)getTypeFunction)((String_t*)assemblyQualifiedTypeName, throwOnError, ignoreCase, NULL);
     if (type == NULL)
-        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, ignoreCase);
+        return ((getTypeFuncType)getTypeFunction)(typeName, throwOnError, ignoreCase, NULL);
     return type;
 }
 
