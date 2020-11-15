@@ -144,8 +144,10 @@ namespace vm
 
     void Thread::Initialize(Il2CppThread* thread, Il2CppDomain* domain)
     {
+#if IL2CPP_SUPPORT_THREADS
         IL2CPP_ASSERT(thread->GetInternalThread()->handle != NULL);
         IL2CPP_ASSERT(thread->GetInternalThread()->synch_cs != NULL);
+#endif
 
 #if IL2CPP_MONO_DEBUGGER
         utils::Debugger::AllocateThreadLocalData();
