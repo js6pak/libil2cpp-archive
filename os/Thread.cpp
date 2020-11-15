@@ -378,7 +378,6 @@ namespace os
 
     Thread::ThreadId Thread::Id()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return 0;
     }
 
@@ -392,7 +391,6 @@ namespace os
 
     ThreadPriority Thread::GetPriority()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kThreadPriorityLowest;
     }
 
@@ -433,19 +431,16 @@ namespace os
 
     ApartmentState Thread::GetApartment()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kApartmentStateUnknown;
     }
 
     ApartmentState Thread::GetExplicitApartment()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kApartmentStateUnknown;
     }
 
     ApartmentState Thread::SetApartment(ApartmentState state)
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return kApartmentStateUnknown;
     }
 
@@ -459,19 +454,16 @@ namespace os
 
     size_t Thread::CurrentThreadId()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return 0;
     }
 
     Thread* Thread::GetCurrentThread()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return NULL;
     }
 
     Thread* Thread::GetOrCreateCurrentThread()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return NULL;
     }
 
@@ -481,7 +473,6 @@ namespace os
 
     bool Thread::YieldInternal()
     {
-        IL2CPP_ASSERT(0 && "Threads are not enabled for this platform.");
         return false;
     }
 
