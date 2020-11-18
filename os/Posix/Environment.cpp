@@ -135,7 +135,6 @@ namespace os
 
     void Environment::Exit(int result)
     {
-        IL2CPP_VM_SHUTDOWN();
         exit(result);
     }
 
