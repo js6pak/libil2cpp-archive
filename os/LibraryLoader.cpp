@@ -231,10 +231,11 @@ namespace os
         // We assume that presence of the library in s_DllCache is a valid reason to be able to close it
         for (DllCacheIterator it = s_DllCache.begin(); it != s_DllCache.end(); it++)
             Baselib_DynamicLibrary_Close(it->second);
+        s_DllCache.clear();
 #endif
     }
 
-    bool LibraryLoader::CloseLoadedLibrary(Baselib_DynamicLibrary_Handle& handle)
+    bool LibraryLoader::CloseLoadedLibrary(Baselib_DynamicLibrary_Handle handle)
     {
         if (handle == Baselib_DynamicLibrary_Handle_Invalid)
             return false;
