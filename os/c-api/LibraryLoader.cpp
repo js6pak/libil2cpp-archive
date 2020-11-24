@@ -33,7 +33,7 @@ extern "C"
     int32_t UnityPalLibraryLoaderCloseLoadedLibrary(void** dynamicLibrary)
     {
         IL2CPP_ASSERT(*dynamicLibrary);
-        auto handle = il2cpp::utils::BaselibHandleUtils::VoidPtrToHandle<Baselib_DynamicLibrary_Handle>(dynamicLibrary);
+        auto handle = il2cpp::utils::BaselibHandleUtils::VoidPtrToHandle<Baselib_DynamicLibrary_Handle>(*dynamicLibrary);
         return il2cpp::os::LibraryLoader::CloseLoadedLibrary(handle);
     }
 }

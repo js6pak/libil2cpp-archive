@@ -42,7 +42,7 @@ namespace os
         static Il2CppMethodPointer GetFunctionPointer(Baselib_DynamicLibrary_Handle handle, const PInvokeArguments& pinvokeArgs, std::string& detailedError);
         static Il2CppMethodPointer GetFunctionPointer(Baselib_DynamicLibrary_Handle handle, const char* functionName, std::string& detailedError);
         static void CleanupLoadedLibraries();
-        static bool CloseLoadedLibrary(Baselib_DynamicLibrary_Handle& handle);
+        static bool CloseLoadedLibrary(Baselib_DynamicLibrary_Handle handle);
         static void SetFindPluginCallback(Il2CppSetFindPlugInCallback method);
         static Baselib_DynamicLibrary_Handle TryOpeningLibrary(const Il2CppNativeChar* libraryName, std::string& detailedError);
     private:
