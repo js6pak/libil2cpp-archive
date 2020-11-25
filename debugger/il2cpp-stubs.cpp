@@ -590,13 +590,13 @@ extern "C" {
     MonoMethod* il2cpp_mono_class_inflate_generic_method_full_checked(MonoMethod* method, MonoClass* klass_hint, MonoGenericContext* context, MonoError* error)
     {
         error_init(error);
-        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, (Il2CppClass*)klass_hint, (Il2CppGenericContext*)context);
+        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, (Il2CppGenericContext*)context);
     }
 
     MonoMethod* il2cpp_mono_class_inflate_generic_method_checked(MonoMethod* method, MonoGenericContext* context, MonoError* error)
     {
         error_init(error);
-        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, NULL, (Il2CppGenericContext*)context);
+        return (MonoMethod*)il2cpp::metadata::GenericMetadata::Inflate((MethodInfo*)method, (Il2CppGenericContext*)context);
     }
 
     void il2cpp_mono_loader_lock()
