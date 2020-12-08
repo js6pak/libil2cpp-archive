@@ -1,11 +1,11 @@
-#if !RUNTIME_MONO
-
 #include <string>
 
 #include "il2cpp-config.h"
 #include "il2cpp-codegen.h"
 
 #include "utils/Exception.h"
+
+#if !RUNTIME_TINY
 
 #include "os/Atomic.h"
 #include "vm/Class.h"
@@ -90,9 +90,14 @@ void il2cpp_codegen_register_metadata_initialized_cleanup(MetadataInitializerCle
     g_ClearMethodMetadataInitializedFlags = cleanup;
 }
 
-void il2cpp_codegen_initialize_method(uint32_t index)
+void il2cpp_codegen_initialize_runtime_metadata(uintptr_t* metadataPointer)
 {
-    il2cpp::vm::MetadataCache::InitializeMethodMetadata(index);
+    il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(metadataPointer);
+}
+
+void* il2cpp_codegen_initialize_runtime_metadata_inline(uintptr_t* metadataPointer)
+{
+    return il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(metadataPointer);
 }
 
 const RuntimeMethod* il2cpp_codegen_get_generic_method_definition(const RuntimeMethod* method)
@@ -701,7 +706,9 @@ const char* il2cpp_codegen_get_field_data(RuntimeField* field)
     return il2cpp::vm::Field::GetData(field);
 }
 
-#if IL2CPP_TINY
+#endif // !RUNTIME_TINY
+
+#if IL2CPP_TINY_DEBUGGER
 
 MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
 {
@@ -730,13 +737,6 @@ bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
     return il2cpp::vm::Class::IsAssignableFrom((Il2CppReflectionType*)left, (Il2CppReflectionType*)right);
 }
 
-int il2cpp_codegen_double_to_string(double value, uint8_t* format, uint8_t* buffer, int bufferLength)
-{
-    // return number of characters written to the buffer. if the return value greater than bufferLength
-    // means the number of characters would be written to the buffer if there is enough space
-    return snprintf(reinterpret_cast<char*>(buffer), bufferLength, reinterpret_cast<char*>(format), value);
-}
-
 void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason)
 {
     std::string message = "No reverse pinvoke wrapper exists for method: '";
@@ -746,6 +746,22 @@ void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const cha
     il2cpp_codegen_raise_exception(il2cpp_codegen_get_invalid_operation_exception(message.c_str()));
 }
 
-#endif
+bool il2cpp_codegen_type_is_interface(Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    return il2cpp::vm::Class::IsInterface(klass);
+}
+
+bool il2cpp_codegen_type_is_abstract(Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    return il2cpp::vm::Class::IsAbstract(klass);
+}
+
+bool il2cpp_codegen_type_is_pointer(Type_t* t)
+{
+    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
+    return il2cpp::vm::Class::GetType(klass)->type == IL2CPP_TYPE_PTR;
+}
 
 #endif

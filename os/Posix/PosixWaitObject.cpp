@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !IL2CPP_TINY_WITHOUT_DEBUGGER
+#if IL2CPP_TARGET_POSIX && !RUNTIME_TINY
 
 #include <cerrno>
 #include <ctime>

@@ -10,26 +10,9 @@ struct Assembly_t;
 
 #include "il2cpp-class-internals.h"
 
-#if RUNTIME_MONO
-IL2CPP_EXTERN_C_BEGIN
-#include <mono/metadata/class.h>
-#include <mono/metadata/image.h>
-#include <mono/metadata/metadata.h>
-#include <mono/metadata/object.h>
-#include <mono/metadata/object-internals.h>
-IL2CPP_EXTERN_C_END
+#if RUNTIME_TINY
 
-typedef MonoClass RuntimeClass;
-typedef MonoMethod RuntimeMethod;
-typedef MonoClassField RuntimeField;
-typedef MonoType RuntimeType;
-typedef MonoObject RuntimeObject;
-typedef MonoImage RuntimeImage;
-typedef MonoException RuntimeException;
-typedef MonoArray RuntimeArray;
-typedef MonoAssembly RuntimeAssembly;
-typedef MonoString RuntimeString;
-typedef MonoDelegate RuntimeDelegate;
+struct RuntimeMethod;
 
 #else
 

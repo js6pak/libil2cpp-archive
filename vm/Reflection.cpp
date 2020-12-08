@@ -63,7 +63,7 @@ typedef ReflectionMap<std::pair<const MethodInfo*, Il2CppClass*>, Il2CppArray*> 
 
 typedef il2cpp::gc::AppendOnlyGCHashMap<const Il2CppType*, Il2CppReflectionType*, il2cpp::metadata::Il2CppTypeHash, il2cpp::metadata::Il2CppTypeEqualityComparer> TypeMap;
 
-typedef Il2CppHashMap<const Il2CppGenericParameter*, const MonoGenericParameterInfo*, il2cpp::utils::PointerHash<const Il2CppGenericParameter> > MonoGenericParameterMap;
+typedef Il2CppHashMap<Il2CppMetadataGenericParameterHandle, const MonoGenericParameterInfo*, il2cpp::utils::PassThroughHash<Il2CppMetadataGenericParameterHandle> > MonoGenericParameterMap;
 typedef Il2CppHashMap<const  Il2CppAssembly*, const Il2CppMonoAssemblyName*, il2cpp::utils::PointerHash<const Il2CppAssembly> > MonoAssemblyNameMap;
 
 // these needs to be pointers and allocated after GC is initialized since it uses GC Allocator
@@ -661,9 +661,9 @@ namespace vm
         return MetadataCache::HasAttribute(klass->image, klass->token, attribute);
     }
 
-    Il2CppObject* Reflection::GetCustomAttribute(CustomAttributeIndex index, Il2CppClass* attribute)
+    Il2CppObject* Reflection::GetCustomAttribute(Il2CppMetadataCustomAttributeHandle token, Il2CppClass* attribute)
     {
-        CustomAttributesCache* cache = MetadataCache::GenerateCustomAttributesCache(index);
+        CustomAttributesCache* cache = MetadataCache::GenerateCustomAttributesCache(token);
         if (cache == NULL)
             return NULL;
 
@@ -679,9 +679,9 @@ namespace vm
         return NULL;
     }
 
-    Il2CppArray* Reflection::ConstructCustomAttributes(CustomAttributeIndex index)
+    Il2CppArray* Reflection::ConstructCustomAttributes(Il2CppMetadataCustomAttributeHandle token)
     {
-        CustomAttributesCache* cache = MetadataCache::GenerateCustomAttributesCache(index);
+        CustomAttributesCache* cache = MetadataCache::GenerateCustomAttributesCache(token);
         if (cache == NULL)
             return il2cpp::vm::Array::New(il2cpp_defaults.attribute_class, 0);
 
@@ -729,7 +729,7 @@ namespace vm
         return Class::FromSystemType(ref);
     }
 
-    const MonoGenericParameterInfo* Reflection::GetMonoGenericParameterInfo(const Il2CppGenericParameter *param)
+    const MonoGenericParameterInfo* Reflection::GetMonoGenericParameterInfo(Il2CppMetadataGenericParameterHandle param)
     {
         MonoGenericParameterMap::const_iterator it = s_MonoGenericParamterMap->find(param);
         if (it == s_MonoGenericParamterMap->end())
@@ -738,7 +738,7 @@ namespace vm
         return it->second;
     }
 
-    void Reflection::SetMonoGenericParameterInfo(const Il2CppGenericParameter *param, const MonoGenericParameterInfo *monoParam)
+    void Reflection::SetMonoGenericParameterInfo(Il2CppMetadataGenericParameterHandle param, const MonoGenericParameterInfo *monoParam)
     {
         s_MonoGenericParamterMap->insert(std::make_pair(param, monoParam));
     }

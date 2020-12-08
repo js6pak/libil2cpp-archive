@@ -809,7 +809,9 @@ namespace vm
 
     void Thread::SetDefaultAffinityMask(int64_t affinityMask)
     {
+#if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
         os::Thread::SetDefaultAffinityMask(affinityMask);
+#endif
     }
 
     void Thread::CheckCurrentThreadForAbortAndThrowIfNecessary()

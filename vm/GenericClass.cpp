@@ -224,7 +224,7 @@ namespace vm
 
     Il2CppClass* GenericClass::GetTypeDefinition(Il2CppGenericClass *gclass)
     {
-        return MetadataCache::GetTypeInfoFromTypeDefinitionIndex(gclass->typeDefinitionIndex);
+        return MetadataCache::GetTypeInfoFromType(gclass->type);
     }
 
     bool GenericClass::IsEnum(Il2CppGenericClass *gclass)

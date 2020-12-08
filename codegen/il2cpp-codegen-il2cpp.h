@@ -1,10 +1,11 @@
 #pragma once
 
-#include "il2cpp-codegen-common.h"
+#include "il2cpp-codegen-common-small.h"
+#include "il2cpp-codegen-common-big.h"
 #include "il2cpp-pinvoke-support.h"
-#include "icalls/mscorlib/System.Threading/Interlocked.h"
 #include "icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
 #include "utils/Il2CppHStringReference.h"
+#include "vm-utils/icalls/mscorlib/System.Threading/Interlocked.h"
 
 #include "vm/ClassInlines.h"
 #include "vm/ScopedThreadAttacher.h"
@@ -49,7 +50,7 @@ struct StackTraceSentry
 {
     StackTraceSentry(const RuntimeMethod* method) : m_method(method)
     {
-        Il2CppStackFrameInfo frame_info;
+        Il2CppStackFrameInfo frame_info = { 0 };
 
         frame_info.method = method;
 
@@ -104,7 +105,7 @@ String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView<Il2Cpp
 
 Type_t* il2cpp_codegen_type_get_object(const RuntimeType* type);
 
-NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame = NULL);
+NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame);
 
 NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException);
 
@@ -574,11 +575,6 @@ inline void DivideByZeroCheck(int64_t denominator)
     il2cpp_codegen_raise_divide_by_zero_exception();
 }
 
-inline void il2cpp_codegen_initobj(void* value, size_t size)
-{
-    memset(value, 0, size);
-}
-
 bool MethodIsStatic(const RuntimeMethod* method);
 
 bool MethodHasParameters(const RuntimeMethod* method);
@@ -618,7 +614,9 @@ inline const RuntimeMethod* GetInterfaceMethodInfo(RuntimeObject* pThis, Il2CppM
     return il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(pThis, declaringInterface, slot).method;
 }
 
-void il2cpp_codegen_initialize_method(uint32_t index);
+void il2cpp_codegen_initialize_runtime_metadata(uintptr_t* metadataPointer);
+
+void* il2cpp_codegen_initialize_runtime_metadata_inline(uintptr_t* metadataPointer);
 
 bool il2cpp_codegen_class_is_value_type(RuntimeClass* type);
 
@@ -816,11 +814,6 @@ const char* il2cpp_codegen_get_field_data(RuntimeField* field);
 
 Type_t* il2cpp_codegen_get_type(Il2CppObject* obj);
 
-inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* szArray)
-{
-    return static_cast<int32_t>(szArray->max_length);
-}
-
 inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* genArray, int32_t dimension)
 {
     if (genArray->bounds == NULL)
@@ -830,11 +823,6 @@ inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* genArray, int32_t di
 }
 
 MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount);
-
-inline int il2cpp_codegen_get_offset_to_string_data()
-{
-    return offsetof(Il2CppString, chars);
-}
 
 inline String_t* il2cpp_codegen_marshal_ptr_to_string_ansi(intptr_t ptr)
 {
@@ -853,20 +841,6 @@ inline void il2cpp_codegen_marshal_string_free_co_task_mem(intptr_t ptr)
 
 struct Delegate_t;
 
-inline intptr_t il2cpp_codegen_marshal_get_function_pointer_for_delegate(const Delegate_t* d)
-{
-    return reinterpret_cast<intptr_t>(reinterpret_cast<const Il2CppDelegate*>(d)->m_ReversePInvokeWrapperPtr);
-}
-
-inline String_t* il2cpp_codegen_string_new_from_char_array(Il2CppArray* characterArray, size_t startIndex, size_t length)
-{
-    il2cpp_array_size_t arraySize = characterArray->max_length;
-    if (startIndex + length > arraySize || startIndex < 0)
-        il2cpp_codegen_raise_exception(NULL);
-
-    return il2cpp_codegen_string_new_utf16(il2cpp::utils::StringView<Il2CppChar>(reinterpret_cast<Il2CppChar*>(characterArray + 1), startIndex, length));
-}
-
 inline String_t* il2cpp_codegen_string_new_length(int length)
 {
     return reinterpret_cast<String_t*>(il2cpp::vm::String::NewSize(length));
@@ -875,8 +849,6 @@ inline String_t* il2cpp_codegen_string_new_length(int length)
 Type_t* il2cpp_codegen_get_base_type(const Type_t* t);
 
 bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right);
-
-int il2cpp_codegen_double_to_string(double value, uint8_t* format, uint8_t* buffer, int bufferLength);
 
 template<typename T>
 struct Il2CppReversePInvokeMethodHolder
@@ -898,5 +870,9 @@ private:
 };
 
 void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason);
+
+bool il2cpp_codegen_type_is_interface(Type_t* t);
+bool il2cpp_codegen_type_is_abstract(Type_t* t);
+bool il2cpp_codegen_type_is_pointer(Type_t* t);
 
 #endif
