@@ -92,6 +92,7 @@ typedef struct
 {
     MethodIndex methodIndex;
     MethodIndex invokerIndex;
+    MethodIndex adjustorThunkIndex;
 } Il2CppGenericMethodIndices;
 
 typedef struct Il2CppGenericMethodFunctionsDefinitions
