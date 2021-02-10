@@ -1114,8 +1114,20 @@ namespace vm
                 Il2CppMetadataMethodInfo methodInfo = MetadataCache::GetMethodInfo(klass, index);
 
                 newMethod->name = methodInfo.name;
-                newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodInfo.token);
+
+                if (klass->valuetype)
+                {
+                    Il2CppMethodPointer adjustorThunk = MetadataCache::GetAdjustorThunk(klass->image, methodInfo.token);
+                    if (adjustorThunk != NULL)
+                        newMethod->methodPointer = adjustorThunk;
+                }
+
+                // We did not find an adjustor thunk, or maybe did not need to look for one. Let's get the real method pointer.
+                if (newMethod->methodPointer == NULL)
+                    newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodInfo.token);
+
                 newMethod->invoker_method = MetadataCache::GetMethodInvoker(klass->image, methodInfo.token);
+
                 newMethod->klass = klass;
                 newMethod->return_type = methodInfo.return_type;
 
