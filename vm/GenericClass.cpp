@@ -159,7 +159,7 @@ namespace vm
         if (definition == NULL)
         {
             if (throwOnError)
-                vm::Exception::Raise(vm::Exception::GetMaximumNestedGenericsException());
+                vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
             return NULL;
         }
 
@@ -205,8 +205,11 @@ namespace vm
             klass->token = definition->token;
             klass->interopData = MetadataCache::GetInteropDataForType(&klass->byval_arg);
 
-            if (Class::IsNullable(klass))
-                klass->element_class = klass->castClass  = Class::GetNullableArgument(klass);
+            if (GenericClass::GetTypeDefinition(klass->generic_class) == il2cpp_defaults.generic_nullable_class)
+            {
+                klass->element_class = klass->castClass = Class::FromIl2CppType(klass->generic_class->context.class_inst->type_argv[0]);
+                klass->nullabletype = true;
+            }
 
             if (klass->enumtype)
                 klass->element_class = klass->castClass =  definition->element_class;

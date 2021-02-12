@@ -11,7 +11,6 @@
 #include "os/Thread.h"
 #include "os/Socket.h"
 #include "os/c-api/Allocator.h"
-#include "metadata/GenericMetadata.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/COMEntryPoints.h"
@@ -292,6 +291,8 @@ namespace vm
         DEFAULTS_INIT_OPTIONAL(uint32_shared_enum, "System", "UInt32Enum");
         DEFAULTS_INIT_OPTIONAL(uint64_shared_enum, "System", "UInt64Enum");
 
+        DEFAULTS_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
+
         Image::InitNestedTypes(il2cpp_defaults.corlib);
 
         const Il2CppAssembly* systemDll = Assembly::Load("System");
@@ -527,9 +528,28 @@ namespace vm
         const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
         const MethodInfo* method = metadata::GenericMethod::GetMethod(gmethod);
 
-        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(method, gmethod);
+        RaiseExecutionEngineExceptionIfMethodIsNotFound(method, gmethod);
 
         return method;
+    }
+
+    void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
+    {
+        if (method->virtualMethodPointer == NULL)
+        {
+            if (Method::GetClass(method))
+                RaiseExecutionEngineException(Method::GetFullName(method).c_str());
+            else
+                RaiseExecutionEngineException(Method::GetNameWithGenericTypes(method).c_str());
+        }
+    }
+
+    void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
+    {
+        if (Method::GetClass(method))
+            RaiseExecutionEngineException(Method::GetFullName(method).c_str());
+        else
+            RaiseExecutionEngineException(Method::GetName(method));
     }
 
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
@@ -558,7 +578,7 @@ namespace vm
     {
         if (method->return_type->type == IL2CPP_TYPE_VOID)
         {
-            method->invoker_method(method->methodPointer, method, obj, params, NULL);
+            method->invoker_method(method->virtualMethodPointer, method, obj, params, NULL);
             return NULL;
         }
         else
@@ -568,13 +588,13 @@ namespace vm
                 Il2CppClass* returnType = Class::FromIl2CppType(method->return_type);
                 Class::Init(returnType);
                 void* returnValue = alloca(returnType->instance_size - sizeof(Il2CppObject));
-                method->invoker_method(method->methodPointer, method, obj, params, returnValue);
+                method->invoker_method(method->virtualMethodPointer, method, obj, params, returnValue);
                 return Object::Box(returnType, returnValue);
             }
             else
             {
                 Il2CppObject* returnValue = NULL;
-                method->invoker_method(method->methodPointer, method, obj, params, &returnValue);
+                method->invoker_method(method->virtualMethodPointer, method, obj, params, &returnValue);
                 return returnValue;
             }
         }
@@ -708,11 +728,11 @@ namespace vm
 
             for (int i = 0; i < paramCount; i++)
             {
-                bool passedByReference = method->parameters[i].parameter_type->byref;
-                Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
+                bool passedByReference = method->parameters[i]->byref;
+                Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i]);
                 Class::Init(parameterType);
 
-                if (parameterType->byval_arg.valuetype)
+                if (Class::IsValuetype(parameterType))
                 {
                     if (Class::IsNullable(parameterType))
                     {
@@ -774,10 +794,10 @@ namespace vm
             // We need to copy by reference nullables back to original argument array
             for (int i = 0; i < paramCount; i++)
             {
-                if (!method->parameters[i].parameter_type->byref)
+                if (!method->parameters[i]->byref)
                     continue;
 
-                Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i].parameter_type);
+                Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[i]);
 
                 if (Class::IsNullable(parameterType))
                     gc::WriteBarrier::GenericStore(parameters + i, Object::Box(parameterType, convertedParameters[i]));
@@ -955,44 +975,12 @@ namespace vm
 
     static void MissingMethodInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
     {
-        Runtime::RaiseExecutionEngineException(method, false);
+        Runtime::AlwaysRaiseExecutionEngineException(method);
     }
 
     InvokerMethod Runtime::GetMissingMethodInvoker()
     {
         return MissingMethodInvoker;
-    }
-
-    void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
-    {
-        RaiseExecutionEngineException(method, false);
-    }
-
-    void Runtime::AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method)
-    {
-        RaiseExecutionEngineException(method, true);
-    }
-
-    void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod)
-    {
-        if (method->methodPointer == NULL)
-            RaiseExecutionEngineException(method, metadata::GenericMethod::GetFullName(genericMethod).c_str(), true);
-    }
-
-    void Runtime::RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall)
-    {
-        if (Method::GetClass(method))
-            RaiseExecutionEngineException(method, Method::GetFullName(method).c_str(), virtualCall);
-        else
-            RaiseExecutionEngineException(method, Method::GetNameWithGenericTypes(method).c_str(), virtualCall);
-    }
-
-    void Runtime::RaiseExecutionEngineException(const MethodInfo* method, const char* methodFullName, bool virtualCall)
-    {
-        const char* help = "";
-        if (virtualCall && (method->flags & METHOD_ATTRIBUTE_VIRTUAL) && method->is_inflated)
-            help = "  Consider increasing the --generic-virtual-method-iterations argument.";
-        Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
     }
 } /* namespace vm */
 } /* namespace il2cpp */

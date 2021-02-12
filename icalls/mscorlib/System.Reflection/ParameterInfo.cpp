@@ -2,6 +2,7 @@
 
 #include "icalls/mscorlib/System.Reflection/ParameterInfo.h"
 #include "vm/Exception.h"
+#include "vm/Method.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
 
@@ -22,8 +23,7 @@ namespace Reflection
             return 0x8000000; // This is what mono returns as a fixed value.
 
         Il2CppReflectionMethod* method = (Il2CppReflectionMethod*)self->MemberImpl;
-        const ::ParameterInfo* info = &method->method->parameters[self->PositionImpl];
-        return (int32_t)info->token;
+        return vm::Method::GetParameterToken(method->method, self->PositionImpl);
     }
 
     Il2CppArray* ParameterInfo::GetTypeModifiers(void* /* System.Reflection.ParameterInfo */ self, bool optional)

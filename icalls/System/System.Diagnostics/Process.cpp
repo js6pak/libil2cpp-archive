@@ -78,8 +78,9 @@ namespace Diagnostics
     Il2CppString* Process::ProcessName_internal(intptr_t handle)
     {
         os::ProcessHandle *pHandle = (os::ProcessHandle*)handle;
-        std::string name = os::Process::GetProcessName(pHandle);
-        return il2cpp::vm::String::New(name.c_str());
+        auto name = os::Process::GetProcessName(pHandle);
+        vm::Exception::RaiseIfError(name.GetError());
+        return il2cpp::vm::String::New(name.Get().c_str());
     }
 
     int64_t Process::StartTime_internal(intptr_t handle)
@@ -97,7 +98,9 @@ namespace Diagnostics
 
     intptr_t Process::GetProcess_internal(int32_t pid)
     {
-        return reinterpret_cast<intptr_t>(os::Process::GetProcess(pid));
+        auto process = os::Process::GetProcess(pid);
+        vm::Exception::RaiseIfError(process.GetError());
+        return reinterpret_cast<intptr_t>(process.Get());
     }
 
     int32_t Process::GetPid_internal()
