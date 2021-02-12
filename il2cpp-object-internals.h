@@ -616,6 +616,13 @@ struct Il2CppComObject : Il2CppObject
 };
 #endif //__cplusplus
 
+// Fully Shared GenericTypes
+// Il2CppFullySharedGenericAny comes from a generic paramter - it can by any type
+// Il2CppFullySharedGenericStruct comes from a generic struct - e.g. struct MyStruct<T> {}.  We don't know it's size - it's a void*
+// Fully shared classes will inherit from System.Object
+typedef void* Il2CppFullySharedGenericAny;
+typedef void* Il2CppFullySharedGenericStruct;
+
 // System.AppDomain
 typedef struct Il2CppAppDomain
 {

@@ -440,9 +440,10 @@ namespace Sockets
             uint32_t scope;
             UnpackIPv6AddressFromBuffer(buffer, length, &port, address, &scope);
 
-            const os::WaitStatus status = socketHandle->Bind(address, scope, port);
+            auto status = socketHandle->Bind(address, scope, port);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -548,9 +549,10 @@ namespace Sockets
             uint32_t scope;
             UnpackIPv6AddressFromBuffer(buffer, length, &port, address, &scope);
 
-            const os::WaitStatus status = socketHandle->Connect(address, scope, port);
+            auto status = socketHandle->Connect(address, scope, port);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -826,9 +828,10 @@ namespace Sockets
                 path[i] = (char)socket_buffer[i + 2];
             }
 
-            const os::WaitStatus status = socketHandle->RecvFrom(path, data, count, c_flags, &len, info);
+            auto status = socketHandle->RecvFrom(path, data, count, c_flags, &len, info);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -838,9 +841,10 @@ namespace Sockets
             uint32_t scope;
             UnpackIPv6AddressFromBuffer(socket_buffer, length, &port, address, &scope);
 
-            const os::WaitStatus status = socketHandle->RecvFrom(address, scope, port, data, count, c_flags, &len, info);
+            auto status = socketHandle->RecvFrom(address, scope, port, data, count, c_flags, &len, info);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -1140,9 +1144,10 @@ namespace Sockets
                 path[i] = (char)socket_buffer[i + 2];
             }
 
-            const os::WaitStatus status = socketHandle->SendTo(path, data, count, c_flags, &len);
+            auto status = socketHandle->SendTo(path, data, count, c_flags, &len);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -1152,9 +1157,10 @@ namespace Sockets
             uint32_t scope;
             UnpackIPv6AddressFromBuffer(socket_buffer, length, &port, address, &scope);
 
-            const os::WaitStatus status = socketHandle->SendTo(address, scope, port, data, count, c_flags, &len);
+            auto status = socketHandle->SendTo(address, scope, port, data, count, c_flags, &len);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -1504,9 +1510,10 @@ namespace Sockets
                 path[i] = (char)socket_buffer[i + 2];
             }
 
-            const os::WaitStatus status = socketHandle->RecvFrom(path, data, count, c_flags, &len, info);
+            auto status = socketHandle->RecvFrom(path, data, count, c_flags, &len, info);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -1516,9 +1523,10 @@ namespace Sockets
             uint32_t scope;
             UnpackIPv6AddressFromBuffer(socket_buffer, length, &port, address, &scope);
 
-            const os::WaitStatus status = socketHandle->RecvFrom(address, scope, port, data, count, c_flags, &len, info);
+            auto status = socketHandle->RecvFrom(address, scope, port, data, count, c_flags, &len, info);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else
@@ -1586,9 +1594,10 @@ namespace Sockets
                 path[i] = (char)socket_buffer[i + 2];
             }
 
-            const os::WaitStatus status = socketHandle->SendTo(path, data, count, c_flags, &len);
+            auto status = socketHandle->SendTo(path, data, count, c_flags, &len);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else if (family == os::kAddressFamilyInterNetworkV6)
@@ -1598,9 +1607,10 @@ namespace Sockets
             uint32_t scope;
             UnpackIPv6AddressFromBuffer(socket_buffer, length, &port, address, &scope);
 
-            const os::WaitStatus status = socketHandle->SendTo(address, scope, port, data, count, c_flags, &len);
+            auto status = socketHandle->SendTo(address, scope, port, data, count, c_flags, &len);
+            vm::Exception::RaiseIfError(status.GetError());
 
-            if (status == kWaitStatusFailure)
+            if (status.Get() == kWaitStatusFailure)
                 *error = socketHandle->GetLastError();
         }
         else

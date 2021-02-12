@@ -12,19 +12,19 @@ namespace il2cpp
 {
 namespace vm
 {
-    Il2CppObject* Parameter::GetDefaultParameterValueObject(const MethodInfo* method, const ParameterInfo* parameter, bool* isExplicitySetNullDefaultValue)
+    Il2CppObject* Parameter::GetDefaultParameterValueObject(const MethodInfo* method, int32_t parameterPosition, bool* isExplicitySetNullDefaultValue)
     {
         const Il2CppType* typeOfDefaultValue;
-        const char* data = Method::GetParameterDefaultValue(method, parameter, &typeOfDefaultValue, isExplicitySetNullDefaultValue);
+        const char* data = Method::GetParameterDefaultValue(method, parameterPosition, &typeOfDefaultValue, isExplicitySetNullDefaultValue);
         if (data == NULL)
             return NULL;
 
-        Il2CppClass* parameterType = Class::FromIl2CppType(parameter->parameter_type);
-        if (parameterType->byval_arg.valuetype)
+        Il2CppClass* parameterType = Class::FromIl2CppType(method->parameters[parameterPosition]);
+        if (il2cpp::vm::Class::IsValuetype(parameterType))
         {
-            if (strcmp(parameterType->name, "Nullable`1") == 0 && strcmp(parameterType->namespaze, "System") == 0)
+            if (il2cpp::vm::Class::IsNullable(parameterType))
             {
-                parameterType = parameterType->element_class;
+                parameterType = il2cpp::vm::Class::GetNullableArgument(parameterType);
                 typeOfDefaultValue = &parameterType->byval_arg;
             }
 

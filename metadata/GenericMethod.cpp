@@ -41,7 +41,7 @@ namespace metadata
 
     static void AGenericMethodWhichIsTooDeeplyNestedWasInvoked()
     {
-        vm::Exception::Raise(vm::Exception::GetMaximumNestedGenericsException());
+        vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
     }
 
     static void AGenericMethodWhichIsTooDeeplyNestedWasInvokedInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
@@ -58,6 +58,7 @@ namespace metadata
         {
             MethodInfo* newMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
             newMethod->methodPointer = AGenericMethodWhichIsTooDeeplyNestedWasInvoked;
+            newMethod->virtualMethodPointer = AGenericMethodWhichIsTooDeeplyNestedWasInvoked;
             newMethod->invoker_method = AGenericMethodWhichIsTooDeeplyNestedWasInvokedInvoker;
             return newMethod;
         }
@@ -127,9 +128,11 @@ namespace metadata
             newMethod->rgctx_data = GenericMetadata::InflateRGCTX(gmethod->methodDefinition->klass->image, gmethod->methodDefinition->token, &gmethod->context);
         }
 
-        newMethod->methodPointer = MetadataCache::GetMethodPointer(methodDefinition, &gmethod->context);
-        if (newMethod->methodPointer)
-            newMethod->invoker_method = MetadataCache::GetInvokerMethodPointer(methodDefinition, &gmethod->context);
+        il2cpp::vm::Il2CppGenericMethodPointers methodPointers = MetadataCache::GetGenericMethodPointers(methodDefinition, &gmethod->context);
+        newMethod->virtualMethodPointer = methodPointers.virtualMethodPointer;
+        newMethod->methodPointer = methodPointers.methodPointer;
+        if (methodPointers.methodPointer)
+            newMethod->invoker_method = methodPointers.invoker_method;
         else
             newMethod->invoker_method = Runtime::GetMissingMethodInvoker();
 

@@ -48,14 +48,8 @@ namespace vm
         static void SetUnhandledExceptionPolicy(Il2CppRuntimeUnhandledExceptionPolicy value);
 
         static const MethodInfo* GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod);
+        static void RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method);
         static void AlwaysRaiseExecutionEngineException(const MethodInfo* method);
-        static void AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method);
-
-        static inline void RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
-        {
-            if (method->methodPointer == NULL)
-                AlwaysRaiseExecutionEngineException(method);
-        }
 
     public:
         // internal
@@ -70,8 +64,6 @@ namespace vm
         static void SetExitCode(int32_t value);
 
         static InvokerMethod GetMissingMethodInvoker();
-        static void RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall);
-        static void RaiseExecutionEngineException(const MethodInfo* method, const char* methodFullName, bool virtualCall);
 
     private:
         static void CallUnhandledExceptionDelegate(Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppException* exc);
@@ -79,7 +71,16 @@ namespace vm
 
         static void VerifyApiVersion();
 
-        static void RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod);
+        static inline void RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod)
+        {
+            if (method->virtualMethodPointer == NULL)
+                RaiseExecutionEngineException(metadata::GenericMethod::GetFullName(genericMethod).c_str());
+        }
+
+        static inline void RaiseExecutionEngineException(const char* methodFullName)
+        {
+            Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
+        }
     };
 } /* namespace vm */
 } /* namespace il2cpp */

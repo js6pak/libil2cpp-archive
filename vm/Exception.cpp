@@ -1,11 +1,10 @@
 #include "il2cpp-config.h"
-#include "il2cpp-vm-support.h"
 #include "os/MarshalStringAlloc.h"
 #include "os/WindowsRuntime.h"
-#include "metadata/GenericMetadata.h"
 #include "vm/Array.h"
 #include "vm/AssemblyName.h"
 #include "vm/Class.h"
+#include "vm/CCW.h"
 #include "vm/Exception.h"
 #include "vm/Object.h"
 #include "vm/Reflection.h"
@@ -132,6 +131,25 @@ namespace vm
     NORETURN void Exception::RaiseArgumentOutOfRangeException(const char* msg)
     {
         Raise(GetArgumentOutOfRangeException(msg));
+    }
+
+    static NORETURN void RaiseFromIl2CppError(const utils::Il2CppError& error)
+    {
+        utils::Il2CppErrorCode errorCode = error.GetErrorCode();
+        if (errorCode == utils::NotSupported)
+            Exception::Raise(Exception::GetNotSupportedException(error.GetErrorMessage().c_str()));
+        if (errorCode == utils::ComError)
+            Exception::Raise(error.GetHr(), false);
+        if (errorCode == utils::UnauthorizedAccess)
+            Exception::Raise(Exception::GetUnauthorizedAccessException(error.GetErrorMessage().c_str()));
+
+        Exception::Raise(Exception::GetSystemException());
+    }
+
+    void Exception::RaiseIfError(const utils::Il2CppError& error)
+    {
+        if (error.GetErrorCode() != utils::NoError)
+            RaiseFromIl2CppError(error);
     }
 
     inline static Il2CppException* TryGetExceptionFromRestrictedErrorInfo(Il2CppIRestrictedErrorInfo* errorInfo)
@@ -606,10 +624,14 @@ namespace vm
         return FromNameMsg(Image::GetCorlib(), "System", "UnauthorizedAccessException", msg);
     }
 
-    Il2CppException * Exception::GetMaximumNestedGenericsException()
+    Il2CppException* Exception::GetUnauthorizedAccessException(const char* msg)
     {
-        int currentLimit = metadata::GenericMetadata::GetMaximumRuntimeGenericDepth();
-        return GetNotSupportedException(utils::StringUtils::Printf(MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE, currentLimit).c_str());
+        return FromNameMsg(Image::GetCorlib(), "System", "UnauthorizedAccessException", msg);
+    }
+
+    Il2CppException * Exception::GetMaxmimumNestedGenericsException()
+    {
+        return GetNotSupportedException(MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE);
     }
 
     Il2CppException* Exception::GetDivideByZeroException()
@@ -635,7 +657,7 @@ namespace vm
     void Exception::StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString)
     {
         // To do: try retrieving IRestrictedErrorInfo here
-        os::WindowsRuntime::OriginateLanguageException(ex, exceptionString);
+        os::WindowsRuntime::OriginateLanguageException(ex->hresult, ex, exceptionString, CCW::GetOrCreate);
     }
 } /* namespace vm */
 } /* namespace il2cpp */
