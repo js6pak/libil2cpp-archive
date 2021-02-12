@@ -25,6 +25,7 @@
 #include "utils/StringUtils.h"
 
 #include <algorithm>
+#include <cinttypes>
 
 #define NUMBER_MAXDIGITS 50
 
@@ -244,7 +245,7 @@ static void CheckTable(uint64_t val, int exp, const void* table, int size, const
                         fprintf(stderr, "%s:\n", name);
                         fBad = true;
                     }
-                    fprintf(stderr, "/*%d*/ I64(0x%llx),\n", i + 1, val);
+                    fprintf(stderr, "/*%d*/ I64(0x%" PRIx64 "),\n", i + 1, val);
                 }
                 break;
             case 2:

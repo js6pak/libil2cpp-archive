@@ -4,9 +4,9 @@
 
 #include <stdint.h>
 #include "BlobReader.h"
+#include "vm/String.h"
 #include "utils/MemoryRead.h"
 #include "il2cpp-object-internals.h"
-#include "il2cpp-vm-support.h"
 
 namespace il2cpp
 {
@@ -52,7 +52,7 @@ namespace utils
                 {
                     // int32_t length followed by non-null terminated utf-8 byte stream
                     uint32_t length = Read32(p);
-                    *(VmString**)value = IL2CPP_VM_STRING_NEW_LEN(p + sizeof(uint32_t), length);
+                    *(Il2CppString**)value =  il2cpp::vm::String::NewLen(p + sizeof(uint32_t), length);
                 }
                 break;
             }

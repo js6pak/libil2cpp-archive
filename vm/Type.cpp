@@ -1179,6 +1179,11 @@ namespace vm
         return type->valuetype;
     }
 
+    bool Type::IsPointerType(const Il2CppType *type)
+    {
+        return type->type == IL2CPP_TYPE_PTR;
+    }
+
     bool Type::IsEmptyType(const Il2CppType *type)
     {
         return IsGenericInstance(type) && type->data.generic_class->type == NULL;
@@ -1249,10 +1254,10 @@ namespace vm
         {
             delegate->method = method;
             bool isVirtualMethod = method->slot != kInvalidIl2CppMethodSlot && !(method->flags & METHOD_ATTRIBUTE_FINAL);
-            if (isVirtualMethod && target != NULL && addr == method->methodPointer)
+            if (isVirtualMethod && target != NULL && addr == method->virtualMethodPointer)
             {
                 delegate->method = il2cpp::vm::Object::GetVirtualMethod(target, method);
-                delegate->method_ptr = delegate->method->methodPointer;
+                delegate->method_ptr = delegate->method->virtualMethodPointer;
             }
             else
             {

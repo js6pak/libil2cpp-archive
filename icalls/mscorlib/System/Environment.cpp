@@ -93,7 +93,9 @@ namespace System
 
     Il2CppString* Environment::GetWindowsFolderPath(int32_t folder)
     {
-        return il2cpp::vm::String::New(il2cpp::os::Environment::GetWindowsFolderPath(folder).c_str());
+        auto result = il2cpp::os::Environment::GetWindowsFolderPath(folder);
+        vm::Exception::RaiseIfError(result.GetError());
+        return il2cpp::vm::String::New(result.Get().c_str());
     }
 
     Il2CppString* Environment::internalGetHome()
@@ -203,7 +205,9 @@ namespace System
     {
         if (sizeof(void*) == 8)
             return true;
-        return il2cpp::os::Environment::Is64BitOs();
+        auto result = il2cpp::os::Environment::Is64BitOs();
+        vm::Exception::RaiseIfError(result.GetError());
+        return result.Get();
     }
 
     int32_t Environment::GetPageSize()

@@ -109,6 +109,62 @@ void* il2cpp_codegen_get_thread_static_data(RuntimeClass* klass)
     return il2cpp::vm::Thread::GetThreadStaticData(klass->thread_static_fields_offset);
 }
 
+void il2cpp_codegen_assert_field_size(RuntimeField* field, size_t size)
+{
+    IL2CPP_ASSERT(size == il2cpp_codegen_sizeof(InitializedTypeInfo(il2cpp::vm::Class::FromIl2CppType(field->type))));
+}
+
+void* il2cpp_codegen_get_instance_field_data_pointer(void* instance, RuntimeField* field)
+{
+    return il2cpp::vm::Field::GetInstanceFieldDataPointer(instance, field);
+}
+
+void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, void* data, uint32_t size)
+{
+    il2cpp_codegen_assert_field_size(field, size);
+    IL2CPP_ASSERT(il2cpp::vm::Field::IsInstance(field));
+
+    void* fieldPointer = il2cpp_codegen_get_instance_field_data_pointer(instance, field);
+    il2cpp_codegen_memcpy(fieldPointer, data, size);
+    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
+}
+
+void* il2cpp_codegen_get_static_field_data_pointer(RuntimeField* field)
+{
+    IL2CPP_ASSERT(il2cpp::vm::Field::IsNormalStatic(field));
+
+    return ((uint8_t*)field->parent->static_fields) + field->offset;
+}
+
+void il2cpp_codegen_write_static_field_data(RuntimeField* field, void* data, uint32_t size)
+{
+    il2cpp_codegen_assert_field_size(field, size);
+    IL2CPP_ASSERT(il2cpp::vm::Field::IsNormalStatic(field));
+
+    void* fieldPointer = il2cpp_codegen_get_static_field_data_pointer(field);
+    il2cpp_codegen_memcpy(fieldPointer, data, size);
+    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
+}
+
+void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field)
+{
+    IL2CPP_ASSERT(il2cpp::vm::Field::IsThreadStatic(field));
+
+    int threadStaticFieldOffset = il2cpp::vm::MetadataCache::GetThreadLocalStaticOffsetForField(field);
+    void* threadStaticData = il2cpp::vm::Thread::GetThreadStaticDataForThread(field->parent->thread_static_fields_offset, il2cpp::vm::Thread::Current());
+    return static_cast<uint8_t*>(threadStaticData) + threadStaticFieldOffset;
+}
+
+void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, void* data, uint32_t size)
+{
+    il2cpp_codegen_assert_field_size(field, size);
+    IL2CPP_ASSERT(il2cpp::vm::Field::IsThreadStatic(field));
+
+    void* fieldPointer = il2cpp_codegen_get_thread_static_field_data_pointer(field);
+    il2cpp_codegen_memcpy(fieldPointer, data, size);
+    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
+}
+
 void il2cpp_codegen_memory_barrier()
 {
     il2cpp::vm::Thread::FullMemoryBarrier();
@@ -165,11 +221,6 @@ void il2cpp_codegen_raise_execution_engine_exception(const RuntimeMethod* method
     il2cpp::vm::Runtime::AlwaysRaiseExecutionEngineException(method);
 }
 
-void il2cpp_codegen_raise_execution_engine_exception_missing_virtual(const RuntimeMethod* method)
-{
-    il2cpp::vm::Runtime::AlwaysRaiseExecutionEngineExceptionOnVirtualCall(method);
-}
-
 void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method)
 {
     il2cpp::vm::Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(method);
@@ -193,6 +244,39 @@ void* Unbox_internal(Il2CppObject* obj)
 void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* storage)
 {
     il2cpp::vm::Object::UnboxNullable(obj, expectedBoxedClass, storage);
+}
+
+void* UnBox_Any(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* unboxStorage)
+{
+    IL2CPP_ASSERT(unboxStorage != NULL);
+
+    if (il2cpp::vm::Class::IsValuetype(expectedBoxedClass))
+    {
+        if (il2cpp::vm::Class::IsNullable(expectedBoxedClass))
+        {
+            UnBoxNullable(obj, expectedBoxedClass->element_class, unboxStorage);
+            return unboxStorage;
+        }
+        return UnBox(obj, expectedBoxedClass);
+    }
+
+    // Use unboxStorage to return a pointer to obj
+    // This keeps the return value of UnBox_Any consistent; it always returns a pointer to the data we want
+    // This saves a runtime check on the class type
+    *((void**)unboxStorage) = Castclass(obj, expectedBoxedClass);
+    return unboxStorage;
+}
+
+bool il2cpp_codegen_would_box_to_non_null(RuntimeClass* klass, void* objBuffer)
+{
+    if (il2cpp::vm::Class::IsValuetype(klass))
+    {
+        if (il2cpp::vm::Class::IsNullable(klass))
+            return il2cpp::vm::Object::NullableHasValue(klass, objBuffer);
+        return true;
+    }
+
+    return *(void**)objBuffer != NULL;
 }
 
 RuntimeObject* il2cpp_codegen_object_new(RuntimeClass *klass)
@@ -315,7 +399,7 @@ Exception_t* il2cpp_codegen_get_missing_method_exception(const char* msg)
 
 Exception_t* il2cpp_codegen_get_maximum_nested_generics_exception()
 {
-    return (Exception_t*)il2cpp::vm::Exception::GetMaximumNestedGenericsException();
+    return (Exception_t*)il2cpp::vm::Exception::GetMaxmimumNestedGenericsException();
 }
 
 Exception_t* il2cpp_codegen_get_index_out_of_range_exception()
@@ -550,6 +634,11 @@ bool il2cpp_codegen_class_is_value_type(RuntimeClass* type)
     return il2cpp::vm::Class::IsValuetype(type);
 }
 
+bool il2cpp_codegen_class_is_nullable(RuntimeClass* type)
+{
+    return il2cpp::vm::Class::IsNullable(type);
+}
+
 RuntimeClass* il2cpp_codegen_inflate_generic_class(RuntimeClass* genericClassDefinition, const Il2CppGenericInst* genericInst)
 {
     return il2cpp::vm::Class::GetInflatedGenericInstanceClass(genericClassDefinition, genericInst);
@@ -708,6 +797,114 @@ void il2cpp_codegen_stacktrace_pop_frame()
 const char* il2cpp_codegen_get_field_data(RuntimeField* field)
 {
     return il2cpp::vm::Field::GetData(field);
+}
+
+void il2cpp_codegen_array_unsafe_mov(RuntimeClass * destClass, void* dest, RuntimeClass * srcClass, void* src)
+{
+    // A runtime implementation of System.Array::UnsafeMov
+
+    IL2CPP_ASSERT(destClass);
+    IL2CPP_ASSERT(dest);
+    IL2CPP_ASSERT(srcClass);
+    IL2CPP_ASSERT(src);
+
+    uint32_t destSize = il2cpp_codegen_sizeof(destClass);
+    uint32_t srcSize = il2cpp_codegen_sizeof(srcClass);
+
+    // If the types are the same size we can just memcpy them
+    // otherwise we need to "move" them using the correct casting rules for primitive types
+    if (destSize == srcSize)
+    {
+        il2cpp_codegen_memcpy(dest, src, destSize);
+        return;
+    }
+
+    const Il2CppType* destType = il2cpp::vm::Class::IsEnum(destClass) ? il2cpp::vm::Class::GetEnumBaseType(destClass) : &destClass->byval_arg;
+    const Il2CppType* srcType = il2cpp::vm::Class::IsEnum(srcClass) ? il2cpp::vm::Class::GetEnumBaseType(srcClass) : &srcClass->byval_arg;
+
+    switch (destType->type)
+    {
+        case IL2CPP_TYPE_BOOLEAN:
+            il2cpp_codegen_array_unsafe_mov_primitive<bool>(destType, (bool*)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_I1:
+            il2cpp_codegen_array_unsafe_mov_primitive<int8_t>(destType, (int8_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_U1:
+            il2cpp_codegen_array_unsafe_mov_primitive<uint8_t>(destType, (uint8_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_I2:
+            il2cpp_codegen_array_unsafe_mov_primitive<int16_t>(destType, (int16_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_CHAR:
+        case IL2CPP_TYPE_U2:
+            il2cpp_codegen_array_unsafe_mov_primitive<uint16_t>(destType, (uint16_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_I4:
+            il2cpp_codegen_array_unsafe_mov_primitive<int32_t>(destType, (int32_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_U4:
+            il2cpp_codegen_array_unsafe_mov_primitive<uint32_t>(destType, (uint32_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_I8:
+            il2cpp_codegen_array_unsafe_mov_primitive<int64_t>(destType, (int64_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_U8:
+            il2cpp_codegen_array_unsafe_mov_primitive<uint64_t>(destType, (uint64_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_I:
+            il2cpp_codegen_array_unsafe_mov_primitive<intptr_t>(destType, (intptr_t *)dest, srcType, src);
+            break;
+        case IL2CPP_TYPE_U:
+            il2cpp_codegen_array_unsafe_mov_primitive<uintptr_t>(destType, (uintptr_t *)dest, srcType, src);
+            break;
+        default:
+            il2cpp_codegen_array_unsafe_mov_type_exception(destType, srcType);
+    }
+}
+
+NORETURN void il2cpp_codegen_array_unsafe_mov_type_exception(const RuntimeType * destType, const RuntimeType* srcType)
+{
+    // No other primitive types are supported by Array::UnsafeMov (floating point types are not supported)
+    // Or we're trying to assign structs of different sizes
+
+    IL2CPP_ASSERT(false);
+
+    std::string msg;
+    msg += "Unsupported call to ";
+    msg += il2cpp::vm::Class::GetName(il2cpp::vm::Class::FromIl2CppType(destType));
+    msg += " System.Array::UnsafeMov(";
+    msg += il2cpp::vm::Class::GetName(il2cpp::vm::Class::FromIl2CppType(srcType));
+    msg += ");";
+    il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(msg.c_str()));
+}
+
+void il2cpp_codegen_runtime_constrained_call(RuntimeClass* type, const RuntimeMethod* constrainedMethod, void* boxBuffer, void* objBuffer, void** args, void* retVal)
+{
+    // Reference types use a virtual method call
+    if (!type->byval_arg.valuetype)
+    {
+        RuntimeObject* refObj = *(RuntimeObject**)objBuffer;
+        NullCheck(refObj);
+        const MethodInfo* virtualMethod = il2cpp::vm::Object::GetVirtualMethod(refObj, constrainedMethod);
+        virtualMethod->invoker_method(virtualMethod->methodPointer, virtualMethod, refObj, args, retVal);
+    }
+    // For value types, the constrained RGCTX does our lookup for us
+    else if (type == constrainedMethod->klass)
+    {
+        // If the value type overrode the method, do a direct call wiht the pointer to the struct
+        constrainedMethod->invoker_method(constrainedMethod->methodPointer, constrainedMethod, objBuffer, args, retVal);
+    }
+    else
+    {
+        IL2CPP_ASSERT(constrainedMethod->klass == il2cpp_defaults.object_class || constrainedMethod->klass == il2cpp_defaults.value_type_class || constrainedMethod->klass == il2cpp_defaults.enum_class);
+
+        // The value type did not override the method, so we're making a call to a method declared on
+        // System.Object, System.ValueType, or System.Enum so we need to box, but fake boxing should work
+        // becuase these methods will not mutate "this" and we can assume that they do not store the "this" pointer past the call
+        Il2CppFakeBoxBuffer* boxed = new(boxBuffer) Il2CppFakeBoxBuffer(type, objBuffer);
+        constrainedMethod->invoker_method(constrainedMethod->methodPointer, constrainedMethod, boxed, args, retVal);
+    }
 }
 
 #endif // !RUNTIME_TINY

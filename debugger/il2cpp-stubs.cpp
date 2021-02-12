@@ -13,6 +13,7 @@
 #include "vm/Class.h"
 #include "vm/ClassInlines.h"
 #include "vm/Domain.h"
+#include "vm/Exception.h"
 #include "vm/Field.h"
 #include "vm/GenericContainer.h"
 #include "vm/GenericClass.h"
@@ -350,7 +351,9 @@ extern "C" {
 
     uint32_t il2cpp_mono_gchandle_new_weakref(MonoObject *obj, mono_bool track_resurrection)
     {
-        return il2cpp::gc::GCHandle::NewWeakref((Il2CppObject*)obj, track_resurrection == 0 ? false : true);
+        auto weakRef = il2cpp::gc::GCHandle::NewWeakref((Il2CppObject*)obj, track_resurrection == 0 ? false : true);
+        il2cpp::vm::Exception::RaiseIfError(weakRef.GetError());
+        return weakRef.Get();
     }
 
     MonoObject*  il2cpp_mono_gchandle_get_target(uint32_t gchandle)
@@ -1041,7 +1044,7 @@ extern "C" {
         if (!method)
             return FALSE;
 
-        if (!((MethodInfo*)method)->is_generic && ((MethodInfo*)method)->is_inflated && ((MethodInfo*)method)->methodPointer)
+        if (!((MethodInfo*)method)->is_generic && ((MethodInfo*)method)->is_inflated && ((MethodInfo*)method)->virtualMethodPointer)
             return TRUE;
 
         return FALSE;

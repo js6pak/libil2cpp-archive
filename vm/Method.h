@@ -40,7 +40,8 @@ namespace vm
         static bool IsSameOverloadSignature(const MethodInfo* method1, const MethodInfo* method2);
         static bool IsSameOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2);
         static int CompareOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2);
-        static const char* GetParameterDefaultValue(const MethodInfo *method, const ParameterInfo* parameter, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
+        static const char* GetParameterDefaultValue(const MethodInfo *method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
+        static uint32_t GetParameterToken(const MethodInfo* method, int32_t parameterPosition);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -69,12 +69,10 @@ namespace os
         return false;
     }
 
-    Il2CppMethodPointer LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(const il2cpp::utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, const il2cpp::utils::StringView<char>& entryPoint, Il2CppCharSet charSet)
+    Il2CppMethodPointer LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(const il2cpp::utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, const il2cpp::utils::StringView<char>& entryPoint)
     {
-        // We don't support, nor do we need to Ansi functions.  That would break forwarding method names to Unicode MoveFileEx -> MoveFileExW
-        if (HardcodedPInvokeDependencies == NULL || charSet == CHARSET_ANSI)
+        if (HardcodedPInvokeDependencies == NULL)
             return NULL;
-
         for (size_t i = 0; i < HardcodedPInvokeDependenciesCount; i++)
         {
             const HardcodedPInvokeDependencyLibrary& library = HardcodedPInvokeDependencies[i];
@@ -84,7 +82,8 @@ namespace os
                 for (size_t j = 0; j < functionCount; j++)
                 {
                     const HardcodedPInvokeDependencyFunction function = library.functions[j];
-                    if (EntryNameMatches(il2cpp::utils::StringView<char>(function.functionName, function.functionNameLen), entryPoint))
+
+                    if (strncmp(function.functionName, entryPoint.Str(), entryPoint.Length()) == 0)
                         return function.functionPointer;
                 }
 
@@ -231,14 +230,7 @@ namespace os
 #if !RUNTIME_TINY
         // We assume that presence of the library in s_DllCache is a valid reason to be able to close it
         for (DllCacheIterator it = s_DllCache.begin(); it != s_DllCache.end(); it++)
-        {
-            // If libc is a "loaded library", it is a special case, and closing it will cause dlclose
-            // on some Posix platforms to return an error (I'm looking at you, iOS 11). This really is
-            // not an error, but Baselib_DynamicLibrary_Close will correctly assert when dlclose
-            // returns an error. To avoid this assert, let's skip closing libc.
-            if (utils::StringUtils::NativeStringToUtf8(it->first.c_str()) != "libc")
-                Baselib_DynamicLibrary_Close(it->second);
-        }
+            Baselib_DynamicLibrary_Close(it->second);
         s_DllCache.clear();
 #endif
     }

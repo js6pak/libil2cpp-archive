@@ -1,11 +1,11 @@
 #pragma once
 
 #include <il2cpp-object-internals.h>
-#include "StringView.h"
+#include "utils/StringView.h"
 
 namespace il2cpp
 {
-namespace utils
+namespace vm
 {
     class Il2CppHStringReference
     {
@@ -14,7 +14,7 @@ namespace utils
         Il2CppHStringHeader m_Header;
 
     public:
-        Il2CppHStringReference(const StringView<Il2CppNativeChar>& str);
+        Il2CppHStringReference(const utils::StringView<Il2CppNativeChar>& str);
 
         inline operator Il2CppHString() const
         {
