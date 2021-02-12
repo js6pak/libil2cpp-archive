@@ -557,8 +557,8 @@ namespace vm
     {
         int32_t size;
 
-        if (!klass->size_init_pending)
-            SetupFields(klass);
+        if (!klass->init_pending)
+            Init(klass);
 
         IL2CPP_ASSERT(klass->byval_arg.valuetype);
 
@@ -1050,8 +1050,6 @@ namespace vm
         if (klass->size_inited)
             return;
 
-        klass->size_init_pending = true;
-
         if (klass->parent && !klass->parent->size_inited)
             SetupFieldsLocked(klass->parent, lock);
 
@@ -1069,8 +1067,6 @@ namespace vm
 
         if (!Class::IsGeneric(klass))
             LayoutFieldsLocked(klass, lock);
-
-        klass->size_init_pending = false;
 
         klass->size_inited = true;
     }
@@ -1120,18 +1116,19 @@ namespace vm
 
                 newMethod->name = methodInfo.name;
 
+                newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodInfo.token);
+
                 if (klass->byval_arg.valuetype)
                 {
                     Il2CppMethodPointer adjustorThunk = MetadataCache::GetAdjustorThunk(klass->image, methodInfo.token);
                     if (adjustorThunk != NULL)
-                        newMethod->methodPointer = adjustorThunk;
+                        newMethod->virtualMethodPointer = adjustorThunk;
                 }
-
                 // We did not find an adjustor thunk, or maybe did not need to look for one. Let's get the real method pointer.
-                if (newMethod->methodPointer == NULL)
-                    newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodInfo.token);
+                if (newMethod->virtualMethodPointer == NULL)
+                    newMethod->virtualMethodPointer = newMethod->methodPointer;
 
-                if (newMethod->methodPointer)
+                if (newMethod->virtualMethodPointer)
                     newMethod->invoker_method = MetadataCache::GetMethodInvoker(klass->image, methodInfo.token);
                 else
                     newMethod->invoker_method = Runtime::GetMissingMethodInvoker();
@@ -1140,17 +1137,11 @@ namespace vm
 
                 newMethod->parameters_count = (uint8_t)methodInfo.parameterCount;
 
-                ParameterInfo* parameters = (ParameterInfo*)MetadataCalloc(methodInfo.parameterCount, sizeof(ParameterInfo));
-                ParameterInfo* newParameter = parameters;
+                const Il2CppType** parameters = (const Il2CppType**)MetadataCalloc(methodInfo.parameterCount, sizeof(Il2CppType*));
                 for (uint16_t paramIndex = 0; paramIndex < methodInfo.parameterCount; ++paramIndex)
                 {
                     Il2CppMetadataParameterInfo paramInfo = MetadataCache::GetParameterInfo(klass, methodInfo.handle, paramIndex);
-                    newParameter->name = paramInfo.name;
-                    newParameter->position = paramIndex;
-                    newParameter->token = paramInfo.token;
-                    newParameter->parameter_type = paramInfo.type;
-
-                    newParameter++;
+                    parameters[paramIndex] = paramInfo.type;
                 }
                 newMethod->parameters = parameters;
 
@@ -1246,8 +1237,8 @@ namespace vm
                     klass->vtable[i].method = method;
                     if (method != NULL)
                     {
-                        if (method->methodPointer)
-                            klass->vtable[i].methodPtr = method->methodPointer;
+                        if (method->virtualMethodPointer)
+                            klass->vtable[i].methodPtr = method->virtualMethodPointer;
                         else if (method->is_inflated && !method->is_generic && !method->genericMethod->context.method_inst)
                             klass->vtable[i].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(method);
                     }
@@ -1280,7 +1271,7 @@ namespace vm
                     klass->vtable[i].method = method;
 
                     if (method != NULL)
-                        klass->vtable[i].methodPtr = method->methodPointer;
+                        klass->vtable[i].methodPtr = method->virtualMethodPointer;
                 }
             }
         }
@@ -1592,13 +1583,15 @@ namespace vm
 
     bool Class::IsNullable(const Il2CppClass *klass)
     {
-        return klass->generic_class != NULL &&
-            GenericClass::GetTypeDefinition(klass->generic_class) == il2cpp_defaults.generic_nullable_class;
+        // Based on benchmarking doing the check on `klass->generic_class != NULL` makes this check faster
+        // Likely since nullabletype is a bitfield and requires some manipulation to check
+        return klass->generic_class != NULL && klass->nullabletype;
     }
 
     Il2CppClass* Class::GetNullableArgument(const Il2CppClass* klass)
     {
-        return Class::FromIl2CppType(klass->generic_class->context.class_inst->type_argv[0]);
+        IL2CPP_ASSERT(Class::IsNullable(klass));
+        return klass->element_class;
     }
 
     int Class::GetArrayElementSize(const Il2CppClass *klass)
@@ -1824,15 +1817,14 @@ namespace vm
 
     bool Class::HasReferences(Il2CppClass *klass)
     {
-        if (klass->size_init_pending)
+        if (klass->init_pending)
         {
-            abort();
             /* Be conservative */
             return true;
         }
         else
         {
-            SetupFields(klass);
+            Init(klass);
 
             return klass->has_references;
         }
@@ -1917,14 +1909,14 @@ namespace vm
                     case IL2CPP_TYPE_ARRAY:
                     case IL2CPP_TYPE_VAR:
                     case IL2CPP_TYPE_MVAR:
-                        IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
+                        IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
                         set_bit(bitmap, offset / sizeof(void*));
                         maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                         break;
                     case IL2CPP_TYPE_GENERICINST:
                         if (!Type::GenericInstIsValuetype(type))
                         {
-                            IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
+                            IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
                             set_bit(bitmap, offset / sizeof(void*));
                             maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                             break;
@@ -2113,6 +2105,54 @@ namespace vm
     Il2CppClass* Class::GetDeclaringType(Il2CppClass* klass)
     {
         return klass->declaringType;
+    }
+
+    const MethodInfo* Class::GetVirtualMethod(Il2CppClass *klass, const MethodInfo *method)
+    {
+        if ((method->flags & METHOD_ATTRIBUTE_FINAL) || !(method->flags & METHOD_ATTRIBUTE_VIRTUAL))
+            return method;
+
+        Il2CppClass* methodDeclaringType = method->klass;
+        Class::Init(klass);
+        Class::Init(methodDeclaringType);
+        if (Class::IsInterface(methodDeclaringType))
+        {
+            const VirtualInvokeData* invokeData = ClassInlines::GetInterfaceInvokeDataFromVTable(klass, methodDeclaringType, method->slot);
+            if (invokeData == NULL)
+                return NULL;
+            const MethodInfo* itfMethod = invokeData->method;
+            if (Method::IsGenericInstance(method))
+            {
+                if (itfMethod->virtualMethodPointer)
+                    return itfMethod;
+
+                Il2CppGenericMethod gmethod;
+                gmethod.context.method_inst = method->genericMethod->context.method_inst;
+                gmethod.context.class_inst = klass->generic_class ? klass->generic_class->context.class_inst : NULL;
+                gmethod.methodDefinition = klass->generic_class ? il2cpp::vm::MetadataCache::GetGenericMethodDefinition(itfMethod) : itfMethod;
+                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+            }
+            else
+            {
+                return itfMethod;
+            }
+        }
+
+        if (Method::IsGenericInstance(method))
+        {
+            if (method->virtualMethodPointer)
+                return method;
+
+            Il2CppGenericMethod gmethod;
+            gmethod.context = method->genericMethod->context;
+            gmethod.methodDefinition = klass->vtable[method->slot].method;
+            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+        }
+        else
+        {
+            IL2CPP_ASSERT(method->slot < klass->vtable_count);
+            return klass->vtable[method->slot].method;
+        }
     }
 } /* namespace vm */
 } /* namespace il2cpp */

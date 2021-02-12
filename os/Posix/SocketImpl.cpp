@@ -42,9 +42,8 @@
 #include "os/Posix/SocketImpl.h"
 #include "os/Posix/ThreadImpl.h"
 #include "utils/Memory.h"
+#include "utils/Il2CppError.h"
 #include "utils/StringUtils.h"
-
-#include "il2cpp-vm-support.h"
 
 namespace il2cpp
 {
@@ -1062,7 +1061,7 @@ namespace os
         return kWaitStatusSuccess;
     }
 
-    WaitStatus SocketImpl::Bind(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port)
+    utils::Expected<WaitStatus> SocketImpl::Bind(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port)
     {
 #if IL2CPP_SUPPORT_IPV6
         struct sockaddr_in6 sa = { 0 };
@@ -1078,8 +1077,7 @@ namespace os
 
         return kWaitStatusSuccess;
 #else
-        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
-        return kWaitStatusFailure;
+        return utils::Il2CppError(utils::NotSupported, "IPv6 is not supported on this platform.");
 #endif
     }
 
@@ -1148,7 +1146,7 @@ namespace os
 #endif
     }
 
-    WaitStatus SocketImpl::Connect(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port)
+    utils::Expected<WaitStatus> SocketImpl::Connect(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port)
     {
 #if IL2CPP_SUPPORT_IPV6
         struct sockaddr_in6 sa = { 0 };
@@ -1158,8 +1156,7 @@ namespace os
 
         return ConnectInternal((struct sockaddr *)&sa, sa_size);
 #else
-        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
-        return kWaitStatusFailure;
+        return utils::Il2CppError(utils::NotSupported, "IPv6 is not supported on this platform.");
 #endif
     }
 
@@ -1571,7 +1568,7 @@ namespace os
 #endif
     }
 
-    WaitStatus SocketImpl::SendTo(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
+    utils::Expected<WaitStatus> SocketImpl::SendTo(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len)
     {
 #if IL2CPP_SUPPORT_IPV6
         struct sockaddr_in6 sa = { 0 };
@@ -1581,8 +1578,7 @@ namespace os
 
         return SendToInternal((sockaddr*)&sa, sa_size, data, count, flags, len);
 #else
-        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
-        return kWaitStatusFailure;
+        return utils::Il2CppError(utils::NotSupported, "IPv6 is not supported on this platform.");
 #endif
     }
 
@@ -1672,7 +1668,7 @@ namespace os
 #endif
     }
 
-    WaitStatus SocketImpl::RecvFrom(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep)
+    utils::Expected<WaitStatus> SocketImpl::RecvFrom(uint8_t address[ipv6AddressSize], uint32_t scope, uint16_t port, const uint8_t *data, int32_t count, os::SocketFlags flags, int32_t *len, os::EndPointInfo &ep)
     {
 #if IL2CPP_SUPPORT_IPV6
         struct sockaddr_in6 sa = { 0 };
@@ -1708,8 +1704,7 @@ namespace os
 
         return kWaitStatusSuccess;
 #else
-        IL2CPP_VM_NOT_SUPPORTED(sockaddr_from_address, "IPv6 is not supported on this platform.");
-        return kWaitStatusFailure;
+        return utils::Il2CppError(utils::NotSupported, "IPv6 is not supported on this platform.");
 #endif
     }
 

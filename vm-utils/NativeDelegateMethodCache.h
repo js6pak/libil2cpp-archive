@@ -1,7 +1,8 @@
 #pragma once
 
 #include "il2cpp-api-types.h"
-#include "il2cpp-vm-support.h"
+#include "vm-utils/VmMethod.h"
+
 #include <map>
 
 #include "Baselib.h"

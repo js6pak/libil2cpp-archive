@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include "il2cpp-vm-support.h"
 
 #if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
 
@@ -22,7 +21,7 @@ namespace os
         return ::GetCurrentProcessId();
     }
 
-    ProcessHandle* Process::GetProcess(int processId)
+    utils::Expected<ProcessHandle*> Process::GetProcess(int processId)
     {
         return (ProcessHandle*)OpenProcess(PROCESS_ALL_ACCESS, TRUE, processId);
     }
@@ -32,7 +31,7 @@ namespace os
         ::CloseHandle((HANDLE)handle);
     }
 
-    std::string Process::GetProcessName(ProcessHandle* handle)
+    utils::Expected<std::string> Process::GetProcessName(ProcessHandle* handle)
     {
         const size_t bufferLength = 256;
         WCHAR buf[bufferLength];

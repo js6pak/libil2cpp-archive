@@ -35,9 +35,9 @@ typedef Il2CppArray RuntimeArray;
 #define DEFAULT_CALL
 #endif
 
-inline void il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
+inline void* il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
 {
-    memcpy(dest, src, count);
+    return memcpy(dest, src, count);
 }
 
 inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
@@ -109,7 +109,6 @@ inline void UnBoxNullable(Il2CppObject* obj, TinyType* expectedBoxedClass, void*
 
     if (obj == NULL)
     {
-        memset(storage, 0, valueSize);
         *(static_cast<uint8_t*>(storage) + valueSize) = false;
     }
     else
@@ -123,6 +122,19 @@ inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
 {
     return false;
 }
+
+template<typename T>
+struct Il2CppFakeBox : RuntimeObject
+{
+    alignas(IL2CPP_ALIGNED_OBJECT_SIZE) T m_Value;
+
+    Il2CppFakeBox(TinyType* boxedType, T* value)
+    {
+        klass = boxedType;
+        m_Value = *value;
+    }
+};
+
 
 // Exception support macros
 
@@ -679,9 +691,3 @@ void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, T* value)
 }
 
 void il2cpp_codegen_marshal_store_last_error();
-
-template<typename T>
-inline void* il2cpp_codegen_unsafe_cast(T* ptr)
-{
-    return reinterpret_cast<void*>(ptr);
-}
