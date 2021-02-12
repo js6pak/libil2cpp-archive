@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "il2cpp-config.h"
+#include "utils/Il2CppError.h"
 #include "utils/StringView.h"
 #include "il2cpp-class-internals.h"
 
@@ -31,6 +32,8 @@ namespace vm
         static NORETURN void RaiseOverflowException();
         static NORETURN void RaiseArgumentOutOfRangeException(const char* msg);
         static NORETURN void Raise(il2cpp_hresult_t hresult, bool defaultToCOMException);
+
+        static void RaiseIfError(const utils::Il2CppError& error);
 
         inline static void RaiseIfFailed(il2cpp_hresult_t hresult, bool defaultToCOMException)
         {
@@ -80,12 +83,13 @@ namespace vm
         static Il2CppException* GetExecutionEngineException(const char* msg);
         static Il2CppException* GetMethodAccessException(const char* msg);
         static Il2CppException* GetUnauthorizedAccessException(const utils::StringView<Il2CppChar>& msg);
+        static Il2CppException* GetUnauthorizedAccessException(const char* msg);
         static Il2CppException* GetDivideByZeroException();
         static Il2CppException* GetPlatformNotSupportedException(const utils::StringView<Il2CppChar>& msg);
         static Il2CppException* GetFileLoadException(const char* msg);
         static Il2CppException* GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg);
 
-        static Il2CppException* GetMaximumNestedGenericsException();
+        static Il2CppException* GetMaxmimumNestedGenericsException();
 
         static void StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString);
     };

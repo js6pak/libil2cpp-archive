@@ -10,6 +10,7 @@
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Path.h"
+#include "vm/Profiler.h"
 #include "vm/String.h"
 #include "vm/Exception.h"
 #include "utils/Memory.h"
@@ -200,9 +201,14 @@ namespace IO
 
         il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle;
 
-        char *buffer = il2cpp_array_addr(dest, char, dest_offset);
+        char *buffer = il2cpp_array_addr(dest, char, dest_offset); \
 
         int bytesRead = il2cpp::os::File::Read(h, buffer, count, error);
+
+#if IL2CPP_ENABLE_PROFILER
+        if (vm::Profiler::ProfileFileIO())
+            vm::Profiler::FileIO(IL2CPP_PROFILE_FILEIO_READ, bytesRead);
+#endif
         if (*error != 0)
             return -1;
         return bytesRead;
@@ -242,7 +248,14 @@ namespace IO
         il2cpp::os::FileHandle* h = (il2cpp::os::FileHandle*)handle;
         char *buffer = il2cpp_array_addr(src, char, src_offset);
 
-        return il2cpp::os::File::Write(h, buffer, count, error);
+        int bytesWritten = il2cpp::os::File::Write(h, buffer, count, error);
+
+#if IL2CPP_ENABLE_PROFILER
+        if (vm::Profiler::ProfileFileIO())
+            vm::Profiler::FileIO(IL2CPP_PROFILE_FILEIO_WRITE, bytesWritten);
+#endif
+
+        return bytesWritten;
     }
 
     Il2CppChar MonoIO::get_VolumeSeparatorChar(void)
@@ -378,7 +391,9 @@ namespace IO
 #if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
         vm::Exception::Raise(vm::Exception::GetNotSupportedException("Pipes are not supported on WinRT based platforms."));
 #else
-        return il2cpp::os::File::CreatePipe(input, output, error);
+        auto result = il2cpp::os::File::CreatePipe(input, output, error);
+        vm::Exception::RaiseIfError(result.GetError());
+        return result.Get();
 #endif
     }
 

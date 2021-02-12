@@ -2,13 +2,13 @@
 #include "metadata/GenericMetadata.h"
 #include "os/LibraryLoader.h"
 #include "os/WindowsRuntime.h"
-#include "utils/Il2CppHStringReference.h"
 #include "utils/StringUtils.h"
 #include "utils/StringViewUtils.h"
 #include "vm/AssemblyName.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
 #include "vm/GenericClass.h"
+#include "vm/Il2CppHStringReference.h"
 #include "vm/Image.h"
 #include "vm/MetadataCache.h"
 #include "vm/Type.h"
@@ -27,7 +27,7 @@ namespace vm
 
     Il2CppIActivationFactory* WindowsRuntime::GetActivationFactory(const utils::StringView<Il2CppNativeChar>& runtimeClassName)
     {
-        utils::Il2CppHStringReference className(runtimeClassName);
+        Il2CppHStringReference className(runtimeClassName);
         Il2CppIActivationFactory* factory = NULL;
         il2cpp_hresult_t hr = os::WindowsRuntime::GetActivationFactory(className, &factory);
 
@@ -407,8 +407,9 @@ namespace vm
                 elementMetadataTypeName = GetWindowsRuntimeMetadataTypeName(elementClass);
 
                 uint32_t elementTypeNameLength;
-                const Il2CppNativeChar* elementMetadataTypeNamePtr = os::WindowsRuntime::GetNativeHStringBuffer(elementMetadataTypeName, &elementTypeNameLength);
-                elementTypeName = utils::StringView<Il2CppNativeChar>(elementMetadataTypeNamePtr, elementTypeNameLength);
+                auto elementMetadataTypeNamePtr = os::WindowsRuntime::GetNativeHStringBuffer(elementMetadataTypeName, &elementTypeNameLength);
+                vm::Exception::RaiseIfError(elementMetadataTypeNamePtr.GetError());
+                elementTypeName = utils::StringView<Il2CppNativeChar>(elementMetadataTypeNamePtr.Get(), elementTypeNameLength);
             }
 
             size_t offsetInChars = 0;
@@ -811,8 +812,9 @@ namespace vm
             return NULL;
 
         uint32_t typeNameLength;
-        const Il2CppNativeChar* typeNamePtr = os::WindowsRuntime::GetNativeHStringBuffer(nativeType.typeName, &typeNameLength);
-        utils::StringView<Il2CppNativeChar> typeNameView(typeNamePtr, typeNameLength);
+        auto typeNamePtr = os::WindowsRuntime::GetNativeHStringBuffer(nativeType.typeName, &typeNameLength);
+        vm::Exception::RaiseIfError(typeNamePtr.GetError());
+        utils::StringView<Il2CppNativeChar> typeNameView(typeNamePtr.Get(), typeNameLength);
 
         switch (nativeType.typeKind)
         {

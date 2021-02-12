@@ -1,5 +1,4 @@
 #include "il2cpp-config.h"
-#include "il2cpp-vm-support.h"
 
 #if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4
 #include "il2cpp-class-internals.h"
@@ -146,13 +145,13 @@ namespace os
     }
 
 #if !RUNTIME_TINY
-    std::string Environment::GetWindowsFolderPath(int folder)
+    utils::Expected<std::string> Environment::GetWindowsFolderPath(int folder)
     {
         // This should only be called on Windows.
         return std::string();
     }
 
-    bool Environment::Is64BitOs()
+    utils::Expected<bool> Environment::Is64BitOs()
     {
         struct utsname name;
 

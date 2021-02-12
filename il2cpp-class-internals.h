@@ -180,6 +180,7 @@ typedef struct Il2CppDefaults
     Il2CppClass* uint16_shared_enum;
     Il2CppClass* uint32_shared_enum;
     Il2CppClass* uint64_shared_enum;
+    Il2CppClass* il2cpp_fully_shared_type;
 } Il2CppDefaults;
 
 extern LIBIL2CPP_CODEGEN_API Il2CppDefaults il2cpp_defaults;
@@ -231,14 +232,6 @@ typedef struct EventInfo
     const MethodInfo* raise;
     uint32_t token;
 } EventInfo;
-
-typedef struct ParameterInfo
-{
-    const char* name;
-    int32_t position;
-    uint32_t token;
-    const Il2CppType* parameter_type;
-} ParameterInfo;
 
 typedef void (*InvokerMethod)(Il2CppMethodPointer, const MethodInfo*, void*, void**, void*);
 
@@ -341,11 +334,12 @@ typedef union Il2CppRGCTXData
 typedef struct MethodInfo
 {
     Il2CppMethodPointer methodPointer;
+    Il2CppMethodPointer virtualMethodPointer;
     InvokerMethod invoker_method;
     const char* name;
     Il2CppClass *klass;
     const Il2CppType *return_type;
-    const ParameterInfo* parameters;
+    const Il2CppType** parameters;
 
     union
     {
@@ -358,7 +352,6 @@ typedef struct MethodInfo
     {
         const Il2CppGenericMethod* genericMethod; /* is_inflated is true */
         Il2CppMetadataGenericContainerHandle genericContainerHandle; /* is_inflated is false and is_generic is true */
-        Il2CppMethodPointer nativeFunction; /* if is_marshaled_from_native is true */
     };
 
     uint32_t token;
@@ -429,7 +422,7 @@ typedef struct Il2CppClass
 
     // Remaining fields are always valid except where noted
     Il2CppMetadataGenericContainerHandle genericContainerHandle;
-    uint32_t instance_size; // valid when size_inited is true
+    uint32_t instance_size;
     uint32_t actualSize;
     uint32_t element_size;
     int32_t native_size;
@@ -461,10 +454,10 @@ typedef struct Il2CppClass
 
     uint8_t initialized : 1;
     uint8_t enumtype : 1;
+    uint8_t nullabletype : 1;
     uint8_t is_generic : 1;
-    uint8_t has_references : 1; // valid when size_inited is true
+    uint8_t has_references : 1;
     uint8_t init_pending : 1;
-    uint8_t size_init_pending : 1;
     uint8_t size_inited : 1;
     uint8_t has_finalize : 1;
     uint8_t has_cctor : 1;

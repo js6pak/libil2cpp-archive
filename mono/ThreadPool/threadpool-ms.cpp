@@ -116,7 +116,7 @@ mono_method_call_message_new(MethodInfo *method, void* *params, MethodInfo *invo
 
 			vpos = params[i];
 
-		klass = il2cpp_class_from_type(method->parameters[i].parameter_type);
+		klass = il2cpp_class_from_type(method->parameters[i]);
 		arg = (Il2CppObject*)vpos;
 
 		il2cpp_array_setref(msg->args, i, arg);

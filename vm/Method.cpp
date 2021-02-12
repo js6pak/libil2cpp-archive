@@ -87,7 +87,7 @@ namespace vm
     const Il2CppType* Method::GetParam(const MethodInfo *method, uint32_t index)
     {
         if (index < method->parameters_count)
-            return method->parameters[index].parameter_type;
+            return method->parameters[index];
         else
             return NULL;
     }
@@ -99,7 +99,18 @@ namespace vm
         if (index >= method->parameters_count)
             return NULL;
 
-        return method->parameters[index].name;
+        if (method->is_inflated)
+        {
+            method = il2cpp::vm::MetadataCache::GetGenericMethodDefinition(method);
+        }
+
+        // we construct some 'pseudo' methods for things like arrays
+        if (!method->methodMetadataHandle)
+            return NULL;
+
+        Il2CppMetadataParameterInfo paramInfo = MetadataCache::GetParameterInfo(method->klass, method->methodMetadataHandle, index);
+
+        return paramInfo.name;
     }
 
     Il2CppClass* Method::GetClass(const MethodInfo *method)
@@ -134,12 +145,12 @@ namespace vm
 //  * Calling convention <------ not stored in our metadata yet
 //  * Custom modifiers   <------ not supported by il2cpp
 //  * Whether a parameter is passed by value or by reference
-    static bool AreParametersSame(const ParameterInfo* params1, const ParameterInfo* params2, int count)
+    static bool AreParametersSame(const Il2CppType** params1, const Il2CppType** params2, int count)
     {
         for (int i = 0; i < count; i++)
         {
-            const Il2CppType* param1 = params1[i].parameter_type;
-            const Il2CppType* param2 = params2[i].parameter_type;
+            const Il2CppType* param1 = params1[i];
+            const Il2CppType* param2 = params2[i];
 
             if (param1->byref != param2->byref)
             {
@@ -155,12 +166,12 @@ namespace vm
         return true;
     }
 
-    static int CompareParameters(const ParameterInfo* params1, const ParameterInfo* params2, int count)
+    static int CompareParameters(const Il2CppType** params1, const Il2CppType** params2, int count)
     {
         for (int i = 0; i < count; i++)
         {
-            const Il2CppType* param1 = params1[i].parameter_type;
-            const Il2CppType* param2 = params2[i].parameter_type;
+            const Il2CppType* param1 = params1[i];
+            const Il2CppType* param2 = params2[i];
 
             if (param1->byref == param2->byref)
             {
@@ -186,8 +197,8 @@ namespace vm
     bool Method::IsSameOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2)
     {
         uint8_t parameterCount1, parameterCount2;
-        const ParameterInfo* parameters1;
-        const ParameterInfo* parameters2;
+        const Il2CppType** parameters1;
+        const Il2CppType** parameters2;
 
         if (property1->get != NULL)
         {
@@ -223,8 +234,8 @@ namespace vm
     int Method::CompareOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2)
     {
         uint8_t parameterCount1, parameterCount2;
-        const ParameterInfo* parameters1;
-        const ParameterInfo* parameters2;
+        const Il2CppType** parameters1;
+        const Il2CppType** parameters2;
 
         if (property1->get != NULL)
         {
@@ -257,9 +268,28 @@ namespace vm
         return parameterCount1 < parameterCount2;
     }
 
-    const char* Method::GetParameterDefaultValue(const MethodInfo* method, const ParameterInfo *parameter, const Il2CppType** type, bool* isExplicitySetNullDefaultValue)
+    const char* Method::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue)
     {
-        return reinterpret_cast<const char*>(MetadataCache::GetParameterDefaultValue(method, parameter, type, isExplicitySetNullDefaultValue));
+        return reinterpret_cast<const char*>(MetadataCache::GetParameterDefaultValue(method, parameterPosition, type, isExplicitySetNullDefaultValue));
+    }
+
+    uint32_t Method::GetParameterToken(const MethodInfo* method, int32_t index)
+    {
+        if (index >= method->parameters_count)
+            return 0;
+
+        if (method->is_inflated)
+        {
+            method = il2cpp::vm::MetadataCache::GetGenericMethodDefinition(method);
+        }
+
+        // we construct some 'pseudo' methods for things like arrays
+        if (!method->methodMetadataHandle)
+            return 0;
+
+        Il2CppMetadataParameterInfo paramInfo = MetadataCache::GetParameterInfo(method->klass, method->methodMetadataHandle, index);
+
+        return paramInfo.token;
     }
 
     std::string Method::GetFullName(const MethodInfo* method)

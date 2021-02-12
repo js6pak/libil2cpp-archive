@@ -132,6 +132,7 @@ namespace vm
         static const Il2CppType* il2cpp_type_from_type_info(const TypeNameParseInfo& info, TypeSearchFlags searchFlags);
 
         static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
+        static const MethodInfo* GetVirtualMethod(Il2CppClass* klass, const MethodInfo* method);
 
         static void UpdateInitializedAndNoError(Il2CppClass *klass);
 
@@ -153,7 +154,7 @@ namespace vm
 
             for (int32_t i = 0; i < genericParameterCount; ++i)
             {
-                uint16_t flags = MetadataCache::GetGenericParameterFlags(genericContainer, i);
+                uint16_t flags = MetadataCache::GetGenericParameterFlags(MetadataCache::GetGenericParameterFromIndex(genericContainer, i));
                 const int32_t parameterVariance = flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_VARIANCE_MASK;
                 Il2CppClass* genericParameterType = Class::FromIl2CppType(genericInst->type_argv[i]);
                 Il2CppClass* oGenericParameterType = Class::FromIl2CppType(oGenericInst->type_argv[i]);

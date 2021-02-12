@@ -98,13 +98,7 @@ namespace vm
                 is a null reference or bitwise copy of its Value property of type T, depending on its HasValue property
                 (false and true, respectively).
             */
-
-            typeInfo = Class::GetNullableArgument(typeInfo);
-            Class::Init(typeInfo);
-            uint8_t* hasValueByte = static_cast<uint8_t*>(val) + typeInfo->instance_size - sizeof(Il2CppObject);
-            bool hasValue = *hasValueByte != 0;
-
-            if (!hasValue)
+            if (!NullableHasValue(typeInfo, val))
                 return NULL;
         }
 
@@ -207,7 +201,7 @@ namespace vm
             const MethodInfo* itfMethod = ClassInlines::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, method->slot).method;
             if (Method::IsGenericInstance(method))
             {
-                if (itfMethod->methodPointer)
+                if (itfMethod->virtualMethodPointer)
                     return itfMethod;
 
                 Il2CppGenericMethod gmethod;
@@ -223,7 +217,7 @@ namespace vm
 
         if (Method::IsGenericInstance(method))
         {
-            if (method->methodPointer)
+            if (method->virtualMethodPointer)
                 return method;
 
             Il2CppGenericMethod gmethod;
@@ -361,7 +355,6 @@ namespace vm
 
         if (obj == NULL)
         {
-            memset(storage, 0, valueSize);
             *(static_cast<uint8_t*>(storage) + valueSize) = false;
         }
         else
@@ -383,6 +376,15 @@ namespace vm
             memcpy(buf + klass->fields[0].offset - sizeof(Il2CppObject), Object::Unbox(value), Class::GetValueSize(parameterClass, NULL));
         else
             memset(buf + klass->fields[0].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
+    }
+
+    bool Object::NullableHasValue(Il2CppClass* klass, void* data)
+    {
+        IL2CPP_ASSERT(Class::IsNullable(klass));
+        Il2CppClass* typeInfo = Class::GetNullableArgument(klass);
+        Class::Init(typeInfo);
+        uint8_t* hasValueByte = static_cast<uint8_t*>(data) + typeInfo->instance_size - sizeof(Il2CppObject);
+        return *hasValueByte != 0;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

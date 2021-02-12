@@ -766,7 +766,8 @@ uint32_t il2cpp_gchandle_new(Il2CppObject *obj, bool pinned)
 
 uint32_t il2cpp_gchandle_new_weakref(Il2CppObject *obj, bool track_resurrection)
 {
-    return GCHandle::NewWeakref(obj, track_resurrection);
+    // Note that the call to Get will assert if an error occurred.
+    return GCHandle::NewWeakref(obj, track_resurrection).Get();
 }
 
 Il2CppObject* il2cpp_gchandle_get_target(uint32_t gchandle)

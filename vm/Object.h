@@ -28,6 +28,7 @@ namespace vm
         static Il2CppObject * Clone(Il2CppObject *obj);
         static Il2CppObject* NewPinned(Il2CppClass *klass);
         static void NullableInit(uint8_t* buf, Il2CppObject* value, Il2CppClass* klass);
+        static bool NullableHasValue(Il2CppClass* klass, void* data);
     private:
         static Il2CppObject * NewAllocSpecific(Il2CppClass *klass);
         static Il2CppObject* NewPtrFree(Il2CppClass *klass);

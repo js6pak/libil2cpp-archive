@@ -68,12 +68,10 @@ namespace metadata
         method->slot = kInvalidIl2CppMethodSlot;
         method->return_type = returnType;
         method->parameters_count = parameterCount;
-        ParameterInfo* parameters = (ParameterInfo*)MetadataCalloc(parameterCount, sizeof(ParameterInfo));
+        const Il2CppType** parameters = (const Il2CppType**)MetadataCalloc(parameterCount, sizeof(Il2CppType*));
         for (uint8_t i = 0; i < parameterCount; i++)
         {
-            parameters[i].position = i;
-            parameters[i].parameter_type = parameterTypes[i];
-            parameters[i].name = NULL;
+            parameters[i] = parameterTypes[i];
         }
         method->parameters = parameters;
 
@@ -293,6 +291,7 @@ namespace metadata
         inflatedMethod->return_type = methodToCopyDataFrom->return_type;
 
         inflatedMethod->methodPointer = methodToCopyDataFrom->methodPointer;
+        inflatedMethod->virtualMethodPointer = methodToCopyDataFrom->virtualMethodPointer;
         inflatedMethod->invoker_method = methodToCopyDataFrom->invoker_method;
 
         return inflatedMethod;
@@ -323,7 +322,7 @@ namespace metadata
 
                 size_t vtableIndex = klass->interfaceOffsets[i].offset + iter->interfaceMethodDefinition->slot;
                 klass->vtable[vtableIndex].method = arrayMethod;
-                klass->vtable[vtableIndex].methodPtr = arrayMethod->methodPointer;
+                klass->vtable[vtableIndex].methodPtr = arrayMethod->virtualMethodPointer;
             }
         }
     }
@@ -541,6 +540,7 @@ namespace metadata
         klass->rank = rank;
 
         klass->instance_size = Class::GetInstanceSize(arrayClass);
+        klass->size_inited = true;
         klass->vtable_count = static_cast<uint16_t>(slots);
 
         // need this before we access the size or has_references
@@ -550,8 +550,6 @@ namespace metadata
         klass->native_size = klass->thread_static_fields_offset = -1;
 
         klass->has_references = Type::IsReference(&elementClass->byval_arg) || elementClass->has_references;
-
-        klass->size_inited = true; // set only after instance_size and has_references are set
 
         klass->element_class = elementClass;
 
