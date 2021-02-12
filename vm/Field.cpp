@@ -397,5 +397,13 @@ namespace vm
 
         return true;
     }
+
+    void* Field::GetInstanceFieldDataPointer(void* instance, FieldInfo* field)
+    {
+        IL2CPP_ASSERT(il2cpp::vm::Field::IsInstance(field));
+
+        uint8_t* fieldPointer = ((uint8_t*)instance) + GetOffset(field);
+        return field->parent->byval_arg.valuetype ? fieldPointer - sizeof(Il2CppObject) : fieldPointer;
+    }
 } /* namespace vm */
 } /* namespace il2cpp */

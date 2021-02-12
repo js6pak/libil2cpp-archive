@@ -237,7 +237,7 @@ namespace InteropServices
             if (typeType == IL2CPP_TYPE_CLASS)
             {
                 typedef void (*Constructor)(Il2CppObject*);
-                Constructor ctor = reinterpret_cast<Constructor>(vm::Class::GetMethodFromName(type, ".ctor", 0)->methodPointer);
+                Constructor ctor = reinterpret_cast<Constructor>(vm::Class::GetMethodFromName(type, ".ctor", 0)->virtualMethodPointer);
                 ctor(result);
                 utils::MarshalingUtils::MarshalStructFromNative(reinterpret_cast<void*>(ptr), result, type->interopData);
             }
@@ -592,17 +592,13 @@ namespace InteropServices
                         if (managedOffset != 0) // overlapping fields have a zero offset
                         {
                             offset += vm::Class::GetFieldMarshaledSize(previousField);
+                            int marshaledFieldAlignment = vm::Class::GetFieldMarshaledAlignment(field);
+                            offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldAlignment : std::min((int)type->packingSize, marshaledFieldAlignment));
                         }
                     }
                     else
                     {
                         offset += vm::Class::FromIl2CppType(previousField->type)->native_size;
-                    }
-
-                    if (offset != 0)
-                    {
-                        int marshaledFieldAlignment = vm::Class::GetFieldMarshaledAlignment(field);
-                        offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldAlignment : std::min((int)type->packingSize, marshaledFieldAlignment));
                     }
                 }
                 previousField = field;

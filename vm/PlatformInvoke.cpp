@@ -2,7 +2,6 @@
 
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
-#include "il2cpp-vm-support.h"
 #include "PlatformInvoke.h"
 #include "Exception.h"
 #include "MetadataCache.h"
@@ -36,7 +35,8 @@ namespace vm
         // Some platforms, like UWP, just don't allow you to load to load system libraries at runtime dynamically.
         // On other platforms (THEY SHALL NOT BE NAMED :O), while the functions that mscorlib.dll wants to P/Invoke into exist,
         // They exist in different system libraries than it is said in the DllImport attribute.
-        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint, pinvokeArgs.charSet);
+        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
+
         if (function != NULL)
             return function;
 
@@ -156,7 +156,7 @@ namespace vm
     {
         Il2CppChar* bstr;
         const il2cpp_hresult_t hr = MarshalCSharpStringToCppBStringNoThrow(managedString, &bstr);
-        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
+        vm::Exception::RaiseIfFailed(hr, true);
         return bstr;
     }
 
@@ -183,7 +183,7 @@ namespace vm
 
         int32_t length;
         const il2cpp_hresult_t hr = os::MarshalStringAlloc::GetBStringLength(value, &length);
-        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
+        vm::Exception::RaiseIfFailed(hr, true);
 
         return String::NewUtf16(value, length);
     }
@@ -191,7 +191,7 @@ namespace vm
     void PlatformInvoke::MarshalFreeBString(Il2CppChar* value)
     {
         const il2cpp_hresult_t hr = os::MarshalStringAlloc::FreeBString(value);
-        IL2CPP_VM_RAISE_IF_FAILED(hr, true);
+        vm::Exception::RaiseIfFailed(hr, true);
     }
 
     char* PlatformInvoke::MarshalEmptyStringBuilder(Il2CppStringBuilder* stringBuilder, size_t& stringLength, std::vector<std::string>& utf8Chunks, std::vector<Il2CppStringBuilder*>& builders)
@@ -367,7 +367,7 @@ namespace vm
     // that was wrapped in the fake MethodInfo.
     static bool IsFakeDelegateMethodMarshaledFromNativeCode(const MethodInfo* method)
     {
-        return method->is_marshaled_from_native;
+        return method->methodMetadataHandle == NULL && method->is_marshaled_from_native;
     }
 
     static bool IsGenericInstance(const Il2CppType* type)
@@ -386,6 +386,28 @@ namespace vm
         return false;
     }
 
+    static std::string TypeNameListFor(const Il2CppGenericInst* genericInst)
+    {
+        std::string typeNameList;
+        if (genericInst != NULL)
+        {
+            int numberOfTypeArguments = genericInst->type_argc;
+            for (int i = 0; i < numberOfTypeArguments; i++)
+            {
+                typeNameList += Type::GetName(genericInst->type_argv[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+                if (i != numberOfTypeArguments - 1)
+                    typeNameList += ", ";
+            }
+        }
+
+        return typeNameList;
+    }
+
+    static bool FullGenericSharingIsEnabled()
+    {
+        return il2cpp_defaults.il2cpp_fully_shared_type != NULL;
+    }
+
     intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
 #if IL2CPP_TINY
@@ -396,9 +418,7 @@ namespace vm
             return 0;
 
         if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
-            return reinterpret_cast<intptr_t>(d->method->nativeFunction);
-
-        IL2CPP_ASSERT(d->method->methodMetadataHandle);
+            return reinterpret_cast<intptr_t>(d->method->virtualMethodPointer);
 
         Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method);
         if (reversePInvokeWrapper == NULL)
@@ -411,14 +431,34 @@ namespace vm
                 vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
             }
 
+            if (d->method->genericMethod != NULL && FullGenericSharingIsEnabled())
+            {
+                std::string errorMessage = "IL2CPP does not support marshaling generic delegates when full generic sharing is enabled. The method we're attempting to marshal is: " + methodName;
+                errorMessage += "\nTo marshal this delegate, please add an attribute named 'MonoPInvokeCallback' to the method definition.";
+                errorMessage += "\nThis attribute should have a type argument which is a generic delegate with all of the types required for this generic instantiation:";
+
+                std::string genericTypeArguments = TypeNameListFor(d->method->genericMethod->context.class_inst);
+                if (!genericTypeArguments.empty())
+                    errorMessage += "\nGeneric type arguments: " + genericTypeArguments;
+
+                std::string genericMethodArguments = TypeNameListFor(d->method->genericMethod->context.method_inst);
+                if (!genericMethodArguments.empty())
+                    errorMessage += "\nGeneric method arguments: " + genericMethodArguments;
+
+                errorMessage += "\nThis C# code should work, for example:";
+                std::string maybeComma = !genericTypeArguments.empty() ? ", " : "";
+                errorMessage += "\n[MonoPInvokeCallback(typeof(System.Action<" + genericTypeArguments + maybeComma + genericMethodArguments + ">))]";
+
+                vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
+            }
+
             if (d->method->parameters != NULL)
             {
                 for (int i = 0; i < d->method->parameters_count; ++i)
                 {
-                    if (IsGenericInstance(d->method->parameters[i].parameter_type))
+                    if (IsGenericInstance(d->method->parameters[i]))
                     {
-                        std::string methodName = il2cpp::vm::Method::GetFullName(d->method);
-                        std::string errorMessage = "Cannot marshal method '" + methodName + "' parameter '" + d->method->parameters[i].name + "': Generic types cannot be marshaled.";
+                        std::string errorMessage = "Cannot marshal method '" + methodName + "' parameter '" + Method::GetParamName(d->method, i) + "': Generic types cannot be marshaled.";
                         vm::Exception::Raise(vm::Exception::GetMarshalDirectiveException(errorMessage.c_str()));
                     }
                 }
@@ -454,12 +494,12 @@ namespace vm
         {
             const MethodInfo* invoke = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
             MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC(1, sizeof(MethodInfo));
-            memcpy(newMethod, invoke, sizeof(MethodInfo));
-            newMethod->methodPointer = managedToNativeWrapperMethodPointer;
-            newMethod->nativeFunction = nativeFunctionPointer;
+            newMethod->virtualMethodPointer = nativeFunctionPointer;
+            // If calling delegates via invokers managedToNativeWrapperMethodPointer is an invoker, otherwise it won't be called
+            newMethod->invoker_method = (InvokerMethod)managedToNativeWrapperMethodPointer;
+            newMethod->parameters_count = invoke->parameters_count;
             newMethod->slot = kInvalidIl2CppMethodSlot;
             newMethod->is_marshaled_from_native = true;
-            newMethod->flags &= ~METHOD_ATTRIBUTE_VIRTUAL;
             utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }

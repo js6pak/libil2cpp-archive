@@ -156,8 +156,12 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 
 #if IL2CPP_ENABLE_WRITE_BARRIERS
 void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object);
+void Il2CppCodeGenWriteBarrierForType(const Il2CppType* type, void** targetAddress, void* object);
+void Il2CppCodeGenWriteBarrierForClass(Il2CppClass* klass, void** targetAddress, void* object);
 #else
 inline void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object) {}
+inline void Il2CppCodeGenWriteBarrierForType(const Il2CppType* type, void** targetAddress, void* object) {}
+inline void Il2CppCodeGenWriteBarrierForClass(Il2CppClass* klass, void** targetAddress, void* object) {}
 #endif
 
 void il2cpp_codegen_memory_barrier();
@@ -265,9 +269,9 @@ inline bool il2cpp_codegen_check_sub_overflow(int64_t left, int64_t right)
         (right < 0 && left > kIl2CppInt64Max + right);
 }
 
-inline void il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
+inline void* il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
 {
-    memcpy(dest, src, count);
+    return memcpy(dest, src, count);
 }
 
 inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
@@ -364,28 +368,4 @@ inline bool il2cpp_codegen_platform_is_freebsd()
 inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
 {
     return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
-}
-
-template<typename T>
-inline T il2cpp_unsafe_read_unaligned(void* location)
-{
-    T result;
-#if IL2CPP_TARGET_ARMV7 || IL2CPP_TARGET_JAVASCRIPT
-    memcpy(&result, location, sizeof(T));
-#else
-    result = *((T*)location);
-#endif
-    return result;
-}
-
-#define IL2CPP_UNSAFE_READ_UNALIGNED(TReturnType, location) il2cpp_unsafe_read_unaligned<TReturnType>(location)
-
-template<typename T>
-inline void il2cpp_unsafe_write_unaligned(void* location, T value)
-{
-#if IL2CPP_TARGET_ARMV7 || IL2CPP_TARGET_JAVASCRIPT
-    memcpy(location, &value, sizeof(T));
-#else
-    *((T*)location) = value;
-#endif
 }

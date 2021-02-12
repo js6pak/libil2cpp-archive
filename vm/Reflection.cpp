@@ -12,6 +12,7 @@
 #include "vm/Field.h"
 #include "vm/Image.h"
 #include "vm/MetadataCache.h"
+#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/Parameter.h"
 #include "vm/Reflection.h"
@@ -433,17 +434,18 @@ namespace vm
         for (int i = 0; i < method->parameters_count; ++i)
         {
             Il2CppReflectionParameter* param = (Il2CppReflectionParameter*)Object::New(s_System_Reflection_ParameterInfo);
-            IL2CPP_OBJECT_SETREF(param, ClassImpl, GetTypeObject(method->parameters[i].parameter_type));
+            IL2CPP_OBJECT_SETREF(param, ClassImpl, GetTypeObject(method->parameters[i]));
             IL2CPP_OBJECT_SETREF(param, MemberImpl, (Il2CppObject*)member);
-            IL2CPP_OBJECT_SETREF(param, NameImpl, method->parameters[i].name ? String::New(method->parameters[i].name) : NULL);
+            const char* parameter_name = Method::GetParamName(method, i);
+            IL2CPP_OBJECT_SETREF(param, NameImpl, parameter_name ? String::New(parameter_name) : NULL);
             param->PositionImpl = i;
-            param->AttrsImpl = method->parameters[i].parameter_type->attrs;
+            param->AttrsImpl = method->parameters[i]->attrs;
 
             Il2CppObject* defaultValue = NULL;
             if (param->AttrsImpl & PARAM_ATTRIBUTE_HAS_DEFAULT)
             {
                 bool isExplicitySetNullDefaultValue = false;
-                defaultValue = Parameter::GetDefaultParameterValueObject(method, &method->parameters[i], &isExplicitySetNullDefaultValue);
+                defaultValue = Parameter::GetDefaultParameterValueObject(method, i, &isExplicitySetNullDefaultValue);
                 if (defaultValue == NULL && !isExplicitySetNullDefaultValue)
                     defaultValue = GetObjectForMissingDefaultValue(param->AttrsImpl);
             }
@@ -579,8 +581,7 @@ namespace vm
         if (method->method->is_inflated)
             methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
 
-        const ::ParameterInfo* info = &methodWithParameterAttributeInformation->parameters[parameter->PositionImpl];
-        return MetadataCache::GenerateCustomAttributesCache(methodWithParameterAttributeInformation->klass->image, info->token);
+        return MetadataCache::GenerateCustomAttributesCache(methodWithParameterAttributeInformation->klass->image, Method::GetParameterToken(method->method, parameter->PositionImpl));
     }
 
     bool Reflection::HasAttribute(Il2CppReflectionParameter *parameter, Il2CppClass* attribute)
@@ -598,8 +599,7 @@ namespace vm
         if (method->method->is_inflated)
             methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
 
-        const ::ParameterInfo* info = &methodWithParameterAttributeInformation->parameters[parameter->PositionImpl];
-        return MetadataCache::HasAttribute(methodWithParameterAttributeInformation->klass->image, info->token, attribute);
+        return MetadataCache::HasAttribute(methodWithParameterAttributeInformation->klass->image, Method::GetParameterToken(method->method, parameter->PositionImpl), attribute);
     }
 
     CustomAttributesCache* Reflection::GetCustomAttributesCacheFor(const Il2CppAssembly *assembly)
