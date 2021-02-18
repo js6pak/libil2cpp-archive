@@ -1121,7 +1121,17 @@ namespace vm
                 const Il2CppMethodDefinition* methodDefinition = MetadataCache::GetMethodDefinitionFromIndex(index);
 
                 newMethod->name = MetadataCache::GetStringFromIndex(methodDefinition->nameIndex);
-                newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodDefinition->token);
+
+                if (klass->valuetype)
+                {
+                    Il2CppMethodPointer adjustorThunk = MetadataCache::GetAdjustorThunk(klass->image, methodDefinition->token);
+                    if (adjustorThunk != NULL)
+                        newMethod->methodPointer = adjustorThunk;
+                }
+
+                if (newMethod->methodPointer == NULL)
+                    newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodDefinition->token);
+
                 newMethod->invoker_method = MetadataCache::GetMethodInvoker(klass->image, methodDefinition->token);
                 newMethod->klass = klass;
                 newMethod->return_type = MetadataCache::GetIl2CppTypeFromIndex(methodDefinition->returnType);

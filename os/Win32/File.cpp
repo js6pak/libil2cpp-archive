@@ -317,17 +317,26 @@ namespace os
     {
         DWORD flagsAndAttributes;
 
-        if (options & kFileOptionsEncrypted)
+        if (options != 0)
         {
-            flagsAndAttributes = FILE_ATTRIBUTE_ENCRYPTED;
+            if (options & kFileOptionsEncrypted)
+                flagsAndAttributes = FILE_ATTRIBUTE_ENCRYPTED;
+            else
+                flagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
+            if (options & kFileOptionsDeleteOnClose)
+                flagsAndAttributes |= FILE_FLAG_DELETE_ON_CLOSE;
+            if (options & kFileOptionsSequentialScan)
+                flagsAndAttributes |= FILE_FLAG_SEQUENTIAL_SCAN;
+            if (options & kFileOptionsRandomAccess)
+                flagsAndAttributes |= FILE_FLAG_RANDOM_ACCESS;
+
+            if (options & kFileOptionsWriteThrough)
+                flagsAndAttributes |= FILE_FLAG_WRITE_THROUGH;
         }
         else
         {
             flagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
         }
-
-        // Temporary flag does not mean temporary file.
-        flagsAndAttributes |= options & ~(kFileOptionsEncrypted | kFileOptionsTemporary);
 
         int error;
         UnityPalFileAttributes currentAttributes = File::GetFileAttributes(path, &error);
