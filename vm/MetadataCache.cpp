@@ -682,6 +682,9 @@ Il2CppMethodPointer il2cpp::vm::MetadataCache::GetMethodPointer(const MethodInfo
     if (iter != s_MethodTableMap.end())
     {
         IL2CPP_ASSERT(iter->second->invokerIndex >= 0);
+        if (iter->second->adjustorThunkIndex != -1)
+            return s_Il2CppCodeRegistration->genericAdjustorThunks[iter->second->adjustorThunkIndex];
+
         if (static_cast<uint32_t>(iter->second->methodIndex) < s_Il2CppCodeRegistration->genericMethodPointersCount)
             return s_Il2CppCodeRegistration->genericMethodPointers[iter->second->methodIndex];
         return NULL;
@@ -694,6 +697,9 @@ Il2CppMethodPointer il2cpp::vm::MetadataCache::GetMethodPointer(const MethodInfo
     if (iter != s_MethodTableMap.end())
     {
         IL2CPP_ASSERT(iter->second->invokerIndex >= 0);
+        if (iter->second->adjustorThunkIndex != -1)
+            return s_Il2CppCodeRegistration->genericAdjustorThunks[iter->second->adjustorThunkIndex];
+
         if (static_cast<uint32_t>(iter->second->methodIndex) < s_Il2CppCodeRegistration->genericMethodPointersCount)
             return s_Il2CppCodeRegistration->genericMethodPointers[iter->second->methodIndex];
         return NULL;
@@ -769,6 +775,29 @@ const Il2CppGenericMethod* il2cpp::vm::MetadataCache::GetGenericMethodFromIndex(
     s_GenericMethodTable[index] = GetGenericMethod(methodDefinition, classInst, methodInst);
 
     return s_GenericMethodTable[index];
+}
+
+static int CompareIl2CppTokenAdjustorThunkPair(const void* pkey, const void* pelem)
+{
+    return (int)(((Il2CppTokenAdjustorThunkPair*)pkey)->token - ((Il2CppTokenAdjustorThunkPair*)pelem)->token);
+}
+
+Il2CppMethodPointer il2cpp::vm::MetadataCache::GetAdjustorThunk(const Il2CppImage* image, uint32_t token)
+{
+    if (image->codeGenModule->adjustorThunkCount == 0)
+        return NULL;
+
+    Il2CppTokenAdjustorThunkPair key;
+    memset(&key, 0, sizeof(Il2CppTokenAdjustorThunkPair));
+    key.token = token;
+
+    const Il2CppTokenAdjustorThunkPair* result = (const Il2CppTokenAdjustorThunkPair*)bsearch(&key, image->codeGenModule->adjustorThunks,
+        image->codeGenModule->adjustorThunkCount, sizeof(Il2CppTokenAdjustorThunkPair), CompareIl2CppTokenAdjustorThunkPair);
+
+    if (result == NULL)
+        return NULL;
+
+    return result->adjustorThunk;
 }
 
 Il2CppMethodPointer il2cpp::vm::MetadataCache::GetMethodPointer(const Il2CppImage* image, uint32_t token)

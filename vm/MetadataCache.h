@@ -68,6 +68,7 @@ namespace vm
         static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index);
         static void InitializeMethodMetadata(uint32_t index);
 
+        static Il2CppMethodPointer GetAdjustorThunk(const Il2CppImage* image, uint32_t token);
         static Il2CppMethodPointer GetMethodPointer(const Il2CppImage* image, uint32_t token);
         static InvokerMethod GetMethodInvoker(const Il2CppImage* image, uint32_t token);
         static const Il2CppInteropData* GetInteropDataForType(const Il2CppType* type);
