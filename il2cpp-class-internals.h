@@ -591,6 +591,12 @@ typedef struct Il2CppTokenIndexMethodTuple
     uint32_t genericMethodIndex;
 } Il2CppTokenIndexMethodTuple;
 
+typedef struct Il2CppTokenAdjustorThunkPair
+{
+    uint32_t token;
+    Il2CppMethodPointer adjustorThunk;
+} Il2CppTokenAdjustorThunkPair;
+
 typedef struct Il2CppWindowsRuntimeFactoryTableEntry
 {
     const Il2CppType* type;
@@ -602,6 +608,8 @@ typedef struct Il2CppCodeGenModule
     const char* moduleName;
     const uint32_t methodPointerCount;
     const Il2CppMethodPointer* methodPointers;
+    const uint32_t adjustorThunkCount;
+    const Il2CppTokenAdjustorThunkPair* adjustorThunks;
     const int32_t* invokerIndices;
     const uint32_t reversePInvokeWrapperCount;
     const Il2CppTokenIndexMethodTuple* reversePInvokeWrapperIndices;
@@ -622,6 +630,7 @@ typedef struct Il2CppCodeRegistration
     const Il2CppMethodPointer* reversePInvokeWrappers;
     uint32_t genericMethodPointersCount;
     const Il2CppMethodPointer* genericMethodPointers;
+    const Il2CppMethodPointer* genericAdjustorThunks;
     uint32_t invokerPointersCount;
     const InvokerMethod* invokerPointers;
     CustomAttributeIndex customAttributeCount;
