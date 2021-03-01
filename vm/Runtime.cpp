@@ -584,6 +584,7 @@ namespace vm
             if (method->return_type->valuetype)
             {
                 Il2CppClass* returnType = Class::FromIl2CppType(method->return_type);
+                Class::Init(returnType);
                 void* returnValue = alloca(returnType->instance_size - sizeof(Il2CppObject));
                 method->invoker_method(method->methodPointer, method, obj, params, returnValue);
                 return Object::Box(returnType, returnValue);
