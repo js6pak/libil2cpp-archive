@@ -611,15 +611,37 @@ bool MethodHasParameters(const RuntimeMethod* method);
 
 void il2cpp_codegen_runtime_class_init(RuntimeClass* klass);
 
-#define IL2CPP_RUNTIME_CLASS_INIT(klass) do { if((klass)->has_cctor && !(klass)->cctor_finished) il2cpp_codegen_runtime_class_init ((klass)); } while (0)
+inline void il2cpp_codegen_runtime_class_init_inline(RuntimeClass* klass)
+{
+    if (klass->has_cctor && !klass->cctor_finished)
+        il2cpp_codegen_runtime_class_init(klass);
+}
 
 // generic sharing
-#define IL2CPP_RGCTX_DATA(rgctxVar, index) (InitializedTypeInfo(rgctxVar[index].klass))
-#define IL2CPP_RGCTX_SIZEOF(rgctxVar, index) (il2cpp_codegen_sizeof(IL2CPP_RGCTX_DATA(rgctxVar, index)))
-#define IL2CPP_RGCTX_TYPE(rgctxVar, index) (rgctxVar[index].type)
-#define IL2CPP_RGCTX_METHOD_INFO(rgctxVar, index) (rgctxVar[index].method)
-#define IL2CPP_RGCTX_FIELD_INFO(klass, index) ((klass)->fields+index)
-#define IL2CPP_ARRAY_CALC_BYTE_OFFSET(runtimeArray, index) (runtimeArray->klass->element_size * (index))
+inline RuntimeClass* il2cpp_rgctx_data(const Il2CppRGCTXData* rgctxVar, int32_t index)
+{
+    return InitializedTypeInfo(rgctxVar[index].klass);
+}
+
+inline const Il2CppType* il2cpp_rgctx_type(const Il2CppRGCTXData* rgctxVar, int32_t index)
+{
+    return rgctxVar[index].type;
+}
+
+inline const MethodInfo* il2cpp_rgctx_method(const Il2CppRGCTXData* rgctxVar, int32_t index)
+{
+    return rgctxVar[index].method;
+}
+
+inline FieldInfo* il2cpp_rgctx_field(RuntimeClass* klass, int32_t index)
+{
+    return klass->fields + index;
+}
+
+inline uintptr_t il2cpp_array_calc_byte_offset(RuntimeArray* runtimeArray, il2cpp_array_size_t index)
+{
+    return runtimeArray->klass->element_size * index;
+}
 
 inline void ArrayElementTypeCheck(RuntimeArray* array, void* value)
 {
