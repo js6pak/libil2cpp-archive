@@ -248,11 +248,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #define RUNTIMEMESSAGE(name)    __FILE_UTF8__ "(" $Line ") : FIXME: Missing runtime implementation: " name
 #define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE_UTF8__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
-#ifndef IL2CPP_DEFAULT_DATA_DIR_PATH
-#define IL2CPP_DEFAULT_DATA_DIR_PATH Data
-#endif
-
-#define IL2CPP_DEFAULT_DATA_DIR_PATH_STR MAKE_STRING(STRINGIZE, IL2CPP_DEFAULT_DATA_DIR_PATH)
 
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)

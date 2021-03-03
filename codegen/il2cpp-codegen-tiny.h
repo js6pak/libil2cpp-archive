@@ -17,7 +17,6 @@
 #include "utils/MemoryUtils.h"
 #include "utils/StringView.h"
 #include <string>
-#include "gc/gc_wrapper.h"
 #include "vm-utils/icalls/mscorlib/System.Threading/Interlocked.h"
 
 struct Exception_t;
