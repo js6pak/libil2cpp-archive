@@ -184,6 +184,9 @@ namespace Reflection
                 }
 
                 m = vm::Object::GetVirtualMethod(thisPtr, m);
+                /* must pass the pointer to the value for valuetype methods */
+                if (m->klass->byval_arg.valuetype)
+                    obj = vm::Object::Unbox(thisPtr);
             }
             else
 #if IL2CPP_ENABLE_MONO_BUG_EMULATION    // Mono doesn't throw on null 'this' if it's an instance constructor, and class libs depend on this behaviour

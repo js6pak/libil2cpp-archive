@@ -901,7 +901,14 @@ void il2cpp_codegen_runtime_constrained_call(RuntimeClass* type, const RuntimeMe
 
         // The value type did not override the method, so we're making a call to a method declared on
         // System.Object, System.ValueType, or System.Enum so we need to box, but fake boxing should work
-        // becuase these methods will not mutate "this" and we can assume that they do not store the "this" pointer past the call
+        // because these methods will not mutate "this" and we can assume that they do not store the "this" pointer past the call
+        if (il2cpp::vm::Class::IsNullable(type))
+        {
+            if (!il2cpp::vm::Object::NullableHasValue(type, objBuffer))
+                il2cpp_codegen_raise_null_reference_exception();
+            type = il2cpp::vm::Class::GetNullableArgument(type);
+        }
+
         Il2CppFakeBoxBuffer* boxed = new(boxBuffer) Il2CppFakeBoxBuffer(type, objBuffer);
         constrainedMethod->invoker_method(constrainedMethod->methodPointer, constrainedMethod, boxed, args, retVal);
     }
