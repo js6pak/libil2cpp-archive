@@ -91,7 +91,7 @@ namespace metadata
 
     struct GenericArrayMethod
     {
-        std::string name;
+        const char* name;
         const MethodInfo* method;
         const MethodInfo* interfaceMethodDefinition;
     };
@@ -254,7 +254,7 @@ namespace metadata
 
             if (matchingInterfacesMethod != NULL)
             {
-                GenericArrayMethod generiArrayMethod = { name, method, matchingInterfacesMethod };
+                GenericArrayMethod generiArrayMethod = { StringUtils::StringDuplicate(name.c_str()), method, matchingInterfacesMethod };
                 genericArrayMethods.push_back(generiArrayMethod);
             }
         }
@@ -271,7 +271,7 @@ namespace metadata
     static MethodInfo* ConstructGenericArrayMethod(const GenericArrayMethod& genericArrayMethod, Il2CppClass* klass, Il2CppGenericContext* context)
     {
         MethodInfo* inflatedMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
-        inflatedMethod->name = StringUtils::StringDuplicate(genericArrayMethod.name.c_str());
+        inflatedMethod->name = genericArrayMethod.name;
         inflatedMethod->klass = klass;
 
         const MethodInfo* methodToCopyDataFrom = genericArrayMethod.method;
