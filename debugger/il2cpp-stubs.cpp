@@ -909,9 +909,6 @@ extern "C" {
     {
         error_init(error);
 
-        if (il2cpp::vm::Class::IsValuetype(((MethodInfo*)method)->klass))
-            obj = static_cast<Il2CppObject*>(obj) - 1;
-
         return (MonoObject*)il2cpp::vm::Runtime::Invoke((MethodInfo*)method, obj, params, (Il2CppException**)exc);
     }
 
