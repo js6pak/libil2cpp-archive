@@ -578,7 +578,7 @@ namespace vm
     {
         if (method->return_type->type == IL2CPP_TYPE_VOID)
         {
-            method->invoker_method(method->virtualMethodPointer, method, obj, params, NULL);
+            method->invoker_method(method->methodPointer, method, obj, params, NULL);
             return NULL;
         }
         else
@@ -588,13 +588,13 @@ namespace vm
                 Il2CppClass* returnType = Class::FromIl2CppType(method->return_type);
                 Class::Init(returnType);
                 void* returnValue = alloca(returnType->instance_size - sizeof(Il2CppObject));
-                method->invoker_method(method->virtualMethodPointer, method, obj, params, returnValue);
+                method->invoker_method(method->methodPointer, method, obj, params, returnValue);
                 return Object::Box(returnType, returnValue);
             }
             else
             {
                 Il2CppObject* returnValue = NULL;
-                method->invoker_method(method->virtualMethodPointer, method, obj, params, &returnValue);
+                method->invoker_method(method->methodPointer, method, obj, params, &returnValue);
                 return returnValue;
             }
         }
@@ -693,15 +693,39 @@ namespace vm
 
         // If it's not a constructor, just invoke directly
         if (strcmp(method->name, ".ctor") != 0 || method->klass == il2cpp_defaults.string_class)
-            return Runtime::Invoke(method, thisArg, convertedParameters, exception);
+        {
+            void* obj = thisArg;
+            if (Class::IsNullable(method->klass))
+            {
+                Il2CppObject* nullable;
+
+                /* Convert the unboxed vtype into a Nullable structure */
+                nullable = Object::New(method->klass);
+
+                Il2CppObject* boxed = Object::Box(method->klass->castClass, obj);
+                Object::NullableInit((uint8_t*)Object::Unbox(nullable), boxed, method->klass);
+                obj = Object::Unbox(nullable);
+            }
+
+            return Runtime::Invoke(method, obj, convertedParameters, exception);
+        }
 
         // If it is a construction, we need to construct a return value and allocate object if needed
         Il2CppObject* instance;
 
         if (thisArg == NULL)
         {
-            thisArg = instance = Object::New(thisType);
-            Runtime::Invoke(method, thisArg, convertedParameters, exception);
+            if (Class::IsNullable(thisType))
+            {
+                // in the case of a Nullable constructor we can just return a boxed value type
+                IL2CPP_ASSERT(convertedParameters);
+                instance = Object::Box(thisType->castClass, convertedParameters[0]);
+            }
+            else
+            {
+                thisArg = instance = Object::New(thisType);
+                Runtime::Invoke(method, thisType->byval_arg.valuetype ? Object::Unbox((Il2CppObject*)thisArg) : thisArg, convertedParameters, exception);
+            }
         }
         else
         {
