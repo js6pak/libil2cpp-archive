@@ -129,6 +129,8 @@ int64_t UnityPalRead64(volatile int64_t* addr)
 #include "Win32/AtomicImpl-c-api.h"
 #elif IL2CPP_TARGET_PS4
 #include "PS4/AtomicImpl-c-api.h"  // has to come earlier than posix
+#elif IL2CPP_TARGET_PS5
+#include "PS5/AtomicImpl-c-api.h"  // has to come earlier than posix
 #elif IL2CPP_TARGET_PSP2
 #include "PSP2/AtomicImpl-c-api.h"
 #elif IL2CPP_TARGET_POSIX

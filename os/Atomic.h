@@ -176,7 +176,7 @@ namespace os
 
 #elif IL2CPP_TARGET_WINDOWS
 #include "os/Win32/AtomicImpl.h"
-#elif IL2CPP_TARGET_PS4
+#elif IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5
 #include "os/AtomicImpl.h"  // has to come earlier than posix
 #elif IL2CPP_TARGET_PSP2
 #include "os/PSP2/AtomicImpl.h"
