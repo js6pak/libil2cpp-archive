@@ -1,7 +1,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-vm-support.h"
 
-#if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4
+#if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PS5
 #include "il2cpp-class-internals.h"
 #include "os/Environment.h"
 #include "il2cpp-api.h"
