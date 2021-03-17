@@ -1,5 +1,7 @@
 #pragma once
 
+#include "il2cpp-config.h"
+
 #if IL2CPP_THREADS_PTHREAD && !IL2CPP_TINY_WITHOUT_DEBUGGER
 
 #include "os/ErrorCodes.h"
@@ -7,7 +9,6 @@
 
 #include <pthread.h>
 
-#define _unused(x) ((void)x)
 namespace il2cpp
 {
 namespace os
@@ -19,15 +20,17 @@ namespace os
         {
             pthread_key_t key;
             int result = pthread_key_create(&key, NULL);
-            IL2CPP_ASSERT(!result);
-            _unused(result);
+            IL2CPP_ASSERT(result == 0);
+            NO_UNUSED_WARNING(result);
 
             m_Key = key;
         }
 
         inline ~ThreadLocalValueImpl()
         {
-            IL2CPP_ASSERT(!pthread_key_delete(m_Key));
+            int result = pthread_key_delete(m_Key);
+            IL2CPP_ASSERT(result == 0);
+            NO_UNUSED_WARNING(result);
         }
 
         inline ErrorCode SetValue(void* value)
