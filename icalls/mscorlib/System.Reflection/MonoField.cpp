@@ -69,7 +69,7 @@ namespace Reflection
             fieldAddress = reinterpret_cast<uint8_t*>(obj) + fieldInfo->offset;
         }
 
-        if (fieldType->valuetype)
+        if (fieldType->byval_arg.valuetype)
         {
             if (!vm::Class::IsNullable(fieldType))
             {

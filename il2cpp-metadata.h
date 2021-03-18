@@ -85,7 +85,7 @@ typedef union Il2CppRGCTXDefinitionData
 typedef struct Il2CppRGCTXDefinition
 {
     Il2CppRGCTXDataType type;
-    Il2CppRGCTXDefinitionData data;
+    const Il2CppRGCTXDefinitionData* data;
 } Il2CppRGCTXDefinition;
 
 typedef struct

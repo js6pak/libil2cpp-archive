@@ -415,7 +415,7 @@ NORETURN inline void il2cpp_codegen_raise_exception(Exception_t* ex, RuntimeMeth
     IL2CPP_UNREACHABLE;
 }
 
-NORETURN inline void il2cpp_codegen_raise_execution_engine_exception(const char* message)
+NORETURN inline void il2cpp_codegen_raise_exception(const char* message)
 {
     tiny::vm::Exception::Raise(message);
     IL2CPP_UNREACHABLE;
@@ -679,9 +679,3 @@ void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, T* value)
 }
 
 void il2cpp_codegen_marshal_store_last_error();
-
-template<typename T>
-inline void* il2cpp_codegen_unsafe_cast(T* ptr)
-{
-    return reinterpret_cast<void*>(ptr);
-}

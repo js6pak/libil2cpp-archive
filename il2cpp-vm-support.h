@@ -17,14 +17,12 @@
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_NOT_IMPLEMENTED(func) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) IL2CPP_ASSERT(0 && "This is not implemented wihout a VM runtime backend.")
-    #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) NULL
     #define IL2CPP_VM_PROFILE_FILEIO(kind, count) NULL
 #elif RUNTIME_TINY
     #include "vm/StackTrace.h"
     #include "vm/DebugMetadata.h"
     #define IL2CPP_VM_RAISE_COM_EXCEPTION(hresult, defaultToCOMException) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
-    #define IL2CPP_VM_SHUTDOWN() IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) IL2CPP_ASSERT(0 && "This is not implemented without a VM runtime backend.")
 #if IL2CPP_TINY_DEBUG_METADATA
     #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) tiny::vm::DebugMetadata::GetMethodNameFromMethodDefinitionIndex(key->methodIndex)
@@ -49,7 +47,6 @@ typedef TinyMethod VmMethod;
     #define IL2CPP_VM_NOT_SUPPORTED(func, reason) NOT_SUPPORTED_IL2CPP(func, reason)
     #define IL2CPP_VM_NOT_IMPLEMENTED(func) IL2CPP_NOT_IMPLEMENTED_ICALL(func)
     #define IL2CPP_VM_METHOD_METADATA_FROM_METHOD_KEY(key) il2cpp::vm::MetadataCache::GetMethodInfoFromMethodHandle (key->methodHandle)
-    #define IL2CPP_VM_SHUTDOWN() il2cpp_shutdown()
     #define IL2CPP_VM_GET_CREATE_CCW_EXCEPTION(ex) vm::CCW::GetOrCreate(reinterpret_cast<Il2CppObject*>(ex), Il2CppIUnknown::IID)
     #define IL2CPP_VM_PROFILE_FILEIO(kind, count) if (il2cpp::vm::Profiler::ProfileFileIO()) il2cpp::vm::Profiler::FileIO(kind, count);
 
