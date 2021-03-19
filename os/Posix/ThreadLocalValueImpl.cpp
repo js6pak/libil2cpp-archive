@@ -6,8 +6,6 @@
 
 #include <pthread.h>
 
-#define _unused(x) ((void)x)
-
 namespace il2cpp
 {
 namespace os
@@ -17,14 +15,16 @@ namespace os
         pthread_key_t key;
         int result = pthread_key_create(&key, NULL);
         IL2CPP_ASSERT(!result);
-        _unused(result);
+        NO_UNUSED_WARNING(result);
 
         m_Key = key;
     }
 
     ThreadLocalValueImpl::~ThreadLocalValueImpl()
     {
-        IL2CPP_ASSERT(!pthread_key_delete(m_Key));
+        int result = pthread_key_delete(m_Key);
+        IL2CPP_ASSERT(result == 0);
+        NO_UNUSED_WARNING(result);
     }
 
     ErrorCode ThreadLocalValueImpl::SetValue(void* value)

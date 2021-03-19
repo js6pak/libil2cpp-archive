@@ -7,6 +7,7 @@
 #include "Type.h"
 
 #include "vm/Class.h"
+#include "vm/GenericContainer.h"
 #include "vm/Image.h"
 #include "vm/Reflection.h"
 #include "vm/MetadataCache.h"
@@ -147,7 +148,7 @@ namespace System
                     const Il2CppGenericContainer *container = il2cpp::vm::MetadataCache::GetGenericContainerFromIndex(param->ownerIndex);
                     monoParam->pklass = NULL;
                     if (container)
-                        monoParam->pklass = il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(container->ownerIndex);
+                        monoParam->pklass = il2cpp::vm::GenericContainer::GetDeclaringType(container);
 
                     monoParam->constraints = (Il2CppClass**)IL2CPP_MALLOC(sizeof(Il2CppClass*) * (param->constraintsCount + 1));
                     for (int i = 0; i < param->constraintsCount; ++i)
