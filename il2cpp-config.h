@@ -379,8 +379,6 @@ const int ipv6AddressSize = 16;
 // PS4/PS2: strtol_d doesn't exist
 #define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2 && !IL2CPP_TARGET_NOVA)
 
-#define NO_UNUSED_WARNING(expr) (void)(expr)
-
 typedef int32_t il2cpp_hresult_t;
 
 // Sorted numerically!
