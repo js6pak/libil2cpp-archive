@@ -270,3 +270,5 @@
 #else
     #error please define your target architecture size
 #endif
+
+#define NO_UNUSED_WARNING(expr) (void)(expr)

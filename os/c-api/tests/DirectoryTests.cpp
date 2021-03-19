@@ -467,6 +467,7 @@ SUITE(Directory)
         CHECK_EQUAL(0, UnityPalDirectoryCloseOSHandle(testFind));
     }
 
+#if !IL2CPP_TARGET_ANDROID
     TEST_FIXTURE(FileSytemEntriesFixture, FindFirstFileCorrectlyFillsInResultFileName)
     {
 #if IL2CPP_TARGET_PS4
@@ -479,6 +480,7 @@ SUITE(Directory)
         UnityPalDirectoryCloseOSHandle(testFind);
         CHECK_EQUAL(expectedFile, resultFileName);
     }
+#endif
 
     TEST_FIXTURE(FileSytemEntriesFixture, FindFirstFileResultAttributesAreValid)
     {
@@ -496,6 +498,7 @@ SUITE(Directory)
         CHECK_EQUAL(il2cpp::os::kErrorCodeSuccess, returnErrorCode);
     }
 
+#if !IL2CPP_TARGET_ANDROID
     TEST_FIXTURE(FileSytemEntriesFixture, FindNextFileReturnsGoodStrings)
     {
         // UnityPalDirectoryFindNextFile will find "."" and ".." , we need to hit it
@@ -513,6 +516,7 @@ SUITE(Directory)
         UnityPalDirectoryCloseOSHandle(testFind);
         CHECK_EQUAL(expectedFile, thirdResultFileName);
     }
+#endif
 
     TEST_FIXTURE(FileSytemEntriesFixture, FindNextFileResultAttributesAreValid)
     {
