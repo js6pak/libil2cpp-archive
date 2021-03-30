@@ -613,7 +613,7 @@ void il2cpp_codegen_runtime_class_init(RuntimeClass* klass);
 
 inline void il2cpp_codegen_runtime_class_init_inline(RuntimeClass* klass)
 {
-    if (klass->has_cctor && !klass->cctor_finished)
+    if (!klass->cctor_finished_or_no_cctor)
         il2cpp_codegen_runtime_class_init(klass);
 }
 
