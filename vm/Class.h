@@ -134,6 +134,7 @@ namespace vm
         static Il2CppClass* GetDeclaringType(Il2CppClass* klass);
         static const MethodInfo* GetVirtualMethod(Il2CppClass* klass, const MethodInfo* method);
 
+        static void SetClassInitializationError(Il2CppClass* klass, Il2CppException* error);
         static void UpdateInitializedAndNoError(Il2CppClass *klass);
 
         static IL2CPP_FORCE_INLINE bool IsGenericClassAssignableFrom(const Il2CppClass* klass, const Il2CppClass* oklass, const Il2CppImage* genericContainerImage, Il2CppMetadataGenericContainerHandle genericContainer)

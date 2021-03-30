@@ -18,6 +18,7 @@
 #include "vm/Domain.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
+#include "gc/GCHandle.h"
 #include "vm/Image.h"
 #include "vm/LastError.h"
 #include "vm/MetadataAlloc.h"
@@ -561,7 +562,7 @@ namespace vm
         // in every invoke call as that blows up the code size.
         try
         {
-            if ((method->flags & METHOD_ATTRIBUTE_STATIC) && method->klass && method->klass->has_cctor && !method->klass->cctor_finished)
+            if ((method->flags & METHOD_ATTRIBUTE_STATIC) && method->klass && !method->klass->cctor_finished_or_no_cctor)
                 ClassInit(method->klass);
 
             return InvokeWithThrow(method, obj, params);
@@ -864,18 +865,14 @@ namespace vm
 // 4. Just before calling class instance constructor from a derived class instance constructor
     void Runtime::ClassInit(Il2CppClass *klass)
     {
-        // Nothing to do if class has no static constructor.
-        if (!klass->has_cctor)
-            return;
-
-        // Nothing to do if class constructor already ran.
-        if (os::Atomic::CompareExchange(&klass->cctor_finished, 1, 1) == 1)
+        // Nothing to do if class has no static constructor or already ran.
+        if (klass->cctor_finished_or_no_cctor)
             return;
 
         s_TypeInitializationLock.Acquire();
 
         // See if some thread ran it while we acquired the lock.
-        if (os::Atomic::CompareExchange(&klass->cctor_finished, 1, 1) == 1)
+        if (os::Atomic::CompareExchange(&klass->cctor_finished_or_no_cctor, 1, 1) == 1)
         {
             s_TypeInitializationLock.Release();
             return;
@@ -892,7 +889,7 @@ namespace vm
                 return;
 
             // Wait for other thread to finish executing the constructor.
-            while (os::Atomic::CompareExchange(&klass->cctor_finished, 1, 1) == 0)
+            while (os::Atomic::CompareExchange(&klass->cctor_finished_or_no_cctor, 1, 1) != 1 && os::Atomic::CompareExchange(&klass->initializationExceptionGCHandle, 0, 0) == 0)
             {
                 os::Thread::Sleep(1);
             }
@@ -913,18 +910,25 @@ namespace vm
                 vm::Runtime::Invoke(cctor, NULL, NULL, &exception);
             }
 
-            // Let other threads know we finished.
-            os::Atomic::Exchange(&klass->cctor_finished, 1);
             os::Atomic::ExchangePointer((size_t**)&klass->cctor_thread, (size_t*)0);
 
             // Deal with exceptions.
-            if (exception != NULL)
+            if (exception == NULL)
+            {
+                // Let other threads know we finished.
+                os::Atomic::Exchange(&klass->cctor_finished_or_no_cctor, 1);
+            }
+            else
             {
                 const Il2CppType *type = Class::GetType(klass);
                 std::string n = il2cpp::utils::StringUtils::Printf("The type initializer for '%s' threw an exception.", Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_IL).c_str());
-                Il2CppException* typeInitializationException = Exception::GetTypeInitializationException(n.c_str(), exception);
-                Exception::Raise(typeInitializationException);
+                Class::SetClassInitializationError(klass, Exception::GetTypeInitializationException(n.c_str(), exception));
             }
+        }
+
+        if (klass->initializationExceptionGCHandle)
+        {
+            il2cpp::vm::Exception::Raise((Il2CppException*)gc::GCHandle::GetTarget(klass->initializationExceptionGCHandle));
         }
     }
 
