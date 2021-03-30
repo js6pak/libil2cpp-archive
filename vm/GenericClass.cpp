@@ -200,6 +200,8 @@ namespace vm
             klass->element_class = klass->castClass = klass;
 
             klass->has_cctor = definition->has_cctor;
+            klass->cctor_finished_or_no_cctor = !definition->has_cctor;
+
             klass->has_finalize = definition->has_finalize;
             klass->native_size = klass->thread_static_fields_offset = -1;
             klass->token = definition->token;
