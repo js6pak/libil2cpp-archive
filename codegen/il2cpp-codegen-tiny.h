@@ -108,6 +108,7 @@ inline void UnBoxNullable(Il2CppObject* obj, TinyType* expectedBoxedClass, void*
 
     if (obj == NULL)
     {
+        memset(storage, 0, valueSize);
         *(static_cast<uint8_t*>(storage) + valueSize) = false;
     }
     else

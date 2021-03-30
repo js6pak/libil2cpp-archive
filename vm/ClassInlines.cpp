@@ -13,7 +13,7 @@ namespace vm
     {
         Class::Init(klass);
 
-        if (klass->has_initialization_error)
+        if (klass->initializationExceptionGCHandle)
             il2cpp::vm::Exception::Raise((Il2CppException*)gc::GCHandle::GetTarget(klass->initializationExceptionGCHandle));
 
         return klass;
@@ -26,7 +26,7 @@ namespace vm
 
         Class::Init(klass);
 
-        if (klass->has_initialization_error)
+        if (klass->initializationExceptionGCHandle)
             return NULL;
 
         return klass;

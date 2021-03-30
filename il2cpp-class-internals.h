@@ -417,7 +417,7 @@ typedef struct Il2CppClass
     uint32_t initializationExceptionGCHandle;
 
     uint32_t cctor_started;
-    uint32_t cctor_finished;
+    uint32_t cctor_finished_or_no_cctor;
     ALIGN_TYPE(8) size_t cctor_thread;
 
     // Remaining fields are always valid except where noted
@@ -448,7 +448,7 @@ typedef struct Il2CppClass
     uint8_t naturalAligment; // Alignment of this type without accounting for packing
     uint8_t packingSize;
 
-    // this is critical for performance of Class::InitFromCodegen. Equals to initialized && !has_initialization_error at all times.
+    // this is critical for performance of Class::InitFromCodegen. Equals to initialized && !initializationExceptionGCHandle at all times.
     // Use Class::UpdateInitializedAndNoError to update
     uint8_t initialized_and_no_error : 1;
 
@@ -464,7 +464,6 @@ typedef struct Il2CppClass
     uint8_t is_blittable : 1;
     uint8_t is_import_or_windows_runtime : 1;
     uint8_t is_vtable_initialized : 1;
-    uint8_t has_initialization_error : 1;
     VirtualInvokeData vtable[IL2CPP_ZERO_LEN_ARRAY];
 } Il2CppClass;
 

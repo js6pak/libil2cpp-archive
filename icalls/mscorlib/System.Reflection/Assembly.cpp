@@ -3,7 +3,6 @@
 #include <vector>
 #include <algorithm>
 #include "icalls/mscorlib/System.Reflection/Assembly.h"
-#include "icalls/mscorlib/System.Reflection/Module.h"
 #include "utils/StringUtils.h"
 #include "utils/PathUtils.h"
 #include "os/File.h"
@@ -25,7 +24,6 @@
 #include "vm/Runtime.h"
 #include "vm/String.h"
 #include "vm/Type.h"
-#include "vm/Array.h"
 #include "il2cpp-class-internals.h"
 #include "mono-structs.h"
 #include <limits>
@@ -285,7 +283,7 @@ namespace Reflection
     Il2CppArray* Assembly::GetTypes(Il2CppReflectionAssembly* thisPtr, bool exportedOnly)
     {
         const Il2CppImage* image = thisPtr->assembly->image;
-        return Module::InternalGetTypes(vm::Reflection::GetModuleObject(image));
+        return il2cpp::vm::Image::GetTypes(image, exportedOnly);
     }
 
     Il2CppString* Assembly::InternalImageRuntimeVersion(Il2CppAssembly* self)
