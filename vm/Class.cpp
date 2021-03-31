@@ -1940,14 +1940,14 @@ namespace vm
                     case IL2CPP_TYPE_ARRAY:
                     case IL2CPP_TYPE_VAR:
                     case IL2CPP_TYPE_MVAR:
-                        IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
+                        IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
                         set_bit(bitmap, offset / sizeof(void*));
                         maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                         break;
                     case IL2CPP_TYPE_GENERICINST:
                         if (!Type::GenericInstIsValuetype(type))
                         {
-                            IL2CPP_ASSERT(0 == (field->offset % sizeof(void*)));
+                            IL2CPP_ASSERT(0 == (offset % sizeof(void*)));
                             set_bit(bitmap, offset / sizeof(void*));
                             maxSetBit = std::max(maxSetBit, offset / sizeof(void*));
                             break;
