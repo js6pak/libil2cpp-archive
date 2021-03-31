@@ -32,13 +32,24 @@ namespace il2cpp
 {
 namespace os
 {
-#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
 
     bool File::Isatty(FileHandle* fileHandle)
     {
         DWORD mode;
         return GetConsoleMode((HANDLE)fileHandle, &mode) != 0;
     }
+
+#elif IL2CPP_TARGET_WINDOWS_GAMES
+    bool File::Isatty(FileHandle* fileHandle)
+    {
+        IL2CPP_VM_NOT_SUPPORTED("Isatty", "Console functions are not supported on Windows Games platforms.");
+        return false;
+    }
+
+#endif
+
+#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
 
     FileHandle* File::GetStdInput()
     {

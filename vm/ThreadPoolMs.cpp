@@ -51,13 +51,15 @@ namespace vm
             const MethodInfo *method = asyncResult->async_delegate->method;
             void** outArgsPtr = (void**)il2cpp_array_addr(arrayOutArgs, Il2CppObject*, 0);
 
-            for (il2cpp_array_size_t i = 0; i < arrayOutArgs->max_length; ++i)
+            il2cpp_array_size_t arrayOutArgsIndex = 0;
+            for (size_t methodParameterIndex = 0; methodParameterIndex < method->parameters_count; methodParameterIndex++)
             {
-                const Il2CppType* paramType = method->parameters[i].parameter_type;
+                const Il2CppType* paramType = method->parameters[methodParameterIndex].parameter_type;
 
+                // Assume that arrayOutArgs only contains parameters that are passed by reference.
                 if (!paramType->byref)
                     continue;
-
+                IL2CPP_ASSERT(arrayOutArgsIndex < arrayOutArgs->max_length);
                 Il2CppClass *paramClass = il2cpp_class_from_type(paramType);
 
                 if (paramClass->valuetype)
@@ -65,12 +67,13 @@ namespace vm
                     IL2CPP_ASSERT(paramClass->native_size > 0 && "EndInvoke: Invalid native_size found when trying to copy a value type in the out_args.");
 
                     // NOTE(gab): in case of value types, we need to copy the data over.
-                    memcpy(out_args[i], il2cpp::vm::Object::Unbox((Il2CppObject*)outArgsPtr[i]), paramClass->native_size);
+                    memcpy(out_args[arrayOutArgsIndex], il2cpp::vm::Object::Unbox((Il2CppObject*)outArgsPtr[arrayOutArgsIndex]), paramClass->native_size);
                 }
                 else
                 {
-                    *((void**)out_args[i]) = outArgsPtr[i];
+                    *((void**)out_args[arrayOutArgsIndex]) = outArgsPtr[arrayOutArgsIndex];
                 }
+                arrayOutArgsIndex++;
             }
         }
 
