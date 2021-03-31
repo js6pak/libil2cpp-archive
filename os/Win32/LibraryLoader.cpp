@@ -38,7 +38,7 @@ namespace os
         const HardcodedPInvokeDependencyFunction* functions;
     };
 
-#if !IL2CPP_TARGET_WINDOWS_DESKTOP && !IL2CPP_TARGET_WINDOWS_GAMES
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP
     const HardcodedPInvokeDependencyFunction kAdvapiFunctions[] =
     {
 #if !IL2CPP_TARGET_XBOXONE
@@ -68,7 +68,7 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetFullPathName),
     };
-
+#if !IL2CPP_TARGET_WINDOWS_GAMES
     const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
     {
         HARDCODED_DEPENDENCY_FUNCTION(GetNetworkParams),
@@ -77,7 +77,7 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(GetIfEntry),
 #endif
     };
-
+#endif
 #if !IL2CPP_TARGET_WINDOWS_DESKTOP && !IL2CPP_TARGET_WINDOWS_GAMES
     const HardcodedPInvokeDependencyFunction kTimezoneFunctions[] =
     {
@@ -107,7 +107,9 @@ namespace os
         HARDCODED_DEPENDENCY_LIBRARY(L"api-ms-win-core-timezone-l1-1-0", kTimezoneFunctions),
 #endif
         HARDCODED_DEPENDENCY_LIBRARY(L"kernel32", kKernel32Functions),
+#if !IL2CPP_TARGET_WINDOWS_GAMES
         HARDCODED_DEPENDENCY_LIBRARY(L"iphlpapi", kiphlpapiFunctions),
+#endif // !IL2CPP_TARGET_WINDOWS_GAMES
 #if IL2CPP_TARGET_WINRT // Win8+, plus needs to be looked up dynamically on Xbox One
         HARDCODED_DEPENDENCY_LIBRARY(L"wintypes", kWinTypesFunctions),
 #endif
