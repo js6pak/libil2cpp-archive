@@ -505,6 +505,7 @@ namespace os
             case kProtocolTypePup:
             case kProtocolTypeUdp:
             case kProtocolTypeIdp:
+            case kProtocolTypeIcmpV6:
                 // In this case the enum values map exactly.
                 return (int32_t)protocol;
 
