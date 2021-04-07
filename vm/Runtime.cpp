@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "os/CrashHelpers.h"
 #include "os/Environment.h"
 #include "os/File.h"
 #include "os/Image.h"
@@ -29,10 +30,12 @@
 #include "vm/Runtime.h"
 #include "vm/Thread.h"
 #include "vm/Type.h"
+#include "vm/StackTrace.h"
 #include "vm/String.h"
 #include "vm/Object.h"
 #include "vm-utils/Debugger.h"
 #include "vm/Profiler.h"
+#include "utils/Logging.h"
 #include <string>
 #include <map>
 #include "il2cpp-class-internals.h"
@@ -1010,5 +1013,33 @@ namespace vm
     {
         return MissingMethodInvoker;
     }
+
+#if IL2CPP_TINY
+    void Runtime::FailFast(const std::string& message)
+    {
+        if (!message.empty())
+        {
+            il2cpp::utils::Logging::Write(message.c_str());
+        }
+        else
+        {
+            il2cpp::utils::Logging::Write("No error message was provided. Hopefully the stack trace can provide some information.");
+        }
+
+        const char* managedStackTrace = vm::StackTrace::GetStackTrace();
+        if (managedStackTrace != NULL && strlen(managedStackTrace) != 0)
+        {
+            std::string managedStackTraceMessage = std::string("Managed stack trace:\n") + managedStackTrace;
+            il2cpp::utils::Logging::Write(managedStackTraceMessage.c_str());
+        }
+        else
+        {
+            il2cpp::utils::Logging::Write("No managed stack trace exists. Make sure this is a development build to enable managed stack traces.");
+        }
+
+        il2cpp::os::CrashHelpers::Crash();
+    }
+
+#endif
 } /* namespace vm */
 } /* namespace il2cpp */
