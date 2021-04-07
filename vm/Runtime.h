@@ -65,6 +65,10 @@ namespace vm
 
         static InvokerMethod GetMissingMethodInvoker();
 
+#if IL2CPP_TINY
+        static void FailFast(const std::string& message);
+#endif
+
     private:
         static void CallUnhandledExceptionDelegate(Il2CppDomain* domain, Il2CppDelegate* delegate, Il2CppException* exc);
         static Il2CppObject* CreateUnhandledExceptionEventArgs(Il2CppException* exc);
