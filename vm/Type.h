@@ -33,7 +33,6 @@ namespace vm
         {
             std::string name;
             std::string culture;
-            std::string hash_value;
             std::string public_key;
             char public_key_token[kPublicKeyTokenLength];
             uint32_t hash_alg;
