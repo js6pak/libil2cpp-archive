@@ -948,6 +948,12 @@ inline void il2cpp_codegen_array_unsafe_mov_primitive(const RuntimeType * destTy
 // objBuffer is a pointer to the obj, either a pointer to a struct's data or a pointer to a reference type pointer
 void il2cpp_codegen_runtime_constrained_call(RuntimeClass* type, const RuntimeMethod* constrainedMethod, void* boxBuffer, void* objBuffer, void** args, void* retVal);
 
+template<typename T>
+inline void* il2cpp_codegen_unsafe_cast(T* ptr)
+{
+    return reinterpret_cast<void*>(ptr);
+}
+
 #if IL2CPP_TINY
 
 // Add intrinsics used by Tiny.
