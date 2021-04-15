@@ -230,7 +230,14 @@ namespace os
 #if !RUNTIME_TINY
         // We assume that presence of the library in s_DllCache is a valid reason to be able to close it
         for (DllCacheIterator it = s_DllCache.begin(); it != s_DllCache.end(); it++)
-            Baselib_DynamicLibrary_Close(it->second);
+        {
+            // If libc is a "loaded library", it is a special case, and closing it will cause dlclose
+            // on some Posix platforms to return an error (I'm looking at you, iOS 11). This really is
+            // not an error, but Baselib_DynamicLibrary_Close will correctly assert when dlclose
+            // returns an error. To avoid this assert, let's skip closing libc.
+            if (utils::StringUtils::NativeStringToUtf8(it->first.c_str()) != "libc")
+                Baselib_DynamicLibrary_Close(it->second);
+        }
         s_DllCache.clear();
 #endif
     }
