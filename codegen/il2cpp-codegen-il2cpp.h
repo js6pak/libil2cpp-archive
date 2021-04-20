@@ -806,6 +806,12 @@ NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method
 
 const char* il2cpp_codegen_get_field_data(RuntimeField* field);
 
+template<typename T>
+inline void* il2cpp_codegen_unsafe_cast(T* ptr)
+{
+    return reinterpret_cast<void*>(ptr);
+}
+
 #if IL2CPP_TINY
 
 // Add intrinsics used by Tiny.
