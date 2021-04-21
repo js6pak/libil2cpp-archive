@@ -845,14 +845,9 @@ uint32_t il2cpp_allocation_granularity()
 
 // liveness
 
-void* il2cpp_unity_liveness_calculation_begin(Il2CppClass* filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_WorldChangedCallback onWorldStarted, il2cpp_WorldChangedCallback onWorldStopped)
+void* il2cpp_unity_liveness_allocate_struct(Il2CppClass* filter, int max_object_count, il2cpp_register_object_callback callback, void* userdata, il2cpp_liveness_reallocate_callback reallocate)
 {
-    return Liveness::Begin(filter, max_object_count, callback, userdata, onWorldStarted, onWorldStopped);
-}
-
-void il2cpp_unity_liveness_calculation_end(void* state)
-{
-    Liveness::End(state);
+    return Liveness::AllocateStruct(filter, max_object_count, callback, userdata, reallocate);
 }
 
 void il2cpp_unity_liveness_calculation_from_root(Il2CppObject* root, void* state)
@@ -863,6 +858,16 @@ void il2cpp_unity_liveness_calculation_from_root(Il2CppObject* root, void* state
 void il2cpp_unity_liveness_calculation_from_statics(void* state)
 {
     Liveness::FromStatics(state);
+}
+
+void il2cpp_unity_liveness_finalize(void* state)
+{
+    Liveness::Finalize(state);
+}
+
+void il2cpp_unity_liveness_free_struct(void* state)
+{
+    Liveness::FreeStruct(state);
 }
 
 // method
