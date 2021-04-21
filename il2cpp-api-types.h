@@ -172,7 +172,7 @@ typedef char Il2CppNativeChar;
 #endif
 
 typedef void (*il2cpp_register_object_callback)(Il2CppObject** arr, int size, void* userdata);
-typedef void (*il2cpp_WorldChangedCallback)();
+typedef void* (*il2cpp_liveness_reallocate_callback)(void* ptr, size_t size, void* userdata);
 typedef void (*Il2CppFrameWalkFunc) (const Il2CppStackFrameInfo *info, void *user_data);
 typedef void (*Il2CppProfileFunc) (Il2CppProfiler* prof);
 typedef void (*Il2CppProfileMethodFunc) (Il2CppProfiler* prof, const MethodInfo *method);
