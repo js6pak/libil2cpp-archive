@@ -11,7 +11,7 @@ namespace il2cpp
 {
 namespace os
 {
-#if IL2CPP_TARGET_WINDOWS_DESKTOP || IL2CPP_TARGET_WINDOWS_GAMES
+#if IL2CPP_TARGET_WINDOWS_DESKTOP
 
     std::string Locale::GetLocale()
     {
