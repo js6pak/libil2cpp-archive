@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "os/MarshalStringAlloc.h"
 #include "os/WindowsRuntime.h"
+#include "metadata/GenericMetadata.h"
 #include "vm/Array.h"
 #include "vm/AssemblyName.h"
 #include "vm/Class.h"
@@ -629,9 +630,10 @@ namespace vm
         return FromNameMsg(Image::GetCorlib(), "System", "UnauthorizedAccessException", msg);
     }
 
-    Il2CppException * Exception::GetMaxmimumNestedGenericsException()
+    Il2CppException * Exception::GetMaximumNestedGenericsException()
     {
-        return GetNotSupportedException(MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE);
+        int currentLimit = metadata::GenericMetadata::GetMaximumRuntimeGenericDepth();
+        return GetNotSupportedException(utils::StringUtils::Printf(MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE, currentLimit).c_str());
     }
 
     Il2CppException* Exception::GetDivideByZeroException()

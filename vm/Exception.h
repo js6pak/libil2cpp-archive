@@ -89,7 +89,7 @@ namespace vm
         static Il2CppException* GetFileLoadException(const char* msg);
         static Il2CppException* GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg);
 
-        static Il2CppException* GetMaxmimumNestedGenericsException();
+        static Il2CppException* GetMaximumNestedGenericsException();
 
         static void StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString);
     };

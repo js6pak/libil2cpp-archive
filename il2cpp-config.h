@@ -10,10 +10,6 @@
 
 #include "il2cpp-sanitizers.h"
 
-#ifndef IL2CPP_EXCEPTION_DISABLED
-#define IL2CPP_EXCEPTION_DISABLED 0
-#endif
-
 #ifdef LIBIL2CPP_EXPORT_CODEGEN_API
 # define LIBIL2CPP_CODEGEN_API IL2CPP_EXPORT
 #elif LIBIL2CPP_IMPORT_CODEGEN_API
@@ -498,7 +494,7 @@ static const Il2CppChar kIl2CppNewLine[] = { '\r', '\n', '\0' };
 static const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #endif
 
-#define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted."
+#define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted.   Consider increasing the --maximum-recursive-generic-depth argument above %d"
 #if IL2CPP_COMPILER_MSVC
 #define IL2CPP_ATTRIBUTE_WEAK
 #else
