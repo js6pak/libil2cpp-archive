@@ -159,7 +159,7 @@ namespace vm
         if (definition == NULL)
         {
             if (throwOnError)
-                vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
+                vm::Exception::Raise(vm::Exception::GetMaximumNestedGenericsException());
             return NULL;
         }
 

@@ -11,6 +11,8 @@ namespace vm
 {
     Il2CppClass* ClassInlines::InitFromCodegenSlow(Il2CppClass *klass)
     {
+        IL2CPP_ASSERT(klass != il2cpp_defaults.il2cpp_fully_shared_type);
+
         Class::Init(klass);
 
         if (klass->initializationExceptionGCHandle)
@@ -21,6 +23,8 @@ namespace vm
 
     Il2CppClass* ClassInlines::InitFromCodegenSlow(Il2CppClass *klass, bool throwOnError)
     {
+        IL2CPP_ASSERT(klass != il2cpp_defaults.il2cpp_fully_shared_type);
+
         if (throwOnError)
             return InitFromCodegenSlow(klass);
 

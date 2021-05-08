@@ -49,6 +49,7 @@ typedef enum Il2CppTypeNameFormat
 typedef struct Il2CppDefaults
 {
     Il2CppImage *corlib;
+    Il2CppImage *corlib_gen;
     Il2CppClass *object_class;
     Il2CppClass *byte_class;
     Il2CppClass *void_class;

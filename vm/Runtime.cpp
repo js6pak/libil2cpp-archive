@@ -12,6 +12,7 @@
 #include "os/Thread.h"
 #include "os/Socket.h"
 #include "os/c-api/Allocator.h"
+#include "metadata/GenericMetadata.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/COMEntryPoints.h"
@@ -100,6 +101,14 @@ namespace vm
     if (il2cpp_defaults.field != NULL) \
         IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->byval_arg.valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
 
+#define DEFAULTS_GEN_INIT(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib_gen, ns, n);\
+    IL2CPP_ASSERT(il2cpp_defaults.field); } while (0)
+
+#define DEFAULTS_GEN_INIT_TYPE(field, ns, n, nativetype) do { DEFAULTS_GEN_INIT(field, ns, n); \
+    IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->byval_arg.valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
+
+#define DEFAULTS_GEN_INIT_OPTIONAL(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib_gen, ns, n); } while (0)
+
     char* basepath(const char* path)
     {
         std::string original_path(path);
@@ -179,6 +188,7 @@ namespace vm
         memset(&il2cpp_defaults, 0, sizeof(Il2CppDefaults));
 
         const Il2CppAssembly* assembly = Assembly::Load("mscorlib.dll");
+        const Il2CppAssembly* assembly2 = Assembly::Load("__Generated");
 
         // It is not possible to use DEFAULTS_INIT_TYPE for managed types for which we have a native struct, if the
         // native struct does not map the complete managed type.
@@ -186,6 +196,7 @@ namespace vm
         // Il2CppDateTimeFormatInfo, Il2CppNumberFormatInfo
 
         il2cpp_defaults.corlib = Assembly::GetImage(assembly);
+        il2cpp_defaults.corlib_gen = Assembly::GetImage(assembly2);
         DEFAULTS_INIT(object_class, "System", "Object");
         DEFAULTS_INIT(void_class, "System", "Void");
         DEFAULTS_INIT_TYPE(boolean_class, "System", "Boolean", bool);
@@ -264,7 +275,7 @@ namespace vm
         DEFAULTS_INIT_TYPE(system_exception_class, "System", "SystemException", Il2CppSystemException);
         DEFAULTS_INIT_TYPE(argument_exception_class, "System", "ArgumentException", Il2CppArgumentException);
         DEFAULTS_INIT_TYPE(marshalbyrefobject_class, "System", "MarshalByRefObject", Il2CppMarshalByRefObject);
-        DEFAULTS_INIT_TYPE(il2cpp_com_object_class, "System", "__Il2CppComObject", Il2CppComObject);
+        DEFAULTS_GEN_INIT_TYPE(il2cpp_com_object_class, "System", "__Il2CppComObject", Il2CppComObject);
         DEFAULTS_INIT_TYPE(safe_handle_class, "System.Runtime.InteropServices", "SafeHandle", Il2CppSafeHandle);
         DEFAULTS_INIT_TYPE(sort_key_class, "System.Globalization", "SortKey", Il2CppSortKey);
         DEFAULTS_INIT(dbnull_class, "System", "DBNull");
@@ -295,7 +306,7 @@ namespace vm
         DEFAULTS_INIT_OPTIONAL(uint32_shared_enum, "System", "UInt32Enum");
         DEFAULTS_INIT_OPTIONAL(uint64_shared_enum, "System", "UInt64Enum");
 
-        DEFAULTS_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
+        DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
 
         Image::InitNestedTypes(il2cpp_defaults.corlib);
 
@@ -532,28 +543,9 @@ namespace vm
         const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
         const MethodInfo* method = metadata::GenericMethod::GetMethod(gmethod);
 
-        RaiseExecutionEngineExceptionIfMethodIsNotFound(method, gmethod);
+        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(method, gmethod);
 
         return method;
-    }
-
-    void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
-    {
-        if (method->virtualMethodPointer == NULL)
-        {
-            if (Method::GetClass(method))
-                RaiseExecutionEngineException(Method::GetFullName(method).c_str());
-            else
-                RaiseExecutionEngineException(Method::GetNameWithGenericTypes(method).c_str());
-        }
-    }
-
-    void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
-    {
-        if (Method::GetClass(method))
-            RaiseExecutionEngineException(Method::GetFullName(method).c_str());
-        else
-            RaiseExecutionEngineException(Method::GetName(method));
     }
 
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
@@ -1006,12 +998,44 @@ namespace vm
 
     static void MissingMethodInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
     {
-        Runtime::AlwaysRaiseExecutionEngineException(method);
+        Runtime::RaiseExecutionEngineException(method, false);
     }
 
     InvokerMethod Runtime::GetMissingMethodInvoker()
     {
         return MissingMethodInvoker;
+    }
+
+    void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
+    {
+        RaiseExecutionEngineException(method, false);
+    }
+
+    void Runtime::AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method)
+    {
+        RaiseExecutionEngineException(method, true);
+    }
+
+    void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod)
+    {
+        if (method->virtualMethodPointer == NULL)
+            RaiseExecutionEngineException(method, metadata::GenericMethod::GetFullName(genericMethod).c_str(), true);
+    }
+
+    void Runtime::RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall)
+    {
+        if (Method::GetClass(method))
+            RaiseExecutionEngineException(method, Method::GetFullName(method).c_str(), virtualCall);
+        else
+            RaiseExecutionEngineException(method, Method::GetNameWithGenericTypes(method).c_str(), virtualCall);
+    }
+
+    void Runtime::RaiseExecutionEngineException(const MethodInfo* method, const char* methodFullName, bool virtualCall)
+    {
+        const char* help = "";
+        if (virtualCall && method->flags && METHOD_ATTRIBUTE_VIRTUAL && method->is_inflated)
+            help = "  Consider increasing the --generic-virtual-method-iterations argument.";
+        Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
     }
 
 #if IL2CPP_TINY

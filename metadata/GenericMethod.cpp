@@ -41,7 +41,7 @@ namespace metadata
 
     static void AGenericMethodWhichIsTooDeeplyNestedWasInvoked()
     {
-        vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
+        vm::Exception::Raise(vm::Exception::GetMaximumNestedGenericsException());
     }
 
     static void AGenericMethodWhichIsTooDeeplyNestedWasInvokedInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
