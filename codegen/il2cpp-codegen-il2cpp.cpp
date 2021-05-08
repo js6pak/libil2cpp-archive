@@ -221,6 +221,11 @@ void il2cpp_codegen_raise_execution_engine_exception(const RuntimeMethod* method
     il2cpp::vm::Runtime::AlwaysRaiseExecutionEngineException(method);
 }
 
+void il2cpp_codegen_raise_execution_engine_exception_missing_virtual(const RuntimeMethod* method)
+{
+    il2cpp::vm::Runtime::AlwaysRaiseExecutionEngineExceptionOnVirtualCall(method);
+}
+
 void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method)
 {
     il2cpp::vm::Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(method);
@@ -399,7 +404,7 @@ Exception_t* il2cpp_codegen_get_missing_method_exception(const char* msg)
 
 Exception_t* il2cpp_codegen_get_maximum_nested_generics_exception()
 {
-    return (Exception_t*)il2cpp::vm::Exception::GetMaxmimumNestedGenericsException();
+    return (Exception_t*)il2cpp::vm::Exception::GetMaximumNestedGenericsException();
 }
 
 Exception_t* il2cpp_codegen_get_index_out_of_range_exception()
