@@ -107,6 +107,21 @@ namespace os
         return NULL;
     }
 
+    bool File::IsHandleOpenFileHandle(intptr_t lookup)
+    {
+#if IL2CPP_SUPPORT_THREADS
+        FastAutoLock autoLock(&s_fileHandleMutex);
+#endif
+
+        for (FileHandle *handle = s_fileHandleHead; handle != NULL; handle = handle->next)
+        {
+            if (reinterpret_cast<intptr_t>(handle) == lookup)
+                return true;
+        }
+
+        return false;
+    }
+
 // NOTE:
 // Checking for file sharing violations only works for the current process.
 //
@@ -120,17 +135,11 @@ namespace os
         if (fileHandle == NULL) // File is not open
             return true;
 
-        if (fileHandle->shareMode == kFileShareNone)
+        if (fileHandle->shareMode == kFileShareNone || shareMode == kFileShareNone)
             return false;
 
         if (((fileHandle->shareMode == kFileShareRead)  && (accessMode != kFileAccessRead)) ||
             ((fileHandle->shareMode == kFileShareWrite) && (accessMode != kFileAccessWrite)))
-        {
-            return false;
-        }
-
-        if (((fileHandle->accessMode & kFileAccessRead)  && !(shareMode & kFileShareRead)) ||
-            ((fileHandle->accessMode & kFileAccessWrite) && !(shareMode & kFileShareWrite)))
         {
             return false;
         }
@@ -1185,6 +1194,11 @@ namespace os
 #else
         return utils::Il2CppError(utils::NotSupported, "This platform cannot check for executable permissions.");
 #endif
+    }
+
+    bool File::Cancel(FileHandle* handle)
+    {
+        return false;
     }
 }
 }

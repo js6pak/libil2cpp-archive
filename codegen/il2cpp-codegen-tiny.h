@@ -57,6 +57,28 @@ inline Il2CppObject* Box(TinyType* type, void* value, size_t size)
     return obj;
 }
 
+static intptr_t align(intptr_t x, size_t alignment)
+{
+    return (x + alignment - 1) & ~(alignment - 1);
+}
+
+template<typename ArgumentType>
+static uint8_t* NullableValueField(void* storage)
+{
+    // The hasValue field is the first one in the Nullable struct. It is a one byte Boolean.
+    // We're trying to get the address of the value field in the Nullable struct, so offset
+    // past the hasValue field, then offset to the alignment value of the type stored in the
+    // Nullable struct.
+    uint8_t* byteAfterhasValueField = static_cast<uint8_t*>(storage) + 1;
+
+    size_t alignmentOfArgumentType = alignof(ArgumentType);
+
+    intptr_t offsetToAlign = 0;
+    if ((intptr_t)byteAfterhasValueField % alignmentOfArgumentType != 0)
+        offsetToAlign = alignmentOfArgumentType - 1;
+    return byteAfterhasValueField + offsetToAlign;
+}
+
 template<typename NullableType, typename ArgumentType>
 inline Il2CppObject* BoxNullable(TinyType* type, NullableType* value)
 {
@@ -70,12 +92,12 @@ inline Il2CppObject* BoxNullable(TinyType* type, NullableType* value)
     (false and true, respectively).
     */
 
-    uint32_t valueSize = sizeof(ArgumentType);
-    bool hasValue = *reinterpret_cast<bool*>(reinterpret_cast<uint8_t*>(value) + valueSize);
+    bool hasValue = *reinterpret_cast<bool*>(reinterpret_cast<uint8_t*>(value));
     if (!hasValue)
         return NULL;
 
-    return Box(type, value, valueSize);
+    uint32_t valueSize = sizeof(ArgumentType);
+    return Box(type, NullableValueField<ArgumentType>(value), valueSize);
 }
 
 inline void* UnBox(Il2CppObject* obj)
@@ -108,13 +130,13 @@ inline void UnBoxNullable(Il2CppObject* obj, TinyType* expectedBoxedClass, void*
 
     if (obj == NULL)
     {
-        memset(storage, 0, valueSize);
-        *(static_cast<uint8_t*>(storage) + valueSize) = false;
+        memset(NullableValueField<ArgumentType>(storage), 0, valueSize);
+        *(static_cast<uint8_t*>(storage)) = false;
     }
     else
     {
-        memcpy(storage, UnBox(obj), valueSize);
-        *(static_cast<uint8_t*>(storage) + valueSize) = true;
+        memcpy(NullableValueField<ArgumentType>(storage), UnBox(obj), valueSize);
+        *(static_cast<uint8_t*>(storage)) = true;
     }
 }
 
@@ -440,6 +462,12 @@ inline Exception_t* il2cpp_codegen_get_marshal_directive_exception(const char* m
     return NULL;
 }
 
+#define IL2CPP_RAISE_NULL_REFERENCE_EXCEPTION() \
+    do {\
+        il2cpp_codegen_raise_null_reference_exception();\
+        IL2CPP_UNREACHABLE;\
+    } while (0)
+
 #define IL2CPP_RAISE_MANAGED_EXCEPTION(ex, lastManagedFrame) \
     do {\
         il2cpp_codegen_raise_exception(ex);\
@@ -679,15 +707,15 @@ inline bool il2cpp_codegen_type_is_pointer(Type_t* t)
 }
 
 template<typename T>
-void ArrayGetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, T* value)
+void ArrayGetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, T* value)
 {
-    memcpy(value, ((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), sizeof(T));
+    memcpy(value, ((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), sizeof(T));
 }
 
 template<typename T>
-void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, T* value)
+void ArraySetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, T* value)
 {
-    memcpy(((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), value, sizeof(T));
+    memcpy(((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), value, sizeof(T));
 }
 
 void il2cpp_codegen_marshal_store_last_error();

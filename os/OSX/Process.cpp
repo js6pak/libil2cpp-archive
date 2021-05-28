@@ -55,6 +55,11 @@ namespace os
         return utils::Il2CppError(utils::NotSupported, "GetProcessName is not supported for non-Windows/OSX/Linux desktop platforms");
 #endif
     }
+
+    intptr_t Process::GetMainWindowHandle(int32_t pid)
+    {
+        return 0;
+    }
 }
 }
 

@@ -91,7 +91,6 @@ typedef struct Il2CppDefaults
     Il2CppClass *method_info_class;
     Il2CppClass *property_info_class;
     Il2CppClass *event_info_class;
-    Il2CppClass *mono_event_info_class;
     Il2CppClass *stringbuilder_class;
     /*Il2CppClass *math_class;*/
     Il2CppClass *stack_frame_class;
@@ -130,16 +129,9 @@ typedef struct Il2CppDefaults
     Il2CppClass *culture_info;
     Il2CppClass *async_call_class;
     Il2CppClass *assembly_class;
-    Il2CppClass *mono_assembly_class;
     Il2CppClass *assembly_name_class;
-    Il2CppClass *mono_field_class;
-    Il2CppClass *mono_method_class;
-    Il2CppClass *mono_method_info_class;
-    Il2CppClass *mono_property_info_class;
     Il2CppClass *parameter_info_class;
-    Il2CppClass *mono_parameter_info_class;
     Il2CppClass *module_class;
-    Il2CppClass *pointer_class;
     Il2CppClass *system_exception_class;
     Il2CppClass *argument_exception_class;
     Il2CppClass *wait_handle_class;

@@ -15,6 +15,7 @@
 #include "metadata/GenericMetadata.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
+#include "vm/ClassLibraryPAL.h"
 #include "vm/COMEntryPoints.h"
 #include "vm/Class.h"
 #include "vm/Domain.h"
@@ -180,9 +181,6 @@ namespace vm
         // Thread needs GC initialized
         Thread::Initialize();
 
-        // Reflection needs GC initialized
-        Reflection::Initialize();
-
         register_allocator(il2cpp::utils::Memory::Malloc);
 
         memset(&il2cpp_defaults, 0, sizeof(Il2CppDefaults));
@@ -242,7 +240,6 @@ namespace vm
         DEFAULTS_INIT(method_info_class, "System.Reflection", "MethodInfo");
         DEFAULTS_INIT(property_info_class, "System.Reflection", "PropertyInfo");
         DEFAULTS_INIT_TYPE(event_info_class, "System.Reflection", "EventInfo", Il2CppReflectionEvent);
-        DEFAULTS_INIT_TYPE(mono_event_info_class, "System.Reflection", "MonoEventInfo", Il2CppReflectionMonoEventInfo);
         DEFAULTS_INIT_TYPE(stringbuilder_class, "System.Text", "StringBuilder", Il2CppStringBuilder);
         DEFAULTS_INIT_TYPE(stack_frame_class, "System.Diagnostics", "StackFrame", Il2CppStackFrame);
         DEFAULTS_INIT(stack_trace_class, "System.Diagnostics", "StackTrace");
@@ -257,20 +254,10 @@ namespace vm
 #if !IL2CPP_TINY
         DEFAULTS_INIT(version, "System", "Version");
         DEFAULTS_INIT(culture_info, "System.Globalization", "CultureInfo");
-        DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "Assembly", Il2CppReflectionAssembly);
-        DEFAULTS_INIT_TYPE(assembly_name_class, "System.Reflection", "AssemblyName", Il2CppReflectionAssemblyName);
-#endif // !IL2CPP_TINY
-        DEFAULTS_INIT_TYPE(mono_assembly_class, "System.Reflection", "MonoAssembly", Il2CppReflectionAssembly);
-#if !IL2CPP_TINY
-        DEFAULTS_INIT_TYPE(mono_field_class, "System.Reflection", "MonoField", Il2CppReflectionField);
-        DEFAULTS_INIT_TYPE(mono_method_class, "System.Reflection", "MonoMethod", Il2CppReflectionMethod);
-        DEFAULTS_INIT_TYPE(mono_method_info_class, "System.Reflection", "MonoMethodInfo", Il2CppMethodInfo);
-        DEFAULTS_INIT_TYPE(mono_property_info_class, "System.Reflection", "MonoPropertyInfo", Il2CppPropertyInfo);
-        DEFAULTS_INIT_TYPE(parameter_info_class, "System.Reflection", "ParameterInfo", Il2CppReflectionParameter);
-        DEFAULTS_INIT_TYPE(mono_parameter_info_class, "System.Reflection", "MonoParameterInfo", Il2CppReflectionParameter);
-        DEFAULTS_INIT_TYPE(module_class, "System.Reflection", "Module", Il2CppReflectionModule);
-
-        DEFAULTS_INIT_TYPE(pointer_class, "System.Reflection", "Pointer", Il2CppReflectionPointer);
+        DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "RuntimeAssembly", Il2CppReflectionAssembly);
+        DEFAULTS_INIT_TYPE_OPTIONAL(assembly_name_class, "System.Reflection", "AssemblyName", Il2CppReflectionAssemblyName);
+        DEFAULTS_INIT_TYPE(parameter_info_class, "System.Reflection", "RuntimeParameterInfo", Il2CppReflectionParameter);
+        DEFAULTS_INIT_TYPE(module_class, "System.Reflection", "RuntimeModule", Il2CppReflectionModule);
         DEFAULTS_INIT_TYPE(exception_class, "System", "Exception", Il2CppException);
         DEFAULTS_INIT_TYPE(system_exception_class, "System", "SystemException", Il2CppSystemException);
         DEFAULTS_INIT_TYPE(argument_exception_class, "System", "ArgumentException", Il2CppArgumentException);
@@ -282,7 +269,7 @@ namespace vm
         DEFAULTS_INIT_TYPE_OPTIONAL(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
         DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
         DEFAULTS_INIT(attribute_class, "System", "Attribute");
-        DEFAULTS_INIT(customattribute_data_class, "System.Reflection", "CustomAttributeData");
+        DEFAULTS_INIT_OPTIONAL(customattribute_data_class, "System.Reflection", "CustomAttributeData");
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
         DEFAULTS_INIT(system_guid_class, "System", "Guid");
@@ -307,6 +294,9 @@ namespace vm
         DEFAULTS_INIT_OPTIONAL(uint64_shared_enum, "System", "UInt64Enum");
 
         DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
+
+        // Reflection needs GC initialized
+        Reflection::Initialize();
 
         Image::InitNestedTypes(il2cpp_defaults.corlib);
 
@@ -978,10 +968,11 @@ namespace vm
         Il2CppClass *klass = Class::FromName(il2cpp_defaults.corlib, "System", "Environment");
         Class::Init(klass);
         FieldInfo *field = Class::GetFieldFromName(klass, "mono_corlib_version");
-        int32_t value;
+        Il2CppString* value;
         Field::StaticGetValue(field, &value);
 
-        IL2CPP_ASSERT(value == 1051100001);
+        std::string version = il2cpp::utils::StringUtils::Utf16ToUtf8(value->chars);
+        IL2CPP_ASSERT(version == "1A5E0066-58DC-428A-B21C-0AD6CDAE2789");
 #endif
 #endif
     }
