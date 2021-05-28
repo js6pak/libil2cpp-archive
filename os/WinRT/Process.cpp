@@ -48,6 +48,11 @@ namespace os
 
         return utils::Il2CppError(utils::NotSupported, "It is not possible to interact with other system processes on current platform.");
     }
+
+    intptr_t Process::GetMainWindowHandle(int32_t pid)
+    {
+        return 0;
+    }
 }
 }
 #endif

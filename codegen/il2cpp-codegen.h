@@ -2,7 +2,6 @@
 
 #include "il2cpp-codegen-metadata.h"
 
-
 #if RUNTIME_TINY
 #include "il2cpp-codegen-tiny.h"
 #else
