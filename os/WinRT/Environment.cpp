@@ -239,8 +239,13 @@ namespace os
     utils::Expected<bool> Environment::Is64BitOs()
     {
 #if IL2CPP_TARGET_WINRT
-        return utils::Il2CppError(utils::NotSupported, "It is not possible to check if the OS is a 64bit OS on the current platform.");
-#endif
+#if WINDOWS_SDK_BUILD_VERSION >= 16299
+        BOOL isWow64Process = FALSE;
+        if (IsWow64Process(GetCurrentProcess(), &isWow64Process))
+            return isWow64Process == TRUE;
+#endif // WINDOWS_SDK_BUILD_VERSION >= 16299
+        return false;
+#endif // IL2CPP_TARGET_WINRT
         return true;
     }
 }

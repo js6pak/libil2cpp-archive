@@ -245,6 +245,11 @@ namespace os
 
         return 0;
     }
+
+    intptr_t Process::GetMainWindowHandle(int32_t pid)
+    {
+        return 0;
+    }
 }
 }
 

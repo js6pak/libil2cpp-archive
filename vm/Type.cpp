@@ -1225,8 +1225,9 @@ namespace vm
 
     const Il2CppType* Type::GetGenericTypeDefintion(const Il2CppType* type)
     {
-        IL2CPP_ASSERT(IsGenericInstance(type));
-        return type->data.generic_class->type;
+        if (IsGenericInstance(type))
+            return type->data.generic_class->type;
+        return type;
     }
 
 /**
