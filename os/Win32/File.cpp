@@ -614,6 +614,11 @@ namespace os
     {
         return ends_with(path, "exe");
     }
+
+    bool File::Cancel(FileHandle* handle)
+    {
+        return CancelIoEx((HANDLE)handle, NULL);
+    }
 }
 }
 

@@ -159,26 +159,6 @@ namespace Globalization
         key.lcid = lcid;
         return (const CultureInfoEntry*)bsearch(&key, culture_entries, NUM_CULTURE_ENTRIES, sizeof(CultureInfoEntry), culture_lcid_locator);
     }
-
-    static Il2CppArray* culture_info_create_group_sizes_array(const int *gs, int ml)
-    {
-        int i, len = 0;
-
-        for (i = 0; i < ml; i++)
-        {
-            if (gs[i] == -1)
-                break;
-            len++;
-        }
-
-        Il2CppArray* ret = il2cpp_array_new_specific(il2cpp_array_class_get(il2cpp_defaults.int32_class, 1), len);
-
-        for (i = 0; i < len; i++)
-            il2cpp_array_set(ret, int32_t, i, gs[i]);
-
-        return ret;
-    }
-
     bool CultureInfo::construct_internal_locale_from_lcid(Il2CppCultureInfo* cultureInfo, int lcid)
     {
         const CultureInfoEntry* ci = culture_info_entry_from_lcid(lcid);
@@ -244,13 +224,6 @@ namespace Globalization
         }
 
         return array;
-    }
-
-    bool CultureInfo::internal_is_lcid_neutral(int32_t lcid, bool* is_neutral)
-    {
-        NOT_SUPPORTED_IL2CPP(CultureInfo::internal_is_lcid_neutral, "This icall is not supported by il2cpp.");
-
-        return false;
     }
 
     Il2CppString* CultureInfo::get_current_locale_name()

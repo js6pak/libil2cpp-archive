@@ -54,6 +54,7 @@ namespace vm
         static void SetMonoGenericParameterInfo(Il2CppMetadataGenericParameterHandle param, const MonoGenericParameterInfo *monoParam);
         static const Il2CppMonoAssemblyName* GetMonoAssemblyName(const Il2CppAssembly *assembly);
         static void SetMonoAssemblyName(const Il2CppAssembly *assembly, const Il2CppMonoAssemblyName *aname);
+        static int GetMetadataToken(Il2CppObject* obj);
 
         static bool HasAttribute(Il2CppObject *obj, Il2CppClass *attribute);
         static bool HasAttribute(FieldInfo *field, Il2CppClass *attribute);
@@ -73,7 +74,6 @@ namespace vm
         static void Initialize();
         static Il2CppClass* TypeGetHandle(Il2CppReflectionType* ref);
         static Il2CppObject* GetDBNullObject();
-        static Il2CppClass* GetConstructorInfo();
 
         static Il2CppObject* GetCustomAttribute(Il2CppMetadataCustomAttributeHandle token, Il2CppClass* attribute);
         static Il2CppArray* ConstructCustomAttributes(Il2CppMetadataCustomAttributeHandle token);

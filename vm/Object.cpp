@@ -88,7 +88,9 @@ namespace vm
         if (!typeInfo->byval_arg.valuetype)
             return *(Il2CppObject**)val;
 
-        if (Class::IsNullable(typeInfo))
+        bool isNullable = Class::IsNullable(typeInfo);
+
+        if (isNullable)
         {
             /* From ECMA-335, I.8.2.4 Boxing and unboxing of values:
 
@@ -105,9 +107,22 @@ namespace vm
         size_t size = Class::GetInstanceSize(typeInfo);
         Il2CppObject* obj = Object::New(typeInfo);
 
+        // At this point we know we have a value type and we need to adjust the
+        // copy size by the size of Il2CppObject
         size = size - sizeof(Il2CppObject);
 
-        memcpy(((char*)obj) + sizeof(Il2CppObject), val, size);
+        uint8_t* valueStart = static_cast<uint8_t*>(val);
+        if (isNullable)
+        {
+            // Shift the valueStart right past the bool for nullable
+            int32_t nullableShift = typeInfo->fields[1].offset - sizeof(Il2CppObject);
+            valueStart += nullableShift;
+
+            // the size needs to be further adjusted to be smaller
+            size -= nullableShift;
+        }
+
+        memcpy(((char*)obj) + sizeof(Il2CppObject), valueStart, size);
         gc::GarbageCollector::SetWriteBarrier((void**)(((char*)obj) + sizeof(Il2CppObject)), size);
         return obj;
     }
@@ -351,17 +366,28 @@ namespace vm
 
     void Object::UnboxNullable(Il2CppObject* obj, Il2CppClass* nullableArgumentClass, void* storage)
     {
+        // The hasValue field is the first one in the Nullable struct. It is a one byte Boolean.
+        // We're trying to get the address of the value field in the Nullable struct, so offset
+        // past the hasValue field, then offset to the alignment value of the type stored in the
+        // Nullable struct.
+        uint8_t* byteAfterhasValueField = static_cast<uint8_t*>(storage) + 1;
+
+        intptr_t offsetToAlign = 0;
+        if ((intptr_t)byteAfterhasValueField % nullableArgumentClass->minimumAlignment != 0)
+            offsetToAlign = nullableArgumentClass->minimumAlignment - (uintptr_t)byteAfterhasValueField % nullableArgumentClass->minimumAlignment;
+        uint8_t* valueField = byteAfterhasValueField + offsetToAlign;
+
         uint32_t valueSize = nullableArgumentClass->instance_size - sizeof(Il2CppObject);
 
         if (obj == NULL)
         {
-            memset(storage, 0, valueSize);
-            *(static_cast<uint8_t*>(storage) + valueSize) = false;
+            memset(valueField, 0, valueSize);
+            *(static_cast<uint8_t*>(storage)) = false;
         }
         else
         {
-            memcpy(storage, Unbox(obj), valueSize);
-            *(static_cast<uint8_t*>(storage) + valueSize) = true;
+            memcpy(valueField, Unbox(obj), valueSize);
+            *(static_cast<uint8_t*>(storage)) = true;
         }
     }
 
@@ -369,22 +395,23 @@ namespace vm
     {
         Il2CppClass *parameterClass = klass->castClass;
 
-        IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[0].type) == parameterClass);
-        IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[1].type) == il2cpp_defaults.boolean_class);
+        IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[0].type) == il2cpp_defaults.boolean_class);
+        IL2CPP_ASSERT(Class::FromIl2CppType(klass->fields[1].type) == parameterClass);
 
-        *(uint8_t*)(buf + klass->fields[1].offset - sizeof(Il2CppObject)) = value ? 1 : 0;
+        *(uint8_t*)(buf + klass->fields[0].offset - sizeof(Il2CppObject)) = value ? 1 : 0;
         if (value)
-            memcpy(buf + klass->fields[0].offset - sizeof(Il2CppObject), Object::Unbox(value), Class::GetValueSize(parameterClass, NULL));
+            memcpy(buf + klass->fields[1].offset - sizeof(Il2CppObject), Object::Unbox(value), Class::GetValueSize(parameterClass, NULL));
         else
-            memset(buf + klass->fields[0].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
+            memset(buf + klass->fields[1].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
     }
 
     bool Object::NullableHasValue(Il2CppClass* klass, void* data)
     {
         IL2CPP_ASSERT(Class::IsNullable(klass));
-        Il2CppClass* typeInfo = Class::GetNullableArgument(klass);
-        Class::Init(typeInfo);
-        uint8_t* hasValueByte = static_cast<uint8_t*>(data) + typeInfo->instance_size - sizeof(Il2CppObject);
+
+        // The hasValue field is the first field in the Nullable managed stuct,
+        // so read the first byte to get its value;
+        uint8_t* hasValueByte = static_cast<uint8_t*>(data);
         return *hasValueByte != 0;
     }
 } /* namespace vm */
