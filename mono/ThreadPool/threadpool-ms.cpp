@@ -57,6 +57,7 @@
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/WaitHandle.h"
+#include <icalls/mscorlib/System.Runtime.Remoting.Messaging/MonoMethodMessage.h>
 
 #ifndef CLAMP
 #define CLAMP(a,low,high) (((a) < (low)) ? (low) : (((a) > (high)) ? (high) : (a)))
@@ -921,4 +922,9 @@ bool  ves_icall_System_Threading_ThreadPool_BindIOCompletionCallbackNative (void
 bool ves_icall_System_Threading_ThreadPool_IsThreadPoolHosted (void)
 {
 	return false;
+}
+
+void ves_icall_System_Threading_ThreadPool_NotifyWorkItemQueued (void)
+{
+	// We don't need an implementation here. The Mono code only uses this method to increment a performance counter that we don't have in IL2CPP.
 }

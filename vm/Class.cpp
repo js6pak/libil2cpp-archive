@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "mono-structs.h"
 #include <algorithm>
 #include "gc/GCHandle.h"
 #include "metadata/ArrayMetadata.h"
@@ -2054,7 +2055,8 @@ namespace vm
         if (info.assembly_name().name.empty())
         {
             const Il2CppImage* image;
-            if (searchFlags & kTypeSearchFlagDontUseExecutingImage)
+            bool dontUseExecutingImage = searchFlags & kTypeSearchFlagDontUseExecutingImage;
+            if (dontUseExecutingImage)
             {
                 image = Image::GetCorlib();
             }
@@ -2064,11 +2066,24 @@ namespace vm
             }
 
             klass = Image::FromTypeNameParseInfo(image, info, searchFlags & kTypeSearchFlagIgnoreCase);
+
+            // First, try mscorlib
             if (klass == NULL && image != Image::GetCorlib())
+                klass = Image::FromTypeNameParseInfo(Image::GetCorlib(), info, searchFlags & kTypeSearchFlagIgnoreCase);
+
+            // If we did not find it, now look in all loaded assemblies, except the ones we have tried already.
+            if (klass == NULL && !dontUseExecutingImage)
             {
-                // Try mscorlib
-                image = (Il2CppImage*)Image::GetCorlib();
-                klass = Image::FromTypeNameParseInfo(image, info, searchFlags & kTypeSearchFlagIgnoreCase);
+                for (auto assembly : *Assembly::GetAllAssemblies())
+                {
+                    auto currentImage = Assembly::GetImage(assembly);
+                    if (currentImage != Image::GetCorlib() && currentImage != image)
+                    {
+                        klass = Image::FromTypeNameParseInfo(currentImage, info, searchFlags & kTypeSearchFlagIgnoreCase);
+                        if (klass != NULL)
+                            break;
+                    }
+                }
             }
         }
         else
@@ -2155,6 +2170,86 @@ namespace vm
             IL2CPP_ASSERT(method->slot < klass->vtable_count);
             return klass->vtable[method->slot].method;
         }
+    }
+
+    static bool is_generic_argument(Il2CppType* type)
+    {
+        return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_VAR;
+    }
+
+    Il2CppClass* Class::GenericParamGetBaseType(Il2CppClass* klass)
+    {
+        Il2CppType* type = &klass->byval_arg;
+        IL2CPP_ASSERT(is_generic_argument(type));
+
+        Il2CppMetadataGenericParameterHandle gparam = type->data.genericParameterHandle;
+
+        Il2CppClass** constraints = GetOrCreateMonoGenericParameterInfo(gparam)->constraints;
+
+        Il2CppClass* base_class = il2cpp_defaults.object_class;
+
+        if (constraints)
+        {
+            for (int i = 0; constraints[i]; ++i)
+            {
+                Il2CppClass* constraint = constraints[i];
+
+                if (IsInterface(constraint))
+                    continue;
+
+                Il2CppType* constraint_type = &constraint->byval_arg;
+                if (is_generic_argument(constraint_type))
+                {
+                    Il2CppMetadataGenericParameterHandle constraint_param = constraint_type->data.genericParameterHandle;
+                    Il2CppGenericParameterInfo constraint_info = MetadataCache::GetGenericParameterInfo(constraint_param);
+                    if ((constraint_info.flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_REFERENCE_TYPE_CONSTRAINT) == 0 &&
+                        (constraint_info.flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NOT_NULLABLE_VALUE_TYPE_CONSTRAINT) == 0)
+                        continue;
+                }
+
+                base_class = constraint;
+            }
+        }
+
+        if (base_class == il2cpp_defaults.object_class)
+        {
+            Il2CppGenericParameterInfo gparamInfo = MetadataCache::GetGenericParameterInfo(gparam);
+            if ((gparamInfo.flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NOT_NULLABLE_VALUE_TYPE_CONSTRAINT) != 0)
+                base_class = il2cpp_defaults.value_type_class;
+        }
+
+        return base_class;
+    }
+
+    MonoGenericParameterInfo* Class::GetOrCreateMonoGenericParameterInfo(Il2CppMetadataGenericParameterHandle parameterHandle)
+    {
+        Il2CppGenericParameterInfo paramInfo = il2cpp::vm::MetadataCache::GetGenericParameterInfo(parameterHandle);
+
+        MonoGenericParameterInfo *monoParam = (MonoGenericParameterInfo*)il2cpp::vm::Reflection::GetMonoGenericParameterInfo(parameterHandle);
+        if (monoParam == NULL)
+        {
+            monoParam = (MonoGenericParameterInfo*)IL2CPP_MALLOC(sizeof(MonoGenericParameterInfo));
+            monoParam->flags = paramInfo.flags;
+            monoParam->token = paramInfo.num;
+            monoParam->name = paramInfo.name;
+            monoParam->pklass = NULL;
+            if (paramInfo.containerHandle)
+                monoParam->pklass = il2cpp::vm::MetadataCache::GetContainerDeclaringType(paramInfo.containerHandle);
+
+            int16_t constraintsCount = il2cpp::vm::MetadataCache::GetGenericConstraintCount(parameterHandle);
+            monoParam->constraints = (Il2CppClass**)IL2CPP_MALLOC(sizeof(Il2CppClass*) * (constraintsCount + 1));
+            for (int i = 0; i < constraintsCount; ++i)
+            {
+                const Il2CppType *constraintType = il2cpp::vm::MetadataCache::GetGenericParameterConstraintFromIndex(parameterHandle, i);
+                monoParam->constraints[i] = il2cpp::vm::Class::FromIl2CppType(constraintType);
+            }
+
+            monoParam->constraints[constraintsCount] = NULL;
+
+            il2cpp::vm::Reflection::SetMonoGenericParameterInfo(parameterHandle, monoParam);
+        }
+
+        return monoParam;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -137,7 +137,8 @@ namespace vm
 
         // The synch_cs object is deallocated in the InternalThread::Thread_free_internal icall, which
         // is called from the managed thread finalizer.
-        internalManagedThread->synch_cs = new baselib::ReentrantLock;
+        internalManagedThread->longlived = (Il2CppLongLivedThreadData*)IL2CPP_MALLOC(sizeof(Il2CppLongLivedThreadData));
+        internalManagedThread->longlived->synch_cs = new baselib::ReentrantLock;
 
         internalManagedThread->apartment_state = il2cpp::os::kApartmentStateUnknown;
         gc::WriteBarrier::GenericStore(&thread->internal_thread, internalManagedThread);
@@ -147,7 +148,7 @@ namespace vm
     {
 #if IL2CPP_SUPPORT_THREADS
         IL2CPP_ASSERT(thread->GetInternalThread()->handle != NULL);
-        IL2CPP_ASSERT(thread->GetInternalThread()->synch_cs != NULL);
+        IL2CPP_ASSERT(thread->GetInternalThread()->longlived->synch_cs != NULL);
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
@@ -170,9 +171,9 @@ namespace vm
 #endif
 
         // Sync thread name.
-        if (thread->GetInternalThread()->name)
+        if (thread->GetInternalThread()->name.chars)
         {
-            std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->GetInternalThread()->name);
+            std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->GetInternalThread()->name.chars);
             thread->GetInternalThread()->handle->SetName(utf8Name.c_str());
         }
 
@@ -365,31 +366,31 @@ namespace vm
 
     void Thread::SetState(Il2CppThread *thread, ThreadState value)
     {
-        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->longlived->synch_cs);
         thread->GetInternalThread()->state |= value;
     }
 
     void Thread::ClrState(Il2CppInternalThread* thread, ThreadState clr)
     {
-        il2cpp::os::FastAutoLock lock(thread->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
         thread->state &= ~clr;
     }
 
     void Thread::SetState(Il2CppInternalThread *thread, ThreadState value)
     {
-        il2cpp::os::FastAutoLock lock(thread->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
         thread->state |= value;
     }
 
     ThreadState Thread::GetState(Il2CppInternalThread *thread)
     {
-        il2cpp::os::FastAutoLock lock(thread->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
         return (ThreadState)thread->state;
     }
 
     bool Thread::TestState(Il2CppInternalThread* thread, ThreadState value)
     {
-        il2cpp::os::FastAutoLock lock(thread->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
         return (thread->state & value) != 0;
     }
 
@@ -400,13 +401,13 @@ namespace vm
 
     ThreadState Thread::GetState(Il2CppThread *thread)
     {
-        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->longlived->synch_cs);
         return (ThreadState)thread->GetInternalThread()->state;
     }
 
     void Thread::ClrState(Il2CppThread* thread, ThreadState state)
     {
-        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->longlived->synch_cs);
         thread->GetInternalThread()->state &= ~state;
     }
 
@@ -516,48 +517,48 @@ namespace vm
 
     std::string Thread::GetName(Il2CppInternalThread* thread)
     {
-        if (thread->name == NULL)
+        if (thread->name.chars == NULL)
             return std::string();
 
-        return utils::StringUtils::Utf16ToUtf8(thread->name);
+        return utils::StringUtils::Utf16ToUtf8(thread->name.chars);
     }
 
     void Thread::SetName(Il2CppThread* thread, Il2CppString* name)
     {
-        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->longlived->synch_cs);
 
         // Throw if already set.
-        if (thread->GetInternalThread()->name_len != 0)
+        if (thread->GetInternalThread()->name.length != 0)
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Thread name can only be set once."));
 
         // Store name.
-        thread->GetInternalThread()->name_len = utils::StringUtils::GetLength(name);
-        thread->GetInternalThread()->name = il2cpp::utils::StringUtils::StringDuplicate(utils::StringUtils::GetChars(name), thread->GetInternalThread()->name_len);
+        thread->GetInternalThread()->name.length = utils::StringUtils::GetLength(name);
+        thread->GetInternalThread()->name.chars = il2cpp::utils::StringUtils::StringDuplicate(utils::StringUtils::GetChars(name), thread->GetInternalThread()->name.length);
 
         // Hand over to OS layer, if thread has been started already.
         if (thread->GetInternalThread()->handle)
         {
-            std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->GetInternalThread()->name);
+            std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->GetInternalThread()->name.chars);
             thread->GetInternalThread()->handle->SetName(utf8Name.c_str());
         }
     }
 
     void Thread::SetName(Il2CppInternalThread* thread, Il2CppString* name)
     {
-        il2cpp::os::FastAutoLock lock(thread->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
 
         // Throw if already set.
-        if (thread->name_len != 0)
+        if (thread->name.length != 0)
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Thread name can only be set once."));
 
         // Store name.
-        thread->name_len = utils::StringUtils::GetLength(name);
-        thread->name = il2cpp::utils::StringUtils::StringDuplicate(utils::StringUtils::GetChars(name), thread->name_len);
+        thread->name.length = utils::StringUtils::GetLength(name);
+        thread->name.chars = il2cpp::utils::StringUtils::StringDuplicate(utils::StringUtils::GetChars(name), thread->name.length);
 
         // Hand over to OS layer, if thread has been started already.
         if (thread->handle)
         {
-            std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->name);
+            std::string utf8Name = il2cpp::utils::StringUtils::Utf16ToUtf8(thread->name.chars);
             thread->handle->SetName(utf8Name.c_str());
         }
     }
@@ -569,7 +570,7 @@ namespace vm
 
     void Thread::RequestInterrupt(Il2CppThread* thread)
     {
-        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->longlived->synch_cs);
 
         thread->GetInternalThread()->interruption_requested = true;
 
@@ -585,7 +586,7 @@ namespace vm
         if (!currentThread)
             return;
 
-        il2cpp::os::FastAutoLock lock(currentThread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(currentThread->GetInternalThread()->longlived->synch_cs);
 
         // Don't throw if thread is not currently in waiting state or if there's
         // no pending interrupt.
@@ -608,7 +609,7 @@ namespace vm
 
     bool Thread::RequestAbort(Il2CppThread* thread)
     {
-        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->GetInternalThread()->longlived->synch_cs);
 
         ThreadState state = il2cpp::vm::Thread::GetState(thread);
         if (state & kThreadStateAbortRequested || state & kThreadStateStopped || state & kThreadStateStopRequested)
@@ -632,7 +633,7 @@ namespace vm
 
     bool Thread::RequestAbort(Il2CppInternalThread* thread)
     {
-        il2cpp::os::FastAutoLock lock(thread->synch_cs);
+        il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
 
         ThreadState state = il2cpp::vm::Thread::GetState(thread);
         if (state & kThreadStateAbortRequested || state & kThreadStateStopped || state & kThreadStateStopRequested)
@@ -657,14 +658,14 @@ namespace vm
     void Thread::SetPriority(Il2CppThread* thread, int32_t priority)
     {
         Il2CppInternalThread* internalThread = thread->GetInternalThread();
-        il2cpp::os::FastAutoLock lock(internalThread->synch_cs);
+        il2cpp::os::FastAutoLock lock(internalThread->longlived->synch_cs);
         internalThread->handle->SetPriority((il2cpp::os::ThreadPriority)priority);
     }
 
     int32_t Thread::GetPriority(Il2CppThread* thread)
     {
         Il2CppInternalThread* internalThread = thread->GetInternalThread();
-        il2cpp::os::FastAutoLock lock(internalThread->synch_cs);
+        il2cpp::os::FastAutoLock lock(internalThread->longlived->synch_cs);
         return internalThread->handle->GetPriority();
     }
 
@@ -817,7 +818,7 @@ namespace vm
         if (!currentThread)
             return;
 
-        il2cpp::os::FastAutoLock lock(currentThread->GetInternalThread()->synch_cs);
+        il2cpp::os::FastAutoLock lock(currentThread->GetInternalThread()->longlived->synch_cs);
 
         ThreadState state = il2cpp::vm::Thread::GetState(currentThread);
         if (!(state & kThreadStateAbortRequested))

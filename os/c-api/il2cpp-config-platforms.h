@@ -17,6 +17,17 @@
 #define IL2CPP_TARGET_ARMV7 0
 #endif
 
+#if defined(__x86_64__) || defined(_M_X64)
+#define IL2CPP_TARGET_X64 1
+#define IL2CPP_TARGET_X86 0
+#elif defined(__i386__) || defined(_M_IX86)
+#define IL2CPP_TARGET_X64 0
+#define IL2CPP_TARGET_X86 1
+#else
+#define IL2CPP_TARGET_X64 0
+#define IL2CPP_TARGET_X86 0
+#endif
+
 // Large executables on ARM64 and ARMv7 can cause linker errors.
 // Specifically, the arm instruction set limits the range a branch can
 // take (e.g. 128MB on ARM64). Normally, the linker will insert branch

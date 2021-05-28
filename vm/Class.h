@@ -27,6 +27,7 @@ struct Il2CppReflectionType;
 struct Il2CppType;
 struct Il2CppGenericContainer;
 struct Il2CppGenericContext;
+struct MonoGenericParameterInfo;
 
 namespace il2cpp
 {
@@ -94,7 +95,8 @@ namespace vm
         static const Il2CppImage* GetImage(Il2CppClass* klass);
         static const char *GetAssemblyName(const Il2CppClass *klass);
         static const char *GetAssemblyNameNoExtension(const Il2CppClass *klass);
-
+        static Il2CppClass* GenericParamGetBaseType(Il2CppClass* klass);
+        static MonoGenericParameterInfo* GetOrCreateMonoGenericParameterInfo(Il2CppMetadataGenericParameterHandle parameterHandle);
         static const int IgnoreNumberOfArguments;
 
     public:
