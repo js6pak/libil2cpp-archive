@@ -49,6 +49,29 @@ namespace os
 
         return std::string(multiByteStr, numConverted);
     }
+
+    typedef struct
+    {
+        DWORD pid;
+        HWND hwnd;
+    } EnumWindowsArgs;
+
+    static BOOL STDCALL Il2CppEnumWindowsCallback(HWND hwnd, LPARAM lparam)
+    {
+        EnumWindowsArgs* args = (EnumWindowsArgs*)lparam;
+        DWORD pid = 0;
+        GetWindowThreadProcessId(hwnd, &pid);
+        if (pid != args->pid || GetWindow(hwnd, GW_OWNER) != NULL || !IsWindowVisible(hwnd)) return TRUE;
+        args->hwnd = hwnd;
+        return FALSE;
+    }
+
+    intptr_t Process::GetMainWindowHandle(int32_t pid)
+    {
+        EnumWindowsArgs args = { (DWORD)pid, 0 };
+        EnumWindows(Il2CppEnumWindowsCallback, (LPARAM)&args);
+        return (intptr_t)args.hwnd;
+    }
 }
 }
 

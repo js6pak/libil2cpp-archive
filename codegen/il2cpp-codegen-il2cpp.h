@@ -415,14 +415,14 @@ inline T InterlockedExchangeImpl(T* location, T value)
 
 void il2cpp_codegen_memory_barrier();
 
-inline void ArrayGetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, void* value)
+inline void ArrayGetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, void* value)
 {
-    memcpy(value, ((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * thisPtr->klass->element_size, thisPtr->klass->element_size);
+    memcpy(value, ((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * (*thisPtr)->klass->element_size, (*thisPtr)->klass->element_size);
 }
 
-inline void ArraySetGenericValueImpl(RuntimeArray * thisPtr, int32_t pos, void* value)
+inline void ArraySetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, void* value)
 {
-    memcpy(((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * thisPtr->klass->element_size, value, thisPtr->klass->element_size);
+    memcpy(((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * (*thisPtr)->klass->element_size, value, (*thisPtr)->klass->element_size);
 }
 
 RuntimeArray* SZArrayNew(RuntimeClass* arrayType, uint32_t length);
@@ -954,6 +954,19 @@ inline void* il2cpp_codegen_unsafe_cast(T* ptr)
 {
     return reinterpret_cast<void*>(ptr);
 }
+
+inline void il2cpp_codegen_by_reference_constructor(Il2CppByReference* byReference, void* value)
+{
+    byReference->value = (intptr_t)value;
+    Il2CppCodeGenWriteBarrier((void**)&byReference->value, value);
+}
+
+inline intptr_t il2cpp_codegen_by_reference_get_value(Il2CppByReference* byReference)
+{
+    return byReference->value;
+}
+
+#define IL2CPP_BY_REFERENCE_GET_VALUE(TReturnType, byReference) (TReturnType*)il2cpp_codegen_by_reference_get_value(byReference)
 
 #if IL2CPP_TINY
 

@@ -48,12 +48,26 @@ namespace os
 #if !IL2CPP_TARGET_LUMIN
     std::string Environment::GetMachineName()
     {
-        char buf[256];
+        const int n = 512;
+        char buf[n];
 
-        if (gethostname(buf, sizeof(buf)) != 0)
-            return NULL;
+        if (gethostname(buf, sizeof(buf)) == 0)
+        {
+            buf[n - 1] = 0;
+            int i;
+            // try truncating the string at the first dot
+            for (i = 0; i < n; i++)
+            {
+                if (buf[i] == '.')
+                {
+                    buf[i] = 0;
+                    break;
+                }
+            }
+            return buf;
+        }
 
-        return buf;
+        return NULL;
     }
 
 #endif //!IL2CPP_TARGET_LUMIN
