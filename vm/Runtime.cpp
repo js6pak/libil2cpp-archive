@@ -11,6 +11,7 @@
 #include "os/Thread.h"
 #include "os/Socket.h"
 #include "os/c-api/Allocator.h"
+#include "metadata/GenericMetadata.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/COMEntryPoints.h"
@@ -526,28 +527,9 @@ namespace vm
         const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
         const MethodInfo* method = metadata::GenericMethod::GetMethod(gmethod);
 
-        RaiseExecutionEngineExceptionIfMethodIsNotFound(method, gmethod);
+        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(method, gmethod);
 
         return method;
-    }
-
-    void Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
-    {
-        if (method->methodPointer == NULL)
-        {
-            if (Method::GetClass(method))
-                RaiseExecutionEngineException(Method::GetFullName(method).c_str());
-            else
-                RaiseExecutionEngineException(Method::GetNameWithGenericTypes(method).c_str());
-        }
-    }
-
-    void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
-    {
-        if (Method::GetClass(method))
-            RaiseExecutionEngineException(Method::GetFullName(method).c_str());
-        else
-            RaiseExecutionEngineException(Method::GetName(method));
     }
 
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
@@ -973,12 +955,44 @@ namespace vm
 
     static void MissingMethodInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
     {
-        Runtime::AlwaysRaiseExecutionEngineException(method);
+        Runtime::RaiseExecutionEngineException(method, false);
     }
 
     InvokerMethod Runtime::GetMissingMethodInvoker()
     {
         return MissingMethodInvoker;
+    }
+
+    void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
+    {
+        RaiseExecutionEngineException(method, false);
+    }
+
+    void Runtime::AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method)
+    {
+        RaiseExecutionEngineException(method, true);
+    }
+
+    void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod)
+    {
+        if (method->methodPointer == NULL)
+            RaiseExecutionEngineException(method, metadata::GenericMethod::GetFullName(genericMethod).c_str(), true);
+    }
+
+    void Runtime::RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall)
+    {
+        if (Method::GetClass(method))
+            RaiseExecutionEngineException(method, Method::GetFullName(method).c_str(), virtualCall);
+        else
+            RaiseExecutionEngineException(method, Method::GetNameWithGenericTypes(method).c_str(), virtualCall);
+    }
+
+    void Runtime::RaiseExecutionEngineException(const MethodInfo* method, const char* methodFullName, bool virtualCall)
+    {
+        const char* help = "";
+        if (virtualCall && (method->flags & METHOD_ATTRIBUTE_VIRTUAL) && method->is_inflated)
+            help = "  Consider increasing the --generic-virtual-method-iterations argument.";
+        Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
     }
 } /* namespace vm */
 } /* namespace il2cpp */

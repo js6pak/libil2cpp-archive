@@ -112,6 +112,7 @@ NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defa
 void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method);
 
 void il2cpp_codegen_raise_execution_engine_exception(const RuntimeMethod* method);
+void il2cpp_codegen_raise_execution_engine_exception_missing_virtual(const RuntimeMethod* method);
 
 NORETURN void il2cpp_codegen_raise_out_of_memory_exception();
 
