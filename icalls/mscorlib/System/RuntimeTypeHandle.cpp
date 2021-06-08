@@ -104,8 +104,8 @@ namespace System
 
     bool RuntimeTypeHandle::IsByRefLike(Il2CppReflectionRuntimeType* type)
     {
-        NOT_SUPPORTED_IL2CPP(RuntimeTypeHandle::IsByRefLike, "This icall is only used for .NET Core and .NET Standard 2.1, which IL2CPP does not support.");
-        return false;
+        Il2CppClass* klass = vm::Class::FromIl2CppType(type->type.type);
+        return klass->is_byref_like;
     }
 
     bool RuntimeTypeHandle::IsComObject(Il2CppReflectionRuntimeType* type)

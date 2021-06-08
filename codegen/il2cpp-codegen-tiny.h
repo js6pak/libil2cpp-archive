@@ -707,15 +707,15 @@ inline bool il2cpp_codegen_type_is_pointer(Type_t* t)
 }
 
 template<typename T>
-void ArrayGetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, T* value)
+void GetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, T* value)
 {
-    memcpy(value, ((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), sizeof(T));
+    memcpy(value, ((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), sizeof(T));
 }
 
 template<typename T>
-void ArraySetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, T* value)
+void SetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, T* value)
 {
-    memcpy(((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), value, sizeof(T));
+    memcpy(((uint8_t*)thisPtr) + sizeof(RuntimeArray) + pos * sizeof(T), value, sizeof(T));
 }
 
 void il2cpp_codegen_marshal_store_last_error();

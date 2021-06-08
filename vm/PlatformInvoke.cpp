@@ -337,7 +337,7 @@ namespace vm
 
         stringBuilder->chunkLength = (int)utf16String.size();
         stringBuilder->chunkOffset = 0;
-        IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
+        IL2CPP_OBJECT_SETREF_NULL(stringBuilder, chunkPrevious);
     }
 
     void PlatformInvoke::MarshalWStringBuilderResult(Il2CppStringBuilder* stringBuilder, Il2CppChar* buffer)
@@ -356,7 +356,7 @@ namespace vm
 
         stringBuilder->chunkLength = len;
         stringBuilder->chunkOffset = 0;
-        IL2CPP_OBJECT_SETREF(stringBuilder, chunkPrevious, NULL);
+        IL2CPP_OBJECT_SETREF_NULL(stringBuilder, chunkPrevious);
     }
 
     // When a delegate is marshalled from native code via Marshal.GetDelegateForFunctionPointer

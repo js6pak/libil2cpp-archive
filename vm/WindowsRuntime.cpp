@@ -638,10 +638,10 @@ namespace vm
         if (classDefinition == NULL || !classDefinition->is_generic)
             return NULL;
 
-        std::vector<const Il2CppType*> genericArguments;
-        genericArguments.reserve(genericArgumentCount);
+        const Il2CppType** genericArguments = (const Il2CppType**)alloca(genericArgumentCount * sizeof(const Il2CppType*));
 
         int genericDepth = 0;
+        int genericArgumentsAdded = 0;
         const Il2CppNativeChar* genericArgumentsPtr = typeName.Str() + genericArgumentStartIndex + 1;
         const Il2CppNativeChar* currentGenericArgumentStart = genericArgumentsPtr;
         const Il2CppNativeChar* genericArgumentsEnd = typeName.Str() + typeName.Length() - 1;
@@ -673,17 +673,18 @@ namespace vm
                         if (genericArgumentClass == NULL)
                             return NULL;
 
-                        genericArguments.push_back(&genericArgumentClass->byval_arg);
+                        genericArguments[genericArgumentsAdded] = &genericArgumentClass->byval_arg;
                         currentGenericArgumentStart = genericArgumentsPtr + 1;
+                        genericArgumentsAdded++;
                     }
                 }
             }
         }
 
-        if (genericArguments.size() != genericArgumentCount)
+        if (genericArgumentsAdded != genericArgumentCount)
             return NULL;
 
-        const Il2CppGenericInst* genericInst = MetadataCache::GetGenericInst(genericArguments);
+        const Il2CppGenericInst* genericInst = MetadataCache::GetGenericInst(genericArguments, genericArgumentCount);
         Il2CppGenericClass* genericClass = metadata::GenericMetadata::GetGenericClass(classDefinition, genericInst);
         return GenericClass::GetClass(genericClass);
     }

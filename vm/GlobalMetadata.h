@@ -6,7 +6,6 @@
 #include "StackTrace.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-config.h"
-#include "metadata/Il2CppTypeVector.h"
 #include "os/Mutex.h"
 #include "utils/dynamic_array.h"
 #include "vm-utils/MethodDefinitionKey.h"
