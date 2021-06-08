@@ -6,6 +6,7 @@
 #include "vm/MetadataCache.h"
 #include "vm/Object.h"
 #include "vm/Reflection.h"
+#include "vm/Runtime.h"
 #include "vm/Type.h"
 
 namespace il2cpp
@@ -300,6 +301,33 @@ namespace vm
         str += Method::GetNameWithGenericTypes(method);
 
         return str;
+    }
+
+    static void AmbiguousImplementationMethod()
+    {
+        il2cpp::vm::Runtime::RaiseAmbiguousImplementationException(NULL);
+    }
+
+    static void AmbiguousImplementationMethodInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
+    {
+        il2cpp::vm::Runtime::RaiseAmbiguousImplementationException(method);
+    }
+
+    const static MethodInfo ambiguousMethodInfo =
+    {
+        AmbiguousImplementationMethod,
+        AmbiguousImplementationMethod,
+        AmbiguousImplementationMethodInvoker,
+    };
+
+    const MethodInfo* Method::GetAmbiguousMethodInfo()
+    {
+        return &ambiguousMethodInfo;
+    }
+
+    bool Method::IsAmbiguousMethodInfo(const MethodInfo* method)
+    {
+        return method == &ambiguousMethodInfo;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

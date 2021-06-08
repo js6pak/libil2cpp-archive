@@ -110,8 +110,8 @@ namespace vm
 
         arr = il2cpp_array_new(object_array_klass, outarg_count);
 
-        il2cpp::gc::WriteBarrier::GenericStore(out_args, (Il2CppObject*)arr);
-        il2cpp::gc::WriteBarrier::GenericStore(exc, NULL);
+        il2cpp::gc::WriteBarrier::GenericStore(out_args, arr);
+        il2cpp::gc::WriteBarrier::GenericStoreNull(exc);
 
         ret = vm::Runtime::InvokeArray(method, method->klass->byval_arg.valuetype ? il2cpp_object_unbox(target) : target, method->parameters_count > 0 ? msg->args : NULL, (Il2CppException**)exc);
 

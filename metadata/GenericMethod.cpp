@@ -49,6 +49,14 @@ namespace metadata
         AGenericMethodWhichIsTooDeeplyNestedWasInvoked();
     }
 
+    // This method must have virtualMethodInfo null so that the test in RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound fails
+    const static MethodInfo ambiguousMethodInfo = { 0 };
+
+    bool GenericMethod::IsGenericAmbiguousMethodInfo(const MethodInfo* method)
+    {
+        return method == &ambiguousMethodInfo;
+    }
+
     const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod, bool copyMethodPtr)
     {
         FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
@@ -66,6 +74,9 @@ namespace metadata
         Il2CppGenericMethodMap::const_iterator iter = s_GenericMethodMap.find(gmethod);
         if (iter != s_GenericMethodMap.end())
             return iter->second;
+
+        if (Method::IsAmbiguousMethodInfo(gmethod->methodDefinition))
+            return &ambiguousMethodInfo;
 
         if (copyMethodPtr)
         {
@@ -137,6 +148,11 @@ namespace metadata
             newMethod->invoker_method = Runtime::GetMissingMethodInvoker();
 
         ++il2cpp_runtime_stats.inflated_method_count;
+
+
+        // If we are a default interface method on a generic instance interface we need to ensure that the interfaces rgctx is inflated
+        if (newMethod->methodPointer != NULL && declaringClass->generic_class != NULL && vm::Class::IsInterface(declaringClass))
+            vm::Class::Init(declaringClass);
 
         return newMethod;
     }

@@ -258,7 +258,7 @@ namespace System
         Il2CppClass* typeInfo = thisPtr->klass;
         void **ea;
 
-        ea = (void**)load_array_elema(thisPtr, pos, typeInfo->element_size);
+        ea = (void**)il2cpp_array_addr_with_size(thisPtr, pos, typeInfo->element_size);
 
         if (typeInfo->element_class->byval_arg.valuetype)
             return il2cpp::vm::Object::Box(typeInfo->element_class, ea);

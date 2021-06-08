@@ -396,6 +396,12 @@ inline RuntimeClass* il2cpp_codegen_class_from_type(const RuntimeType *type)
     return InitializedTypeInfo(il2cpp_codegen_class_from_type_internal(type));
 }
 
+template<typename T>
+inline bool il2cpp_codegen_enum_has_flag(T enumValue, T flag)
+{
+    return (enumValue & flag) == flag;
+}
+
 inline void* InterlockedExchangeImplRef(void** location, void* value)
 {
     return il2cpp::icalls::mscorlib::System::Threading::Interlocked::ExchangePointer(location, value);
@@ -415,15 +421,12 @@ inline T InterlockedExchangeImpl(T* location, T value)
 
 void il2cpp_codegen_memory_barrier();
 
-inline void ArrayGetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, void* value)
+inline void GetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, void* value)
 {
-    memcpy(value, ((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * (*thisPtr)->klass->element_size, (*thisPtr)->klass->element_size);
+    memcpy(value, il2cpp_array_addr_with_size(thisPtr, thisPtr->klass->element_size, pos), thisPtr->klass->element_size);
 }
 
-inline void ArraySetGenericValue_icall(RuntimeArray** thisPtr, int32_t pos, void* value)
-{
-    memcpy(((uint8_t*)*thisPtr) + sizeof(RuntimeArray) + pos * (*thisPtr)->klass->element_size, value, (*thisPtr)->klass->element_size);
-}
+void SetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, void* value);
 
 RuntimeArray* SZArrayNew(RuntimeClass* arrayType, uint32_t length);
 
@@ -869,6 +872,11 @@ inline Il2CppMethodPointer il2cpp_codegen_get_method_pointer(const RuntimeMethod
     return method->virtualMethodPointer;
 }
 
+inline Il2CppMethodPointer il2cpp_codegen_get_direct_method_pointer(const RuntimeMethod* method)
+{
+    return method->methodPointer;
+}
+
 inline const RuntimeType* il2cpp_codegen_method_return_type(const RuntimeMethod* method)
 {
     return method->return_type;
@@ -948,6 +956,8 @@ inline void il2cpp_codegen_array_unsafe_mov_primitive(const RuntimeType * destTy
 
 // objBuffer is a pointer to the obj, either a pointer to a struct's data or a pointer to a reference type pointer
 void il2cpp_codegen_runtime_constrained_call(RuntimeClass* type, const RuntimeMethod* constrainedMethod, void* boxBuffer, void* objBuffer, void** args, void* retVal);
+
+void* il2cpp_codegen_runtime_box_constrained_this(RuntimeClass* type, const RuntimeMethod* constrainedMethod, void* obj);
 
 template<typename T>
 inline void* il2cpp_codegen_unsafe_cast(T* ptr)

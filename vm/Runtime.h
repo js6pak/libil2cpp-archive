@@ -70,6 +70,7 @@ namespace vm
         static void SetExitCode(int32_t value);
 
         static InvokerMethod GetMissingMethodInvoker();
+        static void RaiseAmbiguousImplementationException(const MethodInfo* method);
         static void RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall);
         static void RaiseExecutionEngineException(const MethodInfo* method, const char* methodFullName, bool virtualCall);
 
@@ -83,7 +84,7 @@ namespace vm
 
         static void VerifyApiVersion();
 
-        static void RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod);
+        static void RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod, const MethodInfo* infaltedMethod);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

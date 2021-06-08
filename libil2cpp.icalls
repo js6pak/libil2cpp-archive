@@ -764,29 +764,7 @@ System.Reflection.MethodBase::GetCurrentMethod() mscorlib::System::Reflection::M
 
 // System.MathF
 >vm-utils/icalls/mscorlib/System/MathF.h
-System.MathF::Acos(System.Single) mscorlib::System::MathF::Acos
-System.MathF::Acosh(System.Single) mscorlib::System::MathF::Acosh
-System.MathF::Asin(System.Single) mscorlib::System::MathF::Asin
-System.MathF::Asinh(System.Single) mscorlib::System::MathF::Asinh
-System.MathF::Atan(System.Single) mscorlib::System::MathF::Atan
-System.MathF::Atan2(System.Single,System.Single) mscorlib::System::MathF::Atan2
-System.MathF::Atanh(System.Single) mscorlib::System::MathF::Atanh
-System.MathF::Cbrt(System.Single) mscorlib::System::MathF::Cbrt
-System.MathF::Ceiling(System.Single) mscorlib::System::MathF::Ceiling
-System.MathF::Cos(System.Single) mscorlib::System::MathF::Cos
-System.MathF::Cosh(System.Single) mscorlib::System::MathF::Cosh
-System.MathF::Exp(System.Single) mscorlib::System::MathF::Exp
-System.MathF::Floor(System.Single) mscorlib::System::MathF::Floor
-System.MathF::FMod(System.Single,System.Single) mscorlib::System::MathF::FMod
-System.MathF::Log(System.Single) mscorlib::System::MathF::Log
-System.MathF::Log10(System.Single) mscorlib::System::MathF::Log10
-System.MathF::ModF(System.Single,System.Single*) mscorlib::System::MathF::ModF
 System.MathF::Pow(System.Single,System.Single) mscorlib::System::MathF::Pow
-System.MathF::Sin(System.Single) mscorlib::System::MathF::Sin
-System.MathF::Sinh(System.Single) mscorlib::System::MathF::Sinh
-System.MathF::Sqrt(System.Single) mscorlib::System::MathF::Sqrt
-System.MathF::Tan(System.Single) mscorlib::System::MathF::Tan
-System.MathF::Tanh(System.Single) mscorlib::System::MathF::Tanh
 
 // System.IO.Path
 >icalls/mscorlib/System.IO/Path.h

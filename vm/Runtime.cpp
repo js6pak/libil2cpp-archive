@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "metadata/GenericMethod.h"
 #include "os/CrashHelpers.h"
 #include "os/Environment.h"
 #include "os/File.h"
@@ -295,6 +296,8 @@ namespace vm
 
         DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
 
+        ClassLibraryPAL::Initialize();
+
         // Reflection needs GC initialized
         Reflection::Initialize();
 
@@ -533,7 +536,7 @@ namespace vm
         const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
         const MethodInfo* method = metadata::GenericMethod::GetMethod(gmethod);
 
-        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(method, gmethod);
+        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(method, gmethod, inflatedMethod);
 
         return method;
     }
@@ -541,7 +544,7 @@ namespace vm
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
     {
         if (exc)
-            il2cpp::gc::WriteBarrier::GenericStore(exc, NULL);
+            il2cpp::gc::WriteBarrier::GenericStoreNull(exc);
 
         // we wrap invoker call in try/catch here, rather than emitting a try/catch
         // in every invoke call as that blows up the code size.
@@ -1007,10 +1010,19 @@ namespace vm
         RaiseExecutionEngineException(method, true);
     }
 
-    void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod)
+    void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod, const MethodInfo* inflatedMethod)
     {
         if (method->virtualMethodPointer == NULL)
-            RaiseExecutionEngineException(method, metadata::GenericMethod::GetFullName(genericMethod).c_str(), true);
+        {
+            if (metadata::GenericMethod::IsGenericAmbiguousMethodInfo(method))
+            {
+                RaiseAmbiguousImplementationException(inflatedMethod);
+            }
+            else
+            {
+                RaiseExecutionEngineException(method, metadata::GenericMethod::GetFullName(genericMethod).c_str(), true);
+            }
+        }
     }
 
     void Runtime::RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall)
@@ -1021,12 +1033,28 @@ namespace vm
             RaiseExecutionEngineException(method, Method::GetNameWithGenericTypes(method).c_str(), virtualCall);
     }
 
+    void Runtime::RaiseAmbiguousImplementationException(const MethodInfo* method)
+    {
+        if (method != NULL && !Method::IsAmbiguousMethodInfo(method))
+            Exception::Raise(Exception::GetAmbiguousImplementationException(utils::StringUtils::Printf("Attempting to call default interface method for '%s' with ambiguous implementations", Method::GetFullName(method).c_str()).c_str()));
+        else
+            Exception::Raise(Exception::GetAmbiguousImplementationException("Attempting to call default interface method with ambiguous implementations"));
+    }
+
     void Runtime::RaiseExecutionEngineException(const MethodInfo* method, const char* methodFullName, bool virtualCall)
     {
-        const char* help = "";
-        if (virtualCall && method->flags && METHOD_ATTRIBUTE_VIRTUAL && method->is_inflated)
-            help = "  Consider increasing the --generic-virtual-method-iterations argument.";
-        Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
+        if (method->flags & METHOD_ATTRIBUTE_ABSTRACT)
+        {
+            // Default Interface Method support will throw EntryPointNotFoundExceptions if an abstract interface method is accessed
+            Exception::Raise(Exception::GetEntryPointNotFoundException(utils::StringUtils::Printf("Attempting to call abstract method '%s'", methodFullName).c_str()));
+        }
+        else
+        {
+            const char* help = "";
+            if (virtualCall && (method->flags & METHOD_ATTRIBUTE_VIRTUAL) && method->is_inflated)
+                help = "  Consider increasing the --generic-virtual-method-iterations argument.";
+            Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
+        }
     }
 
 #if IL2CPP_TINY
