@@ -17,6 +17,7 @@
 #include <sys/sendfile.h>
 #include <limits.h>
 #define IL2CPP_HAVE_SENDFILE_4 1
+#define IL2CPP_HAVE_SYS_UN 1
 
 #define stat_ stat
 #define fstat_ fstat

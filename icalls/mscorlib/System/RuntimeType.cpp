@@ -866,46 +866,45 @@ namespace System
         return il2cpp::vm::Reflection::GetTypeObject(&klass->this_arg);
     }
 
-    static std::string FormatExceptionMessageForNonConstructableGenericType(const Il2CppType* type, const il2cpp::metadata::Il2CppTypeVector& genericArguments)
+    static std::string FormatExceptionMessageForNonConstructableGenericType(const Il2CppType* type, const Il2CppType** genericArguments, int genericArgumentCount)
     {
         std::string message;
         message += "Failed to construct generic type '";
         message += il2cpp::vm::Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
         message += "' with generic arguments [";
-        for (il2cpp::metadata::Il2CppTypeVector::const_iterator iter = genericArguments.begin(); iter != genericArguments.end(); ++iter)
+        for (int i = 0; i < genericArgumentCount; i++)
         {
-            if (iter != genericArguments.begin())
+            if (i != 0)
                 message += ", ";
-            message += il2cpp::vm::Type::GetName(*iter, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+            message += il2cpp::vm::Type::GetName(genericArguments[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
         }
         message += "] at runtime.";
 
         return message;
     }
 
-    Il2CppReflectionType* RuntimeType::MakeGenericType(Il2CppReflectionType* type, Il2CppArray* types)
+    Il2CppReflectionType * RuntimeType::MakeGenericType(Il2CppReflectionType* type, Il2CppArray* genericArgumentTypes)
     {
         const Il2CppType* genericTypeDefinitionType = type->type;
         Il2CppClass* genericTypeDefinitionClass = vm::Class::FromIl2CppType(genericTypeDefinitionType);
         IL2CPP_ASSERT(vm::Class::IsGeneric(genericTypeDefinitionClass));
 
-        uint32_t arrayLength = vm::Array::GetLength(types);
-        il2cpp::metadata::Il2CppTypeVector genericArguments;
-        genericArguments.reserve(arrayLength);
+        uint32_t arrayLength = vm::Array::GetLength(genericArgumentTypes);
+        const Il2CppType** genericArguments = (const Il2CppType**)alloca(arrayLength * sizeof(Il2CppType*));
 
         for (uint32_t i = 0; i < arrayLength; i++)
         {
-            Il2CppReflectionType* genericArgumentType = il2cpp_array_get(types, Il2CppReflectionType*, i);
-            genericArguments.push_back(genericArgumentType->type);
+            Il2CppReflectionType* genericArgumentType = il2cpp_array_get(genericArgumentTypes, Il2CppReflectionType*, i);
+            genericArguments[i] = genericArgumentType->type;
         }
 
-        const Il2CppGenericInst* inst = vm::MetadataCache::GetGenericInst(genericArguments);
-        Il2CppGenericClass* genericClass = il2cpp::metadata::GenericMetadata::GetGenericClass(genericTypeDefinitionClass, inst);
+        const Il2CppGenericInst* inst = vm::MetadataCache::GetGenericInst(genericArguments, arrayLength);
+        Il2CppGenericClass* genericClass = metadata::GenericMetadata::GetGenericClass(genericTypeDefinitionClass, inst);
         Il2CppClass* genericInstanceTypeClass = vm::GenericClass::GetClass(genericClass);
 
         if (!genericInstanceTypeClass)
         {
-            vm::Exception::Raise(vm::Exception::GetNotSupportedException(FormatExceptionMessageForNonConstructableGenericType(genericTypeDefinitionType, genericArguments).c_str()));
+            vm::Exception::Raise(vm::Exception::GetNotSupportedException(FormatExceptionMessageForNonConstructableGenericType(genericTypeDefinitionType, genericArguments, arrayLength).c_str()));
             return NULL;
         }
 
@@ -1055,14 +1054,24 @@ namespace System
         Il2CppClass* klass = il2cpp_class_from_il2cpp_type(type->type);
         Il2CppClass* iklass = il2cpp_class_from_il2cpp_type(iface->type);
 
-        int32_t numberOfMethods = (int32_t)vm::Class::GetNumMethods(iklass);
-        *targets = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfMethods);
-        *methods = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfMethods);
+        void* iter = NULL;
 
-        if (numberOfMethods == 0)
+        int32_t numberOfMethods = (int32_t)vm::Class::GetNumMethods(iklass);
+        int32_t numberOfVirtualMethods = 0;
+        for (int i = 0; i < numberOfMethods; ++i)
+        {
+            const MethodInfo* method = il2cpp_class_get_methods(iklass, &iter);
+            if (method->flags & METHOD_ATTRIBUTE_VIRTUAL)
+                numberOfVirtualMethods++;
+        }
+
+
+        *targets = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfVirtualMethods);
+        *methods = il2cpp_array_new(il2cpp_defaults.method_info_class, numberOfVirtualMethods);
+
+        if (numberOfVirtualMethods == 0)
             return;
 
-        void* unused = NULL;
         vm::Class::Init(klass);
         const VirtualInvokeData* invokeDataStart;
 
@@ -1089,13 +1098,29 @@ namespace System
             invokeDataStart = &vm::ClassInlines::GetInterfaceInvokeDataFromVTable(&fakeComObject, iklass, 0);
         }
 
+        iter = NULL;
+        int virtualMethodIndex = 0;
         for (int i = 0; i < numberOfMethods; ++i)
         {
-            const MethodInfo* method = il2cpp_class_get_methods(iklass, &unused);
-            Il2CppReflectionMethod* member = il2cpp_method_get_object(method, iklass);
-            il2cpp_array_setref(*methods, i, member);
-            member = il2cpp_method_get_object(invokeDataStart[i].method, klass);
-            il2cpp_array_setref(*targets, i, member);
+            const MethodInfo* method = il2cpp_class_get_methods(iklass, &iter);
+            if (method->flags & METHOD_ATTRIBUTE_VIRTUAL)
+            {
+                Il2CppReflectionMethod* member = il2cpp_method_get_object(method, iklass);
+                il2cpp_array_setref(*methods, virtualMethodIndex, member);
+
+                const MethodInfo* targetMethod = invokeDataStart[i].method;
+
+                if (vm::Method::IsAmbiguousMethodInfo(targetMethod))
+                    member = NULL;
+                else if (targetMethod->flags & METHOD_ATTRIBUTE_ABSTRACT)
+                    member = NULL;
+                else if (vm::Class::IsInterface(targetMethod->klass))
+                    member = il2cpp_method_get_object(targetMethod, targetMethod->klass);
+                else
+                    member = il2cpp_method_get_object(targetMethod, klass);
+                il2cpp_array_setref(*targets, virtualMethodIndex, member);
+                virtualMethodIndex++;
+            }
         }
     }
 
