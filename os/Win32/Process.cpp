@@ -50,6 +50,13 @@ namespace os
         return std::string(multiByteStr, numConverted);
     }
 
+#if IL2CPP_TARGET_WINDOWS_GAMES
+    intptr_t Process::GetMainWindowHandle(int32_t pid)
+    {
+        return 0;
+    }
+
+#else
     typedef struct
     {
         DWORD pid;
@@ -72,6 +79,8 @@ namespace os
         EnumWindows(Il2CppEnumWindowsCallback, (LPARAM)&args);
         return (intptr_t)args.hwnd;
     }
+
+#endif
 }
 }
 

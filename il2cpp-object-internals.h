@@ -17,9 +17,22 @@ extern "C"
 // api declarations with mismatching parameter declarations (char* vs const char*).
 // So we only declare il2cpp_gc_wbarrier_set_field here.
 IL2CPP_EXPORT void il2cpp_gc_wbarrier_set_field(Il2CppObject * obj, void **targetAddress, void *object);
+
 #if defined(__cplusplus)
 }
-#endif // __cplusplus
+
+#include <type_traits>
+
+template<typename TTarget, typename TValue>
+inline void il2cpp_gc_wbarrier_set_field_templated(Il2CppObject* obj, TTarget** targetAddress, TValue* object)
+{
+    static_assert((std::is_assignable<TTarget*&, TValue*>::value), "Pointers types are not assignment compatible");
+    il2cpp_gc_wbarrier_set_field(obj, (void**)targetAddress, (void*)object);
+}
+
+#else // __cplusplus
+#define il2cpp_gc_wbarrier_set_field_templated il2cpp_gc_wbarrier_set_field
+#endif
 
 typedef struct Il2CppClass Il2CppClass;
 typedef struct MethodInfo MethodInfo;
@@ -124,6 +137,8 @@ static const size_t kIl2CppSizeOfArray = (offsetof(Il2CppArraySize, vector));
 static const size_t kIl2CppOffsetOfArrayBounds = (offsetof(Il2CppArray, bounds));
 static const size_t kIl2CppOffsetOfArrayLength = (offsetof(Il2CppArray, max_length));
 
+#define il2cpp_array_addr_with_size(arr, idx, size) ((((uint8_t*)(arr)) + kIl2CppSizeOfArray) + ((size) * (idx)))
+
 
 // System.String
 typedef struct Il2CppString
@@ -140,12 +155,16 @@ typedef struct Il2CppString
 #endif
 
 #define IL2CPP_OBJECT_SETREF(obj, fieldname, value) do {\
-        il2cpp_gc_wbarrier_set_field((Il2CppObject *)(obj), (void**)&(obj)->fieldname, (value));\
+        il2cpp_gc_wbarrier_set_field_templated(NULL, &(obj)->fieldname, (value));\
     } while (0)
 
 /* This should be used if 's' can reside on the heap */
 #define IL2CPP_STRUCT_SETREF(s, field, value) do {\
-        il2cpp_gc_wbarrier_set_field((Il2CppObject *)(s), (void**)&(s)->field, (value));\
+        il2cpp_gc_wbarrier_set_field_templated(NULL, &(s)->field, (value));\
+    } while (0)
+
+#define IL2CPP_OBJECT_SETREF_NULL(obj, fieldname) do {\
+        (obj)->fieldname = NULL; \
     } while (0)
 
 typedef struct Il2CppReflectionType

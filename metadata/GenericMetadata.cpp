@@ -50,36 +50,51 @@ namespace metadata
         return inflatedParameters;
     }
 
+    static const Il2CppType* InflateGenericParameterIfNeeded(const Il2CppType* type, const Il2CppGenericInst* inst)
+    {
+        IL2CPP_ASSERT(inst);
+
+        Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
+        IL2CPP_ASSERT(gp.num < inst->type_argc);
+
+        const Il2CppType* genericArgument = inst->type_argv[gp.num];
+        if (genericArgument->attrs == type->attrs && genericArgument->byref == type->byref)
+            return genericArgument;
+
+        Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
+        memcpy(inflatedType,  genericArgument, sizeof(Il2CppType));
+        inflatedType->byref = type->byref;
+        inflatedType->attrs = type->attrs;
+
+        ++il2cpp_runtime_stats.inflated_type_count;
+
+        return inflatedType;
+    }
+
     const Il2CppType* GenericMetadata::InflateIfNeeded(const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars)
     {
         switch (type->type)
         {
             case IL2CPP_TYPE_VAR:
-            {
-                Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
-                IL2CPP_ASSERT(context->class_inst);
-                IL2CPP_ASSERT(gp.num < context->class_inst->type_argc);
-
-                memcpy(inflatedType, context->class_inst->type_argv[gp.num], sizeof(Il2CppType));
-                inflatedType->byref = type->byref;
-                inflatedType->attrs = type->attrs;
-
-                ++il2cpp_runtime_stats.inflated_type_count;
-
-                return inflatedType;
-            }
+                return InflateGenericParameterIfNeeded(type, context->class_inst);
             case IL2CPP_TYPE_MVAR:
             {
                 if (context->method_inst)
+                    return InflateGenericParameterIfNeeded(type, context->method_inst);
+                return type;
+            }
+            case IL2CPP_TYPE_ARRAY:
+            {
+                const Il2CppType* inflatedElementType = InflateIfNeeded(type->data.array->etype, context, inflateMethodVars);
+                if (!Il2CppTypeEqualityComparer::AreEqual(inflatedElementType, type->data.array->etype))
                 {
                     Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                    Il2CppGenericParameterInfo gp = Type::GetGenericParameterInfo(type);
-                    IL2CPP_ASSERT(gp.num < context->method_inst->type_argc);
+                    memcpy(inflatedType, type, sizeof(Il2CppType));
 
-                    memcpy(inflatedType, context->method_inst->type_argv[gp.num], sizeof(Il2CppType));
-                    inflatedType->byref = type->byref;
-                    inflatedType->attrs = type->attrs;
+                    Il2CppArrayType* arrayType = (Il2CppArrayType*)MetadataMalloc(sizeof(Il2CppArrayType));
+                    memcpy(arrayType, type->data.array, sizeof(Il2CppArrayType));
+                    arrayType->etype = inflatedElementType;
+                    inflatedType->data.array = arrayType;
 
                     ++il2cpp_runtime_stats.inflated_type_count;
 
@@ -87,50 +102,42 @@ namespace metadata
                 }
                 return type;
             }
-            case IL2CPP_TYPE_ARRAY:
-            {
-                Il2CppType* inflatedType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                memcpy(inflatedType, type, sizeof(Il2CppType));
-
-                Il2CppArrayType* arrayType = (Il2CppArrayType*)MetadataMalloc(sizeof(Il2CppArrayType));
-                memcpy(arrayType, type->data.array, sizeof(Il2CppArrayType));
-                arrayType->etype = InflateIfNeeded(type->data.array->etype, context, inflateMethodVars);
-
-                inflatedType->data.array = arrayType;
-
-                ++il2cpp_runtime_stats.inflated_type_count;
-
-                return inflatedType;
-            }
+            case IL2CPP_TYPE_PTR:
             case IL2CPP_TYPE_SZARRAY:
             {
-                Il2CppType* arrayType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                memcpy(arrayType, type, sizeof(Il2CppType));
-                arrayType->data.type = InflateIfNeeded(type->data.type, context, inflateMethodVars);
+                const Il2CppType* inflatedElementType = InflateIfNeeded(type->data.type, context, inflateMethodVars);
+                if (!Il2CppTypeEqualityComparer::AreEqual(inflatedElementType, type->data.type))
+                {
+                    Il2CppType* arrayType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
+                    memcpy(arrayType, type, sizeof(Il2CppType));
+                    arrayType->data.type = inflatedElementType;
 
-                ++il2cpp_runtime_stats.inflated_type_count;
+                    ++il2cpp_runtime_stats.inflated_type_count;
 
-                return arrayType;
+                    return arrayType;
+                }
+                return type;
             }
             case IL2CPP_TYPE_GENERICINST:
             {
-                Il2CppType* genericType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
-                memcpy(genericType, type, sizeof(Il2CppType));
-
                 const Il2CppGenericInst* inst = type->data.generic_class->context.class_inst;
                 if (inst == NULL)
                     return NULL; // This is a generic type that was too deeply nested to generate
 
-                Il2CppTypeVector types;
-                for (uint32_t i = 0; i < inst->type_argc; i++)
-                    types.push_back(InflateIfNeeded(inst->type_argv[i], context, inflateMethodVars));
+                const Il2CppGenericInst* inflatedInst = GetInflatedGenericIntance(inst, context, inflateMethodVars);
+                Il2CppGenericClass* genericClass = GenericMetadata::GetGenericClass(GenericClass::GetTypeDefinition(type->data.generic_class), inflatedInst);
+                if (genericClass != type->data.generic_class)
+                {
+                    Il2CppType* genericType = (Il2CppType*)MetadataMalloc(sizeof(Il2CppType));
+                    memcpy(genericType, type, sizeof(Il2CppType));
+                    genericType->data.generic_class = genericClass;
 
-                const Il2CppGenericInst* inflatedInst = MetadataCache::GetGenericInst(types);
-                genericType->data.generic_class = GenericMetadata::GetGenericClass(GenericClass::GetTypeDefinition(type->data.generic_class), inflatedInst);
+                    ++il2cpp_runtime_stats.inflated_type_count;
 
-                ++il2cpp_runtime_stats.inflated_type_count;
+                    return genericType;
+                }
 
-                return genericType;
+                return type;
             }
             default:
                 return type;
@@ -204,23 +211,8 @@ namespace metadata
 
     const Il2CppGenericMethod* GenericMetadata::Inflate(const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context)
     {
-        const Il2CppGenericInst* classInst = genericMethod->context.class_inst;
-        const Il2CppGenericInst* methodInst = genericMethod->context.method_inst;
-        if (classInst)
-        {
-            Il2CppTypeVector classTypes;
-            for (size_t i = 0; i < classInst->type_argc; i++)
-                classTypes.push_back(GenericMetadata::InflateIfNeeded(classInst->type_argv[i], context, true));
-            classInst = MetadataCache::GetGenericInst(classTypes);
-        }
-
-        if (methodInst)
-        {
-            Il2CppTypeVector methodTypes;
-            for (size_t i = 0; i < methodInst->type_argc; i++)
-                methodTypes.push_back(GenericMetadata::InflateIfNeeded(methodInst->type_argv[i], context, true));
-            methodInst = MetadataCache::GetGenericInst(methodTypes);
-        }
+        const Il2CppGenericInst* classInst = GetInflatedGenericIntance(genericMethod->context.class_inst, context, true);
+        const Il2CppGenericInst* methodInst = GetInflatedGenericIntance(genericMethod->context.method_inst, context, true);
 
         // We have cases where we could infinitely recurse, inflating generics at runtime. This will lead to a stack overflow.
         // As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
@@ -230,6 +222,27 @@ namespace metadata
             return NULL;
 
         return MetadataCache::GetGenericMethod(genericMethod->methodDefinition, classInst, methodInst);
+    }
+
+    const Il2CppGenericInst* GenericMetadata::GetInflatedGenericIntance(const Il2CppGenericInst* inst, const Il2CppGenericContext* context, bool inflateMethodVars)
+    {
+        if (inst == NULL)
+            return NULL;
+
+        const Il2CppType** inflatedArgs = (const Il2CppType**)alloca(inst->type_argc * sizeof(Il2CppType*));
+        for (size_t i = 0; i < inst->type_argc; i++)
+            inflatedArgs[i] = InflateIfNeeded(inst->type_argv[i], context, inflateMethodVars);
+        return MetadataCache::GetGenericInst(inflatedArgs, inst->type_argc);
+    }
+
+    static void ConstrainedCallsToGenericInterfaceMethodsOnStructsAreNotSupported()
+    {
+        vm::Exception::Raise(vm::Exception::GetNotSupportedException("Cannot make a constrained call to a default interface method from a value type"));
+    }
+
+    static void ConstrainedCallsToGenericInterfaceMethodsOnStructsAreNotSupportedInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
+    {
+        ConstrainedCallsToGenericInterfaceMethodsOnStructsAreNotSupported();
     }
 
     Il2CppRGCTXData* GenericMetadata::InflateRGCTX(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context)
@@ -264,9 +277,9 @@ namespace metadata
                         method = GenericMethod::GetMethod(Inflate(method->genericMethod, context));
 
                     if (inflatedType->valuetype)
-                        dataValues[rgctxIndex].method = Class::GetVirtualMethod(Class::FromIl2CppType(inflatedType), method);
-                    else
-                        dataValues[rgctxIndex].method = method;
+                        method = Class::GetVirtualMethod(Class::FromIl2CppType(inflatedType), method);
+
+                    dataValues[rgctxIndex].method = method;
                 }
                 break;
                 default:

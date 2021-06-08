@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-config.h"
 
 #if IL2CPP_TARGET_WINDOWS_GAMES
 
@@ -68,6 +69,49 @@ extern "C"
     {
         SetLastError(il2cpp::os::kErrorCallNotImplemented);
         return FALSE;
+    }
+
+    inline BOOL SetThreadErrorMode(DWORD dwNewMode, LPDWORD lpOldMode)
+    {
+        return TRUE;
+    }
+
+    typedef
+        DWORD
+    (WINAPI *LPPROGRESS_ROUTINE)(
+        _In_     LARGE_INTEGER TotalFileSize,
+        _In_     LARGE_INTEGER TotalBytesTransferred,
+        _In_     LARGE_INTEGER StreamSize,
+        _In_     LARGE_INTEGER StreamBytesTransferred,
+        _In_     DWORD dwStreamNumber,
+        _In_     DWORD dwCallbackReason,
+        _In_     HANDLE hSourceFile,
+        _In_     HANDLE hDestinationFile,
+        _In_opt_ LPVOID lpData
+    );
+
+
+    inline BOOL CopyFileExW(LPCWSTR lpExistingFileName, LPCWSTR lpNewFileName, LPPROGRESS_ROUTINE lpProgressRoutine, LPVOID lpData, LPBOOL pbCancel, DWORD dwCopyFlags)
+    {
+        // This code ignores the progress routine. The class library code should never pass it, but let's assert to be sure.
+        IL2CPP_ASSERT(lpProgressRoutine == NULL);
+
+        COPYFILE2_EXTENDED_PARAMETERS parameters = {0};
+        parameters.dwSize = sizeof(COPYFILE2_EXTENDED_PARAMETERS);
+        parameters.dwCopyFlags = dwCopyFlags;
+        parameters.pfCancel = pbCancel;
+        HRESULT result = CopyFile2(lpExistingFileName, lpNewFileName, &parameters);
+        return result == S_OK;
+    }
+
+    inline BOOL DeleteVolumeMountPointW(LPCWSTR lpszVolumeMountPoint)
+    {
+        return FALSE;
+    }
+
+    inline DWORD GetLogicalDrives()
+    {
+        return 0;
     }
 }
 

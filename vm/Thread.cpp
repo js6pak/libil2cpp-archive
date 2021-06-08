@@ -826,7 +826,7 @@ namespace vm
 
         // Throw interrupt exception.
         Il2CppException* abortException = il2cpp::vm::Exception::GetThreadAbortException();
-        IL2CPP_OBJECT_SETREF(currentThread->GetInternalThread(), abort_exc, (Il2CppObject*)abortException);
+        IL2CPP_OBJECT_SETREF(currentThread->GetInternalThread(), abort_exc, abortException);
         il2cpp::vm::Exception::Raise(abortException);
     }
 

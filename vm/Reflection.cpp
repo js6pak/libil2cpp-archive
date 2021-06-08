@@ -224,7 +224,7 @@ namespace vm
         res = (Il2CppReflectionModule*)Object::New(s_System_Reflection_Module);
 
         res->image = image;
-        IL2CPP_OBJECT_SETREF(res, assembly, (Il2CppReflectionAssembly*)Reflection::GetAssemblyObject(image->assembly));
+        IL2CPP_OBJECT_SETREF(res, assembly, Reflection::GetAssemblyObject(image->assembly));
 
         IL2CPP_OBJECT_SETREF(res, fqname, String::New(image->name));
         IL2CPP_NOT_IMPLEMENTED_ICALL_NO_ASSERT(Reflection::GetModuleObject, "Missing Module fields need set");

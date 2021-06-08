@@ -2,6 +2,7 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-runtime-stats.h"
 
+#include "gc/WriteBarrier.h"
 #include "os/StackTrace.h"
 #include "os/Image.h"
 #include "vm/Array.h"
@@ -785,8 +786,7 @@ void il2cpp_gchandle_foreach_get_target(void(*func)(void*, void*), void* userDat
 
 void il2cpp_gc_wbarrier_set_field(Il2CppObject *obj, void **targetAddress, void *object)
 {
-    *targetAddress = object;
-    GarbageCollector::SetWriteBarrier(targetAddress);
+    il2cpp::gc::WriteBarrier::GenericStore(targetAddress, object);
 }
 
 bool il2cpp_gc_has_strict_wbarriers()

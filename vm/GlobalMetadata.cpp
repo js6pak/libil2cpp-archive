@@ -15,7 +15,6 @@
 #include "metadata/GenericMethod.h"
 #include "metadata/Il2CppTypeCompare.h"
 #include "metadata/Il2CppTypeHash.h"
-#include "metadata/Il2CppTypeVector.h"
 #include "metadata/Il2CppGenericContextCompare.h"
 #include "metadata/Il2CppGenericContextHash.h"
 #include "metadata/Il2CppGenericInstCompare.h"
@@ -101,6 +100,7 @@ static const int kPackingSize = 7;     // This uses 4 bits from bit 7 to bit 10
 static const int kPackingSizeIsDefault = 11;
 static const int kClassSizeIsDefault = 12;
 static const int kSpecifiedPackingSize = 13; // This uses 4 bits from bit 13 to bit 16
+static const int kBitIsByRefLike = 17;
 
 template<typename T>
 static T MetadataOffset(const void* metadata, size_t sectionOffset, size_t itemIndex)
@@ -203,6 +203,19 @@ static const MethodInfo* GetMethodInfoFromEncodedIndex(EncodedMethodIndex method
             return il2cpp::metadata::GenericMethod::GetMethod(GetGenericMethodFromIndex(index));
         case kIl2CppMetadataUsageMethodDef:
             return GetMethodInfoFromMethodDefinitionIndex(index);
+        case kIl2CppMetadataUsageInvalid:
+        {
+            switch (index)
+            {
+                case kIl2CppInvalidMetadataUsageNoData:
+                    return NULL;
+                case kIl2CppInvalidMetadataUsageAmbiguousMethod:
+                    return il2cpp::vm::Method::GetAmbiguousMethodInfo();
+                default:
+                    IL2CPP_ASSERT(0);
+                    break;
+            }
+        }
         default:
             IL2CPP_ASSERT(0);
             break;
@@ -949,9 +962,6 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromVTableSlot(const 
     IL2CPP_ASSERT(index >= 0 && index <= s_GlobalMetadataHeader->vtableMethodsCount / sizeof(EncodedMethodIndex));
     const EncodedMethodIndex* vTableMethodReferences = (const EncodedMethodIndex*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->vtableMethodsOffset);
     EncodedMethodIndex vTableMethodReference = vTableMethodReferences[index];
-
-    if (vTableMethodReference == 0) return NULL;
-
     return GetMethodInfoFromEncodedIndex(vTableMethodReference);
 }
 
@@ -1411,6 +1421,7 @@ static Il2CppClass* FromTypeDefinition(TypeDefinitionIndex index)
     typeInfo->is_blittable = (typeDefinition->bitfield >> (kBitIsBlittable - 1)) & 0x1;
     typeInfo->is_import_or_windows_runtime = (typeDefinition->bitfield >> (kBitIsImportOrWindowsRuntime - 1)) & 0x1;
     typeInfo->packingSize = ConvertPackingSizeEnumToValue(static_cast<PackingSize>((typeDefinition->bitfield >> (kPackingSize - 1)) & 0xF));
+    typeInfo->is_byref_like = (typeDefinition->bitfield >> (kBitIsByRefLike - 1)) & 0x1;
     typeInfo->method_count = typeDefinition->method_count;
     typeInfo->property_count = typeDefinition->property_count;
     typeInfo->field_count = typeDefinition->field_count;
