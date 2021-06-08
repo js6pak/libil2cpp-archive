@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include "il2cpp-metadata.h"
-#include "metadata/Il2CppTypeVector.h"
 
 struct Il2CppGenericClass;
 struct Il2CppGenericContext;
@@ -28,6 +27,7 @@ namespace metadata
 
         static const MethodInfo* Inflate(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
         static const Il2CppGenericMethod* Inflate(const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context);
+        static const Il2CppGenericInst* GetInflatedGenericIntance(const Il2CppGenericInst* inst, const Il2CppGenericContext* context, bool inflatMethodVars);
 
         static Il2CppRGCTXData* InflateRGCTX(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context);
 

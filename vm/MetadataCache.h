@@ -17,8 +17,6 @@
 #include "metadata/Il2CppSignature.h"
 #include "metadata/Il2CppTypeCompare.h"
 #include "metadata/Il2CppTypeHash.h"
-#include "metadata/Il2CppTypeVector.h"
-#include "metadata/Il2CppTypeVector.h"
 #include "vm-utils/VmStringUtils.h"
 #include "os/Mutex.h"
 
@@ -59,8 +57,8 @@ namespace vm
         static void ExecuteEagerStaticClassConstructors();
         static void ExecuteModuleInitializers();
 
-        static Il2CppClass* GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
-        static const MethodInfo* GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes);
+        static Il2CppClass* GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const Il2CppType** genericArgumentTypes, uint32_t genericArgumentCount);
+        static const MethodInfo* GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const Il2CppType** genericArgumentTypes, uint32_t genericArgumentCount);
         static const Il2CppGenericContext* GetMethodGenericContext(const MethodInfo* method);
         static const MethodInfo* GetGenericMethodDefinition(const MethodInfo* method);
 
@@ -72,7 +70,6 @@ namespace vm
         static void AddPointerType(Il2CppClass* type, Il2CppClass* pointerType);
 
         static const Il2CppGenericInst* GetGenericInst(const Il2CppType* const* types, uint32_t typeCount);
-        static const Il2CppGenericInst* GetGenericInst(const il2cpp::metadata::Il2CppTypeVector& types);
         static const Il2CppGenericMethod* GetGenericMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
 
         static Il2CppGenericMethodPointers GetGenericMethodPointers(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);

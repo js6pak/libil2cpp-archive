@@ -330,16 +330,16 @@ void il2cpp::vm::MetadataCache::InitializeUnresolvedSignatureTable()
     il2cpp::vm::GlobalMetadata::InitializeUnresolvedSignatureTable(*s_pUnresolvedSignatureMap);
 }
 
-Il2CppClass* il2cpp::vm::MetadataCache::GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes)
+Il2CppClass* il2cpp::vm::MetadataCache::GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const Il2CppType** genericArgumentTypes, uint32_t genericArgumentCount)
 {
-    const Il2CppGenericInst* inst = il2cpp::vm::MetadataCache::GetGenericInst(genericArgumentTypes);
+    const Il2CppGenericInst* inst = il2cpp::vm::MetadataCache::GetGenericInst(genericArgumentTypes, genericArgumentCount);
     Il2CppGenericClass* genericClass = il2cpp::metadata::GenericMetadata::GetGenericClass(genericTypeDefinition, inst);
     return il2cpp::vm::GenericClass::GetClass(genericClass);
 }
 
-const MethodInfo* il2cpp::vm::MetadataCache::GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const il2cpp::metadata::Il2CppTypeVector& genericArgumentTypes)
+const MethodInfo* il2cpp::vm::MetadataCache::GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const Il2CppType** genericArgumentTypes, uint32_t genericArgumentCount)
 {
-    Il2CppGenericContext context = { NULL, GetGenericInst(genericArgumentTypes) };
+    Il2CppGenericContext context = { NULL, GetGenericInst(genericArgumentTypes, genericArgumentCount) };
     return il2cpp::vm::GlobalMetadata::GetGenericInstanceMethod(genericMethodDefinition, &context);
 }
 
@@ -429,12 +429,7 @@ const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const Il2CppT
     // temporary inst to lookup a permanent one that may already exist
     Il2CppGenericInst inst;
     inst.type_argc = typeCount;
-    inst.type_argv = (const Il2CppType**)alloca(inst.type_argc * sizeof(Il2CppType*));
-
-    size_t index = 0;
-    const Il2CppType* const* typesEnd = types + typeCount;
-    for (const Il2CppType* const* iter = types; iter != typesEnd; ++iter, ++index)
-        inst.type_argv[index] = *iter;
+    inst.type_argv = (const Il2CppType**)types;
 
     {
         // Acquire lock to check if inst has already been cached.
@@ -452,7 +447,8 @@ const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const Il2CppT
         newInst->type_argv = (const Il2CppType**)MetadataMalloc(newInst->type_argc * sizeof(Il2CppType*));
     }
 
-    index = 0;
+    int index = 0;
+    const Il2CppType* const* typesEnd = types + typeCount;
     for (const Il2CppType* const* iter = types; iter != typesEnd; ++iter, ++index)
         newInst->type_argv[index] = *iter;
 
@@ -470,11 +466,6 @@ const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const Il2CppT
 
         return *(result.first);
     }
-}
-
-const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const il2cpp::metadata::Il2CppTypeVector& types)
-{
-    return GetGenericInst(&types[0], static_cast<uint32_t>(types.size()));
 }
 
 static baselib::ReentrantLock s_GenericMethodMutex;
@@ -557,19 +548,19 @@ static const Il2CppGenericInst* GetFullySharedInst(Il2CppMetadataGenericContaine
     if (inst == NULL || il2cpp_defaults.il2cpp_fully_shared_type == NULL)
         return NULL;
 
-    il2cpp::metadata::Il2CppTypeVector types;
+    const Il2CppType** types = (const Il2CppType**)alloca(inst->type_argc * sizeof(Il2CppType*));
     for (uint32_t i = 0; i < inst->type_argc; ++i)
     {
-        const Il2CppType* type = inst->type_argv[i];
+        const Il2CppType* type;
         if (IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromIndex(genericContainer, i)))
             type = &il2cpp_defaults.object_class->byval_arg;
         else
             type = &il2cpp_defaults.il2cpp_fully_shared_type->byval_arg;
 
-        types.push_back(type);
+        types[i] = type;
     }
 
-    const Il2CppGenericInst* sharedInst = il2cpp::vm::MetadataCache::GetGenericInst(types);
+    const Il2CppGenericInst* sharedInst = il2cpp::vm::MetadataCache::GetGenericInst(types, inst->type_argc);
 
     return sharedInst;
 }
@@ -580,11 +571,11 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
     if (inst == NULL)
         return NULL;
 
-    il2cpp::metadata::Il2CppTypeVector types;
+    const Il2CppType** types = (const Il2CppType**)alloca(inst->type_argc * sizeof(Il2CppType*));
     for (uint32_t i = 0; i < inst->type_argc; ++i)
     {
         if (il2cpp::vm::Type::IsReference(inst->type_argv[i]))
-            types.push_back(&il2cpp_defaults.object_class->byval_arg);
+            types[i] = &il2cpp_defaults.object_class->byval_arg;
         else
         {
             const Il2CppType* type = inst->type_argv[i];
@@ -633,11 +624,11 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
                 Il2CppClass* klass = il2cpp::vm::GenericClass::GetClass(gklass);
                 type = &klass->byval_arg;
             }
-            types.push_back(type);
+            types[i] = type;
         }
     }
 
-    const Il2CppGenericInst* sharedInst = il2cpp::vm::MetadataCache::GetGenericInst(types);
+    const Il2CppGenericInst* sharedInst = il2cpp::vm::MetadataCache::GetGenericInst(types, inst->type_argc);
 
     return sharedInst;
 }

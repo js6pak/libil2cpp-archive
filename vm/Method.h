@@ -42,6 +42,8 @@ namespace vm
         static int CompareOverloadSignature(const PropertyInfo* property1, const PropertyInfo* property2);
         static const char* GetParameterDefaultValue(const MethodInfo *method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
         static uint32_t GetParameterToken(const MethodInfo* method, int32_t parameterPosition);
+        static const MethodInfo* GetAmbiguousMethodInfo();
+        static bool IsAmbiguousMethodInfo(const MethodInfo* method);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

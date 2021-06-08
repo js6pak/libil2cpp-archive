@@ -28,6 +28,10 @@
 #define IL2CPP_TARGET_X86 0
 #endif
 
+#if defined(EMBEDDED_LINUX)
+#define IL2CPP_TARGET_EMBEDDED_LINUX 1
+#endif
+
 // Large executables on ARM64 and ARMv7 can cause linker errors.
 // Specifically, the arm instruction set limits the range a branch can
 // take (e.g. 128MB on ARM64). Normally, the linker will insert branch
@@ -45,6 +49,15 @@
 // in some cases, because the stack trace generation code must use
 // fuzzy heuristics to detemine if a given instrion pointer is in a
 // managed method.
+
+#if IL2CPP_TARGET_EMBEDDED_LINUX && IL2CPP_TARGET_ARMV7
+// currently on EmbeddedLinux stack unwinding doesn't work properly when using custom code sections on ARMv7
+// as a result processing exceptions from managed code and resolving managed stack traces doesn't work
+#ifndef IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
+#define IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND 1
+#endif
+#endif
+
 #if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
 #ifndef IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND
 #define IL2CPP_LARGE_EXECUTABLE_ARM_WORKAROUND 0
@@ -244,6 +257,10 @@
 
 #ifndef IL2CPP_TARGET_LUMIN
 #define IL2CPP_TARGET_LUMIN 0
+#endif
+
+#ifndef IL2CPP_TARGET_EMBEDDED_LINUX
+#define IL2CPP_TARGET_EMBEDDED_LINUX 0
 #endif
 
 #ifndef IL2CPP_TARGET_POSIX

@@ -15,6 +15,8 @@
 
 #if IL2CPP_TARGET_XBOXONE
 #include "os/XboxOne/Win32ApiEmulationForXboxClassLibraries.h"
+#elif IL2CPP_TARGET_WINDOWS_GAMES
+#include "os/WindowsGames/Win32ApiWindowsGamesEmulation.h"
 #endif
 
 namespace il2cpp

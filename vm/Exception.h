@@ -71,6 +71,7 @@ namespace vm
         static Il2CppException* GetArrayTypeMismatchException();
         static Il2CppException* GetTypeLoadException(const char* msg);
         static Il2CppException* GetEntryPointNotFoundException(const char* msg);
+        static Il2CppException* GetAmbiguousImplementationException(const char* msg);
         static Il2CppException* GetDllNotFoundException(const char* msg);
         static Il2CppException* GetInvalidOperationException(const char* msg);
         static Il2CppException* GetThreadInterruptedException();
@@ -80,8 +81,8 @@ namespace vm
         static Il2CppException* GetMissingMethodException(const char* msg);
         static Il2CppException* GetMarshalDirectiveException(const char* msg);
         static Il2CppException* GetTargetException(const char* msg);
-        static Il2CppException* GetExecutionEngineException(const char* msg);
         static Il2CppException* GetMethodAccessException(const char* msg);
+        static Il2CppException* GetExecutionEngineException(const char* msg);
         static Il2CppException* GetUnauthorizedAccessException(const utils::StringView<Il2CppChar>& msg);
         static Il2CppException* GetUnauthorizedAccessException(const char* msg);
         static Il2CppException* GetDivideByZeroException();

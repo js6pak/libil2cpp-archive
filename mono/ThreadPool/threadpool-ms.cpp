@@ -710,7 +710,7 @@ Il2CppAsyncResult* threadpool_ms_begin_invoke (Il2CppDomain *domain, Il2CppObjec
 
 	if (async_callback)
 	{
-		IL2CPP_OBJECT_SETREF (async_call, cb_method, (MethodInfo*)il2cpp::vm::Runtime::GetDelegateInvoke(il2cpp::vm::Object::GetClass((Il2CppObject*)async_callback)));
+		IL2CPP_OBJECT_SETREF (async_call, cb_method, const_cast<MethodInfo*>(il2cpp::vm::Runtime::GetDelegateInvoke(il2cpp::vm::Object::GetClass((Il2CppObject*)async_callback))));
 		IL2CPP_OBJECT_SETREF (async_call, cb_target, async_callback);
 	}
 

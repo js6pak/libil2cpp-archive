@@ -37,10 +37,10 @@ namespace Runtime
     {
         uint32_t size = len * sizeof(void*);
         if (!vm::Type::IsReference((Il2CppType*)type_handle))
-            size = vm::Class::GetValueSize(vm::Class::FromIl2CppType((Il2CppType*)type_handle), NULL);
+            size = vm::Class::GetValueSize(vm::Class::FromIl2CppType((Il2CppType*)type_handle), NULL) * len;
 
         memmove(dest, src, size);
-        il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&dest, size);
+        il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)dest, size);
     }
 
     void RuntimeImports::ZeroMemory(void* p, uint32_t byteLength)

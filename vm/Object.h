@@ -42,7 +42,3 @@ namespace vm
     };
 } /* namespace vm */
 } /* namespace il2cpp */
-
-#define IL2CPP_OBJECT_SETREF(obj, fieldname, value) do {\
-        il2cpp_gc_wbarrier_set_field((Il2CppObject *)(obj), (void**)&(obj)->fieldname, (value));\
-    } while (0)

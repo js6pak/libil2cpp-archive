@@ -36,6 +36,12 @@ enum Il2CppMetadataUsage
     kIl2CppMetadataUsageMethodRef,
 };
 
+enum Il2CppInvalidMetadataUsageToken
+{
+    kIl2CppInvalidMetadataUsageNoData = 0,
+    kIl2CppInvalidMetadataUsageAmbiguousMethod = 1,
+};
+
 #ifdef __cplusplus
 static inline Il2CppMetadataUsage GetEncodedIndexType(EncodedMethodIndex index)
 {
