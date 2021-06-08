@@ -8,30 +8,30 @@
 #if !RUNTIME_TINY
 
 #include "os/Atomic.h"
-#include "vm/Class.h"
-#include "vm/LastError.h"
-#include "vm/ThreadPoolMs.h"
-#include "vm/InternalCalls.h"
-#include "vm/Reflection.h"
-#include "vm/MetadataCache.h"
-#include "vm/Thread.h"
 #include "vm/Array.h"
-#include "vm/Method.h"
-#include "vm/Runtime.h"
-#include "vm/Object.h"
-#include "vm/MarshalAlloc.h"
-#include "vm/Profiler.h"
-#include "vm/Exception.h"
-#include "vm/COM.h"
 #include "vm/CCW.h"
-#include "vm/RCW.h"
-#include "vm/String.h"
-#include "vm/Type.h"
+#include "vm/COM.h"
 #include "vm/Class.h"
-#include "vm/PlatformInvoke.h"
-#include "vm/WindowsRuntime.h"
-#include "vm/StackTrace.h"
+#include "vm/Class.h"
+#include "vm/Exception.h"
 #include "vm/Field.h"
+#include "vm/InternalCalls.h"
+#include "vm/LastError.h"
+#include "vm/MarshalAlloc.h"
+#include "vm/MetadataCache.h"
+#include "vm/Method.h"
+#include "vm/Object.h"
+#include "vm/PlatformInvoke.h"
+#include "vm/Profiler.h"
+#include "vm/RCW.h"
+#include "vm/Reflection.h"
+#include "vm/Runtime.h"
+#include "vm/StackTrace.h"
+#include "vm/String.h"
+#include "vm/Thread.h"
+#include "vm/ThreadPoolMs.h"
+#include "vm/Type.h"
+#include "vm/WindowsRuntime.h"
 
 void* il2cpp_codegen_atomic_compare_exchange_pointer(void** dest, void* exchange, void* comparand)
 {
@@ -168,6 +168,11 @@ void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, void* da
 void il2cpp_codegen_memory_barrier()
 {
     il2cpp::vm::Thread::FullMemoryBarrier();
+}
+
+void SetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, void* value)
+{
+    il2cpp_array_setrefwithsize(thisPtr, thisPtr->klass->element_size, pos, value);
 }
 
 RuntimeArray* SZArrayNew(RuntimeClass* arrayType, uint32_t length)
@@ -900,6 +905,15 @@ void il2cpp_codegen_runtime_constrained_call(RuntimeClass* type, const RuntimeMe
         // If the value type overrode the method, do a direct call wiht the pointer to the struct
         constrainedMethod->invoker_method(constrainedMethod->methodPointer, constrainedMethod, objBuffer, args, retVal);
     }
+    else if (il2cpp::vm::Class::IsInterface(constrainedMethod->klass))
+    {
+        // We are invoking a default interface method on a struct
+        // We need to box to call the interface method, and the boxing is observable
+        IL2CPP_ASSERT(type->byval_arg.valuetype);
+
+        RuntimeObject* boxed = il2cpp::vm::Object::Box(type, objBuffer);
+        constrainedMethod->invoker_method(constrainedMethod->methodPointer, constrainedMethod, boxed, args, retVal);
+    }
     else
     {
         IL2CPP_ASSERT(constrainedMethod->klass == il2cpp_defaults.object_class || constrainedMethod->klass == il2cpp_defaults.value_type_class || constrainedMethod->klass == il2cpp_defaults.enum_class);
@@ -917,6 +931,18 @@ void il2cpp_codegen_runtime_constrained_call(RuntimeClass* type, const RuntimeMe
         Il2CppFakeBoxBuffer* boxed = new(boxBuffer) Il2CppFakeBoxBuffer(type, objBuffer);
         constrainedMethod->invoker_method(constrainedMethod->methodPointer, constrainedMethod, boxed, args, retVal);
     }
+}
+
+void* il2cpp_codegen_runtime_box_constrained_this(RuntimeClass* type, const RuntimeMethod* constrainedMethod, void* obj)
+{
+    // We are calling a method defined on the type, no need to box
+    IL2CPP_ASSERT(il2cpp::vm::Class::IsValuetype(type));
+    if (type == constrainedMethod->klass)
+        return obj;
+
+    // We are calling a default interface method with a value type, we have to box
+    IL2CPP_ASSERT(il2cpp::vm::Class::IsInterface(constrainedMethod->klass));
+    return il2cpp::vm::Object::Box(type, obj);
 }
 
 #endif // !RUNTIME_TINY

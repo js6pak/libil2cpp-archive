@@ -14,6 +14,7 @@
 #define IL2CPP_HAVE_STAT_TIM 1
 #include <sys/sendfile.h>
 #define IL2CPP_HAVE_SENDFILE_4 1
+#define IL2CPP_HAVE_SYS_UN 1
 
 // On Android, we are not allowed to modify permissions, but the copy should still succeed;
 // see https://github.com/mono/mono/issues/17133 for details.

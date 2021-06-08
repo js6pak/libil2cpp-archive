@@ -16,6 +16,7 @@
 #define IL2CPP_HAVE_STAT_TIMESPEC 1
 #define IL2CPP_HAVE_DIRENT_NAME_LEN 1
 #define IL2CPP_HAVE_ARC4RANDOM_BUF 1
+#define IL2CPP_HAVE_SYS_UN 1
 
 #define stat_ stat
 #define fstat_ fstat

@@ -565,6 +565,11 @@ namespace vm
         return FromNameMsg(vm::Image::GetCorlib(), "System", "EntryPointNotFoundException", msg);
     }
 
+    Il2CppException* Exception::GetAmbiguousImplementationException(const char* msg)
+    {
+        return FromNameMsg(vm::Image::GetCorlib(), "System.Runtime", "AmbiguousImplementationException", msg);
+    }
+
     Il2CppException* Exception::GetDllNotFoundException(const char* msg)
     {
         return FromNameMsg(vm::Image::GetCorlib(), "System", "DllNotFoundException", msg);
@@ -610,14 +615,14 @@ namespace vm
         return FromNameMsg(Image::GetCorlib(), "System.Reflection", "TargetException", msg);
     }
 
-    Il2CppException * Exception::GetExecutionEngineException(const char* msg)
-    {
-        return FromNameMsg(Image::GetCorlib(), "System", "ExecutionEngineException", msg);
-    }
-
     Il2CppException* Exception::GetMethodAccessException(const char* msg)
     {
         return FromNameMsg(Image::GetCorlib(), "System", "MethodAccessException", msg);
+    }
+
+    Il2CppException * Exception::GetExecutionEngineException(const char* msg)
+    {
+        return FromNameMsg(Image::GetCorlib(), "System", "ExecutionEngineException", msg);
     }
 
     Il2CppException* Exception::GetUnauthorizedAccessException(const utils::StringView<Il2CppChar>& msg)

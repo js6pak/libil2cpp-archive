@@ -4,12 +4,9 @@
 #include "il2cpp-object-internals.h"
 #include "vm/Type.h"
 #include <utils/StringUtils.h>
-#include <metadata/Il2CppTypeVector.h>
 #include <metadata/GenericMetadata.h>
 
-
 using il2cpp::metadata::GenericMetadata;
-using il2cpp::metadata::Il2CppTypeVector;
 using il2cpp::utils::StringUtils;
 
 namespace il2cpp

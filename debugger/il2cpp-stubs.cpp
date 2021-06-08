@@ -368,7 +368,7 @@ extern "C" {
 
     void il2cpp_mono_gc_wbarrier_generic_store(void* ptr, MonoObject* value)
     {
-        il2cpp::gc::WriteBarrier::GenericStore(ptr, (Il2CppObject*)value);
+        il2cpp::gc::WriteBarrier::GenericStore((Il2CppObject**)ptr, (Il2CppObject*)value);
     }
 
     int il2cpp_mono_reflection_parse_type_checked(char *name, Il2CppMonoTypeNameParse *monoInfo, MonoError *error)

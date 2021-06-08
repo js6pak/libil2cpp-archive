@@ -7,7 +7,6 @@
 #include "il2cpp-api.h"
 #include "il2cpp-class-internals.h"
 #include "metadata/GenericMetadata.h"
-#include "metadata/Il2CppTypeVector.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -22,7 +21,6 @@
 #include "vm/Type.h"
 #include "vm/GenericClass.h"
 
-using il2cpp::metadata::Il2CppTypeVector;
 
 namespace il2cpp
 {
@@ -61,7 +59,7 @@ namespace Reflection
         return method->method->is_generic;
     }
 
-    static std::string FormatExceptionMessageForNonConstructableGenericMethod(const MethodInfo* method, const Il2CppTypeVector& genericArguments)
+    static std::string FormatExceptionMessageForNonConstructableGenericMethod(const MethodInfo* method, const Il2CppType** genericArguments, uint32_t genericArgumentsLength)
     {
         std::string message;
         message += "Failed to construct generic method '";
@@ -69,11 +67,11 @@ namespace Reflection
         message += "::";
         message += vm::Method::GetName(method);
         message += "' with generic arguments [";
-        for (Il2CppTypeVector::const_iterator iter = genericArguments.begin(); iter != genericArguments.end(); ++iter)
+        for (uint32_t i = 0; i < genericArgumentsLength; i++)
         {
-            if (iter != genericArguments.begin())
+            if (i != 0)
                 message += ", ";
-            message += vm::Type::GetName(*iter, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
+            message += vm::Type::GetName(genericArguments[i], IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
         }
         message += "] at runtime.";
 
@@ -305,20 +303,19 @@ namespace Reflection
             vm::Exception::Raise(vm::Exception::GetInvalidOperationException(FormatExceptionMessageForNonGenericMethod(genericMethodDefinition).c_str()));
 
         uint32_t arrayLength = vm::Array::GetLength(genericArgumentTypes);
-        Il2CppTypeVector genericArguments;
-        genericArguments.reserve(arrayLength);
+        const Il2CppType** genericArguments = (const Il2CppType**)alloca(arrayLength * sizeof(Il2CppType*));
 
         for (uint32_t i = 0; i < arrayLength; i++)
         {
             Il2CppReflectionType* genericArgumentType = il2cpp_array_get(genericArgumentTypes, Il2CppReflectionType*, i);
-            genericArguments.push_back(genericArgumentType->type);
+            genericArguments[i] = genericArgumentType->type;
         }
 
-        const MethodInfo* genericInstanceMethod = vm::MetadataCache::GetGenericInstanceMethod(genericMethodDefinition, genericArguments);
+        const MethodInfo* genericInstanceMethod = vm::MetadataCache::GetGenericInstanceMethod(genericMethodDefinition, genericArguments, arrayLength);
 
         if (!genericInstanceMethod)
         {
-            vm::Exception::Raise(vm::Exception::GetNotSupportedException(FormatExceptionMessageForNonConstructableGenericMethod(genericMethodDefinition, genericArguments).c_str()));
+            vm::Exception::Raise(vm::Exception::GetNotSupportedException(FormatExceptionMessageForNonConstructableGenericMethod(genericMethodDefinition, genericArguments, arrayLength).c_str()));
             return NULL;
         }
 
