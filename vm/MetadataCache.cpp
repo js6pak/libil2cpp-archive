@@ -555,7 +555,7 @@ const Il2CppGenericInst* MetadataCache::GetGenericInst(const Il2CppType* const* 
         // cached within the set. We can always return this. In the case of another
         // thread beating us, the only downside is an extra allocation in the
         // metadata memory pool that lives for life of process anyway.
-        auto result = s_GenericInstSet.insert(newInst);
+        std::pair<Il2CppGenericInstSet::const_iterator, bool> result = s_GenericInstSet.insert(newInst);
         if (result.second)
             ++il2cpp_runtime_stats.generic_instance_count;
 
