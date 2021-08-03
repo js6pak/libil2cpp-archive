@@ -3,6 +3,7 @@
 #include "icalls/System/System.Net.Sockets/Socket.h"
 
 #include "il2cpp-class-internals.h"
+#include "gc/WriteBarrier.h"
 #include "os/Socket.h"
 #include "os/Mutex.h"
 #include "os/Thread.h"

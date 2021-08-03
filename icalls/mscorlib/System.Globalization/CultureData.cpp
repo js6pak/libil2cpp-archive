@@ -4,6 +4,7 @@
 #include "il2cpp-api.h"
 #include <icalls/mscorlib/System.Globalization/CultureInfoInternals.h>
 #include <icalls/mscorlib/System.Globalization/CultureInfoTables.h>
+#include "gc/WriteBarrier.h"
 #include <vm/Array.h>
 
 namespace il2cpp

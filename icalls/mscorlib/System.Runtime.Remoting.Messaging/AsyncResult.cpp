@@ -2,6 +2,7 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-api.h"
 #include "AsyncResult.h"
+#include "gc/WriteBarrier.h"
 #include "vm/Runtime.h"
 #include "vm/WaitHandle.h"
 #include "vm/ThreadPoolMs.h"

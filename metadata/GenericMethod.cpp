@@ -32,6 +32,19 @@ using il2cpp::vm::Method;
 using il2cpp::vm::Runtime;
 using il2cpp::vm::Type;
 
+struct SharedGenericMethodInfo : public MethodInfo
+{
+    SharedGenericMethodInfo() { memset(this, 0, sizeof(*this)); }
+    Il2CppMethodPointer virtualCallMethodPointer;
+};
+
+static MethodInfo* AllocGenericMethodInfo()
+{
+    if (!il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
+        return (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
+    return (MethodInfo*)MetadataCalloc(1, sizeof(SharedGenericMethodInfo));
+}
+
 namespace il2cpp
 {
 namespace metadata
@@ -50,11 +63,35 @@ namespace metadata
     }
 
     // This method must have virtualMethodInfo null so that the test in RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound fails
-    const static MethodInfo ambiguousMethodInfo = { 0 };
+    const static SharedGenericMethodInfo ambiguousMethodInfo;
 
     bool GenericMethod::IsGenericAmbiguousMethodInfo(const MethodInfo* method)
     {
         return method == &ambiguousMethodInfo;
+    }
+
+    const MethodInfo* GenericMethod::GetMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst)
+    {
+        Il2CppGenericMethod gmethod = { 0 };
+        gmethod.methodDefinition = methodDefinition;
+        gmethod.context.class_inst = classInst;
+        gmethod.context.method_inst = methodInst;
+        return GetMethod(&gmethod, true);
+    }
+
+    const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod)
+    {
+        return GetMethod(gmethod, false);
+    }
+
+    void GenericMethod::GetVirtualInvokeData(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst, VirtualInvokeData* invokeData)
+    {
+        invokeData->method = GetMethod(methodDefinition, classInst, methodInst);
+
+        if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
+            invokeData->methodPtr = ((const SharedGenericMethodInfo*)invokeData->method)->virtualCallMethodPointer;
+        else
+            invokeData->methodPtr = invokeData->method->virtualMethodPointer;
     }
 
     const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod, bool copyMethodPtr)
@@ -64,7 +101,10 @@ namespace metadata
         // This can be NULL only when we have hit the generic recursion depth limit.
         if (gmethod == NULL)
         {
-            MethodInfo* newMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
+            MethodInfo* newMethod = AllocGenericMethodInfo();
+            if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
+                ((SharedGenericMethodInfo*)newMethod)->virtualCallMethodPointer = AGenericMethodWhichIsTooDeeplyNestedWasInvoked;
+
             newMethod->methodPointer = AGenericMethodWhichIsTooDeeplyNestedWasInvoked;
             newMethod->virtualMethodPointer = AGenericMethodWhichIsTooDeeplyNestedWasInvoked;
             newMethod->invoker_method = AGenericMethodWhichIsTooDeeplyNestedWasInvokedInvoker;
@@ -79,12 +119,7 @@ namespace metadata
             return &ambiguousMethodInfo;
 
         if (copyMethodPtr)
-        {
-            Il2CppGenericMethod *newGMethod = vm::MetadataAllocGenericMethod();
-            newGMethod->methodDefinition = gmethod->methodDefinition;
-            newGMethod->context = gmethod->context;
-            gmethod = newGMethod;
-        }
+            gmethod = MetadataCache::GetGenericMethod(gmethod->methodDefinition, gmethod->context.class_inst, gmethod->context.method_inst);
 
         const MethodInfo* methodDefinition = gmethod->methodDefinition;
         Il2CppClass* declaringClass = methodDefinition->klass;
@@ -98,7 +133,8 @@ namespace metadata
             if (!declaringClass)
                 return NULL;
         }
-        MethodInfo* newMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
+
+        MethodInfo* newMethod = AllocGenericMethodInfo();
 
         // we set this here because the initialization may recurse and try to retrieve the same generic method
         // this is safe because we *always* take the lock when retrieving the MethodInfo from a generic method.
@@ -153,6 +189,9 @@ namespace metadata
         // If we are a default interface method on a generic instance interface we need to ensure that the interfaces rgctx is inflated
         if (newMethod->methodPointer != NULL && declaringClass->generic_class != NULL && vm::Class::IsInterface(declaringClass))
             vm::Class::Init(declaringClass);
+
+        if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
+            ((SharedGenericMethodInfo*)newMethod)->virtualCallMethodPointer = MetadataCache::GetUnresolvedVirtualCallStub(newMethod);
 
         return newMethod;
     }
