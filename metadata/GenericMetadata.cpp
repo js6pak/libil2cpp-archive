@@ -179,8 +179,7 @@ namespace metadata
 
     const MethodInfo* GenericMetadata::Inflate(const MethodInfo* methodDefinition, const Il2CppGenericContext* context)
     {
-        const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(methodDefinition, context->class_inst, context->method_inst);
-        return GenericMethod::GetMethod(gmethod);
+        return GenericMethod::GetMethod(methodDefinition, context->class_inst, context->method_inst);
     }
 
     static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst);

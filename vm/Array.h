@@ -49,7 +49,7 @@ extern "C"
     do {    \
         void* __p = (void*) il2cpp_array_addr_with_size ((array), elementSize, (index)); \
         memcpy(__p, value, elementSize); \
-        il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)__p); \
+        il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)__p, elementSize); \
         } while (0)
 #define il2cpp_array_addr(array, type, index) ((type*)(void*) il2cpp_array_addr_with_size (array, sizeof (type), index))
 #define il2cpp_array_get(array, type, index) ( *(type*)il2cpp_array_addr ((array), type, (index)) )

@@ -152,7 +152,7 @@ static void ConvertFileStatus(const struct stat_* src, struct FileStatus* dst)
 }
 
 #if IL2CPP_HAVE_REMAP_PATH
-    #define REMAP_PATH(path) pal_remap_path(path).c_str();
+    #define REMAP_PATH(path) pal_remap_path(path).c_str()
 #else
     #define REMAP_PATH(path) path
 #endif
@@ -161,11 +161,9 @@ static void ConvertFileStatus(const struct stat_* src, struct FileStatus* dst)
 // next coordinated System.Native changes
 int32_t SystemNative_Stat2(const char* path, struct FileStatus* output)
 {
-    const char* remapped_path = REMAP_PATH(path);
-
     struct stat_ result = {};
     int ret;
-    while ((ret = stat_(remapped_path, &result)) < 0 && errno == EINTR)
+    while ((ret = stat_(REMAP_PATH(path), &result)) < 0 && errno == EINTR)
         ;
 
     if (ret == 0)
@@ -178,10 +176,8 @@ int32_t SystemNative_Stat2(const char* path, struct FileStatus* output)
 
 int32_t SystemNative_LStat2(const char* path, struct FileStatus* output)
 {
-    const char* remapped_path = REMAP_PATH(path);
-
     struct stat_ result = {};
-    int ret = lstat_(remapped_path, &result);
+    int ret = lstat_(REMAP_PATH(path), &result);
 
     if (ret == 0)
     {
@@ -193,10 +189,8 @@ int32_t SystemNative_LStat2(const char* path, struct FileStatus* output)
 
 int32_t SystemNative_Unlink(const char* path)
 {
-    const char* remapped_path = REMAP_PATH(path);
-
     int32_t result = 0;
-    while ((result = unlink(remapped_path)) < 0 && errno == EINTR)
+    while ((result = unlink(REMAP_PATH(path))) < 0 && errno == EINTR)
         ;
     return result;
 }
@@ -327,9 +321,7 @@ int32_t SystemNative_ReadDirR(DIR* dir, uint8_t* buffer, int32_t bufferSize, str
 
 DIR* SystemNative_OpenDir(const char* path)
 {
-    const char* remapped_path = REMAP_PATH(path);
-
-    return opendir(remapped_path);
+    return opendir(REMAP_PATH(path));
 }
 
 int32_t SystemNative_CloseDir(intptr_t dir)
@@ -339,41 +331,31 @@ int32_t SystemNative_CloseDir(intptr_t dir)
 
 int32_t SystemNative_MkDir(const char* path, int32_t mode)
 {
-    const char* remapped_path = REMAP_PATH(path);
-
     int32_t result = 0;
-    while ((result = mkdir(remapped_path, (mode_t)mode)) < 0 && errno == EINTR)
+    while ((result = mkdir(REMAP_PATH(path), (mode_t)mode)) < 0 && errno == EINTR)
         ;
     return result;
 }
 
 int32_t SystemNative_ChMod(const char* path, int32_t mode)
 {
-    const char* remapped_path = REMAP_PATH(path);
-
     int32_t result = 0;
-    while ((result = chmod(remapped_path, (mode_t)mode)) < 0 && errno == EINTR)
+    while ((result = chmod(REMAP_PATH(path), (mode_t)mode)) < 0 && errno == EINTR)
         ;
     return result;
 }
 
 int32_t SystemNative_Link(const char* source, const char* linkTarget)
 {
-    const char* remapped_source_path = REMAP_PATH(source);
-    const char* remapped_target_path = REMAP_PATH(linkTarget);
-
     int32_t result = 0;
-    while ((result = link(remapped_source_path, remapped_target_path)) < 0 && errno == EINTR)
+    while ((result = link(REMAP_PATH(source), REMAP_PATH(linkTarget))) < 0 && errno == EINTR)
         ;
     return result;
 }
 
 int32_t SystemNative_Symlink(const char* target, const char* linkPath)
 {
-    const char* remapped_target_path = REMAP_PATH(target);
-    const char* remapped_link_path = REMAP_PATH(linkPath);
-
-    return symlink(remapped_target_path, remapped_link_path);
+    return symlink(REMAP_PATH(target), REMAP_PATH(linkPath));
 }
 
 int32_t SystemNative_ReadLink(const char* path, char* buffer, int32_t bufferSize)
@@ -387,9 +369,7 @@ int32_t SystemNative_ReadLink(const char* path, char* buffer, int32_t bufferSize
         return -1;
     }
 
-    const char* remapped_path = REMAP_PATH(path);
-
-    ssize_t count = readlink(remapped_path, buffer, (size_t)bufferSize);
+    ssize_t count = readlink(REMAP_PATH(path), buffer, (size_t)bufferSize);
     IL2CPP_ASSERT(count >= -1 && count <= bufferSize);
 
     return (int32_t)count;
@@ -397,21 +377,16 @@ int32_t SystemNative_ReadLink(const char* path, char* buffer, int32_t bufferSize
 
 int32_t SystemNative_Rename(const char* oldPath, const char* newPath)
 {
-    const char* remapped_old_path = REMAP_PATH(oldPath);
-    const char* remapped_new_path = REMAP_PATH(newPath);
-
     int32_t result;
-    while ((result = rename(remapped_old_path, remapped_new_path)) < 0 && errno == EINTR)
+    while ((result = rename(REMAP_PATH(oldPath), REMAP_PATH(newPath))) < 0 && errno == EINTR)
         ;
     return result;
 }
 
 int32_t SystemNative_RmDir(const char* path)
 {
-    const char* remapped_path = REMAP_PATH(path);
-
     int32_t result = 0;
-    while ((result = rmdir(remapped_path)) < 0 && errno == EINTR)
+    while ((result = rmdir(REMAP_PATH(path))) < 0 && errno == EINTR)
         ;
     return result;
 }

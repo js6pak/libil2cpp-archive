@@ -122,6 +122,11 @@ Il2CppClass* il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(const Il2CppIma
     return il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(index);
 }
 
+const MethodInfo* il2cpp::vm::MetadataCache::GetMethodInfoFromMethodDefinitionIndex(const Il2CppImage *image, MethodIndex index)
+{
+    return il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodDefinitionIndex(index);
+}
+
 const MethodInfo* il2cpp::vm::MetadataCache::GetAssemblyEntryPoint(const Il2CppImage* image)
 {
     return il2cpp::vm::GlobalMetadata::GetAssemblyEntryPoint(image);
@@ -154,7 +159,10 @@ bool il2cpp::vm::MetadataCache::Initialize()
 
     s_GenericInstSet.resize(s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount);
     for (int32_t i = 0; i < s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount; i++)
-        s_GenericInstSet.insert(s_MetadataCache_Il2CppMetadataRegistration->genericInsts[i]);
+    {
+        std::pair<Il2CppGenericInstSet::iterator, bool> inserted = s_GenericInstSet.insert(s_MetadataCache_Il2CppMetadataRegistration->genericInsts[i]);
+        IL2CPP_ASSERT(inserted.second);
+    }
 
     s_InteropData.assign_external(s_Il2CppCodeRegistration->interopData, s_Il2CppCodeRegistration->interopDataCount);
     s_WindowsRuntimeFactories.assign_external(s_Il2CppCodeRegistration->windowsRuntimeFactoryTable, s_Il2CppCodeRegistration->windowsRuntimeFactoryCount);
@@ -545,7 +553,7 @@ static bool IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle
 
 static const Il2CppGenericInst* GetFullySharedInst(Il2CppMetadataGenericContainerHandle genericContainer, const Il2CppGenericInst* inst)
 {
-    if (inst == NULL || il2cpp_defaults.il2cpp_fully_shared_type == NULL)
+    if (inst == NULL || !il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
         return NULL;
 
     const Il2CppType** types = (const Il2CppType**)alloca(inst->type_argc * sizeof(Il2CppType*));
@@ -1072,6 +1080,11 @@ int32_t il2cpp::vm::MetadataCache::GetThreadLocalStaticOffsetForField(FieldInfo*
 Il2CppMetadataCustomAttributeHandle il2cpp::vm::MetadataCache::GetCustomAttributeTypeToken(const Il2CppImage* image, uint32_t token)
 {
     return il2cpp::vm::GlobalMetadata::GetCustomAttributeTypeToken(image, token);
+}
+
+std::tuple<void*, void*> il2cpp::vm::MetadataCache::GetCustomAttributeDataRange(const Il2CppImage* image, uint32_t token)
+{
+    return il2cpp::vm::GlobalMetadata::GetCustomAttributeDataRange(image, token);
 }
 
 const Il2CppAssembly* il2cpp::vm::MetadataCache::GetReferencedAssembly(const Il2CppAssembly* assembly, int32_t referencedAssemblyTableIndex)

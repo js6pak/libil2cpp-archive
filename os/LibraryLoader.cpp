@@ -69,10 +69,12 @@ namespace os
         return false;
     }
 
-    Il2CppMethodPointer LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(const il2cpp::utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, const il2cpp::utils::StringView<char>& entryPoint)
+    Il2CppMethodPointer LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(const il2cpp::utils::StringView<Il2CppNativeChar>& nativeDynamicLibrary, const il2cpp::utils::StringView<char>& entryPoint, Il2CppCharSet charSet)
     {
-        if (HardcodedPInvokeDependencies == NULL)
+        // We don't support, nor do we need to Ansi functions.  That would break forwarding method names to Unicode MoveFileEx -> MoveFileExW
+        if (HardcodedPInvokeDependencies == NULL || charSet == CHARSET_ANSI)
             return NULL;
+
         for (size_t i = 0; i < HardcodedPInvokeDependenciesCount; i++)
         {
             const HardcodedPInvokeDependencyLibrary& library = HardcodedPInvokeDependencies[i];
@@ -82,8 +84,7 @@ namespace os
                 for (size_t j = 0; j < functionCount; j++)
                 {
                     const HardcodedPInvokeDependencyFunction function = library.functions[j];
-
-                    if (strncmp(function.functionName, entryPoint.Str(), entryPoint.Length()) == 0)
+                    if (EntryNameMatches(il2cpp::utils::StringView<char>(function.functionName, function.functionNameLen), entryPoint))
                         return function.functionPointer;
                 }
 

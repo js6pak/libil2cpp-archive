@@ -211,9 +211,9 @@ NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method
     il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
 }
 
-const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod)
+void il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod, VirtualInvokeData* invokeData)
 {
-    return il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, inflatedMethod);
+    il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, inflatedMethod, invokeData);
 }
 
 void il2cpp_codegen_runtime_class_init(RuntimeClass* klass)
@@ -558,7 +558,7 @@ RuntimeString* il2cpp_codegen_type_append_assembly_name_if_necessary(RuntimeStri
     return il2cpp::vm::Type::AppendAssemblyNameIfNecessary(typeName, callingMethod);
 }
 
-Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, const RuntimeMethod* callingMethod)
+Type_t* il2cpp_codegen_get_type(String_t* typeName, const RuntimeMethod* getTypeMethod, const RuntimeMethod* callingMethod)
 {
     RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, callingMethod);
 
@@ -578,7 +578,7 @@ Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* ty
     return type;
 }
 
-Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, const RuntimeMethod* callingMethod)
+Type_t* il2cpp_codegen_get_type(String_t* typeName, bool throwOnError, const RuntimeMethod* getTypeMethod, const RuntimeMethod* callingMethod)
 {
     typedef Type_t* (*getTypeFuncType)(String_t*, bool);
     RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, callingMethod);
@@ -600,7 +600,7 @@ Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* ty
     return type;
 }
 
-Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, bool ignoreCase, const RuntimeMethod* callingMethod)
+Type_t* il2cpp_codegen_get_type(String_t* typeName, bool throwOnError, bool ignoreCase, const RuntimeMethod* getTypeMethod , const RuntimeMethod* callingMethod)
 {
     typedef Type_t* (*getTypeFuncType)(String_t*, bool, bool);
     RuntimeString* assemblyQualifiedTypeName = il2cpp_codegen_type_append_assembly_name_if_necessary((RuntimeString*)typeName, callingMethod);
@@ -752,6 +752,11 @@ Il2CppMethodPointer il2cpp_codegen_marshal_delegate(MulticastDelegate_t* d)
 Il2CppDelegate* il2cpp_codegen_marshal_function_ptr_to_delegate_internal(void* functionPtr, Il2CppClass* delegateType)
 {
     return il2cpp::vm::PlatformInvoke::MarshalFunctionPointerToDelegate(functionPtr, delegateType);
+}
+
+bool il2cpp_codegen_is_marshalled_delegate(MulticastDelegate_t* d)
+{
+    return il2cpp::vm::PlatformInvoke::IsFakeDelegateMethodMarshaledFromNativeCode((const RuntimeDelegate*)d);
 }
 
 Il2CppMethodPointer il2cpp_codegen_resolve(const PInvokeArguments& pinvokeArgs)
@@ -943,6 +948,30 @@ void* il2cpp_codegen_runtime_box_constrained_this(RuntimeClass* type, const Runt
     // We are calling a default interface method with a value type, we have to box
     IL2CPP_ASSERT(il2cpp::vm::Class::IsInterface(constrainedMethod->klass));
     return il2cpp::vm::Object::Box(type, obj);
+}
+
+bool il2cpp_codegen_is_reference_or_contains_references(const RuntimeMethod* method)
+{
+    IL2CPP_ASSERT(il2cpp::vm::Method::IsGenericInstance(method));
+    const Il2CppGenericContext* context = il2cpp::metadata::GenericMethod::GetContext(method->genericMethod);
+
+    IL2CPP_ASSERT(context->method_inst);
+    IL2CPP_ASSERT(context->method_inst->type_argc == 1);
+    IL2CPP_ASSERT(!il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(context->method_inst->type_argv[0], &il2cpp_defaults.il2cpp_fully_shared_type->byval_arg));
+
+    const Il2CppType* type = context->method_inst->type_argv[0];
+
+    if (!type->valuetype)
+        return true;
+
+    Il2CppClass* klass = il2cpp::vm::Class::FromIl2CppType(type);
+    il2cpp::vm::ClassInlines::InitFromCodegen(klass);
+    return klass->has_references;
+}
+
+bool il2cpp_codegen_is_unmanaged(const RuntimeMethod* method)
+{
+    return !il2cpp_codegen_is_reference_or_contains_references(method);
 }
 
 #endif // !RUNTIME_TINY

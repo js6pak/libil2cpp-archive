@@ -237,6 +237,7 @@ namespace vm
 #if !IL2CPP_TINY
         DEFAULTS_INIT(appdomain_class, "System", "AppDomain");
         DEFAULTS_INIT(appdomain_setup_class, "System", "AppDomainSetup");
+        DEFAULTS_INIT(member_info_class, "System.Reflection", "MemberInfo");
         DEFAULTS_INIT(field_info_class, "System.Reflection", "FieldInfo");
         DEFAULTS_INIT(method_info_class, "System.Reflection", "MethodInfo");
         DEFAULTS_INIT(property_info_class, "System.Reflection", "PropertyInfo");
@@ -271,6 +272,8 @@ namespace vm
         DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
         DEFAULTS_INIT(attribute_class, "System", "Attribute");
         DEFAULTS_INIT_OPTIONAL(customattribute_data_class, "System.Reflection", "CustomAttributeData");
+        DEFAULTS_INIT_OPTIONAL(customattribute_typed_argument_class, "System.Reflection", "CustomAttributeTypedArgument");
+        DEFAULTS_INIT_OPTIONAL(customattribute_named_argument_class, "System.Reflection", "CustomAttributeNamedArgument");
         DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
         DEFAULTS_INIT(system_guid_class, "System", "Guid");
@@ -522,7 +525,7 @@ namespace vm
         return Invoke(invoke, delegate, params, exc);
     }
 
-    const MethodInfo* Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
+    void Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod, VirtualInvokeData* invokeData)
     {
         IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
 
@@ -533,12 +536,9 @@ namespace vm
             methodDefinition = methodDefinition->genericMethod->methodDefinition;
         }
 
-        const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(const_cast<MethodInfo*>(methodDefinition), classInst, inflatedMethod->genericMethod->context.method_inst);
-        const MethodInfo* method = metadata::GenericMethod::GetMethod(gmethod);
+        metadata::GenericMethod::GetVirtualInvokeData(methodDefinition, classInst, inflatedMethod->genericMethod->context.method_inst, invokeData);
 
-        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(method, gmethod, inflatedMethod);
-
-        return method;
+        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(invokeData->method, invokeData->method->genericMethod, inflatedMethod);
     }
 
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)

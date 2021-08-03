@@ -4,6 +4,7 @@
 #include "il2cpp-api.h"
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
+#include "gc/WriteBarrier.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
 #include "vm/Array.h"
