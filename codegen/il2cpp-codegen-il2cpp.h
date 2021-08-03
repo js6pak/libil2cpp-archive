@@ -346,42 +346,51 @@ IL2CPP_FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke
     return il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, declaringInterface, slot);
 }
 
-const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod);
+void il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod, VirtualInvokeData* invokeData);
 
-IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj)
+IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj, VirtualInvokeData* invokeData)
 {
     uint16_t slot = method->slot;
     const RuntimeMethod* methodDefinition = obj->klass->vtable[slot].method;
-    return il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method);
+    il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method, invokeData);
+}
+
+IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj)
+{
+    VirtualInvokeData invokeData;
+    il2cpp_codegen_get_generic_virtual_method(method, obj, &invokeData);
+    return invokeData.method;
 }
 
 IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const RuntimeMethod* method, const RuntimeObject* obj, VirtualInvokeData* invokeData)
 {
-    const RuntimeMethod* targetRuntimeMethod = il2cpp_codegen_get_generic_virtual_method(method, obj);
-#if IL2CPP_DEBUG
-    IL2CPP_ASSERT(targetRuntimeMethod);
-#endif
+    il2cpp_codegen_get_generic_virtual_method(method, obj , invokeData);
 
-    invokeData->methodPtr = targetRuntimeMethod->virtualMethodPointer;
-    invokeData->method = targetRuntimeMethod;
+#if IL2CPP_DEBUG
+    IL2CPP_ASSERT(invokeData->method);
+#endif
+}
+
+IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, RuntimeObject* obj, VirtualInvokeData* invokeData)
+{
+    const RuntimeMethod* methodDefinition = il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, method->klass, method->slot).method;
+    il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method, invokeData);
 }
 
 IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, RuntimeObject* obj)
 {
-    const RuntimeMethod* methodDefinition = il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, method->klass, method->slot).method;
-    return il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method);
+    VirtualInvokeData invokeData;
+    il2cpp_codegen_get_generic_interface_method(method, obj, &invokeData);
+    return invokeData.method;
 }
 
 IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const RuntimeMethod* method, RuntimeObject* obj, VirtualInvokeData* invokeData)
 {
-    const RuntimeMethod* targetRuntimeMethod = il2cpp_codegen_get_generic_interface_method(method, obj);
+    il2cpp_codegen_get_generic_interface_method(method, obj, invokeData);
 
 #if IL2CPP_DEBUG
-    IL2CPP_ASSERT(targetRuntimeMethod);
+    IL2CPP_ASSERT(invokeData->method);
 #endif
-
-    invokeData->methodPtr = targetRuntimeMethod->virtualMethodPointer;
-    invokeData->method = targetRuntimeMethod;
 }
 
 inline RuntimeClass* InitializedTypeInfo(RuntimeClass* klass)
@@ -535,6 +544,16 @@ void il2cpp_codegen_marshal_free(void* ptr);
 Il2CppMethodPointer il2cpp_codegen_marshal_delegate(MulticastDelegate_t* d);
 
 Il2CppDelegate* il2cpp_codegen_marshal_function_ptr_to_delegate_internal(void* functionPtr, Il2CppClass* delegateType);
+
+bool il2cpp_codegen_is_marshalled_delegate(MulticastDelegate_t* d);
+
+#if !IL2CPP_TINY
+inline void* il2cpp_codegen_get_reverse_pinvoke_function_ptr(const MulticastDelegate_t* d)
+{
+    return ((Il2CppDelegate*)d)->delegate_trampoline;
+}
+
+#endif
 
 template<typename T>
 inline T* il2cpp_codegen_marshal_function_ptr_to_delegate(Il2CppMethodPointer functionPtr, RuntimeClass* delegateType)
@@ -696,9 +715,9 @@ inline MethodBase_t* il2cpp_codegen_get_method_object(const RuntimeMethod* metho
     return il2cpp_codegen_get_method_object_internal(method, method->klass);
 }
 
-Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, const RuntimeMethod* callingMethod);
-Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, const RuntimeMethod* callingMethod);
-Type_t* il2cpp_codegen_get_type(const RuntimeMethod* getTypeMethod, String_t* typeName, bool throwOnError, bool ignoreCase, const RuntimeMethod* callingMethod);
+Type_t* il2cpp_codegen_get_type(String_t* typeName, const RuntimeMethod* getTypeMethod, const RuntimeMethod* callingMethod);
+Type_t* il2cpp_codegen_get_type(String_t* typeName, bool throwOnError, const RuntimeMethod* getTypeMethod, const RuntimeMethod* callingMethod);
+Type_t* il2cpp_codegen_get_type(String_t* typeName, bool throwOnError, bool ignoreCase, const RuntimeMethod* getTypeMethod, const RuntimeMethod* callingMethod);
 
 Assembly_t* il2cpp_codegen_get_executing_assembly(const RuntimeMethod* method);
 
@@ -968,7 +987,6 @@ inline void* il2cpp_codegen_unsafe_cast(T* ptr)
 inline void il2cpp_codegen_by_reference_constructor(Il2CppByReference* byReference, void* value)
 {
     byReference->value = (intptr_t)value;
-    Il2CppCodeGenWriteBarrier((void**)&byReference->value, value);
 }
 
 inline intptr_t il2cpp_codegen_by_reference_get_value(Il2CppByReference* byReference)
@@ -977,6 +995,10 @@ inline intptr_t il2cpp_codegen_by_reference_get_value(Il2CppByReference* byRefer
 }
 
 #define IL2CPP_BY_REFERENCE_GET_VALUE(TReturnType, byReference) (TReturnType*)il2cpp_codegen_by_reference_get_value(byReference)
+
+bool il2cpp_codegen_is_reference_or_contains_references(const RuntimeMethod* method);
+
+bool il2cpp_codegen_is_unmanaged(const RuntimeMethod* method);
 
 #if IL2CPP_TINY
 

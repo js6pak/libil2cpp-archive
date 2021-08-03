@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "RuntimePropertyInfo.h"
+#include "gc/WriteBarrier.h"
 #include "vm/Class.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"

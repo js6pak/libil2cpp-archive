@@ -31,12 +31,12 @@ namespace vm
             Class::SetupFields(parameterType);
             IL2CPP_ASSERT(parameterType->size_inited);
             void* value = alloca(parameterType->instance_size - sizeof(Il2CppObject));
-            utils::BlobReader::GetConstantValueFromBlob(typeOfDefaultValue->type, data, value);
+            utils::BlobReader::GetConstantValueFromBlob(method->klass->image, typeOfDefaultValue->type, data, value);
             return Object::Box(parameterType, value);
         }
 
         Il2CppObject* value = NULL;
-        utils::BlobReader::GetConstantValueFromBlob(typeOfDefaultValue->type, data, &value);
+        utils::BlobReader::GetConstantValueFromBlob(method->klass->image, typeOfDefaultValue->type, data, &value);
         return value;
     }
 }

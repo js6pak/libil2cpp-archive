@@ -4,6 +4,7 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-tabledefs.h"
 #include "icalls/mscorlib/System.Runtime.Remoting.Messaging/MonoMethodMessage.h"
+#include "gc/WriteBarrier.h"
 #include "os/Atomic.h"
 #include "vm/Array.h"
 #include "vm/Exception.h"

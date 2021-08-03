@@ -64,6 +64,7 @@ namespace vm
         static CustomAttributesCache* GenerateCustomAttributesCache(const Il2CppImage* image, uint32_t token);
         static CustomAttributesCache* GenerateCustomAttributesCache(Il2CppMetadataCustomAttributeHandle handle);
         static Il2CppMetadataCustomAttributeHandle GetCustomAttributeTypeToken(const Il2CppImage* image, uint32_t token);
+        static std::tuple<void*, void*> GetCustomAttributeDataRange(const Il2CppImage* image, uint32_t token);
         static bool HasAttribute(Il2CppMetadataCustomAttributeHandle token, Il2CppClass* attribute);
         static bool HasAttribute(const Il2CppImage* image, uint32_t token, Il2CppClass* attribute);
 
@@ -107,6 +108,7 @@ namespace vm
 
         static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError = true);
         static const Il2CppType* GetIl2CppTypeFromIndex(TypeIndex index);
+        static const MethodInfo* GetMethodInfoFromMethodDefinitionIndex(MethodIndex index);
 
         template<typename T>
         static inline bool IsRuntimeMetadataInitialized(T item)

@@ -46,6 +46,7 @@ namespace vm
     {
     public:
         static Il2CppClass* FromIl2CppType(const Il2CppType* type, bool throwOnError = true);
+        static Il2CppClass* FromIl2CppTypeEnum(Il2CppTypeEnum type);
         static Il2CppClass* FromName(const Il2CppImage* image, const char* namespaze, const char *name);
         static Il2CppClass* FromSystemType(Il2CppReflectionType *type);
         static Il2CppClass* FromGenericParameter(Il2CppMetadataGenericParameterHandle param);
@@ -60,6 +61,7 @@ namespace vm
         static const MethodInfo* GetMethods(Il2CppClass *klass, void* *iter);
         static const MethodInfo* GetMethodFromName(Il2CppClass *klass, const char* name, int argsCount);
         static const MethodInfo* GetMethodFromNameFlags(Il2CppClass *klass, const char* name, int argsCount, int32_t flags);
+        static const MethodInfo* GetMethodFromNameFlagsAndSig(Il2CppClass *klass, const char* name, int argsCount, int32_t flags, const Il2CppType** argTypes);
         static const char* GetName(Il2CppClass *klass);
         static const char* GetNamespace(Il2CppClass *klass);
         static Il2CppClass* GetNestedTypes(Il2CppClass *klass, void* *iter);

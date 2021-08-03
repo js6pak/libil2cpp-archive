@@ -4,12 +4,15 @@
 #include "il2cpp-tabledefs.h"
 #include "mono-structs.h"
 #include "gc/GCHandle.h"
+#include "gc/WriteBarrier.h"
+#include "metadata//CustomAttributeDataReader.h"
 #include "metadata/Il2CppTypeCompare.h"
 #include "metadata/Il2CppTypeHash.h"
 #include "os/ReaderWriterLock.h"
 #include "vm/Array.h"
 #include "vm/Class.h"
 #include "vm/Event.h"
+#include "vm/Exception.h"
 #include "vm/Field.h"
 #include "vm/Image.h"
 #include "vm/MetadataCache.h"
@@ -534,6 +537,54 @@ namespace vm
         return MetadataCache::GenerateCustomAttributesCache(methodWithParameterAttributeInformation->klass->image, Method::GetParameterToken(method->method, parameter->PositionImpl));
     }
 
+    std::tuple<void*, void*> Reflection::GetCustomAttributesDataRangeFor(Il2CppClass *klass)
+    {
+        return MetadataCache::GetCustomAttributeDataRange(klass->image, klass->token);
+    }
+
+    std::tuple<void*, void*> Reflection::GetCustomAttributesDataRangeFor(const MethodInfo *method)
+    {
+        return MetadataCache::GetCustomAttributeDataRange(method->klass->image, method->token);
+    }
+
+    std::tuple<void*, void*> Reflection::GetCustomAttributesDataRangeFor(const PropertyInfo *property)
+    {
+        return MetadataCache::GetCustomAttributeDataRange(property->parent->image, property->token);
+    }
+
+    std::tuple<void*, void*>  Reflection::GetCustomAttributesDataRangeFor(FieldInfo *field)
+    {
+        return MetadataCache::GetCustomAttributeDataRange(field->parent->image, field->token);
+    }
+
+    std::tuple<void*, void*> Reflection::GetCustomAttributesDataRangeFor(const EventInfo *event)
+    {
+        return MetadataCache::GetCustomAttributeDataRange(event->parent->image, event->token);
+    }
+
+    std::tuple<void*, void*> Reflection::GetCustomAttributesDataRangeFor(Il2CppReflectionParameter *parameter)
+    {
+        Il2CppReflectionMethod* method = (Il2CppReflectionMethod*)parameter->MemberImpl;
+
+        if (method->method->parameters == NULL)
+            return std::make_tuple<void*, void*>(NULL, NULL);
+
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributesDataRangeFor, "-1 represents the return value. Need to emit custom attribute information for that.")
+        if (parameter->PositionImpl == -1)
+            return std::make_tuple<void*, void*>(NULL, NULL);
+
+        const MethodInfo* methodWithParameterAttributeInformation = method->method;
+        if (method->method->is_inflated)
+            methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
+
+        return MetadataCache::GetCustomAttributeDataRange(methodWithParameterAttributeInformation->klass->image, Method::GetParameterToken(method->method, parameter->PositionImpl));
+    }
+
+    std::tuple<void*, void*> Reflection::GetCustomAttributesDataRangeFor(const Il2CppAssembly *assembly)
+    {
+        return MetadataCache::GetCustomAttributeDataRange(assembly->image, assembly->token);
+    }
+
     int Reflection::GetMetadataToken(Il2CppObject* obj)
     {
         if (vm::Reflection::IsField(obj))
@@ -626,6 +677,64 @@ namespace vm
             : obj->klass;
 
         return GetCustomAttributesCacheFor(klass);
+    }
+
+    il2cpp::metadata::CustomAttributeDataReader Reflection::GetCustomAttrsDataReader(Il2CppObject* obj)
+    {
+        const Il2CppImage* image;
+        std::tuple<void*, void*> dataRange;
+
+        if (IsMethod(obj) || IsCMethod(obj))
+        {
+            const MethodInfo* method = ((Il2CppReflectionMethod*)obj)->method;
+            image = method->klass->image;
+            dataRange = GetCustomAttributesDataRangeFor(method);
+        }
+        else if (IsProperty(obj))
+        {
+            const PropertyInfo* prop = ((Il2CppReflectionProperty*)obj)->property;
+            image = prop->parent->image;
+            dataRange = GetCustomAttributesDataRangeFor(prop);
+        }
+        else if (IsField(obj))
+        {
+            FieldInfo* field = ((Il2CppReflectionField*)obj)->field;
+            image = field->parent->image;
+            dataRange = GetCustomAttributesDataRangeFor(field);
+        }
+        else if (IsEvent(obj))
+        {
+            const EventInfo* eventInfo = ((Il2CppReflectionMonoEvent*)obj)->eventInfo;
+            image = eventInfo->parent->image;
+            dataRange = GetCustomAttributesDataRangeFor(eventInfo);
+        }
+        else if (IsParameter(obj))
+        {
+            Il2CppReflectionParameter* parameter = (Il2CppReflectionParameter*)obj;
+            Il2CppReflectionMethod* method = (Il2CppReflectionMethod*)parameter->MemberImpl;
+            image = method->method->klass->image;
+            dataRange = GetCustomAttributesDataRangeFor(parameter);
+        }
+        else if (IsAssembly(obj))
+        {
+            const Il2CppAssembly* assembly = ((Il2CppReflectionAssembly*)obj)->assembly;
+            image = assembly->image;
+            dataRange = GetCustomAttributesDataRangeFor(assembly);
+        }
+        else
+        {
+            Il2CppClass *klass = IsType(obj)
+                ? Class::FromSystemType((Il2CppReflectionType*)obj)
+                : obj->klass;
+
+            image = klass->image;
+            dataRange = GetCustomAttributesDataRangeFor(klass);
+        }
+
+        void* start;
+        void* end;
+        std::tie(start, end) = dataRange;
+        return metadata::CustomAttributeDataReader(start, end);
     }
 
     bool Reflection::HasAttribute(Il2CppObject *obj, Il2CppClass* attribute)
