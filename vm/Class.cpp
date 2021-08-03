@@ -6,6 +6,7 @@
 #include "metadata/GenericMetadata.h"
 #include "metadata/GenericMethod.h"
 #include "metadata/FieldLayout.h"
+#include "metadata/Il2CppTypeCompare.h"
 #include "os/Atomic.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
@@ -17,6 +18,7 @@
 #include "vm/Field.h"
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
+#include "vm/Method.h"
 #include "vm/Image.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
@@ -40,6 +42,7 @@
 #include <memory.h>
 #include <algorithm>
 #include <limits>
+#include <stdarg.h>
 
 namespace il2cpp
 {
@@ -59,9 +62,47 @@ namespace vm
 
     Il2CppClass* Class::FromIl2CppType(const Il2CppType* type, bool throwOnError)
     {
-#define RETURN_DEFAULT_TYPE(fieldName) do { IL2CPP_ASSERT(il2cpp_defaults.fieldName); return il2cpp_defaults.fieldName; } while (false)
+        Il2CppClass* defaultClass = FromIl2CppTypeEnum(type->type);
+        if (defaultClass != NULL)
+            return defaultClass;
 
         switch (type->type)
+        {
+            case IL2CPP_TYPE_ARRAY:
+            {
+                Il2CppClass* elementClass = FromIl2CppType(type->data.array->etype, throwOnError);
+                return Class::GetBoundedArrayClass(elementClass, type->data.array->rank, true);
+            }
+            case IL2CPP_TYPE_PTR:
+                return Class::GetPtrClass(type->data.type);
+            case IL2CPP_TYPE_FNPTR:
+                return il2cpp_defaults.int_class;
+            case IL2CPP_TYPE_SZARRAY:
+            {
+                Il2CppClass* elementClass = FromIl2CppType(type->data.type, throwOnError);
+                return Class::GetArrayClass(elementClass, 1);
+            }
+            case IL2CPP_TYPE_CLASS:
+            case IL2CPP_TYPE_VALUETYPE:
+                return Type::GetClass(type);
+            case IL2CPP_TYPE_GENERICINST:
+                return GenericClass::GetClass(type->data.generic_class, throwOnError);
+            case IL2CPP_TYPE_VAR:
+                return Class::FromGenericParameter(Type::GetGenericParameterHandle(type));
+            case IL2CPP_TYPE_MVAR:
+                return Class::FromGenericParameter(Type::GetGenericParameterHandle(type));
+            default:
+                IL2CPP_NOT_IMPLEMENTED(Class::FromIl2CppType);
+        }
+
+        return NULL;
+    }
+
+    Il2CppClass* Class::FromIl2CppTypeEnum(Il2CppTypeEnum type)
+    {
+#define RETURN_DEFAULT_TYPE(fieldName) do { IL2CPP_ASSERT(il2cpp_defaults.fieldName); return il2cpp_defaults.fieldName; } while (false)
+
+        switch (type)
         {
             case IL2CPP_TYPE_OBJECT:
                 RETURN_DEFAULT_TYPE(object_class);
@@ -99,32 +140,11 @@ namespace vm
                 RETURN_DEFAULT_TYPE(string_class);
             case IL2CPP_TYPE_TYPEDBYREF:
                 RETURN_DEFAULT_TYPE(typed_reference_class);
-            case IL2CPP_TYPE_ARRAY:
-            {
-                Il2CppClass* elementClass = FromIl2CppType(type->data.array->etype, throwOnError);
-                return Class::GetBoundedArrayClass(elementClass, type->data.array->rank, true);
-            }
-            case IL2CPP_TYPE_PTR:
-                return Class::GetPtrClass(type->data.type);
-            case IL2CPP_TYPE_FNPTR:
-                IL2CPP_NOT_IMPLEMENTED(Class::FromIl2CppType);
-                return NULL; //mono_fnptr_class_get (type->data.method);
-            case IL2CPP_TYPE_SZARRAY:
-            {
-                Il2CppClass* elementClass = FromIl2CppType(type->data.type, throwOnError);
-                return Class::GetArrayClass(elementClass, 1);
-            }
-            case IL2CPP_TYPE_CLASS:
-            case IL2CPP_TYPE_VALUETYPE:
-                return Type::GetClass(type);
-            case IL2CPP_TYPE_GENERICINST:
-                return GenericClass::GetClass(type->data.generic_class, throwOnError);
-            case IL2CPP_TYPE_VAR:
-                return Class::FromGenericParameter(Type::GetGenericParameterHandle(type));
-            case IL2CPP_TYPE_MVAR:
-                return Class::FromGenericParameter(Type::GetGenericParameterHandle(type));
+
+            case IL2CPP_TYPE_IL2CPP_TYPE_INDEX:
+                RETURN_DEFAULT_TYPE(systemtype_class);
             default:
-                IL2CPP_NOT_IMPLEMENTED(Class::FromIl2CppType);
+                break;
         }
 
         return NULL;
@@ -424,6 +444,11 @@ namespace vm
 
     const MethodInfo* Class::GetMethodFromNameFlags(Il2CppClass *klass, const char* name, int argsCount, int32_t flags)
     {
+        return GetMethodFromNameFlagsAndSig(klass, name, argsCount, flags, NULL);
+    }
+
+    const MethodInfo* Class::GetMethodFromNameFlagsAndSig(Il2CppClass *klass, const char* name, int argsCount, int32_t flags, const Il2CppType** argTypes)
+    {
         Class::Init(klass);
 
         while (klass != NULL)
@@ -436,7 +461,17 @@ namespace vm
                     (argsCount == IgnoreNumberOfArguments || method->parameters_count == argsCount) &&
                     ((method->flags & flags) == flags))
                 {
-                    return method;
+                    bool allArgTypeMatch = true;
+                    if (argTypes != NULL && argsCount != IgnoreNumberOfArguments)
+                    {
+                        for (int i = 0; allArgTypeMatch && i < argsCount; i++)
+                        {
+                            allArgTypeMatch = metadata::Il2CppTypeEqualityComparer::AreEqual(method->parameters[i], argTypes[i]);
+                        }
+                    }
+
+                    if (allArgTypeMatch)
+                        return method;
                 }
             }
 
@@ -1216,8 +1251,7 @@ namespace vm
                         }
                         if (method && method->klass && Class::IsGeneric(method->klass))
                         {
-                            const Il2CppGenericMethod* gmethod = MetadataCache::GetGenericMethod(method, context->class_inst, NULL);
-                            method = il2cpp::metadata::GenericMethod::GetMethod(gmethod);
+                            method = il2cpp::metadata::GenericMethod::GetMethod(method, context->class_inst, NULL);
                         }
                     }
 
@@ -1229,7 +1263,12 @@ namespace vm
                             InitLocked(method->klass, lock);
 
                         if (method->virtualMethodPointer)
-                            klass->vtable[i].methodPtr = method->virtualMethodPointer;
+                        {
+                            if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled() && !il2cpp::vm::Method::IsAmbiguousMethodInfo(method))
+                                klass->vtable[i].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(method);
+                            else
+                                klass->vtable[i].methodPtr = method->virtualMethodPointer;
+                        }
                         else if (method->is_inflated && !method->is_generic && !method->genericMethod->context.method_inst)
                             klass->vtable[i].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(method);
                         else
@@ -2145,11 +2184,8 @@ namespace vm
                 if (itfMethod->virtualMethodPointer)
                     return itfMethod;
 
-                Il2CppGenericMethod gmethod;
-                gmethod.context.method_inst = method->genericMethod->context.method_inst;
-                gmethod.context.class_inst = klass->generic_class ? klass->generic_class->context.class_inst : NULL;
-                gmethod.methodDefinition = klass->generic_class ? il2cpp::vm::MetadataCache::GetGenericMethodDefinition(itfMethod) : itfMethod;
-                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+                const MethodInfo* methodDefintion = klass->generic_class ? il2cpp::vm::MetadataCache::GetGenericMethodDefinition(itfMethod) : itfMethod;
+                return il2cpp::metadata::GenericMethod::GetMethod(methodDefintion, klass->generic_class ? klass->generic_class->context.class_inst : NULL, method->genericMethod->context.method_inst);
             }
             else
             {
@@ -2162,10 +2198,7 @@ namespace vm
             if (method->virtualMethodPointer)
                 return method;
 
-            Il2CppGenericMethod gmethod;
-            gmethod.context = method->genericMethod->context;
-            gmethod.methodDefinition = klass->vtable[method->slot].method;
-            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+            return il2cpp::metadata::GenericMethod::GetMethod(klass->vtable[method->slot].method, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
         }
         else
         {

@@ -219,10 +219,7 @@ namespace vm
                 if (itfMethod->virtualMethodPointer)
                     return itfMethod;
 
-                Il2CppGenericMethod gmethod;
-                gmethod.context = method->genericMethod->context;
-                gmethod.methodDefinition = itfMethod;
-                return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+                return il2cpp::metadata::GenericMethod::GetMethod(itfMethod, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
             }
             else
             {
@@ -235,10 +232,7 @@ namespace vm
             if (method->virtualMethodPointer)
                 return method;
 
-            Il2CppGenericMethod gmethod;
-            gmethod.context = method->genericMethod->context;
-            gmethod.methodDefinition = obj->klass->vtable[method->slot].method;
-            return il2cpp::metadata::GenericMethod::GetMethod(&gmethod, true);
+            return il2cpp::metadata::GenericMethod::GetMethod(obj->klass->vtable[method->slot].method, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
         }
         else
         {

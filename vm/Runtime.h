@@ -47,7 +47,7 @@ namespace vm
         static void ObjectInitException(Il2CppObject* object, Il2CppException **exc);
         static void SetUnhandledExceptionPolicy(Il2CppRuntimeUnhandledExceptionPolicy value);
 
-        static const MethodInfo* GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod);
+        static void GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod, VirtualInvokeData* invokeData);
         static void AlwaysRaiseExecutionEngineException(const MethodInfo* method);
         static void AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method);
 
@@ -55,6 +55,11 @@ namespace vm
         {
             if (method->virtualMethodPointer == NULL)
                 AlwaysRaiseExecutionEngineException(method);
+        }
+
+        static inline bool IsFullGenericSharingEnabled()
+        {
+            return il2cpp_defaults.il2cpp_fully_shared_type != NULL;
         }
 
     public:

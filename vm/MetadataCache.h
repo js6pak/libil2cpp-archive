@@ -121,6 +121,7 @@ namespace vm
         static const Il2CppAssembly* GetReferencedAssembly(const Il2CppAssembly* assembly, int32_t referencedAssemblyTableIndex);
 
         static Il2CppMetadataCustomAttributeHandle GetCustomAttributeTypeToken(const Il2CppImage* image, uint32_t token);
+        static std::tuple<void*, void*> GetCustomAttributeDataRange(const Il2CppImage* image, uint32_t token);
         static CustomAttributesCache* GenerateCustomAttributesCache(Il2CppMetadataCustomAttributeHandle token);
         static CustomAttributesCache* GenerateCustomAttributesCache(const Il2CppImage* image, uint32_t token);
         static bool HasAttribute(Il2CppMetadataCustomAttributeHandle token, Il2CppClass* attribute);
@@ -170,6 +171,7 @@ namespace vm
         static const Il2CppType* GetIl2CppTypeFromIndex(const Il2CppImage* image, TypeIndex index);
         // Called from il2cpp_get_class_from_index
         static Il2CppClass* GetTypeInfoFromTypeIndex(const Il2CppImage* image, TypeIndex index);
+        static const MethodInfo* GetMethodInfoFromMethodDefinitionIndex(const Il2CppImage* image, MethodIndex index);
 
     private:
         static void InitializeUnresolvedSignatureTable();

@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
+#include "gc/WriteBarrier.h"
 #include "vm/Array.h"
 #include "vm/Object.h"
 #include "vm/Reflection.h"

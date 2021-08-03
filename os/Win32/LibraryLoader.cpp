@@ -46,12 +46,12 @@ namespace os
 
     const HardcodedPInvokeDependencyFunction kKernel32Functions[] =
     {
-        HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
+        HARDCODED_DEPENDENCY_FUNCTION(FormatMessageW),
         HARDCODED_DEPENDENCY_FUNCTION(GetCurrentProcessId),
         HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
-        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathName),
+        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathNameW),
         HARDCODED_DEPENDENCY_FUNCTION(GetFileAttributesExW),
         HARDCODED_DEPENDENCY_FUNCTION(CreateDirectoryW),
         HARDCODED_DEPENDENCY_FUNCTION(CloseHandle),
@@ -59,14 +59,18 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(DeleteFileW),
         HARDCODED_DEPENDENCY_FUNCTION(FindFirstFileExW),
         HARDCODED_DEPENDENCY_FUNCTION(FindNextFileW),
-        HARDCODED_DEPENDENCY_FUNCTION(FormatMessageW),
         HARDCODED_DEPENDENCY_FUNCTION(MoveFileExW),
         HARDCODED_DEPENDENCY_FUNCTION(RemoveDirectoryW),
         HARDCODED_DEPENDENCY_FUNCTION(ReplaceFileW),
         HARDCODED_DEPENDENCY_FUNCTION(SetFileAttributesW),
         HARDCODED_DEPENDENCY_FUNCTION(SetFileInformationByHandle),
         HARDCODED_DEPENDENCY_FUNCTION(GetFileInformationByHandleEx),
+        // The CopyFile2 method is only required by the class library code for UWP builds.
+        // It does not exist in Windows 7, so we don't want to use it for Windows Desktop
+        // builds, since they still support Windows 7.
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP
         HARDCODED_DEPENDENCY_FUNCTION(CopyFile2),
+#endif
 #if WINDOWS_SDK_BUILD_VERSION >= 16299
         HARDCODED_DEPENDENCY_FUNCTION(SetThreadErrorMode),
         HARDCODED_DEPENDENCY_FUNCTION(CopyFileExW),
@@ -139,6 +143,17 @@ namespace os
     {
         needsClosing = false;
         return Baselib_DynamicLibrary_FromNativeHandle(reinterpret_cast<uint64_t>(Image::GetImageBase()), Baselib_DynamicLibrary_WinApiHMODULE, &errorState);
+    }
+
+    bool LibraryLoader::EntryNameMatches(const il2cpp::utils::StringView<char>& hardcodedEntryPoint, const il2cpp::utils::StringView<char>& entryPoint)
+    {
+        // Handle windows mapping generic to unicode methods. e.g. MoveFileEx -> MoveFileExW
+        if (hardcodedEntryPoint.Length() == entryPoint.Length() || (hardcodedEntryPoint.Length() - 1 == entryPoint.Length() && hardcodedEntryPoint[hardcodedEntryPoint.Length() - 1] == 'W'))
+        {
+            return strncmp(hardcodedEntryPoint.Str(), entryPoint.Str(), entryPoint.Length()) == 0;
+        }
+
+        return false;
     }
 }
 }

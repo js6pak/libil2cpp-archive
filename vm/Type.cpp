@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <ctype.h>
 
+#include "gc/WriteBarrier.h"
 #include "metadata/Il2CppTypeCompare.h"
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"

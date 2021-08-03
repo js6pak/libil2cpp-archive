@@ -87,6 +87,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *mono_method_message_class;*/
     Il2CppClass *appdomain_class;
     Il2CppClass *appdomain_setup_class;
+    Il2CppClass *member_info_class;
     Il2CppClass *field_info_class;
     Il2CppClass *method_info_class;
     Il2CppClass *property_info_class;
@@ -124,6 +125,8 @@ typedef struct Il2CppDefaults
     Il2CppClass *handleref_class;*/
     Il2CppClass *attribute_class;
     Il2CppClass *customattribute_data_class;
+    Il2CppClass *customattribute_typed_argument_class;
+    Il2CppClass *customattribute_named_argument_class;
     //Il2CppClass *critical_finalizer_object;
     Il2CppClass *version;
     Il2CppClass *culture_info;
@@ -189,8 +192,6 @@ typedef struct CustomAttributesCache
     int count;
     Il2CppObject** attributes;
 } CustomAttributesCache;
-
-typedef void (*CustomAttributesCacheGenerator)(CustomAttributesCache*);
 
 #ifndef THREAD_STATIC_FIELD_OFFSET
 #define THREAD_STATIC_FIELD_OFFSET -1
@@ -355,7 +356,6 @@ typedef struct MethodInfo
     uint8_t is_generic : 1; /* true if method is a generic method definition */
     uint8_t is_inflated : 1; /* true if declaring_type is a generic instance or if method is a generic instance*/
     uint8_t wrapper_type : 1; /* always zero (MONO_WRAPPER_NONE) needed for the debugger */
-    uint8_t is_marshaled_from_native : 1; /* a fake MethodInfo wrapping a native function pointer */
 } MethodInfo;
 
 typedef struct Il2CppRuntimeInterfaceOffsetPair
@@ -588,7 +588,6 @@ typedef struct Il2CppCodeGenModule
     const uint32_t rgctxsCount;
     const Il2CppRGCTXDefinition* rgctxs;
     const Il2CppDebuggerMetadataRegistration *debuggerMetadata;
-    const CustomAttributesCacheGenerator* customAttributeCacheGenerator;
     const Il2CppMethodPointer moduleInitializer;
     TypeDefinitionIndex* staticConstructorTypeIndices;
     const Il2CppMetadataRegistration* metadataRegistration; // Per-assembly mode only

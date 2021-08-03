@@ -140,7 +140,7 @@ namespace vm
         const char* data;
 
         data = Class::GetFieldDefaultValue(field, &type);
-        utils::BlobReader::GetConstantValueFromBlob(type->type, data, value);
+        utils::BlobReader::GetConstantValueFromBlob(field->parent->image, type->type, data, value);
     }
 
     void Field::StaticGetValue(FieldInfo *field, void *value)
