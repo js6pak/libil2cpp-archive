@@ -295,7 +295,7 @@ namespace MemoryInformation
     struct il2cpp_heap_chunk
     {
         void* start;
-        size_t size;
+        uint32_t size;
     };
 
     void ReportIL2CppClasses(ClassReportFunc callback, void* context)
@@ -324,7 +324,8 @@ namespace MemoryInformation
     {
         il2cpp_heap_chunk chunk;
         chunk.start = start;
-        chunk.size = (uint8_t *)end - (uint8_t *)start;
+        //todo: change back to size_t once we change the memory profiler format and mono to use size_t for reporting chunk size
+        chunk.size = (uint32_t)((uint8_t *)end - (uint8_t *)start);
         IterationContext* ctxPtr = reinterpret_cast<IterationContext*>(context);
         ctxPtr->callback(&chunk, ctxPtr->userData);
     }

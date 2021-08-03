@@ -11,6 +11,8 @@
 #include "il2cpp-runtime-stats.h"
 #include "gc/GarbageCollector.h"
 #include "metadata/ArrayMetadata.h"
+#include "metadata/CustomAttributeDataReader.h"
+#include "metadata/CustomAttributeCreator.h"
 #include "metadata/GenericMetadata.h"
 #include "metadata/GenericMethod.h"
 #include "metadata/Il2CppTypeCompare.h"
@@ -39,6 +41,7 @@
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataLoader.h"
 #include "vm/MetadataLock.h"
+#include "vm/Exception.h"
 #include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/String.h"
@@ -64,7 +67,7 @@ typedef struct Il2CppImageGlobalMetadata
 static int32_t s_MetadataImagesCount = 0;
 static Il2CppImageGlobalMetadata* s_MetadataImagesTable = NULL;
 
-static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2CppCustomAttributeTypeRange* typeRange);
+static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2CppCustomAttributeDataRange* attrDataRange);
 static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2CppImageGlobalMetadata* image, CustomAttributeIndex index);
 static TypeDefinitionIndex GetIndexForTypeDefinitionInternal(const Il2CppTypeDefinition* typeDefinition);
 static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index);
@@ -129,7 +132,7 @@ static const Il2CppMethodDefinition* GetMethodDefinitionFromIndex(MethodIndex in
     return methods + index;
 }
 
-static const MethodInfo* GetMethodInfoFromMethodDefinitionIndex(MethodIndex index)
+const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodDefinitionIndex(MethodIndex index)
 {
     IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) <= s_GlobalMetadataHeader->methodsCount / sizeof(Il2CppMethodDefinition));
 
@@ -173,7 +176,7 @@ static const Il2CppGenericMethod* GetGenericMethodFromIndex(GenericMethodIndex i
         return s_GenericMethodTable[index];
 
     const Il2CppMethodSpec* methodSpec = s_Il2CppMetadataRegistration->methodSpecs + index;
-    const MethodInfo* methodDefinition = GetMethodInfoFromMethodDefinitionIndex(methodSpec->methodDefinitionIndex);
+    const MethodInfo* methodDefinition = il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodDefinitionIndex(methodSpec->methodDefinitionIndex);
     const Il2CppGenericInst* classInst = NULL;
     const Il2CppGenericInst* methodInst = NULL;
     if (methodSpec->classIndexIndex != -1)
@@ -202,7 +205,7 @@ static const MethodInfo* GetMethodInfoFromEncodedIndex(EncodedMethodIndex method
         case kIl2CppMetadataUsageMethodRef:
             return il2cpp::metadata::GenericMethod::GetMethod(GetGenericMethodFromIndex(index));
         case kIl2CppMetadataUsageMethodDef:
-            return GetMethodInfoFromMethodDefinitionIndex(index);
+            return il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodDefinitionIndex(index);
         case kIl2CppMetadataUsageInvalid:
         {
             switch (index)
@@ -328,7 +331,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 27);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 28);
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->imagesCount / sizeof(Il2CppImageDefinition);
     *assembliesCount = s_GlobalMetadataHeader->assembliesCount / sizeof(Il2CppAssemblyDefinition);
@@ -800,7 +803,7 @@ static void InitializeCustomAttributesCaches(void* param)
 
 static int CompareTokens(const void* pkey, const void* pelem)
 {
-    return (int)(((Il2CppCustomAttributeTypeRange*)pkey)->token - ((Il2CppCustomAttributeTypeRange*)pelem)->token);
+    return (int)(((Il2CppCustomAttributeDataRange*)pkey)->token - ((Il2CppCustomAttributeDataRange*)pelem)->token);
 }
 
 static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2CppImageGlobalMetadata* imageMetadata, CustomAttributeIndex index)
@@ -811,30 +814,44 @@ static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2Cpp
     il2cpp::utils::CallOnce(s_CustomAttributesOnceFlag, &InitializeCustomAttributesCaches, NULL);
 
     IL2CPP_ASSERT(index >= 0 && index < s_CustomAttributesCount);
-    IL2CPP_ASSERT(index >= 0 && index < static_cast<int32_t>(s_GlobalMetadataHeader->attributesInfoCount / sizeof(Il2CppCustomAttributeTypeRange)));
+    IL2CPP_ASSERT(index >= 0 && index < static_cast<int32_t>(s_GlobalMetadataHeader->attributeDataRangeOffset / sizeof(Il2CppCustomAttributeDataRange)));
 
     // use atomics rather than a Mutex here to avoid deadlock. The attribute generators call arbitrary managed code
     CustomAttributesCache* cache = il2cpp::os::Atomic::ReadPointer(&s_CustomAttributesCaches[index]);
+
     if (cache == NULL)
     {
-        const Il2CppCustomAttributeTypeRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeTypeRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributesInfoOffset, index);
+        const Il2CppCustomAttributeDataRange* startRange = MetadataOffset<const Il2CppCustomAttributeDataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataRangeOffset, index);
+        const Il2CppCustomAttributeDataRange* endRange = MetadataOffset<const Il2CppCustomAttributeDataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataRangeOffset, index + 1);
+
+        void* start = MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, startRange->startOffset);
+        void* end = MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, endRange->startOffset);
+        IL2CPP_ASSERT(start && end);
+
+        il2cpp::metadata::CustomAttributeDataReader reader(start, end);
 
         cache = (CustomAttributesCache*)IL2CPP_CALLOC(1, sizeof(CustomAttributesCache));
-        cache->count = attributeTypeRange->count;
-        cache->attributes = (Il2CppObject**)il2cpp::gc::GarbageCollector::AllocateFixed(sizeof(Il2CppObject *) * cache->count, 0);
+        cache->count = (int)reader.GetCount();
+        cache->attributes = (Il2CppObject**)il2cpp::gc::GarbageCollector::AllocateFixed(sizeof(Il2CppObject*) * cache->count, 0);
 
-        for (int32_t i = 0; i < attributeTypeRange->count; i++)
+        il2cpp::metadata::CustomAttributeDataIterator iter = reader.GetDataIterator();
+        for (int i = 0; i < cache->count; i++)
         {
-            IL2CPP_ASSERT(attributeTypeRange->start + i < s_GlobalMetadataHeader->attributeTypesCount);
-            TypeIndex typeIndex = *MetadataOffset<TypeIndex*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeTypesOffset, attributeTypeRange->start + i);
-            cache->attributes[i] = il2cpp::vm::Object::New(il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(typeIndex));
-            il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)cache->attributes + i);
-        }
+            il2cpp::metadata::CustomAttributeData data;
+            Il2CppException* exc = NULL;
+            if (reader.ReadCustomAttributeData(imageMetadata->image, &data, &exc, &iter))
+            {
+                cache->attributes[i] = il2cpp::metadata::CustomAttributeCreator::Create(data, &exc);
+                il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&cache->attributes[i]);
+            }
 
-        // generated code calls the attribute constructor and sets any fields/properties
-        uint32_t generatorIndex = index - imageMetadata->customAttributeStart;
-        IL2CPP_ASSERT(generatorIndex >= 0 && generatorIndex < imageMetadata->image->customAttributeCount);
-        imageMetadata->image->codeGenModule->customAttributeCacheGenerator[generatorIndex](cache);
+            if (exc != NULL)
+            {
+                il2cpp::gc::GarbageCollector::FreeFixed(cache->attributes);
+                IL2CPP_FREE(cache);
+                il2cpp::vm::Exception::Raise(exc);
+            }
+        }
 
         CustomAttributesCache* original = il2cpp::os::Atomic::CompareExchangePointer(&s_CustomAttributesCaches[index], cache, (CustomAttributesCache*)NULL);
         if (original)
@@ -865,52 +882,71 @@ static const Il2CppImageGlobalMetadata* GetImageForCustomAttributeIndex(CustomAt
     return NULL;
 }
 
-static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2CppCustomAttributeTypeRange* typeRange)
+static CustomAttributeIndex GetCustomAttributeIndex(const Il2CppCustomAttributeDataRange* attrDataRange)
 {
-    if (typeRange == NULL)
+    if (attrDataRange == NULL)
+        return kCustomAttributeIndexInvalid;
+
+    const Il2CppCustomAttributeDataRange* attributeTypeRangeStart = MetadataOffset<const Il2CppCustomAttributeDataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataRangeOffset, 0);
+
+    CustomAttributeIndex index = (CustomAttributeIndex)(attrDataRange - attributeTypeRangeStart);
+
+    IL2CPP_ASSERT(index >= 0 && index < s_GlobalMetadataHeader->attributeDataRangeCount);
+
+    return index;
+}
+
+static CustomAttributeIndex GetCustomAttributeIndex(const Il2CppImage* image, uint32_t token)
+{
+    const Il2CppCustomAttributeDataRange* attrDataRange = reinterpret_cast<const Il2CppCustomAttributeDataRange*>(il2cpp::vm::GlobalMetadata::GetCustomAttributeTypeToken(image, token));
+    return GetCustomAttributeIndex(attrDataRange);
+}
+
+static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2CppCustomAttributeDataRange* attrDataRange)
+{
+    if (attrDataRange == NULL)
         return NULL;
 
-    const Il2CppCustomAttributeTypeRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeTypeRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributesInfoOffset, 0);
-
-    CustomAttributeIndex index = (CustomAttributeIndex)(typeRange - attributeTypeRange);
-
-    IL2CPP_ASSERT(index >= 0 && index < static_cast<CustomAttributeIndex>(s_GlobalMetadataHeader->attributesInfoCount / sizeof(Il2CppCustomAttributeTypeRange)));
-
+    CustomAttributeIndex index = GetCustomAttributeIndex(attrDataRange);
     return GenerateCustomAttributesCacheInternal(GetImageForCustomAttributeIndex(index), index);
 }
 
 CustomAttributesCache* il2cpp::vm::GlobalMetadata::GenerateCustomAttributesCache(Il2CppMetadataCustomAttributeHandle handle)
 {
-    return GenerateCustomAttributesCacheInternal(reinterpret_cast<const Il2CppCustomAttributeTypeRange*>(handle));
+    return GenerateCustomAttributesCacheInternal(reinterpret_cast<const Il2CppCustomAttributeDataRange*>(handle));
 }
 
 Il2CppMetadataCustomAttributeHandle il2cpp::vm::GlobalMetadata::GetCustomAttributeTypeToken(const Il2CppImage* image, uint32_t token)
 {
-    const Il2CppCustomAttributeTypeRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeTypeRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributesInfoOffset, 0);
+    const Il2CppCustomAttributeDataRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeDataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataRangeOffset, 0);
 
-    Il2CppCustomAttributeTypeRange key;
-    memset(&key, 0, sizeof(Il2CppCustomAttributeTypeRange));
+    Il2CppCustomAttributeDataRange key = {0};
     key.token = token;
 
     const Il2CppImageGlobalMetadata* imageMetadata = GetImageMetadata(image);
-    const Il2CppCustomAttributeTypeRange* res = (const Il2CppCustomAttributeTypeRange*)bsearch(&key, attributeTypeRange + imageMetadata->customAttributeStart, image->customAttributeCount, sizeof(Il2CppCustomAttributeTypeRange), CompareTokens);
+    const Il2CppCustomAttributeDataRange* res = (const Il2CppCustomAttributeDataRange*)bsearch(&key, attributeTypeRange + imageMetadata->customAttributeStart, image->customAttributeCount, sizeof(Il2CppCustomAttributeDataRange), CompareTokens);
 
     return reinterpret_cast<Il2CppMetadataCustomAttributeHandle>(res);
 }
 
-static CustomAttributeIndex GetCustomAttributeIndex(const Il2CppImage* image, uint32_t token)
+std::tuple<void*, void*> il2cpp::vm::GlobalMetadata::GetCustomAttributeDataRange(const Il2CppImage* image, uint32_t token)
 {
-    const Il2CppCustomAttributeTypeRange* res = reinterpret_cast<const Il2CppCustomAttributeTypeRange*>(il2cpp::vm::GlobalMetadata::GetCustomAttributeTypeToken(image, token));
+    const Il2CppCustomAttributeDataRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeDataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataRangeOffset, 0);
 
+    Il2CppCustomAttributeDataRange key = {0};
+    key.token = token;
+
+    const Il2CppImageGlobalMetadata* imageMetadata = GetImageMetadata(image);
+    const Il2CppCustomAttributeDataRange* res = (const Il2CppCustomAttributeDataRange*)bsearch(&key, attributeTypeRange + imageMetadata->customAttributeStart, image->customAttributeCount, sizeof(Il2CppCustomAttributeDataRange), CompareTokens);
     if (res == NULL)
-        return kCustomAttributeIndexInvalid;
+        return std::make_tuple<void*, void*>(NULL, NULL);
 
-    const Il2CppCustomAttributeTypeRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeTypeRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributesInfoOffset, 0);
-    CustomAttributeIndex index = (CustomAttributeIndex)(res - attributeTypeRange);
+    const Il2CppCustomAttributeDataRange* next = res + 1;
 
-    IL2CPP_ASSERT(index >= 0 && index < static_cast<int32_t>(s_GlobalMetadataHeader->attributesInfoCount / sizeof(Il2CppCustomAttributeTypeRange)));
-
-    return index;
+    return std::make_tuple<void*, void*>(
+        MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, res->startOffset),
+        MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, next->startOffset)
+    );
 }
 
 CustomAttributesCache* il2cpp::vm::GlobalMetadata::GenerateCustomAttributesCache(const Il2CppImage* image, uint32_t token)
@@ -918,14 +954,18 @@ CustomAttributesCache* il2cpp::vm::GlobalMetadata::GenerateCustomAttributesCache
     return GenerateCustomAttributesCacheInternal(GetImageMetadata(image), GetCustomAttributeIndex(image, token));
 }
 
-static bool HasAttributeFromTypeRange(const Il2CppCustomAttributeTypeRange* typeRange, Il2CppClass* attribute)
+static bool HasAttributeFromTypeRange(const Il2CppImage* image, const Il2CppCustomAttributeDataRange* dataRange, Il2CppClass* attribute)
 {
-    for (int32_t i = 0; i < typeRange->count; i++)
-    {
-        IL2CPP_ASSERT(typeRange->start + i < s_GlobalMetadataHeader->attributeTypesCount);
-        TypeIndex typeIndex = *MetadataOffset<TypeIndex*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeTypesOffset, typeRange->start + i);
-        Il2CppClass* klass = il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(typeIndex);
+    void* start = MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, dataRange->startOffset);
+    void* end = MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, (dataRange + 1)->startOffset);
 
+    il2cpp::metadata::CustomAttributeDataReader reader(start, end);
+
+    const MethodInfo* ctor;
+    il2cpp::metadata::CustomAttributeCtorIterator iter = reader.GetCtorIterator();
+    while (reader.IterateAttributeCtors(image, &ctor, &iter))
+    {
+        Il2CppClass* klass = ctor->klass;
         if (il2cpp::vm::Class::HasParent(klass, attribute) || (il2cpp::vm::Class::IsInterface(attribute) && il2cpp::vm::Class::IsAssignableFrom(attribute, klass)))
             return true;
     }
@@ -938,8 +978,14 @@ bool il2cpp::vm::GlobalMetadata::HasAttribute(Il2CppMetadataCustomAttributeHandl
     if (token == NULL)
         return false;
 
-    const Il2CppCustomAttributeTypeRange* typeRange = reinterpret_cast<const Il2CppCustomAttributeTypeRange*>(token);
-    return HasAttributeFromTypeRange(typeRange, attribute);
+    const Il2CppCustomAttributeDataRange* dataRange = reinterpret_cast<const Il2CppCustomAttributeDataRange*>(token);
+
+    CustomAttributeIndex index = GetCustomAttributeIndex(dataRange);
+    const Il2CppImageGlobalMetadata* imageMetadata = GetImageForCustomAttributeIndex(index);
+    if (imageMetadata == NULL)
+        return false;
+
+    return HasAttributeFromTypeRange(imageMetadata->image, dataRange, attribute);
 }
 
 bool il2cpp::vm::GlobalMetadata::HasAttribute(const Il2CppImage* image, uint32_t token, Il2CppClass* attribute)
@@ -950,8 +996,8 @@ bool il2cpp::vm::GlobalMetadata::HasAttribute(const Il2CppImage* image, uint32_t
 
     IL2CPP_ASSERT(attribute);
 
-    const Il2CppCustomAttributeTypeRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeTypeRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributesInfoOffset, index);
-    return HasAttributeFromTypeRange(attributeTypeRange, attribute);
+    const Il2CppCustomAttributeDataRange* attributeTypeRange = MetadataOffset<const Il2CppCustomAttributeDataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataRangeOffset, index);
+    return HasAttributeFromTypeRange(image, attributeTypeRange, attribute);
 }
 
 const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromVTableSlot(const Il2CppClass* klass, int32_t vTableSlot)
@@ -1302,8 +1348,7 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetGenericInstanceMethod(const Met
         method = genericMethodDefinition->genericMethod->methodDefinition;
     }
 
-    const Il2CppGenericMethod* gmethod = il2cpp::vm::MetadataCache::GetGenericMethod(method, classInst, methodInst);
-    return il2cpp::metadata::GenericMethod::GetMethod(gmethod);
+    return il2cpp::metadata::GenericMethod::GetMethod(method, classInst, methodInst);
 }
 
 const Il2CppType* il2cpp::vm::GlobalMetadata::GetTypeFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)

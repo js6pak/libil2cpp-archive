@@ -124,4 +124,9 @@ inline intptr_t il2cpp_codegen_marshal_get_function_pointer_for_delegate(const D
     return reinterpret_cast<intptr_t>(reinterpret_cast<const Il2CppDelegate*>(d)->m_ReversePInvokeWrapperPtr);
 }
 
+inline void* il2cpp_codegen_get_reverse_pinvoke_function_ptr(void* d)
+{
+    return d;
+}
+
 #endif // IL2CPP_TINY
