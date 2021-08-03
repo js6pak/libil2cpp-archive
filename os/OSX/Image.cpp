@@ -7,6 +7,7 @@
 #include <mach-o/dyld.h>
 #include <mach-o/getsect.h>
 #include <mach-o/ldsyms.h>
+#include <dlfcn.h>
 #include <vector>
 
 namespace il2cpp
@@ -63,11 +64,16 @@ namespace Image
 
     static void InitializeImageBase()
     {
-        int imageIndex = GetImageIndex();
-        if (imageIndex != -1)
-            s_ImageBase = (void*)_dyld_get_image_vmaddr_slide(imageIndex);
-        else
-            s_ImageBase = NULL;
+        // Gets info about the image containing InitializeImageBase
+        Dl_info info;
+        memset(&info, 0, sizeof(info));
+        int error = dladdr((void*)&InitializeImageBase, &info);
+
+        IL2CPP_ASSERT(error != 0);
+        if (error == 0)
+            return;
+
+        s_ImageBase = info.dli_fbase;
     }
 
 #if IL2CPP_SIZEOF_VOID_P == 8
@@ -113,7 +119,7 @@ namespace Image
 
         if (sectionData != NULL)
         {
-            void* start = (void*)((intptr_t)sectionData->addr + (intptr_t)s_ImageBase);
+            void* start = (void*)((intptr_t)sectionData->offset + (intptr_t)s_ImageBase);
             void* end = (uint8_t*)start + sectionData->size;
 
             SetManagedSectionStartAndEnd(start, end);

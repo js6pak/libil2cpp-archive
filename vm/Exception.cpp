@@ -1,4 +1,5 @@
 #include "il2cpp-config.h"
+#include "gc/WriteBarrier.h"
 #include "os/MarshalStringAlloc.h"
 #include "os/WindowsRuntime.h"
 #include "metadata/GenericMetadata.h"
@@ -659,6 +660,11 @@ namespace vm
     Il2CppException* Exception::GetFileNotFoundException(const utils::StringView<Il2CppChar>& msg)
     {
         return FromNameMsg(Image::GetCorlib(), "System.IO", "FileNotFoundException", msg);
+    }
+
+    Il2CppException* Exception::GetCustomAttributeFormatException(const char* msg)
+    {
+        return FromNameMsg(Image::GetCorlib(), "System.Reflection", "CustomAttributeFormatException", msg);
     }
 
     void Exception::StoreExceptionInfo(Il2CppException* ex, Il2CppString* exceptionString)

@@ -259,6 +259,13 @@ namespace Threading
 
     int32_t Thread::GetState(Il2CppInternalThread* thread)
     {
+        // There is a chance that the managed thread object can be used from code (like a
+        // finalizer) after it has been destroyed. In that case, the objects that
+        // the runtime uses to track this thread may have been freed. Try to check for
+        // that case here and return early.
+        if (thread->longlived == NULL)
+            return vm::kThreadStateStopped;
+
         il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
         return (il2cpp::vm::ThreadState)thread->state;
     }

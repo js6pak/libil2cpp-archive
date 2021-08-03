@@ -276,11 +276,10 @@ namespace metadata
         const MethodInfo* methodToCopyDataFrom = genericArrayMethod.method;
         if (genericArrayMethod.method->is_generic)
         {
-            const Il2CppGenericMethod* genericMethod = MetadataCache::GetGenericMethod(genericArrayMethod.method, context->class_inst, context->method_inst);
-            methodToCopyDataFrom = GenericMethod::GetMethod(genericMethod);
+            methodToCopyDataFrom = GenericMethod::GetMethod(genericArrayMethod.method, context->class_inst, context->method_inst);
 
             inflatedMethod->is_inflated = true;
-            inflatedMethod->genericMethod = genericMethod;
+            inflatedMethod->genericMethod = methodToCopyDataFrom->genericMethod;
             inflatedMethod->rgctx_data = methodToCopyDataFrom->rgctx_data;
         }
 
@@ -319,7 +318,10 @@ namespace metadata
 
                 size_t vtableIndex = klass->interfaceOffsets[i].offset + iter->interfaceMethodDefinition->slot;
                 klass->vtable[vtableIndex].method = arrayMethod;
-                klass->vtable[vtableIndex].methodPtr = arrayMethod->virtualMethodPointer;
+                if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
+                    klass->vtable[vtableIndex].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(arrayMethod);
+                else
+                    klass->vtable[vtableIndex].methodPtr = arrayMethod->virtualMethodPointer;
             }
         }
     }

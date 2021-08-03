@@ -1,19 +1,20 @@
 #include "il2cpp-config.h"
-
 #include "il2cpp-object-internals.h"
 #include "il2cpp-class-internals.h"
+
 #include "PlatformInvoke.h"
 #include "Exception.h"
 #include "MetadataCache.h"
-#include "Object.h"
 #include "Method.h"
+#include "Object.h"
 #include "Runtime.h"
 #include "Type.h"
+
+#include "gc/WriteBarrier.h"
 #include "os/LibraryLoader.h"
 #include "os/MarshalStringAlloc.h"
 #include "utils/Memory.h"
 #include "utils/StringUtils.h"
-#include "vm-utils/NativeDelegateMethodCache.h"
 #include "vm-utils/VmStringUtils.h"
 
 #include <stdint.h>
@@ -35,8 +36,7 @@ namespace vm
         // Some platforms, like UWP, just don't allow you to load to load system libraries at runtime dynamically.
         // On other platforms (THEY SHALL NOT BE NAMED :O), while the functions that mscorlib.dll wants to P/Invoke into exist,
         // They exist in different system libraries than it is said in the DllImport attribute.
-        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
-
+        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint, pinvokeArgs.charSet);
         if (function != NULL)
             return function;
 
@@ -359,17 +359,6 @@ namespace vm
         IL2CPP_OBJECT_SETREF_NULL(stringBuilder, chunkPrevious);
     }
 
-    // When a delegate is marshalled from native code via Marshal.GetDelegateForFunctionPointer
-    // libil2cpp will create a fake MethodInfo which just has a methodPointer, so the method
-    // can be invoked again later. This fake MethodInfo does not have a methodDefinition, and does
-    // not have a reversePInvokeWrapper. So if other code is trying to marshal it _back_ to native,
-    // we should treat this as a special case, and just return the native function pointer
-    // that was wrapped in the fake MethodInfo.
-    static bool IsFakeDelegateMethodMarshaledFromNativeCode(const MethodInfo* method)
-    {
-        return method->methodMetadataHandle == NULL && method->is_marshaled_from_native;
-    }
-
     static bool IsGenericInstance(const Il2CppType* type)
     {
         if (type->type == IL2CPP_TYPE_GENERICINST)
@@ -403,22 +392,14 @@ namespace vm
         return typeNameList;
     }
 
-    static bool FullGenericSharingIsEnabled()
-    {
-        return il2cpp_defaults.il2cpp_fully_shared_type != NULL;
-    }
-
+#if !IL2CPP_TINY
     intptr_t PlatformInvoke::MarshalDelegate(Il2CppDelegate* d)
     {
-#if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "This should not be called with the Tiny profile.");
-        return 0;
-#else
         if (d == NULL)
             return 0;
 
-        if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
-            return reinterpret_cast<intptr_t>(d->method->virtualMethodPointer);
+        if (IsFakeDelegateMethodMarshaledFromNativeCode(d))
+            return reinterpret_cast<intptr_t>(d->delegate_trampoline);
 
         Il2CppMethodPointer reversePInvokeWrapper = MetadataCache::GetReversePInvokeWrapper(d->method->klass->image, d->method);
         if (reversePInvokeWrapper == NULL)
@@ -431,7 +412,7 @@ namespace vm
                 vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
             }
 
-            if (d->method->genericMethod != NULL && FullGenericSharingIsEnabled())
+            if (d->method->genericMethod != NULL && il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
             {
                 std::string errorMessage = "IL2CPP does not support marshaling generic delegates when full generic sharing is enabled. The method we're attempting to marshal is: " + methodName;
                 errorMessage += "\nTo marshal this delegate, please add an attribute named 'MonoPInvokeCallback' to the method definition.";
@@ -469,7 +450,6 @@ namespace vm
         }
 
         return reinterpret_cast<intptr_t>(reversePInvokeWrapper);
-#endif
     }
 
     Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)
@@ -477,36 +457,27 @@ namespace vm
         if (!Class::HasParent(delegateType, il2cpp_defaults.delegate_class))
             Exception::Raise(Exception::GetArgumentException("t", "Type must derive from Delegate."));
 
-        if (Class::IsGeneric(delegateType) || Class::IsInflated(delegateType))
-            Exception::Raise(Exception::GetArgumentException("t", "The specified Type must not be a generic type definition."));
-
         const Il2CppInteropData* interopData = delegateType->interopData;
         Il2CppMethodPointer managedToNativeWrapperMethodPointer = interopData != NULL ? interopData->delegatePInvokeWrapperFunction : NULL;
 
         if (managedToNativeWrapperMethodPointer == NULL)
             Exception::Raise(Exception::GetMarshalDirectiveException(utils::StringUtils::Printf("Cannot marshal P/Invoke call through delegate of type '%s.%s'", Class::GetNamespace(delegateType), Class::GetName(delegateType)).c_str()));
 
-        Il2CppObject* delegate = il2cpp::vm::Object::New(delegateType);
-        Il2CppMethodPointer nativeFunctionPointer = (Il2CppMethodPointer)functionPtr;
+        const MethodInfo* invokMethod = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
+        Il2CppDelegate* delegate = (Il2CppDelegate*)il2cpp::vm::Object::New(delegateType);
+        Type::ConstructDelegate(delegate, (Il2CppObject*)delegate, managedToNativeWrapperMethodPointer, invokMethod);
+        delegate->delegate_trampoline = functionPtr;
 
-        const MethodInfo* method = utils::NativeDelegateMethodCache::GetNativeDelegate(nativeFunctionPointer);
-        if (method == NULL)
-        {
-            const MethodInfo* invoke = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
-            MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC(1, sizeof(MethodInfo));
-            newMethod->virtualMethodPointer = nativeFunctionPointer;
-            // If calling delegates via invokers managedToNativeWrapperMethodPointer is an invoker, otherwise it won't be called
-            newMethod->invoker_method = (InvokerMethod)managedToNativeWrapperMethodPointer;
-            newMethod->parameters_count = invoke->parameters_count;
-            newMethod->slot = kInvalidIl2CppMethodSlot;
-            newMethod->is_marshaled_from_native = true;
-            utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
-            method = newMethod;
-        }
-
-        Type::ConstructDelegate((Il2CppDelegate*)delegate, delegate, managedToNativeWrapperMethodPointer, method);
-
-        return (Il2CppDelegate*)delegate;
+        return delegate;
     }
+
+    // When a delegate is marshalled from native code via Marshal.GetDelegateForFunctionPointer
+    // It will store the native function pointer in delegate_trampoline
+    bool PlatformInvoke::IsFakeDelegateMethodMarshaledFromNativeCode(const Il2CppDelegate* d)
+    {
+        return d->delegate_trampoline != NULL;
+    }
+
+#endif // !IL2CPP_TINY
 } /* namespace vm */
 } /* namespace il2cpp */

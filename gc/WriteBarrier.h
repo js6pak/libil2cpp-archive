@@ -28,3 +28,16 @@ namespace gc
     };
 } /* gc */
 } /* il2cpp */
+
+#define IL2CPP_OBJECT_SETREF(obj, fieldname, value) do {\
+        il2cpp::gc::WriteBarrier::GenericStore(&(obj)->fieldname, (value));\
+    } while (0)
+
+/* This should be used if 's' can reside on the heap */
+#define IL2CPP_STRUCT_SETREF(s, fieldname, value) do {\
+        il2cpp::gc::WriteBarrier::GenericStore(&(s)->fieldname, (value));\
+    } while (0)
+
+#define IL2CPP_OBJECT_SETREF_NULL(obj, fieldname) do {\
+        il2cpp::gc::WriteBarrier::GenericStoreNull(&(obj)->fieldname);\
+    } while (0)
