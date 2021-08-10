@@ -51,6 +51,8 @@
 #define IL2CPP_TARGET_PS4 1
 #define _UNICODE 1
 #define UNICODE 1
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
+#define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
 #elif defined(_MSC_VER)
 #define IL2CPP_TARGET_WINDOWS 1
 
@@ -162,6 +164,11 @@
 // defined handled externally
 #else
 #error please define your target platform
+#endif
+
+#if IL2CPP_TARGET_PS5
+#define IL2CPP_PLATFORM_SUPPORTS_CUSTOM_SECTIONS 1
+#define IL2CPP_METHOD_ATTR __attribute__((section(IL2CPP_BINARY_SECTION_NAME)))
 #endif
 
 #ifndef IL2CPP_TARGET_WINDOWS
