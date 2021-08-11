@@ -1166,6 +1166,34 @@ namespace vm
         return GenericClass::IsValueType(type->data.generic_class);
     }
 
+    bool Type::HasVariableRuntimeSizeWhenFullyShared(const Il2CppType* type)
+    {
+        // Anything passed by ref is pointer sized
+        if (type->byref)
+            return false;
+
+        // Any generic parameter that is not constarined to be a reference type would be fully shared
+        if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
+            return !MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type));
+
+        // If we're not a generic instance then we'll be a concrete type
+        if (!IsGenericInstance(type))
+            return false;
+
+        // If a reference type or pointer then we aren't variable sized
+        if (!GenericInstIsValuetype(type))
+            return false;
+
+        // Otherwise we're a generic value type - e.g. Struct<T> and we need to examine our generic parameters
+        for (uint32_t i = 0; i < type->data.generic_class->context.class_inst->type_argc; i++)
+        {
+            if (HasVariableRuntimeSizeWhenFullyShared(type->data.generic_class->context.class_inst->type_argv[i]))
+                return true;
+        }
+
+        return false;
+    }
+
     bool Type::IsEnum(const Il2CppType *type)
     {
         if (type->type != IL2CPP_TYPE_VALUETYPE)

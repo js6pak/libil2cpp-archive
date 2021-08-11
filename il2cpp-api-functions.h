@@ -101,7 +101,7 @@ DO_API(Il2CppException*, il2cpp_get_exception_argument_null, (const char *arg));
 DO_API(void, il2cpp_format_exception, (const Il2CppException * ex, char* message, int message_size));
 DO_API(void, il2cpp_format_stack_trace, (const Il2CppException * ex, char* output, int output_size));
 DO_API(void, il2cpp_unhandled_exception, (Il2CppException*));
-DO_API(void, il2cpp_native_stack_trace, (const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char* imageUUID));
+DO_API(void, il2cpp_native_stack_trace, (const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char** imageUUID, char** imageName));
 
 // field
 DO_API(int, il2cpp_field_get_flags, (FieldInfo * field));

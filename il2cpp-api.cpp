@@ -580,14 +580,15 @@ void il2cpp_unhandled_exception(Il2CppException* exc)
     Runtime::UnhandledException(exc);
 }
 
-void il2cpp_native_stack_trace(const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char* imageUUID)
+void il2cpp_native_stack_trace(const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char** imageUUID, char** imageName)
 {
 #if IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION
     if (ex == NULL || ex->native_trace_ips == NULL)
     {
         *numFrames = 0;
         *addresses = NULL;
-        *imageUUID = '\0';
+        *imageUUID = NULL;
+        *imageName = NULL;
         return;
     }
 
@@ -596,7 +597,8 @@ void il2cpp_native_stack_trace(const Il2CppException * ex, uintptr_t** addresses
     if (*numFrames <= 0)
     {
         *addresses = NULL;
-        *imageUUID = '\0';
+        *imageUUID = NULL;
+        *imageName = NULL;
     }
     else
     {
@@ -607,7 +609,8 @@ void il2cpp_native_stack_trace(const Il2CppException * ex, uintptr_t** addresses
             (*addresses)[i] = ptrAddr;
         }
 
-        il2cpp::os::Image::GetImageUUID(imageUUID);
+        *imageUUID = il2cpp::os::Image::GetImageUUID();
+        *imageName = il2cpp::os::Image::GetImageName();
     }
 #endif
 }

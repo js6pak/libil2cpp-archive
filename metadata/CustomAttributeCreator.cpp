@@ -26,35 +26,45 @@ namespace metadata
         return arg->data.obj;
     }
 
-    Il2CppObject* CustomAttributeCreator::Create(const CustomAttributeData& data, Il2CppException** exc)
+    void CustomAttributeCreator::VisitCtor(const MethodInfo* ctor, CustomAttributeArgument args[], uint32_t argumentCount)
     {
-        il2cpp::gc::WriteBarrier::GenericStoreNull(exc);
+        attr = il2cpp::vm::Object::New(ctor->klass);
 
-        Il2CppObject* attr = il2cpp::vm::Object::New(data.ctor->klass);
+        void** ctorArgs = (void**)alloca(argumentCount * sizeof(void*));
+        for (uint32_t i = 0; i < argumentCount; i++)
+            ctorArgs[i] = ConvertArgumentValue(ctor->parameters[i], args + i);
+        il2cpp::vm::Runtime::Invoke(ctor, attr, ctorArgs, &exc);
 
-        const MethodInfo* ctor = data.ctor;
-        IL2CPP_ASSERT(data.arguments.size() == ctor->parameters_count);
-        void** ctorArgs = (void**)alloca(data.arguments.size() * sizeof(void*));
-        for (size_t i = 0; i < data.arguments.size(); i++)
-            ctorArgs[i] = ConvertArgumentValue(ctor->parameters[i], &data.arguments[i]);
+        if (exc != NULL)
+            attr = NULL;
+    }
 
-        il2cpp::vm::Runtime::Invoke(ctor, attr, ctorArgs, exc);
-        if (*exc != NULL)
-            return NULL;
+    void CustomAttributeCreator::VisitField(const CustomAttributeFieldArgument& field, uint32_t index)
+    {
+        if (exc != NULL)
+            return;
 
-        for (std::vector<CustomAttributeFieldArgument>::const_iterator it = data.fields.begin(); it < data.fields.end(); ++it)
-            il2cpp::vm::Field::SetValue(attr, it->field, ConvertArgumentValue(it->field->type, &it->arg));
+        IL2CPP_ASSERT(attr);
+        il2cpp::vm::Field::SetValue(attr, field.field, ConvertArgumentValue(field.field->type, &field.arg));
+    }
 
-        for (std::vector<CustomAttributePropertyArgument>::const_iterator it = data.properties.begin(); it < data.properties.end(); ++it)
-        {
-            const MethodInfo* setMethod = il2cpp::vm::Property::GetSetMethod(it->prop);
-            IL2CPP_ASSERT(setMethod->parameters_count == 1);
-            void* param = ConvertArgumentValue(setMethod->parameters[0], &it->arg);
-            il2cpp::vm::Runtime::Invoke(setMethod, attr, &param, exc);
-            if (*exc != NULL)
-                return NULL;
-        }
+    void CustomAttributeCreator::VisitProperty(const CustomAttributePropertyArgument& prop, uint32_t index)
+    {
+        if (exc != NULL)
+            return;
 
+        IL2CPP_ASSERT(attr);
+
+        const MethodInfo* setMethod = il2cpp::vm::Property::GetSetMethod(prop.prop);
+        IL2CPP_ASSERT(setMethod->parameters_count == 1);
+        void* param = ConvertArgumentValue(setMethod->parameters[0], &prop.arg);
+
+        il2cpp::vm::Runtime::Invoke(setMethod, attr, &param, &exc);
+    }
+
+    Il2CppObject* CustomAttributeCreator::GetAttribute(Il2CppException** exc)
+    {
+        *exc = this->exc;
         return attr;
     }
 }     /* namespace vm */
