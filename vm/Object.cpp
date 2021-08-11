@@ -14,6 +14,7 @@
 #include "vm/String.h"
 #include "vm/Thread.h"
 #include "vm/Type.h"
+#include "vm-utils/VmThreadUtils.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
 #include "gc/gc_wrapper.h"
@@ -360,6 +361,9 @@ namespace vm
 
     void Object::UnboxNullable(Il2CppObject* obj, Il2CppClass* nullableArgumentClass, void* storage)
     {
+        // We assume storage is on the stack, if not we'll need a write barrier
+        IL2CPP_ASSERT_STACK_PTR(storage);
+
         // The hasValue field is the first one in the Nullable struct. It is a one byte Boolean.
         // We're trying to get the address of the value field in the Nullable struct, so offset
         // past the hasValue field, then offset to the alignment value of the type stored in the

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "il2cpp-codegen-common.h"
 #include "il2cpp-object-internals.h"
 #include <cmath>
 
@@ -11,16 +12,14 @@ inline void il2cpp_codegen_initobj(void* value, size_t size)
 template<typename TInput, typename TOutput, typename TFloat>
 inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
 {
-#if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-    // On ARM, a cast from a floating point to integer value will use
-    // the min or max value if the cast is out of range (instead of
-    // overflowing like x86/x64). So first do a cast to the output
-    // type (which is signed in .NET - the value stack does not have
-    // unsigned types) to try to get the value into a range that will
-    // actually be cast.
+    // In release builds and on ARM, a cast from a floating point to
+    // integer value will use the min or max value if the cast is out
+    // of range (instead of overflowing like x86/x64 debug builds).
+    // So first do a cast to the output type (which is signed in
+    // .NET - the value stack does not have unsigned types) to try to
+    // get the value into a range that will actually be cast the way .NET does.
     if (value < 0)
         return (TOutput)((TInput)(TOutput)value);
-#endif
     return (TOutput)((TInput)value);
 }
 

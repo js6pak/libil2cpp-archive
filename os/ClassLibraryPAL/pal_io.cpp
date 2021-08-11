@@ -7,6 +7,7 @@
 #include "os/File.h"
 #include "os/Posix/FileHandle.h"
 
+#include <stdlib.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -19,14 +20,28 @@ struct DirectoryEntry;
 
 extern "C"
 {
+#define READDIR_SORT 1
+
+    struct DIRWrapper
+    {
+        DIR* dir;
+#if READDIR_SORT
+        void* result;
+        size_t curIndex;
+        size_t numEntries;
+#if !IL2CPP_HAVE_REWINDDIR
+        char* dirPath;
+#endif
+#endif
+    };
     // Items needed by mscorlib
     IL2CPP_EXPORT int32_t SystemNative_Stat2(const char* path, struct FileStatus* output); // 179
     IL2CPP_EXPORT int32_t SystemNative_LStat2(const char* path, struct FileStatus* output); // 207
     IL2CPP_EXPORT int32_t SystemNative_Unlink(const char* path); // 305
     IL2CPP_EXPORT int32_t SystemNative_GetReadDirRBufferSize(void); // 371
-    IL2CPP_EXPORT int32_t SystemNative_ReadDirR(DIR* dir, uint8_t* buffer, int32_t bufferSize, struct DirectoryEntry* outputEntry); // 388
-    IL2CPP_EXPORT DIR* SystemNative_OpenDir(const char* path); // 468
-    IL2CPP_EXPORT int32_t SystemNative_CloseDir(intptr_t a); // 473
+    IL2CPP_EXPORT int32_t SystemNative_ReadDirR(struct DIRWrapper* dirWrapper, uint8_t* buffer, int32_t bufferSize, struct DirectoryEntry* outputEntry); // 388
+    IL2CPP_EXPORT struct DIRWrapper* SystemNative_OpenDir(const char* path); // 468
+    IL2CPP_EXPORT int32_t SystemNative_CloseDir(struct DIRWrapper* dirWrapper); // 473
     IL2CPP_EXPORT int32_t SystemNative_MkDir(const char* path, int32_t mode); // 592
     IL2CPP_EXPORT int32_t SystemNative_ChMod(const char* path, int32_t mode); // 599
     IL2CPP_EXPORT int32_t SystemNative_Link(const char* source, const char* linkTarget); // 660
@@ -217,14 +232,14 @@ static void ConvertDirent(const struct dirent* entry, struct DirectoryEntry* out
 #endif
 }
 
-#if IL2CPP_HAVE_READDIR_R
+#if IL2CPP_HAVE_READDIR_R_DEPRECATED_DO_NOT_USE
 // struct dirent typically contains 64-bit numbers (e.g. d_ino), so we align it at 8-byte.
 static const size_t dirent_alignment = 8;
 #endif
 
 int32_t SystemNative_GetReadDirRBufferSize(void)
 {
-#if IL2CPP_HAVE_READDIR_R
+#if IL2CPP_HAVE_READDIR_R_DEPRECATED_DO_NOT_USE
     // dirent should be under 2k in size
     IL2CPP_ASSERT(sizeof(struct dirent) < 2048);
     // add some extra space so we can align the buffer to dirent.
@@ -234,17 +249,26 @@ int32_t SystemNative_GetReadDirRBufferSize(void)
 #endif
 }
 
+#if READDIR_SORT
+static int cmpstring(const void *p1, const void *p2)
+{
+    return strcmp(((struct dirent*)p1)->d_name, ((struct dirent*)p2)->d_name);
+}
+
+#endif
+
 // To reduce the number of string copies, the caller of this function is responsible to ensure the memory
 // referenced by outputEntry remains valid until it is read.
 // If the platform supports readdir_r, the caller provides a buffer into which the data is read.
 // If the platform uses readdir, the caller must ensure no calls are made to readdir/closedir since those will invalidate
 // the current dirent. We assume the platform supports concurrent readdir calls to different DIRs.
-int32_t SystemNative_ReadDirR(DIR* dir, uint8_t* buffer, int32_t bufferSize, struct DirectoryEntry* outputEntry)
+int32_t SystemNative_ReadDirR(struct DIRWrapper* dirWrapper, uint8_t* buffer, int32_t bufferSize, struct DirectoryEntry* outputEntry)
 {
-    IL2CPP_ASSERT(dir != NULL);
+    IL2CPP_ASSERT(dirWrapper != NULL);
+    IL2CPP_ASSERT(dirWrapper->dir != NULL);
     IL2CPP_ASSERT(outputEntry != NULL);
 
-#if IL2CPP_HAVE_READDIR_R
+#if IL2CPP_HAVE_READDIR_R_DEPRECATED_DO_NOT_USE
     IL2CPP_ASSERT(buffer != NULL);
 
     // align to dirent
@@ -299,7 +323,49 @@ int32_t SystemNative_ReadDirR(DIR* dir, uint8_t* buffer, int32_t bufferSize, str
     (void)buffer;     // unused
     (void)bufferSize; // unused
     errno = 0;
-    struct dirent* entry = readdir(dir);
+
+#if READDIR_SORT
+    struct dirent* entry;
+
+    if (!dirWrapper->result)
+    {
+        size_t numEntries = 0;
+        while ((entry = readdir(dirWrapper->dir)))
+            numEntries++;
+        if (numEntries)
+        {
+            dirWrapper->result = malloc(numEntries * sizeof(struct dirent));
+            dirWrapper->curIndex = 0;
+            dirWrapper->numEntries = numEntries;
+#if IL2CPP_HAVE_REWINDDIR
+            rewinddir(dirWrapper->dir);
+#else
+            closedir(dirWrapper->dir);
+            dirWrapper->dir = opendir(dirWrapper->dirPath);
+#endif
+
+            size_t index = 0;
+            while ((entry = readdir(dirWrapper->dir)))
+            {
+                memcpy(&((struct dirent*)dirWrapper->result)[index], entry, sizeof(struct dirent));
+                index++;
+            }
+
+            qsort(dirWrapper->result, numEntries, sizeof(struct dirent), cmpstring);
+        }
+    }
+
+    if (dirWrapper->curIndex < dirWrapper->numEntries)
+    {
+        entry = &((struct dirent*)dirWrapper->result)[dirWrapper->curIndex];
+        dirWrapper->curIndex++;
+    }
+    else
+        entry = NULL;
+
+#else
+    struct dirent* entry = readdir(dirWrapper->dir);
+#endif
 
     // 0 returned with null result -> end-of-stream
     if (entry == NULL)
@@ -319,14 +385,51 @@ int32_t SystemNative_ReadDirR(DIR* dir, uint8_t* buffer, int32_t bufferSize, str
     return 0;
 }
 
-DIR* SystemNative_OpenDir(const char* path)
+struct DIRWrapper* SystemNative_OpenDir(const char* path)
 {
-    return opendir(REMAP_PATH(path));
+    const char* remapped_path = NULL;
+
+#if IL2CPP_HAVE_REMAP_PATH
+    auto remapped_path_string = pal_remap_path(path);
+    remapped_path = remapped_path_string.c_str();
+#else
+    remapped_path = path;
+#endif
+
+    DIR* dir = opendir(remapped_path);
+
+    if (dir == NULL)
+        return NULL;
+
+    struct DIRWrapper* ret = (struct DIRWrapper*)malloc(sizeof(struct DIRWrapper));
+    ret->dir = dir;
+#if READDIR_SORT
+    ret->result = NULL;
+    ret->curIndex = 0;
+    ret->numEntries = 0;
+#if !IL2CPP_HAVE_REWINDDIR
+    ret->dirPath = strdup(remapped_path);
+#endif
+#endif
+    return ret;
 }
 
-int32_t SystemNative_CloseDir(intptr_t dir)
+int32_t SystemNative_CloseDir(struct DIRWrapper* dirWrapper)
 {
-    return closedir(reinterpret_cast<DIR*>(dir));
+    IL2CPP_ASSERT(dirWrapper != NULL);
+    int32_t ret = closedir(dirWrapper->dir);
+#if READDIR_SORT
+    if (dirWrapper->result)
+        free(dirWrapper->result);
+    dirWrapper->result = NULL;
+#if !IL2CPP_HAVE_REWINDDIR
+    if (dirWrapper->dirPath)
+        free(dirWrapper->dirPath);
+#endif
+    free(dirWrapper);
+#endif
+
+    return ret;
 }
 
 int32_t SystemNative_MkDir(const char* path, int32_t mode)

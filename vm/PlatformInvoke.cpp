@@ -412,7 +412,7 @@ namespace vm
                 vm::Exception::Raise(vm::Exception::GetNotSupportedException(errorMessage.c_str()));
             }
 
-            if (d->method->genericMethod != NULL && il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
+            if (il2cpp::vm::Method::HasFullGenericSharingSignature(d->method))
             {
                 std::string errorMessage = "IL2CPP does not support marshaling generic delegates when full generic sharing is enabled. The method we're attempting to marshal is: " + methodName;
                 errorMessage += "\nTo marshal this delegate, please add an attribute named 'MonoPInvokeCallback' to the method definition.";

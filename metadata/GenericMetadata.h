@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "il2cpp-metadata.h"
+#include "os/Mutex.h"
 
 struct Il2CppGenericClass;
 struct Il2CppGenericContext;
@@ -29,7 +30,7 @@ namespace metadata
         static const Il2CppGenericMethod* Inflate(const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context);
         static const Il2CppGenericInst* GetInflatedGenericIntance(const Il2CppGenericInst* inst, const Il2CppGenericContext* context, bool inflatMethodVars);
 
-        static Il2CppRGCTXData* InflateRGCTX(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context);
+        static Il2CppRGCTXData* InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context, const il2cpp::os::FastAutoLock& lock);
 
         // temporary while we generate generics
         static void RegisterGenericClasses(Il2CppGenericClass* const* genericClasses, int32_t genericClassesCount);
