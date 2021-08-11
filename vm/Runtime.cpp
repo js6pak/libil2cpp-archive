@@ -37,6 +37,7 @@
 #include "vm/String.h"
 #include "vm/Object.h"
 #include "vm-utils/Debugger.h"
+#include "vm-utils/DebugSymbolReader.h"
 #include "vm/Profiler.h"
 #include "utils/Logging.h"
 #include <string>
@@ -165,6 +166,10 @@ namespace vm
 
         os::Image::Initialize();
         os::Thread::Init();
+
+#if !IL2CPP_TINY && !IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::DebugSymbolReader::LoadDebugSymbols();
+#endif
 
         // This should be filled in by generated code.
         IL2CPP_ASSERT(g_CodegenRegistration != NULL);

@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "os/Mutex.h"
+#include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
 #include "os/Semaphore.h"
 #include "vm/Domain.h"

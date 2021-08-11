@@ -46,6 +46,7 @@ namespace vm
         static Il2CppMetadataTypeHandle GetAssemblyExportedTypeHandle(const Il2CppImage* image, AssemblyExportedTypeIndex index);
 
         static Il2CppClass* GetTypeInfoFromType(const Il2CppType* type);
+        static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index);
         static Il2CppClass* GetTypeInfoFromHandle(Il2CppMetadataTypeHandle handle);
         static const Il2CppType* GetInterfaceFromOffset(const Il2CppClass* klass, TypeInterfaceIndex offset);
         static Il2CppInterfaceOffsetInfo GetInterfaceOffsetInfo(const Il2CppClass* klass, TypeInterfaceOffsetIndex index);

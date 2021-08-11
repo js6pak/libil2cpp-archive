@@ -5,6 +5,7 @@
 #include "il2cpp-pinvoke-support.h"
 #include "icalls/mscorlib/System.Runtime.InteropServices/Marshal.h"
 #include "vm-utils/icalls/mscorlib/System.Threading/Interlocked.h"
+#include "vm-utils/VmThreadUtils.h"
 
 #include "vm/ClassInlines.h"
 #include "vm/ScopedThreadAttacher.h"
@@ -432,6 +433,8 @@ void il2cpp_codegen_memory_barrier();
 
 inline void GetGenericValueImpl(RuntimeArray* thisPtr, int32_t pos, void* value)
 {
+    // GetGenericValueImpl is only called from the class libs internally and T is never a field
+    IL2CPP_ASSERT_STACK_PTR(value);
     memcpy(value, il2cpp_array_addr_with_size(thisPtr, thisPtr->klass->element_size, pos), thisPtr->klass->element_size);
 }
 
@@ -694,7 +697,15 @@ void il2cpp_codegen_initialize_runtime_metadata(uintptr_t* metadataPointer);
 
 void* il2cpp_codegen_initialize_runtime_metadata_inline(uintptr_t* metadataPointer);
 
-bool il2cpp_codegen_class_is_value_type(RuntimeClass* type);
+inline bool il2cpp_codegen_type_is_value_type(const RuntimeType* type)
+{
+    return type->valuetype;
+}
+
+inline bool il2cpp_codegen_class_is_value_type(RuntimeClass* type)
+{
+    return il2cpp_codegen_type_is_value_type(&type->byval_arg);
+}
 
 bool il2cpp_codegen_class_is_nullable(RuntimeClass* type);
 
@@ -986,6 +997,7 @@ inline void* il2cpp_codegen_unsafe_cast(T* ptr)
 
 inline void il2cpp_codegen_by_reference_constructor(Il2CppByReference* byReference, void* value)
 {
+    IL2CPP_ASSERT_STACK_PTR(byReference);
     byReference->value = (intptr_t)value;
 }
 
