@@ -17,6 +17,12 @@
 #define IL2CPP_TARGET_ARMV7 0
 #endif
 
+#if defined(__arm64e__) && defined(__PTRAUTH_INTRINSICS__)
+#define IL2CPP_TARGET_ARM64E 1
+#else
+#define IL2CPP_TARGET_ARM64E 0
+#endif
+
 #if defined(__x86_64__) || defined(_M_X64)
 #define IL2CPP_TARGET_X64 1
 #define IL2CPP_TARGET_X86 0

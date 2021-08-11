@@ -517,12 +517,11 @@ static bool IsShareableEnum(const Il2CppType* type)
 }
 
 static bool IsReferenceTypeGenericConstraint(const Il2CppType* constraint);
-static bool IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter);
 
 static bool IsReferenceTypeGenericConstraint(const Il2CppType* constraint)
 {
     if (constraint->type == IL2CPP_TYPE_VAR || constraint->type == IL2CPP_TYPE_MVAR)
-        return IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromType(constraint));
+        return il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromType(constraint));
     if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.enum_class->byval_arg))
         return false;
     else if (il2cpp::vm::Class::IsInterface(il2cpp::vm::Class::FromIl2CppType(constraint)))
@@ -532,7 +531,7 @@ static bool IsReferenceTypeGenericConstraint(const Il2CppType* constraint)
     return true;
 }
 
-static bool IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter)
+bool il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter)
 {
     uint16_t flags = il2cpp::vm::GlobalMetadata::GetGenericParameterFlags(genericParameter);
     if ((flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_REFERENCE_TYPE_CONSTRAINT) != 0)
@@ -560,7 +559,7 @@ static const Il2CppGenericInst* GetFullySharedInst(Il2CppMetadataGenericContaine
     for (uint32_t i = 0; i < inst->type_argc; ++i)
     {
         const Il2CppType* type;
-        if (IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromIndex(genericContainer, i)))
+        if (il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromIndex(genericContainer, i)))
             type = &il2cpp_defaults.object_class->byval_arg;
         else
             type = &il2cpp_defaults.il2cpp_fully_shared_type->byval_arg;
@@ -641,7 +640,7 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
     return sharedInst;
 }
 
-static il2cpp::vm::Il2CppGenericMethodPointers MakeInvokerMethodTuple(const Il2CppGenericMethodIndices* methodIndicies)
+static il2cpp::vm::Il2CppGenericMethodPointers MakeGenericMethodPointers(const Il2CppGenericMethodIndices* methodIndicies, bool isFullyShared)
 {
     IL2CPP_ASSERT(methodIndicies->methodIndex >= 0 && methodIndicies->invokerIndex >= 0);
     if (static_cast<uint32_t>(methodIndicies->methodIndex) < s_Il2CppCodeRegistration->genericMethodPointersCount && static_cast<uint32_t>(methodIndicies->invokerIndex) < s_Il2CppCodeRegistration->invokerPointersCount)
@@ -657,9 +656,9 @@ static il2cpp::vm::Il2CppGenericMethodPointers MakeInvokerMethodTuple(const Il2C
         {
             virtualMethod = method;
         }
-        return { method, virtualMethod, s_Il2CppCodeRegistration->invokerPointers[methodIndicies->invokerIndex] };
+        return { method, virtualMethod, s_Il2CppCodeRegistration->invokerPointers[methodIndicies->invokerIndex], isFullyShared };
     }
-    return { NULL, NULL, NULL };
+    return { NULL, NULL, NULL, false };
 }
 
 il2cpp::vm::Il2CppGenericMethodPointers il2cpp::vm::MetadataCache::GetGenericMethodPointers(const MethodInfo* methodDefinition, const Il2CppGenericContext* context)
@@ -671,8 +670,7 @@ il2cpp::vm::Il2CppGenericMethodPointers il2cpp::vm::MetadataCache::GetGenericMet
 
     Il2CppMethodTableMapIter iter = s_MethodTableMap.find(&method);
     if (iter != s_MethodTableMap.end())
-        return MakeInvokerMethodTuple(iter->second);
-
+        return MakeGenericMethodPointers(iter->second, false);
 
     // get the shared version if it exists
     method.context.class_inst = GetSharedInst(context->class_inst);
@@ -680,7 +678,7 @@ il2cpp::vm::Il2CppGenericMethodPointers il2cpp::vm::MetadataCache::GetGenericMet
 
     iter = s_MethodTableMap.find(&method);
     if (iter != s_MethodTableMap.end())
-        return MakeInvokerMethodTuple(iter->second);
+        return MakeGenericMethodPointers(iter->second, false);
 
     // get the fully shared version if it exists
     method.context.class_inst = GetFullySharedInst(methodDefinition->klass->genericContainerHandle, context->class_inst);
@@ -688,7 +686,7 @@ il2cpp::vm::Il2CppGenericMethodPointers il2cpp::vm::MetadataCache::GetGenericMet
 
     iter = s_MethodTableMap.find(&method);
     if (iter != s_MethodTableMap.end())
-        return MakeInvokerMethodTuple(iter->second);
+        return MakeGenericMethodPointers(iter->second, true);
 
     return { NULL, NULL, NULL };
 }

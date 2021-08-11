@@ -329,5 +329,10 @@ namespace vm
     {
         return method == &ambiguousMethodInfo;
     }
+
+    bool Method::HasFullGenericSharingSignature(const MethodInfo* method)
+    {
+        return method->has_full_generic_sharing_signature;
+    }
 } /* namespace vm */
 } /* namespace il2cpp */
