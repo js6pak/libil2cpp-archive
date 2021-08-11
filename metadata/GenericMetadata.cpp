@@ -244,8 +244,10 @@ namespace metadata
         ConstrainedCallsToGenericInterfaceMethodsOnStructsAreNotSupported();
     }
 
-    Il2CppRGCTXData* GenericMetadata::InflateRGCTX(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context)
+    Il2CppRGCTXData* GenericMetadata::InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context, const FastAutoLock& lock)
     {
+        // This method assumes that it has the g_MetadataLock
+
         RGCTXCollection collection = MetadataCache::GetRGCTXs(image, token);
         if (collection.count == 0)
             return NULL;
@@ -276,7 +278,12 @@ namespace metadata
                         method = GenericMethod::GetMethod(Inflate(method->genericMethod, context));
 
                     if (inflatedType->valuetype)
-                        method = Class::GetVirtualMethod(Class::FromIl2CppType(inflatedType), method);
+                    {
+                        Il2CppClass* inflatedClass = Class::FromIl2CppType(inflatedType);
+                        Class::InitLocked(inflatedClass, lock);
+                        Class::InitLocked(method->klass, lock);
+                        method = Class::GetVirtualMethod(inflatedClass, method);
+                    }
 
                     dataValues[rgctxIndex].method = method;
                 }

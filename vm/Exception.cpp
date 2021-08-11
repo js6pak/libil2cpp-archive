@@ -22,6 +22,7 @@
 #include "il2cpp-object-internals.h"
 #include "vm-utils/Debugger.h"
 #include "vm-utils/VmStringUtils.h"
+#include "vm-utils/DebugSymbolReader.h"
 
 namespace il2cpp
 {
@@ -48,42 +49,53 @@ namespace vm
             if (numberOfFrames == 0 && lastManagedFrame != NULL)
             {
                 // We didn't get any call stack. If we have one frame from codegen, use it.
-#if IL2CPP_MONO_DEBUGGER && !IL2CPP_TINY
-                Il2CppStackFrame *stackFrame = (Il2CppStackFrame*)vm::Object::New(il2cpp_defaults.stack_frame_class);
-                IL2CPP_OBJECT_SETREF(stackFrame, method, vm::Reflection::GetMethodObject(lastManagedFrame, NULL));
+                if (utils::DebugSymbolReader::DebugSymbolsAvailable())
+                {
+                    Il2CppStackFrame *stackFrame = (Il2CppStackFrame*)vm::Object::New(il2cpp_defaults.stack_frame_class);
+                    IL2CPP_OBJECT_SETREF(stackFrame, method, vm::Reflection::GetMethodObject(lastManagedFrame, NULL));
 
-                ips = Array::New(il2cpp_defaults.stack_frame_class, 1);
-                il2cpp_array_setref(ips, 0, stackFrame);
-#else
-                ips = Array::New(il2cpp_defaults.int_class, 1);
-                il2cpp_array_set(ips, const MethodInfo*, 0, lastManagedFrame);
-#endif
+                    ips = Array::New(il2cpp_defaults.stack_frame_class, 1);
+                    il2cpp_array_setref(ips, 0, stackFrame);
+                }
+                else
+                {
+                    ips = Array::New(il2cpp_defaults.int_class, 1);
+                    il2cpp_array_set(ips, const MethodInfo*, 0, lastManagedFrame);
+                }
             }
             else
             {
                 size_t i = numberOfFrames - 1;
-#if IL2CPP_MONO_DEBUGGER && !IL2CPP_TINY
-                ips = Array::New(il2cpp_defaults.stack_frame_class, numberOfFrames);
-#else
-                ips = Array::New(il2cpp_defaults.int_class, numberOfFrames);
-#endif
+                if (utils::DebugSymbolReader::DebugSymbolsAvailable())
+                {
+                    ips = Array::New(il2cpp_defaults.stack_frame_class, numberOfFrames);
+                }
+                else
+                {
+                    ips = Array::New(il2cpp_defaults.int_class, numberOfFrames);
+                }
+
                 raw_ips = Array::New(il2cpp_defaults.int_class, numberOfFrames);
                 for (size_t frame = 0; frame != frames.size() && i >= 0; ++frame, --i)
                 {
                     const Il2CppStackFrameInfo& stackFrameInfo = frames[frame];
-#if IL2CPP_MONO_DEBUGGER && !IL2CPP_TINY
-                    Il2CppStackFrame *stackFrame = (Il2CppStackFrame*)vm::Object::New(il2cpp_defaults.stack_frame_class);
 
-                    IL2CPP_OBJECT_SETREF(stackFrame, method, vm::Reflection::GetMethodObject(stackFrameInfo.method, NULL));
-                    stackFrame->line = stackFrameInfo.sourceCodeLineNumber;
-                    stackFrame->il_offset = stackFrameInfo.ilOffset;
-                    if (stackFrameInfo.filePath != NULL && strlen(stackFrameInfo.filePath) != 0)
-                        IL2CPP_OBJECT_SETREF(stackFrame, filename, il2cpp::vm::String::New(stackFrameInfo.filePath));
+                    if (utils::DebugSymbolReader::DebugSymbolsAvailable())
+                    {
+                        Il2CppStackFrame *stackFrame = (Il2CppStackFrame*)vm::Object::New(il2cpp_defaults.stack_frame_class);
 
-                    il2cpp_array_setref(ips, i, stackFrame);
-#else
-                    il2cpp_array_set(ips, const MethodInfo*, i, stackFrameInfo.method);
-#endif
+                        IL2CPP_OBJECT_SETREF(stackFrame, method, vm::Reflection::GetMethodObject(stackFrameInfo.method, NULL));
+                        stackFrame->line = stackFrameInfo.sourceCodeLineNumber;
+                        stackFrame->il_offset = stackFrameInfo.ilOffset;
+                        if (stackFrameInfo.filePath != NULL && strlen(stackFrameInfo.filePath) != 0)
+                            IL2CPP_OBJECT_SETREF(stackFrame, filename, il2cpp::vm::String::New(stackFrameInfo.filePath));
+
+                        il2cpp_array_setref(ips, i, stackFrame);
+                    }
+                    else
+                    {
+                        il2cpp_array_set(ips, const MethodInfo*, i, stackFrameInfo.method);
+                    }
                     il2cpp_array_set(raw_ips, uintptr_t, i, stackFrameInfo.raw_ip);
                 }
             }

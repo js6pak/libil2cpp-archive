@@ -5,6 +5,7 @@
 #include "vm-utils/BlobReader.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
+#include "vm/GlobalMetadata.h"
 #include "vm/MetadataCache.h"
 
 // Custom attribute metadata format
@@ -26,33 +27,41 @@
 //  n Blob data, variable sized:   Argument data
 // 1 Compressed uint32:         Count of field arguments
 //  n Blob data, variable sized:   Field argument data
-//     Each field data ends with a compressed uint32 of the field index on the type
+//     Each field data ends with a compressed int32 of the field index on the type,
+//     If the field index is nengative, a compressed uint32_t with the declaring type index follows
 // 1 Compressed uint32:         Count of property arguments
 //  n Blob data, variable sized:   Property argument data
-//     Each propert data ends with a compressed uint32 of the property index on the type
+//     Each property data ends with a compressed int32 of the property index on the type
+//     If the property index is nengative, a compressed uint32_t with the declaring type index follows
 
 // An example format is:
 //
-// 0x02         - Count of custom attribute constructors
+// 0x02         - Count of custom attribute constructors (compressed uint32_t)
 // 0x0010023f   - Method definition index for ctor1
 // 0x02001fc1   - Method definition index for ctor2
-// 0x01         - Constructor argument count for ctor1
-// 0x03         - argument 1 type code
+// 0x02         - Constructor argument count for ctor1 (compressed uint32_t)
+// 0x04 (2)     - argument 1 type code (compressed int32_t)
+// 0x00         - Field for ctor1 (compressed uint32_t)
+// 0x01         - Property count for ctor1 (comprrressed uint32_t)
 // ....         - argument 1 data
-// 0x00         - Field argument for ctor1
-// 0x01         - Property count for ctor1
-// 0x55         - property type code (enum)
-// 0x023F       - type index for enum type (compressed)
+// 0x55         - property type code (enum) (comprssed uint32_t)
+// 0x023F       - type index for enum type (compressed uint32_t))
 // ....         - property 1 data
-// 0x02         - Constructor argument count for ctor2
-// 0x03         - argument 1 type code
-// ....         - argument 1 data
-// 0x04         - argument 2 type code
-// ....         - argument 2 data
-// 0x01         - Field argument count for ctor2
-// 0x04         - field 1 type code
-// ....         - field 1 data
+// 0x02         - Constructor argument count for ctor2 (compressed uint32_t)
+// 0x02         - Field argument count for ctor2 (compressed uint32_t)
 // 0x00         - Property count for ctor2
+// 0x03         - argument 1 type code (compressed uint32_t)
+// ....         - argument 1 data
+// 0x04         - argument 2 type code (compressed uint32_t)
+// ....         - argument 2 data
+// 0x04         - field 1 type code (compressed uint32_t)
+// ....         - field 1 data
+// 0x02 (1)     - field 1 field index (compressed int32_t)
+// 0x04         - field 2 type code (compressed uint32_t)
+// ....         - field 2 data
+// 0x03 (-1)    - field 2 field index (compressed int32_t)
+// 0x023E       - field 2 declaring type index (compressed int32_t)
+// [Start of next custom attribute data]
 
 static void SetInvalidDataException(Il2CppException** exc)
 {
@@ -130,44 +139,69 @@ namespace metadata
         return false;
     }
 
-    bool CustomAttributeDataReader::ReadLazyCustomAttributeData(const Il2CppImage* image, CustomAttributeLazyData* data, Il2CppException** exc, CustomAttributeDataIterator* iter)
+    bool CustomAttributeDataReader::ReadLazyCustomAttributeData(const Il2CppImage* image, LazyCustomAttributeData* data, CustomAttributeDataIterator* iter, Il2CppException** exc)
     {
         if (!IterateAttributeCtors(image, &data->ctor, &iter->ctorIter))
             return false;
 
         data->dataStart = (void*)iter->dataBuffer;
-        bool success = ReadCustomAttributeDataImpl(image, data->ctor->klass, NULL, exc, iter);
-        data->dataLength = (uint32_t)(iter->dataBuffer - (char*)data->dataStart);
-        return success;
-    }
 
-    bool CustomAttributeDataReader::ReadCustomAttributeData(const Il2CppImage* image, CustomAttributeData* data, Il2CppException** exc, CustomAttributeDataIterator* iter)
-    {
-        data->arguments.clear();
-        data->fields.clear();
-        data->properties.clear();
-
-        if (!IterateAttributeCtors(image, &data->ctor, &iter->ctorIter))
+        CustomAttributeReaderVisitor visitor;
+        if (!VisitCustomAttributeDataImpl(image, data->ctor, iter, &visitor, exc, false))
             return false;
 
-        il2cpp::vm::Class::Init(data->ctor->klass);
-        return ReadCustomAttributeDataImpl(image, data->ctor->klass, data, exc, iter);
+        data->dataLength = (uint32_t)((char*)iter->dataBuffer - (char*)data->dataStart);
+
+        return true;
     }
 
-    bool CustomAttributeDataReader::ReadCustomAttributeData(const Il2CppImage* image, const MethodInfo* ctor, const void* dataStart, uint32_t dataLength, CustomAttributeData* data, Il2CppException** exc)
+    bool CustomAttributeDataReader::VisitCustomAttributeData(const Il2CppImage* image, const MethodInfo* ctor, const void* dataStart, uint32_t dataLength, CustomAttributeReaderVisitor* visitor, Il2CppException** exc)
     {
         CustomAttributeDataReader reader = CustomAttributeDataReader((const char*)dataStart, dataLength);
         CustomAttributeDataIterator iter = CustomAttributeDataIterator(NULL, reader.bufferStart);
-
-        data->ctor = ctor;
-        return reader.ReadCustomAttributeDataImpl(image, ctor->klass, data, exc, &iter);
+        return reader.VisitCustomAttributeDataImpl(image, ctor, &iter, visitor, exc, true);
     }
 
-    bool CustomAttributeDataReader::ReadCustomAttributeDataImpl(const Il2CppImage* image, const Il2CppClass* attrClass, CustomAttributeData* data, Il2CppException** exc, CustomAttributeDataIterator* iter)
+    bool CustomAttributeDataReader::VisitCustomAttributeData(const Il2CppImage* image, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc)
+    {
+        const MethodInfo* ctor;
+
+        if (!IterateAttributeCtors(image, &ctor, &iter->ctorIter))
+            return false;
+
+        return VisitCustomAttributeDataImpl(image, ctor, iter, visitor, exc, true);
+    }
+
+    static std::tuple<const Il2CppClass*, int32_t> ReadCustomAttributeNamedArgumentClassAndIndex(const char** dataBuffer, const Il2CppClass* attrClass)
+    {
+        int32_t memberIndex = utils::ReadCompressedInt32(dataBuffer);
+        if (memberIndex >= 0)
+            return std::make_tuple(attrClass, memberIndex);
+
+        memberIndex = -(memberIndex + 1);
+
+        TypeDefinitionIndex typeIndex = utils::ReadCompressedUInt32(dataBuffer);
+        Il2CppClass* declaringClass = il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex(typeIndex);
+
+        IL2CPP_ASSERT(declaringClass == attrClass || il2cpp::vm::Class::IsSubclassOf(const_cast<Il2CppClass*>(attrClass), declaringClass, false));
+
+        return std::make_tuple(declaringClass, memberIndex);
+    }
+
+    bool CustomAttributeDataReader::VisitCustomAttributeDataImpl(const Il2CppImage* image, const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc, bool deserializedManagedObjects)
     {
         il2cpp::gc::WriteBarrier::GenericStoreNull(exc);
 
-        if (iter->dataBuffer >= bufferEnd)
+        const Il2CppClass* attrClass = ctor->klass;
+
+        uint32_t argumentCount = utils::ReadCompressedUInt32(&iter->dataBuffer);
+        IL2CPP_ASSERT(iter->dataBuffer <= bufferEnd);
+        uint32_t fieldCount = utils::ReadCompressedUInt32(&iter->dataBuffer);
+        IL2CPP_ASSERT(iter->dataBuffer <= bufferEnd);
+        uint32_t propertyCount = utils::ReadCompressedUInt32(&iter->dataBuffer);
+        IL2CPP_ASSERT(iter->dataBuffer <= bufferEnd);
+
+        if (iter->dataBuffer > bufferEnd)
         {
             // This should never happen
             IL2CPP_ASSERT(false);
@@ -175,53 +209,56 @@ namespace metadata
             return false;
         }
 
-        uint32_t argCount = utils::ReadCompressedUInt32(&iter->dataBuffer);
-        if (data != NULL)
-            data->arguments.reserve(argCount);
-        for (; argCount > 0; argCount--)
+        visitor->VisitArgumentSizes(argumentCount, fieldCount, propertyCount);
+
+        // CustomAttributeArgument may contain GC allocated types
+        // So it either needs to be allocated on the stack or on the GC heap
+        // Since these are arguments that would be passed to a method call, we assume that we're safe to stack allocate them
+        CustomAttributeArgument* args = (CustomAttributeArgument*)alloca(argumentCount * sizeof(CustomAttributeArgument));
+
+        for (uint32_t i = 0; i < argumentCount; i++)
         {
-            CustomAttributeArgument arg = {0};
-            if (!ReadAttributeDataValue(image, &iter->dataBuffer, &arg, exc, data != NULL))
+            if (!ReadAttributeDataValue(image, &iter->dataBuffer, args + i, exc, deserializedManagedObjects))
                 return false;
 
-            if (data != NULL)
-                data->arguments.push_back(arg);
+            IL2CPP_ASSERT(iter->dataBuffer <= bufferEnd);
+            visitor->VisitArgument(args[i], i);
         }
 
-        uint32_t fieldCount = utils::ReadCompressedUInt32(&iter->dataBuffer);
-        if (data != NULL)
-            data->fields.reserve(fieldCount);
-        for (; fieldCount > 0; fieldCount--)
+        visitor->VisitCtor(ctor, args, argumentCount);
+
+        for (uint32_t i = 0; i < fieldCount; i++)
         {
-            CustomAttributeFieldArgument fieldArg = {0};
-            if (!ReadAttributeDataValue(image, &iter->dataBuffer, &fieldArg.arg, exc, data != NULL))
+            CustomAttributeFieldArgument field = { 0 };
+            if (!ReadAttributeDataValue(image, &iter->dataBuffer, &field.arg, exc, deserializedManagedObjects))
                 return false;
 
-            uint32_t fieldIndex = utils::ReadCompressedUInt32(&iter->dataBuffer);
-            if (data != NULL)
-            {
-                IL2CPP_ASSERT(fieldIndex < attrClass->field_count);
-                fieldArg.field = &attrClass->fields[fieldIndex];
-                data->fields.push_back(fieldArg);
-            }
+            const Il2CppClass* klass;
+            TypeFieldIndex fieldIndex;
+            std::tie(klass, fieldIndex) = ReadCustomAttributeNamedArgumentClassAndIndex(&iter->dataBuffer, attrClass);
+
+            IL2CPP_ASSERT(iter->dataBuffer <= bufferEnd);
+            IL2CPP_ASSERT(fieldIndex < klass->field_count);
+
+            field.field = &klass->fields[fieldIndex];
+            visitor->VisitField(field, i);
         }
 
-        uint32_t propertyCount = utils::ReadCompressedUInt32(&iter->dataBuffer);
-        if (data != NULL)
-            data->properties.reserve(propertyCount);
-        for (; propertyCount > 0; propertyCount--)
+        for (uint32_t i = 0; i < propertyCount; i++)
         {
-            CustomAttributePropertyArgument propertyArg = {0};
-            if (!ReadAttributeDataValue(image, &iter->dataBuffer, &propertyArg.arg, exc, data != NULL))
+            CustomAttributePropertyArgument propArg = { 0 };
+            if (!ReadAttributeDataValue(image, &iter->dataBuffer, &propArg.arg, exc, deserializedManagedObjects))
                 return false;
 
-            uint32_t propertyIndex = utils::ReadCompressedUInt32(&iter->dataBuffer);
-            if (data != NULL)
-            {
-                IL2CPP_ASSERT(propertyIndex < attrClass->property_count);
-                propertyArg.prop = &attrClass->properties[propertyIndex];
-                data->properties.push_back(propertyArg);
-            }
+            const Il2CppClass* klass;
+            TypePropertyIndex propertyIndex;
+            std::tie(klass, propertyIndex) = ReadCustomAttributeNamedArgumentClassAndIndex(&iter->dataBuffer, attrClass);
+
+            IL2CPP_ASSERT(iter->dataBuffer <= bufferEnd);
+            IL2CPP_ASSERT(propertyIndex < klass->property_count);
+
+            propArg.prop = &klass->properties[propertyIndex];
+            visitor->VisitProperty(propArg, i);
         }
 
         return true;

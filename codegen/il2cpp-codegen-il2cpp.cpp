@@ -12,7 +12,6 @@
 #include "vm/CCW.h"
 #include "vm/COM.h"
 #include "vm/Class.h"
-#include "vm/Class.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
 #include "vm/InternalCalls.h"
@@ -32,6 +31,7 @@
 #include "vm/ThreadPoolMs.h"
 #include "vm/Type.h"
 #include "vm/WindowsRuntime.h"
+#include "vm-utils/VmThreadUtils.h"
 
 void* il2cpp_codegen_atomic_compare_exchange_pointer(void** dest, void* exchange, void* comparand)
 {
@@ -259,6 +259,8 @@ void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* expectedBoxedClass
 void* UnBox_Any(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* unboxStorage)
 {
     IL2CPP_ASSERT(unboxStorage != NULL);
+    // We assume unboxStorage is on the stack, if not we'll need a write barrier
+    IL2CPP_ASSERT_STACK_PTR(unboxStorage);
 
     if (il2cpp::vm::Class::IsValuetype(expectedBoxedClass))
     {
@@ -639,11 +641,6 @@ bool il2cpp_codegen_class_is_assignable_from(RuntimeClass *klass, RuntimeClass *
     return il2cpp::vm::Class::IsAssignableFrom(klass, oklass);
 }
 
-bool il2cpp_codegen_class_is_value_type(RuntimeClass* type)
-{
-    return il2cpp::vm::Class::IsValuetype(type);
-}
-
 bool il2cpp_codegen_class_is_nullable(RuntimeClass* type)
 {
     return il2cpp::vm::Class::IsNullable(type);
@@ -979,12 +976,13 @@ bool il2cpp_codegen_is_unmanaged(const RuntimeMethod* method)
 #if IL2CPP_TINY_DEBUGGER
 
 #include "vm/Image.h"
+#include "gc/WriteBarrier.h"
 
 MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
 {
     Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)type);
     Il2CppMulticastDelegate* result = reinterpret_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(klass));
-    result->delegates = delegates;
+    il2cpp::gc::WriteBarrier::GenericStore(&result->delegates, delegates);
     result->delegateCount = delegateCount;
     return reinterpret_cast<MulticastDelegate_t*>(result);
 }

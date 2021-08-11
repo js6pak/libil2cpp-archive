@@ -388,6 +388,16 @@ il2cpp::gc::GarbageCollector::Allocate(size_t size)
     return GC_MALLOC(size);
 }
 
+void*
+il2cpp::gc::GarbageCollector::AllocateObject(size_t size, void* type)
+{
+#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+    return GC_gcj_malloc(size, type);
+#else
+    return GC_MALLOC(size);
+#endif
+}
+
 #endif
 
 void*

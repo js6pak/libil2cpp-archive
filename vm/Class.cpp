@@ -54,10 +54,9 @@ namespace vm
     static int32_t s_FinalizerSlot = -1;
     static int32_t s_GetHashCodeSlot = -1;
 
-    static void SetupGCDescriptor(Il2CppClass* klass);
-    static void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset);
+    static void SetupGCDescriptor(Il2CppClass* klass, const il2cpp::os::FastAutoLock& lock);
+    static void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset, const il2cpp::os::FastAutoLock* lockPtr);
     static Il2CppClass* ResolveGenericInstanceType(Il2CppClass*, const il2cpp::vm::TypeNameParseInfo&, TypeSearchFlags searchFlags);
-    static bool InitLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock);
     static void SetupVTable(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock);
 
     Il2CppClass* Class::FromIl2CppType(const Il2CppType* type, bool throwOnError)
@@ -1070,7 +1069,7 @@ namespace vm
         {
             // for generic instance types, they just inflate the fields of their generic type definition
             // initialize the generic type definition and delegate to the generic logic
-            InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
+            Class::InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
             GenericClass::SetupFields(klass);
         }
         else
@@ -1101,12 +1100,12 @@ namespace vm
 
         if (klass->generic_class)
         {
-            InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
+            Class::InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
             GenericClass::SetupMethods(klass);
         }
         else if (klass->rank)
         {
-            InitLocked(klass->element_class, lock);
+            Class::InitLocked(klass->element_class, lock);
             SetupVTable(klass, lock);
         }
         else
@@ -1167,6 +1166,7 @@ namespace vm
                 newMethod->genericContainerHandle = MetadataCache::GetGenericContainerFromMethod(methodInfo.handle);
                 if (newMethod->genericContainerHandle)
                     newMethod->is_generic = true;
+                newMethod->has_full_generic_sharing_signature = false;
 
                 klass->methods[index] = newMethod;
 
@@ -1260,11 +1260,11 @@ namespace vm
                     {
                         // For default interface methods on generic interfaces we need to ensure that their rgctx's are initalized
                         if (method->klass != NULL && method->klass != klass && method->klass->generic_class != NULL && Class::IsInterface(method->klass))
-                            InitLocked(method->klass, lock);
+                            Class::InitLocked(method->klass, lock);
 
                         if (method->virtualMethodPointer)
                         {
-                            if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled() && !il2cpp::vm::Method::IsAmbiguousMethodInfo(method))
+                            if (il2cpp::vm::Method::HasFullGenericSharingSignature(method) && !il2cpp::vm::Method::IsAmbiguousMethodInfo(method))
                                 klass->vtable[i].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(method);
                             else
                                 klass->vtable[i].methodPtr = method->virtualMethodPointer;
@@ -1279,7 +1279,7 @@ namespace vm
         }
         else if (klass->rank)
         {
-            InitLocked(klass->element_class, lock);
+            Class::InitLocked(klass->element_class, lock);
             il2cpp::metadata::ArrayMetadata::SetupArrayVTable(klass, lock);
         }
         else
@@ -1320,7 +1320,7 @@ namespace vm
     {
         if (klass->generic_class)
         {
-            InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
+            Class::InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
             GenericClass::SetupEvents(klass);
         }
         else if (klass->rank > 0)
@@ -1370,7 +1370,7 @@ namespace vm
     {
         if (klass->generic_class)
         {
-            InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
+            Class::InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
             GenericClass::SetupProperties(klass);
         }
         else if (klass->property_count != 0)
@@ -1447,9 +1447,11 @@ namespace vm
         SetupInterfacesLocked(klass, lock);
     }
 
-    static bool InitLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
+    bool Class::InitLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
         if (klass->initialized)
+            return true;
+        if (klass->init_pending)
             return true;
         if (klass->initializationExceptionGCHandle)
             return false;
@@ -1494,7 +1496,10 @@ namespace vm
             SetupFieldsLocked(klass, lock);
 
         if (klass->initializationExceptionGCHandle)
+        {
+            klass->init_pending = false;
             return false;
+        }
 
         SetupEventsLocked(klass, lock);
         SetupPropertiesLocked(klass, lock);
@@ -1517,12 +1522,13 @@ namespace vm
         }
 
         if (!Class::IsGeneric(klass))
-            SetupGCDescriptor(klass);
+            SetupGCDescriptor(klass, lock);
 
         if (klass->generic_class)
         {
+            // This should be kept last.  InflateRGCTXLocked may need intialized data from the class we are initializing
             if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth())
-                klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTX(klass->image, klass->token, &klass->generic_class->context);
+                klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTXLocked(klass->image, klass->token, &klass->generic_class->context, lock);
         }
 
         klass->initialized = true;
@@ -1541,6 +1547,7 @@ namespace vm
         if (!klass->initialized)
         {
             il2cpp::os::FastAutoLock lock(&g_MetadataLock);
+            IL2CPP_ASSERT(!klass->init_pending);
             InitLocked(klass, lock);
         }
     }
@@ -1895,7 +1902,7 @@ namespace vm
     void Class::GetBitmap(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit)
     {
         Class::Init(klass);
-        return il2cpp::vm::GetBitmapNoInit(klass, bitmap, maxSetBit, 0);
+        return il2cpp::vm::GetBitmapNoInit(klass, bitmap, maxSetBit, 0, NULL);
     }
 
     const char *Class::GetAssemblyName(const Il2CppClass *klass)
@@ -1908,7 +1915,7 @@ namespace vm
         return klass->image->nameNoExt;
     }
 
-    void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset)
+    void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset, const il2cpp::os::FastAutoLock* lockPtr)
     {
         Il2CppClass* currentClass = klass;
 
@@ -1971,9 +1978,12 @@ namespace vm
                     case IL2CPP_TYPE_VALUETYPE:
                     {
                         Il2CppClass* fieldClass = Class::FromIl2CppType(field->type);
-                        Class::Init(fieldClass);
+                        if (lockPtr == NULL)
+                            Class::Init(fieldClass);
+                        else
+                            Class::InitLocked(fieldClass, *lockPtr);
                         if (fieldClass->has_references)
-                            GetBitmapNoInit(fieldClass, bitmap, maxSetBit, offset - sizeof(Il2CppObject) /* nested field offset includes padding for boxed structure. Remove for struct fields */);
+                            GetBitmapNoInit(fieldClass, bitmap, maxSetBit, offset - sizeof(Il2CppObject) /* nested field offset includes padding for boxed structure. Remove for struct fields */, lockPtr);
                         break;
                     }
                     default:
@@ -1986,7 +1996,7 @@ namespace vm
         }
     }
 
-    void SetupGCDescriptor(Il2CppClass* klass)
+    void SetupGCDescriptor(Il2CppClass* klass, const il2cpp::os::FastAutoLock& lock)
     {
         const size_t kMaxAllocaSize = 1024;
         size_t bitmapSize = Class::GetBitmapSize(klass);
@@ -2005,7 +2015,7 @@ namespace vm
 
         memset(bitmap, 0, bitmapSize);
         size_t maxSetBit = 0;
-        GetBitmapNoInit(klass, bitmap, maxSetBit, 0);
+        GetBitmapNoInit(klass, bitmap, maxSetBit, 0, &lock);
 
         if (klass == il2cpp_defaults.string_class)
             klass->gc_desc = il2cpp::gc::GarbageCollector::MakeDescriptorForString();
@@ -2171,8 +2181,6 @@ namespace vm
             return method;
 
         Il2CppClass* methodDeclaringType = method->klass;
-        Class::Init(klass);
-        Class::Init(methodDeclaringType);
         if (Class::IsInterface(methodDeclaringType))
         {
             const VirtualInvokeData* invokeData = ClassInlines::GetInterfaceInvokeDataFromVTable(klass, methodDeclaringType, method->slot);

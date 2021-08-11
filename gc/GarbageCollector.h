@@ -74,6 +74,7 @@ namespace gc
 
 #if RUNTIME_TINY
         static void* Allocate(size_t size);
+        static void* AllocateObject(size_t size, void* type);
 #endif
 
         static void* AllocateFixed(size_t size, void *descr);

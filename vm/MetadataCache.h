@@ -35,6 +35,7 @@ namespace vm
         Il2CppMethodPointer methodPointer;
         Il2CppMethodPointer virtualMethodPointer;
         InvokerMethod invoker_method;
+        bool isFullGenericShared;
     } Il2CppGenericMethodPointers;
 
 
@@ -71,6 +72,7 @@ namespace vm
 
         static const Il2CppGenericInst* GetGenericInst(const Il2CppType* const* types, uint32_t typeCount);
         static const Il2CppGenericMethod* GetGenericMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
+        static bool IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter);
 
         static Il2CppGenericMethodPointers GetGenericMethodPointers(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
 

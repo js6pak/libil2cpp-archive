@@ -11,6 +11,7 @@
 #include "vm/Type.h"
 #include "vm-utils/Debugger.h"
 #include "vm-utils/NativeSymbol.h"
+#include "vm-utils/DebugSymbolReader.h"
 #include "vm-utils/Debugger.h"
 
 #include <map>
@@ -215,6 +216,15 @@ namespace vm
                 Il2CppStackFrameInfo frameInfo = { 0 };
                 frameInfo.method = method;
                 frameInfo.raw_ip = reinterpret_cast<uintptr_t>(frame) - reinterpret_cast<uintptr_t>(os::Image::GetImageBase());
+
+                il2cpp::utils::SourceLocation s;
+                bool symbol_res = il2cpp::utils::DebugSymbolReader::GetSourceLocation(reinterpret_cast<void*>(frame), s);
+                if (symbol_res)
+                {
+                    frameInfo.filePath = s.filePath;
+                    frameInfo.sourceCodeLineNumber = s.lineNumber;
+                }
+
                 stackFrames->push_back(frameInfo);
             }
 

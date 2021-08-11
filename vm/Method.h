@@ -44,6 +44,7 @@ namespace vm
         static uint32_t GetParameterToken(const MethodInfo* method, int32_t parameterPosition);
         static const MethodInfo* GetAmbiguousMethodInfo();
         static bool IsAmbiguousMethodInfo(const MethodInfo* method);
+        static bool HasFullGenericSharingSignature(const MethodInfo* method);
     };
 } /* namespace vm */
 } /* namespace il2cpp */
