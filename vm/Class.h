@@ -11,6 +11,7 @@
 #include "Exception.h"
 #include "Type.h"
 
+#include "os/Mutex.h"
 #include "vm/MetadataCache.h"
 #include "il2cpp-tabledefs.h"
 
@@ -103,6 +104,7 @@ namespace vm
     public:
 
         static void Init(Il2CppClass *klass);
+        static bool InitLocked(Il2CppClass* klass, const il2cpp::os::FastAutoLock& lock);
 
         static Il2CppClass* GetArrayClass(Il2CppClass *element_class, uint32_t rank);
         static Il2CppClass* GetBoundedArrayClass(Il2CppClass *element_class, uint32_t rank, bool bounded);

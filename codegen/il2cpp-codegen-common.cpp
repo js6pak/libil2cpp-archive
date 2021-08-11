@@ -1,9 +1,19 @@
 #include "il2cpp-config.h"
 
+#include "gc/GarbageCollector.h"
+
+#if IL2CPP_ENABLE_WRITE_BARRIERS
+void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object)
+{
+    il2cpp::gc::GarbageCollector::SetWriteBarrier(targetAddress);
+}
+
+#endif
+
+
 #if !RUNTIME_TINY
 
 #include "utils/Runtime.h"
-#include "gc/GarbageCollector.h"
 #include "vm/Class.h"
 #include "vm/Field.h"
 #include "vm/Type.h"
@@ -28,11 +38,6 @@ REAL_NORETURN void il2cpp_codegen_abort()
 }
 
 #if IL2CPP_ENABLE_WRITE_BARRIERS
-void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object)
-{
-    il2cpp::gc::GarbageCollector::SetWriteBarrier(targetAddress);
-}
-
 void Il2CppCodeGenWriteBarrierForType(const Il2CppType* type, void** targetAddress, void* object)
 {
 #if IL2CPP_ENABLE_STRICT_WRITE_BARRIERS

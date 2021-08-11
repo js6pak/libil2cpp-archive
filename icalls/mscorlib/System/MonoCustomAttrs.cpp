@@ -71,7 +71,7 @@ namespace System
         return il2cpp::vm::Reflection::HasAttribute(obj, vm::Class::FromIl2CppType(attr_type->type));
     }
 
-    static Il2CppObject* CreateCustomAttributeData(const Il2CppAssembly* assembly, const il2cpp::metadata::CustomAttributeLazyData& data)
+    static Il2CppObject* CreateCustomAttributeData(const Il2CppAssembly* assembly, const il2cpp::metadata::LazyCustomAttributeData& data)
     {
         static const MethodInfo* customAttributeDataConstructor;
         if (!customAttributeDataConstructor)
@@ -101,10 +101,10 @@ namespace System
         uint32_t i = 0;
 
         bool hasError = false;
-        il2cpp::metadata::CustomAttributeLazyData data;
+        il2cpp::metadata::LazyCustomAttributeData data;
         Il2CppException* exc = NULL;
         il2cpp::metadata::CustomAttributeDataIterator iter = reader.GetDataIterator();
-        while (reader.ReadLazyCustomAttributeData(obj->klass->image, &data, &exc, &iter))
+        while (reader.ReadLazyCustomAttributeData(obj->klass->image, &data, &iter, &exc))
         {
             IL2CPP_ASSERT(i < reader.GetCount());
             Il2CppObject* attributeData = CreateCustomAttributeData(obj->klass->image->assembly, data);

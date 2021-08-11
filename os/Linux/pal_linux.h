@@ -11,7 +11,7 @@
 #define IL2CPP_HAVE_STAT_FLAGS 1
 #define IL2CPP_HAVE_LCHFLAGS 1
 #define IL2CPP_HAVE_FUTIMENS 1
-#define IL2CPP_HAVE_READDIR_R 1
+#define IL2CPP_HAVE_REWINDDIR 1
 
 #define IL2CPP_HAVE_STAT_TIM 1
 #include <sys/sendfile.h>

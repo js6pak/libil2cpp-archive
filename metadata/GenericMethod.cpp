@@ -52,6 +52,20 @@ namespace metadata
     typedef Il2CppHashMap<const Il2CppGenericMethod*, MethodInfo*, Il2CppGenericMethodHash, Il2CppGenericMethodCompare> Il2CppGenericMethodMap;
     static Il2CppGenericMethodMap s_GenericMethodMap;
 
+    static bool HasFullGenericSharedParametersOrReturn(const MethodInfo* methodDefinition)
+    {
+        if (Type::HasVariableRuntimeSizeWhenFullyShared(methodDefinition->return_type))
+            return true;
+
+        for (int i = 0; i < methodDefinition->parameters_count; i++)
+        {
+            if (Type::HasVariableRuntimeSizeWhenFullyShared(methodDefinition->parameters[i]))
+                return true;
+        }
+
+        return false;
+    }
+
     static void AGenericMethodWhichIsTooDeeplyNestedWasInvoked()
     {
         vm::Exception::Raise(vm::Exception::GetMaximumNestedGenericsException());
@@ -172,7 +186,7 @@ namespace metadata
         else
         {
             // we only need RGCTX for generic instance methods
-            newMethod->rgctx_data = GenericMetadata::InflateRGCTX(gmethod->methodDefinition->klass->image, gmethod->methodDefinition->token, &gmethod->context);
+            newMethod->rgctx_data = GenericMetadata::InflateRGCTXLocked(gmethod->methodDefinition->klass->image, gmethod->methodDefinition->token, &gmethod->context, lock);
         }
 
         il2cpp::vm::Il2CppGenericMethodPointers methodPointers = MetadataCache::GetGenericMethodPointers(methodDefinition, &gmethod->context);
@@ -182,16 +196,21 @@ namespace metadata
             newMethod->invoker_method = methodPointers.invoker_method;
         else
             newMethod->invoker_method = Runtime::GetMissingMethodInvoker();
+        newMethod->has_full_generic_sharing_signature = methodPointers.isFullGenericShared && HasFullGenericSharedParametersOrReturn(gmethod->methodDefinition);
 
         ++il2cpp_runtime_stats.inflated_method_count;
 
-
         // If we are a default interface method on a generic instance interface we need to ensure that the interfaces rgctx is inflated
         if (newMethod->methodPointer != NULL && declaringClass->generic_class != NULL && vm::Class::IsInterface(declaringClass))
-            vm::Class::Init(declaringClass);
+            vm::Class::InitLocked(declaringClass, lock);
 
         if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
-            ((SharedGenericMethodInfo*)newMethod)->virtualCallMethodPointer = MetadataCache::GetUnresolvedVirtualCallStub(newMethod);
+        {
+            if (il2cpp::vm::Method::HasFullGenericSharingSignature(newMethod))
+                ((SharedGenericMethodInfo*)newMethod)->virtualCallMethodPointer = MetadataCache::GetUnresolvedVirtualCallStub(newMethod);
+            else
+                ((SharedGenericMethodInfo*)newMethod)->virtualCallMethodPointer = newMethod->virtualMethodPointer;
+        }
 
         return newMethod;
     }

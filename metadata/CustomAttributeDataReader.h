@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <vector>
 #include "il2cpp-object-internals.h"
+#include "gc/Allocator.h"
 
 namespace il2cpp
 {
@@ -37,20 +38,29 @@ namespace metadata
         const PropertyInfo* prop;
     };
 
+    struct LazyCustomAttributeData
+    {
+        const MethodInfo* ctor;
+        const void* dataStart;
+        uint32_t dataLength;
+    };
+
     struct CustomAttributeData
     {
         const MethodInfo* ctor;
-        std::vector<CustomAttributeArgument> arguments;
-        std::vector<CustomAttributeFieldArgument> fields;
-        std::vector<CustomAttributePropertyArgument> properties;
     };
 
-    struct CustomAttributeLazyData
+    class CustomAttributeReaderVisitor
     {
-        const MethodInfo* ctor;
-        void* dataStart;
-        uint32_t dataLength;
+    public:
+        // This Visitor methods will be called in the defined order
+        virtual void VisitArgumentSizes(uint32_t argumentCount, uint32_t fieldCount, uint32_t propertyCount) {}
+        virtual void VisitArgument(const CustomAttributeArgument& argument, uint32_t index) {}
+        virtual void VisitCtor(const MethodInfo* ctor, CustomAttributeArgument args[], uint32_t arguementCount) {}
+        virtual void VisitField(const CustomAttributeFieldArgument& field, uint32_t index) {}
+        virtual void VisitProperty(const CustomAttributePropertyArgument& prop, uint32_t index) {}
     };
+
 
     class CustomAttributeDataIterator;
 
@@ -88,10 +98,11 @@ namespace metadata
         CustomAttributeDataReader(const void* buffer, const void* bufferEnd);
         uint32_t GetCount();
         bool IterateAttributeCtors(const Il2CppImage* image, const MethodInfo** attributeCtor, CustomAttributeCtorIterator* iter);
-        bool ReadCustomAttributeData(const Il2CppImage* image, CustomAttributeData* data, Il2CppException** exc, CustomAttributeDataIterator* iter);
-        bool ReadLazyCustomAttributeData(const Il2CppImage* image, CustomAttributeLazyData* data, Il2CppException** exc, CustomAttributeDataIterator* iter);
+        bool ReadLazyCustomAttributeData(const Il2CppImage* image, LazyCustomAttributeData* data, CustomAttributeDataIterator* iter, Il2CppException** exc);
 
-        static bool ReadCustomAttributeData(const Il2CppImage* image, const MethodInfo* ctor, const void* dataStart, uint32_t dataLength, CustomAttributeData* data, Il2CppException** exc);
+        bool VisitCustomAttributeData(const Il2CppImage* image, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc);
+
+        static bool VisitCustomAttributeData(const Il2CppImage* image, const MethodInfo* ctor, const void* dataStart, uint32_t dataLength, CustomAttributeReaderVisitor* visitor, Il2CppException** exc);
 
         CustomAttributeCtorIterator GetCtorIterator();
         CustomAttributeDataIterator GetDataIterator();
@@ -100,8 +111,7 @@ namespace metadata
 
         const char* GetDataBufferStart();
         CustomAttributeDataReader(const char* dataStart, uint32_t dataLength);
-
-        bool ReadCustomAttributeDataImpl(const Il2CppImage* image, const Il2CppClass* attrClass, CustomAttributeData* data, Il2CppException** exc, CustomAttributeDataIterator* iter);
+        bool VisitCustomAttributeDataImpl(const Il2CppImage* image, const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc, bool deserializedManagedObjects);
 
         const char* bufferStart;
         const char* bufferEnd;

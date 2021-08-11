@@ -157,6 +157,7 @@ namespace utils
                 {
                     Il2CppClass* klass = il2cpp::vm::MetadataCache::GetTypeInfoFromTypeIndex(image, typeIndex);
                     *(Il2CppReflectionType**)value = il2cpp::vm::Reflection::GetTypeObject(&klass->byval_arg);
+                    il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)value);
                 }
                 break;
             }

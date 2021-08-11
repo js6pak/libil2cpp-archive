@@ -331,7 +331,8 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 28);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 29);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiteralOffset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->imagesCount / sizeof(Il2CppImageDefinition);
     *assembliesCount = s_GlobalMetadataHeader->assembliesCount / sizeof(Il2CppAssemblyDefinition);
@@ -642,7 +643,7 @@ static TypeDefinitionIndex GetIndexForTypeDefinitionInternal(const Il2CppTypeDef
     return static_cast<TypeDefinitionIndex>(index);
 }
 
-static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index)
+Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index)
 {
     if (index == kTypeIndexInvalid)
         return NULL;
@@ -837,11 +838,11 @@ static CustomAttributesCache* GenerateCustomAttributesCacheInternal(const Il2Cpp
         il2cpp::metadata::CustomAttributeDataIterator iter = reader.GetDataIterator();
         for (int i = 0; i < cache->count; i++)
         {
-            il2cpp::metadata::CustomAttributeData data;
             Il2CppException* exc = NULL;
-            if (reader.ReadCustomAttributeData(imageMetadata->image, &data, &exc, &iter))
+            il2cpp::metadata::CustomAttributeCreator creator;
+            if (reader.VisitCustomAttributeData(imageMetadata->image, &iter, &creator, &exc))
             {
-                cache->attributes[i] = il2cpp::metadata::CustomAttributeCreator::Create(data, &exc);
+                cache->attributes[i] = creator.GetAttribute(&exc);
                 il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&cache->attributes[i]);
             }
 
