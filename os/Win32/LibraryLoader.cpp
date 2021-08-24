@@ -40,12 +40,12 @@ namespace os
 
     const HardcodedPInvokeDependencyFunction kKernel32Functions[] =
     {
-        HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
+        HARDCODED_DEPENDENCY_FUNCTION(FormatMessageW),
         HARDCODED_DEPENDENCY_FUNCTION(GetCurrentProcessId),
         HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
-        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathName),
+        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathNameW),
     };
 
     const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
@@ -104,6 +104,17 @@ namespace os
     {
         needsClosing = false;
         return Baselib_DynamicLibrary_FromNativeHandle(reinterpret_cast<uint64_t>(Image::GetImageBase()), Baselib_DynamicLibrary_WinApiHMODULE, &errorState);
+    }
+
+    bool LibraryLoader::EntryNameMatches(const il2cpp::utils::StringView<char>& hardcodedEntryPoint, const il2cpp::utils::StringView<char>& entryPoint)
+    {
+        // Handle windows mapping generic to unicode methods. e.g. MoveFileEx -> MoveFileExW
+        if (hardcodedEntryPoint.Length() == entryPoint.Length() || (hardcodedEntryPoint.Length() - 1 == entryPoint.Length() && hardcodedEntryPoint[hardcodedEntryPoint.Length() - 1] == 'W'))
+        {
+            return strncmp(hardcodedEntryPoint.Str(), entryPoint.Str(), entryPoint.Length()) == 0;
+        }
+
+        return false;
     }
 }
 }

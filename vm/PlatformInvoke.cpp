@@ -36,8 +36,7 @@ namespace vm
         // Some platforms, like UWP, just don't allow you to load to load system libraries at runtime dynamically.
         // On other platforms (THEY SHALL NOT BE NAMED :O), while the functions that mscorlib.dll wants to P/Invoke into exist,
         // They exist in different system libraries than it is said in the DllImport attribute.
-        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
-
+        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint, pinvokeArgs.charSet);
         if (function != NULL)
             return function;
 
