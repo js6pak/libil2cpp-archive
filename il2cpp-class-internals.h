@@ -369,6 +369,7 @@ typedef struct MethodInfo
     {
         const Il2CppGenericMethod* genericMethod; /* is_inflated is true */
         const Il2CppGenericContainer* genericContainer; /* is_inflated is false and is_generic is true */
+        Il2CppMethodPointer nativeFunction; /* if is_marshaled_from_native is true */
     };
 
     uint32_t token;
