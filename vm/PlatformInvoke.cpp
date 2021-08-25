@@ -365,7 +365,7 @@ namespace vm
     // that was wrapped in the fake MethodInfo.
     static bool IsFakeDelegateMethodMarshaledFromNativeCode(const MethodInfo* method)
     {
-        return method->methodDefinition == NULL && method->is_marshaled_from_native;
+        return method->is_marshaled_from_native;
     }
 
     static bool IsGenericInstance(const Il2CppType* type)
@@ -394,7 +394,7 @@ namespace vm
             return 0;
 
         if (IsFakeDelegateMethodMarshaledFromNativeCode(d->method))
-            return reinterpret_cast<intptr_t>(d->method->methodPointer);
+            return reinterpret_cast<intptr_t>(d->method->nativeFunction);
 
         IL2CPP_ASSERT(d->method->methodDefinition);
 
@@ -452,11 +452,11 @@ namespace vm
         {
             const MethodInfo* invoke = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
             MethodInfo* newMethod = (MethodInfo*)IL2CPP_CALLOC(1, sizeof(MethodInfo));
-            newMethod->methodPointer = nativeFunctionPointer;
-            newMethod->invoker_method = NULL;
-            newMethod->parameters_count = invoke->parameters_count;
+            memcpy(newMethod, invoke, sizeof(MethodInfo));
+            newMethod->nativeFunction = nativeFunctionPointer;
             newMethod->slot = kInvalidIl2CppMethodSlot;
             newMethod->is_marshaled_from_native = true;
+            newMethod->flags &= ~METHOD_ATTRIBUTE_VIRTUAL;
             utils::NativeDelegateMethodCache::AddNativeDelegate(nativeFunctionPointer, newMethod);
             method = newMethod;
         }
