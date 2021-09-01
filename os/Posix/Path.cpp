@@ -3,7 +3,6 @@
 #if IL2CPP_TARGET_POSIX && !RUNTIME_TINY && !IL2CPP_TARGET_PS4
 #include "os/Environment.h"
 #include "os/Path.h"
-#include "utils/PathUtils.h"
 #include <string>
 
 #if defined(__APPLE__)
@@ -50,11 +49,6 @@ namespace os
 #else
         return std::string();
 #endif
-    }
-
-    std::string Path::GetApplicationFolder()
-    {
-        return utils::PathUtils::DirectoryName(GetExecutablePath());
     }
 
     std::string Path::GetTempPath()

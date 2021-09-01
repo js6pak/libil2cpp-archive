@@ -68,16 +68,6 @@ namespace vm
         return method->is_inflated && !method->is_generic;
     }
 
-    bool Method::IsGenericInstanceMethod(const MethodInfo *method)
-    {
-        return method->is_inflated && !method->is_generic && method->genericMethod->context.method_inst;
-    }
-
-    bool Method::IsDefaultInterfaceMethodOnGenericInstance(const MethodInfo* method)
-    {
-        return method->methodPointer && Class::IsInterface(method->klass) && Class::IsInflated(method->klass) && !method->klass->is_import_or_windows_runtime;
-    }
-
     bool Method::IsInstance(const MethodInfo *method)
     {
         return !(method->flags & METHOD_ATTRIBUTE_STATIC);
@@ -298,12 +288,6 @@ namespace vm
         if (!method->methodMetadataHandle)
             return 0;
 
-        // We are looking at the return parameter, which is not stored as a parameter, but the method has its token
-        if (index == -1)
-        {
-            return MetadataCache::GetReturnParameterToken(method->methodMetadataHandle);
-        }
-
         Il2CppMetadataParameterInfo paramInfo = MetadataCache::GetParameterInfo(method->klass, method->methodMetadataHandle, index);
 
         return paramInfo.token;
@@ -329,72 +313,26 @@ namespace vm
         il2cpp::vm::Runtime::RaiseAmbiguousImplementationException(method);
     }
 
-    static void EntryPointNotFoundImplementationMethod()
-    {
-        il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetEntryPointNotFoundException(""));
-    }
-
-    static void EntryPointNotFoundMethodInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
-    {
-        std::string name = "";
-        if (method != NULL && method->name != NULL)
-            name = Method::GetFullName(method);
-        il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetEntryPointNotFoundException(name.c_str()));
-    }
-
     const static MethodInfo ambiguousMethodInfo =
     {
-        AmbiguousImplementationMethod,              // method_ptr
-        AmbiguousImplementationMethod,              // virtual_method_ptr
-        AmbiguousImplementationMethodInvoker,       // invoker_method
-    };
-
-    const static MethodInfo entryPointNoFoundMethodInfo =
-    {
-        EntryPointNotFoundImplementationMethod,     // method_ptr
-        EntryPointNotFoundImplementationMethod,     // virtual_method_ptr
-        EntryPointNotFoundMethodInvoker,            // invoker_method
+        AmbiguousImplementationMethod,
+        AmbiguousImplementationMethod,
+        AmbiguousImplementationMethodInvoker,
     };
 
     const MethodInfo* Method::GetAmbiguousMethodInfo()
     {
-        IL2CPP_ASSERT(ambiguousMethodInfo.methodPointer == AmbiguousImplementationMethod);
-        IL2CPP_ASSERT(ambiguousMethodInfo.virtualMethodPointer == AmbiguousImplementationMethod);
-        IL2CPP_ASSERT(ambiguousMethodInfo.invoker_method == AmbiguousImplementationMethodInvoker);
-
-        // GenericMethod::GetMethod relies on ambiguousMethodInfo being a singleton
         return &ambiguousMethodInfo;
-    }
-
-    const MethodInfo* Method::GetEntryPointNotFoundMethodInfo()
-    {
-        IL2CPP_ASSERT(entryPointNoFoundMethodInfo.methodPointer == EntryPointNotFoundImplementationMethod);
-        IL2CPP_ASSERT(entryPointNoFoundMethodInfo.virtualMethodPointer == EntryPointNotFoundImplementationMethod);
-        IL2CPP_ASSERT(entryPointNoFoundMethodInfo.invoker_method == EntryPointNotFoundMethodInvoker);
-
-        return &entryPointNoFoundMethodInfo;
     }
 
     bool Method::IsAmbiguousMethodInfo(const MethodInfo* method)
     {
-        return method == &ambiguousMethodInfo || metadata::GenericMethod::IsGenericAmbiguousMethodInfo(method);
-    }
-
-    bool Method::IsEntryPointNotFoundMethodInfo(const MethodInfo* method)
-    {
-        return method == &entryPointNoFoundMethodInfo;
+        return method == &ambiguousMethodInfo;
     }
 
     bool Method::HasFullGenericSharingSignature(const MethodInfo* method)
     {
         return method->has_full_generic_sharing_signature;
-    }
-
-    Il2CppMethodPointer Method::GetVirtualCallMethodPointer(const MethodInfo* method)
-    {
-        if (method->is_inflated)
-            return il2cpp::metadata::GenericMethod::GetVirtualCallMethodPointer(method);
-        return method->virtualMethodPointer;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

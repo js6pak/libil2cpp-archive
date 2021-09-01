@@ -321,45 +321,51 @@ namespace vm
         }
     }
 
-    static bool ClassMatches(Il2CppMetadataTypeHandle typeHandle, const char* namespaze, bool ignoreCase, const char* name)
+    static bool ClassMatches(Il2CppClass* declaringType, Il2CppMetadataTypeHandle typeHandle, const char* namespaze, bool ignoreCase, const char* name)
     {
-        if (MetadataCache::TypeIsNested(typeHandle))
-            return false;
+        if (declaringType != NULL)
+        {
+            const Il2CppClass* type = MetadataCache::GetTypeInfoFromHandle(typeHandle);
+            if (type->declaringType != declaringType)
+            {
+                return false;
+            }
+        }
 
         std::pair<const char*, const char*> namespaceAndName = MetadataCache::GetTypeNamespaceAndName(typeHandle);
-        return StringsMatch(name, namespaceAndName.second, ignoreCase) && StringsMatch(namespaze, namespaceAndName.first, ignoreCase);
+        return StringsMatch(namespaze, namespaceAndName.first, ignoreCase) && StringsMatch(name, namespaceAndName.second, ignoreCase);
     }
 
-    static Il2CppClass* FindClassMatching(const Il2CppImage* image, const char* namespaze, const char *name, bool ignoreCase)
+    static Il2CppClass* FindClassMatching(const Il2CppImage* image, const char* namespaze, const char *name, Il2CppClass* declaringType, bool ignoreCase)
     {
         for (uint32_t i = 0; i < image->typeCount; i++)
         {
             Il2CppMetadataTypeHandle typeHandle = MetadataCache::GetAssemblyTypeHandle(image, i);
-            if (ClassMatches(typeHandle, namespaze, ignoreCase, name))
+            if (ClassMatches(declaringType, typeHandle, namespaze, ignoreCase, name))
                 return MetadataCache::GetTypeInfoFromHandle(typeHandle);
         }
 
         return NULL;
     }
 
-    static Il2CppClass* FindExportedClassMatching(const Il2CppImage* image, const char* namespaze, const char *name, bool ignoreCase)
+    static Il2CppClass* FindExportedClassMatching(const Il2CppImage* image, const char* namespaze, const char *name, Il2CppClass* declaringType, bool ignoreCase)
     {
         for (uint32_t i = 0; i < image->exportedTypeCount; i++)
         {
             Il2CppMetadataTypeHandle typeHandle = MetadataCache::GetAssemblyExportedTypeHandle(image, i);
-            if (ClassMatches(typeHandle, namespaze, ignoreCase, name))
+            if (ClassMatches(declaringType, typeHandle, namespaze, ignoreCase, name))
                 return MetadataCache::GetTypeInfoFromHandle(typeHandle);
         }
 
         return NULL;
     }
 
-    static Il2CppClass* FindNestedType(Il2CppClass* klass, const char* name, bool ignoreCase)
+    static Il2CppClass* FindNestedType(Il2CppClass* klass, const char* name)
     {
         void* iter = NULL;
         while (Il2CppClass* nestedType = Class::GetNestedTypes(klass, &iter))
         {
-            if (StringsMatch(name, nestedType->name, ignoreCase))
+            if (!strcmp(name, nestedType->name))
                 return nestedType;
         }
 
@@ -370,11 +376,11 @@ namespace vm
     {
         const char* ns = info.ns().c_str();
         const char* name = info.name().c_str();
-        Il2CppClass *parent_class = FindClassMatching(image, ns, name, ignoreCase);
+        Il2CppClass *parent_class = FindClassMatching(image, ns, name, NULL, ignoreCase);
 
         if (parent_class == NULL)
         {
-            parent_class = FindExportedClassMatching(image, ns, name, ignoreCase);
+            parent_class = FindExportedClassMatching(image, ns, name, NULL, ignoreCase);
             if (parent_class == NULL)
                 return NULL;
         }
@@ -383,7 +389,7 @@ namespace vm
 
         while (it != info.nested().end())
         {
-            parent_class = FindNestedType(parent_class, (*it).c_str(), ignoreCase);
+            parent_class = FindNestedType(parent_class, (*it).c_str());
 
             if (parent_class == NULL)
                 return NULL;

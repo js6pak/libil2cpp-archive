@@ -31,7 +31,6 @@ namespace vm
         }
 
         static char* GetFirstElementAddress(Il2CppArray *array);
-        static il2cpp_array_size_t IndexFromIndices(Il2CppArray* thisPtr, int32_t const * indices);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

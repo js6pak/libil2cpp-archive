@@ -23,19 +23,17 @@ namespace metadata
     {
     public:
         static const Il2CppType** InflateParameters(const Il2CppType**, uint8_t parameterCount, const Il2CppGenericContext* context, bool inflateMethodVars);
-        static Il2CppGenericClass* GetGenericClass(const Il2CppClass* genericTypeDefinition, const Il2CppGenericInst* inst);
-        static Il2CppGenericClass* GetGenericClass(const Il2CppType* genericTypeDefinition, const Il2CppGenericInst* inst);
+        static Il2CppGenericClass* GetGenericClass(const Il2CppClass* elementClass, const Il2CppGenericInst* inst);
+        static Il2CppGenericClass* GetGenericClass(const Il2CppType* elementType, const Il2CppGenericInst* inst);
 
         static const MethodInfo* Inflate(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
         static const Il2CppGenericMethod* Inflate(const Il2CppGenericMethod* genericMethod, const Il2CppGenericContext* context);
         static const Il2CppGenericInst* GetInflatedGenericIntance(const Il2CppGenericInst* inst, const Il2CppGenericContext* context, bool inflatMethodVars);
 
         static Il2CppRGCTXData* InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context, const il2cpp::os::FastAutoLock& lock);
+
+        // temporary while we generate generics
         static void RegisterGenericClasses(Il2CppGenericClass* const* genericClasses, int32_t genericClassesCount);
-        static bool ContainsGenericParameters(const Il2CppClass* klass);
-        static bool ContainsGenericParameters(const MethodInfo* method);
-        static bool ContainsGenericParameters(const Il2CppGenericInst* inst);
-        static bool ContainsGenericParameters(const Il2CppType* type);
 
         static const Il2CppType* InflateIfNeeded(const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars);
 
@@ -44,9 +42,6 @@ namespace metadata
 
         static int GetMaximumRuntimeGenericDepth();
         static void SetMaximumRuntimeGenericDepth(int depth);
-        static int GetGenericVirtualIterations();
-        static void SetGenericVirtualIterations(int iterations);
-
 
         static void Clear();
     };

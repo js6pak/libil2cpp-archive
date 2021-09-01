@@ -5,7 +5,6 @@
 #include "gc/WriteBarrier.h"
 #include "os/StackTrace.h"
 #include "os/Image.h"
-#include "vm/AndroidRuntime.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -231,11 +230,6 @@ const Il2CppType* il2cpp_class_enum_basetype(Il2CppClass *klass)
 Il2CppClass* il2cpp_class_from_system_type(Il2CppReflectionType *type)
 {
     return Class::FromSystemType(type);
-}
-
-bool il2cpp_class_is_inited(const Il2CppClass *klass)
-{
-    return klass->initialized;
 }
 
 bool il2cpp_class_is_generic(const Il2CppClass *klass)
@@ -588,7 +582,7 @@ void il2cpp_unhandled_exception(Il2CppException* exc)
 
 void il2cpp_native_stack_trace(const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char** imageUUID, char** imageName)
 {
-#if IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION && !IL2CPP_TINY
+#if IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION
     if (ex == NULL || ex->native_trace_ips == NULL)
     {
         *numFrames = 0;
@@ -765,16 +759,6 @@ void il2cpp_stop_gc_world()
 void il2cpp_start_gc_world()
 {
     il2cpp::gc::GarbageCollector::StartWorld();
-}
-
-void* il2cpp_gc_alloc_fixed(size_t size)
-{
-    return il2cpp::gc::GarbageCollector::AllocateFixed(size, NULL);
-}
-
-void il2cpp_gc_free_fixed(void* address)
-{
-    il2cpp::gc::GarbageCollector::FreeFixed(address);
 }
 
 // gchandle
@@ -1470,10 +1454,4 @@ int il2cpp_class_get_userdata_offset()
 void il2cpp_class_for_each(void(*klassReportFunc)(Il2CppClass* klass, void* userData), void* userData)
 {
     MemoryInformation::ReportIL2CppClasses(klassReportFunc, userData);
-}
-
-// Android
-void il2cpp_unity_set_android_network_up_state_func(Il2CppAndroidUpStateFunc func)
-{
-    AndroidRuntime::SetNetworkUpStateFunc(func);
 }

@@ -746,10 +746,11 @@ namespace System
         return 0;
     }
 
-    Il2CppReflectionMethod* RuntimeType::get_DeclaringMethod(Il2CppReflectionRuntimeType* thisPtr)
+    Il2CppObject* RuntimeType::get_DeclaringMethod(Il2CppReflectionRuntimeType* thisPtr)
     {
-        const MethodInfo* declaringMethod = vm::Type::GetDeclaringMethod(thisPtr->type.type);
-        return declaringMethod == NULL ? NULL : vm::Reflection::GetMethodObject(declaringMethod, NULL);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeType::get_DeclaringMethod);
+        IL2CPP_UNREACHABLE;
+        return NULL;
     }
 
     Il2CppObject* RuntimeType::GetCorrespondingInflatedMethod(Il2CppReflectionRuntimeType* thisPtr, Il2CppObject* generic)
@@ -811,8 +812,7 @@ namespace System
 
     Il2CppReflectionType* RuntimeType::get_DeclaringType(Il2CppReflectionRuntimeType* _this)
     {
-        Il2CppClass* declaringClass = vm::Type::GetDeclaringType(_this->type.type);
-        return declaringClass == NULL ? NULL : il2cpp::vm::Reflection::GetTypeObject(vm::Class::GetType(declaringClass));
+        return vm::Type::GetDeclaringType(_this->type.type);
     }
 
     void validate_make_array_type_inputs(Il2CppReflectionType* type, int32_t rank)
@@ -1110,32 +1110,14 @@ namespace System
 
                 const MethodInfo* targetMethod = invokeDataStart[i].method;
 
-                if (vm::Method::IsAmbiguousMethodInfo(targetMethod) || vm::Method::IsEntryPointNotFoundMethodInfo(targetMethod))
-                {
-                    // Method is an ambiguous default interface method (more than one DIM matched)
-                    // Or there is no valid method in this slot
+                if (vm::Method::IsAmbiguousMethodInfo(targetMethod))
                     member = NULL;
-                }
+                else if (targetMethod->flags & METHOD_ATTRIBUTE_ABSTRACT)
+                    member = NULL;
                 else if (vm::Class::IsInterface(targetMethod->klass))
-                {
-                    // We found a default interface method
-
-                    if (targetMethod->methodPointer == NULL)
-                    {
-                        // The method was re-abstracted
-                        member = NULL;
-                    }
-                    else
-                    {
-                        // Normal DIM case
-                        member = il2cpp_method_get_object(targetMethod, targetMethod->klass);
-                    }
-                }
+                    member = il2cpp_method_get_object(targetMethod, targetMethod->klass);
                 else
-                {
-                    // Normal interface implementation
                     member = il2cpp_method_get_object(targetMethod, klass);
-                }
                 il2cpp_array_setref(*targets, virtualMethodIndex, member);
                 virtualMethodIndex++;
             }
@@ -1156,21 +1138,6 @@ namespace System
             *size = 0;
         else
             *size = vm::Class::FromIl2CppType(runtimeType)->native_size;
-    }
-
-    void RuntimeType::GetGUID(Il2CppReflectionType* type, Il2CppArray* guid_result)
-    {
-        IL2CPP_ASSERT(vm::Array::GetLength(guid_result) == sizeof(Il2CppGuid));
-        if (type == NULL)
-            return;
-
-        Il2CppClass* klass = vm::Class::FromIl2CppType(type->type);
-
-        if (klass->interopData != nullptr && klass->interopData->guid != nullptr)
-        {
-            uint8_t* guid = il2cpp_array_addr_with_size(guid_result, 1, 0);
-            memcpy(guid, klass->interopData->guid, sizeof(Il2CppGuid));
-        }
     }
 } // namespace System
 } // namespace mscorlib
