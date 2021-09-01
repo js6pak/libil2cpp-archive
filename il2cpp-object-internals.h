@@ -504,7 +504,6 @@ typedef struct Il2CppException
 {
     Il2CppObject object;
 #endif //__cplusplus
-#if !IL2CPP_TINY
     Il2CppString* className;
     Il2CppString* message;
     Il2CppObject* _data;
@@ -521,17 +520,6 @@ typedef struct Il2CppException
     Il2CppArray* captured_traces;
     Il2CppArray* native_trace_ips;
     int32_t caught_in_unmanaged;
-#else
-    Il2CppString* message;
-    union
-    {
-        // Stack trace is the field at this position,
-        // but we'll define inner_ex and hresult to reduce the number of defines we need in vm::Exception.cpp
-        Il2CppString* stack_trace;
-        Il2CppException* inner_ex;
-        il2cpp_hresult_t hresult;
-    };
-#endif
 } Il2CppException;
 
 // System.SystemException
@@ -563,7 +551,7 @@ typedef struct Il2CppDelegate
     /* The compiled code of the target method */
     Il2CppMethodPointer method_ptr;
     /* The invoke code */
-    Il2CppMethodPointer invoke_impl;
+    InvokerMethod invoke_impl;
     Il2CppObject *target;
     const MethodInfo *method;
 
@@ -571,21 +559,13 @@ typedef struct Il2CppDelegate
     // IMPORTANT: It is assumed to NULL otherwise!  See PlatformInvoke::IsFakeDelegateMethodMarshaledFromNativeCode
     void* delegate_trampoline;
 
-    // Used to store the mulicast_invoke_impl
     intptr_t extraArg;
 
-    /* MONO:
+    /*
      * If non-NULL, this points to a memory location which stores the address of
      * the compiled code of the method, or NULL if it is not yet compiled.
-     * uint8_t **method_code;
      */
-    // IL2CPP: Points to the "this" method pointer we use when calling invoke_impl
-    // For closed delegates invoke_impl_this points to target and invoke_impl is method pointer so we just do a single indirect call
-    // For all other delegates invoke_impl_this is points to it's owning delegate an invoke_impl is a delegate invoke stub
-    // NOTE: This field is NOT VISIBLE to the GC because its not a managed field in the classlibs
-    //       Our usages are safe becuase we either pointer to ourself or whats stored in the target field
-    Il2CppObject* invoke_impl_this;
-
+    uint8_t **method_code;
     void* interp_method;
     /* Interp method that is executed when invoking the delegate */
     void* interp_invoke_impl;
@@ -597,8 +577,6 @@ typedef struct Il2CppDelegate
 #else
     void* method_ptr;
     Il2CppObject* m_target;
-    void* invoke_impl;
-    void* multicast_invoke_impl;
     void* m_ReversePInvokeWrapperPtr;
     bool m_IsDelegateOpen;
 #endif // !IL2CPP_TINY

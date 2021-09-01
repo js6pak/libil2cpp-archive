@@ -70,7 +70,7 @@ namespace vm
         static void Detach(Il2CppThread *thread);
         static void WalkFrameStack(Il2CppThread *thread, Il2CppFrameWalkFunc func, void *user_data);
         static Il2CppThread** GetAllAttachedThreads(size_t &size);
-        static void AbortAllThreads();
+        static void KillAllBackgroundThreadsAndWaitForForegroundThreads();
         static Il2CppThread* Main();
         static bool IsVmThread(Il2CppThread *thread);
         static uint64_t GetId(Il2CppThread *thread);

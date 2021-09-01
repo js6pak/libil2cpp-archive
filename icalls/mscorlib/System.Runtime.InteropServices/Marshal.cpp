@@ -537,11 +537,6 @@ namespace InteropServices
         return vm::LastError::GetLastError();
     }
 
-    void Marshal::SetLastWin32Error(uint32_t error)
-    {
-        vm::LastError::SetLastError(error);
-    }
-
     static size_t RoundUpToMultiple(size_t numToRound, size_t multiple)
     {
         if (multiple == 0)
@@ -609,14 +604,6 @@ namespace InteropServices
                         offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldAlignment : std::min((int)type->packingSize, marshaledFieldAlignment));
                     }
                 }
-                else
-                {
-                    // If this is the first field, it might have a non-zero offset, as it could be in a type
-                    // with an explicit layout. So calculate it offset based on the distance it is from the
-                    // end of the object header.
-                    offset = field->offset - sizeof(Il2CppObject);
-                }
-
                 previousField = field;
 
                 if (fieldNameToFind == vm::Field::GetName(field))

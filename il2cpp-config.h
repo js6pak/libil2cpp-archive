@@ -35,7 +35,6 @@
 #endif
 
 typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
-typedef void (STDCALL *CultureInfoChangedCallback)(const Il2CppChar* arg);
 
 #if defined(__cplusplus)
 #define IL2CPP_EXTERN_C extern "C"
@@ -288,8 +287,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 
 #endif
 
-#if !RUNTIME_TINY
-
 #define NOT_SUPPORTED_IL2CPP(func, reason) \
     il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason) ))
 
@@ -306,13 +303,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #define NOT_SUPPORTED_WEBGL(func, reason)
 #endif
 
-#else
-#define NOT_SUPPORTED_IL2CPP(func, reason)
-#define NOT_SUPPORTED_SRE(func)
-#define NOT_SUPPORTED_REMOTING(func)
-#define NOT_SUPPORTED_WEBGL(func, reason)
-#endif // #if !RUNTIME_TINY
-
 #if IL2CPP_COMPILER_MSVC
     #define IL2CPP_DIR_SEPARATOR '\\'   /* backslash */
 #else
@@ -326,7 +316,7 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #if IL2CPP_COMPILER_MSVC
     #define IL2CPP_USE_GENERIC_SOCKET_IMPL  0
 #else
-    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  !(IL2CPP_TARGET_POSIX || IL2CPP_TARGET_SWITCH || IL2CPP_SUPPORT_SOCKETS_POSIX_API)
+    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  (!IL2CPP_TARGET_POSIX) &&  (!IL2CPP_TARGET_SWITCH)
 #endif
 
 #ifndef IL2CPP_USE_GENERIC_SOCKET_BRIDGE
@@ -335,7 +325,7 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 
 /* set by platforms that require special handling of SIGPIPE signalling during socket sends */
 #ifndef IL2CPP_USE_SEND_NOSIGNAL
-    #define IL2CPP_USE_SEND_NOSIGNAL IL2CPP_TARGET_LINUX
+    #define IL2CPP_USE_SEND_NOSIGNAL 0
 #endif
 
 #ifndef IL2CPP_USE_GENERIC_ENVIRONMENT
@@ -443,22 +433,6 @@ static const int ipv6AddressSize = 16;
 
 #define IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY (IL2CPP_SUPPORT_IPV6 && IL2CPP_TARGET_LINUX)
 
-#if !defined(IL2CPP_SUPPORT_SEND_FILE)
-#define IL2CPP_SUPPORT_SEND_FILE (!IL2CPP_TARGET_SWITCH)
-#endif
-
-#if !defined(IL2CPP_SUPPORT_RECV_MSG)
-#define IL2CPP_SUPPORT_RECV_MSG (!IL2CPP_TARGET_SWITCH)
-#endif
-
-#if !defined(IL2CPP_SUPPORT_SEND_MSG)
-#define IL2CPP_SUPPORT_SEND_MSG (!IL2CPP_TARGET_SWITCH)
-#endif
-
-#ifndef IL2CPP_USE_NETWORK_ACCESS_HANDLER
-#define IL2CPP_USE_NETWORK_ACCESS_HANDLER 0
-#endif
-
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
 #if !defined(IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING)
@@ -524,7 +498,7 @@ static const Il2CppChar kIl2CppNewLine[] = { '\r', '\n', '\0' };
 static const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #endif
 
-#define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted.   Consider increasing the --maximum-recursive-generic-depth=%d argument"
+#define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted.   Consider increasing the --maximum-recursive-generic-depth argument above %d"
 #if IL2CPP_COMPILER_MSVC
 #define IL2CPP_ATTRIBUTE_WEAK
 #else
@@ -566,10 +540,6 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 
 #define IL2CPP_USE_GENERIC_ASSERT !(IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5)
 
-#ifndef IL2CPP_USE_SPARSEHASH
-#define IL2CPP_USE_SPARSEHASH (IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_IOS)
-#endif
-
 #if !IL2CPP_DEBUG
 #define IL2CPP_ASSERT(expr) void(0)
 #else
@@ -579,8 +549,4 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 #define IL2CPP_ASSERT(expr) (expr) ? void(0) : il2cpp_assert(#expr, __FILE__, __LINE__))
 #endif
 extern void il2cpp_assert(const char* assertion, const char* file, unsigned int line);
-#endif
-
-#if !defined(IL2CPP_SUPPORTS_BROKERED_FILESYSTEM)
-#define IL2CPP_SUPPORTS_BROKERED_FILESYSTEM IL2CPP_TARGET_WINRT
 #endif
