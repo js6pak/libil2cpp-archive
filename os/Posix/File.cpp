@@ -1180,10 +1180,11 @@ namespace os
         *error = kErrorCodeSuccess;
     }
 
-    utils::Expected<bool> File::DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
+    bool File::DuplicateHandle(FileHandle* source_process_handle, FileHandle* source_handle, FileHandle* target_process_handle,
         FileHandle** target_handle, int access, int inhert, int options, int* error)
     {
-        return utils::Il2CppError(utils::NotSupported, "This platform does not support file handle duplication.");
+        IL2CPP_NOT_IMPLEMENTED_ICALL(File::DuplicateHandle);
+        return false;
     }
 
     utils::Expected<bool> File::IsExecutable(const std::string& path)

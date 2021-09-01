@@ -51,7 +51,6 @@ struct MonoContext;
 extern "C"
 {
     void mono_debugger_agent_parse_options(const char *options);
-    void mono_debugger_agent_init_minimal();
     void mono_debugger_agent_init();
     void mono_debugger_run_debugger_thread_func(void* arg);
     void debugger_agent_single_step_from_context(MonoContext *ctx, Il2CppSequencePoint* sequencePoint);
@@ -87,11 +86,6 @@ namespace utils
     static bool s_IsDebuggerInitialized = false;
     static std::string s_AgentOptions;
 
-    static os::Mutex s_Il2CppMonoLoaderLock(false);
-    static uint64_t s_Il2CppMonoLoaderLockThreadId = 0;
-
-    static Il2CppMonoInterpCallbacks s_InterpCallbacks;
-
     typedef dynamic_array<Il2CppSequencePoint*> SequencePointList;
     typedef Il2CppHashMap<const MethodInfo*, SequencePointList*, il2cpp::utils::PointerHash<MethodInfo> > MethodToSequencePointsMap;
     static MethodToSequencePointsMap s_methodToSequencePoints;
@@ -110,27 +104,6 @@ namespace utils
 
     static MethodToSequencePointsMap::const_iterator GetMethodSequencePointIterator(const MethodInfo *method);
 
-    static void* FrameGetArg(Il2CppSequencePointExecutionContext* frame, int pos)
-    {
-        return frame->params[pos];
-    }
-
-    static void* FrameGetLocal(Il2CppSequencePointExecutionContext* frame, int pos)
-    {
-        return frame->locals[pos];
-    }
-
-    static void* FrameGetThis(Il2CppSequencePointExecutionContext* frame)
-    {
-        return *frame->thisArg;
-    }
-
-    static void InitializeInterpCallbacks()
-    {
-        s_InterpCallbacks.frame_get_arg = FrameGetArg;
-        s_InterpCallbacks.frame_get_local = FrameGetLocal;
-        s_InterpCallbacks.frame_get_this = FrameGetThis;
-    }
 
     void Debugger::RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data)
     {
@@ -153,7 +126,6 @@ namespace utils
     static void InitializeMonoSoftDebugger(const char* options)
     {
 #if defined(RUNTIME_IL2CPP)
-        InitializeInterpCallbacks();
 
         os::SocketBridge::WaitForInitialization();
 
@@ -256,10 +228,9 @@ namespace utils
 
     void Debugger::Init()
     {
-        bool debuggerIsInitialized = false;
         if (!s_AgentOptions.empty())
         {
-            debuggerIsInitialized = TryInitializeDebugger(s_AgentOptions);
+            TryInitializeDebugger(s_AgentOptions);
         }
         else
         {
@@ -267,14 +238,10 @@ namespace utils
             for (std::vector<UTF16String>::const_iterator arg = args.begin(); arg != args.end(); ++arg)
             {
                 std::string argument = StringUtils::Utf16ToUtf8(*arg);
-                debuggerIsInitialized = TryInitializeDebugger(argument);
-                if (debuggerIsInitialized)
+                if (TryInitializeDebugger(argument))
                     break;
             }
         }
-
-        if (!debuggerIsInitialized)
-            mono_debugger_agent_init_minimal();
     }
 
     static Debugger::OnBreakPointHitCallback s_BreakCallback;
@@ -378,13 +345,6 @@ namespace utils
         return thread == s_DebuggerThread;
     }
 
-    static void InitializeUnwindState(Il2CppThreadUnwindState* unwindState, uint32_t frameCapacity)
-    {
-        unwindState->frameCount = 0;
-        unwindState->frameCapacity = frameCapacity;
-        unwindState->executionContexts = (Il2CppSequencePointExecutionContext**)calloc(frameCapacity, sizeof(Il2CppSequencePointExecutionContext*));
-    }
-
     void Debugger::AllocateThreadLocalData()
     {
         Il2CppThreadUnwindState* unwindState;
@@ -392,26 +352,10 @@ namespace utils
         if (unwindState == NULL)
         {
             unwindState = (Il2CppThreadUnwindState*)calloc(1, sizeof(Il2CppThreadUnwindState));
-            InitializeUnwindState(unwindState, 512);
+            unwindState->frameCapacity = 512;
+            unwindState->executionContexts = (Il2CppSequencePointExecutionContext**)calloc(512, sizeof(Il2CppSequencePointExecutionContext*));
             s_ExecutionContexts.SetValue(unwindState);
         }
-    }
-
-    void Debugger::GrowFrameCapacity(Il2CppThreadUnwindState* unwindState)
-    {
-        // Create a new unwind state object to hold the large array of execution context pointers
-        Il2CppThreadUnwindState newUnwindState;
-        InitializeUnwindState(&newUnwindState, unwindState->frameCapacity * 2);
-
-        // Copy the existing execution context pointers into the new one
-        memcpy(newUnwindState.executionContexts, unwindState->executionContexts, unwindState->frameCapacity * sizeof(Il2CppSequencePointExecutionContext*));
-
-        // Free the existing one
-        free(unwindState->executionContexts);
-
-        // Set the new data into the existing one, so the client can keep its object reference
-        unwindState->frameCapacity = newUnwindState.frameCapacity;
-        unwindState->executionContexts = newUnwindState.executionContexts;
     }
 
     void Debugger::FreeThreadLocalData()
@@ -789,6 +733,7 @@ namespace utils
             {
                 Il2CppStackFrameInfo frameInfo = { 0 };
                 frameInfo.method = method;
+                frameInfo.raw_ip = (uintptr_t)method->virtualMethodPointer;
                 if (unwindState->executionContexts[i]->currentSequencePoint != NULL)
                 {
                     const Il2CppDebuggerMetadataRegistration* debuggerMetadata = method->klass->image->codeGenModule->debuggerMetadata;
@@ -803,28 +748,6 @@ namespace utils
                 stackFrames->push_back(frameInfo);
             }
         }
-    }
-
-    void Debugger::AcquireLoaderLock()
-    {
-        s_Il2CppMonoLoaderLock.Lock();
-        s_Il2CppMonoLoaderLockThreadId = os::Thread::CurrentThreadId();
-    }
-
-    void Debugger::ReleaseLoaderLock()
-    {
-        s_Il2CppMonoLoaderLockThreadId = 0;
-        s_Il2CppMonoLoaderLock.Unlock();
-    }
-
-    bool Debugger::LoaderLockIsOwnedByThisThread()
-    {
-        return s_Il2CppMonoLoaderLockThreadId == os::Thread::CurrentThreadId();
-    }
-
-    Il2CppMonoInterpCallbacks* Debugger::GetInterpCallbacks()
-    {
-        return &s_InterpCallbacks;
     }
 }
 }

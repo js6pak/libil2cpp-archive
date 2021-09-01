@@ -1,14 +1,13 @@
 #include "il2cpp-config.h"
-#include "il2cpp-class-internals.h"
-#include "il2cpp-object-internals.h"
 #include "icalls/mscorlib/System/Delegate.h"
-#include "gc/WriteBarrier.h"
 #include "vm/Class.h"
 #include "vm/Method.h"
 #include "vm/Object.h"
+#include "vm/Type.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
-#include "vm/Type.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 
 namespace il2cpp
 {
@@ -31,7 +30,9 @@ namespace System
         //}
 
         Il2CppObject* delegate = il2cpp::vm::Object::New(delegate_class);
-        il2cpp::vm::Type::ConstructDelegate((Il2CppDelegate*)delegate, target, method);
+        Il2CppMethodPointer func = target != NULL ? method->virtualMethodPointer : method->methodPointer;
+
+        il2cpp::vm::Type::ConstructDelegate((Il2CppDelegate*)delegate, target, func, method);
 
         return (Il2CppDelegate*)delegate;
     }
@@ -54,11 +55,8 @@ namespace System
 
         Il2CppMulticastDelegate *ret = (Il2CppMulticastDelegate*)il2cpp::vm::Object::New(d->object.klass);
 
-        IL2CPP_OBJECT_SETREF((&ret->delegate), invoke_impl_this, (Il2CppObject*)ret);
-
-        // extra_arg stores the multicast_invoke_impl
-        ret->delegate.invoke_impl = (Il2CppMethodPointer)d->extraArg;
-        ret->delegate.extraArg = d->extraArg;
+        Il2CppMethodPointer func = d->method_ptr;
+        il2cpp::vm::Type::ConstructDelegate(&ret->delegate, NULL, func, d->method);
 
         return ret;
 #endif

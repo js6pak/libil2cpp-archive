@@ -30,8 +30,6 @@ namespace vm
 {
     void Exception::PrepareExceptionForThrow(Il2CppException* ex, MethodInfo* lastManagedFrame)
     {
-#if !IL2CPP_TINY
-
 #if IL2CPP_MONO_DEBUGGER
         il2cpp::utils::Debugger::HandleException(ex);
 #endif
@@ -106,17 +104,11 @@ namespace vm
             IL2CPP_OBJECT_SETREF(ex, trace_ips, ips);
             IL2CPP_OBJECT_SETREF(ex, native_trace_ips, raw_ips);
         }
-#endif // !IL2CPP_TINY
     }
 
     NORETURN void Exception::Raise(Il2CppException* ex, MethodInfo* lastManagedFrame)
     {
         PrepareExceptionForThrow(ex, lastManagedFrame);
-        throw Il2CppExceptionWrapper(ex);
-    }
-
-    NORETURN void Exception::Rethrow(Il2CppException* ex)
-    {
         throw Il2CppExceptionWrapper(ex);
     }
 
@@ -143,11 +135,6 @@ namespace vm
     NORETURN void Exception::RaiseDivideByZeroException()
     {
         Raise(GetDivideByZeroException());
-    }
-
-    NORETURN void Exception::RaiseIndexOutOfRangeException()
-    {
-        Raise(GetIndexOutOfRangeException());
     }
 
     NORETURN void Exception::RaiseOverflowException()
@@ -465,15 +452,14 @@ namespace vm
             assemblyNameStr += assemblyName.name;
             assemblyNameStr += ", Version=";
 
-            const size_t bufferSize = 16;
-            char buffer[bufferSize];
-            snprintf(buffer, bufferSize, "%d.", assemblyName.major);
+            char buffer[16];
+            sprintf(buffer, "%d.", assemblyName.major);
             assemblyNameStr += buffer;
-            snprintf(buffer, bufferSize, "%d.", assemblyName.minor);
+            sprintf(buffer, "%d.", assemblyName.minor);
             assemblyNameStr += buffer;
-            snprintf(buffer, bufferSize, "%d.", assemblyName.build);
+            sprintf(buffer, "%d.", assemblyName.build);
             assemblyNameStr += buffer;
-            snprintf(buffer, bufferSize, "%d", assemblyName.revision);
+            sprintf(buffer, "%d", assemblyName.revision);
             assemblyNameStr += buffer;
 
             if (!assemblyName.culture.empty())
