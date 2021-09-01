@@ -14,8 +14,8 @@
 
 #include "il2cpp-config.h"
 
-#include <brotli/port.h>
-#include <brotli/types.h>
+#include <os/ClassLibraryPAL/brotli/include/brotli/port.h>
+#include <os/ClassLibraryPAL/brotli/include/brotli/types.h>
 
 #if defined(__cplusplus) || defined(c_plusplus)
 extern "C" {
@@ -29,11 +29,6 @@ extern "C" {
  * @note equal to @c BROTLI_MAX_DISTANCE_BITS constant.
  */
 #define BROTLI_MAX_WINDOW_BITS 24
-/**
- * Maximal value for ::BROTLI_PARAM_LGWIN parameter
- * in "Large Window Brotli" (32-bit).
- */
-#define BROTLI_LARGE_MAX_WINDOW_BITS 30
 /** Minimal value for ::BROTLI_PARAM_LGBLOCK parameter. */
 #define BROTLI_MIN_INPUT_BLOCK_BITS 16
 /** Maximal value for ::BROTLI_PARAM_LGBLOCK parameter. */
@@ -183,43 +178,7 @@ typedef enum BrotliEncoderParameter {
    *
    * The default value is 0, which means that the total input size is unknown.
    */
-  BROTLI_PARAM_SIZE_HINT = 5,
-  /**
-   * Flag that determines if "Large Window Brotli" is used.
-   */
-  BROTLI_PARAM_LARGE_WINDOW = 6,
-  /**
-   * Recommended number of postfix bits (NPOSTFIX).
-   *
-   * Encoder may change this value.
-   *
-   * Range is from 0 to ::BROTLI_MAX_NPOSTFIX.
-   */
-  BROTLI_PARAM_NPOSTFIX = 7,
-  /**
-   * Recommended number of direct distance codes (NDIRECT).
-   *
-   * Encoder may change this value.
-   *
-   * Range is from 0 to (15 << NPOSTFIX) in steps of (1 << NPOSTFIX).
-   */
-  BROTLI_PARAM_NDIRECT = 8,
-  /**
-   * Number of bytes of input stream already processed by a different instance.
-   *
-   * @note It is important to configure all the encoder instances with same
-   *       parameters (except this one) in order to allow all the encoded parts
-   *       obey the same restrictions implied by header.
-   *
-   * If offset is not 0, then stream header is omitted.
-   * In any case output start is byte aligned, so for proper streams stitching
-   * "predecessor" stream must be flushed.
-   *
-   * Range is not artificially limited, but all the values greater or equal to
-   * maximal window size have the same effect. Values greater than 2**30 are not
-   * allowed.
-   */
-  BROTLI_PARAM_STREAM_OFFSET = 9
+  BROTLI_PARAM_SIZE_HINT = 5
 } BrotliEncoderParameter;
 
 /**
@@ -244,7 +203,7 @@ typedef struct BrotliEncoderStateStruct BrotliEncoderState;
  * @warning invalid values might be accepted in case they would not break
  *          encoding process.
  */
-IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderSetParameter(
+IL2CPP_EXPORT BROTLI_BOOL STDCALL BrotliEncoderSetParameter(
     BrotliEncoderState* state, BrotliEncoderParameter param, uint32_t value);
 
 /**
@@ -252,16 +211,15 @@ IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderSetParameter(
  *
  * @p alloc_func and @p free_func @b MUST be both zero or both non-zero. In the
  * case they are both zero, default memory allocators are used. @p opaque is
- * passed to @p alloc_func and @p free_func when they are called. @p free_func
- * has to return without doing anything when asked to free a NULL pointer.
+ * passed to @p alloc_func and @p free_func when they are called.
  *
  * @param alloc_func custom memory allocation function
- * @param free_func custom memory free function
+ * @param free_func custom memory fee function
  * @param opaque custom memory manager handle
  * @returns @c 0 if instance can not be allocated or initialized
  * @returns pointer to initialized ::BrotliEncoderState otherwise
  */
-IL2CPP_EXPORT BROTLI_ENC_API BrotliEncoderState* STDCALL BrotliEncoderCreateInstance(
+IL2CPP_EXPORT BrotliEncoderState* STDCALL BrotliEncoderCreateInstance(
     brotli_alloc_func alloc_func, brotli_free_func free_func, void* opaque);
 
 /**
@@ -269,19 +227,20 @@ IL2CPP_EXPORT BROTLI_ENC_API BrotliEncoderState* STDCALL BrotliEncoderCreateInst
  *
  * @param state decoder instance to be cleaned up and deallocated
  */
-IL2CPP_EXPORT BROTLI_ENC_API void STDCALL BrotliEncoderDestroyInstance(BrotliEncoderState* state);
+IL2CPP_EXPORT void STDCALL BrotliEncoderDestroyInstance(BrotliEncoderState* state);
 
 /**
  * Calculates the output size bound for the given @p input_size.
  *
- * @warning Result is only valid if quality is at least @c 2 and, in
- *          case ::BrotliEncoderCompressStream was used, no flushes
- *          (::BROTLI_OPERATION_FLUSH) were performed.
+ * @warning Result is not applicable to ::BrotliEncoderCompressStream output,
+ *          because every "flush" adds extra overhead bytes, and some encoder
+ *          settings (e.g. quality @c 0 and @c 1) might imply a "soft flush"
+ *          after every chunk of input.
  *
  * @param input_size size of projected input
  * @returns @c 0 if result does not fit @c size_t
  */
-BROTLI_ENC_API size_t BrotliEncoderMaxCompressedSize(size_t input_size);
+IL2CPP_EXPORT size_t STDCALL BrotliEncoderMaxCompressedSize(size_t input_size);
 
 /**
  * Performs one-shot memory-to-memory compression.
@@ -291,11 +250,6 @@ BROTLI_ENC_API size_t BrotliEncoderMaxCompressedSize(size_t input_size);
  *
  * @note If ::BrotliEncoderMaxCompressedSize(@p input_size) returns non-zero
  *       value, then output is guaranteed to be no longer than that.
- *
- * @note If @p lgwin is greater than ::BROTLI_MAX_WINDOW_BITS then resulting
- *       stream might be incompatible with RFC 7932; to decode such streams,
- *       decoder should be configured with
- *       ::BROTLI_DECODER_PARAM_LARGE_WINDOW = @c 1
  *
  * @param quality quality parameter value, e.g. ::BROTLI_DEFAULT_QUALITY
  * @param lgwin lgwin parameter value, e.g. ::BROTLI_DEFAULT_WINDOW
@@ -311,7 +265,7 @@ BROTLI_ENC_API size_t BrotliEncoderMaxCompressedSize(size_t input_size);
  * @returns ::BROTLI_FALSE if output buffer is too small
  * @returns ::BROTLI_TRUE otherwise
  */
-IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderCompress(
+IL2CPP_EXPORT BROTLI_BOOL STDCALL BrotliEncoderCompress(
     int quality, int lgwin, BrotliEncoderMode mode, size_t input_size,
     const uint8_t input_buffer[BROTLI_ARRAY_PARAM(input_size)],
     size_t* encoded_size,
@@ -379,7 +333,7 @@ IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderCompress(
  * @returns ::BROTLI_FALSE if there was an error
  * @returns ::BROTLI_TRUE otherwise
  */
-IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderCompressStream(
+IL2CPP_EXPORT BROTLI_BOOL STDCALL BrotliEncoderCompressStream(
     BrotliEncoderState* state, BrotliEncoderOperation op, size_t* available_in,
     const uint8_t** next_in, size_t* available_out, uint8_t** next_out,
     size_t* total_out);
@@ -392,7 +346,7 @@ IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderCompressStream(
  *          the input and produced all of the output
  * @returns ::BROTLI_FALSE otherwise
  */
-BROTLI_ENC_API BROTLI_BOOL BrotliEncoderIsFinished(BrotliEncoderState* state);
+IL2CPP_EXPORT BROTLI_BOOL STDCALL BrotliEncoderIsFinished(BrotliEncoderState* state);
 
 /**
  * Checks if encoder has more output.
@@ -401,7 +355,7 @@ BROTLI_ENC_API BROTLI_BOOL BrotliEncoderIsFinished(BrotliEncoderState* state);
  * @returns ::BROTLI_TRUE, if encoder has some unconsumed output
  * @returns ::BROTLI_FALSE otherwise
  */
-IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderHasMoreOutput(
+IL2CPP_EXPORT BROTLI_BOOL STDCALL BrotliEncoderHasMoreOutput(
     BrotliEncoderState* state);
 
 /**
@@ -432,7 +386,7 @@ IL2CPP_EXPORT BROTLI_ENC_API BROTLI_BOOL STDCALL BrotliEncoderHasMoreOutput(
  *                 out value is never greater than in value, unless it is @c 0
  * @returns pointer to output data
  */
-BROTLI_ENC_API const uint8_t* BrotliEncoderTakeOutput(
+IL2CPP_EXPORT const uint8_t* STDCALL BrotliEncoderTakeOutput(
     BrotliEncoderState* state, size_t* size);
 
 
@@ -441,7 +395,7 @@ BROTLI_ENC_API const uint8_t* BrotliEncoderTakeOutput(
  *
  * Look at BROTLI_VERSION for more information.
  */
-BROTLI_ENC_API uint32_t BrotliEncoderVersion(void);
+IL2CPP_EXPORT uint32_t STDCALL BrotliEncoderVersion(void);
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }  /* extern "C" */

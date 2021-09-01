@@ -1,22 +1,16 @@
 #pragma once
 
-#if (IL2CPP_TARGET_POSIX || IL2CPP_SUPPORT_SOCKETS_POSIX_API) && !RUNTIME_TINY
+#if IL2CPP_TARGET_POSIX && !RUNTIME_TINY
 
 #include <string>
 #include <vector>
 #include <stdint.h>
-#include <sys/socket.h>
 
 #include "os/Socket.h"
 #include "os/ErrorCodes.h"
 #include "os/WaitStatus.h"
 #include "utils/Expected.h"
 #include "utils/NonCopyable.h"
-#if IL2CPP_USE_NETWORK_ACCESS_HANDLER
-#include "os/NetworkAccessHandler.h"
-#else
-#include "NetworkAccessHandlerStub.h"
-#endif
 
 struct sockaddr;
 
@@ -118,9 +112,6 @@ namespace os
         static void Startup();
         static void Cleanup();
 
-        static bool is_private(const struct sockaddr *sa, socklen_t sa_size);
-        static bool is_private(const char* address);
-
     private:
 
         bool _is_valid;
@@ -131,7 +122,6 @@ namespace os
         ErrorCode _saved_error;
         int32_t _still_readable;
         ThreadStatusCallback _thread_status_callback;
-        NetworkAccessHandler _networkAccess;
 
         void StoreLastError();
         void StoreLastError(int32_t error_no);

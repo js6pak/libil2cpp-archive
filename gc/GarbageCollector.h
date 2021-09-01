@@ -80,7 +80,7 @@ namespace gc
         static void* AllocateFixed(size_t size, void *descr);
         static void FreeFixed(void* addr);
 
-        static void RegisterThread();
+        static bool RegisterThread(void *baseptr);
         static bool UnregisterThread();
 
 #if !RUNTIME_TINY
@@ -107,8 +107,6 @@ namespace gc
         static void UnregisterRoot(char* start);
 
         static void SetSkipThread(bool skip);
-
-        static bool EphemeronArrayAdd(Il2CppObject* obj);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

@@ -10,7 +10,6 @@
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "os/Path.h"
-#include "os/SynchronizationContext.h"
 #include "os/Thread.h"
 #include "os/Socket.h"
 #include "os/c-api/Allocator.h"
@@ -172,11 +171,6 @@ namespace vm
         il2cpp::utils::DebugSymbolReader::LoadDebugSymbols();
 #endif
 
-#if IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT
-        // Has to happen after Thread::Init() due to it needing a COM apartment on Windows
-        il2cpp::os::SynchronizationContext::Initialize();
-#endif
-
         // This should be filled in by generated code.
         IL2CPP_ASSERT(g_CodegenRegistration != NULL);
         g_CodegenRegistration();
@@ -226,7 +220,6 @@ namespace vm
         DEFAULTS_INIT(string_class, "System", "String");
         DEFAULTS_INIT(enum_class, "System", "Enum");
         DEFAULTS_INIT(array_class, "System", "Array");
-        DEFAULTS_INIT(value_type_class, "System", "ValueType");
 #if !IL2CPP_TINY
         DEFAULTS_INIT_TYPE(delegate_class, "System", "Delegate", Il2CppDelegate);
         DEFAULTS_INIT_TYPE(multicastdelegate_class, "System", "MulticastDelegate", Il2CppMulticastDelegate);
@@ -286,6 +279,7 @@ namespace vm
         DEFAULTS_INIT_OPTIONAL(customattribute_data_class, "System.Reflection", "CustomAttributeData");
         DEFAULTS_INIT_OPTIONAL(customattribute_typed_argument_class, "System.Reflection", "CustomAttributeTypedArgument");
         DEFAULTS_INIT_OPTIONAL(customattribute_named_argument_class, "System.Reflection", "CustomAttributeNamedArgument");
+        DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
         DEFAULTS_INIT(system_guid_class, "System", "Guid");
 #endif // !IL2CPP_TINY
@@ -309,7 +303,6 @@ namespace vm
         DEFAULTS_INIT_OPTIONAL(uint64_shared_enum, "System", "UInt64Enum");
 
         DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
-        DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_struct_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericStructType");
 
         ClassLibraryPAL::Initialize();
 
@@ -422,13 +415,11 @@ namespace vm
         MONO_PROFILER_RAISE(runtime_shutdown_end, ());
 #endif
 
-#if IL2CPP_SUPPORT_THREADS
         threadpool_ms_cleanup();
-#endif
 
-        // Tries to abort all threads
-        // Threads at alertable waits may not have existing when this return
-        Thread::AbortAllThreads();
+        // Foreground threads will make us wait here. Background threads
+        // will get terminated abruptly.
+        Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads();
 
         os::Socket::Cleanup();
         String::CleanupEmptyString();
@@ -438,19 +429,11 @@ namespace vm
         // after the gc cleanup so the finalizer thread can unregister itself
         Thread::Uninitialize();
 
-#if IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT
-        // Has to happen before os::Thread::Shutdown() due to it needing a COM apartment on Windows
-        il2cpp::os::SynchronizationContext::Shutdown();
-#endif
-
         os::Thread::Shutdown();
 
 #if IL2CPP_ENABLE_RELOAD
         MetadataCache::Clear();
 #endif
-
-        // We need to do this before UninitializeGC because it uses (fixed) GC memory
-        Reflection::ClearStatics();
 
         // We need to do this after thread shut down because it is freeing GC fixed memory
         il2cpp::gc::GarbageCollector::UninitializeGC();
@@ -466,6 +449,7 @@ namespace vm
         os::Locale::UnInitialize();
         os::Uninitialize();
 
+        Reflection::ClearStatics();
 
 #if IL2CPP_ENABLE_RELOAD
         if (g_ClearMethodMetadataInitializedFlags != NULL)
@@ -546,11 +530,20 @@ namespace vm
         return Invoke(invoke, delegate, params, exc);
     }
 
-    void Runtime::GetGenericVirtualMethod(const MethodInfo* vtableSlotMethod, const MethodInfo* genericVirtualMethod, VirtualInvokeData* invokeData)
+    void Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod, VirtualInvokeData* invokeData)
     {
-        invokeData->method = metadata::GenericMethod::GetGenericVirtualMethod(vtableSlotMethod, genericVirtualMethod);
-        invokeData->methodPtr = metadata::GenericMethod::GetVirtualCallMethodPointer(invokeData->method);
-        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(invokeData->method, invokeData->method->genericMethod, genericVirtualMethod);
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
+
+        const Il2CppGenericInst* classInst = NULL;
+        if (methodDefinition->is_inflated)
+        {
+            classInst = methodDefinition->genericMethod->context.class_inst;
+            methodDefinition = methodDefinition->genericMethod->methodDefinition;
+        }
+
+        metadata::GenericMethod::GetVirtualInvokeData(methodDefinition, classInst, inflatedMethod->genericMethod->context.method_inst, invokeData);
+
+        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(invokeData->method, invokeData->method->genericMethod, inflatedMethod);
     }
 
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
@@ -594,22 +587,9 @@ namespace vm
             }
             else
             {
-                // Note that here method->return_type might be a reference type or it might be
-                // a value type returned by reference.
-                void* returnValue = NULL;
+                Il2CppObject* returnValue = NULL;
                 method->invoker_method(method->methodPointer, method, obj, params, &returnValue);
-                if (method->return_type->byref)
-                {
-                    // We cannot use method->return_type->valuetype here, because that will be
-                    // false for methods that return by reference. Instead, get the class for the
-                    // type, which discards the byref flag.
-                    Il2CppClass* returnType = Class::FromIl2CppType(method->return_type);
-                    if (vm::Class::IsValuetype(returnType))
-                        return Object::Box(returnType, returnValue);
-                    return *(Il2CppObject**)returnValue;
-                }
-
-                return (Il2CppObject*)returnValue;
+                return returnValue;
             }
         }
     }
@@ -776,7 +756,7 @@ namespace vm
                     {
                         // Since we don't really store boxed nullables, we need to create a new one.
                         void* nullableStorage = alloca(parameterType->instance_size - sizeof(Il2CppObject));
-                        Object::UnboxNullable(parameters[i], parameterType, nullableStorage);
+                        Object::UnboxNullable(parameters[i], Class::GetNullableArgument(parameterType), nullableStorage);
                         convertedParameters[i] = nullableStorage;
                         hasByRefNullables |= passedByReference;
                     }
@@ -1025,77 +1005,6 @@ namespace vm
         return MissingMethodInvoker;
     }
 
-    static int32_t IndexFromIndicesArgs(Il2CppArray* array, void** args)
-    {
-        int32_t rank = array->klass->rank;
-        int32_t* indices = (int32_t*)alloca(sizeof(int32_t) * rank);
-        for (auto i = 0; i < rank; ++i)
-            indices[i] = *(int32_t*)args[i];
-        return ARRAY_LENGTH_AS_INT32(vm::Array::IndexFromIndices(array, indices));
-    }
-
-    static void SetInvokerMethod(Il2CppMethodPointer methodPtr, const MethodInfo* method, void* obj, void** args, void* returnAddress)
-    {
-        int32_t rank = method->klass->rank;
-        // Arrays are limited to 32 dimensions. Given this limit, we can use a stack allocated array to store the indices.
-        // https://learn.microsoft.com/en-us/dotnet/api/system.array
-        IL2CPP_ASSERT(rank <= 32);
-        IL2CPP_ASSERT(method->parameters_count == (rank + 1));
-
-        int32_t index = IndexFromIndicesArgs((Il2CppArray*)obj, args);
-        Il2CppClass* elementClass = method->klass->element_class;
-        void* value = args[rank];
-        if (Class::IsValuetype(elementClass))
-        {
-            // In the case of Nullable<T>, the 'value' is the Nullable<T> instance not T.
-            // This allows us to treat Nullable<T> as a normal value type for the purposes
-            // of array element setting.
-            int elementSize = vm::Class::GetArrayElementSize(elementClass);
-            il2cpp_array_setrefwithsize((Il2CppArray*)obj, elementSize, index, value);
-        }
-        else
-        {
-            il2cpp_array_setref((Il2CppArray*)obj, index, value);
-        }
-    }
-
-    InvokerMethod Runtime::GetArraySetInvoker()
-    {
-        return &SetInvokerMethod;
-    }
-
-    static void ArrayGetInvoker(Il2CppMethodPointer methodPtr, const MethodInfo* method, void* obj, void** args, void* returnAddress)
-    {
-        int32_t rank = method->klass->rank;
-        // Arrays are limited to 32 dimensions. Given this limit, we can use a stack allocated array to store the indices.
-        // https://learn.microsoft.com/en-us/dotnet/api/system.array
-        IL2CPP_ASSERT(rank <= 32);
-        IL2CPP_ASSERT(method->parameters_count == rank);
-
-
-        int32_t index = IndexFromIndicesArgs((Il2CppArray*)obj, args);
-        Il2CppClass* elementClass = method->klass->element_class;
-        void* addr = il2cpp_array_addr_with_size((Il2CppArray*)obj, vm::Class::GetArrayElementSize(elementClass), index);
-        if (Class::IsValuetype(elementClass))
-        {
-            // In the case of Nullable<T>, the 'value' is the Nullable<T> instance not T.
-            // This allows us to treat Nullable<T> as a normal value type for the purposes
-            // of array element setting.
-            int elementSize = vm::Class::GetArrayElementSize(elementClass);
-            memcpy(returnAddress, addr, elementSize);
-            gc::GarbageCollector::SetWriteBarrier((void**)returnAddress, elementSize);
-        }
-        else
-        {
-            gc::WriteBarrier::GenericStore((void**)returnAddress, *(void**)addr);
-        }
-    }
-
-    InvokerMethod Runtime::GetArrayGetInvoker()
-    {
-        return &ArrayGetInvoker;
-    }
-
     void Runtime::AlwaysRaiseExecutionEngineException(const MethodInfo* method)
     {
         RaiseExecutionEngineException(method, false);
@@ -1108,7 +1017,7 @@ namespace vm
 
     void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod, const MethodInfo* inflatedMethod)
     {
-        if (method->methodPointer == NULL)
+        if (method->virtualMethodPointer == NULL)
         {
             if (metadata::GenericMethod::IsGenericAmbiguousMethodInfo(method))
             {
@@ -1146,10 +1055,10 @@ namespace vm
         }
         else
         {
-            std::string help = "";
+            const char* help = "";
             if (virtualCall && (method->flags & METHOD_ATTRIBUTE_VIRTUAL) && method->is_inflated)
-                help = utils::StringUtils::Printf("  Consider increasing the --generic-virtual-method-iterations=%d argument", metadata::GenericMetadata::GetGenericVirtualIterations());
-            Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.%s", methodFullName, help.c_str()).c_str()));
+                help = "  Consider increasing the --generic-virtual-method-iterations argument.";
+            Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
         }
     }
 

@@ -28,7 +28,6 @@ namespace InteropServices
     {
     public:
         static int32_t GetLastWin32Error();
-        static void SetLastWin32Error(uint32_t);
         static int32_t AddRefInternal(intptr_t pUnk);
         static intptr_t AllocCoTaskMem(int32_t size);
         static intptr_t AllocHGlobal(intptr_t size);

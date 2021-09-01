@@ -231,24 +231,6 @@ namespace Globalization
     {
         return vm::String::New(::get_current_locale_name().c_str());
     }
-
-    extern "C" void STDCALL InitializeUserPreferredCultureInfoInAppX(CultureInfoChangedCallback onCultureInfoChangedInAppX)
-    {
-#if IL2CPP_TARGET_WINRT
-        il2cpp_hresult_t hr = os::Locale::InitializeUserPreferredCultureInfoInAppX(onCultureInfoChangedInAppX);
-        if (IL2CPP_HR_FAILED(hr))
-            vm::Exception::Raise(hr, false);
-#endif
-    }
-
-    extern "C" void STDCALL SetUserPreferredCultureInfoInAppX(const Il2CppChar* name)
-    {
-#if IL2CPP_TARGET_WINRT
-        il2cpp_hresult_t hr = os::Locale::SetUserPreferredCultureInfoInAppX(name);
-        if (IL2CPP_HR_FAILED(hr))
-            vm::Exception::Raise(hr, false);
-#endif
-    }
 } /* namespace Globalization */
 } /* namespace System */
 } /* namespace mscorlib */

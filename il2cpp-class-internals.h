@@ -177,7 +177,6 @@ typedef struct Il2CppDefaults
     Il2CppClass* uint32_shared_enum;
     Il2CppClass* uint64_shared_enum;
     Il2CppClass* il2cpp_fully_shared_type;
-    Il2CppClass* il2cpp_fully_shared_struct_type;
 } Il2CppDefaults;
 
 extern LIBIL2CPP_CODEGEN_API Il2CppDefaults il2cpp_defaults;
@@ -358,7 +357,6 @@ typedef struct MethodInfo
     uint8_t is_inflated : 1; /* true if declaring_type is a generic instance or if method is a generic instance*/
     uint8_t wrapper_type : 1; /* always zero (MONO_WRAPPER_NONE) needed for the debugger */
     uint8_t has_full_generic_sharing_signature : 1;
-    uint8_t indirect_call_via_invokers : 1;
 } MethodInfo;
 
 typedef struct Il2CppRuntimeInterfaceOffsetPair
@@ -418,7 +416,7 @@ typedef struct Il2CppClass
 
     // Remaining fields are always valid except where noted
     Il2CppMetadataGenericContainerHandle genericContainerHandle;
-    uint32_t instance_size; // valid when size_inited is true
+    uint32_t instance_size;
     uint32_t actualSize;
     uint32_t element_size;
     int32_t native_size;
@@ -445,16 +443,15 @@ typedef struct Il2CppClass
     uint8_t packingSize;
 
     // this is critical for performance of Class::InitFromCodegen. Equals to initialized && !initializationExceptionGCHandle at all times.
-    // Use Class::PublishInitialized to update
+    // Use Class::UpdateInitializedAndNoError to update
     uint8_t initialized_and_no_error : 1;
 
     uint8_t initialized : 1;
     uint8_t enumtype : 1;
     uint8_t nullabletype : 1;
     uint8_t is_generic : 1;
-    uint8_t has_references : 1; // valid when size_inited is true
+    uint8_t has_references : 1;
     uint8_t init_pending : 1;
-    uint8_t size_init_pending : 1;
     uint8_t size_inited : 1;
     uint8_t has_finalize : 1;
     uint8_t has_cctor : 1;
@@ -485,7 +482,6 @@ typedef struct Il2CppDomain
     Il2CppAppDomain* domain;
     Il2CppAppDomainSetup* setup;
     Il2CppAppContext* default_context;
-    Il2CppObject* ephemeron_tombstone;
     const char* friendly_name;
     uint32_t domain_id;
 
@@ -544,7 +540,6 @@ typedef struct Il2CppCodeGenOptions
 {
     bool enablePrimitiveValueTypeGenericSharing;
     int maximumRuntimeGenericDepth;
-    int recursiveGenericIterations;
 } Il2CppCodeGenOptions;
 
 typedef struct Il2CppRange
