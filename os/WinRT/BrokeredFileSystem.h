@@ -1,6 +1,6 @@
 #pragma once
 
-#include "il2cpp-config.h"
+#if IL2CPP_TARGET_WINRT
 
 #include "il2cpp-string-types.h"
 #include "os/c-api/OSGlobalEnums.h"
@@ -40,3 +40,5 @@ namespace os
     };
 }
 }
+
+#endif // IL2CPP_TARGET_WINRT

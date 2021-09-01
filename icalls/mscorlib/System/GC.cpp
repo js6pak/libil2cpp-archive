@@ -3,7 +3,6 @@
 #include "il2cpp-class-internals.h"
 #include "icalls/mscorlib/System/GC.h"
 #include "gc/GarbageCollector.h"
-#include "vm/Domain.h"
 #include "vm/Exception.h"
 #include "vm/Object.h"
 #include "vm/Array.h"
@@ -48,7 +47,7 @@ namespace System
 
     Il2CppObject* GC::get_ephemeron_tombstone()
     {
-        return il2cpp::vm::Domain::GetCurrent()->ephemeron_tombstone;
+        return NULL;
     }
 
     void GC::_ReRegisterForFinalize(Il2CppObject* obj)
@@ -79,7 +78,8 @@ namespace System
 
     void GC::register_ephemeron_array(Il2CppArray* array)
     {
-        il2cpp::gc::GarbageCollector::EphemeronArrayAdd((Il2CppObject*)array);
+        // Mono only does something in this icall when SGEN is in use.  We don't have SGEN,
+        // so there is nothing to do here.
     }
 
     void GC::WaitForPendingFinalizers()

@@ -14,7 +14,6 @@
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
 #include "vm/MetadataCache.h"
-#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
@@ -1032,7 +1031,7 @@ namespace vm
             return Class::FromIl2CppType(type->data.type);
 
         // IL2CPP_TYPE_SZARRAY stores element class in klass
-        return Class::FromIl2CppType(type);
+        return MetadataCache::GetTypeInfoFromType(type);
     }
 
     const Il2CppType* Type::GetUnderlyingType(const Il2CppType *type)
@@ -1053,29 +1052,22 @@ namespace vm
         return type->type == IL2CPP_TYPE_GENERICINST;
     }
 
-    Il2CppClass* Type::GetDeclaringType(const Il2CppType* type)
+    Il2CppReflectionType* Type::GetDeclaringType(const Il2CppType* type)
     {
         Il2CppClass *typeInfo = NULL;
 
         if (type->byref)
             return NULL;
         if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
-            return MetadataCache::GetParameterDeclaringType(GetGenericParameterHandle(type));
-        return Class::GetDeclaringType(Class::FromIl2CppType(type));
-    }
-
-    const MethodInfo* Type::GetDeclaringMethod(const Il2CppType* type)
-    {
-        if (type->byref)
-            return NULL;
-
-        if (type->type == IL2CPP_TYPE_MVAR)
         {
-            const MethodInfo* methodInfo = MetadataCache::GetParameterDeclaringMethod(GetGenericParameterHandle(type));
-            return methodInfo;
+            typeInfo = MetadataCache::GetParameterDeclaringType(GetGenericParameterHandle(type));
+        }
+        else
+        {
+            typeInfo = Class::GetDeclaringType(Class::FromIl2CppType(type));
         }
 
-        return NULL;
+        return typeInfo ? Reflection::GetTypeObject(&typeInfo->byval_arg) : NULL;
     }
 
     Il2CppArray* Type::GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray)
@@ -1182,7 +1174,7 @@ namespace vm
 
         // Any generic parameter that is not constarined to be a reference type would be fully shared
         if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
-            return MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type)) != GenericParameterRestrictionReferenceType;
+            return !MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type));
 
         // If we're not a generic instance then we'll be a concrete type
         if (!IsGenericInstance(type))
@@ -1202,11 +1194,6 @@ namespace vm
         return false;
     }
 
-    bool Type::IsArray(const Il2CppType *type)
-    {
-        return type->type == IL2CPP_TYPE_SZARRAY || type->type == IL2CPP_TYPE_ARRAY;
-    }
-
     bool Type::IsEnum(const Il2CppType *type)
     {
         if (type->type != IL2CPP_TYPE_VALUETYPE)
@@ -1224,6 +1211,11 @@ namespace vm
     bool Type::IsPointerType(const Il2CppType *type)
     {
         return type->type == IL2CPP_TYPE_PTR;
+    }
+
+    bool Type::IsEmptyType(const Il2CppType *type)
+    {
+        return IsGenericInstance(type) && type->data.generic_class->type == NULL;
     }
 
     bool Type::IsSystemDBNull(const Il2CppType *type)
@@ -1267,78 +1259,44 @@ namespace vm
         return type;
     }
 
-    static void InvokeDelegateConstructor(Il2CppDelegate* delegate, Il2CppObject* target, const MethodInfo* method)
-    {
-        typedef void (*DelegateCtor)(Il2CppDelegate* delegate, Il2CppObject* target, intptr_t method, MethodInfo* hiddenMethodInfo);
-        const MethodInfo* ctor = Class::GetMethodFromName(delegate->object.klass, ".ctor", 2);
-        void* ctorArgs[2] = {target, (void*)&method};
-        ctor->invoker_method(ctor->methodPointer, ctor, delegate, ctorArgs, NULL);
-    }
-
 /**
-* Type::ConstructClosedDelegate:
+* Type::ConstructDelegate:
 * @delegate: pointer to an uninitialized delegate object
 * @target: target object
 * @addr: pointer to native code
 * @method: method
 *
-* Initialize a closed delegate and set a specific function, not the one
-* associated with method.  This is useful for pinvoke/marshaling cases
-* where addr is pointer to a marshaling helper, not the actual method
+* Initialize a delegate and set a specific method, not the one
+* associated with addr. This is useful when sharing generic code.
+* In that case addr will most probably not be associated with the
+* correct instantiation of the method.
 */
-    void Type::ConstructClosedDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
+    void Type::ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
     {
 #if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "Type::ConstructClosedDelegate should not be called with the Tiny profile.");
-#else
-        InvokeDelegateConstructor(delegate, target, method);
-        SetClosedDelegateInvokeMethod(delegate, target, addr);
-#endif
-    }
-
-    void Type::SetClosedDelegateInvokeMethod(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr)
-    {
-#if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "Type::SetClosedDelegateInvokeMethod should not be called with the Tiny profile.");
-#else
-        // For a closed delegate we set our invoke_impl to the method we want to invoke and the "this" we'll pass to the invoke_impl to the target
-        // This reduces the cost of a closed delegate call to normal virtual call
-        delegate->method_ptr = addr;
-        delegate->invoke_impl = addr;
-        delegate->invoke_impl_this = target;
-#endif
-    }
-
-/**
-* Type::ConstructDelegate:
-* @delegate: pointer to an uninitialized delegate object
-* @target: target object
-* @method: method
-*
-* Construct a delegate to a method at runtime
-*/
-    void Type::ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, const MethodInfo* method)
-    {
-#if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "Type::ConstructDelegate should not be called with the Tiny profile.");
+        IL2CPP_ASSERT(0 && "Type::ConstructDelegatee should not be called with the Tiny profile.");
 #else
         IL2CPP_ASSERT(delegate);
 
+        delegate->method_ptr = addr;
+
         if (method)
         {
+            delegate->method = method;
             bool isVirtualMethod = method->slot != kInvalidIl2CppMethodSlot && !(method->flags & METHOD_ATTRIBUTE_FINAL);
-            if (isVirtualMethod && target != NULL)
-                method = il2cpp::vm::Object::GetVirtualMethod(target, method);
+            if (isVirtualMethod && target != NULL && addr == method->virtualMethodPointer)
+            {
+                delegate->method = il2cpp::vm::Object::GetVirtualMethod(target, method);
+                delegate->method_ptr = delegate->method->virtualMethodPointer;
+            }
             else
+            {
                 delegate->method_is_virtual = isVirtualMethod;
+            }
         }
 
-        InvokeDelegateConstructor(delegate, target, method);
-
-        // If we are creating an open delegate on a value type instance method we do not want the adjuster thunk
-        // that the ctor will choose, so override it with the direct method
-        if (target == NULL && method != NULL && Class::IsValuetype(method->klass))
-            delegate->method_ptr = method->methodPointer;
+        if (target != NULL)
+            IL2CPP_OBJECT_SETREF(delegate, target, target);
 #endif
     }
 

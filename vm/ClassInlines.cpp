@@ -4,7 +4,6 @@
 #include "vm/Method.h"
 #include "vm/RCW.h"
 #include "gc/GCHandle.h"
-#include "metadata/GenericMethod.h"
 
 namespace il2cpp
 {
@@ -37,12 +36,6 @@ namespace vm
         return klass;
     }
 
-    const MethodInfo* ClassInlines::InitRgctxFromCodegenSlow(const MethodInfo* method)
-    {
-        il2cpp::metadata::GenericMethod::InflateRGCTX(method);
-        return method;
-    }
-
     NORETURN static void RaiseExceptionForNotFoundInterface(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
     {
         std::string message;
@@ -55,10 +48,12 @@ namespace vm
     {
         if (itf->generic_class != NULL)
         {
+            Il2CppMetadataGenericContainerHandle containerHandle = MetadataCache::GetGenericContainerFromGenericClass(itf->image, itf->generic_class);
+
             for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
             {
                 const Il2CppRuntimeInterfaceOffsetPair* pair = klass->interfaceOffsets + i;
-                if (Class::IsGenericClassAssignableFromVariance(itf, pair->interfaceType, klass))
+                if (Class::IsGenericClassAssignableFrom(itf, pair->interfaceType, itf->image, containerHandle))
                 {
                     IL2CPP_ASSERT(pair->offset + slot < klass->vtable_count);
                     return &klass->vtable[pair->offset + slot];

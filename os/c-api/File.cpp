@@ -181,8 +181,7 @@ extern "C"
     int32_t UnityPalDuplicateHandle(UnityPalFileHandle* source_process_handle, UnityPalFileHandle* source_handle, UnityPalFileHandle* target_process_handle,
         UnityPalFileHandle** target_handle, int access, int inherit, int options, int* error)
     {
-        auto result = il2cpp::os::File::DuplicateHandle(source_process_handle, source_handle, target_process_handle, target_handle, access, inherit, options, error);
-        return result.Get();
+        return il2cpp::os::File::DuplicateHandle(source_process_handle, source_handle, target_process_handle, target_handle, access, inherit, options, error);
     }
 
     int32_t UnityPalIsExecutable(const char* filename)

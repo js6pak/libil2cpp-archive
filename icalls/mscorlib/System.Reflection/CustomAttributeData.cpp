@@ -83,7 +83,7 @@ namespace Reflection
             il2cpp_array_setref(*ctorArgs, index, il2cpp::vm::Object::Box(il2cpp_defaults.customattribute_typed_argument_class, typedArgBuffer));
         }
 
-        void CreateNamedArgument(const il2cpp::metadata::CustomAttributeArgument arg, void* metadataObject, uint32_t index)
+        void CreateNamedArguement(const il2cpp::metadata::CustomAttributeArgument arg, void* metadataObject, uint32_t index)
         {
             int32_t typedArgSize = il2cpp::vm::Class::GetInstanceSize(il2cpp_defaults.customattribute_typed_argument_class) - sizeof(Il2CppObject);
             int32_t namedArgSize = il2cpp::vm::Class::GetInstanceSize(il2cpp_defaults.customattribute_named_argument_class) - sizeof(Il2CppObject);
@@ -102,12 +102,12 @@ namespace Reflection
 
         virtual void VisitField(const il2cpp::metadata::CustomAttributeFieldArgument& field, uint32_t index)
         {
-            CreateNamedArgument(field.arg, vm::Reflection::GetFieldObject(attrClass, const_cast<FieldInfo*>(field.field)), index);
+            CreateNamedArguement(field.arg, vm::Reflection::GetFieldObject(attrClass, const_cast<FieldInfo*>(field.field)), index);
         }
 
         virtual void VisitProperty(const il2cpp::metadata::CustomAttributePropertyArgument& prop, uint32_t index)
         {
-            CreateNamedArgument(prop.arg, vm::Reflection::GetPropertyObject(attrClass, const_cast<PropertyInfo*>(prop.prop)), index + fieldCount);
+            CreateNamedArguement(prop.arg, vm::Reflection::GetPropertyObject(attrClass, const_cast<PropertyInfo*>(prop.prop)), index + fieldCount);
         }
     };
 

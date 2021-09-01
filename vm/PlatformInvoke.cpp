@@ -454,9 +454,6 @@ namespace vm
 
     Il2CppDelegate* PlatformInvoke::MarshalFunctionPointerToDelegate(void* functionPtr, Il2CppClass* delegateType)
     {
-        if (functionPtr == NULL)
-            return NULL;
-
         if (!Class::HasParent(delegateType, il2cpp_defaults.delegate_class))
             Exception::Raise(Exception::GetArgumentException("t", "Type must derive from Delegate."));
 
@@ -466,9 +463,9 @@ namespace vm
         if (managedToNativeWrapperMethodPointer == NULL)
             Exception::Raise(Exception::GetMarshalDirectiveException(utils::StringUtils::Printf("Cannot marshal P/Invoke call through delegate of type '%s.%s'", Class::GetNamespace(delegateType), Class::GetName(delegateType)).c_str()));
 
-        const MethodInfo* invokeMethod = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
+        const MethodInfo* invokMethod = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
         Il2CppDelegate* delegate = (Il2CppDelegate*)il2cpp::vm::Object::New(delegateType);
-        Type::ConstructClosedDelegate(delegate, (Il2CppObject*)delegate, managedToNativeWrapperMethodPointer, invokeMethod);
+        Type::ConstructDelegate(delegate, (Il2CppObject*)delegate, managedToNativeWrapperMethodPointer, invokMethod);
         delegate->delegate_trampoline = functionPtr;
 
         return delegate;
