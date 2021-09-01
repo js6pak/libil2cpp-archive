@@ -116,8 +116,8 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 #define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
     __active_exceptions.push(Exception)
 
-#define IL2CPP_POP_ACTIVE_EXCEPTION(ExcType) \
-    (ExcType)__active_exceptions.pop()
+#define IL2CPP_POP_ACTIVE_EXCEPTION() \
+    __active_exceptions.pop()
 
 #define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
     (ExcType)__active_exceptions.top()
@@ -128,15 +128,9 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
         il2cpp_codegen_no_return();\
     } while (0)
 
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(ex, lastManagedFrame) \
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)ex, (RuntimeMethod*)lastManagedFrame);\
-        il2cpp_codegen_no_return();\
-    } while (0)
-
-#define IL2CPP_RETHROW_MANAGED_EXCEPTION(ex) \
-    do {\
-        il2cpp_codegen_rethrow_exception((Exception_t*)ex);\
+        il2cpp_codegen_raise_exception((Exception_t*)message, (RuntimeMethod*)lastManagedFrame);\
         il2cpp_codegen_no_return();\
     } while (0)
 
@@ -245,6 +239,16 @@ inline bool il2cpp_codegen_check_sub_overflow(int64_t left, int64_t right)
         (right < 0 && left > kIl2CppInt64Max + right);
 }
 
+inline void* il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
+{
+    return memcpy(dest, src, count);
+}
+
+inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
+{
+    memset(ptr, value, num);
+}
+
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
 #if IL2CPP_MONO_DEBUGGER
@@ -331,11 +335,6 @@ inline bool il2cpp_codegen_platform_is_freebsd()
     return false;
 }
 
-inline bool il2cpp_codegen_platform_is_uwp()
-{
-    return IL2CPP_TARGET_WINRT != 0;
-}
-
 inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
 {
     return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
@@ -353,6 +352,8 @@ inline T il2cpp_unsafe_read_unaligned(void* location)
     return result;
 }
 
+#define IL2CPP_UNSAFE_READ_UNALIGNED(TReturnType, location) il2cpp_unsafe_read_unaligned<TReturnType>(location)
+
 template<typename T>
 inline void il2cpp_unsafe_write_unaligned(void* location, T value)
 {
@@ -361,94 +362,4 @@ inline void il2cpp_unsafe_write_unaligned(void* location, T value)
 #else
     *((T*)location) = value;
 #endif
-}
-
-template<typename T>
-inline T il2cpp_unsafe_read(void* location)
-{
-    return *((T*)location);
-}
-
-template<typename T>
-inline void il2cpp_unsafe_write(void* location, T value)
-{
-    *((T*)location) = value;
-}
-
-template<typename T, typename TOffset>
-inline T* il2cpp_unsafe_add(void* source, TOffset offset)
-{
-    return reinterpret_cast<T*>(source) + offset;
-}
-
-template<typename T, typename TOffset>
-inline T* il2cpp_unsafe_add_byte_offset(void* source, TOffset offset)
-{
-    return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(source) + offset);
-}
-
-template<typename T, typename TOffset>
-inline T* il2cpp_unsafe_subtract(void* source, TOffset offset)
-{
-    return reinterpret_cast<T*>(source) - offset;
-}
-
-template<typename T, typename TOffset>
-inline T* il2cpp_unsafe_subtract_byte_offset(void* source, TOffset offset)
-{
-    return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(source) - offset);
-}
-
-template<typename T>
-inline T il2cpp_unsafe_as(void* source)
-{
-    return reinterpret_cast<T>(source);
-}
-
-template<typename T>
-inline T* il2cpp_unsafe_as_ref(void* source)
-{
-    return reinterpret_cast<T*>(source);
-}
-
-inline void* il2cpp_unsafe_as_pointer(void* source)
-{
-    return source;
-}
-
-template<typename T>
-inline T* il2cpp_unsafe_null_ref()
-{
-    return reinterpret_cast<T*>(NULL);
-}
-
-inline bool il2cpp_unsafe_are_same(void* left, void* right)
-{
-    return left == right;
-}
-
-inline bool il2cpp_unsafe_is_addr_gt(void* left, void* right)
-{
-    return left > right;
-}
-
-inline bool il2cpp_unsafe_is_addr_lt(void* left, void* right)
-{
-    return left < right;
-}
-
-inline bool il2cpp_unsafe_is_null_ref(void* source)
-{
-    return source == NULL;
-}
-
-template<typename T>
-inline int32_t il2cpp_unsafe_sizeof()
-{
-    return sizeof(T);
-}
-
-inline intptr_t il2cpp_unsafe_byte_offset(void* origin, void* target)
-{
-    return reinterpret_cast<uint8_t*>(target) - reinterpret_cast<uint8_t*>(origin);
 }

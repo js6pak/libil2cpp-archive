@@ -24,38 +24,28 @@ namespace os
         ReaderWriterLockImpl* m_Impl;
     };
 
-    struct ReaderWriterAutoSharedLock : public il2cpp::utils::NonCopyable
+    struct ReaderWriterAutoLock : public il2cpp::utils::NonCopyable
     {
-        ReaderWriterAutoSharedLock(ReaderWriterLock* lock)
-            : m_Lock(lock)
+        ReaderWriterAutoLock(ReaderWriterLock* lock, bool exclusive = false)
+            : m_Lock(lock), m_Exclusive(exclusive)
         {
-            m_Lock->LockShared();
+            if (m_Exclusive)
+                m_Lock->LockExclusive();
+            else
+                m_Lock->LockShared();
         }
 
-        ~ReaderWriterAutoSharedLock()
+        ~ReaderWriterAutoLock()
         {
-            m_Lock->ReleaseShared();
+            if (m_Exclusive)
+                m_Lock->ReleaseExclusive();
+            else
+                m_Lock->ReleaseShared();
         }
 
     private:
         ReaderWriterLock* m_Lock;
-    };
-
-    struct ReaderWriterAutoExclusiveLock : public il2cpp::utils::NonCopyable
-    {
-        ReaderWriterAutoExclusiveLock(ReaderWriterLock* lock)
-            : m_Lock(lock)
-        {
-            m_Lock->LockExclusive();
-        }
-
-        ~ReaderWriterAutoExclusiveLock()
-        {
-            m_Lock->ReleaseExclusive();
-        }
-
-    private:
-        ReaderWriterLock* m_Lock;
+        bool m_Exclusive;
     };
 }
 }
