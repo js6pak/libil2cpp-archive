@@ -322,17 +322,25 @@ namespace vm
 
     const MethodInfo* Method::GetAmbiguousMethodInfo()
     {
+        // GenericMethod::GetMethod relies on ambiguousMethodInfo being a singleton
         return &ambiguousMethodInfo;
     }
 
     bool Method::IsAmbiguousMethodInfo(const MethodInfo* method)
     {
-        return method == &ambiguousMethodInfo;
+        return method == &ambiguousMethodInfo || metadata::GenericMethod::IsGenericAmbiguousMethodInfo(method);
     }
 
     bool Method::HasFullGenericSharingSignature(const MethodInfo* method)
     {
         return method->has_full_generic_sharing_signature;
+    }
+
+    Il2CppMethodPointer Method::GetVirtualCallMethodPointer(const MethodInfo* method)
+    {
+        if (method->is_inflated)
+            return il2cpp::metadata::GenericMethod::GetVirtualCallMethodPointer(method);
+        return method->virtualMethodPointer;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

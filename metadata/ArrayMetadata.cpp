@@ -5,6 +5,7 @@
 #include "vm/GenericClass.h"
 #include "vm/Image.h"
 #include "vm/MetadataLock.h"
+#include "vm/Method.h"
 #include "vm/Type.h"
 #include "metadata/ArrayMetadata.h"
 #include "metadata/GenericMetadata.h"
@@ -269,28 +270,19 @@ namespace metadata
 
     static MethodInfo* ConstructGenericArrayMethod(const GenericArrayMethod& genericArrayMethod, Il2CppClass* klass, Il2CppGenericContext* context)
     {
-        MethodInfo* inflatedMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
-        inflatedMethod->name = genericArrayMethod.name;
-        inflatedMethod->klass = klass;
-
-        const MethodInfo* methodToCopyDataFrom = genericArrayMethod.method;
+        MethodInfo* inflatedMethod;
         if (genericArrayMethod.method->is_generic)
         {
-            methodToCopyDataFrom = GenericMethod::GetMethod(genericArrayMethod.method, context->class_inst, context->method_inst);
-
-            inflatedMethod->is_inflated = true;
-            inflatedMethod->genericMethod = methodToCopyDataFrom->genericMethod;
-            inflatedMethod->rgctx_data = methodToCopyDataFrom->rgctx_data;
+            inflatedMethod = GenericMethod::AllocateNewMethodInfo(genericArrayMethod.method, context->class_inst, context->method_inst);
+        }
+        else
+        {
+            inflatedMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
+            memcpy(inflatedMethod, genericArrayMethod.method, sizeof(MethodInfo));
         }
 
-        inflatedMethod->slot = methodToCopyDataFrom->slot;
-        inflatedMethod->parameters_count = methodToCopyDataFrom->parameters_count;
-        inflatedMethod->parameters = methodToCopyDataFrom->parameters;
-        inflatedMethod->return_type = methodToCopyDataFrom->return_type;
-
-        inflatedMethod->methodPointer = methodToCopyDataFrom->methodPointer;
-        inflatedMethod->virtualMethodPointer = methodToCopyDataFrom->virtualMethodPointer;
-        inflatedMethod->invoker_method = methodToCopyDataFrom->invoker_method;
+        inflatedMethod->name = genericArrayMethod.name;
+        inflatedMethod->klass = klass;
 
         return inflatedMethod;
     }
@@ -318,10 +310,7 @@ namespace metadata
 
                 size_t vtableIndex = klass->interfaceOffsets[i].offset + iter->interfaceMethodDefinition->slot;
                 klass->vtable[vtableIndex].method = arrayMethod;
-                if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
-                    klass->vtable[vtableIndex].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(arrayMethod);
-                else
-                    klass->vtable[vtableIndex].methodPtr = arrayMethod->virtualMethodPointer;
+                klass->vtable[vtableIndex].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(arrayMethod);
             }
         }
     }
@@ -537,7 +526,6 @@ namespace metadata
         klass->rank = rank;
 
         klass->instance_size = Class::GetInstanceSize(arrayClass);
-        klass->size_inited = true;
         klass->vtable_count = static_cast<uint16_t>(slots);
 
         // need this before we access the size or has_references
@@ -547,6 +535,8 @@ namespace metadata
         klass->native_size = klass->thread_static_fields_offset = -1;
 
         klass->has_references = Type::IsReference(&elementClass->byval_arg) || elementClass->has_references;
+
+        klass->size_inited = true; // set only after instance_size and has_references are set
 
         klass->element_class = elementClass;
 

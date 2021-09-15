@@ -168,7 +168,7 @@ namespace vm
         static const MethodInfo* GetMethodInfoFromSequencePoint(const Il2CppImage* image, const Il2CppSequencePoint* cp);
         static Il2CppClass* GetTypeInfoFromTypeSourcePair(const Il2CppImage* image, const Il2CppTypeSourceFilePair* pair);
 
-        // The following methods still expose indexes - but only need to be public for debugger support (in il2cpp-stubs.cpp & mono/mini/debugger-agent.c)
+        // The following methods still expose indexes - but only need to be public for debugger support (in il2cpp-mono-api.cpp & mono/mini/debugger-agent.c)
         // Called from il2cpp_get_type_from_index
         static const Il2CppType* GetIl2CppTypeFromIndex(const Il2CppImage* image, TypeIndex index);
         // Called from il2cpp_get_class_from_index

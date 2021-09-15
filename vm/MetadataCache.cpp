@@ -156,6 +156,7 @@ bool il2cpp::vm::MetadataCache::Initialize()
 
     il2cpp::metadata::GenericMetadata::RegisterGenericClasses(s_MetadataCache_Il2CppMetadataRegistration->genericClasses, s_MetadataCache_Il2CppMetadataRegistration->genericClassesCount);
     il2cpp::metadata::GenericMetadata::SetMaximumRuntimeGenericDepth(s_Il2CppCodeGenOptions->maximumRuntimeGenericDepth);
+    il2cpp::metadata::GenericMetadata::SetGenericVirtualIterations(s_Il2CppCodeGenOptions->recursiveGenericIterations);
 
     s_GenericInstSet.resize(s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount);
     for (int32_t i = 0; i < s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount; i++)
