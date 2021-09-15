@@ -14,6 +14,7 @@
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
 #include "vm/MetadataCache.h"
+#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
@@ -1213,11 +1214,6 @@ namespace vm
         return type->type == IL2CPP_TYPE_PTR;
     }
 
-    bool Type::IsEmptyType(const Il2CppType *type)
-    {
-        return IsGenericInstance(type) && type->data.generic_class->type == NULL;
-    }
-
     bool Type::IsSystemDBNull(const Il2CppType *type)
     {
         Il2CppClass* klass = GetClass(type);
@@ -1284,10 +1280,10 @@ namespace vm
         {
             delegate->method = method;
             bool isVirtualMethod = method->slot != kInvalidIl2CppMethodSlot && !(method->flags & METHOD_ATTRIBUTE_FINAL);
-            if (isVirtualMethod && target != NULL && addr == method->virtualMethodPointer)
+            if (isVirtualMethod && target != NULL && addr == il2cpp::vm::Method::GetVirtualCallMethodPointer(method))
             {
                 delegate->method = il2cpp::vm::Object::GetVirtualMethod(target, method);
-                delegate->method_ptr = delegate->method->virtualMethodPointer;
+                delegate->method_ptr = il2cpp::vm::Method::GetVirtualCallMethodPointer(delegate->method);
             }
             else
             {

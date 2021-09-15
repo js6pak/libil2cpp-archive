@@ -29,6 +29,7 @@ namespace vm
         static NORETURN void RaiseNullReferenceException();
         static NORETURN void RaiseNullReferenceException(const utils::StringView<Il2CppChar>& msg);
         static NORETURN void RaiseDivideByZeroException();
+        static NORETURN void RaiseIndexOutOfRangeException();
         static NORETURN void RaiseOverflowException();
         static NORETURN void RaiseArgumentOutOfRangeException(const char* msg);
         static NORETURN void Raise(il2cpp_hresult_t hresult, bool defaultToCOMException);
