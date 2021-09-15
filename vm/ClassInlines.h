@@ -24,8 +24,16 @@ namespace vm
             return InitFromCodegenSlow(klass);
         }
 
+        static IL2CPP_FORCE_INLINE const MethodInfo* InitRgcxFromCodegen(const MethodInfo *method)
+        {
+            if (method->rgctx_data)
+                return method;
+            return InitRgctxFromCodegenSlow(method);
+        }
+
         static IL2CPP_NO_INLINE Il2CppClass* InitFromCodegenSlow(Il2CppClass *klass);
         static IL2CPP_NO_INLINE Il2CppClass* InitFromCodegenSlow(Il2CppClass *klass, bool throwOnError);
+        static IL2CPP_NO_INLINE const MethodInfo* InitRgctxFromCodegenSlow(const MethodInfo* method);
 
         //internal
         static IL2CPP_FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
@@ -50,7 +58,7 @@ namespace vm
 
         static IL2CPP_FORCE_INLINE const VirtualInvokeData* GetInterfaceInvokeDataFromVTable(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)
         {
-            IL2CPP_ASSERT(klass->initialized);
+            IL2CPP_ASSERT(klass->is_vtable_initialized);
             IL2CPP_ASSERT(slot < itf->method_count);
 
             for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
