@@ -30,7 +30,7 @@ namespace System
         //}
 
         Il2CppObject* delegate = il2cpp::vm::Object::New(delegate_class);
-        Il2CppMethodPointer func = target != NULL ? method->virtualMethodPointer : method->methodPointer;
+        Il2CppMethodPointer func = target == NULL && il2cpp::vm::Class::IsValuetype(method->klass) ? method->methodPointer : il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
 
         il2cpp::vm::Type::ConstructDelegate((Il2CppDelegate*)delegate, target, func, method);
 

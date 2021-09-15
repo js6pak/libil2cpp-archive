@@ -137,6 +137,8 @@ DO_API(void, il2cpp_gc_set_external_wbarrier_tracker, (void(*func)(void**)));
 DO_API(void, il2cpp_gc_foreach_heap, (void(*func)(void* data, void* userData), void* userData));
 DO_API(void, il2cpp_stop_gc_world, ());
 DO_API(void, il2cpp_start_gc_world, ());
+DO_API(void*, il2cpp_gc_alloc_fixed, (size_t size));
+DO_API(void, il2cpp_gc_free_fixed, (void* address));
 // gchandle
 DO_API(uint32_t, il2cpp_gchandle_new, (Il2CppObject * obj, bool pinned));
 DO_API(uint32_t, il2cpp_gchandle_new_weakref, (Il2CppObject * obj, bool track_resurrection));

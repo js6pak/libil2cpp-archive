@@ -31,8 +31,6 @@ namespace metadata
         static const Il2CppGenericInst* GetInflatedGenericIntance(const Il2CppGenericInst* inst, const Il2CppGenericContext* context, bool inflatMethodVars);
 
         static Il2CppRGCTXData* InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context, const il2cpp::os::FastAutoLock& lock);
-
-        // temporary while we generate generics
         static void RegisterGenericClasses(Il2CppGenericClass* const* genericClasses, int32_t genericClassesCount);
 
         static const Il2CppType* InflateIfNeeded(const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars);
@@ -42,6 +40,9 @@ namespace metadata
 
         static int GetMaximumRuntimeGenericDepth();
         static void SetMaximumRuntimeGenericDepth(int depth);
+        static int GetGenericVirtualIterations();
+        static void SetGenericVirtualIterations(int iterations);
+
 
         static void Clear();
     };
