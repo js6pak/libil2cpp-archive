@@ -3,7 +3,7 @@
 
 #if IL2CPP_USES_POSIX_CLASS_LIBRARY_PAL
 
-#include "os/ClassLibraryPosixPAL/pal_mirror_structs.h"
+#include "os/ClassLibraryPAL/pal_mirror_structs.h"
 #include "os/File.h"
 #include "os/Posix/FileHandle.h"
 
