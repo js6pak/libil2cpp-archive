@@ -51,13 +51,12 @@ namespace vm
         static void AlwaysRaiseExecutionEngineException(const MethodInfo* method);
         static void AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method);
 
-        static inline void RaiseExecutionEngineExceptionIfMethodIsNotFound(const MethodInfo* method)
+        static inline bool IsFullGenericSharingEnabled()
         {
-            if (method->virtualMethodPointer == NULL)
-                AlwaysRaiseExecutionEngineException(method);
+            return il2cpp_defaults.il2cpp_fully_shared_type != NULL;
         }
 
-        static inline bool IsFullGenericSharingEnabled()
+        static inline bool IsLazyRGCTXInflationEnabled()
         {
             return il2cpp_defaults.il2cpp_fully_shared_type != NULL;
         }
