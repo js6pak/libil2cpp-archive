@@ -152,7 +152,8 @@ ThreadPool::ThreadPool() :
     limit_io_min(0),
     limit_io_max(0),
     cpu_usage(0),
-    suspended(false)
+    suspended(false),
+    parked_threads_cond(active_threads_lock)
 {
     counters.as_int64_t = 0;
     cpu_usage_state = cpu_info_create();
@@ -243,16 +244,16 @@ static void cleanup (void)
 
 	std::vector<Il2CppInternalThread*> working_threads;
 
-	g_ThreadPool->active_threads_lock.Lock();
+	g_ThreadPool->active_threads_lock.Acquire();
 	working_threads = g_ThreadPool->working_threads;
-	g_ThreadPool->active_threads_lock.Unlock();
+	g_ThreadPool->active_threads_lock.Release();
 
 	/* stop all threadpool->working_threads */
 	for (i = 0; i < working_threads.size(); ++i)
 		worker_kill (working_threads[i]);
 
 	/* unpark all g_ThreadPool->parked_threads */
-	g_ThreadPool->parked_threads_cond.Broadcast();
+	g_ThreadPool->parked_threads_cond.NotifyAll();
 }
 
 bool threadpool_ms_enqueue_work_item (Il2CppDomain *domain, Il2CppObject *work_item)
@@ -306,13 +307,16 @@ static ThreadPoolDomain* domain_get(Il2CppDomain *domain, bool create)
 
 bool worker_try_unpark()
 {
-	il2cpp::os::FastAutoLockOld lock(&g_ThreadPool->active_threads_lock);
+	bool worker_unparked = true;
 
-	if (g_ThreadPool->parked_threads_count == 0)
-		return false;
-
-	g_ThreadPool->parked_threads_cond.Signal();
-	return true;
+	g_ThreadPool->active_threads_lock.AcquireScoped([&worker_unparked] {
+		if (g_ThreadPool->parked_threads_count == 0)
+			worker_unparked = false;
+		else
+			g_ThreadPool->parked_threads_cond.Notify(1);
+	});
+	
+	return worker_unparked;
 }
 
 static bool worker_request (Il2CppDomain *domain)

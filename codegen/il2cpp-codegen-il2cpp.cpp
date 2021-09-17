@@ -8,6 +8,7 @@
 #if !RUNTIME_TINY
 
 #include "os/Atomic.h"
+#include "metadata/GenericMethod.h"
 #include "vm/Array.h"
 #include "vm/CCW.h"
 #include "vm/COM.h"
@@ -211,6 +212,11 @@ NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method
     il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
 }
 
+Il2CppMethodPointer il2cpp_codegen_get_virtual_call_method_pointer(const RuntimeMethod* method)
+{
+    return il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
+}
+
 void il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod, VirtualInvokeData* invokeData)
 {
     il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, inflatedMethod, invokeData);
@@ -229,11 +235,6 @@ void il2cpp_codegen_raise_execution_engine_exception(const RuntimeMethod* method
 void il2cpp_codegen_raise_execution_engine_exception_missing_virtual(const RuntimeMethod* method)
 {
     il2cpp::vm::Runtime::AlwaysRaiseExecutionEngineExceptionOnVirtualCall(method);
-}
-
-void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method)
-{
-    il2cpp::vm::Runtime::RaiseExecutionEngineExceptionIfMethodIsNotFound(method);
 }
 
 RuntimeObject* IsInst(RuntimeObject *obj, RuntimeClass* targetType)
@@ -362,6 +363,11 @@ NORETURN void il2cpp_codegen_raise_null_reference_exception()
 NORETURN void il2cpp_codegen_raise_divide_by_zero_exception()
 {
     il2cpp::vm::Exception::RaiseDivideByZeroException();
+}
+
+NORETURN void il2cpp_codegen_raise_index_out_of_range_exception()
+{
+    il2cpp::vm::Exception::RaiseIndexOutOfRangeException();
 }
 
 Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)
@@ -899,7 +905,7 @@ void il2cpp_codegen_runtime_constrained_call(RuntimeClass* type, const RuntimeMe
         RuntimeObject* refObj = *(RuntimeObject**)objBuffer;
         NullCheck(refObj);
         const MethodInfo* virtualMethod = il2cpp::vm::Object::GetVirtualMethod(refObj, constrainedMethod);
-        virtualMethod->invoker_method(virtualMethod->methodPointer, virtualMethod, refObj, args, retVal);
+        virtualMethod->invoker_method(virtualMethod->virtualMethodPointer, virtualMethod, refObj, args, retVal);
     }
     // For value types, the constrained RGCTX does our lookup for us
     else if (type == constrainedMethod->klass)
