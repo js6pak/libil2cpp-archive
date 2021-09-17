@@ -2,6 +2,7 @@
 #include "os/Mutex.h"
 #include "os/Thread.h"
 #include "os/ThreadLocalValue.h"
+#include "os/Time.h"
 #include "os/Semaphore.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
@@ -239,7 +240,7 @@ namespace vm
         return &(*s_AttachedThreads)[0];
     }
 
-    static void STDCALL TerminateBackgroundThread(void* context)
+    static void STDCALL TerminateThread(void* context)
     {
         // We throw a dummy exception to make sure things clean up properly
         // and we don't leave any locks behind (such as global locks in the allocator which
@@ -257,7 +258,9 @@ namespace vm
 #endif
     }
 
-    void Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads()
+    // This function requests that all threads exit
+    // If a thread is in a non-alertable wait it may not have exited when this method exits
+    void Thread::AbortAllThreads()
     {
 #if IL2CPP_SUPPORT_THREADS
         Il2CppThread* gcFinalizerThread = NULL;
@@ -274,8 +277,7 @@ namespace vm
         gc::GarbageCollector::SetWriteBarrier((void**)attachedThreadsCopy.data(), sizeof(Il2CppThread*) * attachedThreadsCopy.size());
         s_ThreadMutex.Release();
 
-        std::vector<os::Thread*> backgroundThreads;
-        std::vector<os::Thread*> foregroundThreads;
+        std::vector<os::Thread*> activeThreads;
 
         // Kill all threads but the finalizer and current one. We temporarily flush out
         // the entire list and then just put the two threads back.
@@ -291,16 +293,9 @@ namespace vm
             }
             else if (thread != currentThread && !IsDebuggerThread(osThread))
             {
-                // If it's a background thread, request it to kill itself.
-                if (GetState(thread) & kThreadStateBackground)
-                {
-                    ////TODO: use Thread.Abort() instead
-                    osThread->QueueUserAPC(TerminateBackgroundThread, NULL);
-
-                    backgroundThreads.push_back(osThread);
-                }
-                else
-                    foregroundThreads.push_back(osThread);
+                ////TODO: use Thread.Abort() instead
+                osThread->QueueUserAPC(TerminateThread, NULL);
+                activeThreads.push_back(osThread);
             }
 
             attachedThreadsCopy.pop_back();
@@ -313,23 +308,18 @@ namespace vm
         ////FIXME: While we don't have stable thread abortion in place yet, work around problems in
         ////    the current implementation by repeatedly requesting threads to terminate. This works around
         ////    race condition to some extent.
-        while (backgroundThreads.size())
+        while (activeThreads.size())
         {
-            os::Thread* osThread = backgroundThreads.back();
+            os::Thread* osThread = activeThreads.back();
 
             // Wait for the thread.
             if (osThread->Join(10) == kWaitStatusSuccess)
-                backgroundThreads.pop_back();
+                activeThreads.pop_back();
             else
             {
                 ////TODO: use Thread.Abort() instead
-                osThread->QueueUserAPC(TerminateBackgroundThread, NULL);
+                osThread->QueueUserAPC(TerminateThread, NULL);
             }
-        }
-
-        for (unsigned i = 0; i < foregroundThreads.size(); ++i)
-        {
-            foregroundThreads[i]->Join();
         }
 
 
@@ -488,7 +478,7 @@ namespace vm
     {
         AUTO_LOCK_THREADS();
         if (s_BlockNewThreads)
-            TerminateBackgroundThread(NULL);
+            TerminateThread(NULL);
         else
         {
             s_AttachedThreads->push_back(thread);
@@ -787,7 +777,7 @@ namespace vm
             if (GetState(thread) & kThreadStateBackground)
             {
                 ////TODO: use Thread.Abort() instead
-                osThread->QueueUserAPC(TerminateBackgroundThread, NULL);
+                osThread->QueueUserAPC(TerminateThread, NULL);
             }
 
             // Wait for the thread.

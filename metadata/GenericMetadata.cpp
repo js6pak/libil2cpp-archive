@@ -4,6 +4,7 @@
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
 #include "vm/Image.h"
+#include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "metadata/GenericMetadata.h"
 #include "metadata/GenericMethod.h"
@@ -217,7 +218,7 @@ namespace metadata
         // As we do for code generation, let's cut this off at an arbitrary level. If something tries to execute code at this
         // level, a crash will happen. We'll assume that this code won't actually be executed though.
         int maximumRuntimeGenericDepth = GetMaximumRuntimeGenericDepth();
-        if (RecursiveGenericDepthFor(classInst) > maximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > maximumRuntimeGenericDepth)
+        if (!il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled() && (RecursiveGenericDepthFor(classInst) > maximumRuntimeGenericDepth || RecursiveGenericDepthFor(methodInst) > maximumRuntimeGenericDepth))
             return NULL;
 
         return MetadataCache::GetGenericMethod(genericMethod->methodDefinition, classInst, methodInst);
@@ -328,6 +329,7 @@ namespace metadata
     }
 
     static int s_MaximumRuntimeGenericDepth;
+    static int s_GenericVirtualIterations;
 
     int GenericMetadata::GetMaximumRuntimeGenericDepth()
     {
@@ -337,6 +339,16 @@ namespace metadata
     void GenericMetadata::SetMaximumRuntimeGenericDepth(int depth)
     {
         s_MaximumRuntimeGenericDepth = depth;
+    }
+
+    int GenericMetadata::GetGenericVirtualIterations()
+    {
+        return s_GenericVirtualIterations;
+    }
+
+    void GenericMetadata::SetGenericVirtualIterations(int iterations)
+    {
+        s_GenericVirtualIterations = iterations;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

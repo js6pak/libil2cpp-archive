@@ -217,7 +217,7 @@ namespace vm
             const MethodInfo* itfMethod = ClassInlines::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, method->slot).method;
             if (Method::IsGenericInstance(method))
             {
-                if (itfMethod->virtualMethodPointer)
+                if (itfMethod->methodPointer)
                     return itfMethod;
 
                 return il2cpp::metadata::GenericMethod::GetMethod(itfMethod, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
@@ -230,7 +230,7 @@ namespace vm
 
         if (Method::IsGenericInstance(method))
         {
-            if (method->virtualMethodPointer)
+            if (method->methodPointer)
                 return method;
 
             return il2cpp::metadata::GenericMethod::GetMethod(obj->klass->vtable[method->slot].method, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);

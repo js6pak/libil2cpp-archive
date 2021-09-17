@@ -417,9 +417,9 @@ namespace vm
 
         threadpool_ms_cleanup();
 
-        // Foreground threads will make us wait here. Background threads
-        // will get terminated abruptly.
-        Thread::KillAllBackgroundThreadsAndWaitForForegroundThreads();
+        // Tries to abort all threads
+        // Threads at alertable waits may not have existing when this return
+        Thread::AbortAllThreads();
 
         os::Socket::Cleanup();
         String::CleanupEmptyString();
@@ -1017,7 +1017,7 @@ namespace vm
 
     void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod, const MethodInfo* inflatedMethod)
     {
-        if (method->virtualMethodPointer == NULL)
+        if (method->methodPointer == NULL)
         {
             if (metadata::GenericMethod::IsGenericAmbiguousMethodInfo(method))
             {
@@ -1055,10 +1055,10 @@ namespace vm
         }
         else
         {
-            const char* help = "";
+            std::string help = "";
             if (virtualCall && (method->flags & METHOD_ATTRIBUTE_VIRTUAL) && method->is_inflated)
-                help = "  Consider increasing the --generic-virtual-method-iterations argument.";
-            Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.", methodFullName).c_str()));
+                help = utils::StringUtils::Printf("  Consider increasing the --generic-virtual-method-iterations=%d argument", metadata::GenericMetadata::GetGenericVirtualIterations());
+            Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Attempting to call method '%s' for which no ahead of time (AOT) code was generated.%s", methodFullName, help.c_str()).c_str()));
         }
     }
 
