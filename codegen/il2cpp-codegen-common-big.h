@@ -335,6 +335,11 @@ inline bool il2cpp_codegen_platform_is_freebsd()
     return false;
 }
 
+inline bool il2cpp_codegen_platform_is_uwp()
+{
+    return IL2CPP_TARGET_WINRT != 0;
+}
+
 inline bool il2cpp_codegen_platform_disable_libc_pinvoke()
 {
     return IL2CPP_PLATFORM_DISABLE_LIBC_PINVOKE;
