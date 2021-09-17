@@ -4,6 +4,7 @@
 #include "vm/Method.h"
 #include "vm/RCW.h"
 #include "gc/GCHandle.h"
+#include "metadata/GenericMethod.h"
 
 namespace il2cpp
 {
@@ -34,6 +35,12 @@ namespace vm
             return NULL;
 
         return klass;
+    }
+
+    const MethodInfo* ClassInlines::InitRgctxFromCodegenSlow(const MethodInfo* method)
+    {
+        il2cpp::metadata::GenericMethod::InflateRGCTX(method);
+        return method;
     }
 
     NORETURN static void RaiseExceptionForNotFoundInterface(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)

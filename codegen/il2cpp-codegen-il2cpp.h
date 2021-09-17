@@ -144,6 +144,8 @@ NORETURN void il2cpp_codegen_raise_null_reference_exception();
 
 NORETURN void il2cpp_codegen_raise_divide_by_zero_exception();
 
+NORETURN void il2cpp_codegen_raise_index_out_of_range_exception();
+
 Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg);
 
 Exception_t* il2cpp_codegen_get_argument_null_exception(const char* param);
@@ -326,6 +328,11 @@ inline bool il2cpp_codegen_object_is_of_sealed_type(RuntimeObject* obj)
 
 bool il2cpp_codegen_method_is_generic_instance(RuntimeMethod* method);
 
+inline bool il2cpp_codegen_call_method_via_invoker(const RuntimeMethod* method)
+{
+    return method->indirect_call_via_invokers;
+}
+
 RuntimeClass* il2cpp_codegen_method_get_declaring_type(RuntimeMethod* method);
 
 bool il2cpp_codegen_method_is_interface_method(RuntimeMethod* method);
@@ -449,7 +456,7 @@ RuntimeArray* GenArrayNew(RuntimeClass* arrayType, il2cpp_array_size_t* dimensio
 // Negative indices will map to a unsigned number greater than or equal to 2^31 which is larger than allowed for a valid array.
 #define IL2CPP_ARRAY_BOUNDS_CHECK(index, length) \
     do { \
-        if (((uint32_t)(index)) >= ((uint32_t)length)) il2cpp_codegen_raise_exception (il2cpp_codegen_get_index_out_of_range_exception()); \
+        if (((uint32_t)(index)) >= ((uint32_t)length)) il2cpp_codegen_raise_index_out_of_range_exception(); \
     } while (0)
 
 bool il2cpp_codegen_class_is_assignable_from(RuntimeClass *klass, RuntimeClass *oklass);
@@ -662,6 +669,17 @@ inline const MethodInfo* il2cpp_rgctx_method(const Il2CppRGCTXData* rgctxVar, in
 inline FieldInfo* il2cpp_rgctx_field(RuntimeClass* klass, int32_t index)
 {
     return klass->fields + index;
+}
+
+inline bool il2cpp_rgctx_is_initialized(const RuntimeMethod* method)
+{
+    IL2CPP_ASSERT(method->is_inflated);
+    return method->rgctx_data != NULL;
+}
+
+inline void il2cpp_rgctx_method_init(const RuntimeMethod* method)
+{
+    il2cpp::vm::ClassInlines::InitRgcxFromCodegen(method);
 }
 
 inline uintptr_t il2cpp_array_calc_byte_offset(RuntimeArray* runtimeArray, il2cpp_array_size_t index)
@@ -907,6 +925,8 @@ inline Il2CppMethodPointer il2cpp_codegen_get_direct_method_pointer(const Runtim
     return method->methodPointer;
 }
 
+Il2CppMethodPointer il2cpp_codegen_get_virtual_call_method_pointer(const RuntimeMethod* method);
+
 inline const RuntimeType* il2cpp_codegen_method_return_type(const RuntimeMethod* method)
 {
     return method->return_type;
@@ -1084,3 +1104,10 @@ bool il2cpp_codegen_type_is_pointer(Type_t* t);
 NORETURN void il2cpp_codegen_raise_exception(const char* message);
 
 #endif
+
+template<typename T>
+inline T* il2cpp_span_get_item(T* refPtrValue, int32_t index, int32_t length)
+{
+    IL2CPP_ARRAY_BOUNDS_CHECK(index, length);
+    return &refPtrValue[index];
+}

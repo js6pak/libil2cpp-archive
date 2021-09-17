@@ -1111,13 +1111,30 @@ namespace System
                 const MethodInfo* targetMethod = invokeDataStart[i].method;
 
                 if (vm::Method::IsAmbiguousMethodInfo(targetMethod))
+                {
+                    // Method is an ambibous default interface method (more than one DIM matched)
                     member = NULL;
-                else if (targetMethod->flags & METHOD_ATTRIBUTE_ABSTRACT)
-                    member = NULL;
+                }
                 else if (vm::Class::IsInterface(targetMethod->klass))
-                    member = il2cpp_method_get_object(targetMethod, targetMethod->klass);
+                {
+                    // We found a default inteface method
+
+                    if (targetMethod->flags & METHOD_ATTRIBUTE_ABSTRACT)
+                    {
+                        // The method was re-abstracted
+                        member = NULL;
+                    }
+                    else
+                    {
+                        // Normal DIM case
+                        member = il2cpp_method_get_object(targetMethod, targetMethod->klass);
+                    }
+                }
                 else
+                {
+                    // Normal interface implementation
                     member = il2cpp_method_get_object(targetMethod, klass);
+                }
                 il2cpp_array_setref(*targets, virtualMethodIndex, member);
                 virtualMethodIndex++;
             }
