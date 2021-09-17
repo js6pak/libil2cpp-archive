@@ -137,6 +137,11 @@ namespace vm
         Raise(GetDivideByZeroException());
     }
 
+    NORETURN void Exception::RaiseIndexOutOfRangeException()
+    {
+        Raise(GetIndexOutOfRangeException());
+    }
+
     NORETURN void Exception::RaiseOverflowException()
     {
         Raise(GetOverflowException());

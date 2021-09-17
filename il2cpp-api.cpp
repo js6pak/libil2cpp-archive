@@ -761,6 +761,16 @@ void il2cpp_start_gc_world()
     il2cpp::gc::GarbageCollector::StartWorld();
 }
 
+void* il2cpp_gc_alloc_fixed(size_t size)
+{
+    return il2cpp::gc::GarbageCollector::AllocateFixed(size, NULL);
+}
+
+void il2cpp_gc_free_fixed(void* address)
+{
+    il2cpp::gc::GarbageCollector::FreeFixed(address);
+}
+
 // gchandle
 
 uint32_t il2cpp_gchandle_new(Il2CppObject *obj, bool pinned)

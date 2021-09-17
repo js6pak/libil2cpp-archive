@@ -86,6 +86,11 @@ namespace utils
     static bool s_IsDebuggerInitialized = false;
     static std::string s_AgentOptions;
 
+    static os::Mutex s_Il2CppMonoLoaderLock(false);
+    static uint64_t s_Il2CppMonoLoaderLockThreadId = 0;
+
+    static Il2CppMonoInterpCallbacks s_InterpCallbacks;
+
     typedef dynamic_array<Il2CppSequencePoint*> SequencePointList;
     typedef Il2CppHashMap<const MethodInfo*, SequencePointList*, il2cpp::utils::PointerHash<MethodInfo> > MethodToSequencePointsMap;
     static MethodToSequencePointsMap s_methodToSequencePoints;
@@ -104,6 +109,27 @@ namespace utils
 
     static MethodToSequencePointsMap::const_iterator GetMethodSequencePointIterator(const MethodInfo *method);
 
+    static void* FrameGetArg(Il2CppSequencePointExecutionContext* frame, int pos)
+    {
+        return frame->params[pos];
+    }
+
+    static void* FrameGetLocal(Il2CppSequencePointExecutionContext* frame, int pos)
+    {
+        return frame->locals[pos];
+    }
+
+    static void* FrameGetThis(Il2CppSequencePointExecutionContext* frame)
+    {
+        return *frame->thisArg;
+    }
+
+    static void InitializeInterpCallbacks()
+    {
+        s_InterpCallbacks.frame_get_arg = FrameGetArg;
+        s_InterpCallbacks.frame_get_local = FrameGetLocal;
+        s_InterpCallbacks.frame_get_this = FrameGetThis;
+    }
 
     void Debugger::RegisterMetadata(const Il2CppDebuggerMetadataRegistration *data)
     {
@@ -126,6 +152,7 @@ namespace utils
     static void InitializeMonoSoftDebugger(const char* options)
     {
 #if defined(RUNTIME_IL2CPP)
+        InitializeInterpCallbacks();
 
         os::SocketBridge::WaitForInitialization();
 
@@ -748,6 +775,28 @@ namespace utils
                 stackFrames->push_back(frameInfo);
             }
         }
+    }
+
+    void Debugger::AcquireLoaderLock()
+    {
+        s_Il2CppMonoLoaderLock.Lock();
+        s_Il2CppMonoLoaderLockThreadId = os::Thread::CurrentThreadId();
+    }
+
+    void Debugger::ReleaseLoaderLock()
+    {
+        s_Il2CppMonoLoaderLockThreadId = 0;
+        s_Il2CppMonoLoaderLock.Unlock();
+    }
+
+    bool Debugger::LoaderLockIsOwnedByThisThread()
+    {
+        return s_Il2CppMonoLoaderLockThreadId == os::Thread::CurrentThreadId();
+    }
+
+    Il2CppMonoInterpCallbacks* Debugger::GetInterpCallbacks()
+    {
+        return &s_InterpCallbacks;
     }
 }
 }

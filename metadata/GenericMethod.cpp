@@ -38,11 +38,25 @@ struct SharedGenericMethodInfo : public MethodInfo
     Il2CppMethodPointer virtualCallMethodPointer;
 };
 
+static size_t SizeOfGenericMethodInfo()
+{
+    // If full generic sharing is enabled we track an additional method pointer, virtualCallMethodPointer
+    // that allows virtual calls from non-FGS code to FGS code to be done directly (via unresolved virtual calls)
+    if (!il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
+        return sizeof(MethodInfo);
+    return sizeof(SharedGenericMethodInfo);
+}
+
 static MethodInfo* AllocGenericMethodInfo()
 {
-    if (!il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
-        return (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
-    return (MethodInfo*)MetadataCalloc(1, sizeof(SharedGenericMethodInfo));
+    return (MethodInfo*)MetadataCalloc(1, SizeOfGenericMethodInfo());
+}
+
+static MethodInfo* AllocCopyGenericMethodInfo(const MethodInfo* sourceMethodInfo)
+{
+    MethodInfo* newMethodInfo = AllocGenericMethodInfo();
+    memcpy(newMethodInfo, sourceMethodInfo, SizeOfGenericMethodInfo());
+    return newMethodInfo;
 }
 
 namespace il2cpp
@@ -76,8 +90,7 @@ namespace metadata
         AGenericMethodWhichIsTooDeeplyNestedWasInvoked();
     }
 
-    // This method must have virtualMethodInfo null so that the test in RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound fails
-    const static SharedGenericMethodInfo ambiguousMethodInfo;
+    static SharedGenericMethodInfo ambiguousMethodInfo;
 
     bool GenericMethod::IsGenericAmbiguousMethodInfo(const MethodInfo* method)
     {
@@ -93,6 +106,12 @@ namespace metadata
         return GetMethod(&gmethod, true);
     }
 
+    MethodInfo* GenericMethod::AllocateNewMethodInfo(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst)
+    {
+        const MethodInfo* methodInfo = GetMethod(methodDefinition, classInst, methodInst);
+        return AllocCopyGenericMethodInfo(methodInfo);
+    }
+
     const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod)
     {
         return GetMethod(gmethod, false);
@@ -101,11 +120,17 @@ namespace metadata
     void GenericMethod::GetVirtualInvokeData(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst, VirtualInvokeData* invokeData)
     {
         invokeData->method = GetMethod(methodDefinition, classInst, methodInst);
+        invokeData->methodPtr = GetVirtualCallMethodPointer(invokeData->method);
+    }
+
+    Il2CppMethodPointer GenericMethod::GetVirtualCallMethodPointer(const MethodInfo* method)
+    {
+        IL2CPP_ASSERT(method->is_inflated);
 
         if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
-            invokeData->methodPtr = ((const SharedGenericMethodInfo*)invokeData->method)->virtualCallMethodPointer;
+            return ((const SharedGenericMethodInfo*)method)->virtualCallMethodPointer;
         else
-            invokeData->methodPtr = invokeData->method->virtualMethodPointer;
+            return method->virtualMethodPointer;
     }
 
     const MethodInfo* GenericMethod::GetMethod(const Il2CppGenericMethod* gmethod, bool copyMethodPtr)
@@ -130,7 +155,19 @@ namespace metadata
             return iter->second;
 
         if (Method::IsAmbiguousMethodInfo(gmethod->methodDefinition))
+        {
+            // is_inflated is used as an initialized check
+            if (!ambiguousMethodInfo.is_inflated)
+            {
+                memcpy(&ambiguousMethodInfo, gmethod->methodDefinition, sizeof(MethodInfo));
+                ambiguousMethodInfo.is_inflated = true;
+                // This method must have methodPointer null so that the test in RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound fails
+                ambiguousMethodInfo.methodPointer = NULL;
+                ambiguousMethodInfo.virtualCallMethodPointer = gmethod->methodDefinition->virtualMethodPointer;
+            }
+
             return &ambiguousMethodInfo;
+        }
 
         if (copyMethodPtr)
             gmethod = MetadataCache::GetGenericMethod(gmethod->methodDefinition, gmethod->context.class_inst, gmethod->context.method_inst);
@@ -183,20 +220,31 @@ namespace metadata
 
             newMethod->methodMetadataHandle = methodDefinition->methodMetadataHandle;
         }
-        else
+        else if (!il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled())
         {
             // we only need RGCTX for generic instance methods
-            newMethod->rgctx_data = GenericMetadata::InflateRGCTXLocked(gmethod->methodDefinition->klass->image, gmethod->methodDefinition->token, &gmethod->context, lock);
+            newMethod->rgctx_data = InflateRGCTXLocked(gmethod, lock);
         }
 
         il2cpp::vm::Il2CppGenericMethodPointers methodPointers = MetadataCache::GetGenericMethodPointers(methodDefinition, &gmethod->context);
         newMethod->virtualMethodPointer = methodPointers.virtualMethodPointer;
         newMethod->methodPointer = methodPointers.methodPointer;
         if (methodPointers.methodPointer)
+        {
             newMethod->invoker_method = methodPointers.invoker_method;
+        }
         else
+        {
             newMethod->invoker_method = Runtime::GetMissingMethodInvoker();
+            if (Method::IsInstance(newMethod))
+                newMethod->virtualMethodPointer = MetadataCache::GetUnresolvedVirtualCallStub(newMethod);
+        }
+
         newMethod->has_full_generic_sharing_signature = methodPointers.isFullGenericShared && HasFullGenericSharedParametersOrReturn(gmethod->methodDefinition);
+
+        // Full generic sharing methods should be called via invoker
+        // And invalid static methods can't use the unresolved virtual call stubs
+        newMethod->indirect_call_via_invokers = newMethod->has_full_generic_sharing_signature || (!Method::IsInstance(newMethod) && newMethod->methodPointer == NULL);
 
         ++il2cpp_runtime_stats.inflated_method_count;
 
@@ -206,13 +254,36 @@ namespace metadata
 
         if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
         {
-            if (il2cpp::vm::Method::HasFullGenericSharingSignature(newMethod))
-                ((SharedGenericMethodInfo*)newMethod)->virtualCallMethodPointer = MetadataCache::GetUnresolvedVirtualCallStub(newMethod);
+            SharedGenericMethodInfo* sharedMethodInfo = reinterpret_cast<SharedGenericMethodInfo*>(newMethod);
+            if (il2cpp::vm::Method::HasFullGenericSharingSignature(newMethod) && il2cpp::vm::Method::IsInstance(newMethod))
+                sharedMethodInfo->virtualCallMethodPointer = MetadataCache::GetUnresolvedVirtualCallStub(newMethod);
             else
-                ((SharedGenericMethodInfo*)newMethod)->virtualCallMethodPointer = newMethod->virtualMethodPointer;
+                sharedMethodInfo->virtualCallMethodPointer = newMethod->virtualMethodPointer;
         }
 
         return newMethod;
+    }
+
+    const Il2CppRGCTXData* GenericMethod::InflateRGCTX(const MethodInfo* method)
+    {
+        IL2CPP_ASSERT(method->is_inflated);
+        IL2CPP_ASSERT(method->genericMethod);
+        IL2CPP_ASSERT(method->genericMethod->context.method_inst);
+
+        FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+
+        if (method->rgctx_data != NULL)
+            return method->rgctx_data;
+
+        const Il2CppRGCTXData* rgctx = InflateRGCTXLocked(method->genericMethod, lock);
+        const_cast<MethodInfo*>(method)->rgctx_data = rgctx;
+
+        return rgctx;
+    }
+
+    const Il2CppRGCTXData* GenericMethod::InflateRGCTXLocked(const Il2CppGenericMethod* gmethod, const il2cpp::os::FastAutoLock &lock)
+    {
+        return GenericMetadata::InflateRGCTXLocked(gmethod->methodDefinition->klass->image, gmethod->methodDefinition->token, &gmethod->context, lock);
     }
 
     const Il2CppGenericContext* GenericMethod::GetContext(const Il2CppGenericMethod* gmethod)
