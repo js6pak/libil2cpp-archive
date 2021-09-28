@@ -81,6 +81,14 @@ struct Il2CppFakeBox : RuntimeObject
     }
 };
 
+struct Il2CppMetadataObject : RuntimeObject
+{
+    Il2CppMetadataObject(RuntimeClass* boxedType)
+    {
+        klass = boxedType;
+    }
+};
+
 inline bool il2cpp_codegen_is_fake_boxed_object(RuntimeObject* object)
 {
     return object->monitor == IL2CPP_FAKE_BOX_SENTRY;
