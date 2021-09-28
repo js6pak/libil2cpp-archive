@@ -556,8 +556,8 @@ namespace vm
     {
         int32_t size;
 
-        if (!klass->init_pending)
-            Init(klass);
+        if (!klass->size_init_pending)
+            SetupFields(klass);
 
         IL2CPP_ASSERT(klass->valuetype);
 
@@ -1049,6 +1049,8 @@ namespace vm
         if (klass->size_inited)
             return;
 
+        klass->size_init_pending = true;
+
         if (klass->parent && !klass->parent->size_inited)
             SetupFieldsLocked(klass->parent, lock);
 
@@ -1066,6 +1068,8 @@ namespace vm
 
         if (!Class::IsGeneric(klass))
             LayoutFieldsLocked(klass, lock);
+
+        klass->size_init_pending = false;
 
         klass->size_inited = true;
     }
@@ -1818,14 +1822,15 @@ namespace vm
 
     bool Class::HasReferences(Il2CppClass *klass)
     {
-        if (klass->init_pending)
+        if (klass->size_init_pending)
         {
+            abort();
             /* Be conservative */
             return true;
         }
         else
         {
-            Init(klass);
+            SetupFields(klass);
 
             return klass->has_references;
         }
