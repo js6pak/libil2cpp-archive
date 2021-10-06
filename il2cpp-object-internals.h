@@ -551,7 +551,7 @@ typedef struct Il2CppDelegate
     /* The compiled code of the target method */
     Il2CppMethodPointer method_ptr;
     /* The invoke code */
-    InvokerMethod invoke_impl;
+    Il2CppMethodPointer invoke_impl;
     Il2CppObject *target;
     const MethodInfo *method;
 
@@ -559,6 +559,7 @@ typedef struct Il2CppDelegate
     // IMPORTANT: It is assumed to NULL otherwise!  See PlatformInvoke::IsFakeDelegateMethodMarshaledFromNativeCode
     void* delegate_trampoline;
 
+    // Used to store the mulicast_invoke_impl
     intptr_t extraArg;
 
     /*
@@ -577,6 +578,8 @@ typedef struct Il2CppDelegate
 #else
     void* method_ptr;
     Il2CppObject* m_target;
+    void* invoke_impl;
+    void* multicast_invoke_impl;
     void* m_ReversePInvokeWrapperPtr;
     bool m_IsDelegateOpen;
 #endif // !IL2CPP_TINY

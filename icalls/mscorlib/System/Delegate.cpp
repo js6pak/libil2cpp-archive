@@ -1,13 +1,14 @@
 #include "il2cpp-config.h"
+#include "il2cpp-class-internals.h"
+#include "il2cpp-object-internals.h"
 #include "icalls/mscorlib/System/Delegate.h"
+#include "gc/WriteBarrier.h"
 #include "vm/Class.h"
 #include "vm/Method.h"
 #include "vm/Object.h"
-#include "vm/Type.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
-#include "il2cpp-class-internals.h"
-#include "il2cpp-object-internals.h"
+#include "vm/Type.h"
 
 namespace il2cpp
 {
@@ -55,8 +56,12 @@ namespace System
 
         Il2CppMulticastDelegate *ret = (Il2CppMulticastDelegate*)il2cpp::vm::Object::New(d->object.klass);
 
-        Il2CppMethodPointer func = d->method_ptr;
-        il2cpp::vm::Type::ConstructDelegate(&ret->delegate, NULL, func, d->method);
+        ret->delegate.method = d->method;
+        IL2CPP_OBJECT_SETREF((&ret->delegate), target, d->target);
+
+        // extra_arg stores the multicast_invoke_impl
+        ret->delegate.invoke_impl = (Il2CppMethodPointer)d->extraArg;
+        ret->delegate.extraArg = d->extraArg;
 
         return ret;
 #endif

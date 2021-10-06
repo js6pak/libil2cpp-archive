@@ -1175,7 +1175,7 @@ namespace vm
 
         // Any generic parameter that is not constarined to be a reference type would be fully shared
         if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
-            return !MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type));
+            return MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type)) != GenericParameterRestrictionReferenceType;
 
         // If we're not a generic instance then we'll be a concrete type
         if (!IsGenericInstance(type))
@@ -1255,6 +1255,8 @@ namespace vm
         return type;
     }
 
+    typedef void (*DelegateCtor)(Il2CppDelegate* delegate, Il2CppObject* target, intptr_t method, MethodInfo* hiddenMethodInfo);
+
 /**
 * Type::ConstructDelegate:
 * @delegate: pointer to an uninitialized delegate object
@@ -1274,16 +1276,13 @@ namespace vm
 #else
         IL2CPP_ASSERT(delegate);
 
-        delegate->method_ptr = addr;
-
         if (method)
         {
-            delegate->method = method;
             bool isVirtualMethod = method->slot != kInvalidIl2CppMethodSlot && !(method->flags & METHOD_ATTRIBUTE_FINAL);
             if (isVirtualMethod && target != NULL && addr == il2cpp::vm::Method::GetVirtualCallMethodPointer(method))
             {
-                delegate->method = il2cpp::vm::Object::GetVirtualMethod(target, method);
-                delegate->method_ptr = il2cpp::vm::Method::GetVirtualCallMethodPointer(delegate->method);
+                method = il2cpp::vm::Object::GetVirtualMethod(target, method);
+                addr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
             }
             else
             {
@@ -1291,8 +1290,13 @@ namespace vm
             }
         }
 
-        if (target != NULL)
-            IL2CPP_OBJECT_SETREF(delegate, target, target);
+        const MethodInfo* ctor = Class::GetMethodFromName(delegate->object.klass, ".ctor", 2);
+        ((DelegateCtor)ctor->methodPointer)(delegate, target, (intptr_t)method, NULL);
+
+        // Set the method_ptr after the ctor call.  The ctor will set the method_ptr
+        // based on it's rules, but this method can overrdie it.
+        delegate->method_ptr = addr;
+
 #endif
     }
 

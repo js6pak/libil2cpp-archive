@@ -63,6 +63,7 @@ namespace vm
         static const MethodInfo* GetMethodFromName(Il2CppClass *klass, const char* name, int argsCount);
         static const MethodInfo* GetMethodFromNameFlags(Il2CppClass *klass, const char* name, int argsCount, int32_t flags);
         static const MethodInfo* GetMethodFromNameFlagsAndSig(Il2CppClass *klass, const char* name, int argsCount, int32_t flags, const Il2CppType** argTypes);
+        static const MethodInfo* GetGenericInstanceMethodFromDefintion(Il2CppClass* genericInstanceClass, const MethodInfo* methodDefinition);
         static const char* GetName(Il2CppClass *klass);
         static const char* GetNamespace(Il2CppClass *klass);
         static Il2CppClass* GetNestedTypes(Il2CppClass *klass, void* *iter);
