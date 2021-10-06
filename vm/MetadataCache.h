@@ -38,6 +38,12 @@ namespace vm
         bool isFullGenericShared;
     } Il2CppGenericMethodPointers;
 
+    enum GenericParameterRestriction
+    {
+        GenericParameterRestrictionNone,
+        GenericParameterRestrictionValueType,
+        GenericParameterRestrictionReferenceType,
+    };
 
     typedef Il2CppHashMap<const char*, Il2CppClass*, il2cpp::utils::StringUtils::StringHasher<const char*>, il2cpp::utils::VmStringUtils::CaseSensitiveComparer> WindowsRuntimeTypeNameToClassMap;
     typedef Il2CppHashMap<const Il2CppClass*, const char*, il2cpp::utils::PointerHash<Il2CppClass> > ClassToWindowsRuntimeTypeNameMap;
@@ -72,7 +78,7 @@ namespace vm
 
         static const Il2CppGenericInst* GetGenericInst(const Il2CppType* const* types, uint32_t typeCount);
         static const Il2CppGenericMethod* GetGenericMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
-        static bool IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter);
+        static GenericParameterRestriction IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter);
 
         static Il2CppGenericMethodPointers GetGenericMethodPointers(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
 

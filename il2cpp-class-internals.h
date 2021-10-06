@@ -177,6 +177,7 @@ typedef struct Il2CppDefaults
     Il2CppClass* uint32_shared_enum;
     Il2CppClass* uint64_shared_enum;
     Il2CppClass* il2cpp_fully_shared_type;
+    Il2CppClass* il2cpp_fully_shared_struct_type;
 } Il2CppDefaults;
 
 extern LIBIL2CPP_CODEGEN_API Il2CppDefaults il2cpp_defaults;
