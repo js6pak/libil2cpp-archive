@@ -517,38 +517,39 @@ static bool IsShareableEnum(const Il2CppType* type)
     return false;
 }
 
-static bool IsReferenceTypeGenericConstraint(const Il2CppType* constraint);
+static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(const Il2CppType* constraint);
 
-static bool IsReferenceTypeGenericConstraint(const Il2CppType* constraint)
+static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(const Il2CppType* constraint)
 {
     if (constraint->type == IL2CPP_TYPE_VAR || constraint->type == IL2CPP_TYPE_MVAR)
         return il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromType(constraint));
     if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.enum_class->byval_arg))
-        return false;
+        return il2cpp::vm::GenericParameterRestrictionValueType;
     else if (il2cpp::vm::Class::IsInterface(il2cpp::vm::Class::FromIl2CppType(constraint)))
-        return false; // Interfaces constraints can be satisfied by reference or value types
+        return il2cpp::vm::GenericParameterRestrictionNone; // Interfaces constraints can be satisfied by reference or value types
 
     // Any other type constraint e.g. T : SomeType, SomeType must be a reference type
-    return true;
+    return il2cpp::vm::GenericParameterRestrictionReferenceType;
 }
 
-bool il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter)
+il2cpp::vm::GenericParameterRestriction il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(Il2CppMetadataGenericParameterHandle genericParameter)
 {
     uint16_t flags = il2cpp::vm::GlobalMetadata::GetGenericParameterFlags(genericParameter);
     if ((flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_REFERENCE_TYPE_CONSTRAINT) != 0)
-        return true;
+        return GenericParameterRestrictionReferenceType;
     if ((flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NOT_NULLABLE_VALUE_TYPE_CONSTRAINT) != 0)
-        return false; // Must be a value type
+        return GenericParameterRestrictionValueType; // Must be a value type
 
     uint32_t count = il2cpp::vm::GlobalMetadata::GetGenericConstraintCount(genericParameter);
     for (uint32_t constraintIndex = 0; constraintIndex < count; ++constraintIndex)
     {
         const Il2CppType* constraint = il2cpp::vm::GlobalMetadata::GetGenericParameterConstraintFromIndex(genericParameter, constraintIndex);
-        if (IsReferenceTypeGenericConstraint(constraint))
-            return true;
+        GenericParameterRestriction restriction = IsReferenceTypeGenericConstraint(constraint);
+        if (restriction != GenericParameterRestrictionNone)
+            return restriction;
     }
 
-    return false;
+    return GenericParameterRestrictionNone;
 }
 
 static const Il2CppGenericInst* GetFullySharedInst(Il2CppMetadataGenericContainerHandle genericContainer, const Il2CppGenericInst* inst)
@@ -560,10 +561,18 @@ static const Il2CppGenericInst* GetFullySharedInst(Il2CppMetadataGenericContaine
     for (uint32_t i = 0; i < inst->type_argc; ++i)
     {
         const Il2CppType* type;
-        if (il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromIndex(genericContainer, i)))
-            type = &il2cpp_defaults.object_class->byval_arg;
-        else
-            type = &il2cpp_defaults.il2cpp_fully_shared_type->byval_arg;
+        switch (il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromIndex(genericContainer, i)))
+        {
+            case il2cpp::vm::GenericParameterRestrictionValueType:
+                type = &il2cpp_defaults.il2cpp_fully_shared_struct_type->byval_arg;
+                break;
+            case il2cpp::vm::GenericParameterRestrictionReferenceType:
+                type = &il2cpp_defaults.object_class->byval_arg;
+                break;
+            default:
+                type = &il2cpp_defaults.il2cpp_fully_shared_type->byval_arg;
+                break;
+        }
 
         types[i] = type;
     }
