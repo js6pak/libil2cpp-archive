@@ -68,6 +68,16 @@ namespace vm
         return method->is_inflated && !method->is_generic;
     }
 
+    bool Method::IsGenericInstanceMethod(const MethodInfo *method)
+    {
+        return method->is_inflated && !method->is_generic && method->genericMethod->context.method_inst;
+    }
+
+    bool Method::IsDefaultInterfaceMethodOnGenericInstance(const MethodInfo* method)
+    {
+        return method->methodPointer && Class::IsInterface(method->klass) && Class::IsInflated(method->klass) && !method->klass->is_import_or_windows_runtime;
+    }
+
     bool Method::IsInstance(const MethodInfo *method)
     {
         return !(method->flags & METHOD_ATTRIBUTE_STATIC);

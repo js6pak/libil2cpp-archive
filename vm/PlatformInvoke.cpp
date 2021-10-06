@@ -463,9 +463,9 @@ namespace vm
         if (managedToNativeWrapperMethodPointer == NULL)
             Exception::Raise(Exception::GetMarshalDirectiveException(utils::StringUtils::Printf("Cannot marshal P/Invoke call through delegate of type '%s.%s'", Class::GetNamespace(delegateType), Class::GetName(delegateType)).c_str()));
 
-        const MethodInfo* invokMethod = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
+        const MethodInfo* invokeMethod = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
         Il2CppDelegate* delegate = (Il2CppDelegate*)il2cpp::vm::Object::New(delegateType);
-        Type::ConstructDelegate(delegate, (Il2CppObject*)delegate, managedToNativeWrapperMethodPointer, invokMethod);
+        Type::ConstructDelegate(delegate, (Il2CppObject*)delegate, managedToNativeWrapperMethodPointer, invokeMethod);
         delegate->delegate_trampoline = functionPtr;
 
         return delegate;

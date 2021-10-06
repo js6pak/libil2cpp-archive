@@ -326,18 +326,18 @@ inline bool il2cpp_codegen_object_is_of_sealed_type(RuntimeObject* obj)
     return (obj->klass->flags & TYPE_ATTRIBUTE_SEALED) != 0;
 }
 
-bool il2cpp_codegen_method_is_generic_instance(RuntimeMethod* method);
+bool il2cpp_codegen_method_is_generic_instance_method(RuntimeMethod* method);
 
 inline bool il2cpp_codegen_call_method_via_invoker(const RuntimeMethod* method)
 {
     return method->indirect_call_via_invokers;
 }
 
-RuntimeClass* il2cpp_codegen_method_get_declaring_type(RuntimeMethod* method);
+RuntimeClass* il2cpp_codegen_method_get_declaring_type(const RuntimeMethod* method);
 
 bool il2cpp_codegen_method_is_interface_method(RuntimeMethod* method);
 
-inline uint16_t il2cpp_codegen_method_get_slot(RuntimeMethod* method)
+inline uint16_t il2cpp_codegen_method_get_slot(const RuntimeMethod* method)
 {
     return method->slot;
 }
@@ -411,6 +411,11 @@ RuntimeClass* il2cpp_codegen_class_from_type_internal(const RuntimeType* type);
 inline RuntimeClass* il2cpp_codegen_class_from_type(const RuntimeType *type)
 {
     return InitializedTypeInfo(il2cpp_codegen_class_from_type_internal(type));
+}
+
+inline const RuntimeType* il2cpp_codegen_type_from_class(RuntimeClass *klass)
+{
+    return &klass->byval_arg;
 }
 
 template<typename T>
@@ -735,7 +740,9 @@ inline bool il2cpp_codegen_type_implements_virtual_method(RuntimeClass* type, co
 
 MethodBase_t* il2cpp_codegen_get_method_object_internal(const RuntimeMethod* method, RuntimeClass* refclass);
 
+const RuntimeClass* il2cpp_codegen_get_generic_type_definition(const RuntimeClass* klass);
 const RuntimeMethod* il2cpp_codegen_get_generic_method_definition(const RuntimeMethod* method);
+const RuntimeMethod* il2cpp_codegen_get_generic_instance_method_from_method_definition(RuntimeClass* genericInstanceClass, const RuntimeMethod* methodDefinition);
 
 inline MethodBase_t* il2cpp_codegen_get_method_object(const RuntimeMethod* method)
 {
@@ -869,7 +876,13 @@ inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(RuntimeCla
     return genericClass->generic_class->context.class_inst;
 }
 
+RuntimeClass* il2cpp_codegen_get_generic_argument(RuntimeClass* klass, uint32_t argNum);
+
+// Inflate a generic class from an existing generic instance
 RuntimeClass* il2cpp_codegen_inflate_generic_class(RuntimeClass* genericClassDefinition, const Il2CppGenericInst* genericInst);
+
+// Inflate a generic class from types
+RuntimeClass* il2cpp_codegen_inflate_generic_class(RuntimeClass* genericClassDefinition, const RuntimeType*, /*const RuntimeType*, const RuntimeType* */ ...);
 
 inline void* il2cpp_codegen_static_fields_for(RuntimeClass* klass)
 {

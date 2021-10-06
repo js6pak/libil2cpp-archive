@@ -456,9 +456,9 @@ namespace vm
             while (const MethodInfo* method = Class::GetMethods(klass, &iter))
             {
                 if (method->name[0] == name[0] &&
-                    !strcmp(name, method->name) &&
                     (argsCount == IgnoreNumberOfArguments || method->parameters_count == argsCount) &&
-                    ((method->flags & flags) == flags))
+                    ((method->flags & flags) == flags) &&
+                    !strcmp(name, method->name))
                 {
                     bool allArgTypeMatch = true;
                     if (argTypes != NULL && argsCount != IgnoreNumberOfArguments)
@@ -478,6 +478,23 @@ namespace vm
         }
 
         return NULL;
+    }
+
+    const MethodInfo* Class::GetGenericInstanceMethodFromDefintion(Il2CppClass* genericInstanceClass, const MethodInfo* methodDefinition)
+    {
+        IL2CPP_ASSERT(Class::IsInflated(genericInstanceClass));
+        IL2CPP_ASSERT(metadata::Il2CppTypeEqualityComparer::AreEqual(genericInstanceClass->generic_class->type, &methodDefinition->klass->byval_arg));
+
+        ptrdiff_t index = methodDefinition - methodDefinition->klass->methods[0];
+
+        IL2CPP_ASSERT(index >= 0 && index < methodDefinition->klass->method_count);
+        IL2CPP_ASSERT(index < genericInstanceClass->method_count);
+
+        const MethodInfo* genericClassMethod = genericInstanceClass->methods[index];
+
+        IL2CPP_ASSERT(genericClassMethod->genericMethod->methodDefinition == methodDefinition);
+
+        return genericClassMethod;
     }
 
     const char* Class::GetName(Il2CppClass *klass)
@@ -1257,7 +1274,7 @@ namespace vm
                     if (method != NULL)
                     {
                         // For default interface methods on generic interfaces we need to ensure that their rgctx's are initalized
-                        if (method->klass != NULL && method->klass != klass && method->klass->generic_class != NULL && Class::IsInterface(method->klass))
+                        if (method->klass != NULL && method->klass != klass && Method::IsDefaultInterfaceMethodOnGenericInstance(method))
                             Class::InitLocked(method->klass, lock);
 
                         if (method->virtualMethodPointer)
@@ -1298,7 +1315,7 @@ namespace vm
                     if (method != NULL)
                     {
                         if (method->virtualMethodPointer)
-                            klass->vtable[i].methodPtr = method->virtualMethodPointer;
+                            klass->vtable[i].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
                         else
                             klass->vtable[i].methodPtr = EntryPointNotFoundMethod;
                     }

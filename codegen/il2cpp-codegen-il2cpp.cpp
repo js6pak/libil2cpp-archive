@@ -1,4 +1,5 @@
 #include <string>
+#include <stdarg.h>
 
 #include "il2cpp-config.h"
 #include "il2cpp-codegen.h"
@@ -100,9 +101,20 @@ void* il2cpp_codegen_initialize_runtime_metadata_inline(uintptr_t* metadataPoint
     return il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(metadataPointer);
 }
 
+const RuntimeClass* il2cpp_codegen_get_generic_type_definition(const RuntimeClass* klass)
+{
+    IL2CPP_ASSERT(klass->generic_class);
+    return il2cpp::vm::Class::FromIl2CppType(klass->generic_class->type);
+}
+
 const RuntimeMethod* il2cpp_codegen_get_generic_method_definition(const RuntimeMethod* method)
 {
     return il2cpp::vm::MetadataCache::GetGenericMethodDefinition(method);
+}
+
+const RuntimeMethod* il2cpp_codegen_get_generic_instance_method_from_method_definition(RuntimeClass* genericInstanceClass, const RuntimeMethod* methodDefinition)
+{
+    return il2cpp::vm::Class::GetGenericInstanceMethodFromDefintion(genericInstanceClass, methodDefinition);
 }
 
 void* il2cpp_codegen_get_thread_static_data(RuntimeClass* klass)
@@ -186,12 +198,17 @@ RuntimeArray* GenArrayNew(RuntimeClass* arrayType, il2cpp_array_size_t* dimensio
     return il2cpp::vm::Array::NewFull(arrayType, dimensions, NULL);
 }
 
-bool il2cpp_codegen_method_is_generic_instance(RuntimeMethod* method)
+bool il2cpp_codegen_method_is_generic_instance_method(RuntimeMethod* method)
 {
-    return il2cpp::vm::Method::IsGenericInstance(method);
+    return il2cpp::vm::Method::IsGenericInstanceMethod(method);
 }
 
-RuntimeClass* il2cpp_codegen_method_get_declaring_type(RuntimeMethod* method)
+bool il2cpp_codegen_method_is_generic_instance(RuntimeClass* klass)
+{
+    return il2cpp::vm::Class::IsInflated(klass);
+}
+
+RuntimeClass* il2cpp_codegen_method_get_declaring_type(const RuntimeMethod* method)
 {
     return il2cpp::vm::Method::GetClass(method);
 }
@@ -652,9 +669,39 @@ bool il2cpp_codegen_class_is_nullable(RuntimeClass* type)
     return il2cpp::vm::Class::IsNullable(type);
 }
 
+RuntimeClass* il2cpp_codegen_get_generic_argument(RuntimeClass* klass, uint32_t argNum)
+{
+    const Il2CppGenericInst* classInst = il2cpp_codegen_get_generic_class_inst(klass);
+    IL2CPP_ASSERT(argNum < classInst->type_argc);
+    return il2cpp::vm::Class::FromIl2CppType(classInst->type_argv[argNum]);
+}
+
 RuntimeClass* il2cpp_codegen_inflate_generic_class(RuntimeClass* genericClassDefinition, const Il2CppGenericInst* genericInst)
 {
     return il2cpp::vm::Class::GetInflatedGenericInstanceClass(genericClassDefinition, genericInst);
+}
+
+RuntimeClass* il2cpp_codegen_inflate_generic_class(RuntimeClass* genericClassDefinition, const RuntimeType* p1, /*const RuntimeType*, const RuntimeType* */ ...)
+{
+    IL2CPP_ASSERT(genericClassDefinition->is_generic);
+
+    const uint32_t genericParameterCount = il2cpp::vm::MetadataCache::GetGenericContainerCount(genericClassDefinition->genericContainerHandle);
+
+    const RuntimeType** types = (const RuntimeType**)alloca(sizeof(RuntimeType*) * genericParameterCount);
+    types[0] = p1;
+
+    if (genericParameterCount > 1)
+    {
+        va_list genericArguments;
+        va_start(genericArguments, p1);
+
+        for (uint32_t i = 1; i < genericParameterCount; i++)
+            types[i] = va_arg(genericArguments, const RuntimeType*);
+
+        va_end(genericArguments);
+    }
+
+    return il2cpp::vm::Class::GetInflatedGenericInstanceClass(genericClassDefinition, il2cpp::vm::MetadataCache::GetGenericInst(types, genericParameterCount));
 }
 
 int32_t il2cpp_codgen_class_get_instance_size(RuntimeClass* klass)
@@ -990,6 +1037,8 @@ MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2Cp
     Il2CppMulticastDelegate* result = reinterpret_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(klass));
     il2cpp::gc::WriteBarrier::GenericStore(&result->delegates, delegates);
     result->delegateCount = delegateCount;
+    result->delegate.invoke_impl = il2cpp_array_get(delegates, Il2CppDelegate*, 0)->multicast_invoke_impl;
+    result->delegate.multicast_invoke_impl = result->delegate.invoke_impl;
     return reinterpret_cast<MulticastDelegate_t*>(result);
 }
 
