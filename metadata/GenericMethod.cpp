@@ -248,10 +248,6 @@ namespace metadata
 
         ++il2cpp_runtime_stats.inflated_method_count;
 
-        // If we are a default interface method on a generic instance interface we need to ensure that the interfaces rgctx is inflated
-        if (newMethod->methodPointer != NULL && declaringClass->generic_class != NULL && vm::Class::IsInterface(declaringClass))
-            vm::Class::InitLocked(declaringClass, lock);
-
         if (il2cpp::vm::Runtime::IsFullGenericSharingEnabled())
         {
             SharedGenericMethodInfo* sharedMethodInfo = reinterpret_cast<SharedGenericMethodInfo*>(newMethod);
@@ -260,6 +256,10 @@ namespace metadata
             else
                 sharedMethodInfo->virtualCallMethodPointer = newMethod->virtualMethodPointer;
         }
+
+        // If we are a default interface method on a generic instance interface we need to ensure that the interfaces rgctx is inflated
+        if (Method::IsDefaultInterfaceMethodOnGenericInstance(newMethod))
+            vm::Class::InitLocked(declaringClass, lock);
 
         return newMethod;
     }
