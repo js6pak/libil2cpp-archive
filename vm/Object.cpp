@@ -364,6 +364,26 @@ namespace vm
         // We assume storage is on the stack, if not we'll need a write barrier
         IL2CPP_ASSERT_STACK_PTR(storage);
 
+        // After the assert above, we can safely call this method, because the GC will find storage as a root,
+        // since it is on the stack.
+        UnboxNullableGCUnsafe(obj, nullableArgumentClass, storage);
+    }
+
+    void Object::UnboxNullableWithWriteBarrier(Il2CppObject* obj, Il2CppClass* nullableArgumentClass, void* storage)
+    {
+        uint32_t valueSize = UnboxNullableGCUnsafe(obj, nullableArgumentClass, storage);
+        il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)storage, valueSize);
+    }
+
+    // Hey! You probably don't want to call this method. Call Object::UnboxNullable  or
+    // Object::UnboxNullableWithWriteBarrier instead.
+    //
+    //
+    // Ok - still here? If you call this method and storage is not on the stack, you need to set a
+    // GC write barrier for the pointer at storage with a length that is the number of bytes, which
+    // this method returns. That's what UnboxNullableWithWriteBarrier. Use it!
+    uint32_t Object::UnboxNullableGCUnsafe(Il2CppObject* obj, Il2CppClass* nullableArgumentClass, void* storage)
+    {
         // The hasValue field is the first one in the Nullable struct. It is a one byte Boolean.
         // We're trying to get the address of the value field in the Nullable struct, so offset
         // past the hasValue field, then offset to the alignment value of the type stored in the
@@ -387,6 +407,8 @@ namespace vm
             memcpy(valueField, Unbox(obj), valueSize);
             *(static_cast<uint8_t*>(storage)) = true;
         }
+
+        return valueSize;
     }
 
     void Object::NullableInit(uint8_t* buf, Il2CppObject* value, Il2CppClass* klass)
