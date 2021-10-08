@@ -101,9 +101,7 @@ namespace utils
             s_ExecutionContexts.GetValue(reinterpret_cast<void**>(&unwindState));
 
             if (unwindState->frameCount == unwindState->frameCapacity)
-            {
-                IL2CPP_ASSERT(0);
-            }
+                GrowFrameCapacity(unwindState);
 
             unwindState->executionContexts[unwindState->frameCount] = executionContext;
             unwindState->frameCount++;
@@ -216,6 +214,7 @@ namespace utils
         static void InitializeMethodToSequencePointMap();
         static void InitializeTypeSourceFileMap();
         static void InitializeMethodToCatchPointMap();
+        static void GrowFrameCapacity(Il2CppThreadUnwindState* unwindState);
     };
 }
 }
