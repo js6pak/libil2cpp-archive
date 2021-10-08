@@ -303,6 +303,7 @@ namespace vm
         DEFAULTS_INIT_OPTIONAL(uint64_shared_enum, "System", "UInt64Enum");
 
         DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
+        DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_struct_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericStructType");
 
         ClassLibraryPAL::Initialize();
 
@@ -587,9 +588,22 @@ namespace vm
             }
             else
             {
-                Il2CppObject* returnValue = NULL;
+                // Note that here method->return_type might be a reference type or it might be
+                // a value type returned by reference.
+                void* returnValue = NULL;
                 method->invoker_method(method->methodPointer, method, obj, params, &returnValue);
-                return returnValue;
+                if (method->return_type->byref)
+                {
+                    // We cannot use method->return_type->valuetype here, because that will be
+                    // false for methods that return by reference. Instead, get the class for the
+                    // type, which discards the byref flag.
+                    Il2CppClass* returnType = Class::FromIl2CppType(method->return_type);
+                    if (vm::Class::IsValuetype(returnType))
+                        return Object::Box(returnType, returnValue);
+                    return *(Il2CppObject**)returnValue;
+                }
+
+                return (Il2CppObject*)returnValue;
             }
         }
     }
