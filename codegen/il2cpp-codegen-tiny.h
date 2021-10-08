@@ -405,6 +405,8 @@ inline MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type
     Il2CppMulticastDelegate* result = static_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(sizeof(Il2CppMulticastDelegate), const_cast<TinyType*>(reinterpret_cast<Il2CppReflectionType*>(type)->typeHandle)));
     IL2CPP_OBJECT_SETREF(result, delegates, delegates);
     result->delegateCount = delegateCount;
+    result->invoke_impl = il2cpp_array_get(delegates, Il2CppDelegate*, 0)->multicast_invoke_impl;
+    result->multicast_invoke_impl = result->invoke_impl;
     return reinterpret_cast<MulticastDelegate_t*>(result);
 }
 
