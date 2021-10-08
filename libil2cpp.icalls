@@ -150,6 +150,10 @@ System.IO.DriveInfo::GetDiskFreeSpaceInternal(System.Char*,System.Int32,System.U
 System.IO.DriveInfo::GetDriveFormatInternal(System.Char*,System.Int32) mscorlib::System::IO::DriveInfo::GetDriveFormatInternal
 System.IO.DriveInfo::GetDriveTypeInternal(System.Char*,System.Int32) mscorlib::System::IO::DriveInfo::GetDriveTypeInternal
 
+// System.IO.FileSystemWatcher
+>icalls/System/System.IO/FileSystemWatcher.h
+System.IO.FileSystemWatcher::InternalSupportsFSW() System::System::IO::FileSystemWatcher::InternalSupportsFSW
+
 // System.IO.MonoIO
 >icalls/mscorlib/System.IO/MonoIO.h
 System.IO.MonoIO::Cancel_internal(System.IntPtr,System.IO.MonoIOError&) mscorlib::System::IO::MonoIO::Cancel_internal
