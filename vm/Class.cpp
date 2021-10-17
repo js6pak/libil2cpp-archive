@@ -991,6 +991,11 @@ namespace vm
             klass->minimumAlignment = layoutData.minimumAlignment;
             klass->actualSize = static_cast<uint32_t>(layoutData.actualClassSize);
 
+            if (klass->image == il2cpp_defaults.corlib && !strcmp("Ephemeron", klass->name))
+            {
+                klass->has_references = false;
+            }
+
             size_t staticSize = staticLayoutData.classSize;
             size_t threadStaticSize = threadStaticLayoutData.classSize;
 
