@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <ctype.h>
 
+#include "gc/WriteBarrier.h"
 #include "metadata/Il2CppTypeCompare.h"
 #include "utils/StringUtils.h"
 #include "vm/Assembly.h"
@@ -13,6 +14,7 @@
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
 #include "vm/MetadataCache.h"
+#include "vm/Method.h"
 #include "vm/Object.h"
 #include "vm/Reflection.h"
 #include "vm/String.h"
@@ -1165,6 +1167,34 @@ namespace vm
         return GenericClass::IsValueType(type->data.generic_class);
     }
 
+    bool Type::HasVariableRuntimeSizeWhenFullyShared(const Il2CppType* type)
+    {
+        // Anything passed by ref is pointer sized
+        if (type->byref)
+            return false;
+
+        // Any generic parameter that is not constarined to be a reference type would be fully shared
+        if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
+            return MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type)) != GenericParameterRestrictionReferenceType;
+
+        // If we're not a generic instance then we'll be a concrete type
+        if (!IsGenericInstance(type))
+            return false;
+
+        // If a reference type or pointer then we aren't variable sized
+        if (!GenericInstIsValuetype(type))
+            return false;
+
+        // Otherwise we're a generic value type - e.g. Struct<T> and we need to examine our generic parameters
+        for (uint32_t i = 0; i < type->data.generic_class->context.class_inst->type_argc; i++)
+        {
+            if (HasVariableRuntimeSizeWhenFullyShared(type->data.generic_class->context.class_inst->type_argv[i]))
+                return true;
+        }
+
+        return false;
+    }
+
     bool Type::IsEnum(const Il2CppType *type)
     {
         if (type->type != IL2CPP_TYPE_VALUETYPE)
@@ -1179,9 +1209,9 @@ namespace vm
         return type->valuetype;
     }
 
-    bool Type::IsEmptyType(const Il2CppType *type)
+    bool Type::IsPointerType(const Il2CppType *type)
     {
-        return IsGenericInstance(type) && type->data.generic_class->type == NULL;
+        return type->type == IL2CPP_TYPE_PTR;
     }
 
     bool Type::IsSystemDBNull(const Il2CppType *type)
@@ -1220,9 +1250,12 @@ namespace vm
 
     const Il2CppType* Type::GetGenericTypeDefintion(const Il2CppType* type)
     {
-        IL2CPP_ASSERT(IsGenericInstance(type));
-        return type->data.generic_class->type;
+        if (IsGenericInstance(type))
+            return type->data.generic_class->type;
+        return type;
     }
+
+    typedef void (*DelegateCtor)(Il2CppDelegate* delegate, Il2CppObject* target, intptr_t method, MethodInfo* hiddenMethodInfo);
 
 /**
 * Type::ConstructDelegate:
@@ -1243,16 +1276,13 @@ namespace vm
 #else
         IL2CPP_ASSERT(delegate);
 
-        delegate->method_ptr = addr;
-
         if (method)
         {
-            delegate->method = method;
             bool isVirtualMethod = method->slot != kInvalidIl2CppMethodSlot && !(method->flags & METHOD_ATTRIBUTE_FINAL);
-            if (isVirtualMethod && target != NULL && addr == method->methodPointer)
+            if (isVirtualMethod && target != NULL && addr == il2cpp::vm::Method::GetVirtualCallMethodPointer(method))
             {
-                delegate->method = il2cpp::vm::Object::GetVirtualMethod(target, method);
-                delegate->method_ptr = delegate->method->methodPointer;
+                method = il2cpp::vm::Object::GetVirtualMethod(target, method);
+                addr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
             }
             else
             {
@@ -1260,8 +1290,13 @@ namespace vm
             }
         }
 
-        if (target != NULL)
-            IL2CPP_OBJECT_SETREF(delegate, target, target);
+        const MethodInfo* ctor = Class::GetMethodFromName(delegate->object.klass, ".ctor", 2);
+        ((DelegateCtor)ctor->methodPointer)(delegate, target, (intptr_t)method, NULL);
+
+        // Set the method_ptr after the ctor call.  The ctor will set the method_ptr
+        // based on it's rules, but this method can overrdie it.
+        delegate->method_ptr = addr;
+
 #endif
     }
 

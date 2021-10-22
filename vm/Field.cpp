@@ -140,7 +140,7 @@ namespace vm
         const char* data;
 
         data = Class::GetFieldDefaultValue(field, &type);
-        utils::BlobReader::GetConstantValueFromBlob(type->type, data, value);
+        utils::BlobReader::GetConstantValueFromBlob(field->parent->image, type->type, data, value);
     }
 
     void Field::StaticGetValue(FieldInfo *field, void *value)
@@ -229,7 +229,7 @@ namespace vm
     {
         IL2CPP_ASSERT(!(field->type->attrs & FIELD_ATTRIBUTE_LITERAL));
         IL2CPP_ASSERT(!field->type->valuetype);
-        gc::WriteBarrier::GenericStore(reinterpret_cast<uint8_t*>(objectInstance) + field->offset, value);
+        gc::WriteBarrier::GenericStore((Il2CppObject**)(reinterpret_cast<uint8_t*>(objectInstance) + field->offset), value);
     }
 
     void Field::SetValueRaw(const Il2CppType *type, void *dest, void *value, bool deref_pointer)
@@ -307,7 +307,7 @@ namespace vm
             case IL2CPP_TYPE_CLASS:
             case IL2CPP_TYPE_OBJECT:
             case IL2CPP_TYPE_ARRAY:
-                gc::WriteBarrier::GenericStore(dest, (deref_pointer ? *(void**)value : value));
+                gc::WriteBarrier::GenericStore((void**)dest, (deref_pointer ? *(void**)value : value));
                 return;
             case IL2CPP_TYPE_FNPTR:
             case IL2CPP_TYPE_PTR:
@@ -396,6 +396,14 @@ namespace vm
             return false;
 
         return true;
+    }
+
+    void* Field::GetInstanceFieldDataPointer(void* instance, FieldInfo* field)
+    {
+        IL2CPP_ASSERT(il2cpp::vm::Field::IsInstance(field));
+
+        uint8_t* fieldPointer = ((uint8_t*)instance) + GetOffset(field);
+        return field->parent->byval_arg.valuetype ? fieldPointer - sizeof(Il2CppObject) : fieldPointer;
     }
 } /* namespace vm */
 } /* namespace il2cpp */

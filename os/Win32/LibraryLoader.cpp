@@ -13,6 +13,12 @@
 #define WINNT // All functions in Evntrace.h are under this define.. Why? I have no idea!
 #include "Evntrace.h"
 
+#if IL2CPP_TARGET_XBOXONE
+#include "os/XboxOne/Win32ApiEmulationForXboxClassLibraries.h"
+#elif IL2CPP_TARGET_WINDOWS_GAMES
+#include "os/WindowsGames/Win32ApiWindowsGamesEmulation.h"
+#endif
+
 namespace il2cpp
 {
 namespace os
@@ -46,7 +52,39 @@ namespace os
         HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetFullPathNameW),
+        HARDCODED_DEPENDENCY_FUNCTION(GetFileAttributesExW),
+        HARDCODED_DEPENDENCY_FUNCTION(CreateDirectoryW),
+        HARDCODED_DEPENDENCY_FUNCTION(CloseHandle),
+        HARDCODED_DEPENDENCY_FUNCTION(CreateFileW),
+        HARDCODED_DEPENDENCY_FUNCTION(DeleteFileW),
+        HARDCODED_DEPENDENCY_FUNCTION(FindFirstFileExW),
+        HARDCODED_DEPENDENCY_FUNCTION(FindNextFileW),
+        HARDCODED_DEPENDENCY_FUNCTION(MoveFileExW),
+        HARDCODED_DEPENDENCY_FUNCTION(RemoveDirectoryW),
+        HARDCODED_DEPENDENCY_FUNCTION(ReplaceFileW),
+        HARDCODED_DEPENDENCY_FUNCTION(SetFileAttributesW),
+        HARDCODED_DEPENDENCY_FUNCTION(SetFileInformationByHandle),
+        HARDCODED_DEPENDENCY_FUNCTION(GetFileInformationByHandleEx),
+        // The CopyFile2 method is only required by the class library code for UWP builds.
+        // It does not exist in Windows 7, so we don't want to use it for Windows Desktop
+        // builds, since they still support Windows 7.
+#if !IL2CPP_TARGET_WINDOWS_DESKTOP
+        HARDCODED_DEPENDENCY_FUNCTION(CopyFile2),
+#endif
+#if WINDOWS_SDK_BUILD_VERSION >= 16299
+        HARDCODED_DEPENDENCY_FUNCTION(SetThreadErrorMode),
+        HARDCODED_DEPENDENCY_FUNCTION(CopyFileExW),
+        HARDCODED_DEPENDENCY_FUNCTION(DeleteVolumeMountPointW),
+        HARDCODED_DEPENDENCY_FUNCTION(GetLogicalDrives),
+#endif
     };
+
+#if IL2CPP_TARGET_WINRT
+    const HardcodedPInvokeDependencyFunction kBCryptFunctions[] =
+    {
+        HARDCODED_DEPENDENCY_FUNCTION(BCryptGenRandom),
+    };
+#endif
 
     const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
     {
@@ -89,6 +127,7 @@ namespace os
         HARDCODED_DEPENDENCY_LIBRARY(L"iphlpapi", kiphlpapiFunctions),
 #if IL2CPP_TARGET_WINRT // Win8+, plus needs to be looked up dynamically on Xbox One
         HARDCODED_DEPENDENCY_LIBRARY(L"wintypes", kWinTypesFunctions),
+        HARDCODED_DEPENDENCY_LIBRARY(L"bcrypt", kBCryptFunctions),
 #endif
     };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "il2cpp-config.h"
+#include "il2cpp-codegen-common.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -10,6 +11,7 @@
 #include "il2cpp-tabledefs.h"
 
 #include "vm-utils/Debugger.h"
+#include "vm-utils/Finally.h"
 #include "utils/ExceptionSupportStack.h"
 #include "utils/Output.h"
 
@@ -111,16 +113,6 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 }
 
 // Exception support macros
-#define IL2CPP_LEAVE(Offset, Target) \
-    __leave_targets.push(Offset); \
-    goto Target;
-
-#define IL2CPP_END_FINALLY(Id) \
-    goto __CLEANUP_ ## Id;
-
-#define IL2CPP_CLEANUP(Id) \
-    __CLEANUP_ ## Id:
-
 #define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
     __active_exceptions.push(Exception)
 
@@ -130,35 +122,17 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 #define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
     (ExcType)__active_exceptions.top()
 
-#define IL2CPP_RETHROW_IF_UNHANDLED(ExcType) \
-    if(__last_unhandled_exception) { \
-        ExcType _tmp_exception_local = __last_unhandled_exception; \
-        __last_unhandled_exception = 0; \
-        il2cpp_codegen_raise_exception(_tmp_exception_local); \
-        }
-
-#define IL2CPP_JUMP_TBL(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) { \
-        __leave_targets.pop(); \
-        goto Target; \
-        }
-
-#define IL2CPP_END_CLEANUP(Offset, Target) \
-    if(!__leave_targets.empty() && __leave_targets.top() == Offset) \
-        goto Target;
-
+#define IL2CPP_RAISE_NULL_REFERENCE_EXCEPTION() \
+    do {\
+        il2cpp_codegen_raise_null_reference_exception();\
+        il2cpp_codegen_no_return();\
+    } while (0)
 
 #define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
     do {\
         il2cpp_codegen_raise_exception((Exception_t*)message, (RuntimeMethod*)lastManagedFrame);\
         il2cpp_codegen_no_return();\
     } while (0)
-
-#if IL2CPP_ENABLE_WRITE_BARRIERS
-void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object);
-#else
-inline void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object) {}
-#endif
 
 void il2cpp_codegen_memory_barrier();
 
@@ -265,9 +239,9 @@ inline bool il2cpp_codegen_check_sub_overflow(int64_t left, int64_t right)
         (right < 0 && left > kIl2CppInt64Max + right);
 }
 
-inline void il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
+inline void* il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
 {
-    memcpy(dest, src, count);
+    return memcpy(dest, src, count);
 }
 
 inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
@@ -359,6 +333,11 @@ inline bool il2cpp_codegen_platform_is_freebsd()
 {
     // we don't currently support FreeBSD
     return false;
+}
+
+inline bool il2cpp_codegen_platform_is_uwp()
+{
+    return IL2CPP_TARGET_WINRT != 0;
 }
 
 inline bool il2cpp_codegen_platform_disable_libc_pinvoke()

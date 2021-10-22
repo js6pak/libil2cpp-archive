@@ -4,6 +4,7 @@
 #include "vm/Method.h"
 #include "vm/RCW.h"
 #include "gc/GCHandle.h"
+#include "metadata/GenericMethod.h"
 
 namespace il2cpp
 {
@@ -11,9 +12,11 @@ namespace vm
 {
     Il2CppClass* ClassInlines::InitFromCodegenSlow(Il2CppClass *klass)
     {
+        IL2CPP_ASSERT(klass != il2cpp_defaults.il2cpp_fully_shared_type);
+
         Class::Init(klass);
 
-        if (klass->has_initialization_error)
+        if (klass->initializationExceptionGCHandle)
             il2cpp::vm::Exception::Raise((Il2CppException*)gc::GCHandle::GetTarget(klass->initializationExceptionGCHandle));
 
         return klass;
@@ -21,15 +24,23 @@ namespace vm
 
     Il2CppClass* ClassInlines::InitFromCodegenSlow(Il2CppClass *klass, bool throwOnError)
     {
+        IL2CPP_ASSERT(klass != il2cpp_defaults.il2cpp_fully_shared_type);
+
         if (throwOnError)
             return InitFromCodegenSlow(klass);
 
         Class::Init(klass);
 
-        if (klass->has_initialization_error)
+        if (klass->initializationExceptionGCHandle)
             return NULL;
 
         return klass;
+    }
+
+    const MethodInfo* ClassInlines::InitRgctxFromCodegenSlow(const MethodInfo* method)
+    {
+        il2cpp::metadata::GenericMethod::InflateRGCTX(method);
+        return method;
     }
 
     NORETURN static void RaiseExceptionForNotFoundInterface(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)

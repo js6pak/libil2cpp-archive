@@ -5,6 +5,7 @@
 #include "vm/GenericClass.h"
 #include "vm/Image.h"
 #include "vm/MetadataLock.h"
+#include "vm/Method.h"
 #include "vm/Type.h"
 #include "metadata/ArrayMetadata.h"
 #include "metadata/GenericMetadata.h"
@@ -68,12 +69,10 @@ namespace metadata
         method->slot = kInvalidIl2CppMethodSlot;
         method->return_type = returnType;
         method->parameters_count = parameterCount;
-        ParameterInfo* parameters = (ParameterInfo*)MetadataCalloc(parameterCount, sizeof(ParameterInfo));
+        const Il2CppType** parameters = (const Il2CppType**)MetadataCalloc(parameterCount, sizeof(Il2CppType*));
         for (uint8_t i = 0; i < parameterCount; i++)
         {
-            parameters[i].position = i;
-            parameters[i].parameter_type = parameterTypes[i];
-            parameters[i].name = NULL;
+            parameters[i] = parameterTypes[i];
         }
         method->parameters = parameters;
 
@@ -93,7 +92,7 @@ namespace metadata
 
     struct GenericArrayMethod
     {
-        std::string name;
+        const char* name;
         const MethodInfo* method;
         const MethodInfo* interfaceMethodDefinition;
     };
@@ -170,15 +169,14 @@ namespace metadata
 
                 for (::std::vector<Il2CppClass*>::iterator iter = elementInterfaces.begin(); iter != elementInterfaces.end(); ++iter)
                 {
-                    Il2CppTypeVector genericArguments;
-                    genericArguments.push_back(&(*iter)->byval_arg);
+                    const Il2CppType* genericArgument = &(*iter)->byval_arg;
 
-                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ilist_class, genericArguments));
-                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_icollection_class, genericArguments));
-                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, genericArguments));
+                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ilist_class, &genericArgument, 1));
+                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_icollection_class, &genericArgument, 1));
+                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, &genericArgument, 1));
 
-                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, genericArguments));
-                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, genericArguments));
+                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, &genericArgument, 1));
+                    interfaces.push_back(Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, &genericArgument, 1));
                 }
             }
 
@@ -256,7 +254,7 @@ namespace metadata
 
             if (matchingInterfacesMethod != NULL)
             {
-                GenericArrayMethod generiArrayMethod = { name, method, matchingInterfacesMethod };
+                GenericArrayMethod generiArrayMethod = { StringUtils::StringDuplicate(name.c_str()), method, matchingInterfacesMethod };
                 genericArrayMethods.push_back(generiArrayMethod);
             }
         }
@@ -272,28 +270,19 @@ namespace metadata
 
     static MethodInfo* ConstructGenericArrayMethod(const GenericArrayMethod& genericArrayMethod, Il2CppClass* klass, Il2CppGenericContext* context)
     {
-        MethodInfo* inflatedMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
-        inflatedMethod->name = StringUtils::StringDuplicate(genericArrayMethod.name.c_str());
-        inflatedMethod->klass = klass;
-
-        const MethodInfo* methodToCopyDataFrom = genericArrayMethod.method;
+        MethodInfo* inflatedMethod;
         if (genericArrayMethod.method->is_generic)
         {
-            const Il2CppGenericMethod* genericMethod = MetadataCache::GetGenericMethod(genericArrayMethod.method, context->class_inst, context->method_inst);
-            methodToCopyDataFrom = GenericMethod::GetMethod(genericMethod);
-
-            inflatedMethod->is_inflated = true;
-            inflatedMethod->genericMethod = genericMethod;
-            inflatedMethod->rgctx_data = methodToCopyDataFrom->rgctx_data;
+            inflatedMethod = GenericMethod::AllocateNewMethodInfo(genericArrayMethod.method, context->class_inst, context->method_inst);
+        }
+        else
+        {
+            inflatedMethod = (MethodInfo*)MetadataCalloc(1, sizeof(MethodInfo));
+            memcpy(inflatedMethod, genericArrayMethod.method, sizeof(MethodInfo));
         }
 
-        inflatedMethod->slot = methodToCopyDataFrom->slot;
-        inflatedMethod->parameters_count = methodToCopyDataFrom->parameters_count;
-        inflatedMethod->parameters = methodToCopyDataFrom->parameters;
-        inflatedMethod->return_type = methodToCopyDataFrom->return_type;
-
-        inflatedMethod->methodPointer = methodToCopyDataFrom->methodPointer;
-        inflatedMethod->invoker_method = methodToCopyDataFrom->invoker_method;
+        inflatedMethod->name = genericArrayMethod.name;
+        inflatedMethod->klass = klass;
 
         return inflatedMethod;
     }
@@ -309,9 +298,7 @@ namespace metadata
             Il2CppClass* interfaceDefinition = GenericClass::GetTypeDefinition(interfaceType->generic_class);
 
             Il2CppGenericContext context = { 0 };
-            Il2CppTypeVector types;
-            types.push_back(interfaceType->generic_class->context.class_inst->type_argv[0]);
-            context.method_inst = MetadataCache::GetGenericInst(types);
+            context.method_inst = MetadataCache::GetGenericInst(&interfaceType->generic_class->context.class_inst->type_argv[0], 1);
 
             for (GenericArrayMethods::const_iterator iter = genericArrayMethods.begin(); iter != genericArrayMethods.end(); ++iter)
             {
@@ -323,7 +310,7 @@ namespace metadata
 
                 size_t vtableIndex = klass->interfaceOffsets[i].offset + iter->interfaceMethodDefinition->slot;
                 klass->vtable[vtableIndex].method = arrayMethod;
-                klass->vtable[vtableIndex].methodPtr = arrayMethod->methodPointer;
+                klass->vtable[vtableIndex].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(arrayMethod);
             }
         }
     }
@@ -354,26 +341,25 @@ namespace metadata
         int32_t vtableSlot = arrayVTableSlot;
         for (::std::vector<Il2CppClass*>::iterator iter = interfaces.begin(); iter != interfaces.end(); iter++, index += kImplicitArrayInterfaceCount)
         {
-            Il2CppTypeVector genericArguments;
-            genericArguments.push_back(&(*iter)->byval_arg);
+            const Il2CppType* genericArgument = &(*iter)->byval_arg;
 
-            newInterfaceOffsets[index].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ilist_class, genericArguments);
+            newInterfaceOffsets[index].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ilist_class, &genericArgument, 1);
             newInterfaceOffsets[index].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index].interfaceType->method_count;
 
-            newInterfaceOffsets[index + 1].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_icollection_class, genericArguments);
+            newInterfaceOffsets[index + 1].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_icollection_class, &genericArgument, 1);
             newInterfaceOffsets[index + 1].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index + 1].interfaceType->method_count;
 
-            newInterfaceOffsets[index + 2].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, genericArguments);
+            newInterfaceOffsets[index + 2].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, &genericArgument, 1);
             newInterfaceOffsets[index + 2].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index + 2].interfaceType->method_count;
 
-            newInterfaceOffsets[index + 3].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, genericArguments);
+            newInterfaceOffsets[index + 3].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, &genericArgument, 1);
             newInterfaceOffsets[index + 3].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index + 3].interfaceType->method_count;
 
-            newInterfaceOffsets[index + 4].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, genericArguments);
+            newInterfaceOffsets[index + 4].interfaceType = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, &genericArgument, 1);
             newInterfaceOffsets[index + 4].offset = vtableSlot;
             vtableSlot += newInterfaceOffsets[index + 4].interfaceType->method_count;
         }
@@ -420,20 +406,19 @@ namespace metadata
         {
             IL2CPP_ASSERT(klass->implementedInterfaces == NULL);
 
-            Il2CppTypeVector genericArguments;
-            genericArguments.push_back(&klass->element_class->byval_arg);
+            const Il2CppType* genericArguments = &klass->element_class->byval_arg;
 
             IL2CPP_ASSERT(klass->interfaces_count == kImplicitArrayInterfaceCount);
             klass->implementedInterfaces = (Il2CppClass**)MetadataMalloc(klass->interfaces_count * sizeof(Il2CppClass*));
-            klass->implementedInterfaces[0] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ilist_class, genericArguments);
+            klass->implementedInterfaces[0] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ilist_class, &genericArguments, 1);
             IL2CPP_ASSERT(klass->implementedInterfaces[0]);
-            klass->implementedInterfaces[1] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_icollection_class, genericArguments);
+            klass->implementedInterfaces[1] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_icollection_class, &genericArguments, 1);
             IL2CPP_ASSERT(klass->implementedInterfaces[1]);
-            klass->implementedInterfaces[2] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, genericArguments);
+            klass->implementedInterfaces[2] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ienumerable_class, &genericArguments, 1);
             IL2CPP_ASSERT(klass->implementedInterfaces[2]);
-            klass->implementedInterfaces[3] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, genericArguments);
+            klass->implementedInterfaces[3] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlylist_class, &genericArguments, 1);
             IL2CPP_ASSERT(klass->implementedInterfaces[3]);
-            klass->implementedInterfaces[4] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, genericArguments);
+            klass->implementedInterfaces[4] = Class::GetInflatedGenericInstanceClass(il2cpp_defaults.generic_ireadonlycollection_class, &genericArguments, 1);
             IL2CPP_ASSERT(klass->implementedInterfaces[4]);
         }
     }

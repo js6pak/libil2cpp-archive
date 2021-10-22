@@ -200,13 +200,18 @@ namespace vm
             klass->element_class = klass->castClass = klass;
 
             klass->has_cctor = definition->has_cctor;
+            klass->cctor_finished_or_no_cctor = !definition->has_cctor;
+
             klass->has_finalize = definition->has_finalize;
             klass->native_size = klass->thread_static_fields_offset = -1;
             klass->token = definition->token;
             klass->interopData = MetadataCache::GetInteropDataForType(&klass->byval_arg);
 
-            if (Class::IsNullable(klass))
-                klass->element_class = klass->castClass  = Class::GetNullableArgument(klass);
+            if (GenericClass::GetTypeDefinition(klass->generic_class) == il2cpp_defaults.generic_nullable_class)
+            {
+                klass->element_class = klass->castClass = Class::FromIl2CppType(klass->generic_class->context.class_inst->type_argv[0]);
+                klass->nullabletype = true;
+            }
 
             if (klass->enumtype)
                 klass->element_class = klass->castClass =  definition->element_class;

@@ -10,10 +10,6 @@
 
 #include "il2cpp-sanitizers.h"
 
-#ifndef IL2CPP_EXCEPTION_DISABLED
-#define IL2CPP_EXCEPTION_DISABLED 0
-#endif
-
 #ifdef LIBIL2CPP_EXPORT_CODEGEN_API
 # define LIBIL2CPP_CODEGEN_API IL2CPP_EXPORT
 #elif LIBIL2CPP_IMPORT_CODEGEN_API
@@ -39,6 +35,7 @@
 #endif
 
 typedef void (STDCALL *SynchronizationContextCallback)(intptr_t arg);
+typedef void (STDCALL *CultureInfoChangedCallback)(const Il2CppChar* arg);
 
 #if defined(__cplusplus)
 #define IL2CPP_EXTERN_C extern "C"
@@ -248,11 +245,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #define RUNTIMEMESSAGE(name)    __FILE_UTF8__ "(" $Line ") : FIXME: Missing runtime implementation: " name
 #define NOTSUPPORTEDICALLMESSAGE(target, name, reason)  __FILE_UTF8__ "(" $Line ") : Unsupported internal call for " target ":" name " - " reason
 
-#ifndef IL2CPP_DEFAULT_DATA_DIR_PATH
-#define IL2CPP_DEFAULT_DATA_DIR_PATH Data
-#endif
-
-#define IL2CPP_DEFAULT_DATA_DIR_PATH_STR MAKE_STRING(STRINGIZE, IL2CPP_DEFAULT_DATA_DIR_PATH)
 
 // Keeping this for future usage if needed.
 //#if defined(_MSC_VER)
@@ -325,7 +317,7 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #if IL2CPP_COMPILER_MSVC
     #define IL2CPP_USE_GENERIC_SOCKET_IMPL  0
 #else
-    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  (!IL2CPP_TARGET_POSIX) &&  (!IL2CPP_TARGET_SWITCH)
+    #define IL2CPP_USE_GENERIC_SOCKET_IMPL  !(IL2CPP_TARGET_POSIX || IL2CPP_TARGET_SWITCH || IL2CPP_SUPPORT_SOCKETS_POSIX_API)
 #endif
 
 #ifndef IL2CPP_USE_GENERIC_SOCKET_BRIDGE
@@ -369,11 +361,15 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_USE_GENERIC_PROCESS !IL2CPP_TARGET_LUMIN
 #endif
 
+#ifndef IL2CPP_USE_GENERIC_THREAD
+#define IL2CPP_USE_GENERIC_THREAD (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX && !IL2CPP_TARGET_DARWIN)
+#endif
+
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
 #ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_ARM64 && !__x86_64__ ) )
+#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && __ANDROID_API__ < 21 ) )
 #endif
 
 #if IL2CPP_MONO_DEBUGGER
@@ -437,6 +433,22 @@ static const int ipv6AddressSize = 16;
 #endif
 
 #define IL2CPP_SUPPORT_IPV6_SUPPORT_QUERY (IL2CPP_SUPPORT_IPV6 && IL2CPP_TARGET_LINUX)
+
+#if !defined(IL2CPP_SUPPORT_SEND_FILE)
+#define IL2CPP_SUPPORT_SEND_FILE (!IL2CPP_TARGET_SWITCH)
+#endif
+
+#if !defined(IL2CPP_SUPPORT_RECV_MSG)
+#define IL2CPP_SUPPORT_RECV_MSG (!IL2CPP_TARGET_SWITCH)
+#endif
+
+#if !defined(IL2CPP_SUPPORT_SEND_MSG)
+#define IL2CPP_SUPPORT_SEND_MSG (!IL2CPP_TARGET_SWITCH)
+#endif
+
+#ifndef IL2CPP_USE_NETWORK_ACCESS_HANDLER
+#define IL2CPP_USE_NETWORK_ACCESS_HANDLER 0
+#endif
 
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
@@ -503,7 +515,7 @@ static const Il2CppChar kIl2CppNewLine[] = { '\r', '\n', '\0' };
 static const Il2CppChar kIl2CppNewLine[] = { '\n', '\0' };
 #endif
 
-#define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted.   Consider increasing the --maximum-recursive-generic-depth argument above %d"
+#define MAXIMUM_NESTED_GENERICS_EXCEPTION_MESSAGE "IL2CPP encountered a managed type which it cannot convert ahead-of-time. The type uses generic or array types which are nested beyond the maximum depth which can be converted.   Consider increasing the --maximum-recursive-generic-depth=%d argument"
 #if IL2CPP_COMPILER_MSVC
 #define IL2CPP_ATTRIBUTE_WEAK
 #else
