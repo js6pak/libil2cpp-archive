@@ -32,8 +32,14 @@ template<typename T>
 inline T il2cpp_codegen_cast_double_to_int(double value)
 {
 #if IL2CPP_TARGET_ARM64 || IL2CPP_TARGET_ARMV7
-    if (value == INFINITY)
-        return (T)-value;
+    if (value == HUGE_VAL)
+    {
+        if (std::is_same<T, int64_t>::value)
+            return INT64_MIN;
+        if (std::is_same<T, int32_t>::value)
+            return INT32_MIN;
+        return 0;
+    }
 #endif
     return (T)value;
 }
