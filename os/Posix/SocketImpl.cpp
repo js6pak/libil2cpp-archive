@@ -97,7 +97,7 @@ namespace os
         return false;
     }
 
-    static bool is_private(const struct sockaddr *sa, socklen_t sa_size)
+    bool SocketImpl::is_private(const struct sockaddr *sa, socklen_t sa_size)
     {
         if (is_limited_broadcast(sa, sa_size))
         {
@@ -141,7 +141,7 @@ namespace os
         return false;
     }
 
-    static bool is_private(const char* address)
+    bool SocketImpl::is_private(const char* address)
     {
         if (address == 0 || address[0] == 0)
         {
@@ -501,7 +501,7 @@ namespace os
         NetworkAccessHandler::Auto scopedAccess;
         if (!is_loopback(hostname) || add_local_ips)
         {
-            if (!scopedAccess.RequestAccessForAddressInfo(is_private(hostname)))
+            if (!scopedAccess.RequestAccessForAddressInfo(SocketImpl::is_private(hostname)))
             {
                 return kWaitStatusFailure;
             }
