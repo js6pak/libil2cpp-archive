@@ -991,6 +991,11 @@ namespace vm
             klass->minimumAlignment = layoutData.minimumAlignment;
             klass->actualSize = static_cast<uint32_t>(layoutData.actualClassSize);
 
+            if (klass->image == il2cpp_defaults.corlib && !strcmp("Ephemeron", klass->name))
+            {
+                klass->has_references = false;
+            }
+
             size_t staticSize = staticLayoutData.classSize;
             size_t threadStaticSize = threadStaticLayoutData.classSize;
 
@@ -1315,7 +1320,7 @@ namespace vm
                     if (method != NULL)
                     {
                         if (method->virtualMethodPointer)
-                            klass->vtable[i].methodPtr = method->virtualMethodPointer;
+                            klass->vtable[i].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
                         else
                             klass->vtable[i].methodPtr = EntryPointNotFoundMethod;
                     }

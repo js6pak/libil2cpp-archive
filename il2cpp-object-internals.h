@@ -504,6 +504,7 @@ typedef struct Il2CppException
 {
     Il2CppObject object;
 #endif //__cplusplus
+#if !IL2CPP_TINY
     Il2CppString* className;
     Il2CppString* message;
     Il2CppObject* _data;
@@ -520,6 +521,17 @@ typedef struct Il2CppException
     Il2CppArray* captured_traces;
     Il2CppArray* native_trace_ips;
     int32_t caught_in_unmanaged;
+#else
+    Il2CppString* message;
+    union
+    {
+        // Stack trace is the field at this position,
+        // but we'll define inner_ex and hresult to reduce the number of defines we need in vm::Exception.cpp
+        Il2CppString* stack_trace;
+        Il2CppException* inner_ex;
+        il2cpp_hresult_t hresult;
+    };
+#endif
 } Il2CppException;
 
 // System.SystemException
