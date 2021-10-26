@@ -107,6 +107,8 @@ namespace gc
         static void UnregisterRoot(char* start);
 
         static void SetSkipThread(bool skip);
+
+        static bool EphemeronArrayAdd(Il2CppObject* obj);
     };
 } /* namespace vm */
 } /* namespace il2cpp */
