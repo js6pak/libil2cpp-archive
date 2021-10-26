@@ -56,7 +56,7 @@ namespace metadata
         // This Visitor methods will be called in the defined order
         virtual void VisitArgumentSizes(uint32_t argumentCount, uint32_t fieldCount, uint32_t propertyCount) {}
         virtual void VisitArgument(const CustomAttributeArgument& argument, uint32_t index) {}
-        virtual void VisitCtor(const MethodInfo* ctor, CustomAttributeArgument args[], uint32_t arguementCount) {}
+        virtual void VisitCtor(const MethodInfo* ctor, CustomAttributeArgument args[], uint32_t argumentCount) {}
         virtual void VisitField(const CustomAttributeFieldArgument& field, uint32_t index) {}
         virtual void VisitProperty(const CustomAttributePropertyArgument& prop, uint32_t index) {}
     };

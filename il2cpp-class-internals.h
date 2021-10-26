@@ -485,6 +485,7 @@ typedef struct Il2CppDomain
     Il2CppAppDomain* domain;
     Il2CppAppDomainSetup* setup;
     Il2CppAppContext* default_context;
+    Il2CppObject* ephemeron_tombstone;
     const char* friendly_name;
     uint32_t domain_id;
 
