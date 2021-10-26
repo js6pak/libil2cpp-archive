@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include <sys/socket.h>
 
 #include "os/Socket.h"
 #include "os/ErrorCodes.h"
@@ -116,6 +117,9 @@ namespace os
 
         static void Startup();
         static void Cleanup();
+
+        static bool is_private(const struct sockaddr *sa, socklen_t sa_size);
+        static bool is_private(const char* address);
 
     private:
 
