@@ -521,10 +521,14 @@ static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(
 
 static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(const Il2CppType* constraint)
 {
+    // This must match GenericSharingAnalsyis.GetGenericParameterConstraintRestriction()
+
     if (constraint->type == IL2CPP_TYPE_VAR || constraint->type == IL2CPP_TYPE_MVAR)
         return il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromType(constraint));
     if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.enum_class->byval_arg))
         return il2cpp::vm::GenericParameterRestrictionValueType;
+    if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.value_type_class->byval_arg))
+        return il2cpp::vm::GenericParameterRestrictionNone; // Not a valid constraint, so consider it unconstrained
     else if (il2cpp::vm::Class::IsInterface(il2cpp::vm::Class::FromIl2CppType(constraint)))
         return il2cpp::vm::GenericParameterRestrictionNone; // Interfaces constraints can be satisfied by reference or value types
 

@@ -45,7 +45,9 @@ namespace vm
         static const char* GetParameterDefaultValue(const MethodInfo *method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
         static uint32_t GetParameterToken(const MethodInfo* method, int32_t parameterPosition);
         static const MethodInfo* GetAmbiguousMethodInfo();
+        static const MethodInfo* GetEntryPointNotFoundMethodInfo();
         static bool IsAmbiguousMethodInfo(const MethodInfo* method);
+        static bool IsEntryPointNotFoundMethodInfo(const MethodInfo* method);
         static bool HasFullGenericSharingSignature(const MethodInfo* method);
         static Il2CppMethodPointer GetVirtualCallMethodPointer(const MethodInfo* method);
     };
