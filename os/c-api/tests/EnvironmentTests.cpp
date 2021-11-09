@@ -46,6 +46,7 @@ SUITE(Environment)
         CHECK_NULL(UnityPalGetEnvironmentVariable("TEST_VARIABLE_THAT_DOES_NOT_EXIST"));
     }
 
+#if !IL2CPP_TARGET_WINDOWS_GAMES
     TEST(GetHomeDirectoryMatchesClass)
     {
         std::string class_home_directory = il2cpp::os::Environment::GetHomeDirectory();
@@ -53,6 +54,7 @@ SUITE(Environment)
         CHECK_EQUAL(class_home_directory, api_home_directory);
         free(api_home_directory);
     }
+#endif
 
     TEST(GetProcessorCount)
     {

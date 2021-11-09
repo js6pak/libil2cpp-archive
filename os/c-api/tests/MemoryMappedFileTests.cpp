@@ -67,7 +67,7 @@ private:
         static const char* buffer = TEST_STRING;
         int error;
 
-        il2cpp::os::File::Write(handle, buffer, (int)strlen(buffer), &error);
+        il2cpp::os::File::Write(handle, buffer, (int)strlen(buffer) + 1, &error);
     }
 
     int CloseTestFile(il2cpp::os::FileHandle* handle)
@@ -143,12 +143,6 @@ SUITE(MemoryMappedFile)
         CHECK_EQUAL(0, strncmp("THIS IS", (const char*)apiAddress, (size_t)length));
     }
 
-    TEST_FIXTURE(MapTestsWithParamsFixture, MappedWithParamsPointerHasMatchingSizeAsFile)
-    {
-        apiAddress = UnityPalMemoryMappedFileMapWithParams(handle, length, offset);
-        CHECK_EQUAL(strlen(TEST_STRING), strlen((const char*)apiAddress));
-    }
-
     TEST_FIXTURE(MapTestsWithParamsFixture, ApiMapWithParamsReturnsPointerThatDoesNotMatchClass)
     {
         apiAddress = UnityPalMemoryMappedFileMapWithParams(handle, length, offset);
@@ -159,12 +153,6 @@ SUITE(MemoryMappedFile)
     {
         apiAddress = UnityPalMemoryMappedFileMapWithParams(handle, length, offset);
         CHECK_EQUAL(strncmp("THIS IS", (const char*)classAddress, (size_t)length), strncmp("THIS IS", (const char*)apiAddress, (size_t)length));
-    }
-
-    TEST_FIXTURE(MapTestsWithParamsFixture, ApiMappedWithParamsLengthMatchesClassMatchedLength)
-    {
-        apiAddress = UnityPalMemoryMappedFileMapWithParams(handle, length, offset);
-        CHECK_EQUAL(strlen((const char*)classAddress), strlen((const char*)apiAddress));
     }
 }
 
