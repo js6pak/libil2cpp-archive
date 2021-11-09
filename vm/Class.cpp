@@ -1229,11 +1229,6 @@ namespace vm
         }
     }
 
-    static void EntryPointNotFoundMethod()
-    {
-        il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetEntryPointNotFoundException(""));
-    }
-
     static void SetupVTable(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
         if (klass->is_vtable_initialized)
@@ -1287,7 +1282,12 @@ namespace vm
                         else if (method->is_inflated && !method->is_generic && !method->genericMethod->context.method_inst)
                             klass->vtable[i].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(method);
                         else
-                            klass->vtable[i].methodPtr = EntryPointNotFoundMethod;
+                            klass->vtable[i].methodPtr = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
+                    }
+                    else
+                    {
+                        klass->vtable[i].method = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo();
+                        klass->vtable[i].methodPtr = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
                     }
                 }
             }
@@ -1322,7 +1322,12 @@ namespace vm
                         if (method->virtualMethodPointer)
                             klass->vtable[i].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
                         else
-                            klass->vtable[i].methodPtr = EntryPointNotFoundMethod;
+                            klass->vtable[i].methodPtr = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
+                    }
+                    else
+                    {
+                        klass->vtable[i].method = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo();
+                        klass->vtable[i].methodPtr = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
                     }
                 }
             }

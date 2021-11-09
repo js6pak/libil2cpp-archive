@@ -56,7 +56,7 @@ SUITE(File)
         il2cpp::os::FileHandle* handle;
     };
 
-#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
+#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
     TEST_FIXTURE(FileFixture, FileIsAttyWithValidButNoTTY_ReturnsFalse)
     {
         CHECK_MSG(!UnityPalIsatty(handle), "A normal is a TTY, which is not expected.");
