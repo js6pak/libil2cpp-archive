@@ -220,6 +220,7 @@ namespace vm
         DEFAULTS_INIT(string_class, "System", "String");
         DEFAULTS_INIT(enum_class, "System", "Enum");
         DEFAULTS_INIT(array_class, "System", "Array");
+        DEFAULTS_INIT(value_type_class, "System", "ValueType");
 #if !IL2CPP_TINY
         DEFAULTS_INIT_TYPE(delegate_class, "System", "Delegate", Il2CppDelegate);
         DEFAULTS_INIT_TYPE(multicastdelegate_class, "System", "MulticastDelegate", Il2CppMulticastDelegate);
@@ -279,7 +280,6 @@ namespace vm
         DEFAULTS_INIT_OPTIONAL(customattribute_data_class, "System.Reflection", "CustomAttributeData");
         DEFAULTS_INIT_OPTIONAL(customattribute_typed_argument_class, "System.Reflection", "CustomAttributeTypedArgument");
         DEFAULTS_INIT_OPTIONAL(customattribute_named_argument_class, "System.Reflection", "CustomAttributeNamedArgument");
-        DEFAULTS_INIT(value_type_class, "System", "ValueType");
         DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
         DEFAULTS_INIT(system_guid_class, "System", "Guid");
 #endif // !IL2CPP_TINY

@@ -1110,16 +1110,17 @@ namespace System
 
                 const MethodInfo* targetMethod = invokeDataStart[i].method;
 
-                if (vm::Method::IsAmbiguousMethodInfo(targetMethod))
+                if (vm::Method::IsAmbiguousMethodInfo(targetMethod) || vm::Method::IsEntryPointNotFoundMethodInfo(targetMethod))
                 {
-                    // Method is an ambibous default interface method (more than one DIM matched)
+                    // Method is an ambiguous default interface method (more than one DIM matched)
+                    // Or there is no valid method in this slot
                     member = NULL;
                 }
                 else if (vm::Class::IsInterface(targetMethod->klass))
                 {
-                    // We found a default inteface method
+                    // We found a default interface method
 
-                    if (targetMethod->flags & METHOD_ATTRIBUTE_ABSTRACT)
+                    if (targetMethod->methodPointer == NULL)
                     {
                         // The method was re-abstracted
                         member = NULL;
