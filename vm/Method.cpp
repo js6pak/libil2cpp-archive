@@ -323,22 +323,60 @@ namespace vm
         il2cpp::vm::Runtime::RaiseAmbiguousImplementationException(method);
     }
 
+    static void EntryPointNotFoundImplementationMethod()
+    {
+        il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetEntryPointNotFoundException(""));
+    }
+
+    static void EntryPointNotFoundMethodInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
+    {
+        std::string name = "";
+        if (method != NULL && method->name != NULL)
+            name = Method::GetFullName(method);
+        il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetEntryPointNotFoundException(name.c_str()));
+    }
+
     const static MethodInfo ambiguousMethodInfo =
     {
-        AmbiguousImplementationMethod,
-        AmbiguousImplementationMethod,
-        AmbiguousImplementationMethodInvoker,
+        AmbiguousImplementationMethod,              // method_ptr
+        AmbiguousImplementationMethod,              // virtual_method_ptr
+        AmbiguousImplementationMethodInvoker,       // invoker_method
+    };
+
+    const static MethodInfo entryPointNoFoundMethodInfo =
+    {
+        EntryPointNotFoundImplementationMethod,     // method_ptr
+        EntryPointNotFoundImplementationMethod,     // virtual_method_ptr
+        EntryPointNotFoundMethodInvoker,            // invoker_method
     };
 
     const MethodInfo* Method::GetAmbiguousMethodInfo()
     {
+        IL2CPP_ASSERT(ambiguousMethodInfo.methodPointer == AmbiguousImplementationMethod);
+        IL2CPP_ASSERT(ambiguousMethodInfo.virtualMethodPointer == AmbiguousImplementationMethod);
+        IL2CPP_ASSERT(ambiguousMethodInfo.invoker_method == AmbiguousImplementationMethodInvoker);
+
         // GenericMethod::GetMethod relies on ambiguousMethodInfo being a singleton
         return &ambiguousMethodInfo;
+    }
+
+    const MethodInfo* Method::GetEntryPointNotFoundMethodInfo()
+    {
+        IL2CPP_ASSERT(entryPointNoFoundMethodInfo.methodPointer == EntryPointNotFoundImplementationMethod);
+        IL2CPP_ASSERT(entryPointNoFoundMethodInfo.virtualMethodPointer == EntryPointNotFoundImplementationMethod);
+        IL2CPP_ASSERT(entryPointNoFoundMethodInfo.invoker_method == EntryPointNotFoundMethodInvoker);
+
+        return &entryPointNoFoundMethodInfo;
     }
 
     bool Method::IsAmbiguousMethodInfo(const MethodInfo* method)
     {
         return method == &ambiguousMethodInfo || metadata::GenericMethod::IsGenericAmbiguousMethodInfo(method);
+    }
+
+    bool Method::IsEntryPointNotFoundMethodInfo(const MethodInfo* method)
+    {
+        return method == &entryPointNoFoundMethodInfo;
     }
 
     bool Method::HasFullGenericSharingSignature(const MethodInfo* method)
