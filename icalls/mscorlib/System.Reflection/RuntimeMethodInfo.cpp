@@ -124,6 +124,10 @@ namespace Reflection
                 }
 
                 m = vm::Object::GetVirtualMethod(thisPtr, m);
+
+                if (vm::Method::IsEntryPointNotFoundMethodInfo(m))
+                    vm::Exception::Raise(vm::Exception::GetEntryPointNotFoundException(vm::Method::GetFullName(method->method).c_str()));
+
                 /* must pass the pointer to the value for valuetype methods */
                 if (m->klass->byval_arg.valuetype)
                     obj = vm::Object::Unbox(thisPtr);
@@ -375,7 +379,7 @@ namespace Reflection
 
             result = klass->vtable[method2->slot].method;
 
-            if (result == NULL)
+            if (result == NULL || il2cpp::vm::Method::IsEntryPointNotFoundMethodInfo(result))
             {
                 void *iterator = NULL;
                 found = false;
