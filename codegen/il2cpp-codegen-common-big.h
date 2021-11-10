@@ -357,8 +357,6 @@ inline T il2cpp_unsafe_read_unaligned(void* location)
     return result;
 }
 
-#define IL2CPP_UNSAFE_READ_UNALIGNED(TReturnType, location) il2cpp_unsafe_read_unaligned<TReturnType>(location)
-
 template<typename T>
 inline void il2cpp_unsafe_write_unaligned(void* location, T value)
 {
@@ -367,4 +365,94 @@ inline void il2cpp_unsafe_write_unaligned(void* location, T value)
 #else
     *((T*)location) = value;
 #endif
+}
+
+template<typename T>
+inline T il2cpp_unsafe_read(void* location)
+{
+    return *((T*)location);
+}
+
+template<typename T>
+inline void il2cpp_unsafe_write(void* location, T value)
+{
+    *((T*)location) = value;
+}
+
+template<typename T, typename TOffset>
+inline T* il2cpp_unsafe_add(void* source, TOffset offset)
+{
+    return reinterpret_cast<T*>(source) + offset;
+}
+
+template<typename T, typename TOffset>
+inline T* il2cpp_unsafe_add_byte_offset(void* source, TOffset offset)
+{
+    return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(source) + offset);
+}
+
+template<typename T, typename TOffset>
+inline T* il2cpp_unsafe_subtract(void* source, TOffset offset)
+{
+    return reinterpret_cast<T*>(source) - offset;
+}
+
+template<typename T, typename TOffset>
+inline T* il2cpp_unsafe_subtract_byte_offset(void* source, TOffset offset)
+{
+    return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(source) - offset);
+}
+
+template<typename T>
+inline T il2cpp_unsafe_as(void* source)
+{
+    return reinterpret_cast<T>(source);
+}
+
+template<typename T>
+inline T* il2cpp_unsafe_as_ref(void* source)
+{
+    return reinterpret_cast<T*>(source);
+}
+
+inline void* il2cpp_unsafe_as_pointer(void* source)
+{
+    return source;
+}
+
+template<typename T>
+inline T* il2cpp_unsafe_null_ref()
+{
+    return reinterpret_cast<T*>(NULL);
+}
+
+inline bool il2cpp_unsafe_are_same(void* left, void* right)
+{
+    return left == right;
+}
+
+inline bool il2cpp_unsafe_is_addr_gt(void* left, void* right)
+{
+    return left > right;
+}
+
+inline bool il2cpp_unsafe_is_addr_lt(void* left, void* right)
+{
+    return left < right;
+}
+
+inline bool il2cpp_unsafe_is_null_ref(void* source)
+{
+    return source == NULL;
+}
+
+template<typename T>
+inline int32_t il2cpp_unsafe_sizeof()
+{
+    return sizeof(T);
+}
+
+inline intptr_t il2cpp_unsafe_byte_offset(void* origin, void* target)
+{
+    return reinterpret_cast<uint8_t*>(target) - reinterpret_cast<uint8_t*>(origin);
 }

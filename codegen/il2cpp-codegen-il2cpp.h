@@ -1124,3 +1124,9 @@ inline T* il2cpp_span_get_item(T* refPtrValue, int32_t index, int32_t length)
     IL2CPP_ARRAY_BOUNDS_CHECK(index, length);
     return &refPtrValue[index];
 }
+
+template<typename T>
+inline T* il2cpp_unsafe_unbox(RuntimeObject* obj, RuntimeClass* klass)
+{
+    return reinterpret_cast<T*>(UnBox(obj, klass));
+}
