@@ -24,6 +24,7 @@ namespace vm
 
         static void PrepareExceptionForThrow(Il2CppException* ex, MethodInfo* lastManagedFrame = NULL);
         static NORETURN void Raise(Il2CppException* ex, MethodInfo* lastManagedFrame = NULL);
+        static NORETURN void Rethrow(Il2CppException* ex);
         static NORETURN void RaiseOutOfMemoryException();
         static NORETURN void RaiseOutOfMemoryException(const utils::StringView<Il2CppChar>& msg);
         static NORETURN void RaiseNullReferenceException();

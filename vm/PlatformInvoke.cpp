@@ -465,7 +465,7 @@ namespace vm
 
         const MethodInfo* invokeMethod = il2cpp::vm::Runtime::GetDelegateInvoke(delegateType);
         Il2CppDelegate* delegate = (Il2CppDelegate*)il2cpp::vm::Object::New(delegateType);
-        Type::ConstructDelegate(delegate, (Il2CppObject*)delegate, managedToNativeWrapperMethodPointer, invokeMethod);
+        Type::ConstructClosedDelegate(delegate, (Il2CppObject*)delegate, managedToNativeWrapperMethodPointer, invokeMethod);
         delegate->delegate_trampoline = functionPtr;
 
         return delegate;

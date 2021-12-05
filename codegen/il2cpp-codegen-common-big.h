@@ -128,9 +128,15 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
         il2cpp_codegen_no_return();\
     } while (0)
 
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(message, lastManagedFrame) \
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(ex, lastManagedFrame) \
     do {\
-        il2cpp_codegen_raise_exception((Exception_t*)message, (RuntimeMethod*)lastManagedFrame);\
+        il2cpp_codegen_raise_exception((Exception_t*)ex, (RuntimeMethod*)lastManagedFrame);\
+        il2cpp_codegen_no_return();\
+    } while (0)
+
+#define IL2CPP_RETHROW_MANAGED_EXCEPTION(ex) \
+    do {\
+        il2cpp_codegen_rethrow_exception((Exception_t*)ex);\
         il2cpp_codegen_no_return();\
     } while (0)
 

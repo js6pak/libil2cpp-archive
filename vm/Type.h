@@ -241,7 +241,9 @@ namespace vm
         static Il2CppGenericParameterInfo GetGenericParameterInfo(const Il2CppType *type);
         static const Il2CppType* GetGenericTypeDefintion(const Il2CppType* type);
 
-        static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
+        static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, const MethodInfo* method);
+        static void ConstructClosedDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
+        static void SetClosedDelegateInvokeMethod(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr);
 
         static Il2CppString* AppendAssemblyNameIfNecessary(Il2CppString* typeName, const MethodInfo* callingMethod);
     };
