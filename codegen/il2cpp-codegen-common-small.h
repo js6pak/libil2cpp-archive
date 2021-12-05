@@ -3,6 +3,7 @@
 #include "il2cpp-codegen-common.h"
 #include "il2cpp-object-internals.h"
 #include <cmath>
+#include <type_traits>
 
 inline void il2cpp_codegen_initobj(void* value, size_t size)
 {

@@ -2,10 +2,10 @@
 #include "Finally.h"
 #include "vm/Exception.h"
 
-void il2cpp::utils::ThrowException(Il2CppException* exception)
+void il2cpp::utils::RethrowException(Il2CppException* exception)
 {
 #if !RUNTIME_TINY
-    vm::Exception::Raise(exception, nullptr);
+    vm::Exception::Rethrow(exception);
 #else
     tiny::vm::Exception::Raise(exception);
 #endif

@@ -5,7 +5,7 @@ namespace il2cpp
 {
 namespace utils
 {
-    void ThrowException(Il2CppException* exception);
+    void RethrowException(Il2CppException* exception);
 
     template<typename FinallyBlock, bool isFault>
     struct FinallyHelper
@@ -39,14 +39,14 @@ namespace utils
                 if (m_Exception != nullptr)
                 {
                     m_FinallyBlock();
-                    ThrowException(m_Exception);
+                    RethrowException(m_Exception);
                 }
             }
             else
             {
                 m_FinallyBlock();
                 if (m_Exception != nullptr)
-                    ThrowException(m_Exception);
+                    RethrowException(m_Exception);
             }
         }
 
