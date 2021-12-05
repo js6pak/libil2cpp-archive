@@ -31,9 +31,7 @@ namespace System
         //}
 
         Il2CppObject* delegate = il2cpp::vm::Object::New(delegate_class);
-        Il2CppMethodPointer func = target == NULL && il2cpp::vm::Class::IsValuetype(method->klass) ? method->methodPointer : il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
-
-        il2cpp::vm::Type::ConstructDelegate((Il2CppDelegate*)delegate, target, func, method);
+        il2cpp::vm::Type::ConstructDelegate((Il2CppDelegate*)delegate, target, method);
 
         return (Il2CppDelegate*)delegate;
     }
@@ -58,6 +56,7 @@ namespace System
 
         ret->delegate.method = d->method;
         IL2CPP_OBJECT_SETREF((&ret->delegate), target, d->target);
+        IL2CPP_OBJECT_SETREF((&ret->delegate), invoke_impl_this, (Il2CppObject*)ret);
 
         // extra_arg stores the multicast_invoke_impl
         ret->delegate.invoke_impl = (Il2CppMethodPointer)d->extraArg;
