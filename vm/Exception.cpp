@@ -115,6 +115,11 @@ namespace vm
         throw Il2CppExceptionWrapper(ex);
     }
 
+    NORETURN void Exception::Rethrow(Il2CppException* ex)
+    {
+        throw Il2CppExceptionWrapper(ex);
+    }
+
     NORETURN void Exception::RaiseOutOfMemoryException()
     {
         RaiseOutOfMemoryException(utils::StringView<Il2CppChar>::Empty());
