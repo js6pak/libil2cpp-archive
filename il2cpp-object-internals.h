@@ -574,11 +574,18 @@ typedef struct Il2CppDelegate
     // Used to store the mulicast_invoke_impl
     intptr_t extraArg;
 
-    /*
+    /* MONO:
      * If non-NULL, this points to a memory location which stores the address of
      * the compiled code of the method, or NULL if it is not yet compiled.
+     * uint8_t **method_code;
      */
-    uint8_t **method_code;
+    // IL2CPP: Points to the "this" method pointer we use when calling invoke_impl
+    // For closed delegates invoke_impl_this points to target and invoke_impl is method pointer so we just do a single indirect call
+    // For all other delegates invoke_impl_this is points to it's owning delegate an invoke_impl is a delegate invoke stub
+    // NOTE: This field is NOT VISIBLE to the GC because its not a managed field in the classlibs
+    //       Our usages are safe becuase we either pointer to ourself or whats stored in the target field
+    Il2CppObject* invoke_impl_this;
+
     void* interp_method;
     /* Interp method that is executed when invoking the delegate */
     void* interp_invoke_impl;
