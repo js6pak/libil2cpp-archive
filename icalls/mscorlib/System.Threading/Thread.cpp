@@ -200,44 +200,51 @@ namespace Threading
 // the memory contents as a double.
     int8_t Thread::VolatileRead_1(volatile void* address)
     {
+        int8_t tmp = *reinterpret_cast<volatile int8_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return *reinterpret_cast<volatile int8_t*>(address);
+        return tmp;
     }
 
     double Thread::VolatileRead_Double(volatile double* address)
     {
+        double tmp = *reinterpret_cast<volatile double*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return *reinterpret_cast<volatile double*>(address);
+        return tmp;
     }
 
     float Thread::VolatileRead_Float(volatile float* address)
     {
+        float tmp = *reinterpret_cast<volatile float*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return *reinterpret_cast<volatile float*>(address);
+        return tmp;
     }
 
     int16_t Thread::VolatileRead_2(volatile void* address)
     {
+        int16_t tmp = *reinterpret_cast<volatile int16_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return *reinterpret_cast<volatile int16_t*>(address);
+        return tmp;
     }
 
     int32_t Thread::VolatileRead_4(volatile void* address)
     {
+        int32_t tmp = *reinterpret_cast<volatile int32_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return *reinterpret_cast<volatile int32_t*>(address);
+        return tmp;
     }
 
     int64_t Thread::VolatileRead_8(volatile void* address)
     {
+        int64_t tmp = *reinterpret_cast<volatile int64_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return *reinterpret_cast<volatile int64_t*>(address);
+        return tmp;
     }
 
     intptr_t Thread::VolatileRead_IntPtr(volatile void* address)
     {
+        intptr_t tmp = *reinterpret_cast<volatile intptr_t*>(address);
         il2cpp::os::Atomic::FullMemoryBarrier();
-        return *reinterpret_cast<volatile intptr_t*>(address);
+        return tmp;
     }
 
     Il2CppObject* Thread::VolatileRead_Object(volatile void* address)
@@ -371,51 +378,51 @@ namespace Threading
 
     void Thread::VolatileWrite_1(volatile void* address, int8_t value)
     {
-        *reinterpret_cast<volatile int8_t*>(address) = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<volatile int8_t*>(address) = value;
     }
 
     void Thread::VolatileWrite_Double(volatile void* address, double value)
     {
-        *reinterpret_cast<volatile double*>(address) = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<volatile double*>(address) = value;
     }
 
     void Thread::VolatileWrite_2(volatile void* address, int16_t value)
     {
-        *reinterpret_cast<volatile int16_t*>(address) = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<volatile int16_t*>(address) = value;
     }
 
     void Thread::VolatileWrite_4(volatile void* address, int32_t value)
     {
-        *reinterpret_cast<volatile int32_t*>(address) = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<volatile int32_t*>(address) = value;
     }
 
     void Thread::VolatileWrite_8(volatile void* address, int64_t value)
     {
-        *reinterpret_cast<volatile int64_t*>(address) = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<volatile int64_t*>(address) = value;
     }
 
     void Thread::VolatileWrite_IntPtr(volatile void* address, intptr_t value)
     {
-        *reinterpret_cast<volatile intptr_t*>(address) = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<volatile intptr_t*>(address) = value;
     }
 
     void Thread::VolatileWrite_Object(volatile void* address, Il2CppObject* value)
     {
-        *(void**)address = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<Il2CppObject* volatile *>(address) = value;
         il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&address);
     }
 
     void Thread::VolatileWrite_Float(volatile void* address, float value)
     {
-        *reinterpret_cast<volatile float*>(address) = value;
         il2cpp::os::Atomic::FullMemoryBarrier();
+        *reinterpret_cast<volatile float*>(address) = value;
     }
 } /* namespace Threading */
 } /* namespace System */
