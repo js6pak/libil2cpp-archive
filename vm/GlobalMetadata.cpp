@@ -939,12 +939,17 @@ std::tuple<void*, void*> il2cpp::vm::GlobalMetadata::GetCustomAttributeDataRange
     if (res == NULL)
         return std::make_tuple<void*, void*>(NULL, NULL);
 
-    const Il2CppCustomAttributeDataRange* next = res + 1;
+    return GetCustomAttributeDataRange(reinterpret_cast<Il2CppMetadataCustomAttributeHandle>(res));
+}
+
+std::tuple<void*, void*> il2cpp::vm::GlobalMetadata::GetCustomAttributeDataRange(Il2CppMetadataCustomAttributeHandle handle)
+{
+    Il2CppCustomAttributeDataRange* range = (Il2CppCustomAttributeDataRange*)handle;
+    const Il2CppCustomAttributeDataRange* next = range + 1;
 
     return std::make_tuple<void*, void*>(
-        MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, res->startOffset),
-        MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, next->startOffset)
-    );
+        MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, range->startOffset),
+        MetadataOffset<uint8_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->attributeDataOffset, next->startOffset));
 }
 
 CustomAttributesCache* il2cpp::vm::GlobalMetadata::GenerateCustomAttributesCache(const Il2CppImage* image, uint32_t token)

@@ -368,10 +368,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #define IL2CPP_SIZEOF_STRUCT_WITH_NO_INSTANCE_FIELDS 1
 #define IL2CPP_VALIDATE_FIELD_LAYOUT 0
 
-#ifndef IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL
-#define IL2CPP_USE_POSIX_COND_TIMEDWAIT_REL ( IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_PSP2 || ( IL2CPP_TARGET_ANDROID && __ANDROID_API__ < 21 ) )
-#endif
-
 #if IL2CPP_MONO_DEBUGGER
 #define STORE_SEQ_POINT(storage, seqPoint) (storage).currentSequencePoint = seqPoint;
 #define STORE_TRY_ID(storage, id) (storage).tryId = id;
@@ -556,6 +552,10 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 #endif
 
 #define IL2CPP_USE_GENERIC_ASSERT !(IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINRT || IL2CPP_TARGET_PS4 || IL2CPP_TARGET_PS5)
+
+#ifndef IL2CPP_USE_SPARSEHASH
+#define IL2CPP_USE_SPARSEHASH (IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_IOS)
+#endif
 
 #if !IL2CPP_DEBUG
 #define IL2CPP_ASSERT(expr) void(0)
