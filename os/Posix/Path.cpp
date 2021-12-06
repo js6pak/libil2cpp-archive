@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_POSIX && !RUNTIME_TINY && !IL2CPP_TARGET_PS4
+#if IL2CPP_TARGET_POSIX && !RUNTIME_TINY && !IL2CPP_USE_PLATFORM_SPECIFIC_PATH
 #include "os/Environment.h"
 #include "os/Path.h"
 #include <string>

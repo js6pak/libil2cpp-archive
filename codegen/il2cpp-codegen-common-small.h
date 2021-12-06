@@ -3,11 +3,7 @@
 #include "il2cpp-codegen-common.h"
 #include "il2cpp-object-internals.h"
 #include <cmath>
-
-inline void il2cpp_codegen_initobj(void* value, size_t size)
-{
-    memset(value, 0, size);
-}
+#include <type_traits>
 
 template<typename TInput, typename TOutput, typename TFloat>
 inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
