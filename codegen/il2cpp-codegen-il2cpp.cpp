@@ -10,6 +10,7 @@
 
 #include "os/Atomic.h"
 #include "metadata/GenericMethod.h"
+#include "gc/WriteBarrier.h"
 #include "vm/Array.h"
 #include "vm/CCW.h"
 #include "vm/COM.h"
@@ -53,6 +54,12 @@ Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegat
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args)
 {
     return il2cpp::vm::ThreadPoolMs::DelegateEndInvoke(asyncResult, out_args);
+}
+
+void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeObject* target, void* methodPtr)
+{
+    IL2CPP_ASSERT(delegate->klass->parent == il2cpp_defaults.multicastdelegate_class);
+    il2cpp::vm::Type::SetClosedDelegateInvokeMethod((RuntimeDelegate*)delegate, target, (Il2CppMethodPointer)methodPtr);
 }
 
 Il2CppMethodPointer il2cpp_codegen_resolve_icall(const char* name)
@@ -359,7 +366,17 @@ void il2cpp_codegen_profiler_method_exit(const RuntimeMethod* method)
 
 NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame)
 {
-    il2cpp::vm::Exception::Raise((RuntimeException*)ex, lastManagedFrame);
+    RuntimeException* exc = (RuntimeException*)ex;
+#if !IL2CPP_TINY
+    IL2CPP_OBJECT_SETREF_NULL(exc, trace_ips);
+    IL2CPP_OBJECT_SETREF_NULL(exc, stack_trace);
+#endif
+    il2cpp::vm::Exception::Raise(exc, lastManagedFrame);
+}
+
+NORETURN void il2cpp_codegen_rethrow_exception(Exception_t *ex)
+{
+    il2cpp::vm::Exception::Rethrow((RuntimeException*)ex);
 }
 
 NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException)
@@ -1036,6 +1053,7 @@ MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2Cp
     Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)type);
     Il2CppMulticastDelegate* result = reinterpret_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(klass));
     il2cpp::gc::WriteBarrier::GenericStore(&result->delegates, delegates);
+    il2cpp::gc::WriteBarrier::GenericStore(&result->delegate.m_target, (Il2CppObject*)result);
     result->delegateCount = delegateCount;
     result->delegate.invoke_impl = il2cpp_array_get(delegates, Il2CppDelegate*, 0)->multicast_invoke_impl;
     result->delegate.multicast_invoke_impl = result->delegate.invoke_impl;

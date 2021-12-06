@@ -131,6 +131,8 @@ Type_t* il2cpp_codegen_type_get_object(const RuntimeType* type);
 
 NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame);
 
+NORETURN void il2cpp_codegen_rethrow_exception(Exception_t *ex);
+
 NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException);
 
 void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method);
@@ -870,6 +872,8 @@ Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegat
 
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args);
 
+void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeObject* target, void* methodPtr);
+
 inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(RuntimeClass* genericClass)
 {
     IL2CPP_ASSERT(genericClass->generic_class);
@@ -1123,4 +1127,10 @@ inline T* il2cpp_span_get_item(T* refPtrValue, int32_t index, int32_t length)
 {
     IL2CPP_ARRAY_BOUNDS_CHECK(index, length);
     return &refPtrValue[index];
+}
+
+template<typename T>
+inline T* il2cpp_unsafe_unbox(RuntimeObject* obj, RuntimeClass* klass)
+{
+    return reinterpret_cast<T*>(UnBox(obj, klass));
 }
