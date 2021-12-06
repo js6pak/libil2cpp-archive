@@ -39,16 +39,6 @@ typedef Il2CppArray RuntimeArray;
 #define DEFAULT_CALL
 #endif
 
-inline void* il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
-{
-    return memcpy(dest, src, count);
-}
-
-inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
-{
-    memset(ptr, value, num);
-}
-
 inline RuntimeObject* il2cpp_codegen_object_new(size_t size, TinyType* typeInfo)
 {
     return (RuntimeObject*)tiny::vm::Object::New(size, typeInfo);
@@ -404,6 +394,7 @@ inline MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type
 {
     Il2CppMulticastDelegate* result = static_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(sizeof(Il2CppMulticastDelegate), const_cast<TinyType*>(reinterpret_cast<Il2CppReflectionType*>(type)->typeHandle)));
     IL2CPP_OBJECT_SETREF(result, delegates, delegates);
+    IL2CPP_OBJECT_SETREF(result, m_target, result);
     result->delegateCount = delegateCount;
     result->invoke_impl = il2cpp_array_get(delegates, Il2CppDelegate*, 0)->multicast_invoke_impl;
     result->multicast_invoke_impl = result->invoke_impl;
@@ -474,6 +465,12 @@ inline Exception_t* il2cpp_codegen_get_marshal_directive_exception(const char* m
     } while (0)
 
 #define IL2CPP_RAISE_MANAGED_EXCEPTION(ex, lastManagedFrame) \
+    do {\
+        il2cpp_codegen_raise_exception(ex);\
+        IL2CPP_UNREACHABLE;\
+    } while (0)
+
+#define IL2CPP_RETHROW_MANAGED_EXCEPTION(ex) \
     do {\
         il2cpp_codegen_raise_exception(ex);\
         IL2CPP_UNREACHABLE;\
