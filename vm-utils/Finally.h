@@ -5,7 +5,7 @@ namespace il2cpp
 {
 namespace utils
 {
-    void RethrowException(Il2CppException* exception);
+    NORETURN void RethrowException(Il2CppException* exception);
 
     template<typename FinallyBlock, bool isFault>
     struct FinallyHelper
