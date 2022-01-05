@@ -39,16 +39,6 @@ typedef Il2CppArray RuntimeArray;
 #define DEFAULT_CALL
 #endif
 
-inline void* il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
-{
-    return memcpy(dest, src, count);
-}
-
-inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
-{
-    memset(ptr, value, num);
-}
-
 inline RuntimeObject* il2cpp_codegen_object_new(size_t size, TinyType* typeInfo)
 {
     return (RuntimeObject*)tiny::vm::Object::New(size, typeInfo);
