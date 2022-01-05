@@ -2,7 +2,7 @@
 #include "Finally.h"
 #include "vm/Exception.h"
 
-void il2cpp::utils::RethrowException(Il2CppException* exception)
+NORETURN void il2cpp::utils::RethrowException(Il2CppException* exception)
 {
 #if !RUNTIME_TINY
     vm::Exception::Rethrow(exception);
