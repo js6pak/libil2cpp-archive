@@ -141,14 +141,9 @@ namespace utils
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
 
-        static inline bool AtomicReadIsActive(Il2CppSequencePoint *seqPoint)
-        {
-            return il2cpp::os::Atomic::CompareExchange(&seqPoint->isActive, seqPoint->isActive, -1) > 0;
-        }
-
         static inline bool IsSequencePointActive(Il2CppSequencePoint *seqPoint)
         {
-            return AtomicReadIsActive(seqPoint) || g_unity_pause_point_active;
+            return il2cpp::os::Atomic::LoadRelaxed(&seqPoint->isActive) || g_unity_pause_point_active;
         }
 
         static inline bool IsSequencePointActiveEntry(Il2CppSequencePoint *seqPoint)
