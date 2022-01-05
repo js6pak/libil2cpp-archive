@@ -245,16 +245,6 @@ inline bool il2cpp_codegen_check_sub_overflow(int64_t left, int64_t right)
         (right < 0 && left > kIl2CppInt64Max + right);
 }
 
-inline void* il2cpp_codegen_memcpy(void* dest, const void* src, size_t count)
-{
-    return memcpy(dest, src, count);
-}
-
-inline void il2cpp_codegen_memset(void* ptr, int value, size_t num)
-{
-    memset(ptr, value, num);
-}
-
 inline void il2cpp_codegen_register_debugger_data(const Il2CppDebuggerMetadataRegistration *data)
 {
 #if IL2CPP_MONO_DEBUGGER
