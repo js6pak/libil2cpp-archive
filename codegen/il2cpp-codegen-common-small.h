@@ -5,11 +5,6 @@
 #include <cmath>
 #include <type_traits>
 
-inline void il2cpp_codegen_initobj(void* value, size_t size)
-{
-    memset(value, 0, size);
-}
-
 template<typename TInput, typename TOutput, typename TFloat>
 inline TOutput il2cpp_codegen_cast_floating_point(TFloat value)
 {
