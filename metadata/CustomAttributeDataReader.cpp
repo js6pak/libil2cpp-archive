@@ -192,7 +192,7 @@ namespace metadata
     {
         il2cpp::gc::WriteBarrier::GenericStoreNull(exc);
 
-        const Il2CppClass* attrClass = ctor->klass;
+        Il2CppClass* attrClass = ctor->klass;
 
         uint32_t argumentCount = utils::ReadCompressedUInt32(&iter->dataBuffer);
         IL2CPP_ASSERT(iter->dataBuffer <= bufferEnd);
@@ -226,6 +226,9 @@ namespace metadata
         }
 
         visitor->VisitCtor(ctor, args, argumentCount);
+
+        if (fieldCount > 0 || propertyCount > 0)
+            vm::Class::Init(attrClass);
 
         for (uint32_t i = 0; i < fieldCount; i++)
         {

@@ -1255,48 +1255,77 @@ namespace vm
         return type;
     }
 
-    typedef void (*DelegateCtor)(Il2CppDelegate* delegate, Il2CppObject* target, intptr_t method, MethodInfo* hiddenMethodInfo);
+    static void InvokeDelegateConstructor(Il2CppDelegate* delegate, Il2CppObject* target, const MethodInfo* method)
+    {
+        typedef void (*DelegateCtor)(Il2CppDelegate* delegate, Il2CppObject* target, intptr_t method, MethodInfo* hiddenMethodInfo);
+        const MethodInfo* ctor = Class::GetMethodFromName(delegate->object.klass, ".ctor", 2);
+        ((DelegateCtor)ctor->methodPointer)(delegate, target, (intptr_t)method, NULL);
+    }
 
 /**
-* Type::ConstructDelegate:
+* Type::ConstructClosedDelegate:
 * @delegate: pointer to an uninitialized delegate object
 * @target: target object
 * @addr: pointer to native code
 * @method: method
 *
-* Initialize a delegate and set a specific method, not the one
-* associated with addr. This is useful when sharing generic code.
-* In that case addr will most probably not be associated with the
-* correct instantiation of the method.
+* Initialize a closed delegate and set a specific function, not the one
+* associated with method.  This is useful for pinvoke/marshaling cases
+* where addr is pointer to a marshaling helper, not the actual method
 */
-    void Type::ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
+    void Type::ConstructClosedDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
     {
 #if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "Type::ConstructDelegatee should not be called with the Tiny profile.");
+        IL2CPP_ASSERT(0 && "Type::ConstructClosedDelegate should not be called with the Tiny profile.");
+#else
+        InvokeDelegateConstructor(delegate, target, method);
+        SetClosedDelegateInvokeMethod(delegate, target, addr);
+#endif
+    }
+
+    void Type::SetClosedDelegateInvokeMethod(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr)
+    {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "Type::SetClosedDelegateInvokeMethod should not be called with the Tiny profile.");
+#else
+        // For a closed delegate we set our invoke_impl to the method we want to invoke and the "this" we'll pass to the invoke_impl to the target
+        // This reduces the cost of a closed delegate call to normal virtual call
+        delegate->method_ptr = addr;
+        delegate->invoke_impl = addr;
+        delegate->invoke_impl_this = target;
+#endif
+    }
+
+/**
+* Type::ConstructDelegate:
+* @delegate: pointer to an uninitialized delegate object
+* @target: target object
+* @method: method
+*
+* Construct a delegate to a method at runtime
+*/
+    void Type::ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, const MethodInfo* method)
+    {
+#if IL2CPP_TINY
+        IL2CPP_ASSERT(0 && "Type::ConstructDelegate should not be called with the Tiny profile.");
 #else
         IL2CPP_ASSERT(delegate);
 
         if (method)
         {
             bool isVirtualMethod = method->slot != kInvalidIl2CppMethodSlot && !(method->flags & METHOD_ATTRIBUTE_FINAL);
-            if (isVirtualMethod && target != NULL && addr == il2cpp::vm::Method::GetVirtualCallMethodPointer(method))
-            {
+            if (isVirtualMethod && target != NULL)
                 method = il2cpp::vm::Object::GetVirtualMethod(target, method);
-                addr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
-            }
             else
-            {
                 delegate->method_is_virtual = isVirtualMethod;
-            }
         }
 
-        const MethodInfo* ctor = Class::GetMethodFromName(delegate->object.klass, ".ctor", 2);
-        ((DelegateCtor)ctor->methodPointer)(delegate, target, (intptr_t)method, NULL);
+        InvokeDelegateConstructor(delegate, target, method);
 
-        // Set the method_ptr after the ctor call.  The ctor will set the method_ptr
-        // based on it's rules, but this method can overrdie it.
-        delegate->method_ptr = addr;
-
+        // If we are creating an open delegate on a value type instance method we do not want the adjuster thunk
+        // that the ctor will choose, so override it with the direct method
+        if (target == NULL && method != NULL && Class::IsValuetype(method->klass))
+            delegate->method_ptr = method->methodPointer;
 #endif
     }
 

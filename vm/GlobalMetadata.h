@@ -66,6 +66,7 @@ namespace vm
         static CustomAttributesCache* GenerateCustomAttributesCache(Il2CppMetadataCustomAttributeHandle handle);
         static Il2CppMetadataCustomAttributeHandle GetCustomAttributeTypeToken(const Il2CppImage* image, uint32_t token);
         static std::tuple<void*, void*> GetCustomAttributeDataRange(const Il2CppImage* image, uint32_t token);
+        static std::tuple<void*, void*> GetCustomAttributeDataRange(Il2CppMetadataCustomAttributeHandle handle);
         static bool HasAttribute(Il2CppMetadataCustomAttributeHandle token, Il2CppClass* attribute);
         static bool HasAttribute(const Il2CppImage* image, uint32_t token, Il2CppClass* attribute);
 
