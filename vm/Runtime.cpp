@@ -61,12 +61,6 @@
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
 
-#if IL2CPP_MONO_DEBUGGER
-extern "C" {
-#include <mono/metadata/profiler-private.h>
-}
-#endif
-
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
@@ -398,6 +392,44 @@ namespace vm
         return true;
     }
 
+    static Il2CppObject* GetEventArgsEmptyField()
+    {
+        Il2CppClass* eventArgsKlass = Class::FromName(il2cpp_defaults.corlib, "System", "EventArgs");
+        if (eventArgsKlass != NULL)
+        {
+            Class::Init(eventArgsKlass);
+            FieldInfo* emptyField = vm::Class::GetFieldFromName(eventArgsKlass, "Empty");
+            if (emptyField != NULL)
+            {
+                Il2CppObject* emptyValue;
+                vm::Field::StaticGetValue(emptyField, &emptyValue);
+
+                return emptyValue;
+            }
+        }
+
+        return NULL;
+    }
+
+    static void FireProcessExitEvent()
+    {
+        FieldInfo* processExitField = vm::Class::GetFieldFromName(il2cpp_defaults.appdomain_class, "ProcessExit");
+        if (processExitField != NULL) // The field might have been stripped, just ignore it.
+        {
+            Il2CppAppDomain* appDomain = vm::Domain::GetCurrent()->domain;
+            Il2CppDelegate* processExitDelegate;
+            vm::Field::GetValue((Il2CppObject*)appDomain, processExitField, &processExitDelegate);
+            if (processExitDelegate == NULL) // Don't call the delegate if no one is listening to it.
+                return;
+
+            void* args[2];
+            args[0] = appDomain;
+            args[1] = GetEventArgsEmptyField();
+            Il2CppException* unusedException;
+            Runtime::DelegateInvoke(processExitDelegate, args, &unusedException);
+        }
+    }
+
     void Runtime::Shutdown()
     {
         os::FastAutoLock lock(&s_InitLock);
@@ -406,14 +438,15 @@ namespace vm
         if (--s_RuntimeInitCount > 0)
             return;
 
+        FireProcessExitEvent();
+
         shutting_down = true;
 
 #if IL2CPP_ENABLE_PROFILER
         il2cpp::vm::Profiler::Shutdown();
 #endif
 #if IL2CPP_MONO_DEBUGGER
-        // new mono profiler APIs used by debugger
-        MONO_PROFILER_RAISE(runtime_shutdown_end, ());
+        il2cpp::utils::Debugger::RuntimeShutdownEnd();
 #endif
 
         threadpool_ms_cleanup();

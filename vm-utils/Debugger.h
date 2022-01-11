@@ -141,14 +141,9 @@ namespace utils
         static bool IsLoggingEnabled();
         static void Log(int level, Il2CppString *category, Il2CppString *message);
 
-        static inline bool AtomicReadIsActive(Il2CppSequencePoint *seqPoint)
-        {
-            return il2cpp::os::Atomic::CompareExchange(&seqPoint->isActive, seqPoint->isActive, -1) > 0;
-        }
-
         static inline bool IsSequencePointActive(Il2CppSequencePoint *seqPoint)
         {
-            return AtomicReadIsActive(seqPoint) || g_unity_pause_point_active;
+            return il2cpp::os::Atomic::LoadRelaxed(&seqPoint->isActive) || g_unity_pause_point_active;
         }
 
         static inline bool IsSequencePointActiveEntry(Il2CppSequencePoint *seqPoint)
@@ -208,6 +203,10 @@ namespace utils
         static bool LoaderLockIsOwnedByThisThread();
 
         static Il2CppMonoInterpCallbacks* GetInterpCallbacks();
+
+        static void RuntimeShutdownEnd();
+        static void ThreadStarted(uintptr_t tid);
+        static void ThreadStopped(uintptr_t tid);
 
     private:
         static os::ThreadLocalValue s_IsGlobalBreakpointActive;
