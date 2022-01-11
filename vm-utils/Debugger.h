@@ -204,6 +204,10 @@ namespace utils
 
         static Il2CppMonoInterpCallbacks* GetInterpCallbacks();
 
+        static void RuntimeShutdownEnd();
+        static void ThreadStarted(uintptr_t tid);
+        static void ThreadStopped(uintptr_t tid);
+
     private:
         static os::ThreadLocalValue s_IsGlobalBreakpointActive;
         static void InitializeMethodToSequencePointMap();

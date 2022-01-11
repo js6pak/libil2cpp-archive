@@ -276,9 +276,9 @@ void* Unbox_internal(Il2CppObject* obj)
     return il2cpp::vm::Object::Unbox(obj);
 }
 
-void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* nullableClass, void* storage)
+void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* storage)
 {
-    il2cpp::vm::Object::UnboxNullable(obj, nullableClass, storage);
+    il2cpp::vm::Object::UnboxNullable(obj, expectedBoxedClass, storage);
 }
 
 void* UnBox_Any(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* unboxStorage)
@@ -291,7 +291,7 @@ void* UnBox_Any(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* unbo
     {
         if (il2cpp::vm::Class::IsNullable(expectedBoxedClass))
         {
-            UnBoxNullable(obj, expectedBoxedClass, unboxStorage);
+            UnBoxNullable(obj, expectedBoxedClass->element_class, unboxStorage);
             return unboxStorage;
         }
         return UnBox(obj, expectedBoxedClass);
@@ -404,11 +404,6 @@ NORETURN void il2cpp_codegen_raise_index_out_of_range_exception()
     il2cpp::vm::Exception::RaiseIndexOutOfRangeException();
 }
 
-NORETURN void il2cpp_codegen_raise_overflow_exception(const RuntimeMethod* method)
-{
-    IL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), method);
-}
-
 Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)
 {
     return (Exception_t*)il2cpp::vm::Exception::GetArgumentException(param, msg);
@@ -457,11 +452,6 @@ Exception_t* il2cpp_codegen_get_missing_method_exception(const char* msg)
 Exception_t* il2cpp_codegen_get_maximum_nested_generics_exception()
 {
     return (Exception_t*)il2cpp::vm::Exception::GetMaximumNestedGenericsException();
-}
-
-Exception_t* il2cpp_codegen_get_engine_execution_exception(const char* msg)
-{
-    return (Exception_t*)il2cpp::vm::Exception::GetExecutionEngineException(msg);
 }
 
 Exception_t* il2cpp_codegen_get_index_out_of_range_exception()
@@ -884,6 +874,11 @@ void il2cpp_codegen_stacktrace_push_frame(Il2CppStackFrameInfo& frame)
 void il2cpp_codegen_stacktrace_pop_frame()
 {
     il2cpp::vm::StackTrace::PopFrame();
+}
+
+const char* il2cpp_codegen_get_field_data(RuntimeField* field)
+{
+    return il2cpp::vm::Field::GetData(field);
 }
 
 void il2cpp_codegen_array_unsafe_mov(RuntimeClass * destClass, void* dest, RuntimeClass * srcClass, void* src)

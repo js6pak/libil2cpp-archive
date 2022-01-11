@@ -10,7 +10,6 @@
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "os/Path.h"
-#include "os/SynchronizationContext.h"
 #include "os/Thread.h"
 #include "os/Socket.h"
 #include "os/c-api/Allocator.h"
@@ -61,12 +60,6 @@
 
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
-
-#if IL2CPP_MONO_DEBUGGER
-extern "C" {
-#include <mono/metadata/profiler-private.h>
-}
-#endif
 
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
@@ -170,11 +163,6 @@ namespace vm
 
 #if !IL2CPP_TINY && !IL2CPP_MONO_DEBUGGER
         il2cpp::utils::DebugSymbolReader::LoadDebugSymbols();
-#endif
-
-#if IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT
-        // Has to happen after Thread::Init() due to it needing a COM apartment on Windows
-        il2cpp::os::SynchronizationContext::Initialize();
 #endif
 
         // This should be filled in by generated code.
@@ -404,6 +392,44 @@ namespace vm
         return true;
     }
 
+    static Il2CppObject* GetEventArgsEmptyField()
+    {
+        Il2CppClass* eventArgsKlass = Class::FromName(il2cpp_defaults.corlib, "System", "EventArgs");
+        if (eventArgsKlass != NULL)
+        {
+            Class::Init(eventArgsKlass);
+            FieldInfo* emptyField = vm::Class::GetFieldFromName(eventArgsKlass, "Empty");
+            if (emptyField != NULL)
+            {
+                Il2CppObject* emptyValue;
+                vm::Field::StaticGetValue(emptyField, &emptyValue);
+
+                return emptyValue;
+            }
+        }
+
+        return NULL;
+    }
+
+    static void FireProcessExitEvent()
+    {
+        FieldInfo* processExitField = vm::Class::GetFieldFromName(il2cpp_defaults.appdomain_class, "ProcessExit");
+        if (processExitField != NULL) // The field might have been stripped, just ignore it.
+        {
+            Il2CppAppDomain* appDomain = vm::Domain::GetCurrent()->domain;
+            Il2CppDelegate* processExitDelegate;
+            vm::Field::GetValue((Il2CppObject*)appDomain, processExitField, &processExitDelegate);
+            if (processExitDelegate == NULL) // Don't call the delegate if no one is listening to it.
+                return;
+
+            void* args[2];
+            args[0] = appDomain;
+            args[1] = GetEventArgsEmptyField();
+            Il2CppException* unusedException;
+            Runtime::DelegateInvoke(processExitDelegate, args, &unusedException);
+        }
+    }
+
     void Runtime::Shutdown()
     {
         os::FastAutoLock lock(&s_InitLock);
@@ -412,19 +438,18 @@ namespace vm
         if (--s_RuntimeInitCount > 0)
             return;
 
+        FireProcessExitEvent();
+
         shutting_down = true;
 
 #if IL2CPP_ENABLE_PROFILER
         il2cpp::vm::Profiler::Shutdown();
 #endif
 #if IL2CPP_MONO_DEBUGGER
-        // new mono profiler APIs used by debugger
-        MONO_PROFILER_RAISE(runtime_shutdown_end, ());
+        il2cpp::utils::Debugger::RuntimeShutdownEnd();
 #endif
 
-#if IL2CPP_SUPPORT_THREADS
         threadpool_ms_cleanup();
-#endif
 
         // Tries to abort all threads
         // Threads at alertable waits may not have existing when this return
@@ -437,11 +462,6 @@ namespace vm
 
         // after the gc cleanup so the finalizer thread can unregister itself
         Thread::Uninitialize();
-
-#if IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT
-        // Has to happen before os::Thread::Shutdown() due to it needing a COM apartment on Windows
-        il2cpp::os::SynchronizationContext::Shutdown();
-#endif
 
         os::Thread::Shutdown();
 
@@ -544,11 +564,20 @@ namespace vm
         return Invoke(invoke, delegate, params, exc);
     }
 
-    void Runtime::GetGenericVirtualMethod(const MethodInfo* vtableSlotMethod, const MethodInfo* genericVirtualMethod, VirtualInvokeData* invokeData)
+    void Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod, VirtualInvokeData* invokeData)
     {
-        invokeData->method = metadata::GenericMethod::GetGenericVirtualMethod(vtableSlotMethod, genericVirtualMethod);
-        invokeData->methodPtr = metadata::GenericMethod::GetVirtualCallMethodPointer(invokeData->method);
-        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(invokeData->method, invokeData->method->genericMethod, genericVirtualMethod);
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
+
+        const Il2CppGenericInst* classInst = NULL;
+        if (methodDefinition->is_inflated)
+        {
+            classInst = methodDefinition->genericMethod->context.class_inst;
+            methodDefinition = methodDefinition->genericMethod->methodDefinition;
+        }
+
+        metadata::GenericMethod::GetVirtualInvokeData(methodDefinition, classInst, inflatedMethod->genericMethod->context.method_inst, invokeData);
+
+        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(invokeData->method, invokeData->method->genericMethod, inflatedMethod);
     }
 
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
@@ -774,7 +803,7 @@ namespace vm
                     {
                         // Since we don't really store boxed nullables, we need to create a new one.
                         void* nullableStorage = alloca(parameterType->instance_size - sizeof(Il2CppObject));
-                        Object::UnboxNullable(parameters[i], parameterType, nullableStorage);
+                        Object::UnboxNullable(parameters[i], Class::GetNullableArgument(parameterType), nullableStorage);
                         convertedParameters[i] = nullableStorage;
                         hasByRefNullables |= passedByReference;
                     }

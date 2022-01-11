@@ -1,18 +1,17 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_WIN32
+#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_WIN32 && !RUNTIME_TINY
 
 #include "ThreadImpl.h"
 #include "os/ThreadLocalValue.h"
 #include "os/Time.h"
-#include "utils/StringUtils.h"
-#include "os/Debug.h"
 #include "WindowsHelpers.h"
 
 namespace il2cpp
 {
 namespace os
 {
+    static Event s_ThreadSleepObject;
     struct ThreadImplStartData
     {
         Thread::StartFunc m_StartFunc;
@@ -31,6 +30,7 @@ namespace os
 
     ThreadImpl::ThreadImpl()
         : m_ThreadHandle(0), m_ThreadId(0), m_StackSize(IL2CPP_DEFAULT_STACK_SIZE), m_ApartmentState(kApartmentStateUnknown), m_Priority(kThreadPriorityNormal)
+        , m_ConditionSemaphore(1)
     {
     }
 
@@ -45,13 +45,13 @@ namespace os
         return m_ThreadId;
     }
 
-    void ThreadImpl::SetNameForDebugger(const char* name)
+    void ThreadImpl::SetName(const char* name)
     {
         // http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 
         const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
-#pragma pack(push,8)
+    #pragma pack(push,8)
         typedef struct tagTHREADNAME_INFO
         {
             DWORD dwType; // Must be 0x1000.
@@ -59,7 +59,7 @@ namespace os
             DWORD dwThreadID; // Thread ID (-1=caller thread).
             DWORD dwFlags; // Reserved for future use, must be zero.
         } THREADNAME_INFO;
-#pragma pack(pop)
+    #pragma pack(pop)
 
         THREADNAME_INFO info;
         info.dwType = 0x1000;
@@ -74,23 +74,6 @@ namespace os
         __except (EXCEPTION_EXECUTE_HANDLER)
         {
         }
-    }
-
-    typedef HRESULT (__stdcall *SETTHREADPROC) (HANDLE, PCWSTR);
-    void ThreadImpl::SetName(const char* name)
-    {
-#if !IL2CPP_TARGET_WINRT
-        SETTHREADPROC ProcSetThreadDescription;
-        ProcSetThreadDescription = (SETTHREADPROC)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "SetThreadDescription");
-        if (ProcSetThreadDescription != NULL)
-        {
-            const UTF16String varName = utils::StringUtils::Utf8ToUtf16(name);
-            (ProcSetThreadDescription)(m_ThreadHandle, varName.c_str());
-        }
-#endif
-
-        if (Debug::IsDebuggerPresent())
-            SetNameForDebugger(name);
     }
 
     void ThreadImpl::SetPriority(ThreadPriority priority)
@@ -138,41 +121,74 @@ namespace os
         m_ThreadHandle = threadHandle;
         m_ThreadId = threadId;
 
-        SetPriority(m_Priority);
-
         return kErrorCodeSuccess;
     }
 
     void ThreadImpl::Sleep(uint32_t ms, bool interruptible)
     {
-        uint32_t remainingWaitTime = ms;
-        while (true)
+        s_ThreadSleepObject.Wait(ms, interruptible);
+    }
+
+    void ThreadImpl::CheckForUserAPCAndHandle()
+    {
+        m_PendingAPCsMutex.Acquire();
+
+        while (!m_PendingAPCs.empty())
         {
-            uint32_t startWaitTime = os::Time::GetTicksMillisecondsMonotonic();
-            DWORD sleepResult = ::SleepEx(remainingWaitTime, interruptible);
+            APCRequest apcRequest = m_PendingAPCs.front();
 
-            if (sleepResult == WAIT_IO_COMPLETION)
-            {
-                uint32_t waitedTime = os::Time::GetTicksMillisecondsMonotonic() - startWaitTime;
-                if (waitedTime >= remainingWaitTime)
-                    return;
+            // Remove from list. Do before calling the function to make sure the list
+            // is up to date in case the function throws.
+            m_PendingAPCs.erase(m_PendingAPCs.begin());
 
-                remainingWaitTime -= waitedTime;
-                continue;
-            }
+            // Release mutex while we call the function so that we don't deadlock
+            // if the function starts waiting on a thread that tries queuing an APC
+            // on us.
+            m_PendingAPCsMutex.Release();
 
-            break;
+            // Call function.
+            apcRequest.callback(apcRequest.context);
+
+            // Re-acquire mutex.
+            m_PendingAPCsMutex.Acquire();
         }
+
+        m_PendingAPCsMutex.Release();
+    }
+
+    void ThreadImpl::SetWaitObject(WaitObject* waitObject)
+    {
+        // This is an unprotected write as write acccess is restricted to the
+        // current thread.
+        m_CurrentWaitObject = waitObject;
     }
 
     void ThreadImpl::QueueUserAPC(Thread::APCFunc func, void* context)
     {
-        ::QueueUserAPC(reinterpret_cast<PAPCFUNC>(func), m_ThreadHandle, reinterpret_cast<ULONG_PTR>(context));
+        IL2CPP_ASSERT(func != NULL);
+
+        // Put on queue.
+        {
+            m_PendingAPCsMutex.Acquire();
+            m_PendingAPCs.push_back(APCRequest(func, context));
+            m_PendingAPCsMutex.Release();
+        }
+
+        // Interrupt an ongoing wait, only interrupt if we have an object waiting
+        if (m_CurrentWaitObject.load())
+        {
+            m_ConditionSemaphore.Release(1);
+        }
     }
 
     int ThreadImpl::GetMaxStackSize()
     {
         return INT_MAX;
+    }
+
+    ThreadImpl* ThreadImpl::GetCurrentThread()
+    {
+        return Thread::GetCurrentThread()->m_Thread;
     }
 
 namespace

@@ -35,7 +35,7 @@
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
 
-typedef Il2CppReaderWriterLockedHashMap<Il2CppClass*, Il2CppClass*> PointerTypeMap;
+typedef std::map<Il2CppClass*, Il2CppClass*> PointerTypeMap;
 
 typedef Il2CppHashSet<const Il2CppGenericMethod*, il2cpp::metadata::Il2CppGenericMethodHash, il2cpp::metadata::Il2CppGenericMethodCompare> Il2CppGenericMethodSet;
 typedef Il2CppGenericMethodSet::const_iterator Il2CppGenericMethodSetIter;
@@ -43,7 +43,7 @@ static Il2CppGenericMethodSet s_GenericMethodSet;
 
 struct Il2CppMetadataCache
 {
-    il2cpp::os::FastReaderReaderWriterLock m_CacheLock;
+    baselib::ReentrantLock m_CacheMutex;
     PointerTypeMap m_PointerTypes;
 };
 
@@ -54,7 +54,7 @@ static int32_t s_AssembliesCount = 0;
 static Il2CppAssembly* s_AssembliesTable = NULL;
 
 
-typedef Il2CppReaderWriterLockedHashSet<const Il2CppGenericInst*, il2cpp::metadata::Il2CppGenericInstHash, il2cpp::metadata::Il2CppGenericInstCompare> Il2CppGenericInstSet;
+typedef Il2CppHashSet<const Il2CppGenericInst*, il2cpp::metadata::Il2CppGenericInstHash, il2cpp::metadata::Il2CppGenericInstCompare> Il2CppGenericInstSet;
 static Il2CppGenericInstSet s_GenericInstSet;
 
 typedef il2cpp::vm::Il2CppMethodTableMap::const_iterator Il2CppMethodTableMapIter;
@@ -158,11 +158,11 @@ bool il2cpp::vm::MetadataCache::Initialize()
     il2cpp::metadata::GenericMetadata::SetMaximumRuntimeGenericDepth(s_Il2CppCodeGenOptions->maximumRuntimeGenericDepth);
     il2cpp::metadata::GenericMetadata::SetGenericVirtualIterations(s_Il2CppCodeGenOptions->recursiveGenericIterations);
 
-    s_GenericInstSet.Resize(s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount);
+    s_GenericInstSet.resize(s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount);
     for (int32_t i = 0; i < s_MetadataCache_Il2CppMetadataRegistration->genericInstsCount; i++)
     {
-        bool inserted = s_GenericInstSet.Add(s_MetadataCache_Il2CppMetadataRegistration->genericInsts[i]);
-        IL2CPP_ASSERT(inserted);
+        std::pair<Il2CppGenericInstSet::iterator, bool> inserted = s_GenericInstSet.insert(s_MetadataCache_Il2CppMetadataRegistration->genericInsts[i]);
+        IL2CPP_ASSERT(inserted.second);
     }
 
     s_InteropData.assign_external(s_Il2CppCodeRegistration->interopData, s_Il2CppCodeRegistration->interopDataCount);
@@ -240,18 +240,13 @@ void il2cpp::vm::MetadataCache::ExecuteEagerStaticClassConstructors()
     }
 }
 
-typedef void(*Il2CppModuleInitializerMethodPointer)(const MethodInfo*);
-
 void il2cpp::vm::MetadataCache::ExecuteModuleInitializers()
 {
     for (int32_t i = 0; i < s_AssembliesCount; i++)
     {
         const Il2CppImage* image = s_AssembliesTable[i].image;
         if (image->codeGenModule->moduleInitializer != NULL)
-        {
-            Il2CppModuleInitializerMethodPointer moduleInitializer = (Il2CppModuleInitializerMethodPointer)image->codeGenModule->moduleInitializer;
-            moduleInitializer(NULL);
-        }
+            image->codeGenModule->moduleInitializer();
     }
 }
 
@@ -327,7 +322,7 @@ void il2cpp::vm::MetadataCache::Clear()
 
     metadata::ArrayMetadata::Clear();
 
-    s_GenericInstSet.Clear();
+    s_GenericInstSet.clear();
 
     s_Il2CppCodeRegistration = NULL;
     s_Il2CppCodeGenOptions = NULL;
@@ -381,10 +376,13 @@ const MethodInfo* il2cpp::vm::MetadataCache::GetGenericMethodDefinition(const Me
 
 Il2CppClass* il2cpp::vm::MetadataCache::GetPointerType(Il2CppClass* type)
 {
-    Il2CppClass* pointerClass;
-    if (s_MetadataCache.m_PointerTypes.TryGet(type, &pointerClass))
-        return pointerClass;
-    return NULL;
+    il2cpp::os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
+
+    PointerTypeMap::const_iterator i = s_MetadataCache.m_PointerTypes.find(type);
+    if (i == s_MetadataCache.m_PointerTypes.end())
+        return NULL;
+
+    return i->second;
 }
 
 Il2CppClass* il2cpp::vm::MetadataCache::GetWindowsRuntimeClass(const char* fullName)
@@ -429,13 +427,10 @@ Il2CppClass* il2cpp::vm::MetadataCache::GetClassForGuid(const Il2CppGuid* guid)
     return NULL;
 }
 
-void il2cpp::vm::MetadataCache::AddPointerTypeLocked(Il2CppClass* type, Il2CppClass* pointerType, const il2cpp::os::FastAutoLock& lock)
+void il2cpp::vm::MetadataCache::AddPointerType(Il2CppClass* type, Il2CppClass* pointerType)
 {
-    // This method must be called while holding the g_MetadataLock to ensure that we don't insert the same pointer type twice
-    // And WalkPointerTypes assumes this
-
-    IL2CPP_ASSERT(lock.IsLock(&g_MetadataLock));
-    s_MetadataCache.m_PointerTypes.Add(type, pointerType);
+    il2cpp::os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
+    s_MetadataCache.m_PointerTypes.insert(std::make_pair(type, pointerType));
 }
 
 const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const Il2CppType* const* types, uint32_t typeCount)
@@ -445,32 +440,41 @@ const Il2CppGenericInst* il2cpp::vm::MetadataCache::GetGenericInst(const Il2CppT
     inst.type_argc = typeCount;
     inst.type_argv = (const Il2CppType**)types;
 
-    const Il2CppGenericInst* foundInst;
-    if (s_GenericInstSet.TryGet(&inst, &foundInst))
-        return foundInst;
-
-    il2cpp::os::FastAutoLock lock(&g_MetadataLock);
-
-    // Check if instance was added while we were blocked on g_MetadataLock
-    if (s_GenericInstSet.TryGet(&inst, &foundInst))
-        return foundInst;
+    {
+        // Acquire lock to check if inst has already been cached.
+        il2cpp::os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
+        Il2CppGenericInstSet::const_iterator iter = s_GenericInstSet.find(&inst);
+        if (iter != s_GenericInstSet.end())
+            return *iter;
+    }
 
     Il2CppGenericInst* newInst = NULL;
-    newInst  = (Il2CppGenericInst*)MetadataMalloc(sizeof(Il2CppGenericInst));
-    newInst->type_argc = typeCount;
-    newInst->type_argv = (const Il2CppType**)MetadataMalloc(newInst->type_argc * sizeof(Il2CppType*));
+    {
+        il2cpp::os::FastAutoLock lock(&g_MetadataLock);
+        newInst  = (Il2CppGenericInst*)MetadataMalloc(sizeof(Il2CppGenericInst));
+        newInst->type_argc = typeCount;
+        newInst->type_argv = (const Il2CppType**)MetadataMalloc(newInst->type_argc * sizeof(Il2CppType*));
+    }
 
     int index = 0;
     const Il2CppType* const* typesEnd = types + typeCount;
     for (const Il2CppType* const* iter = types; iter != typesEnd; ++iter, ++index)
         newInst->type_argv[index] = *iter;
 
-    // Do this while still holding the g_MetadataLock to prevent the same instance from being added twice
-    bool added = s_GenericInstSet.Add(newInst);
-    IL2CPP_ASSERT(added);
-    ++il2cpp_runtime_stats.generic_instance_count;
+    {
+        // Acquire lock agains to attempt to cache inst.
+        il2cpp::os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
+        // Another thread may have already added this inst or we may be the first.
+        // In either case, the iterator returned from 'insert' points to the item
+        // cached within the set. We can always return this. In the case of another
+        // thread beating us, the only downside is an extra allocation in the
+        // metadata memory pool that lives for life of process anyway.
+        auto result = s_GenericInstSet.insert(newInst);
+        if (result.second)
+            ++il2cpp_runtime_stats.generic_instance_count;
 
-    return newInst;
+        return *(result.first);
+    }
 }
 
 static baselib::ReentrantLock s_GenericMethodMutex;
@@ -513,12 +517,14 @@ static bool IsShareableEnum(const Il2CppType* type)
     return false;
 }
 
+static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(const Il2CppType* constraint);
+
 static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(const Il2CppType* constraint)
 {
     // This must match GenericSharingAnalsyis.GetGenericParameterConstraintRestriction()
 
     if (constraint->type == IL2CPP_TYPE_VAR || constraint->type == IL2CPP_TYPE_MVAR)
-        return il2cpp::vm::GenericParameterRestrictionNone;
+        return il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromType(constraint));
     if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.enum_class->byval_arg))
         return il2cpp::vm::GenericParameterRestrictionValueType;
     if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.value_type_class->byval_arg))
@@ -764,12 +770,12 @@ InvokerMethod il2cpp::vm::MetadataCache::GetMethodInvoker(const Il2CppImage* ima
     uint32_t rid = GetTokenRowId(token);
     uint32_t table = GetTokenType(token);
     if (rid == 0)
-        return Runtime::GetMissingMethodInvoker();
+        return NULL;
 
     int32_t index = image->codeGenModule->invokerIndices[rid - 1];
 
     if (index == kMethodIndexInvalid)
-        return Runtime::GetMissingMethodInvoker();
+        return NULL;
 
     IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->invokerPointersCount);
     return s_Il2CppCodeRegistration->invokerPointers[index];
@@ -1130,9 +1136,8 @@ void* il2cpp::vm::MetadataCache::InitializeRuntimeMetadata(uintptr_t* metadataPo
 
 void il2cpp::vm::MetadataCache::WalkPointerTypes(WalkTypesCallback callback, void* context)
 {
-    os::FastAutoLock lock(&g_MetadataLock);
-
-    for (PointerTypeMap::iterator it = s_MetadataCache.m_PointerTypes.UnlockedBegin(); it != s_MetadataCache.m_PointerTypes.UnlockedEnd(); it++)
+    il2cpp::os::FastAutoLock lock(&s_MetadataCache.m_CacheMutex);
+    for (PointerTypeMap::iterator it = s_MetadataCache.m_PointerTypes.begin(); it != s_MetadataCache.m_PointerTypes.end(); it++)
     {
         callback(it->second, context);
     }

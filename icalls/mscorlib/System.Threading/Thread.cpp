@@ -48,7 +48,9 @@ namespace Threading
         startData->m_Semaphore->Wait();
 
         {
-            GarbageCollector::RegisterThread();
+            int temp = 0;
+            if (!GarbageCollector::RegisterThread(&temp))
+                IL2CPP_ASSERT(0 && "GarbageCollector::RegisterThread failed");
 
             il2cpp::vm::StackTrace::InitializeStackTracesForCurrentThread();
 
@@ -127,21 +129,27 @@ namespace Threading
         GarbageCollector::SetWriteBarrier((void**)&startData->m_StartArg);
         startData->m_Semaphore = new il2cpp::os::Semaphore(0);
 
-        il2cpp::os::Thread* thread = thisPtr->GetInternalThread()->handle;
+        il2cpp::os::Thread* thread = new il2cpp::os::Thread();
         thread->SetStackSize(thisPtr->GetInternalThread()->stack_size);
         thread->SetExplicitApartment(static_cast<il2cpp::os::ApartmentState>(thisPtr->GetInternalThread()->apartment_state));
         il2cpp::os::ErrorCode status = thread->Run(&ThreadStart, startData);
         if (status != il2cpp::os::kErrorCodeSuccess)
         {
+            delete thread;
             return false;
         }
 
+        uint32_t existingPriority = il2cpp::vm::Thread::GetPriority(thisPtr);
+
+        thisPtr->GetInternalThread()->handle = thread;
         thisPtr->GetInternalThread()->state &= ~vm::kThreadStateUnstarted;
         thisPtr->GetInternalThread()->tid = thread->Id();
         if (!thisPtr->GetInternalThread()->managed_id)
             thisPtr->GetInternalThread()->managed_id = il2cpp::vm::Thread::GetNewManagedId();
 
         startData->m_Semaphore->Post(1, NULL);
+
+        il2cpp::vm::Thread::SetPriority(thisPtr, existingPriority);
 
         // this is just checked against 0 in the calling code
         return reinterpret_cast<intptr_t>(thisPtr->GetInternalThread()->handle);

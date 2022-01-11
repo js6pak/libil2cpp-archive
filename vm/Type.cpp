@@ -1195,11 +1195,6 @@ namespace vm
         return false;
     }
 
-    bool Type::IsArray(const Il2CppType *type)
-    {
-        return type->type == IL2CPP_TYPE_SZARRAY || type->type == IL2CPP_TYPE_ARRAY;
-    }
-
     bool Type::IsEnum(const Il2CppType *type)
     {
         if (type->type != IL2CPP_TYPE_VALUETYPE)
@@ -1264,8 +1259,7 @@ namespace vm
     {
         typedef void (*DelegateCtor)(Il2CppDelegate* delegate, Il2CppObject* target, intptr_t method, MethodInfo* hiddenMethodInfo);
         const MethodInfo* ctor = Class::GetMethodFromName(delegate->object.klass, ".ctor", 2);
-        void* ctorArgs[2] = {target, (void*)&method};
-        ctor->invoker_method(ctor->methodPointer, ctor, delegate, ctorArgs, NULL);
+        ((DelegateCtor)ctor->methodPointer)(delegate, target, (intptr_t)method, NULL);
     }
 
 /**

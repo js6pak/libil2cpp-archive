@@ -153,7 +153,8 @@ namespace Reflection
             }
             else
             {
-                vm::Object::UnboxNullableWithWriteBarrier(value, fieldType, fieldAddress);
+                Il2CppClass* nullableArg = vm::Class::GetNullableArgument(fieldType);
+                vm::Object::UnboxNullableWithWriteBarrier(value, nullableArg, fieldAddress);
             }
         }
         else

@@ -4,6 +4,7 @@ struct Il2CppGuid;
 struct Il2CppIUnknown;
 struct Il2CppObject;
 struct Il2CppThread;
+struct Il2CppInternalThread;
 
 namespace il2cpp
 {
@@ -36,6 +37,7 @@ namespace gc
 #if !RUNTIME_TINY
         static void InitializeFinalizer();
         static bool IsFinalizerThread(Il2CppThread* thread);
+        static bool IsFinalizerInternalThread(Il2CppInternalThread* thread);
         static void UninitializeFinalizers();
         static void NotifyFinalizers();
         static void RunFinalizer(void *obj, void *data);
@@ -80,7 +82,7 @@ namespace gc
         static void* AllocateFixed(size_t size, void *descr);
         static void FreeFixed(void* addr);
 
-        static void RegisterThread();
+        static bool RegisterThread(void *baseptr);
         static bool UnregisterThread();
 
 #if !RUNTIME_TINY
