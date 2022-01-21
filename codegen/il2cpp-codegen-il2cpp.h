@@ -896,7 +896,27 @@ inline void* il2cpp_codegen_static_fields_for(RuntimeClass* klass)
 void il2cpp_codegen_assert_field_size(RuntimeField* field, size_t size);
 
 void* il2cpp_codegen_get_instance_field_data_pointer(void* instance, RuntimeField* field);
+inline void* il2cpp_codegen_get_instance_field_data_pointer(intptr_t instance, RuntimeField* field)
+{
+    return il2cpp_codegen_get_instance_field_data_pointer((void*)instance, field);
+}
+
+inline void* il2cpp_codegen_get_instance_field_data_pointer(uintptr_t instance, RuntimeField* field)
+{
+    return il2cpp_codegen_get_instance_field_data_pointer((void*)instance, field);
+}
+
 void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, void* data, uint32_t size);
+inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, void* data, uint32_t size)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data, size);
+}
+
+inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, void* data, uint32_t size)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data, size);
+}
+
 void* il2cpp_codegen_get_static_field_data_pointer(RuntimeField* field);
 void il2cpp_codegen_write_static_field_data(RuntimeField* field, void* data, uint32_t size);
 void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field);
@@ -910,6 +930,18 @@ void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* fiel
     void* fieldPointer = il2cpp_codegen_get_instance_field_data_pointer(instance, field);
     *(T*)fieldPointer = data;
     Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
+}
+
+template<typename T>
+inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, T data)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
+}
+
+template<typename T>
+inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, T data)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
 }
 
 template<typename T>
