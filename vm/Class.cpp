@@ -1459,7 +1459,11 @@ namespace vm
         klass->genericRecursionDepth++;
 
         if (klass->generic_class)
-            InitLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
+        {
+            Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition(klass->generic_class);
+            InitLocked(genericTypeDefinition, lock);
+            klass->is_blittable = genericTypeDefinition->is_blittable;
+        }
 
         if (klass->byval_arg.type == IL2CPP_TYPE_ARRAY || klass->byval_arg.type == IL2CPP_TYPE_SZARRAY)
         {
