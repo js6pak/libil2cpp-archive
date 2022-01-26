@@ -65,7 +65,7 @@ extern "C"
     void debugger_agent_user_break();
     int32_t debugger_agent_debug_log_is_enabled();
     void debugger_agent_debug_log(int level, Il2CppString *category, Il2CppString *message);
-    int32_t unity_pause_point_active(void*);
+    int32_t unity_pause_point_active();
     void il2cpp_save_current_thread_context_func_exit();
     void mono_debugger_agent_register_transport(DebuggerTransport *trans);
     void unity_debugger_agent_thread_startup(uintptr_t tid);
@@ -713,7 +713,7 @@ namespace utils
 
     bool Debugger::IsPausePointActive()
     {
-        return unity_pause_point_active(NULL);
+        return unity_pause_point_active();
     }
 
     void Debugger::CheckPausePoint()
