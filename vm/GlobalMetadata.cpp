@@ -218,10 +218,14 @@ static Il2CppString* GetStringLiteralFromIndex(StringLiteralIndex index)
         return s_StringLiteralTable[index];
 
     const Il2CppStringLiteral* stringLiteral = (const Il2CppStringLiteral*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->stringLiteralOffset) + index;
-    s_StringLiteralTable[index] = il2cpp::vm::String::NewLen((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->stringLiteralDataOffset + stringLiteral->dataIndex, stringLiteral->length);
-    il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)s_StringLiteralTable + index);
-
-    return s_StringLiteralTable[index];
+    Il2CppString* newString = il2cpp::vm::String::NewLen((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->stringLiteralDataOffset + stringLiteral->dataIndex, stringLiteral->length);
+    Il2CppString* prevString = il2cpp::os::Atomic::CompareExchangePointer<Il2CppString>(s_StringLiteralTable + index, newString, NULL);
+    if (prevString == NULL)
+    {
+        il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)s_StringLiteralTable + index);
+        return newString;
+    }
+    return prevString;
 }
 
 static FieldInfo* GetFieldInfoFromIndex(EncodedMethodIndex index)
