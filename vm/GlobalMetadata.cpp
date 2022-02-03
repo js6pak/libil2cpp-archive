@@ -455,23 +455,23 @@ void il2cpp::vm::GlobalMetadata::InitializeWindowsRuntimeTypeNamesTables(Windows
 
 void il2cpp::vm::GlobalMetadata::InitializeUnresolvedSignatureTable(Il2CppUnresolvedSignatureMap& unresolvedSignatureMap)
 {
-    unresolvedSignatureMap.resize(s_GlobalMetadata_CodeRegistration->unresolvedVirtualCallCount);
+    unresolvedSignatureMap.resize(s_GlobalMetadata_CodeRegistration->unresolvedIndirectCallCount);
 
-    for (uint32_t i = 0; i < s_GlobalMetadata_CodeRegistration->unresolvedVirtualCallCount; ++i)
+    for (uint32_t i = 0; i < s_GlobalMetadata_CodeRegistration->unresolvedIndirectCallCount; ++i)
     {
-        const Il2CppMetadataRange* range = MetadataOffset<Il2CppMetadataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->unresolvedVirtualCallParameterRangesOffset, i);
+        const Il2CppMetadataRange* range = MetadataOffset<Il2CppMetadataRange*>(s_GlobalMetadata, s_GlobalMetadataHeader->unresolvedIndirectCallParameterRangesOffset, i);
         il2cpp::metadata::Il2CppSignature signature;
         signature.Count = range->length;
         signature.Types = (const Il2CppType**)MetadataMalloc(range->length * sizeof(Il2CppType*));
 
         for (int j = 0; j < range->length; ++j)
         {
-            TypeIndex typeIndex = *MetadataOffset<TypeIndex*>(s_GlobalMetadata, s_GlobalMetadataHeader->unresolvedVirtualCallParameterTypesOffset, range->start + j);
+            TypeIndex typeIndex = *MetadataOffset<TypeIndex*>(s_GlobalMetadata, s_GlobalMetadataHeader->unresolvedIndirectCallParameterTypesOffset, range->start + j);
             const Il2CppType* type = GetIl2CppTypeFromIndex(typeIndex);
             signature.Types[j] = type;
         }
 
-        unresolvedSignatureMap.insert(std::make_pair(signature, s_GlobalMetadata_CodeRegistration->unresolvedVirtualCallPointers[i]));
+        unresolvedSignatureMap.insert(std::make_pair(signature, i));
     }
 }
 
