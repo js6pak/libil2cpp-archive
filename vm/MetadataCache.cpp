@@ -889,9 +889,9 @@ static const Il2CppType* GetReducedType(const Il2CppType* type)
     switch (type->type)
     {
         case IL2CPP_TYPE_BOOLEAN:
-            return &il2cpp_defaults.sbyte_class->byval_arg;
+            return &il2cpp_defaults.byte_class->byval_arg;
         case IL2CPP_TYPE_CHAR:
-            return &il2cpp_defaults.int16_class->byval_arg;
+            return &il2cpp_defaults.uint16_class->byval_arg;
         case IL2CPP_TYPE_BYREF:
         case IL2CPP_TYPE_CLASS:
         case IL2CPP_TYPE_OBJECT:
@@ -909,8 +909,11 @@ static const Il2CppType* GetReducedType(const Il2CppType* type)
     }
 }
 
-Il2CppMethodPointer il2cpp::vm::MetadataCache::GetUnresolvedVirtualCallStub(const MethodInfo* method)
+il2cpp::vm::Il2CppUnresolvedCallStubs il2cpp::vm::MetadataCache::GetUnresovledCallStubs(const MethodInfo* method)
 {
+    il2cpp::vm::Il2CppUnresolvedCallStubs stubs;
+    stubs.stubsFound = false;
+
     il2cpp::metadata::Il2CppSignature signature;
     signature.Count = method->parameters_count + 1;
     signature.Types = (const Il2CppType**)alloca(signature.Count * sizeof(Il2CppType*));
@@ -921,9 +924,28 @@ Il2CppMethodPointer il2cpp::vm::MetadataCache::GetUnresolvedVirtualCallStub(cons
 
     Il2CppUnresolvedSignatureMapIter it = s_pUnresolvedSignatureMap->find(signature);
     if (it != s_pUnresolvedSignatureMap->end())
-        return it->second;
+    {
+        if (il2cpp::vm::Method::IsInstance(method))
+        {
+            stubs.methodPointer = s_Il2CppCodeRegistration->unresolvedInstanceCallPointers[it->second];
+            stubs.virtualMethodPointer = s_Il2CppCodeRegistration->unresolvedVirtualCallPointers[it->second];
+            stubs.stubsFound = true;
+        }
+        else
+        {
+            stubs.methodPointer = s_Il2CppCodeRegistration->unresolvedStaticCallPointers[it->second];
+            stubs.virtualMethodPointer = stubs.methodPointer;
+            stubs.stubsFound = true;
+        }
+    }
+    else
+    {
+        const MethodInfo* entryPointNotFoundMethod = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo();
+        stubs.methodPointer = entryPointNotFoundMethod->methodPointer;
+        stubs.virtualMethodPointer = entryPointNotFoundMethod->methodPointer;
+    }
 
-    return NULL;
+    return stubs;
 }
 
 const Il2CppAssembly* il2cpp::vm::MetadataCache::GetAssemblyFromIndex(AssemblyIndex index)

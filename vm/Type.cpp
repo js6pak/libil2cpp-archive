@@ -1173,7 +1173,7 @@ namespace vm
         if (type->byref)
             return false;
 
-        // Any generic parameter that is not constarined to be a reference type would be fully shared
+        // Any generic parameter that is not constrained to be a reference type would be fully shared
         if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
             return MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type)) != GenericParameterRestrictionReferenceType;
 

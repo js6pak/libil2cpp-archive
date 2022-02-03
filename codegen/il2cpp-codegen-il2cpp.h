@@ -330,11 +330,6 @@ inline bool il2cpp_codegen_object_is_of_sealed_type(RuntimeObject* obj)
 
 bool il2cpp_codegen_method_is_generic_instance_method(RuntimeMethod* method);
 
-inline bool il2cpp_codegen_call_method_via_invoker(const RuntimeMethod* method)
-{
-    return method->indirect_call_via_invokers;
-}
-
 RuntimeClass* il2cpp_codegen_method_get_declaring_type(const RuntimeMethod* method);
 
 bool il2cpp_codegen_method_is_interface_method(RuntimeMethod* method);
@@ -356,51 +351,33 @@ IL2CPP_FORCE_INLINE const VirtualInvokeData& il2cpp_codegen_get_interface_invoke
     return il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, declaringInterface, slot);
 }
 
-void il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod, VirtualInvokeData* invokeData);
-
-IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj, VirtualInvokeData* invokeData)
-{
-    uint16_t slot = method->slot;
-    const RuntimeMethod* methodDefinition = obj->klass->vtable[slot].method;
-    il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method, invokeData);
-}
+const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod);
 
 IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method(const RuntimeMethod* method, const RuntimeObject* obj)
 {
-    VirtualInvokeData invokeData;
-    il2cpp_codegen_get_generic_virtual_method(method, obj, &invokeData);
-    return invokeData.method;
+    uint16_t slot = method->slot;
+    const RuntimeMethod* methodDefinition = obj->klass->vtable[slot].method;
+    return il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method);
 }
 
 IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_virtual_invoke_data(const RuntimeMethod* method, const RuntimeObject* obj, VirtualInvokeData* invokeData)
 {
-    il2cpp_codegen_get_generic_virtual_method(method, obj , invokeData);
-
-#if IL2CPP_DEBUG
+    invokeData->method = il2cpp_codegen_get_generic_virtual_method(method, obj);
+    invokeData->methodPtr = invokeData->method->virtualMethodPointer;
     IL2CPP_ASSERT(invokeData->method);
-#endif
-}
-
-IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, RuntimeObject* obj, VirtualInvokeData* invokeData)
-{
-    const RuntimeMethod* methodDefinition = il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, method->klass, method->slot).method;
-    il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method, invokeData);
 }
 
 IL2CPP_FORCE_INLINE const RuntimeMethod* il2cpp_codegen_get_generic_interface_method(const RuntimeMethod* method, RuntimeObject* obj)
 {
-    VirtualInvokeData invokeData;
-    il2cpp_codegen_get_generic_interface_method(method, obj, &invokeData);
-    return invokeData.method;
+    const RuntimeMethod* methodDefinition = il2cpp::vm::ClassInlines::GetInterfaceInvokeDataFromVTable(obj, method->klass, method->slot).method;
+    return il2cpp_codegen_get_generic_virtual_method_internal(methodDefinition, method);
 }
 
 IL2CPP_FORCE_INLINE void il2cpp_codegen_get_generic_interface_invoke_data(const RuntimeMethod* method, RuntimeObject* obj, VirtualInvokeData* invokeData)
 {
-    il2cpp_codegen_get_generic_interface_method(method, obj, invokeData);
-
-#if IL2CPP_DEBUG
+    invokeData->method = il2cpp_codegen_get_generic_interface_method(method, obj);
+    invokeData->methodPtr = invokeData->method->virtualMethodPointer;
     IL2CPP_ASSERT(invokeData->method);
-#endif
 }
 
 inline RuntimeClass* InitializedTypeInfo(RuntimeClass* klass)
@@ -896,7 +873,27 @@ inline void* il2cpp_codegen_static_fields_for(RuntimeClass* klass)
 void il2cpp_codegen_assert_field_size(RuntimeField* field, size_t size);
 
 void* il2cpp_codegen_get_instance_field_data_pointer(void* instance, RuntimeField* field);
+inline void* il2cpp_codegen_get_instance_field_data_pointer(intptr_t instance, RuntimeField* field)
+{
+    return il2cpp_codegen_get_instance_field_data_pointer((void*)instance, field);
+}
+
+inline void* il2cpp_codegen_get_instance_field_data_pointer(uintptr_t instance, RuntimeField* field)
+{
+    return il2cpp_codegen_get_instance_field_data_pointer((void*)instance, field);
+}
+
 void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, void* data, uint32_t size);
+inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, void* data, uint32_t size)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data, size);
+}
+
+inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, void* data, uint32_t size)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data, size);
+}
+
 void* il2cpp_codegen_get_static_field_data_pointer(RuntimeField* field);
 void il2cpp_codegen_write_static_field_data(RuntimeField* field, void* data, uint32_t size);
 void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field);
@@ -910,6 +907,18 @@ void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* fiel
     void* fieldPointer = il2cpp_codegen_get_instance_field_data_pointer(instance, field);
     *(T*)fieldPointer = data;
     Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
+}
+
+template<typename T>
+inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, T data)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
+}
+
+template<typename T>
+inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, T data)
+{
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
 }
 
 template<typename T>
@@ -941,8 +950,6 @@ inline Il2CppMethodPointer il2cpp_codegen_get_direct_method_pointer(const Runtim
 {
     return method->methodPointer;
 }
-
-Il2CppMethodPointer il2cpp_codegen_get_virtual_call_method_pointer(const RuntimeMethod* method);
 
 inline const RuntimeType* il2cpp_codegen_method_return_type(const RuntimeMethod* method)
 {

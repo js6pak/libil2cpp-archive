@@ -537,6 +537,11 @@ namespace InteropServices
         return vm::LastError::GetLastError();
     }
 
+    void Marshal::SetLastWin32Error(uint32_t error)
+    {
+        vm::LastError::SetLastError(error);
+    }
+
     static size_t RoundUpToMultiple(size_t numToRound, size_t multiple)
     {
         if (multiple == 0)

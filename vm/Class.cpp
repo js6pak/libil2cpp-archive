@@ -1184,7 +1184,9 @@ namespace vm
                 else
                 {
                     newMethod->invoker_method = Runtime::GetMissingMethodInvoker();
-                    newMethod->virtualMethodPointer = MetadataCache::GetUnresolvedVirtualCallStub(newMethod);
+                    il2cpp::vm::Il2CppUnresolvedCallStubs stubs = MetadataCache::GetUnresovledCallStubs(newMethod);
+                    newMethod->methodPointer = stubs.methodPointer;
+                    newMethod->virtualMethodPointer = stubs.virtualMethodPointer;
                 }
 
 
@@ -1278,9 +1280,9 @@ namespace vm
                             Class::InitLocked(method->klass, lock);
 
                         if (method->virtualMethodPointer)
-                            klass->vtable[i].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
+                            klass->vtable[i].methodPtr = method->virtualMethodPointer;
                         else if (method->is_inflated && !method->is_generic && !method->genericMethod->context.method_inst)
-                            klass->vtable[i].methodPtr = MetadataCache::GetUnresolvedVirtualCallStub(method);
+                            klass->vtable[i].methodPtr = MetadataCache::GetUnresovledCallStubs(method).virtualMethodPointer;
                         else
                             klass->vtable[i].methodPtr = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
                     }
@@ -1320,7 +1322,7 @@ namespace vm
                     if (method != NULL)
                     {
                         if (method->virtualMethodPointer)
-                            klass->vtable[i].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(method);
+                            klass->vtable[i].methodPtr = method->virtualMethodPointer;
                         else
                             klass->vtable[i].methodPtr = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
                     }
@@ -2214,11 +2216,8 @@ namespace vm
             if (invokeData == NULL)
                 return NULL;
             const MethodInfo* itfMethod = invokeData->method;
-            if (Method::IsGenericInstance(method))
+            if (Method::IsGenericInstanceMethod(method))
             {
-                if (itfMethod->methodPointer)
-                    return itfMethod;
-
                 const MethodInfo* methodDefintion = klass->generic_class ? il2cpp::vm::MetadataCache::GetGenericMethodDefinition(itfMethod) : itfMethod;
                 return il2cpp::metadata::GenericMethod::GetMethod(methodDefintion, klass->generic_class ? klass->generic_class->context.class_inst : NULL, method->genericMethod->context.method_inst);
             }
@@ -2228,11 +2227,8 @@ namespace vm
             }
         }
 
-        if (Method::IsGenericInstance(method))
+        if (Method::IsGenericInstanceMethod(method))
         {
-            if (method->methodPointer)
-                return method;
-
             return il2cpp::metadata::GenericMethod::GetMethod(klass->vtable[method->slot].method, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
         }
         else
