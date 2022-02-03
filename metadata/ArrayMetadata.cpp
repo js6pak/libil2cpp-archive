@@ -310,7 +310,7 @@ namespace metadata
 
                 size_t vtableIndex = klass->interfaceOffsets[i].offset + iter->interfaceMethodDefinition->slot;
                 klass->vtable[vtableIndex].method = arrayMethod;
-                klass->vtable[vtableIndex].methodPtr = il2cpp::vm::Method::GetVirtualCallMethodPointer(arrayMethod);
+                klass->vtable[vtableIndex].methodPtr = arrayMethod->virtualMethodPointer;
             }
         }
     }
