@@ -564,7 +564,7 @@ namespace vm
         return Invoke(invoke, delegate, params, exc);
     }
 
-    void Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod, VirtualInvokeData* invokeData)
+    const MethodInfo* Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
     {
         IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
 
@@ -575,9 +575,7 @@ namespace vm
             methodDefinition = methodDefinition->genericMethod->methodDefinition;
         }
 
-        metadata::GenericMethod::GetVirtualInvokeData(methodDefinition, classInst, inflatedMethod->genericMethod->context.method_inst, invokeData);
-
-        RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(invokeData->method, invokeData->method->genericMethod, inflatedMethod);
+        return metadata::GenericMethod::GetMethod(methodDefinition, classInst, inflatedMethod->genericMethod->context.method_inst);
     }
 
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
@@ -1060,21 +1058,6 @@ namespace vm
     void Runtime::AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method)
     {
         RaiseExecutionEngineException(method, true);
-    }
-
-    void Runtime::RaiseExecutionEngineExceptionIfGenericVirtualMethodIsNotFound(const MethodInfo* method, const Il2CppGenericMethod* genericMethod, const MethodInfo* inflatedMethod)
-    {
-        if (method->methodPointer == NULL)
-        {
-            if (metadata::GenericMethod::IsGenericAmbiguousMethodInfo(method))
-            {
-                RaiseAmbiguousImplementationException(inflatedMethod);
-            }
-            else
-            {
-                RaiseExecutionEngineException(method, metadata::GenericMethod::GetFullName(genericMethod).c_str(), true);
-            }
-        }
     }
 
     void Runtime::RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall)
