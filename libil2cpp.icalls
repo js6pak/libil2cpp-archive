@@ -441,6 +441,7 @@ System.Runtime.InteropServices.Marshal::GetFunctionPointerForDelegateInternal(Sy
 System.Runtime.InteropServices.Marshal::GetIDispatchForObjectInternal(System.Object) mscorlib::System::Runtime::InteropServices::Marshal::GetIDispatchForObjectInternal
 System.Runtime.InteropServices.Marshal::GetIUnknownForObjectInternal(System.Object) mscorlib::System::Runtime::InteropServices::Marshal::GetIUnknownForObjectInternal
 System.Runtime.InteropServices.Marshal::GetLastWin32Error() mscorlib::System::Runtime::InteropServices::Marshal::GetLastWin32Error
+System.Runtime.InteropServices.Marshal::SetLastWin32Error(System.Int32) mscorlib::System::Runtime::InteropServices::Marshal::SetLastWin32Error
 System.Runtime.InteropServices.Marshal::GetObjectForCCW(System.IntPtr) mscorlib::System::Runtime::InteropServices::Marshal::GetObjectForCCW
 System.Runtime.InteropServices.Marshal::IsComObject(System.Object) mscorlib::System::Runtime::InteropServices::Marshal::IsComObject
 System.Runtime.InteropServices.Marshal::OffsetOf(System.Type,System.String) mscorlib::System::Runtime::InteropServices::Marshal::OffsetOf
