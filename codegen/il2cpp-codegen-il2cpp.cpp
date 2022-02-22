@@ -276,9 +276,9 @@ void* Unbox_internal(Il2CppObject* obj)
     return il2cpp::vm::Object::Unbox(obj);
 }
 
-void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* storage)
+void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* nullableClass, void* storage)
 {
-    il2cpp::vm::Object::UnboxNullable(obj, expectedBoxedClass, storage);
+    il2cpp::vm::Object::UnboxNullable(obj, nullableClass, storage);
 }
 
 void* UnBox_Any(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* unboxStorage)
@@ -291,7 +291,7 @@ void* UnBox_Any(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* unbo
     {
         if (il2cpp::vm::Class::IsNullable(expectedBoxedClass))
         {
-            UnBoxNullable(obj, expectedBoxedClass->element_class, unboxStorage);
+            UnBoxNullable(obj, expectedBoxedClass, unboxStorage);
             return unboxStorage;
         }
         return UnBox(obj, expectedBoxedClass);
