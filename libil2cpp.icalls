@@ -666,6 +666,7 @@ System.RuntimeType::GetInterfaces() mscorlib::System::RuntimeType::GetInterfaces
 System.RuntimeType::GetTypeCodeImplInternal(System.Type) mscorlib::System::RuntimeType::GetTypeCodeImplInternal
 System.RuntimeType::GetInterfaceMapData(System.Type,System.Type,System.Reflection.MethodInfo[]&,System.Reflection.MethodInfo[]&) mscorlib::System::RuntimeType::GetInterfaceMapData
 System.RuntimeType::GetPacking(System.Int32&,System.Int32&) mscorlib::System::RuntimeType::GetPacking
+System.RuntimeType::GetGUID(System.Type,System.Byte[]) mscorlib::System::RuntimeType::GetGUID
 
 // System.Threading.WaitHandle
 >icalls/mscorlib/System.Threading/WaitHandle.h

@@ -801,7 +801,7 @@ namespace vm
                     {
                         // Since we don't really store boxed nullables, we need to create a new one.
                         void* nullableStorage = alloca(parameterType->instance_size - sizeof(Il2CppObject));
-                        Object::UnboxNullable(parameters[i], Class::GetNullableArgument(parameterType), nullableStorage);
+                        Object::UnboxNullable(parameters[i], parameterType, nullableStorage);
                         convertedParameters[i] = nullableStorage;
                         hasByRefNullables |= passedByReference;
                     }
