@@ -1157,6 +1157,21 @@ namespace System
         else
             *size = vm::Class::FromIl2CppType(runtimeType)->native_size;
     }
+
+    void RuntimeType::GetGUID(Il2CppReflectionType* type, Il2CppArray* guid_result)
+    {
+        IL2CPP_ASSERT(vm::Array::GetLength(guid_result) == sizeof(Il2CppGuid));
+        if (type == NULL)
+            return;
+
+        Il2CppClass* klass = vm::Class::FromIl2CppType(type->type);
+
+        if (klass->interopData != nullptr)
+        {
+            uint8_t* guid = il2cpp_array_addr_with_size(guid_result, 1, 0);
+            memcpy(guid, klass->interopData->guid, sizeof(Il2CppGuid));
+        }
+    }
 } // namespace System
 } // namespace mscorlib
 } // namespace icalls
