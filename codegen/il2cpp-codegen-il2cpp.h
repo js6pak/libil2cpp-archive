@@ -282,19 +282,19 @@ inline void* UnBox(RuntimeObject* obj, RuntimeClass* expectedBoxedClass)
     return NULL;
 }
 
-void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* storage);
+void UnBoxNullable_internal(RuntimeObject* obj, RuntimeClass* nullableClass, void* storage);
 
-inline void UnBoxNullable(RuntimeObject* obj, RuntimeClass* expectedBoxedClass, void* storage)
+inline void UnBoxNullable(RuntimeObject* obj, RuntimeClass* nullableClass, void* storage)
 {
     // We only need to do type checks if obj is not null
     // Unboxing null nullable is perfectly valid and returns an instance that has no value
     if (obj != NULL)
     {
-        if (obj->klass->element_class != expectedBoxedClass->element_class)
-            RaiseInvalidCastException(obj, expectedBoxedClass);
+        if (obj->klass != nullableClass->element_class)
+            RaiseInvalidCastException(obj, nullableClass->element_class);
     }
 
-    UnBoxNullable_internal(obj, expectedBoxedClass, storage);
+    UnBoxNullable_internal(obj, nullableClass, storage);
 }
 
 // Implements OpCode.UnBox_Any at runtime, obj may be any type, even a reference type
