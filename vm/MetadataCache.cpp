@@ -517,14 +517,12 @@ static bool IsShareableEnum(const Il2CppType* type)
     return false;
 }
 
-static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(const Il2CppType* constraint);
-
 static il2cpp::vm::GenericParameterRestriction IsReferenceTypeGenericConstraint(const Il2CppType* constraint)
 {
     // This must match GenericSharingAnalsyis.GetGenericParameterConstraintRestriction()
 
     if (constraint->type == IL2CPP_TYPE_VAR || constraint->type == IL2CPP_TYPE_MVAR)
-        return il2cpp::vm::MetadataCache::IsReferenceTypeGenericParameter(il2cpp::vm::GlobalMetadata::GetGenericParameterFromType(constraint));
+        return il2cpp::vm::GenericParameterRestrictionNone;
     if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.enum_class->byval_arg))
         return il2cpp::vm::GenericParameterRestrictionValueType;
     if (il2cpp::metadata::Il2CppTypeEqualityComparer::AreEqual(constraint, &il2cpp_defaults.value_type_class->byval_arg))
