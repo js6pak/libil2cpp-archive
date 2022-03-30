@@ -418,6 +418,7 @@ typedef struct Il2CppClass
     // Remaining fields are always valid except where noted
     Il2CppMetadataGenericContainerHandle genericContainerHandle;
     uint32_t instance_size; // valid when size_inited is true
+    uint32_t stack_slot_size; // valid when size_inited is true
     uint32_t actualSize;
     uint32_t element_size;
     int32_t native_size;
@@ -440,7 +441,6 @@ typedef struct Il2CppClass
     uint8_t genericRecursionDepth;
     uint8_t rank;
     uint8_t minimumAlignment; // Alignment of this type
-    uint8_t naturalAligment; // Alignment of this type without accounting for packing
     uint8_t packingSize;
 
     // this is critical for performance of Class::InitFromCodegen. Equals to initialized && !initializationExceptionGCHandle at all times.

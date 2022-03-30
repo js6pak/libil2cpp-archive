@@ -47,6 +47,7 @@ namespace vm
         static void ObjectInitException(Il2CppObject* object, Il2CppException **exc);
         static void SetUnhandledExceptionPolicy(Il2CppRuntimeUnhandledExceptionPolicy value);
 
+        static const MethodInfo* GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod);
         static void AlwaysRaiseExecutionEngineException(const MethodInfo* method);
         static void AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method);
 

@@ -93,10 +93,10 @@ namespace utils
     {
         int error = 0;
         std::string symbolsPath;
-        std::string applicationFolder = os::Path::GetApplicationFolder();
-        if (!applicationFolder.empty())
+        std::string executablePath = os::Path::GetExecutablePath();
+        if (!executablePath.empty())
         {
-            symbolsPath = PathUtils::Combine(applicationFolder, StringView<char>("il2cpp.usym"));
+            symbolsPath = PathUtils::Combine(PathUtils::DirectoryName(executablePath), StringView<char>("il2cpp.usym"));
         }
         else
         {

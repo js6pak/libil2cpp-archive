@@ -515,9 +515,9 @@ namespace InteropServices
         if (utils::MarshalingUtils::MarshalFreeStruct(reinterpret_cast<void*>(ptr), type->interopData))
             return;
 
-        if (type->is_generic)
+        if (type->is_generic || type->generic_class != NULL)
         {
-            vm::Exception::Raise(vm::Exception::GetArgumentException("structureType", "The specified type must not be an instance of a generic type."));
+            vm::Exception::Raise(vm::Exception::GetArgumentException("structureType", "The specified type must not be a generic type definition."));
         }
 
         // Enums are blittable, but they don't have layout information, therefore Marshal.DestroyStructure is supposed to throw
