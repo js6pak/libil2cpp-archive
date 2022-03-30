@@ -17,15 +17,7 @@ namespace InteropServices
 {
     Il2CppString* RuntimeInformation::GetOSName()
     {
-#if IL2CPP_TARGET_WINDOWS_DESKTOP
-        return vm::String::New("windows");
-#elif IL2CPP_TARGET_OSX
-        return vm::String::New("osx");
-#elif IL2CPP_TARGET_LINUX
-        return vm::String::New("linux");
-#else
         return vm::String::New("unknown");
-#endif
     }
 
     Il2CppString* RuntimeInformation::GetRuntimeArchitecture()
@@ -39,7 +31,8 @@ namespace InteropServices
 #elif IL2CPP_TARGET_X64
         return vm::String::New("x86-64");
 #else
-        return vm::String::New("unknown");
+        NOT_SUPPORTED_IL2CPP(RuntimeInformation::GetRuntimeArchitecture, "This icall is not supported by il2cpp on this architecture.");
+        return 0;
 #endif
     }
 } // namespace InteropServices

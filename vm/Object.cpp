@@ -8,6 +8,7 @@
 #include "gc/gc_wrapper.h"
 #include "gc/GarbageCollector.h"
 #include "metadata/GenericMethod.h"
+#include "metadata/Il2CppTypeCompare.h"
 #include "utils/StringUtils.h"
 #include "vm-utils/VmThreadUtils.h"
 #include "vm/Array.h"
@@ -87,7 +88,6 @@ namespace vm
 
     Il2CppObject* Object::Box(Il2CppClass *typeInfo, void* val)
     {
-        Class::Init(typeInfo);
         if (!typeInfo->byval_arg.valuetype)
             return *(Il2CppObject**)val;
 
@@ -107,8 +107,9 @@ namespace vm
                 return NULL;
         }
 
-        size_t size = Class::GetInstanceSize(typeInfo);
         Il2CppObject* obj = Object::New(typeInfo);
+
+        size_t size = Class::GetInstanceSize(typeInfo);
 
         // At this point we know we have a value type and we need to adjust the
         // copy size by the size of Il2CppObject
@@ -117,6 +118,7 @@ namespace vm
         uint8_t* valueStart = static_cast<uint8_t*>(val);
         if (isNullable)
         {
+            IL2CPP_ASSERT(metadata::Il2CppTypeEqualityComparer::AreEqual(typeInfo->fields[1].type, &Class::GetNullableArgument(typeInfo)->byval_arg));
             // Shift the valueStart right past the bool for nullable
             int32_t nullableShift = typeInfo->fields[1].offset - sizeof(Il2CppObject);
             valueStart += nullableShift;
@@ -208,26 +210,33 @@ namespace vm
         }
     }
 
-    const MethodInfo* Object::GetVirtualMethod(Il2CppObject *obj, const MethodInfo *virtualMethod)
+    const MethodInfo* Object::GetVirtualMethod(Il2CppObject *obj, const MethodInfo *method)
     {
-        if ((virtualMethod->flags & METHOD_ATTRIBUTE_FINAL) || !(virtualMethod->flags & METHOD_ATTRIBUTE_VIRTUAL))
-            return virtualMethod;
+        if ((method->flags & METHOD_ATTRIBUTE_FINAL) || !(method->flags & METHOD_ATTRIBUTE_VIRTUAL))
+            return method;
 
-        Il2CppClass* methodDeclaringType = virtualMethod->klass;
-        const MethodInfo* vtableSlotMethod;
+        Il2CppClass* methodDeclaringType = method->klass;
         if (Class::IsInterface(methodDeclaringType))
         {
-            vtableSlotMethod = ClassInlines::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, virtualMethod->slot).method;
+            const MethodInfo* itfMethod = ClassInlines::GetInterfaceInvokeDataFromVTable(obj, methodDeclaringType, method->slot).method;
+            if (Method::IsGenericInstanceMethod(method))
+            {
+                return il2cpp::metadata::GenericMethod::GetMethod(itfMethod, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
+            }
+            else
+            {
+                return itfMethod;
+            }
+        }
+
+        if (Method::IsGenericInstanceMethod(method))
+        {
+            return il2cpp::metadata::GenericMethod::GetMethod(obj->klass->vtable[method->slot].method, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
         }
         else
         {
-            IL2CPP_ASSERT(virtualMethod->slot < obj->klass->vtable_count);
-            vtableSlotMethod = obj->klass->vtable[virtualMethod->slot].method;
+            return obj->klass->vtable[method->slot].method;
         }
-
-        if (Method::IsGenericInstanceMethod(virtualMethod))
-            return il2cpp::metadata::GenericMethod::GetGenericVirtualMethod(vtableSlotMethod, virtualMethod);
-        return vtableSlotMethod;
     }
 
     Il2CppObject* Object::IsInst(Il2CppObject *obj, Il2CppClass *klass)
@@ -412,8 +421,9 @@ namespace vm
     bool Object::NullableHasValue(Il2CppClass* klass, void* data)
     {
         IL2CPP_ASSERT(Class::IsNullable(klass));
+        IL2CPP_ASSERT(metadata::Il2CppTypeEqualityComparer::AreEqual(ClassInlines::InitFromCodegen(klass)->fields[0].type, &il2cpp_defaults.boolean_class->byval_arg));
 
-        // The hasValue field is the first field in the Nullable managed stuct,
+        // The hasValue field is the first field in the Nullable managed struct,
         // so read the first byte to get its value;
         uint8_t* hasValueByte = static_cast<uint8_t*>(data);
         return *hasValueByte != 0;

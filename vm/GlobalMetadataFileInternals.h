@@ -22,7 +22,6 @@
 // FieldInfo         100               0x80000000
 // StringLiteral     101               0xA0000000
 // MethodRef         110               0xC0000000
-// FieldRVA          111               0xE0000000
 
 typedef uint32_t EncodedMethodIndex;
 
@@ -35,7 +34,6 @@ enum Il2CppMetadataUsage
     kIl2CppMetadataUsageFieldInfo,
     kIl2CppMetadataUsageStringLiteral,
     kIl2CppMetadataUsageMethodRef,
-    kIl2CppMetadataUsageFieldRva
 };
 
 enum Il2CppInvalidMetadataUsageToken
