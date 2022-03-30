@@ -15,7 +15,7 @@
 
 static void remove_working_thread(Il2CppInternalThread *thread)
 {
-    int index = -1;
+    int index = 0;
     for (unsigned i = 0; i < g_ThreadPool->working_threads.size(); ++i)
     {
         if (g_ThreadPool->working_threads[i] == thread)
@@ -24,8 +24,7 @@ static void remove_working_thread(Il2CppInternalThread *thread)
             break;
         }
     }
-    if (index != -1)
-        g_ThreadPool->working_threads.erase(g_ThreadPool->working_threads.begin() + index);
+    g_ThreadPool->working_threads.erase(g_ThreadPool->working_threads.begin() + index);
 }
 
 /*

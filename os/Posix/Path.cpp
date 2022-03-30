@@ -3,7 +3,6 @@
 #if IL2CPP_TARGET_POSIX && !RUNTIME_TINY && !IL2CPP_USE_PLATFORM_SPECIFIC_PATH
 #include "os/Environment.h"
 #include "os/Path.h"
-#include "utils/PathUtils.h"
 #include <string>
 
 #if defined(__APPLE__)
@@ -14,6 +13,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
+#elif IL2CPP_TARGET_QNX
+#include <unistd.h>
 #endif
 
 #if IL2CPP_TARGET_LUMIN
@@ -41,20 +42,31 @@ namespace os
         char dest[PATH_MAX + 1];
         //readlink does not null terminate
         memset(dest, 0, PATH_MAX + 1);
-        struct stat info;
         pid_t pid = getpid();
         sprintf(path, "/proc/%d/exe", pid);
         if (readlink(path, dest, PATH_MAX) == -1)
             return std::string();
         return dest;
+#elif IL2CPP_TARGET_QNX
+        char path[PATH_MAX];
+        char dest[PATH_MAX + 1];
+        pid_t pid = getpid();
+        sprintf(path, "/proc/%d/exefile", pid);
+        auto* fh = fopen(path, "r");
+        if (fh)
+        {
+            const auto read = fread(dest, 1, sizeof(dest), fh);
+            const auto errorFlag = ferror(fh);
+            fclose(fh);
+            if (errorFlag == 0)
+            {
+                return dest;
+            }
+        }
+        return "";
 #else
         return std::string();
 #endif
-    }
-
-    std::string Path::GetApplicationFolder()
-    {
-        return utils::PathUtils::DirectoryName(GetExecutablePath());
     }
 
     std::string Path::GetTempPath()

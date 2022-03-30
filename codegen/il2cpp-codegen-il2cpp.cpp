@@ -236,9 +236,9 @@ NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method
     il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
 }
 
-const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* vtableSlotMethod, const RuntimeMethod* genericVirtualMethod)
+const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod)
 {
-    return il2cpp::metadata::GenericMethod::GetGenericVirtualMethod(vtableSlotMethod, genericVirtualMethod);
+    return il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, inflatedMethod);
 }
 
 void il2cpp_codegen_runtime_class_init(RuntimeClass* klass)
@@ -869,6 +869,11 @@ void il2cpp_codegen_stacktrace_push_frame(Il2CppStackFrameInfo& frame)
 void il2cpp_codegen_stacktrace_pop_frame()
 {
     il2cpp::vm::StackTrace::PopFrame();
+}
+
+const char* il2cpp_codegen_get_field_data(RuntimeField* field)
+{
+    return il2cpp::vm::Field::GetData(field);
 }
 
 void il2cpp_codegen_array_unsafe_mov(RuntimeClass * destClass, void* dest, RuntimeClass * srcClass, void* src)

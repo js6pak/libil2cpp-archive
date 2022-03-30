@@ -16,12 +16,12 @@ extern "C"
 
 uint32_t SystemNative_GetEUid(void)
 {
-    return geteuid_();
+    return geteuid();
 }
 
 uint32_t SystemNative_GetEGid()
 {
-    return getegid_();
+    return getegid();
 }
 
 #endif

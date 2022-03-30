@@ -21,7 +21,6 @@ namespace metadata
     public:
         //internal
 
-        static const MethodInfo* GetGenericVirtualMethod(const MethodInfo* vtableSlotMethod, const MethodInfo* genericVirtualMethod);
         static const MethodInfo* GetMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
         static const MethodInfo* GetMethod(const Il2CppGenericMethod* gmethod);
         static MethodInfo* AllocateNewMethodInfo(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
@@ -34,7 +33,6 @@ namespace metadata
 
     private:
         static const MethodInfo* GetMethod(const Il2CppGenericMethod* gmethod, bool copyMethodPtr);
-        static const MethodInfo* CreateMethodLocked(const Il2CppGenericMethod* gmethod, bool copyMethodPtr);
         static const Il2CppRGCTXData* InflateRGCTXLocked(const Il2CppGenericMethod* gmethod, const il2cpp::os::FastAutoLock& lock);
     };
 } /* namespace vm */

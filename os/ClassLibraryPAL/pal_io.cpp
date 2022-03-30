@@ -20,14 +20,18 @@ struct DirectoryEntry;
 
 extern "C"
 {
+#define READDIR_SORT 1
+
     struct DIRWrapper
     {
         DIR* dir;
-        DirectoryEntry* result;
+#if READDIR_SORT
+        void* result;
         size_t curIndex;
         size_t numEntries;
 #if !IL2CPP_HAVE_REWINDDIR
         char* dirPath;
+#endif
 #endif
     };
     // Items needed by mscorlib
@@ -122,7 +126,7 @@ enum NodeType
  */
 struct DirectoryEntry
 {
-    char* Name;   // Address of the name of the inode
+    const char* Name;   // Address of the name of the inode
     int32_t NameLength; // Length (in chars) of the inode name
     int32_t InodeType; // The inode type as described in the NodeType enum
 };
@@ -211,8 +215,7 @@ static void ConvertDirent(const struct dirent* entry, struct DirectoryEntry* out
     // We use Marshal.PtrToStringAnsi on the managed side, which takes a pointer to
     // the start of the unmanaged string. Give the caller back a pointer to the
     // location of the start of the string that exists in their own byte buffer.
-    outputEntry->Name = strdup(entry->d_name);
-    IL2CPP_ASSERT(outputEntry->Name != NULL);
+    outputEntry->Name = entry->d_name;
 #if !defined(DT_UNKNOWN)
     // AIX has no d_type, and since we can't get the directory that goes with
     // the filename from ReadDir, we can't stat the file. Return unknown and
@@ -246,10 +249,13 @@ int32_t SystemNative_GetReadDirRBufferSize(void)
 #endif
 }
 
-static int CompareByName(const void *p1, const void *p2)
+#if READDIR_SORT
+static int cmpstring(const void *p1, const void *p2)
 {
-    return strcmp(((struct DirectoryEntry*)p1)->Name, ((struct DirectoryEntry*)p2)->Name);
+    return strcmp(((struct dirent*)p1)->d_name, ((struct dirent*)p2)->d_name);
 }
+
+#endif
 
 // To reduce the number of string copies, the caller of this function is responsible to ensure the memory
 // referenced by outputEntry remains valid until it is read.
@@ -317,18 +323,20 @@ int32_t SystemNative_ReadDirR(struct DIRWrapper* dirWrapper, uint8_t* buffer, in
     (void)buffer;     // unused
     (void)bufferSize; // unused
     errno = 0;
-    bool endOfEntries = false;
+
+#if READDIR_SORT
+    struct dirent* entry;
 
     if (!dirWrapper->result)
     {
-        struct dirent* entry;
         size_t numEntries = 0;
         while ((entry = readdir(dirWrapper->dir)))
             numEntries++;
         if (numEntries)
         {
-            dirWrapper->result = (DirectoryEntry*)malloc(numEntries * sizeof(struct DirectoryEntry));
+            dirWrapper->result = malloc(numEntries * sizeof(struct dirent));
             dirWrapper->curIndex = 0;
+            dirWrapper->numEntries = numEntries;
 #if IL2CPP_HAVE_REWINDDIR
             rewinddir(dirWrapper->dir);
 #else
@@ -337,29 +345,30 @@ int32_t SystemNative_ReadDirR(struct DIRWrapper* dirWrapper, uint8_t* buffer, in
 #endif
 
             size_t index = 0;
-            while ((entry = readdir(dirWrapper->dir)) && index < numEntries)
+            while ((entry = readdir(dirWrapper->dir)))
             {
-                ConvertDirent(entry, &dirWrapper->result[index]);
+                memcpy(&((struct dirent*)dirWrapper->result)[index], entry, sizeof(struct dirent));
                 index++;
             }
 
-            qsort(dirWrapper->result, numEntries, sizeof(struct DirectoryEntry), CompareByName);
-            dirWrapper->numEntries = index;
+            qsort(dirWrapper->result, numEntries, sizeof(struct dirent), cmpstring);
         }
     }
 
     if (dirWrapper->curIndex < dirWrapper->numEntries)
     {
-        *outputEntry = dirWrapper->result[dirWrapper->curIndex];
+        entry = &((struct dirent*)dirWrapper->result)[dirWrapper->curIndex];
         dirWrapper->curIndex++;
     }
     else
-    {
-        endOfEntries = true;
-    }
+        entry = NULL;
+
+#else
+    struct dirent* entry = readdir(dirWrapper->dir);
+#endif
 
     // 0 returned with null result -> end-of-stream
-    if (endOfEntries)
+    if (entry == NULL)
     {
         memset(outputEntry, 0, sizeof(*outputEntry)); // managed out param must be initialized
 
@@ -372,6 +381,7 @@ int32_t SystemNative_ReadDirR(struct DIRWrapper* dirWrapper, uint8_t* buffer, in
         return -1;
     }
 #endif
+    ConvertDirent(entry, outputEntry);
     return 0;
 }
 
@@ -393,11 +403,13 @@ struct DIRWrapper* SystemNative_OpenDir(const char* path)
 
     struct DIRWrapper* ret = (struct DIRWrapper*)malloc(sizeof(struct DIRWrapper));
     ret->dir = dir;
+#if READDIR_SORT
     ret->result = NULL;
     ret->curIndex = 0;
     ret->numEntries = 0;
 #if !IL2CPP_HAVE_REWINDDIR
     ret->dirPath = strdup(remapped_path);
+#endif
 #endif
     return ret;
 }
@@ -406,18 +418,16 @@ int32_t SystemNative_CloseDir(struct DIRWrapper* dirWrapper)
 {
     IL2CPP_ASSERT(dirWrapper != NULL);
     int32_t ret = closedir(dirWrapper->dir);
+#if READDIR_SORT
     if (dirWrapper->result)
-    {
-        for (int i = 0; i < dirWrapper->numEntries; i++)
-            free(dirWrapper->result[i].Name);
         free(dirWrapper->result);
-    }
     dirWrapper->result = NULL;
 #if !IL2CPP_HAVE_REWINDDIR
     if (dirWrapper->dirPath)
         free(dirWrapper->dirPath);
 #endif
     free(dirWrapper);
+#endif
 
     return ret;
 }
@@ -433,7 +443,7 @@ int32_t SystemNative_MkDir(const char* path, int32_t mode)
 int32_t SystemNative_ChMod(const char* path, int32_t mode)
 {
     int32_t result = 0;
-    while ((result = chmod_(REMAP_PATH(path), (mode_t)mode)) < 0 && errno == EINTR)
+    while ((result = chmod(REMAP_PATH(path), (mode_t)mode)) < 0 && errno == EINTR)
         ;
     return result;
 }
@@ -441,14 +451,14 @@ int32_t SystemNative_ChMod(const char* path, int32_t mode)
 int32_t SystemNative_Link(const char* source, const char* linkTarget)
 {
     int32_t result = 0;
-    while ((result = link_(REMAP_PATH(source), REMAP_PATH(linkTarget))) < 0 && errno == EINTR)
+    while ((result = link(REMAP_PATH(source), REMAP_PATH(linkTarget))) < 0 && errno == EINTR)
         ;
     return result;
 }
 
 int32_t SystemNative_Symlink(const char* target, const char* linkPath)
 {
-    return symlink_(REMAP_PATH(target), REMAP_PATH(linkPath));
+    return symlink(REMAP_PATH(target), REMAP_PATH(linkPath));
 }
 
 int32_t SystemNative_ReadLink(const char* path, char* buffer, int32_t bufferSize)
@@ -462,7 +472,7 @@ int32_t SystemNative_ReadLink(const char* path, char* buffer, int32_t bufferSize
         return -1;
     }
 
-    ssize_t count = readlink_(REMAP_PATH(path), buffer, (size_t)bufferSize);
+    ssize_t count = readlink(REMAP_PATH(path), buffer, (size_t)bufferSize);
     IL2CPP_ASSERT(count >= -1 && count <= bufferSize);
 
     return (int32_t)count;
