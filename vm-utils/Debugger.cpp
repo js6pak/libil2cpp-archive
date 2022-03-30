@@ -73,9 +73,14 @@ extern "C"
     void unity_debugger_agent_thread_end(uintptr_t tid);
     void unity_debugger_agent_runtime_shutdown();
 
-    void* il2cpp_malloc(size_t size)
+    static void* il2cpp_malloc(size_t size)
     {
         return IL2CPP_MALLOC(size);
+    }
+
+    static void il2cpp_mfree(void* memory)
+    {
+        IL2CPP_FREE(memory);
     }
 }
 
@@ -173,7 +178,7 @@ namespace utils
 
         il2cpp::utils::Debugger::RegisterCallbacks(breakpoint_callback, pausepoint_callback);
 
-        register_allocator(il2cpp_malloc);
+        register_allocator(il2cpp_malloc, il2cpp_mfree);
 
         s_IsDebuggerInitialized = true;
 #else

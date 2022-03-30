@@ -15,11 +15,6 @@ namespace os
         return std::string("<NotImplemented>");
     }
 
-    std::string Path::GetApplicationFolder()
-    {
-        return std::string("<NotImplemented>");
-    }
-
     std::string Path::GetTempPath()
     {
         return std::string("<NotImplemented>");
