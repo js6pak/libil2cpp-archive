@@ -516,7 +516,12 @@ namespace os
         // This seems to be unnecessary though, as we can use PF_UNSPEC in all cases, and getaddrinfo works.
         hints.ai_family = PF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
+#if IL2CPP_TARGET_QNX
+        // there is no AI_ADDRCONFIG flag on QNX:
+        hints.ai_flags = AI_CANONNAME;
+#else
         hints.ai_flags = AI_CANONNAME | AI_ADDRCONFIG;
+#endif
 
         if (*hostname && getaddrinfo(hostname, NULL, &hints, &info) == -1)
             return kWaitStatusFailure;
@@ -2437,15 +2442,8 @@ namespace os
             case kSocketOptionNameSendTimeout:
             case kSocketOptionNameReceiveTimeout:
             {
-                struct timeval time;
-                socklen_t time_size = sizeof(time);
-                ret = getsockopt(_fd, system_level, system_name, &time, &time_size);
-
-                // Use a 64-bit integer to avoid overflow
-                uint64_t timeInMilliseconds = (time.tv_sec * (uint64_t)1000) + (time.tv_usec / 1000);
-
-                // Truncate back to a 32-bit integer to return the value back to the caller.
-                *first = (int32_t)timeInMilliseconds;
+                socklen_t time_ms_size = sizeof(*first);
+                ret = getsockopt(_fd, system_level, system_name, (char*)first, &time_ms_size);
             }
             break;
 
