@@ -101,7 +101,7 @@ namespace metadata
     static GenericArrayMethods s_GenericArrayMethods;
 
     static size_t GetArrayGenericMethodsCount();
-    static void PopulateArrayGenericMethods(Il2CppClass* klass, uint16_t offset);
+    static void PopulateArrayGenericMethods(Il2CppClass* klass, uint16_t offset, const GenericArrayMethods& genericArrayMethods);
 
     static void CollectImplicitArrayInterfaces(Il2CppClass* elementClass, ::std::vector<Il2CppClass*>& interfaces);
 
@@ -147,7 +147,7 @@ namespace metadata
         arrayClass->methods[methodIndex++] = ConstructArrayMethod(arrayClass, "Get", &arrayClass->element_class->byval_arg, rank, parameters);
 
         IL2CPP_ASSERT(methodIndex <= std::numeric_limits<uint16_t>::max());
-        PopulateArrayGenericMethods(arrayClass, static_cast<uint16_t>(methodIndex));
+        PopulateArrayGenericMethods(arrayClass, static_cast<uint16_t>(methodIndex), s_GenericArrayMethods);
     }
 
     static void CollectImplicitArrayInterfacesFromElementClass(Il2CppClass* elementClass, ::std::vector<Il2CppClass*>& interfaces)
@@ -196,10 +196,10 @@ namespace metadata
 
 // note assuming list is ordered as IList, ICollection, IEnumerable
 
-    static void CollectGenericArrayMethods()
+    static void CollectGenericArrayMethods(GenericArrayMethods& genericArrayMethods)
     {
         const size_t kNumGenericArrayMethods = 13;
-        s_GenericArrayMethods.reserve(kNumGenericArrayMethods);
+        genericArrayMethods.reserve(kNumGenericArrayMethods);
 
         void* iter = NULL;
         while (const MethodInfo* method = Class::GetMethods(il2cpp_defaults.array_class, &iter))
@@ -254,8 +254,8 @@ namespace metadata
 
             if (matchingInterfacesMethod != NULL)
             {
-                GenericArrayMethod genericArrayMethod = { StringUtils::StringDuplicate(name.c_str()), method, matchingInterfacesMethod };
-                s_GenericArrayMethods.push_back(genericArrayMethod);
+                GenericArrayMethod generiArrayMethod = { StringUtils::StringDuplicate(name.c_str()), method, matchingInterfacesMethod };
+                genericArrayMethods.push_back(generiArrayMethod);
             }
         }
     }
@@ -263,7 +263,7 @@ namespace metadata
     static size_t GetArrayGenericMethodsCount()
     {
         if (s_GenericArrayMethods.size() == 0)
-            CollectGenericArrayMethods();
+            CollectGenericArrayMethods(s_GenericArrayMethods);
 
         return s_GenericArrayMethods.size();
     }
@@ -292,7 +292,7 @@ namespace metadata
         return inflatedMethod;
     }
 
-    static void PopulateArrayGenericMethods(Il2CppClass* klass, uint16_t offset)
+    static void PopulateArrayGenericMethods(Il2CppClass* klass, uint16_t offset, const GenericArrayMethods& genericArrayMethods)
     {
         for (int i = 0; i < klass->interface_offsets_count; i++)
         {
@@ -305,7 +305,7 @@ namespace metadata
             Il2CppGenericContext context = { 0 };
             context.method_inst = MetadataCache::GetGenericInst(&interfaceType->generic_class->context.class_inst->type_argv[0], 1);
 
-            for (GenericArrayMethods::const_iterator iter = s_GenericArrayMethods.begin(); iter != s_GenericArrayMethods.end(); ++iter)
+            for (GenericArrayMethods::const_iterator iter = genericArrayMethods.begin(); iter != genericArrayMethods.end(); ++iter)
             {
                 if (iter->interfaceMethodDefinition->klass != interfaceDefinition)
                     continue;
@@ -470,58 +470,40 @@ namespace metadata
         }
     };
 
-    typedef Il2CppReaderWriterLockedHashMap<Il2CppClass*, Il2CppClass*, SZArrayClassHash, SZArrayClassCompare> SZArrayClassMap;
-    typedef Il2CppReaderWriterLockedHashMap<std::pair<Il2CppClass*, uint32_t>, Il2CppClass*, ArrayClassHash, ArrayClassCompare> ArrayClassMap;
+    typedef Il2CppHashMap<Il2CppClass*, Il2CppClass*, SZArrayClassHash, SZArrayClassCompare> SZArrayClassMap;
+    typedef Il2CppHashMap<std::pair<Il2CppClass*, uint32_t>, Il2CppClass*, ArrayClassHash, ArrayClassCompare> ArrayClassMap;
 
     SZArrayClassMap s_SZArrayClassMap;
     ArrayClassMap s_ArrayClassMap;
 
     void ArrayMetadata::Clear()
     {
-        s_SZArrayClassMap.Clear();
-        s_ArrayClassMap.Clear();
-
-        for (auto genericArrayMethod : s_GenericArrayMethods)
-            IL2CPP_FREE((void*)genericArrayMethod.name);
-
-        s_GenericArrayMethods.clear();
-    }
-
-    static Il2CppClass* FindBoundedArrayClass(Il2CppClass* elementClass, uint32_t rank, bool bounded)
-    {
-        Il2CppClass* arrayClass = NULL;
-        if (rank > 1 || bounded)
-        {
-            if (s_ArrayClassMap.TryGet(std::make_pair(elementClass, rank), &arrayClass))
-                return arrayClass;
-        }
-        else
-        {
-            if (s_SZArrayClassMap.TryGet(elementClass, &arrayClass))
-                return arrayClass;
-        }
-
-        return NULL;
+        s_SZArrayClassMap.clear();
+        s_ArrayClassMap.clear();
     }
 
     Il2CppClass* ArrayMetadata::GetBoundedArrayClass(Il2CppClass* elementClass, uint32_t rank, bool bounded)
     {
+        FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(ArrayMetadata::GetBoundedArrayClass, "Use more granular lock for looking up arrays, but then handle race between lookup, construction, and caching");
+
         IL2CPP_ASSERT(rank <= 255);
 
         if (rank > 1)
             bounded = false;
 
-        // Check for a cached array class using the reader lock only
-        Il2CppClass* cachedArrayClass = FindBoundedArrayClass(elementClass, rank, bounded);
-        if (cachedArrayClass != NULL)
-            return cachedArrayClass;
-
-        FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
-
-        // Check if the array class was created while we were waiting for the g_MetadataLock
-        cachedArrayClass = FindBoundedArrayClass(elementClass, rank, bounded);
-        if (cachedArrayClass != NULL)
-            return cachedArrayClass;
+        if (rank > 1 || bounded)
+        {
+            ArrayClassMap::const_iterator iter = s_ArrayClassMap.find(std::make_pair(elementClass, rank));
+            if (iter != s_ArrayClassMap.end())
+                return iter->second;
+        }
+        else
+        {
+            SZArrayClassMap::const_iterator iter = s_SZArrayClassMap.find(elementClass);
+            if (iter != s_SZArrayClassMap.end())
+                return iter->second;
+        }
 
         Il2CppClass* arrayClass = il2cpp_defaults.array_class;
         Class::Init(arrayClass);
@@ -549,6 +531,7 @@ namespace metadata
         klass->rank = rank;
 
         klass->instance_size = Class::GetInstanceSize(arrayClass);
+        klass->stack_slot_size = sizeof(void*);
         klass->vtable_count = static_cast<uint16_t>(slots);
 
         // need this before we access the size or has_references
@@ -591,16 +574,10 @@ namespace metadata
 
         klass->interopData = MetadataCache::GetInteropDataForType(&klass->byval_arg);
 
-        // Insert the new array class while still holding the g_MetadataLock
-        // This ensures that the class is only added once
-        // And WalkSZArrays and WalkArrays (see below) only take the g_MetadataLock and assume that the maps won't be changed
-        // It's not safe to take the reader/writer lock there because those locks aren't re-entrant and those methods take
-        // call backs that call arbitrary code
-
         if (rank > 1 || bounded)
-            s_ArrayClassMap.Add(ArrayClassMap::key_type(std::make_pair(klass->element_class, klass->rank)), klass);
+            s_ArrayClassMap.insert(std::make_pair(ArrayClassMap::key_type(std::make_pair(klass->element_class, klass->rank)), klass));
         else
-            s_SZArrayClassMap.Add(klass->element_class, klass);
+            s_SZArrayClassMap.insert(std::make_pair(klass->element_class, klass));
 
         return klass;
     }
@@ -609,7 +586,7 @@ namespace metadata
     {
         FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
 
-        for (SZArrayClassMap::iterator it = s_SZArrayClassMap.UnlockedBegin(); it != s_SZArrayClassMap.UnlockedEnd(); it++)
+        for (SZArrayClassMap::iterator it = s_SZArrayClassMap.begin(); it != s_SZArrayClassMap.end(); it++)
         {
             callback(it->second, context);
         }
@@ -619,7 +596,7 @@ namespace metadata
     {
         FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
 
-        for (ArrayClassMap::iterator it = s_ArrayClassMap.UnlockedBegin(); it != s_ArrayClassMap.UnlockedEnd(); it++)
+        for (ArrayClassMap::iterator it = s_ArrayClassMap.begin(); it != s_ArrayClassMap.end(); it++)
         {
             callback(it->second, context);
         }
