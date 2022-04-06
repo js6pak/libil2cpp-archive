@@ -37,8 +37,21 @@ namespace vm
         // Some platforms, like UWP, just don't allow you to load to load system libraries at runtime dynamically.
         // On other platforms (THEY SHALL NOT BE NAMED :O), while the functions that mscorlib.dll wants to P/Invoke into exist,
         // They exist in different system libraries than it is said in the DllImport attribute.
-        Il2CppMethodPointer function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
 
+        Il2CppMethodPointer function = NULL;
+
+#if IL2CPP_TARGET_WINDOWS
+        // On Windows we don't support, nor do we need support hard-coded ANSI functions.  That would break forwarding method names to Unicode MoveFileEx -> MoveFileExW
+        // Doing this here so we don't need to update external implementations of GetHardcodedPInvokeDependencyFunctionPointer on 2019.4
+        // On later versions of IL2CPP this check is only in the Win32 implementation.
+        if (pinvokeArgs.charSet != CHARSET_ANSI)
+        {
+#endif
+        function = os::LibraryLoader::GetHardcodedPInvokeDependencyFunctionPointer(pinvokeArgs.moduleName, pinvokeArgs.entryPoint);
+#if IL2CPP_TARGET_WINDOWS
+    }
+
+#endif
         if (function != NULL)
             return function;
 
