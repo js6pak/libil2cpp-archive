@@ -23,12 +23,13 @@ namespace os
     os::FastMutex s_NativeDllCacheMutex;
 
 #define HARDCODED_DEPENDENCY_LIBRARY(libraryName, libraryFunctions) { libraryName, ARRAYSIZE(libraryFunctions), libraryFunctions }
-#define HARDCODED_DEPENDENCY_FUNCTION(function) { #function, reinterpret_cast<Il2CppMethodPointer>(function) }
+#define HARDCODED_DEPENDENCY_FUNCTION(function) { #function, reinterpret_cast<Il2CppMethodPointer>(function), IL2CPP_ARRAY_SIZE(#function)-1  }
 
     struct HardcodedPInvokeDependencyFunction
     {
         const char* functionName;
         Il2CppMethodPointer functionPointer;
+        size_t functionNameLen;
     };
 
     struct HardcodedPInvokeDependencyLibrary
@@ -61,12 +62,12 @@ namespace os
 
     const HardcodedPInvokeDependencyFunction kKernel32Functions[] =
     {
-        HARDCODED_DEPENDENCY_FUNCTION(FormatMessage),
+        HARDCODED_DEPENDENCY_FUNCTION(FormatMessageW),
         HARDCODED_DEPENDENCY_FUNCTION(GetCurrentProcessId),
         HARDCODED_DEPENDENCY_FUNCTION(GetDynamicTimeZoneInformation),
         HARDCODED_DEPENDENCY_FUNCTION(GetNativeSystemInfo),
         HARDCODED_DEPENDENCY_FUNCTION(GetTimeZoneInformation),
-        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathName),
+        HARDCODED_DEPENDENCY_FUNCTION(GetFullPathNameW),
     };
 #if !IL2CPP_TARGET_WINDOWS_GAMES
     const HardcodedPInvokeDependencyFunction kiphlpapiFunctions[] =
@@ -177,7 +178,7 @@ namespace os
                 {
                     const HardcodedPInvokeDependencyFunction function = library.functions[j];
 
-                    if (strncmp(function.functionName, entryPoint.Str(), entryPoint.Length()) == 0)
+                    if (EntryNameMatches(il2cpp::utils::StringView<char>(function.functionName, function.functionNameLen), entryPoint))
                         return function.functionPointer;
                 }
 
@@ -311,6 +312,17 @@ namespace os
                 return true;
             }
         }
+        return false;
+    }
+
+    bool LibraryLoader::EntryNameMatches(const il2cpp::utils::StringView<char>& hardcodedEntryPoint, const il2cpp::utils::StringView<char>& entryPoint)
+    {
+        // Handle windows mapping generic to unicode methods. e.g. MoveFileEx -> MoveFileExW
+        if (hardcodedEntryPoint.Length() == entryPoint.Length() || (hardcodedEntryPoint.Length() - 1 == entryPoint.Length() && hardcodedEntryPoint[hardcodedEntryPoint.Length() - 1] == 'W'))
+        {
+            return strncmp(hardcodedEntryPoint.Str(), entryPoint.Str(), entryPoint.Length()) == 0;
+        }
+
         return false;
     }
 }
