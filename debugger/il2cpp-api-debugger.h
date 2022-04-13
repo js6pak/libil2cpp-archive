@@ -78,7 +78,7 @@ typedef struct
 typedef struct
 {
     int32_t numberOfAttributes;
-    Il2CppCustomAttributeData** attributeData;
+    Il2CppCustomAttributeData attributeData[];
 } Il2CppCustomAttributeDataList;
 
 #if defined(__cplusplus)
@@ -126,7 +126,7 @@ MonoGenericParam* il2cpp_generic_container_get_param(MonoGenericContainer * gc, 
 int32_t il2cpp_mono_methods_match(MonoMethod* left, MonoMethod* right);
 void il2cpp_field_static_get_value_checked(MonoVTable * vt, MonoClassField * field, void* value, MonoError * error);
 void il2cpp_field_static_get_value_for_thread(MonoInternalThread * thread, MonoVTable * vt, MonoClassField * field, void* value, MonoError * error);
-Il2CppCustomAttributeDataList* il2cpp_get_custom_attribute_data_list(MonoClass* attr_klass, MonoCustomAttrInfo* cinfo, MonoImage* image);
+const Il2CppCustomAttributeDataList* il2cpp_get_custom_attribute_data_list(MonoClass* attr_klass, MonoCustomAttrInfo* cinfo, MonoImage* image);
 void il2cpp_free_custom_attribute_data_list(Il2CppCustomAttributeDataList* data);
 int32_t il2cpp_field_get_fixed_array_size(MonoClassField* field);
 MonoType* il2cpp_class_get_byval_arg(MonoClass* klass);
