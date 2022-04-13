@@ -8,6 +8,7 @@
 #include "utils/HashUtils.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/StringUtils.h"
+#include "metadata/CustomAttributeDataReader.h"
 #include "metadata/Il2CppGenericContextCompare.h"
 #include "metadata/Il2CppGenericContextHash.h"
 #include "metadata/Il2CppGenericInstCompare.h"
@@ -136,11 +137,8 @@ namespace vm
         static const Il2CppAssembly* GetReferencedAssembly(const Il2CppAssembly* assembly, int32_t referencedAssemblyTableIndex);
 
         static Il2CppMetadataCustomAttributeHandle GetCustomAttributeTypeToken(const Il2CppImage* image, uint32_t token);
-        static std::tuple<void*, void*> GetCustomAttributeDataRange(const Il2CppImage* image, uint32_t token);
-        static CustomAttributesCache* GenerateCustomAttributesCache(Il2CppMetadataCustomAttributeHandle token);
-        static CustomAttributesCache* GenerateCustomAttributesCache(const Il2CppImage* image, uint32_t token);
-        static bool HasAttribute(Il2CppMetadataCustomAttributeHandle token, Il2CppClass* attribute);
-        static bool HasAttribute(const Il2CppImage* image, uint32_t token, Il2CppClass* attribute);
+        static il2cpp::metadata::CustomAttributeDataReader GetCustomAttributeDataReader(const Il2CppImage* image, uint32_t token);
+        static il2cpp::metadata::CustomAttributeDataReader GetCustomAttributeDataReader(Il2CppMetadataCustomAttributeHandle handle);
 
         typedef void(*WalkTypesCallback)(Il2CppClass* type, void* context);
         static void WalkPointerTypes(WalkTypesCallback callback, void* context);

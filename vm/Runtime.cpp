@@ -161,10 +161,6 @@ namespace vm
         os::Image::Initialize();
         os::Thread::Init();
 
-#if !IL2CPP_TINY && !IL2CPP_MONO_DEBUGGER
-        il2cpp::utils::DebugSymbolReader::LoadDebugSymbols();
-#endif
-
         // This should be filled in by generated code.
         IL2CPP_ASSERT(g_CodegenRegistration != NULL);
         g_CodegenRegistration();
@@ -388,6 +384,10 @@ namespace vm
 
         vm::MetadataCache::ExecuteEagerStaticClassConstructors();
         vm::MetadataCache::ExecuteModuleInitializers();
+
+#if !IL2CPP_TINY && !IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::DebugSymbolReader::LoadDebugSymbols();
+#endif
 
         return true;
     }

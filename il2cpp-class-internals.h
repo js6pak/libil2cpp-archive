@@ -188,12 +188,6 @@ struct FieldInfo;
 struct Il2CppObject;
 struct MemberInfo;
 
-typedef struct CustomAttributesCache
-{
-    int count;
-    Il2CppObject** attributes;
-} CustomAttributesCache;
-
 #ifndef THREAD_STATIC_FIELD_OFFSET
 #define THREAD_STATIC_FIELD_OFFSET -1
 #endif
