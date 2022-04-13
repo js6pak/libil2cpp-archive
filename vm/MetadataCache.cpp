@@ -1119,34 +1119,19 @@ Il2CppMetadataCustomAttributeHandle il2cpp::vm::MetadataCache::GetCustomAttribut
     return il2cpp::vm::GlobalMetadata::GetCustomAttributeTypeToken(image, token);
 }
 
-std::tuple<void*, void*> il2cpp::vm::MetadataCache::GetCustomAttributeDataRange(const Il2CppImage* image, uint32_t token)
+il2cpp::metadata::CustomAttributeDataReader  il2cpp::vm::MetadataCache::GetCustomAttributeDataReader(const Il2CppImage* image, uint32_t token)
 {
-    return il2cpp::vm::GlobalMetadata::GetCustomAttributeDataRange(image, token);
+    return il2cpp::vm::GlobalMetadata::GetCustomAttributeDataReader(image, token);
+}
+
+il2cpp::metadata::CustomAttributeDataReader  il2cpp::vm::MetadataCache::GetCustomAttributeDataReader(Il2CppMetadataCustomAttributeHandle handle)
+{
+    return il2cpp::vm::GlobalMetadata::GetCustomAttributeDataReader(handle);
 }
 
 const Il2CppAssembly* il2cpp::vm::MetadataCache::GetReferencedAssembly(const Il2CppAssembly* assembly, int32_t referencedAssemblyTableIndex)
 {
     return il2cpp::vm::GlobalMetadata::GetReferencedAssembly(assembly, referencedAssemblyTableIndex, s_AssembliesTable, s_AssembliesCount);
-}
-
-CustomAttributesCache* il2cpp::vm::MetadataCache::GenerateCustomAttributesCache(Il2CppMetadataCustomAttributeHandle handle)
-{
-    return il2cpp::vm::GlobalMetadata::GenerateCustomAttributesCache(handle);
-}
-
-CustomAttributesCache* il2cpp::vm::MetadataCache::GenerateCustomAttributesCache(const Il2CppImage* image, uint32_t token)
-{
-    return il2cpp::vm::GlobalMetadata::GenerateCustomAttributesCache(image, token);
-}
-
-bool il2cpp::vm::MetadataCache::HasAttribute(Il2CppMetadataCustomAttributeHandle token, Il2CppClass* attribute)
-{
-    return il2cpp::vm::GlobalMetadata::HasAttribute(token, attribute);
-}
-
-bool il2cpp::vm::MetadataCache::HasAttribute(const Il2CppImage* image, uint32_t token, Il2CppClass* attribute)
-{
-    return il2cpp::vm::GlobalMetadata::HasAttribute(image, token, attribute);
 }
 
 void il2cpp::vm::MetadataCache::InitializeAllMethodMetadata()

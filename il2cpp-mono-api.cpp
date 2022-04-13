@@ -41,7 +41,7 @@
 #include <cstring>
 #include <limits>
 
-#if IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINDOWS_GAMES
 #define strdup _strdup
 #endif
 

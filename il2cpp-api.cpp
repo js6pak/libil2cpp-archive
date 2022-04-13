@@ -1428,7 +1428,7 @@ Il2CppCustomAttrInfo* il2cpp_custom_attrs_from_method(const MethodInfo * method)
 
 bool il2cpp_custom_attrs_has_attr(Il2CppCustomAttrInfo *ainfo, Il2CppClass *attr_klass)
 {
-    return MetadataCache::HasAttribute(reinterpret_cast<Il2CppMetadataCustomAttributeHandle>(ainfo), attr_klass);
+    return Reflection::HasAttribute(reinterpret_cast<Il2CppMetadataCustomAttributeHandle>(ainfo), attr_klass);
 }
 
 Il2CppObject* il2cpp_custom_attrs_get_attr(Il2CppCustomAttrInfo *ainfo, Il2CppClass *attr_klass)
