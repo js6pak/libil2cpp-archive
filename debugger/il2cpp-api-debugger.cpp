@@ -31,7 +31,7 @@
 
 #include <algorithm>
 
-#if IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINDOWS_GAMES
 #define strdup _strdup
 #endif
 
@@ -361,8 +361,10 @@ extern "C" {
         il2cpp::vm::Field::StaticGetValueForThread((FieldInfo*)field, value, (Il2CppInternalThread*)thread);
     }
 
-    static bool IsFixedBufferAttribute(Il2CppClass* klass)
+    static bool IsFixedBufferAttribute(const MethodInfo* ctor)
     {
+        const Il2CppClass* klass = ctor->klass;
+
         return strcmp(klass->name, "FixedBufferAttribute") == 0 &&
             strcmp(klass->namespaze, "System.Runtime.CompilerServices") == 0;
     }
@@ -392,25 +394,16 @@ extern "C" {
         if (attributeHandle == NULL)
             return 1;
 
-        void* start;
-        void* end;
-        std::tie(start, end) = il2cpp::vm::GlobalMetadata::GetCustomAttributeDataRange(attributeHandle);
-        auto reader = il2cpp::metadata::CustomAttributeDataReader(start, end);
+        auto reader = il2cpp::vm::GlobalMetadata::GetCustomAttributeDataReader(attributeHandle);
 
-        il2cpp::metadata::LazyCustomAttributeData data;
         Il2CppException* exc = NULL;
-        il2cpp::metadata::CustomAttributeDataIterator iter = reader.GetDataIterator();
-        while (reader.ReadLazyCustomAttributeData(il2cppField->parent->image, &data, &iter, &exc))
+        il2cpp::metadata::CustomAttributeDataIterator iter = reader.GetDataIterator(IsFixedBufferAttribute);
+        FixedBufferAttributeConstructorVisitor visitor;
+        // Assume there is only one fixed buffer attribute - we will use the first one.
+        if (reader.VisitCustomAttributeData(&iter, &visitor, &exc))
         {
-            // Assume there is only one fixed buffer attribute - we will use the first one.
-            if (IsFixedBufferAttribute(data.ctor->klass))
-            {
-                FixedBufferAttributeConstructorVisitor visitor;
-                il2cpp::metadata::CustomAttributeDataReader::VisitCustomAttributeData(il2cppField->parent->image, data.ctor, data.dataStart, data.dataLength, &visitor, &exc);
-                if (exc != NULL)
-                    return 1;
+            if (exc == NULL)
                 return visitor.FixedArraySize;
-            }
         }
 
         return 1;
@@ -419,24 +412,37 @@ extern "C" {
     class DebuggerCustomAttributeVisitor : public il2cpp::metadata::CustomAttributeReaderVisitor
     {
     public:
-        DebuggerCustomAttributeVisitor(Il2CppCustomAttributeData* attributeData) : m_propertyIndexOffset(0), m_attributeData(attributeData) {}
+        DebuggerCustomAttributeVisitor(Il2CppCustomAttributeDataList* attrs) : m_propertyIndexOffset(0), m_currentAttributeIndex(-1), m_attrs(attrs) {}
+
+        virtual void MoveNext(const MethodInfo* ctor)
+        {
+            ++m_currentAttributeIndex;
+            m_propertyIndexOffset = 0;
+            IL2CPP_ASSERT(m_currentAttributeIndex < m_attrs->numberOfAttributes);
+            m_attributeData = m_attrs->attributeData + m_currentAttributeIndex;
+        }
 
         virtual void VisitArgumentSizes(uint32_t argumentCount, uint32_t fieldCount, uint32_t propertyCount)
         {
-            m_attributeData->typedArgs = il2cpp::vm::Array::New(il2cpp_defaults.object_class, argumentCount);
+            m_attributeData->typedArgs = argumentCount == 0 ? nullptr : il2cpp::vm::Array::New(il2cpp_defaults.object_class, argumentCount);
             il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&m_attributeData->typedArgs);
 
             int32_t numberOfNamedArguments = fieldCount + propertyCount;
-            m_attributeData->namedArgs = il2cpp::vm::Array::New(il2cpp_defaults.object_class, numberOfNamedArguments);
+            m_attributeData->namedArgs = numberOfNamedArguments == 0 ? nullptr : il2cpp::vm::Array::New(il2cpp_defaults.object_class, numberOfNamedArguments);
             il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)&m_attributeData->namedArgs);
 
             m_propertyIndexOffset = fieldCount;
-            m_attributeData->argInfo = (Il2CppCattrNamedArg*)IL2CPP_CALLOC(numberOfNamedArguments, sizeof(Il2CppCattrNamedArg));
+            m_attributeData->argInfo = numberOfNamedArguments == 0 ? nullptr : (Il2CppCattrNamedArg*)IL2CPP_CALLOC(numberOfNamedArguments, sizeof(Il2CppCattrNamedArg));
         }
 
         virtual void VisitArgument(const il2cpp::metadata::CustomAttributeArgument& argument, uint32_t index)
         {
             AddArgumentValueToArray(m_attributeData->typedArgs, argument, index);
+        }
+
+        virtual void VisitCtor(const MethodInfo* ctor, il2cpp::metadata::CustomAttributeArgument args[], uint32_t argumentCount)
+        {
+            m_attributeData->ctor = ctor;
         }
 
         virtual void VisitField(const il2cpp::metadata::CustomAttributeFieldArgument& field, uint32_t index)
@@ -455,7 +461,9 @@ extern "C" {
 
     private:
         int32_t m_propertyIndexOffset;
+        int32_t m_currentAttributeIndex;
         Il2CppCustomAttributeData* m_attributeData;
+        Il2CppCustomAttributeDataList* m_attrs;
 
         static void AddArgumentValueToArray(Il2CppArray* array, const il2cpp::metadata::CustomAttributeArgument arg, uint32_t index)
         {
@@ -466,67 +474,60 @@ extern "C" {
 
     static void free_custom_attribute_data(Il2CppCustomAttributeData* attr)
     {
-        IL2CPP_FREE(attr->argInfo);
-        il2cpp::gc::GarbageCollector::FreeFixed(attr);
+        if (attr->argInfo != NULL)
+            IL2CPP_FREE(attr->argInfo);
     }
+
+    static Il2CppCustomAttributeDataList EmptyDataList = { 0 };
 
     void il2cpp_free_custom_attribute_data_list(Il2CppCustomAttributeDataList* attrs)
     {
-        for (int32_t i = 0; i < attrs->numberOfAttributes; ++i)
-            free_custom_attribute_data(attrs->attributeData[i]);
+        if (attrs == &EmptyDataList)
+            return;
 
-        IL2CPP_FREE(attrs->attributeData);
-        IL2CPP_FREE(attrs);
+        for (int32_t i = 0; i < attrs->numberOfAttributes; ++i)
+            free_custom_attribute_data(attrs->attributeData + i);
+
+        il2cpp::gc::GarbageCollector::FreeFixed(attrs);
     }
 
-    Il2CppCustomAttributeDataList* il2cpp_get_custom_attribute_data_list(MonoClass* attr_klass, MonoCustomAttrInfo* cinfo, MonoImage* image)
+    const Il2CppCustomAttributeDataList* il2cpp_get_custom_attribute_data_list(MonoClass* attr_klass, MonoCustomAttrInfo* cinfo, MonoImage* image)
     {
         // Get a reader to access the attribute data.
-        void* start;
-        void* end;
-        std::tie(start, end) = il2cpp::vm::GlobalMetadata::GetCustomAttributeDataRange((Il2CppMetadataCustomAttributeHandle)cinfo);
-        auto reader = il2cpp::metadata::CustomAttributeDataReader(start, end);
+        auto reader = il2cpp::vm::GlobalMetadata::GetCustomAttributeDataReader((Il2CppMetadataCustomAttributeHandle)cinfo);
 
-        std::vector<Il2CppCustomAttributeData*> attributeData;
-        il2cpp::metadata::LazyCustomAttributeData data;
-        Il2CppException* exc = NULL;
-
-        // First, iterate the data lazily to get the attribute types.
-        il2cpp::metadata::CustomAttributeDataIterator iter = reader.GetDataIterator();
-        while (reader.ReadLazyCustomAttributeData((const Il2CppImage*)image, &data, &iter, &exc))
-        {
-            if (attr_klass == NULL || il2cpp::vm::Class::HasParent(data.ctor->klass, (Il2CppClass*)attr_klass))
+        auto filter = [attr_klass](const MethodInfo* ctor)
             {
-                // Now that we have found an attribute type we want to use (or we use all types), let's
-                // fill out an Il2CppCustomAttributeData structure with all of the information the debugger will need.
-                auto thisAttributeData = (Il2CppCustomAttributeData*)il2cpp::gc::GarbageCollector::AllocateFixed(sizeof(Il2CppCustomAttributeData), NULL);
-                thisAttributeData->ctor = data.ctor;
+                return attr_klass == NULL || il2cpp::vm::Class::HasParent(ctor->klass, (Il2CppClass*)attr_klass);
+            };
 
-                DebuggerCustomAttributeVisitor visitor(thisAttributeData);
-                il2cpp::metadata::CustomAttributeDataReader::VisitCustomAttributeData((const Il2CppImage*)image, data.ctor, data.dataStart, data.dataLength, &visitor, &exc);
+        uint32_t count = reader.GetCount(filter);
 
-                attributeData.push_back(thisAttributeData);
-            }
+        if (count == 0)
+            return &EmptyDataList;
+
+        // Allocate a structure to hold the data for all attributes.
+        Il2CppCustomAttributeDataList* attrs = (Il2CppCustomAttributeDataList*)il2cpp::gc::GarbageCollector::AllocateFixed(sizeof(Il2CppCustomAttributeDataList) + (count * sizeof(Il2CppCustomAttributeData)), NULL);
+        attrs->numberOfAttributes = count;
+
+        uint32_t createdAttributes = 0;
+        il2cpp::metadata::CustomAttributeDataIterator iter = reader.GetDataIterator(filter);
+        Il2CppException* exc = NULL;
+        DebuggerCustomAttributeVisitor visitor(attrs);
+        while (reader.VisitCustomAttributeData(&iter, &visitor, &exc))
+        {
+            createdAttributes++;
         }
 
-        // If an error occured, we don't have a great way to communicate what it is. Just return NULL and let the client handle
+        // If an error occurred, we don't have a great way to communicate what it is. Just return NULL and let the client handle
         // it in a general way.
         if (exc != NULL)
         {
-            for (auto attr : attributeData)
-                free_custom_attribute_data(attr);
+            // Reset the number of created attributes, so we only free that many
+            attrs->numberOfAttributes = createdAttributes;
+            il2cpp_free_custom_attribute_data_list(attrs);
             return NULL;
         }
-
-        // Allocate a structure to hold the data for all attributes.
-        Il2CppCustomAttributeDataList* attrs = (Il2CppCustomAttributeDataList*)IL2CPP_MALLOC(sizeof(Il2CppCustomAttributeDataList));
-
-        // Allocate an array of pointers (the size and the number of pointers) to provide to the C code for the debugger agent.
-        attrs->numberOfAttributes = (int32_t)attributeData.size();
-        attrs->attributeData = (Il2CppCustomAttributeData**)IL2CPP_MALLOC(attrs->numberOfAttributes * sizeof(Il2CppCustomAttributeData*));
-
-        // Copy the GC allocated pointers to the C array.
-        std::copy(attributeData.begin(), attributeData.end(), attrs->attributeData);
 
         return attrs;
     }
