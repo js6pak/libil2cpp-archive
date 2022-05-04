@@ -33,6 +33,7 @@ namespace metadata
 
     private:
         static const MethodInfo* GetMethod(const Il2CppGenericMethod* gmethod, bool copyMethodPtr);
+        static const MethodInfo* CreateMethodLocked(const Il2CppGenericMethod* gmethod, bool copyMethodPtr);
         static const Il2CppRGCTXData* InflateRGCTXLocked(const Il2CppGenericMethod* gmethod, const il2cpp::os::FastAutoLock& lock);
     };
 } /* namespace vm */
