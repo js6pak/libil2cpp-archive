@@ -1426,6 +1426,11 @@ Il2CppCustomAttrInfo* il2cpp_custom_attrs_from_method(const MethodInfo * method)
     return (Il2CppCustomAttrInfo*)(MetadataCache::GetCustomAttributeTypeToken(method->klass->image, method->token));
 }
 
+Il2CppCustomAttrInfo* il2cpp_custom_attrs_from_field(const FieldInfo * field)
+{
+    return (Il2CppCustomAttrInfo*)(MetadataCache::GetCustomAttributeTypeToken(field->parent->image, field->token));
+}
+
 bool il2cpp_custom_attrs_has_attr(Il2CppCustomAttrInfo *ainfo, Il2CppClass *attr_klass)
 {
     return Reflection::HasAttribute(reinterpret_cast<Il2CppMetadataCustomAttributeHandle>(ainfo), attr_klass);
