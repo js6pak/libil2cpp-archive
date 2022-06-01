@@ -61,6 +61,11 @@ extern "C" {
         il2cpp::gc::WriteBarrier::GenericStore(&((Il2CppDomain*)domain)->agent_info, agentInfo);
     }
 
+    const char* il2cpp_domain_get_friendly_name(MonoAppDomain* domain)
+    {
+        return ((Il2CppDomain*)domain)->friendly_name;
+    }
+
     void il2cpp_start_debugger_thread()
     {
 #if IL2CPP_MONO_DEBUGGER
