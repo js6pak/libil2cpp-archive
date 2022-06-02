@@ -166,7 +166,7 @@ typedef void (STDCALL *CultureInfoChangedCallback)(const Il2CppChar* arg);
 
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
-#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID || IL2CPP_TARGET_LUMIN)
+#define IL2CPP_ENABLE_NATIVE_STACKTRACES (IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_LINUX || IL2CPP_TARGET_DARWIN || IL2CPP_TARGET_IOS || IL2CPP_TARGET_ANDROID)
 #endif
 
 /* Platforms which support native IP emission to crash reporting to enable server-side reconstruction of C# exception stack trace line numbers */
@@ -369,7 +369,7 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #endif
 
 #ifndef IL2CPP_USE_GENERIC_PROCESS
-#define IL2CPP_USE_GENERIC_PROCESS !IL2CPP_TARGET_LUMIN
+#define IL2CPP_USE_GENERIC_PROCESS 1
 #endif
 
 #ifndef IL2CPP_USE_GENERIC_THREAD
@@ -460,7 +460,7 @@ static const int ipv6AddressSize = 16;
 // Android: "There is no support for locales in the C library" https://code.google.com/p/android/issues/detail?id=57313
 // PS4/PS2: strtol_d doesn't exist
 #if !defined(IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING)
-#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_QNX && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2 && !IL2CPP_TARGET_LUMIN)
+#define IL2CPP_SUPPORT_LOCALE_INDEPENDENT_PARSING (!IL2CPP_TARGET_QNX && !IL2CPP_TARGET_ANDROID && !IL2CPP_TARGET_PS4 && !IL2CPP_TARGET_PSP2)
 #endif
 
 #define NO_UNUSED_WARNING(expr) (void)(expr)
