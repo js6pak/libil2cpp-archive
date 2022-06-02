@@ -45,7 +45,6 @@ namespace os
     }
 
 #if !RUNTIME_TINY
-#if !IL2CPP_TARGET_LUMIN
     std::string Environment::GetMachineName()
     {
         const int n = 512;
@@ -69,8 +68,6 @@ namespace os
 
         return NULL;
     }
-
-#endif //!IL2CPP_TARGET_LUMIN
 
     std::string Environment::GetOsVersionString()
     {
