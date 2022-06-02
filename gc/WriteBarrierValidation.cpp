@@ -307,7 +307,8 @@ namespace gc
         size_t numVAllocs = 0;
         size_t numHeapAllocs = 0;
         size_t oneMB = 1024 * 1024;
-        for (size_t size = 256 * oneMB; size >= oneMB; size /= 2)
+        size_t sixtyFourKB = 64 * 1024; // Modified to continue down to 64 KB as our GC allocates chunks in 256 KB
+        for (size_t size = 256 * oneMB; size >= sixtyFourKB; size /= 2)
         {
             for (;;)
             {
