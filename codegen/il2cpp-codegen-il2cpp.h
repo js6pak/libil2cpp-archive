@@ -1305,66 +1305,10 @@ inline void il2cpp_codegen_write_to_stdout(const char* str)
     il2cpp::utils::Output::WriteToStdout(str);
 }
 
-#if IL2CPP_TARGET_LUMIN
-#include <stdarg.h>
-#include <stdio.h>
-inline void il2cpp_codegen_write_to_stdout_args(const char* str, ...)
-{
-    va_list args, local;
-    char* buffer = nullptr;
-    va_start(args, str);
-    va_copy(local, args);
-    int size = vsnprintf(nullptr, 0, str, local);
-    if (size < 0)
-    {
-        va_end(local);
-        va_end(args);
-        return;
-    }
-    va_end(local);
-    va_copy(local, args);
-    buffer = new char[size + 1];
-    vsnprintf(buffer, size + 1, str, local);
-    il2cpp::utils::Output::WriteToStdout(buffer);
-    if (buffer != nullptr)
-        delete[] buffer;
-    va_end(local);
-    va_end(args);
-}
-
-#endif
-
 inline void il2cpp_codegen_write_to_stderr(const char* str)
 {
     il2cpp::utils::Output::WriteToStderr(str);
 }
-
-#if IL2CPP_TARGET_LUMIN
-inline void il2cpp_codegen_write_to_stderr_args(const char* str, ...)
-{
-    va_list args, local;
-    char* buffer = nullptr;
-    va_start(args, str);
-    va_copy(local, args);
-    int size = vsnprintf(nullptr, 0, str, local);
-    if (size < 0)
-    {
-        va_end(local);
-        va_end(args);
-        return;
-    }
-    va_end(local);
-    va_copy(local, args);
-    buffer = new char[size + 1];
-    vsnprintf(buffer, size + 1, str, local);
-    il2cpp::utils::Output::WriteToStderr(buffer);
-    if (buffer != nullptr)
-        delete[] buffer;
-    va_end(local);
-    va_end(args);
-}
-
-#endif
 
 REAL_NORETURN void il2cpp_codegen_abort();
 

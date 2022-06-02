@@ -176,8 +176,7 @@ namespace metadata
 
         data->dataStart = (void*)iter->dataBuffer;
 
-        CustomAttributeReaderVisitor visitor;
-        if (!VisitCustomAttributeDataImpl(data->ctor, iter, &visitor, exc, false))
+        if (!ReadPastCustomAttribute(data->ctor, iter, exc))
             return false;
 
         data->dataLength = (uint32_t)((char*)iter->dataBuffer - (char*)data->dataStart);
@@ -189,7 +188,7 @@ namespace metadata
     {
         CustomAttributeDataReader reader = CustomAttributeDataReader(image, (const char*)dataStart, dataLength);
         CustomAttributeDataIterator iter = CustomAttributeDataIterator(NULL, reader.bufferStart);
-        return reader.VisitCustomAttributeDataImpl(ctor, &iter, visitor, exc, true);
+        return reader.ReadAndVisitCustomAttributeData(ctor, &iter, visitor, exc);
     }
 
     bool CustomAttributeDataReader::VisitCustomAttributeData(CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc) const
@@ -198,11 +197,11 @@ namespace metadata
         while (IterateAttributeCtorsImpl(&ctor, &iter->ctorBuffer))
         {
             bool shouldProcessThisAttr = iter->filter(ctor);
-            if (!VisitCustomAttributeDataImpl(ctor, iter, visitor, exc, shouldProcessThisAttr))
-                return false;
-
             if (shouldProcessThisAttr)
-                return true;
+                return ReadAndVisitCustomAttributeData(ctor, iter, visitor, exc);
+
+            if (!ReadPastCustomAttribute(ctor, iter, exc))
+                return false;
         }
 
         return false;
@@ -224,7 +223,18 @@ namespace metadata
         return std::make_tuple(declaringClass, memberIndex);
     }
 
-    bool CustomAttributeDataReader::VisitCustomAttributeDataImpl(const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc, bool deserializedManagedObjects) const
+    bool CustomAttributeDataReader::ReadPastCustomAttribute(const MethodInfo* ctor, CustomAttributeDataIterator* iter, Il2CppException** exc) const
+    {
+        CustomAttributeReaderVisitor nullVisitor;
+        return ReadAndVisitCustomAttributeImpl(ctor, iter, &nullVisitor, exc, false);
+    }
+
+    bool CustomAttributeDataReader::ReadAndVisitCustomAttributeData(const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc) const
+    {
+        return ReadAndVisitCustomAttributeImpl(ctor, iter, visitor, exc, true);
+    }
+
+    bool CustomAttributeDataReader::ReadAndVisitCustomAttributeImpl(const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc, bool deserializedManagedObjects) const
     {
         il2cpp::gc::WriteBarrier::GenericStoreNull(exc);
 
