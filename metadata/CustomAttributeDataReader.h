@@ -165,7 +165,9 @@ namespace metadata
         const char* GetDataBufferStart() const;
 
         bool IterateAttributeCtorsImpl(const MethodInfo** attributeCtor, const char** ctorBuffer) const;
-        bool VisitCustomAttributeDataImpl(const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc, bool deserializedManagedObjects) const;
+        bool ReadPastCustomAttribute(const MethodInfo* ctor, CustomAttributeDataIterator* iter, Il2CppException** exc) const;
+        bool ReadAndVisitCustomAttributeData(const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc) const;
+        bool ReadAndVisitCustomAttributeImpl(const MethodInfo* ctor, CustomAttributeDataIterator* iter, CustomAttributeReaderVisitor* visitor, Il2CppException** exc, bool deserializedManagedObjects) const;
 
         const Il2CppImage* image;
         const char* bufferStart;
