@@ -230,13 +230,18 @@ void il2cpp::vm::MetadataCache::ExecuteEagerStaticClassConstructors()
     }
 }
 
+typedef void(*Il2CppModuleInitializerMethodPointer)(const MethodInfo*);
+
 void il2cpp::vm::MetadataCache::ExecuteModuleInitializers()
 {
     for (int32_t i = 0; i < s_AssembliesCount; i++)
     {
         const Il2CppImage* image = s_AssembliesTable[i].image;
         if (image->codeGenModule->moduleInitializer != NULL)
-            image->codeGenModule->moduleInitializer();
+        {
+            Il2CppModuleInitializerMethodPointer moduleInitializer = (Il2CppModuleInitializerMethodPointer)image->codeGenModule->moduleInitializer;
+            moduleInitializer(NULL);
+        }
     }
 }
 
