@@ -178,6 +178,12 @@ inline typename pick_bigger<T, U>::type il2cpp_codegen_subtract(T left, U right)
     return left - right;
 }
 
+template<typename T>
+inline bool il2cpp_codegen_enum_has_flag(T enumValue, T flag)
+{
+    return (enumValue & flag) == flag;
+}
+
 NORETURN void il2cpp_codegen_raise_exception(Exception_t* ex, RuntimeMethod* lastManagedFrame = NULL);
 
 // NativeArray macros
@@ -189,6 +195,15 @@ NORETURN void il2cpp_codegen_raise_exception(Exception_t* ex, RuntimeMethod* las
 
 #define IL2CPP_NATIVEARRAY_GET_LENGTH(TLengthField) \
    (TLengthField)
+
+inline bool il2cpp_codegen_is_little_endian()
+{
+#if IL2CPP_BYTE_ORDER == IL2CPP_LITTLE_ENDIAN
+    return true;
+#else
+    return false;
+#endif
+}
 
 // This code ids used for Tiny and for libil2cpp with Tiny when the debugger is enabled.
 #if IL2CPP_TINY
