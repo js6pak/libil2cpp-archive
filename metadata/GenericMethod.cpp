@@ -5,7 +5,6 @@
 #include "metadata/Il2CppGenericMethodCompare.h"
 #include "metadata/Il2CppGenericMethodHash.h"
 #include "os/Mutex.h"
-#include "os/FastReaderReaderWriterLock.h"
 #include "utils/Memory.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -25,7 +24,6 @@
 using il2cpp::metadata::GenericMetadata;
 using il2cpp::metadata::GenericSharing;
 using il2cpp::os::FastAutoLock;
-using il2cpp::os::FastReaderReaderWriterAutoLock;
 using il2cpp::vm::Class;
 using il2cpp::vm::GenericClass;
 using il2cpp::vm::MetadataCalloc;
@@ -92,8 +90,7 @@ namespace il2cpp
 {
 namespace metadata
 {
-    typedef Il2CppHashMap<const Il2CppGenericMethod*, MethodInfo*, Il2CppGenericMethodHash, Il2CppGenericMethodCompare> Il2CppGenericMethodMap;
-    static il2cpp::os::FastReaderReaderWriterLock s_GenericMethodMapLock;
+    typedef Il2CppReaderWriterLockedHashMap<const Il2CppGenericMethod*, MethodInfo*, Il2CppGenericMethodHash, Il2CppGenericMethodCompare> Il2CppGenericMethodMap;
     static Il2CppGenericMethodMap s_GenericMethodMap;
     static Il2CppGenericMethodMap s_PendingGenericMethodMap;
 
@@ -172,14 +169,9 @@ namespace metadata
         }
 
         // First check for an already constructed generic method using the shared/reader lock
-        // FastReaderReaderWriterAutoLock is non-recursive, it must be release before calling any other functions
-        {
-            FastReaderReaderWriterAutoLock sharedLock(&s_GenericMethodMapLock, false);
-
-            Il2CppGenericMethodMap::const_iterator iter = s_GenericMethodMap.find(gmethod);
-            if (iter != s_GenericMethodMap.end())
-                return iter->second;
-        }
+        MethodInfo* existingMethod;
+        if (s_GenericMethodMap.TryGet(gmethod, &existingMethod))
+            return existingMethod;
 
         if (Method::IsAmbiguousMethodInfo(gmethod->methodDefinition))
         {
@@ -206,14 +198,13 @@ namespace metadata
         FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
 
         // Recheck the s_GenericMethodMap in case there was a race to add this generic method
-        Il2CppGenericMethodMap::const_iterator iter = s_GenericMethodMap.find(gmethod);
-        if (iter != s_GenericMethodMap.end())
-            return iter->second;
+        MethodInfo* existingMethod;
+        if (s_GenericMethodMap.TryGet(gmethod, &existingMethod))
+            return existingMethod;
 
         // GetMethodLocked may be called recursively, we keep tracking of pending inflations
-        Il2CppGenericMethodMap::const_iterator pendingIter = s_PendingGenericMethodMap.find(gmethod);
-        if (pendingIter != s_PendingGenericMethodMap.end())
-            return pendingIter->second;
+        if (s_PendingGenericMethodMap.TryGet(gmethod, &existingMethod))
+            return existingMethod;
 
         if (copyMethodPtr)
             gmethod = MetadataCache::GetGenericMethod(gmethod->methodDefinition, gmethod->context.class_inst, gmethod->context.method_inst);
@@ -240,7 +231,7 @@ namespace metadata
         // we set the pending generic method map here because the initialization may recurse and try to retrieve the same generic method
         // this is safe because we *always* take the lock when retrieving the MethodInfo from a generic method.
         // if we move lock to only if MethodInfo needs constructed then we need to revisit this since we could return a partially initialized MethodInfo
-        s_PendingGenericMethodMap.insert(std::make_pair(gmethod, newMethod));
+        s_PendingGenericMethodMap.Add(gmethod, newMethod);
 
         newMethod->klass = declaringClass;
         newMethod->flags = methodDefinition->flags;
@@ -323,18 +314,15 @@ namespace metadata
         if (Method::IsDefaultInterfaceMethodOnGenericInstance(newMethod))
             vm::Class::InitLocked(declaringClass, lock);
 
-        {
-            // The generic method is fully created,
-            // Update the generic method map, this needs to take an exclusive lock
-            // **** This must happen with the metadata lock held and be released before the metalock is released ****
-            // **** This prevents deadlocks and ensures that there is no race condition
-            // **** creating a new method adding it to s_GenericMethodMap and removing it from s_PendingGenericMethodMap
-            FastReaderReaderWriterAutoLock writerLock(&s_GenericMethodMapLock, true);
-            s_GenericMethodMap.insert(std::make_pair(gmethod, newMethod));
-        }
+        // The generic method is fully created,
+        // Update the generic method map, this needs to take an exclusive lock
+        // **** This must happen with the metadata lock held and be released before the metalock is released ****
+        // **** This prevents deadlocks and ensures that there is no race condition
+        // **** creating a new method adding it to s_GenericMethodMap and removing it from s_PendingGenericMethodMap
+        s_GenericMethodMap.Add(gmethod, newMethod);
 
         // Remove the method from the pending table
-        s_PendingGenericMethodMap.erase(gmethod);
+        s_PendingGenericMethodMap.Remove(gmethod);
 
         return newMethod;
     }
@@ -399,7 +387,7 @@ namespace metadata
 
     void GenericMethod::ClearStatics()
     {
-        s_GenericMethodMap.clear();
+        s_GenericMethodMap.Clear();
     }
 } /* namespace vm */
 } /* namespace il2cpp */

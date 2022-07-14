@@ -31,10 +31,6 @@
 
 #include <algorithm>
 
-#if IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINDOWS_GAMES
-#define strdup _strdup
-#endif
-
 struct Il2CppMonoError
 {
     unsigned short error_code;
@@ -59,6 +55,11 @@ extern "C" {
     void il2cpp_domain_set_agent_info(MonoAppDomain* domain, void* agentInfo)
     {
         il2cpp::gc::WriteBarrier::GenericStore(&((Il2CppDomain*)domain)->agent_info, agentInfo);
+    }
+
+    const char* il2cpp_domain_get_friendly_name(MonoAppDomain* domain)
+    {
+        return ((Il2CppDomain*)domain)->friendly_name;
     }
 
     void il2cpp_start_debugger_thread()
@@ -263,7 +264,7 @@ extern "C" {
     char* il2cpp_assembly_get_full_name(MonoAssembly *assembly)
     {
         std::string s = il2cpp::vm::AssemblyName::AssemblyNameToString(((Il2CppAssembly*)assembly)->aname);
-        return strdup(s.c_str());
+        return il2cpp::utils::StringUtils::StringDuplicate(s.c_str());
     }
 
     const MonoMethod* il2cpp_get_seq_point_method(Il2CppSequencePoint *seqPoint)

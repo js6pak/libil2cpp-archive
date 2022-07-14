@@ -25,28 +25,38 @@ namespace os
         FastReaderReaderWriterLockImpl* m_Impl;
     };
 
-    struct FastReaderReaderWriterAutoLock : public il2cpp::utils::NonCopyable
+    struct FastReaderReaderWriterAutoSharedLock : public il2cpp::utils::NonCopyable
     {
-        FastReaderReaderWriterAutoLock(FastReaderReaderWriterLock* lock, bool exclusive = false)
-            : m_Lock(lock), m_Exclusive(exclusive)
+        FastReaderReaderWriterAutoSharedLock(FastReaderReaderWriterLock* lock)
+            : m_Lock(lock)
         {
-            if (m_Exclusive)
-                m_Lock->LockExclusive();
-            else
-                m_Lock->LockShared();
+            m_Lock->LockShared();
         }
 
-        ~FastReaderReaderWriterAutoLock()
+        ~FastReaderReaderWriterAutoSharedLock()
         {
-            if (m_Exclusive)
-                m_Lock->ReleaseExclusive();
-            else
-                m_Lock->ReleaseShared();
+            m_Lock->ReleaseShared();
         }
 
     private:
         FastReaderReaderWriterLock* m_Lock;
-        bool m_Exclusive;
+    };
+
+    struct FastReaderReaderWriterAutoExclusiveLock : public il2cpp::utils::NonCopyable
+    {
+        FastReaderReaderWriterAutoExclusiveLock(FastReaderReaderWriterLock* lock)
+            : m_Lock(lock)
+        {
+            m_Lock->LockExclusive();
+        }
+
+        ~FastReaderReaderWriterAutoExclusiveLock()
+        {
+            m_Lock->ReleaseExclusive();
+        }
+
+    private:
+        FastReaderReaderWriterLock* m_Lock;
     };
 }
 }
