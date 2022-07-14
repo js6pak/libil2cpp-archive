@@ -37,13 +37,10 @@
 
 #include "utils/Il2CppHashMap.h"
 #include "utils/Memory.h"
+#include "utils/StringUtils.h"
 
 #include <cstring>
 #include <limits>
-
-#if IL2CPP_TARGET_XBOXONE || IL2CPP_TARGET_WINDOWS_GAMES
-#define strdup _strdup
-#endif
 
 // These types must match the layout of types defined in Mono headers
 
@@ -452,13 +449,18 @@ int32_t mono_type_generic_inst_is_valuetype(MonoType *monoType)
 char* mono_type_full_name(MonoType* type)
 {
     std::string name = il2cpp::vm::Type::GetName((Il2CppType*)type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME);
-    return strdup(name.c_str());
+    return il2cpp::utils::StringUtils::StringDuplicate(name.c_str());
 }
 
 char* mono_type_get_name_full(MonoType* type, MonoTypeNameFormat format)
 {
     std::string name = il2cpp::vm::Type::GetName((Il2CppType*)type, (Il2CppTypeNameFormat)format);
-    return strdup(name.c_str());
+    return il2cpp::utils::StringUtils::StringDuplicate(name.c_str());
+}
+
+void mono_string_free(const char* str)
+{
+    il2cpp::utils::StringUtils::StringDelete(str);
 }
 
 MonoReflectionType* mono_type_get_object_checked(MonoDomain* domain, MonoType* type, MonoError* error)
@@ -611,6 +613,27 @@ static void il2cpp_g_ptr_array_add(Il2CppGPtrArray* array, void* data)
     IL2CPP_ASSERT(array != NULL);
     il2cpp_g_ptr_array_grow((Il2CppGPtrArrayPriv *)array, 1);
     array->pdata[array->len++] = data;
+}
+
+GPtrArray* il2cpp_g_ptr_array_free(GPtrArray *_array, bool free_seg)
+{
+    Il2CppGPtrArray* array = (Il2CppGPtrArray*)_array;
+    void *data = NULL;
+
+    IL2CPP_ASSERT(array);
+
+    if (free_seg)
+    {
+        IL2CPP_FREE(array->pdata);
+    }
+    else
+    {
+        data = array->pdata;
+    }
+
+    IL2CPP_FREE(array);
+
+    return (GPtrArray*)data;
 }
 
 static int32_t il2cpp_g_ascii_strcasecmp(const char *s1, const char *s2)
@@ -993,7 +1016,7 @@ void mono_metadata_free_mh(MonoMethodHeader *mh)
 
 char* mono_method_full_name(MonoMethod* method, int32_t signature)
 {
-    return strdup(((MethodInfo*)method)->name);
+    return il2cpp::utils::StringUtils::StringDuplicate(((MethodInfo*)method)->name);
 }
 
 MonoGenericContainer* mono_method_get_generic_container(MonoMethod* monoMethod)
@@ -1133,7 +1156,7 @@ char* mono_string_to_utf8_checked_internal(MonoString *string_obj, MonoError *er
     error_init(error);
     Il2CppString *str = (Il2CppString*)string_obj;
     std::string s = il2cpp::utils::StringUtils::Utf16ToUtf8(str->chars, str->length);
-    return strdup(s.c_str());
+    return il2cpp::utils::StringUtils::StringDuplicate(s.c_str());
 }
 
 int mono_object_hash_internal(MonoObject* obj)
@@ -1238,7 +1261,7 @@ char* mono_thread_get_name_utf8(MonoThread* this_obj)
     if (name.empty())
         return NULL;
 
-    return strdup(name.c_str());
+    return il2cpp::utils::StringUtils::StringDuplicate(name.c_str());
 }
 
 void mono_thread_set_name_internal(MonoInternalThread* this_obj, MonoString* name, int32_t permanent, int32_t reset, MonoError* error)
@@ -1560,7 +1583,7 @@ MonoObject* mono_value_box_checked(MonoDomain* domain, MonoClass* klass, void* v
 
 char* mono_get_runtime_build_info()
 {
-    return strdup("0.0 (IL2CPP)");
+    return il2cpp::utils::StringUtils::StringDuplicate("0.0 (IL2CPP)");
 }
 
 MonoMethod* mono_marshal_method_from_wrapper(MonoMethod* wrapper)
