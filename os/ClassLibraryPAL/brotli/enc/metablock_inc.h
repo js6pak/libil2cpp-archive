@@ -67,11 +67,11 @@ static void FN(InitBlockSplitter)(
       split->lengths, split->lengths_alloc_size, max_num_blocks);
   if (BROTLI_IS_OOM(m)) return;
   self->split_->num_blocks = max_num_blocks;
-  BROTLI_DCHECK(*histograms == 0);
+  assert(*histograms == 0);
   *histograms_size = max_num_types;
   *histograms = BROTLI_ALLOC(m, HistogramType, *histograms_size);
   self->histograms_ = *histograms;
-  if (BROTLI_IS_OOM(m) || BROTLI_IS_NULL(*histograms)) return;
+  if (BROTLI_IS_OOM(m)) return;
   /* Clear only current histogram. */
   FN(HistogramClear)(&self->histograms_[0]);
   self->last_histogram_ix_[0] = self->last_histogram_ix_[1] = 0;

@@ -13,7 +13,7 @@
 #include "utils/PathUtils.h"
 
 #if IL2CPP_TARGET_WINRT
-#include "os/BrokeredFileSystem.h"
+#include "os/WinRT/BrokeredFileSystem.h"
 #endif
 
 static inline int DirectoryWin32ErrorToErrorCode(DWORD win32ErrorCode)

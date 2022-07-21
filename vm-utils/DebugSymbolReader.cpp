@@ -139,9 +139,9 @@ namespace utils
         const StringView<char> symbolFileName = "il2cpp.usym";
 
         // First, look for the symbol file next to the executable.
-        std::string applicationFolder = os::Path::GetApplicationFolder();
-        if (!applicationFolder.empty())
-            symbolsPath = PathUtils::Combine(applicationFolder, symbolFileName);
+        std::string executablePath = os::Path::GetExecutablePath();
+        if (!executablePath.empty())
+            symbolsPath = PathUtils::Combine(PathUtils::DirectoryName(executablePath), symbolFileName);
 
         os::FileHandle* symbolsFileHandle = NULL;
         if (!symbolsPath.empty())

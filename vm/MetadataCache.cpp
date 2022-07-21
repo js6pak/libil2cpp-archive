@@ -764,12 +764,12 @@ InvokerMethod il2cpp::vm::MetadataCache::GetMethodInvoker(const Il2CppImage* ima
     uint32_t rid = GetTokenRowId(token);
     uint32_t table = GetTokenType(token);
     if (rid == 0)
-        return Runtime::GetMissingMethodInvoker();
+        return NULL;
 
     int32_t index = image->codeGenModule->invokerIndices[rid - 1];
 
     if (index == kMethodIndexInvalid)
-        return Runtime::GetMissingMethodInvoker();
+        return NULL;
 
     IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) < s_Il2CppCodeRegistration->invokerPointersCount);
     return s_Il2CppCodeRegistration->invokerPointers[index];
@@ -895,18 +895,9 @@ static const Il2CppType* GetReducedType(const Il2CppType* type)
             return &il2cpp_defaults.object_class->byval_arg;
         case IL2CPP_TYPE_GENERICINST:
             if (il2cpp::vm::Type::GenericInstIsValuetype(type))
-            {
-                // We can't inflate a generic instance that contains generic arguments
-                if (il2cpp::metadata::GenericMetadata::ContainsGenericParameters(type))
-                    return type;
-
-                const Il2CppGenericInst* sharedInst = GetSharedInst(type->data.generic_class->context.class_inst);
-                Il2CppGenericClass* gklass = il2cpp::metadata::GenericMetadata::GetGenericClass(type->data.generic_class->type, sharedInst);
-                Il2CppClass* klass = il2cpp::vm::GenericClass::GetClass(gklass);
-                return &klass->byval_arg;
-            }
-
-            return &il2cpp_defaults.object_class->byval_arg;
+                return type;
+            else
+                return &il2cpp_defaults.object_class->byval_arg;
         default:
             return type;
     }
@@ -1020,11 +1011,6 @@ Il2CppClass* il2cpp::vm::MetadataCache::GetContainerDeclaringType(Il2CppMetadata
 Il2CppClass* il2cpp::vm::MetadataCache::GetParameterDeclaringType(Il2CppMetadataGenericParameterHandle handle)
 {
     return il2cpp::vm::GlobalMetadata::GetParameterDeclaringType(handle);
-}
-
-const MethodInfo* il2cpp::vm::MetadataCache::GetParameterDeclaringMethod(Il2CppMetadataGenericParameterHandle handle)
-{
-    return il2cpp::vm::GlobalMetadata::GetParameterDeclaringMethod(handle);
 }
 
 Il2CppMetadataGenericParameterHandle il2cpp::vm::MetadataCache::GetGenericParameterFromIndex(Il2CppMetadataGenericContainerHandle handle, GenericContainerParameterIndex index)
@@ -1235,11 +1221,6 @@ Il2CppMetadataPropertyInfo il2cpp::vm::MetadataCache::GetPropertyInfo(const Il2C
 Il2CppMetadataEventInfo il2cpp::vm::MetadataCache::GetEventInfo(const Il2CppClass* klass, TypeEventIndex index)
 {
     return il2cpp::vm::GlobalMetadata::GetEventInfo(klass, index);
-}
-
-uint32_t il2cpp::vm::MetadataCache::GetReturnParameterToken(Il2CppMetadataMethodDefinitionHandle handle)
-{
-    return il2cpp::vm::GlobalMetadata::GetReturnParameterToken(handle);
 }
 
 uint32_t il2cpp::vm::MetadataCache::GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle)

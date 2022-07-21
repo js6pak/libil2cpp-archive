@@ -47,6 +47,7 @@ namespace vm
         static void ObjectInitException(Il2CppObject* object, Il2CppException **exc);
         static void SetUnhandledExceptionPolicy(Il2CppRuntimeUnhandledExceptionPolicy value);
 
+        static const MethodInfo* GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod);
         static void AlwaysRaiseExecutionEngineException(const MethodInfo* method);
         static void AlwaysRaiseExecutionEngineExceptionOnVirtualCall(const MethodInfo* method);
 
@@ -73,8 +74,6 @@ namespace vm
         static void SetExitCode(int32_t value);
 
         static InvokerMethod GetMissingMethodInvoker();
-        static InvokerMethod GetArraySetInvoker();
-        static InvokerMethod GetArrayGetInvoker();
         static void RaiseAmbiguousImplementationException(const MethodInfo* method);
         static void RaiseExecutionEngineException(const MethodInfo* method, bool virtualCall);
         static void RaiseExecutionEngineException(const MethodInfo* method, const char* methodFullName, bool virtualCall);

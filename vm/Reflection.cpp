@@ -430,7 +430,7 @@ namespace vm
         if (vm::Reflection::IsField(obj))
         {
             Il2CppReflectionField* field = (Il2CppReflectionField*)obj;
-            return std::make_tuple(vm::Field::GetToken(field->field), field->field->parent->image);
+            return std::make_tuple(vm::Field::GetToken(field->field), field->klass->image);
         }
         if (vm::Reflection::IsAnyMethod(obj))
         {
@@ -458,6 +458,9 @@ namespace vm
             Il2CppReflectionParameter* parameter = (Il2CppReflectionParameter*)obj;
             Il2CppReflectionMethod* method = (Il2CppReflectionMethod*)parameter->MemberImpl;
             const Il2CppImage* image = method->method->klass->image;
+
+            if (parameter->PositionImpl == -1)
+                return std::make_tuple(0x8000000, method->method->klass->image); // This is what mono returns as a fixed value.
 
             return std::make_tuple(vm::Method::GetParameterToken(method->method, parameter->PositionImpl), method->method->klass->image);
         }
@@ -556,6 +559,10 @@ namespace vm
             Il2CppReflectionMethod* method = (Il2CppReflectionMethod*)parameter->MemberImpl;
 
             if (method->method->parameters == NULL)
+                return il2cpp::metadata::CustomAttributeDataReader::Empty();
+
+            IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributeReaderFor, "-1 represents the return value. Need to emit custom attribute information for that.")
+            if (parameter->PositionImpl == -1)
                 return il2cpp::metadata::CustomAttributeDataReader::Empty();
         }
 
@@ -712,27 +719,6 @@ namespace vm
 
     void Reflection::ClearStatics()
     {
-        delete s_AssemblyMap;
-        s_AssemblyMap = NULL;
-        delete s_FieldMap;
-        s_FieldMap = NULL;
-        delete s_PropertyMap;
-        s_PropertyMap = NULL;
-        delete s_EventMap;
-        s_EventMap = NULL;
-        delete s_MethodMap;
-        s_MethodMap = NULL;
-        delete s_ModuleMap;
-        s_ModuleMap = NULL;
-        delete s_ParametersMap;
-        s_ParametersMap = NULL;
-        delete s_TypeMap;
-        s_TypeMap = NULL;
-        delete s_MonoGenericParamterMap;
-        s_MonoGenericParamterMap = NULL;
-        delete s_MonoAssemblyNameMap;
-        s_MonoAssemblyNameMap = NULL;
-
         s_System_Reflection_Assembly = NULL;
         s_System_Reflection_RuntimeFieldInfoKlass = NULL;
         s_System_Reflection_Module = NULL;
