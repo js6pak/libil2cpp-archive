@@ -11,7 +11,6 @@
 #include "vm/Assembly.h"
 #include "vm/AssemblyName.h"
 #include "vm/Class.h"
-#include "vm/Field.h"
 #include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
 #include "vm/MetadataCache.h"
@@ -1033,7 +1032,7 @@ namespace vm
             return Class::FromIl2CppType(type->data.type);
 
         // IL2CPP_TYPE_SZARRAY stores element class in klass
-        return Class::FromIl2CppType(type);
+        return MetadataCache::GetTypeInfoFromType(type);
     }
 
     const Il2CppType* Type::GetUnderlyingType(const Il2CppType *type)
@@ -1054,34 +1053,22 @@ namespace vm
         return type->type == IL2CPP_TYPE_GENERICINST;
     }
 
-    bool Type::IsGenericParameter(const Il2CppType* type)
-    {
-        return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR;
-    }
-
-    Il2CppClass* Type::GetDeclaringType(const Il2CppType* type)
+    Il2CppReflectionType* Type::GetDeclaringType(const Il2CppType* type)
     {
         Il2CppClass *typeInfo = NULL;
 
         if (type->byref)
             return NULL;
         if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
-            return MetadataCache::GetParameterDeclaringType(GetGenericParameterHandle(type));
-        return Class::GetDeclaringType(Class::FromIl2CppType(type));
-    }
-
-    const MethodInfo* Type::GetDeclaringMethod(const Il2CppType* type)
-    {
-        if (type->byref)
-            return NULL;
-
-        if (type->type == IL2CPP_TYPE_MVAR)
         {
-            const MethodInfo* methodInfo = MetadataCache::GetParameterDeclaringMethod(GetGenericParameterHandle(type));
-            return methodInfo;
+            typeInfo = MetadataCache::GetParameterDeclaringType(GetGenericParameterHandle(type));
+        }
+        else
+        {
+            typeInfo = Class::GetDeclaringType(Class::FromIl2CppType(type));
         }
 
-        return NULL;
+        return typeInfo ? Reflection::GetTypeObject(&typeInfo->byval_arg) : NULL;
     }
 
     Il2CppArray* Type::GetGenericArgumentsInternal(Il2CppReflectionType* type, bool runtimeArray)
@@ -1182,40 +1169,30 @@ namespace vm
 
     bool Type::HasVariableRuntimeSizeWhenFullyShared(const Il2CppType* type)
     {
-        // This needs to align with TypeRuntimeStoage::RuntimeFieldLayout
-
         // Anything passed by ref is pointer sized
         if (type->byref)
             return false;
 
         // Any generic parameter that is not constrained to be a reference type would be fully shared
-        if (IsGenericParameter(type))
+        if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
             return MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type)) != GenericParameterRestrictionReferenceType;
 
+        // If we're not a generic instance then we'll be a concrete type
+        if (!IsGenericInstance(type))
+            return false;
+
         // If a reference type or pointer then we aren't variable sized
-        if (!IsValueType(type))
+        if (!GenericInstIsValuetype(type))
             return false;
 
-        Il2CppClass* klass = Class::FromIl2CppType(type);
-
-        // If we're not a generic instance or generic type definition then we'll be a concrete type
-        if (!vm::Class::IsInflated(klass) && !vm::Class::IsGeneric(klass))
-            return false;
-
-        FieldInfo* field;
-        void* iter = NULL;
-        while ((field = Class::GetFields(klass, &iter)))
+        // Otherwise we're a generic value type - e.g. Struct<T> and we need to examine our generic parameters
+        for (uint32_t i = 0; i < type->data.generic_class->context.class_inst->type_argc; i++)
         {
-            if (Field::IsInstance(field) && HasVariableRuntimeSizeWhenFullyShared(Field::GetType(field)))
+            if (HasVariableRuntimeSizeWhenFullyShared(type->data.generic_class->context.class_inst->type_argv[i]))
                 return true;
         }
 
         return false;
-    }
-
-    bool Type::IsArray(const Il2CppType *type)
-    {
-        return type->type == IL2CPP_TYPE_SZARRAY || type->type == IL2CPP_TYPE_ARRAY;
     }
 
     bool Type::IsEnum(const Il2CppType *type)
@@ -1282,8 +1259,7 @@ namespace vm
     {
         typedef void (*DelegateCtor)(Il2CppDelegate* delegate, Il2CppObject* target, intptr_t method, MethodInfo* hiddenMethodInfo);
         const MethodInfo* ctor = Class::GetMethodFromName(delegate->object.klass, ".ctor", 2);
-        void* ctorArgs[2] = {target, (void*)&method};
-        ctor->invoker_method(ctor->methodPointer, ctor, delegate, ctorArgs, NULL);
+        ((DelegateCtor)ctor->methodPointer)(delegate, target, (intptr_t)method, NULL);
     }
 
 /**

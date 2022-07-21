@@ -156,7 +156,6 @@ typedef struct Il2CppMethodDefinition
     StringIndex nameIndex;
     TypeDefinitionIndex declaringType;
     TypeIndex returnType;
-    uint32_t returnParameterToken;
     ParameterIndex parameterStart;
     GenericContainerIndex genericContainerIndex;
     uint32_t token;

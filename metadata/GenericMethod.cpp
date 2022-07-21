@@ -4,7 +4,6 @@
 #include "metadata/GenericSharing.h"
 #include "metadata/Il2CppGenericMethodCompare.h"
 #include "metadata/Il2CppGenericMethodHash.h"
-#include "os/Atomic.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
 #include "vm/Class.h"
@@ -17,7 +16,6 @@
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "utils/Il2CppHashMap.h"
-#include "utils/InitOnce.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-runtime-metadata.h"
 #include "il2cpp-runtime-stats.h"
@@ -114,18 +112,6 @@ namespace metadata
         return false;
     }
 
-    static void AnUnresolvedCallStubWasNotFound()
-    {
-        vm::Exception::Raise(vm::Exception::GetExecutionEngineException("An unresolved indirect call lookup failed"));
-    }
-
-    // This method must have a different signature than AnUnresolvedCallStubWasNotFound to prevent identical COMDAT folding
-    // FullySharedGenericInvokeRedirectHasAdjustorThunk relies on this method having a different address
-    static void AnUnresolvedCallStubWasNotFoundValueType(void* obj)
-    {
-        vm::Exception::Raise(vm::Exception::GetExecutionEngineException("An unresolved indirect call to a value type failed"));
-    }
-
     static void AGenericMethodWhichIsTooDeeplyNestedWasInvoked()
     {
         vm::Exception::Raise(vm::Exception::GetMaximumNestedGenericsException());
@@ -141,20 +127,6 @@ namespace metadata
     bool GenericMethod::IsGenericAmbiguousMethodInfo(const MethodInfo* method)
     {
         return method == &ambiguousMethodInfo;
-    }
-
-    const MethodInfo* GenericMethod::GetGenericVirtualMethod(const MethodInfo* vtableSlotMethod, const MethodInfo* genericVirtualMethod)
-    {
-        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
-
-        const Il2CppGenericInst* classInst = NULL;
-        if (vtableSlotMethod->is_inflated)
-        {
-            classInst = vtableSlotMethod->genericMethod->context.class_inst;
-            vtableSlotMethod = vtableSlotMethod->genericMethod->methodDefinition;
-        }
-
-        return metadata::GenericMethod::GetMethod(vtableSlotMethod, classInst, genericVirtualMethod->genericMethod->context.method_inst);
     }
 
     const MethodInfo* GenericMethod::GetMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst)
@@ -241,6 +213,7 @@ namespace metadata
         Il2CppClass* declaringClass = methodDefinition->klass;
         if (gmethod->context.class_inst)
         {
+            IL2CPP_ASSERT(!declaringClass->generic_class);
             Il2CppGenericClass* genericClassDeclaringType = GenericMetadata::GetGenericClass(methodDefinition->klass, gmethod->context.class_inst);
             declaringClass = GenericClass::GetClass(genericClassDeclaringType);
 
@@ -324,41 +297,16 @@ namespace metadata
             sharedMethodInfo->rawDirectMethodPointer = newMethod->methodPointer;
             sharedMethodInfo->rawInvokerMethod = newMethod->invoker_method;
 
-            bool hasAdjustorThunk = newMethod->methodPointer != newMethod->virtualMethodPointer;
-            if (hasAdjustorThunk)
-                newMethod->invoker_method = FullySharedGenericInvokeRedirectHasAdjustorThunk;
-            else
-                newMethod->invoker_method = FullySharedGenericInvokeRedirectNoAdjustorThunk;
-
             il2cpp::vm::Il2CppUnresolvedCallStubs stubs = MetadataCache::GetUnresovledCallStubs(newMethod);
             if (stubs.stubsFound)
             {
+                if (newMethod->methodPointer == newMethod->virtualMethodPointer)
+                    newMethod->invoker_method = FullySharedGenericInvokeRedirectNoAdjustorThunk;
+                else
+                    newMethod->invoker_method = FullySharedGenericInvokeRedirectHasAdjustorThunk;
+
                 newMethod->methodPointer = stubs.methodPointer;
                 newMethod->virtualMethodPointer = stubs.virtualMethodPointer;
-            }
-            else
-            {
-                newMethod->methodPointer = AnUnresolvedCallStubWasNotFound;
-                newMethod->virtualMethodPointer = AnUnresolvedCallStubWasNotFound;
-
-                if (hasAdjustorThunk)
-                {
-                    // The FullySharedGenericInvokeRedirectHasAdjustorThunk requires that methodPointer and virtualMethodPointer be different
-                    // so it can tell which raw* method it should call even though it doesn't directly call them
-                    IL2CPP_ASSERT(reinterpret_cast<Il2CppMethodPointer>(AnUnresolvedCallStubWasNotFoundValueType) != AnUnresolvedCallStubWasNotFound);
-                    if (reinterpret_cast<Il2CppMethodPointer>(AnUnresolvedCallStubWasNotFoundValueType) != AnUnresolvedCallStubWasNotFound)
-                    {
-                        newMethod->methodPointer = reinterpret_cast<Il2CppMethodPointer>(AnUnresolvedCallStubWasNotFoundValueType);
-                    }
-                    else
-                    {
-                        // If we got hit by COMDAT folding (but in DEBUG, which is the most likely way it would happen)
-                        // Ensure that are methodPointers are definitely different
-                        // We'll get an less specific error message, but it's better than corruption
-                        // Make the change on methodPointer because we're most likely to be called
-                        newMethod->methodPointer = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
-                    }
-                }
             }
         }
 
@@ -385,9 +333,15 @@ namespace metadata
         IL2CPP_ASSERT(method->genericMethod);
         IL2CPP_ASSERT(method->genericMethod->context.method_inst);
 
-        return il2cpp::utils::InitOnce(const_cast<Il2CppRGCTXData**>(&method->rgctx_data), &il2cpp::vm::g_MetadataLock, [method](const il2cpp::os::FastAutoLock& lock) {
-            return const_cast<Il2CppRGCTXData*>(GenericMethod::InflateRGCTXLocked(method->genericMethod, lock));
-        });
+        FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+
+        if (method->rgctx_data != NULL)
+            return method->rgctx_data;
+
+        const Il2CppRGCTXData* rgctx = InflateRGCTXLocked(method->genericMethod, lock);
+        const_cast<MethodInfo*>(method)->rgctx_data = rgctx;
+
+        return rgctx;
     }
 
     const Il2CppRGCTXData* GenericMethod::InflateRGCTXLocked(const Il2CppGenericMethod* gmethod, const il2cpp::os::FastAutoLock &lock)
