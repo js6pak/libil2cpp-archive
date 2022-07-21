@@ -22,44 +22,6 @@
 #include <cstdlib>
 #include <cstddef>
 
-REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
-
-NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame);
-
-NORETURN void il2cpp_codegen_rethrow_exception(Exception_t *ex);
-
-NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException);
-
-// Exception support macros
-
-#define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
-    __active_exceptions.push(Exception)
-
-#define IL2CPP_POP_ACTIVE_EXCEPTION(ExcType) \
-    (ExcType)__active_exceptions.pop()
-
-#define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
-    (ExcType)__active_exceptions.top()
-
-#define IL2CPP_RAISE_NULL_REFERENCE_EXCEPTION() \
-    do {\
-        il2cpp_codegen_raise_null_reference_exception();\
-        il2cpp_codegen_no_return();\
-    } while (0)
-
-#define IL2CPP_RAISE_MANAGED_EXCEPTION(ex, lastManagedFrame) \
-    do {\
-        il2cpp_codegen_raise_exception((Exception_t*)ex, (RuntimeMethod*)lastManagedFrame);\
-        il2cpp_codegen_no_return();\
-    } while (0)
-
-#define IL2CPP_RETHROW_MANAGED_EXCEPTION(ex) \
-    do {\
-        il2cpp_codegen_rethrow_exception((Exception_t*)ex);\
-        il2cpp_codegen_no_return();\
-    } while (0)
-
-
 #if IL2CPP_ENABLE_PROFILER
 
 void il2cpp_codegen_profiler_method_enter(const RuntimeMethod* method);
@@ -174,6 +136,12 @@ String_t* il2cpp_codegen_string_new_utf16(const il2cpp::utils::StringView<Il2Cpp
 
 Type_t* il2cpp_codegen_type_get_object(const RuntimeType* type);
 
+NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame);
+
+NORETURN void il2cpp_codegen_rethrow_exception(Exception_t *ex);
+
+NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defaultToCOMException);
+
 void il2cpp_codegen_raise_execution_engine_exception_if_method_is_not_found(const RuntimeMethod* method);
 
 void il2cpp_codegen_raise_execution_engine_exception(const RuntimeMethod* method);
@@ -203,16 +171,9 @@ Exception_t* il2cpp_codegen_get_invalid_operation_exception(const char* msg);
 
 Exception_t* il2cpp_codegen_get_marshal_directive_exception(const char* msg);
 
-Exception_t* il2cpp_codegen_get_marshal_directive_exception(const char* msg, const RuntimeType* type);
-
-// format string will require first instance as a field and second instance as a type or this will break
-Exception_t* il2cpp_codegen_get_marshal_directive_exception(const char* msg, const RuntimeField* field, const RuntimeType* type);
-
 Exception_t* il2cpp_codegen_get_missing_method_exception(const char* msg);
 
 Exception_t* il2cpp_codegen_get_maximum_nested_generics_exception();
-
-Exception_t* il2cpp_codegen_get_engine_execution_exception(const char* msg);
 
 Exception_t* il2cpp_codegen_get_index_out_of_range_exception();
 
@@ -437,6 +398,12 @@ inline RuntimeClass* il2cpp_codegen_class_from_type(const RuntimeType *type)
 inline const RuntimeType* il2cpp_codegen_type_from_class(RuntimeClass *klass)
 {
     return &klass->byval_arg;
+}
+
+template<typename T>
+inline bool il2cpp_codegen_enum_has_flag(T enumValue, T flag)
+{
+    return (enumValue & flag) == flag;
 }
 
 inline void* InterlockedExchangeImplRef(void** location, void* value)
@@ -941,7 +908,7 @@ void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field);
 void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, void* data, uint32_t size);
 
 template<typename T>
-void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, no_infer<T> data)
+void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, T data)
 {
     il2cpp_codegen_assert_field_size(field, sizeof(T));
 
@@ -951,19 +918,19 @@ void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* fiel
 }
 
 template<typename T>
-inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, no_infer<T> data)
+inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, T data)
 {
-    il2cpp_codegen_write_instance_field_data<T>((void*)instance, field, data);
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
 }
 
 template<typename T>
-inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, no_infer<T> data)
+inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, T data)
 {
-    il2cpp_codegen_write_instance_field_data<T>((void*)instance, field, data);
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
 }
 
 template<typename T>
-void il2cpp_codegen_write_static_field_data(RuntimeField* field, no_infer<T> data)
+void il2cpp_codegen_write_static_field_data(RuntimeField* field, T data)
 {
     il2cpp_codegen_assert_field_size(field, sizeof(T));
 
@@ -973,7 +940,7 @@ void il2cpp_codegen_write_static_field_data(RuntimeField* field, no_infer<T> dat
 }
 
 template<typename T>
-void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, no_infer<T> data)
+void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, T data)
 {
     il2cpp_codegen_assert_field_size(field, sizeof(T));
 
@@ -1023,95 +990,48 @@ NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method
 void il2cpp_codegen_array_unsafe_mov(RuntimeClass * destClass, void* dest, RuntimeClass * srcClass, void* src);
 NORETURN void il2cpp_codegen_array_unsafe_mov_type_exception(const RuntimeType * destType, const RuntimeType* srcType);
 
-template<typename T>
-T il2cpp_codegen_read_to_aligned_value(void* src)
-{
-    T value;
-    memcpy(&value, src, sizeof(T));
-    return value;
-}
-
 template<typename TDest>
 inline void il2cpp_codegen_array_unsafe_mov_primitive(const RuntimeType * destType, TDest* dest, const RuntimeType* srcType, void* src)
 {
     switch (srcType->type)
     {
         case IL2CPP_TYPE_BOOLEAN:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<bool>(src);
+            *dest = (TDest)(*(bool *)src);
             break;
         case IL2CPP_TYPE_I1:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<int8_t>(src);
+            *dest = (TDest)(*(int8_t *)src);
             break;
         case IL2CPP_TYPE_U1:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<uint8_t>(src);
+            *dest = (TDest)(*(uint8_t *)src);
             break;
         case IL2CPP_TYPE_I2:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<int16_t>(src);
+            *dest = (TDest)(*(int16_t *)src);
             break;
         case IL2CPP_TYPE_CHAR:
         case IL2CPP_TYPE_U2:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<uint16_t>(src);
+            *dest = (TDest)(*(uint16_t *)src);
             break;
         case IL2CPP_TYPE_I4:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<int32_t>(src);
+            *dest = (TDest)(*(int32_t *)src);
             break;
         case IL2CPP_TYPE_U4:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<uint32_t>(src);
+            *dest = (TDest)(*(uint32_t *)src);
             break;
         case IL2CPP_TYPE_I8:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<int64_t>(src);
+            *dest = (TDest)(*(int64_t *)src);
             break;
         case IL2CPP_TYPE_U8:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<uint64_t>(src);
+            *dest = (TDest)(*(uint64_t *)src);
             break;
         case IL2CPP_TYPE_I:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<intptr_t>(src);
+            *dest = (TDest)(*(intptr_t *)src);
             break;
         case IL2CPP_TYPE_U:
-            *dest = (TDest)il2cpp_codegen_read_to_aligned_value<uintptr_t>(src);
+            *dest = (TDest)(*(uintptr_t *)src);
             break;
         default:
             il2cpp_codegen_array_unsafe_mov_type_exception(destType, srcType);
     }
-}
-
-template<typename TDest, bool checkOverflow, bool inputUnsigned>
-TDest il2cpp_codegen_conv(const RuntimeClass* srcType, void* src, const RuntimeMethod* method)
-{
-    switch (srcType->castClass->byval_arg.type)
-    {
-        case IL2CPP_TYPE_BOOLEAN:
-        case IL2CPP_TYPE_I1:
-            return il2cpp_codegen_conv<TDest, int8_t, int32_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<int8_t>(src), method);
-        case IL2CPP_TYPE_U1:
-            return il2cpp_codegen_conv<TDest, uint8_t, int32_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<uint8_t>(src), method);
-        case IL2CPP_TYPE_I2:
-            return il2cpp_codegen_conv<TDest, int16_t, int32_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<int16_t>(src), method);
-        case IL2CPP_TYPE_CHAR:
-        case IL2CPP_TYPE_U2:
-            return il2cpp_codegen_conv<TDest, uint16_t, int32_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<uint16_t>(src), method);
-        case IL2CPP_TYPE_I4:
-            return il2cpp_codegen_conv<TDest, int32_t, int32_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<int32_t>(src), method);
-        case IL2CPP_TYPE_U4:
-            return il2cpp_codegen_conv<TDest, uint32_t, int32_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<uint32_t>(src), method);
-        case IL2CPP_TYPE_I8:
-            return il2cpp_codegen_conv<TDest, int64_t, int64_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<int64_t>(src), method);
-        case IL2CPP_TYPE_U8:
-            return il2cpp_codegen_conv<TDest, uint64_t, int64_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<uint64_t>(src), method);
-        case IL2CPP_TYPE_I:
-        case IL2CPP_TYPE_PTR:
-        case IL2CPP_TYPE_OBJECT:
-            return il2cpp_codegen_conv<TDest, intptr_t, intptr_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<intptr_t>(src), method);
-        case IL2CPP_TYPE_U:
-            return il2cpp_codegen_conv<TDest, uintptr_t, intptr_t, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<uintptr_t>(src), method);
-        case IL2CPP_TYPE_R4:
-            return il2cpp_codegen_conv<TDest, float, float, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<float>(src), method);
-        case IL2CPP_TYPE_R8:
-            return il2cpp_codegen_conv<TDest, double, double, checkOverflow, inputUnsigned>(il2cpp_codegen_read_to_aligned_value<double>(src), method);
-        default:
-            IL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_invalid_operation_exception("Unsupported conv opcode"), method);
-    }
-    return 0;
 }
 
 // objBuffer is a pointer to the obj, either a pointer to a struct's data or a pointer to a reference type pointer
@@ -1228,6 +1148,8 @@ inline T* il2cpp_unsafe_unbox(RuntimeObject* obj, RuntimeClass* klass)
     return reinterpret_cast<T*>(UnBox(obj, klass));
 }
 
+REAL_NORETURN IL2CPP_NO_INLINE void il2cpp_codegen_no_return();
+
 #if IL2CPP_COMPILER_MSVC
 #define DEFAULT_CALL STDCALL
 #else
@@ -1322,6 +1244,34 @@ inline int64_t il2cpp_codegen_abs(int64_t value)
 {
     return llabs(value);
 }
+
+// Exception support macros
+#define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
+    __active_exceptions.push(Exception)
+
+#define IL2CPP_POP_ACTIVE_EXCEPTION() \
+    __active_exceptions.pop()
+
+#define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
+    (ExcType)__active_exceptions.top()
+
+#define IL2CPP_RAISE_NULL_REFERENCE_EXCEPTION() \
+    do {\
+        il2cpp_codegen_raise_null_reference_exception();\
+        il2cpp_codegen_no_return();\
+    } while (0)
+
+#define IL2CPP_RAISE_MANAGED_EXCEPTION(ex, lastManagedFrame) \
+    do {\
+        il2cpp_codegen_raise_exception((Exception_t*)ex, (RuntimeMethod*)lastManagedFrame);\
+        il2cpp_codegen_no_return();\
+    } while (0)
+
+#define IL2CPP_RETHROW_MANAGED_EXCEPTION(ex) \
+    do {\
+        il2cpp_codegen_rethrow_exception((Exception_t*)ex);\
+        il2cpp_codegen_no_return();\
+    } while (0)
 
 void il2cpp_codegen_memory_barrier();
 

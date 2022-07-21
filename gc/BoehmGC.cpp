@@ -7,16 +7,12 @@
 #include "GarbageCollector.h"
 #include "WriteBarrier.h"
 #include "WriteBarrierValidation.h"
-#include "os/Mutex.h"
 #include "vm/Array.h"
 #include "vm/Domain.h"
 #include "vm/Profiler.h"
 #include "utils/Il2CppHashMap.h"
 #include "utils/HashUtils.h"
 #include "il2cpp-object-internals.h"
-
-#include "Baselib.h"
-#include "Cpp/ReentrantLock.h"
 
 static bool s_GCInitialized = false;
 
@@ -43,8 +39,8 @@ static ephemeron_node* ephemeron_list;
 static void
 clear_ephemerons(void);
 
-static GC_ms_entry*
-push_ephemerons(GC_ms_entry* mark_stack_ptr, GC_ms_entry* mark_stack_limit);
+static void
+push_ephemerons(void);
 
 #if !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
 #define ELEMENT_CHUNK_SIZE 256
@@ -254,12 +250,9 @@ il2cpp::gc::GarbageCollector::IsDisabled()
     return GC_is_disabled();
 }
 
-static baselib::ReentrantLock s_GCSetModeLock;
-
 void
 il2cpp::gc::GarbageCollector::SetMode(Il2CppGCMode mode)
 {
-    os::FastAutoLock lock(&s_GCSetModeLock);
     switch (mode)
     {
         case IL2CPP_GC_MODE_ENABLED:
@@ -281,8 +274,8 @@ il2cpp::gc::GarbageCollector::SetMode(Il2CppGCMode mode)
     }
 }
 
-void
-il2cpp::gc::GarbageCollector::RegisterThread()
+bool
+il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
 {
 #if defined(GC_THREADS) && !IL2CPP_TARGET_JAVASCRIPT
     struct GC_stack_base sb;
@@ -291,19 +284,20 @@ il2cpp::gc::GarbageCollector::RegisterThread()
     res = GC_get_stack_base(&sb);
     if (res != GC_SUCCESS)
     {
+        sb.mem_base = baseptr;
+#ifdef __ia64__
         /* Can't determine the register stack bounds */
-        IL2CPP_ASSERT(false && "GC_get_stack_base () failed, aborting.");
-        /* Abort we can't scan the stack, so we can't use the GC */
-        abort();
+        IL2CPP_ASSERT(false && "mono_gc_register_thread failed ().");
+#endif
     }
     res = GC_register_my_thread(&sb);
     if ((res != GC_SUCCESS) && (res != GC_DUPLICATE))
     {
         IL2CPP_ASSERT(false && "GC_register_my_thread () failed.");
-        /* Abort we can't use the GC on this thread, so we can't run managed code */
-        abort();
+        return false;
     }
 #endif
+    return true;
 }
 
 bool
@@ -641,8 +635,8 @@ clear_ephemerons(void)
     }
 }
 
-static GC_ms_entry*
-push_ephemerons(GC_ms_entry* mark_stack_ptr, GC_ms_entry* mark_stack_limit)
+static void
+push_ephemerons(void)
 {
     ephemeron_node* prev_node = NULL;
     ephemeron_node* current_node = NULL;
@@ -677,14 +671,13 @@ push_ephemerons(GC_ms_entry* mark_stack_ptr, GC_ms_entry* mark_stack_limit)
             if (!GC_is_marked(current_ephemeron->key))
                 continue;
 
-            if (current_ephemeron->value)
+            if (current_ephemeron->value && !GC_is_marked(current_ephemeron->value))
             {
-                mark_stack_ptr = GC_mark_and_push((void*)current_ephemeron->value, mark_stack_ptr, mark_stack_limit, (void**)&current_ephemeron->value);
+                /* the key is marked, so mark the value if needed */
+                GC_push_all(&current_ephemeron->value, &current_ephemeron->value + 1);
             }
         }
     }
-
-    return mark_stack_ptr;
 }
 
 bool il2cpp::gc::GarbageCollector::EphemeronArrayAdd(Il2CppObject* obj)

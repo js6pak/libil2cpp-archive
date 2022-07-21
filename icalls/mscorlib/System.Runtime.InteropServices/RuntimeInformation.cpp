@@ -39,7 +39,8 @@ namespace InteropServices
 #elif IL2CPP_TARGET_X64
         return vm::String::New("x86-64");
 #else
-        return vm::String::New("unknown");
+        NOT_SUPPORTED_IL2CPP(RuntimeInformation::GetRuntimeArchitecture, "This icall is not supported by il2cpp on this architecture.");
+        return 0;
 #endif
     }
 } // namespace InteropServices

@@ -11,9 +11,6 @@ namespace os
     public:
         static Il2CppObject* GetForCurrentThread();
         static void Post(Il2CppObject* context, SynchronizationContextCallback callback, intptr_t arg);
-
-        static void Initialize();
-        static void Shutdown();
     };
 }
 }

@@ -78,14 +78,19 @@ namespace Image
     }
 
 #if IL2CPP_SIZEOF_VOID_P == 8
-    typedef struct mach_header_64 arch_header_t;
+    typedef section_64 archSectionData_t;
 #else
-    typedef struct mach_header arch_header_t;
+    typedef section archSectionData_t;
 #endif
 
-    static uint8_t* SectionDataFor(int imageIndex, unsigned long* size)
+    static const archSectionData_t* SectionDataFor(int imageIndex)
     {
-        return getsectiondata((const arch_header_t*)_dyld_get_image_header(imageIndex), "__TEXT", IL2CPP_BINARY_SECTION_NAME, size);
+        const struct mach_header* header = _dyld_get_image_header(imageIndex);
+#if IL2CPP_SIZEOF_VOID_P == 8
+        return getsectbynamefromheader_64((const struct mach_header_64*)header, "__TEXT", IL2CPP_BINARY_SECTION_NAME);
+#else
+        return getsectbynamefromheader(header, "__TEXT", IL2CPP_BINARY_SECTION_NAME);
+#endif
     }
 
     static void InitializeManagedSection()
@@ -94,8 +99,7 @@ namespace Image
         if (imageIndex == -1)
             return;
 
-        unsigned long sectionSize = 0;
-        uint8_t* sectionData = SectionDataFor(imageIndex, &sectionSize);
+        const archSectionData_t* sectionData = SectionDataFor(imageIndex);
         if (sectionData == NULL)
         {
             // We did not find the managed section of the binary in the image where we
@@ -109,15 +113,15 @@ namespace Image
             imageIndex = 0;
             while (sectionData == NULL && imageIndex < numberOfImages)
             {
-                sectionData = SectionDataFor(imageIndex, &sectionSize);
+                sectionData = SectionDataFor(imageIndex);
                 imageIndex++;
             }
         }
 
         if (sectionData != NULL)
         {
-            void* start = (void*)sectionData;
-            void* end = (uint8_t*)start + sectionSize;
+            void* start = (void*)((intptr_t)sectionData->offset + (intptr_t)s_ImageBase);
+            void* end = (uint8_t*)start + sectionData->size;
 
             SetManagedSectionStartAndEnd(start, end);
         }
