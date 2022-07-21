@@ -114,7 +114,7 @@ typedef struct {
 
 static il2cpp::utils::OnceFlag lazy_init_io_status;
 
-static volatile bool io_selector_running = false;
+static bool io_selector_running = false;
 
 static ThreadPoolIO* threadpool_io;
 
@@ -633,7 +633,7 @@ static void cleanup_ms_io (void)
 
 	selector_thread_wakeup ();
 	while (io_selector_running)
-		il2cpp::vm::Thread::YieldInternal();
+		il2cpp::vm::Thread::Sleep(1000);
 }
 
 void threadpool_ms_io_cleanup (void)
@@ -664,21 +664,8 @@ void ves_icall_System_IOSelector_Add (intptr_t handle, Il2CppIOSelectorJob *job)
 
 	il2cpp::os::SocketHandleWrapper socketHandle(il2cpp::os::PointerToSocketHandle(reinterpret_cast<void*>(handle)));
 
-    // At least one user has seen an intermittent crash where the socket is null. We're unsure what conditions cause
-    // this to happen, but checking for a value of NULL here seems to allow their project to continue without
-    // problems. So let's do the same here. If the value is NULL, we set the update type to be "empty". That will
-    // cause the selector thread to simply skip this update.
-    il2cpp::os::Socket* socket = socketHandle.GetSocket();
-    if (socket != NULL)
-    {
-        update->type = UPDATE_ADD;
-        update->data.add.fd = (int)socket->GetDescriptor();
-    }
-    else
-    {
-        update->type = UPDATE_EMPTY;
-    }
-
+	update->type = UPDATE_ADD;
+	update->data.add.fd = (int)socketHandle.GetSocket()->GetDescriptor();
 	il2cpp::gc::WriteBarrier::GenericStore(&update->data.add.job, job);
 	il2cpp::os::Atomic::FullMemoryBarrier(); /* Ensure this is safely published before we wake up the selector */
 
