@@ -299,8 +299,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 
 #endif
 
-#if !RUNTIME_TINY
-
 #define NOT_SUPPORTED_IL2CPP(func, reason) \
     il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason) ))
 
@@ -316,13 +314,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #else
 #define NOT_SUPPORTED_WEBGL(func, reason)
 #endif
-
-#else
-#define NOT_SUPPORTED_IL2CPP(func, reason)
-#define NOT_SUPPORTED_SRE(func)
-#define NOT_SUPPORTED_REMOTING(func)
-#define NOT_SUPPORTED_WEBGL(func, reason)
-#endif // #if !RUNTIME_TINY
 
 #if IL2CPP_COMPILER_MSVC
     #define IL2CPP_DIR_SEPARATOR '\\'   /* backslash */
@@ -586,8 +577,4 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 #define IL2CPP_ASSERT(expr) (expr) ? void(0) : il2cpp_assert(#expr, __FILE__, __LINE__))
 #endif
 extern void il2cpp_assert(const char* assertion, const char* file, unsigned int line);
-#endif
-
-#if !defined(IL2CPP_SUPPORTS_BROKERED_FILESYSTEM)
-#define IL2CPP_SUPPORTS_BROKERED_FILESYSTEM IL2CPP_TARGET_WINRT
 #endif

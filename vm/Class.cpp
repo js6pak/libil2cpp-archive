@@ -152,6 +152,47 @@ namespace vm
 #undef RETURN_DEFAULT_TYPE
     }
 
+/* From ECMA-335, I.8.7 Assignment compatibility:
+
+    The reduced type of a type T is the following:
+
+    1. If the underlying type of T is:
+        a. int8, or unsigned int8, then its reduced type is int8.
+        b. int16, or unsigned int16, then its reduced type is int16.
+        c. int32, or unsigned int32, then its reduced type is int32.
+        d. int64, or unsigned int64, then its reduced type is int64.
+        e. native int, or unsigned native int, then its reduced type is native int.
+    2. Otherwise, the reduced type is itself.
+*/
+    static inline const Il2CppClass* GetReducedType(const Il2CppClass* type)
+    {
+        switch (type->byval_arg.type)
+        {
+            case IL2CPP_TYPE_I1:
+            case IL2CPP_TYPE_U1:
+                return il2cpp_defaults.sbyte_class;
+
+            case IL2CPP_TYPE_I2:
+            case IL2CPP_TYPE_U2:
+                return il2cpp_defaults.int16_class;
+
+            case IL2CPP_TYPE_I4:
+            case IL2CPP_TYPE_U4:
+                return il2cpp_defaults.int32_class;
+
+            case IL2CPP_TYPE_I8:
+            case IL2CPP_TYPE_U8:
+                return il2cpp_defaults.int64_class;
+
+            case IL2CPP_TYPE_I:
+            case IL2CPP_TYPE_U:
+                return il2cpp_defaults.int_class;
+
+            default:
+                return type;
+        }
+    }
+
     Il2CppClass* Class::FromSystemType(Il2CppReflectionType *type)
     {
         Il2CppClass *klass = Class::FromIl2CppType(type->type);
@@ -636,11 +677,11 @@ namespace vm
                 if (oklass->rank != klass->rank)
                     return false;
 
-                if (Class::IsValuetype(oklass->castClass))
+                if (oklass->castClass->byval_arg.valuetype)
                 {
                     // Full array covariance is defined only for reference types.
                     // For value types, array element reduced types must match
-                    return klass->castClass == oklass->castClass;
+                    return GetReducedType(klass->castClass) == GetReducedType(oklass->castClass);
                 }
 
                 return Class::IsAssignableFrom(klass->castClass, oklass->castClass);
@@ -661,7 +702,8 @@ namespace vm
 
             if (klass->parent == il2cpp_defaults.multicastdelegate_class && klass->generic_class != NULL)
             {
-                if (IsGenericClassAssignableFrom(klass, oklass, oklass))
+                Il2CppMetadataGenericContainerHandle containerHandle = MetadataCache::GetGenericContainerFromGenericClass(klass->image, klass->generic_class);
+                if (IsGenericClassAssignableFrom(klass, oklass, klass->image, containerHandle))
                     return true;
             }
 
@@ -671,20 +713,23 @@ namespace vm
         if (klass->generic_class != NULL)
         {
             // checking for simple reference equality is not enough in this case because generic interface might have covariant and/or contravariant parameters
+
+            Il2CppMetadataGenericContainerHandle containerHandle = MetadataCache::GetGenericContainerFromGenericClass(klass->image, klass->generic_class);
+
             for (Il2CppClass* iter = oklass; iter != NULL; iter = iter->parent)
             {
-                if (IsGenericClassAssignableFrom(klass, iter, oklass))
+                if (IsGenericClassAssignableFrom(klass, iter, klass->image, containerHandle))
                     return true;
 
                 for (uint16_t i = 0; i < iter->interfaces_count; ++i)
                 {
-                    if (IsGenericClassAssignableFrom(klass, iter->implementedInterfaces[i], oklass))
+                    if (IsGenericClassAssignableFrom(klass, iter->implementedInterfaces[i], klass->image, containerHandle))
                         return true;
                 }
 
                 for (uint16_t i = 0; i < iter->interface_offsets_count; ++i)
                 {
-                    if (IsGenericClassAssignableFrom(klass, iter->interfaceOffsets[i].interfaceType, oklass))
+                    if (IsGenericClassAssignableFrom(klass, iter->interfaceOffsets[i].interfaceType, klass->image, containerHandle))
                         return true;
                 }
             }
@@ -736,11 +781,6 @@ namespace vm
         return klass->generic_class != NULL;
     }
 
-    bool Class::IsGenericTypeDefinition(const Il2CppClass* klass)
-    {
-        return IsGeneric(klass) && !IsInflated(klass);
-    }
-
     bool Class::IsSubclassOf(Il2CppClass *klass, Il2CppClass *klassc, bool check_interfaces)
     {
         Class::SetupTypeHierarchy(klass);
@@ -789,12 +829,23 @@ namespace vm
         return false;
     }
 
+    bool Class::IsValuetype(const Il2CppClass *klass)
+    {
+        return klass->byval_arg.valuetype;
+    }
+
+    bool Class::IsBlittable(const Il2CppClass *klass)
+    {
+        return klass->is_blittable;
+    }
+
     enum FieldLayoutKind
     {
         FIELD_LAYOUT_INSTANCE,
         FIELD_LAYOUT_STATIC,
         FIELD_LAYOUT_THREADSTATIC,
     };
+
 
     static void SetupFieldOffsetsLocked(FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets, const il2cpp::os::FastAutoLock& lock)
     {
@@ -1049,7 +1100,7 @@ namespace vm
         if (klass->generic_class)
         {
             // for generic instance types, they just inflate the fields of their generic type definition
-            // initialize the generic type's fields and delegate to the generic logic
+            // initialize the generic type definition and delegate to the generic logic
             SetupFieldsLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
             GenericClass::SetupFields(klass);
         }
@@ -1651,6 +1702,34 @@ namespace vm
         return false;
     }
 
+    int Class::GetFlags(const Il2CppClass *klass)
+    {
+        return klass->flags;
+    }
+
+    bool Class::IsAbstract(const Il2CppClass *klass)
+    {
+        return (klass->flags & TYPE_ATTRIBUTE_ABSTRACT) != 0;
+    }
+
+    bool Class::IsInterface(const Il2CppClass *klass)
+    {
+        return (klass->flags & TYPE_ATTRIBUTE_INTERFACE) || (klass->byval_arg.type == IL2CPP_TYPE_VAR) || (klass->byval_arg.type == IL2CPP_TYPE_MVAR);
+    }
+
+    bool Class::IsNullable(const Il2CppClass *klass)
+    {
+        // Based on benchmarking doing the check on `klass->generic_class != NULL` makes this check faster
+        // Likely since nullabletype is a bitfield and requires some manipulation to check
+        return klass->generic_class != NULL && klass->nullabletype;
+    }
+
+    Il2CppClass* Class::GetNullableArgument(const Il2CppClass* klass)
+    {
+        IL2CPP_ASSERT(Class::IsNullable(klass));
+        return klass->element_class;
+    }
+
     int Class::GetArrayElementSize(const Il2CppClass *klass)
     {
         const Il2CppType *type = &klass->byval_arg;
@@ -1714,6 +1793,16 @@ namespace vm
         return -1;
     }
 
+    const Il2CppType* Class::GetByrefType(Il2CppClass *klass)
+    {
+        return &klass->this_arg;
+    }
+
+    const Il2CppType* Class::GetType(Il2CppClass *klass)
+    {
+        return &klass->byval_arg;
+    }
+
     const Il2CppType* Class::GetType(Il2CppClass *klass, const TypeNameParseInfo &info)
     {
         // Attempt to resolve a generic type definition.
@@ -1762,6 +1851,11 @@ namespace vm
     bool Class::HasAttribute(Il2CppClass *klass, Il2CppClass *attr_class)
     {
         return Reflection::HasAttribute(klass, attr_class);
+    }
+
+    bool Class::IsEnum(const Il2CppClass *klass)
+    {
+        return klass->enumtype;
     }
 
     const Il2CppImage* Class::GetImage(Il2CppClass *klass)
@@ -1867,19 +1961,18 @@ namespace vm
 
     bool Class::HasReferences(Il2CppClass *klass)
     {
-        if (!klass->size_inited)
+        if (klass->size_init_pending)
+        {
+            abort();
+            /* Be conservative */
+            return true;
+        }
+        else
         {
             SetupFields(klass);
 
-            if (!klass->size_inited)
-            {
-                abort();
-                /* Be conservative */
-                return true;
-            }
+            return klass->has_references;
         }
-
-        return klass->has_references;
     }
 
     const il2cpp::utils::dynamic_array<Il2CppClass*>& Class::GetStaticFieldData()
@@ -2177,31 +2270,40 @@ namespace vm
         return klass->declaringType;
     }
 
-    const MethodInfo* Class::GetVirtualMethod(Il2CppClass *klass, const MethodInfo *virtualMethod)
+    const MethodInfo* Class::GetVirtualMethod(Il2CppClass *klass, const MethodInfo *method)
     {
         IL2CPP_ASSERT(klass->is_vtable_initialized);
 
-        if ((virtualMethod->flags & METHOD_ATTRIBUTE_FINAL) || !(virtualMethod->flags & METHOD_ATTRIBUTE_VIRTUAL))
-            return virtualMethod;
+        if ((method->flags & METHOD_ATTRIBUTE_FINAL) || !(method->flags & METHOD_ATTRIBUTE_VIRTUAL))
+            return method;
 
-        Il2CppClass* methodDeclaringType = virtualMethod->klass;
-        const MethodInfo* vtableSlotMethod;
+        Il2CppClass* methodDeclaringType = method->klass;
         if (Class::IsInterface(methodDeclaringType))
         {
-            const VirtualInvokeData* invokeData = ClassInlines::GetInterfaceInvokeDataFromVTable(klass, methodDeclaringType, virtualMethod->slot);
+            const VirtualInvokeData* invokeData = ClassInlines::GetInterfaceInvokeDataFromVTable(klass, methodDeclaringType, method->slot);
             if (invokeData == NULL)
                 return NULL;
-            vtableSlotMethod = invokeData->method;
+            const MethodInfo* itfMethod = invokeData->method;
+            if (Method::IsGenericInstanceMethod(method))
+            {
+                const MethodInfo* methodDefintion = klass->generic_class ? il2cpp::vm::MetadataCache::GetGenericMethodDefinition(itfMethod) : itfMethod;
+                return il2cpp::metadata::GenericMethod::GetMethod(methodDefintion, klass->generic_class ? klass->generic_class->context.class_inst : NULL, method->genericMethod->context.method_inst);
+            }
+            else
+            {
+                return itfMethod;
+            }
+        }
+
+        if (Method::IsGenericInstanceMethod(method))
+        {
+            return il2cpp::metadata::GenericMethod::GetMethod(klass->vtable[method->slot].method, method->genericMethod->context.class_inst, method->genericMethod->context.method_inst);
         }
         else
         {
-            IL2CPP_ASSERT(virtualMethod->slot < klass->vtable_count);
-            vtableSlotMethod = klass->vtable[virtualMethod->slot].method;
+            IL2CPP_ASSERT(method->slot < klass->vtable_count);
+            return klass->vtable[method->slot].method;
         }
-
-        if (Method::IsGenericInstanceMethod(virtualMethod))
-            return il2cpp::metadata::GenericMethod::GetGenericVirtualMethod(vtableSlotMethod, virtualMethod);
-        return vtableSlotMethod;
     }
 
     static bool is_generic_argument(Il2CppType* type)

@@ -37,7 +37,6 @@ DO_API(const Il2CppImage*, il2cpp_assembly_get_image, (const Il2CppAssembly * as
 // class
 DO_API(void, il2cpp_class_for_each, (void(*klassReportFunc)(Il2CppClass* klass, void* userData), void* userData));
 DO_API(const Il2CppType*, il2cpp_class_enum_basetype, (Il2CppClass * klass));
-DO_API(bool, il2cpp_class_is_inited, (const Il2CppClass * klass));
 DO_API(bool, il2cpp_class_is_generic, (const Il2CppClass * klass));
 DO_API(bool, il2cpp_class_is_inflated, (const Il2CppClass * klass));
 DO_API(bool, il2cpp_class_is_assignable_from, (Il2CppClass * klass, Il2CppClass * oklass));
@@ -264,7 +263,6 @@ DO_API(bool, il2cpp_type_is_byref, (const Il2CppType * type));
 DO_API(uint32_t, il2cpp_type_get_attrs, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_equals, (const Il2CppType * type, const Il2CppType * otherType));
 DO_API(char*, il2cpp_type_get_assembly_qualified_name, (const Il2CppType * type));
-DO_API(char*, il2cpp_type_get_reflection_name, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_is_static, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_is_pointer_type, (const Il2CppType * type));
 
@@ -313,6 +311,3 @@ DO_API(void, il2cpp_class_set_userdata, (Il2CppClass * klass, void* userdata));
 DO_API(int, il2cpp_class_get_userdata_offset, ());
 
 DO_API(void, il2cpp_set_default_thread_affinity, (int64_t affinity_mask));
-
-// Android
-DO_API(void, il2cpp_unity_set_android_network_up_state_func, (Il2CppAndroidUpStateFunc func));

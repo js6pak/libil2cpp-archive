@@ -171,7 +171,7 @@ void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field)
     IL2CPP_ASSERT(il2cpp::vm::Field::IsThreadStatic(field));
 
     int threadStaticFieldOffset = il2cpp::vm::MetadataCache::GetThreadLocalStaticOffsetForField(field);
-    void* threadStaticData = il2cpp::vm::Thread::GetThreadStaticData(field->parent->thread_static_fields_offset);
+    void* threadStaticData = il2cpp::vm::Thread::GetThreadStaticDataForThread(field->parent->thread_static_fields_offset, il2cpp::vm::Thread::Current());
     return static_cast<uint8_t*>(threadStaticData) + threadStaticFieldOffset;
 }
 
@@ -236,9 +236,9 @@ NORETURN void il2cpp_codegen_raise_profile_exception(const RuntimeMethod* method
     il2cpp_codegen_raise_exception(il2cpp_codegen_get_not_supported_exception(methodName.c_str()));
 }
 
-const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* vtableSlotMethod, const RuntimeMethod* genericVirtualMethod)
+const RuntimeMethod* il2cpp_codegen_get_generic_virtual_method_internal(const RuntimeMethod* methodDefinition, const RuntimeMethod* inflatedMethod)
 {
-    return il2cpp::metadata::GenericMethod::GetGenericVirtualMethod(vtableSlotMethod, genericVirtualMethod);
+    return il2cpp::vm::Runtime::GetGenericVirtualMethod(methodDefinition, inflatedMethod);
 }
 
 void il2cpp_codegen_runtime_class_init(RuntimeClass* klass)
@@ -399,11 +399,6 @@ NORETURN void il2cpp_codegen_raise_index_out_of_range_exception()
     il2cpp::vm::Exception::RaiseIndexOutOfRangeException();
 }
 
-NORETURN void il2cpp_codegen_raise_overflow_exception(const RuntimeMethod* method)
-{
-    IL2CPP_RAISE_MANAGED_EXCEPTION(il2cpp_codegen_get_overflow_exception(), method);
-}
-
 Exception_t* il2cpp_codegen_get_argument_exception(const char* param, const char* msg)
 {
     return (Exception_t*)il2cpp::vm::Exception::GetArgumentException(param, msg);
@@ -452,11 +447,6 @@ Exception_t* il2cpp_codegen_get_missing_method_exception(const char* msg)
 Exception_t* il2cpp_codegen_get_maximum_nested_generics_exception()
 {
     return (Exception_t*)il2cpp::vm::Exception::GetMaximumNestedGenericsException();
-}
-
-Exception_t* il2cpp_codegen_get_engine_execution_exception(const char* msg)
-{
-    return (Exception_t*)il2cpp::vm::Exception::GetExecutionEngineException(msg);
 }
 
 Exception_t* il2cpp_codegen_get_index_out_of_range_exception()

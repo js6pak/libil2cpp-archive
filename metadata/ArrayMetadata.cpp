@@ -379,7 +379,29 @@ namespace metadata
     {
         Il2CppClass *elementType = arrayType->element_class;
 
-        arrayType->castClass = ArrayMetadata::GetArrayVarianceReducedType(elementType);
+        if (elementType->enumtype)
+            arrayType->castClass = elementType->element_class;
+        else
+            arrayType->castClass = elementType;
+
+        if (arrayType->castClass == il2cpp_defaults.sbyte_class)
+            arrayType->castClass = il2cpp_defaults.byte_class;
+        else if (arrayType->castClass == il2cpp_defaults.uint16_class)
+            arrayType->castClass = il2cpp_defaults.int16_class;
+        else if (arrayType->castClass == il2cpp_defaults.uint32_class)
+            arrayType->castClass = il2cpp_defaults.int32_class;
+        else if (arrayType->castClass == il2cpp_defaults.uint64_class)
+            arrayType->castClass = il2cpp_defaults.int64_class;
+#if IL2CPP_SIZEOF_VOID_P == 8
+        else if (arrayType->castClass == il2cpp_defaults.int_class ||
+                 arrayType->castClass == il2cpp_defaults.uint_class)
+            arrayType->castClass = il2cpp_defaults.int64_class;
+#else
+        else if (arrayType->castClass == il2cpp_defaults.int_class ||
+                 arrayType->castClass == il2cpp_defaults.uint_class)
+            arrayType->castClass = il2cpp_defaults.int32_class;
+#endif
+
         arrayType->has_references = Type::IsReference(&elementType->byval_arg) || elementType->has_references;
     }
 
@@ -541,7 +563,6 @@ namespace metadata
         klass->size_inited = true; // set only after instance_size and has_references are set
 
         klass->element_class = elementClass;
-        SetupCastClass(klass);
 
         if (rank > 1 || bounded)
         {

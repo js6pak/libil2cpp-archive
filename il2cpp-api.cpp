@@ -5,7 +5,6 @@
 #include "gc/WriteBarrier.h"
 #include "os/StackTrace.h"
 #include "os/Image.h"
-#include "vm/AndroidRuntime.h"
 #include "vm/Array.h"
 #include "vm/Assembly.h"
 #include "vm/Class.h"
@@ -231,11 +230,6 @@ const Il2CppType* il2cpp_class_enum_basetype(Il2CppClass *klass)
 Il2CppClass* il2cpp_class_from_system_type(Il2CppReflectionType *type)
 {
     return Class::FromSystemType(type);
-}
-
-bool il2cpp_class_is_inited(const Il2CppClass *klass)
-{
-    return klass->initialized;
 }
 
 bool il2cpp_class_is_generic(const Il2CppClass *klass)
@@ -1308,15 +1302,6 @@ char* il2cpp_type_get_assembly_qualified_name(const Il2CppType * type)
     return buffer;
 }
 
-char* il2cpp_type_get_reflection_name(const Il2CppType *type)
-{
-    std::string name = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_REFLECTION);
-    char* buffer = static_cast<char*>(il2cpp_alloc(name.length() + 1));
-    memcpy(buffer, name.c_str(), name.length() + 1);
-
-    return buffer;
-}
-
 bool il2cpp_type_is_byref(const Il2CppType *type)
 {
     return type->byref;
@@ -1484,10 +1469,4 @@ int il2cpp_class_get_userdata_offset()
 void il2cpp_class_for_each(void(*klassReportFunc)(Il2CppClass* klass, void* userData), void* userData)
 {
     MemoryInformation::ReportIL2CppClasses(klassReportFunc, userData);
-}
-
-// Android
-void il2cpp_unity_set_android_network_up_state_func(Il2CppAndroidUpStateFunc func)
-{
-    AndroidRuntime::SetNetworkUpStateFunc(func);
 }
