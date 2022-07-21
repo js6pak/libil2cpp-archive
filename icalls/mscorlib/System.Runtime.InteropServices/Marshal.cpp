@@ -582,19 +582,13 @@ namespace InteropServices
         {
             type = *it;
             void* iter = NULL;
-            int layout = vm::Class::GetFlags(type) & TYPE_ATTRIBUTE_LAYOUT_MASK;
-            bool layoutIsExplicit = layout == TYPE_ATTRIBUTE_EXPLICIT_LAYOUT;
-
             while ((field = vm::Class::GetFields(type, &iter)))
             {
                 if (vm::Field::GetFlags(field) & FIELD_ATTRIBUTE_STATIC)
                     continue;
 
-                if (layoutIsExplicit)
-                {
-                    offset = field->offset - sizeof(Il2CppObject);
-                }
-                else if (previousField != NULL) // Determine how much the previous field added to the offset.
+                // Determine how much the previous field added to the offset.
+                if (previousField != NULL)
                 {
                     if (!vm::Type::IsStruct(previousField->type))
                     {
@@ -615,14 +609,6 @@ namespace InteropServices
                         offset = RoundUpToMultiple(offset, type->packingSize == 0 ? marshaledFieldAlignment : std::min((int)type->packingSize, marshaledFieldAlignment));
                     }
                 }
-                else
-                {
-                    // If this is the first field, it might have a non-zero offset, as it could be in a type
-                    // with an explicit layout. So calculate it offset based on the distance it is from the
-                    // end of the object header.
-                    offset = field->offset - sizeof(Il2CppObject);
-                }
-
                 previousField = field;
 
                 if (fieldNameToFind == vm::Field::GetName(field))

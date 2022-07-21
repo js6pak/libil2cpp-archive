@@ -191,7 +191,7 @@ extern "C" {
             state->assemblies = il2cpp::vm::Assembly::GetAllAssemblies();
             state->assembly = state->assemblies->begin();
             state->image = il2cpp::vm::Assembly::GetImage(*state->assembly);
-            il2cpp::vm::Image::GetTypes(state->image, false, &state->types);
+            il2cpp::vm::Image::GetTypes(state->image, true, &state->types);
             state->type = state->types.begin();
             *iter = state;
             return (MonoClass*)*state->type;
@@ -211,7 +211,7 @@ extern "C" {
             }
 
             state->image = il2cpp::vm::Assembly::GetImage(*state->assembly);
-            il2cpp::vm::Image::GetTypes(state->image, false, &state->types);
+            il2cpp::vm::Image::GetTypes(state->image, true, &state->types);
             state->type = state->types.begin();
         }
 
@@ -317,7 +317,7 @@ extern "C" {
 
     bool il2cpp_class_is_initialized(MonoClass* klass)
     {
-        return ((Il2CppClass*)klass)->initialized_and_no_error;
+        return ((Il2CppClass*)klass)->initialized;
     }
 
     int il2cpp_generic_inst_get_argc(MonoGenericInst* inst)

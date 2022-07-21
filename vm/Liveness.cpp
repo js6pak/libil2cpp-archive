@@ -339,7 +339,7 @@ namespace vm
 
         IL2CPP_ASSERT(object);
 
-        if (!klass->size_inited)
+        if (!klass->initialized)
         {
             IL2CPP_ASSERT(isStruct);
             return false;
@@ -547,9 +547,12 @@ namespace vm
             void* fieldIter = NULL;
             while ((field = Class::GetFields(klass, &fieldIter)))
             {
-                if (!vm::Field::IsNormalStatic(field))
+                if (!(field->type->attrs & FIELD_ATTRIBUTE_STATIC))
                     continue;
                 if (!LivenessState::FieldCanContainReferences(field))
+                    continue;
+                // shortcut check for thread-static field
+                if (field->offset == THREAD_STATIC_FIELD_OFFSET)
                     continue;
 
                 if (Type::IsStruct(field->type))

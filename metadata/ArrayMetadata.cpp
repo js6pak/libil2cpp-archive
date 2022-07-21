@@ -134,23 +134,17 @@ namespace metadata
         for (uint8_t i = 0; i < rank; i++)
             parameters[i] = &il2cpp_defaults.int32_class->byval_arg;
         parameters[rank] = &arrayClass->element_class->byval_arg;
-        MethodInfo* setMethod = ConstructArrayMethod(arrayClass, "Set", &il2cpp_defaults.void_class->byval_arg, rank + 1, parameters);
-        setMethod->invoker_method = vm::Runtime::GetArraySetInvoker();
-        arrayClass->methods[methodIndex++] = setMethod;
+        arrayClass->methods[methodIndex++] = ConstructArrayMethod(arrayClass, "Set", &il2cpp_defaults.void_class->byval_arg, rank + 1, parameters);
 
         parameters = (const Il2CppType**)alloca(rank * sizeof(Il2CppType*));
         for (uint8_t i = 0; i < rank; i++)
             parameters[i] = &il2cpp_defaults.int32_class->byval_arg;
-        MethodInfo* addressMethod = ConstructArrayMethod(arrayClass, "Address", &arrayClass->element_class->this_arg, rank, parameters);
-        addressMethod->invoker_method = vm::Runtime::GetMissingMethodInvoker();
-        arrayClass->methods[methodIndex++] = addressMethod;
+        arrayClass->methods[methodIndex++] = ConstructArrayMethod(arrayClass, "Address", &arrayClass->element_class->this_arg, rank, parameters);
 
         parameters = (const Il2CppType**)alloca(rank * sizeof(Il2CppType*));
         for (uint8_t i = 0; i < rank; i++)
             parameters[i] = &il2cpp_defaults.int32_class->byval_arg;
-        MethodInfo* getMethod = ConstructArrayMethod(arrayClass, "Get", &arrayClass->element_class->byval_arg, rank, parameters);
-        getMethod->invoker_method = vm::Runtime::GetArrayGetInvoker();
-        arrayClass->methods[methodIndex++] = getMethod;
+        arrayClass->methods[methodIndex++] = ConstructArrayMethod(arrayClass, "Get", &arrayClass->element_class->byval_arg, rank, parameters);
 
         IL2CPP_ASSERT(methodIndex <= std::numeric_limits<uint16_t>::max());
         PopulateArrayGenericMethods(arrayClass, static_cast<uint16_t>(methodIndex));
@@ -385,7 +379,29 @@ namespace metadata
     {
         Il2CppClass *elementType = arrayType->element_class;
 
-        arrayType->castClass = ArrayMetadata::GetArrayVarianceReducedType(elementType);
+        if (elementType->enumtype)
+            arrayType->castClass = elementType->element_class;
+        else
+            arrayType->castClass = elementType;
+
+        if (arrayType->castClass == il2cpp_defaults.sbyte_class)
+            arrayType->castClass = il2cpp_defaults.byte_class;
+        else if (arrayType->castClass == il2cpp_defaults.uint16_class)
+            arrayType->castClass = il2cpp_defaults.int16_class;
+        else if (arrayType->castClass == il2cpp_defaults.uint32_class)
+            arrayType->castClass = il2cpp_defaults.int32_class;
+        else if (arrayType->castClass == il2cpp_defaults.uint64_class)
+            arrayType->castClass = il2cpp_defaults.int64_class;
+#if IL2CPP_SIZEOF_VOID_P == 8
+        else if (arrayType->castClass == il2cpp_defaults.int_class ||
+                 arrayType->castClass == il2cpp_defaults.uint_class)
+            arrayType->castClass = il2cpp_defaults.int64_class;
+#else
+        else if (arrayType->castClass == il2cpp_defaults.int_class ||
+                 arrayType->castClass == il2cpp_defaults.uint_class)
+            arrayType->castClass = il2cpp_defaults.int32_class;
+#endif
+
         arrayType->has_references = Type::IsReference(&elementType->byval_arg) || elementType->has_references;
     }
 
@@ -547,7 +563,6 @@ namespace metadata
         klass->size_inited = true; // set only after instance_size and has_references are set
 
         klass->element_class = elementClass;
-        SetupCastClass(klass);
 
         if (rank > 1 || bounded)
         {
