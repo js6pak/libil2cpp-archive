@@ -129,7 +129,7 @@ namespace utils
     #endif
 #endif
 
-        void* result = LoadSymbolInfoFileFrom(il2cpp::utils::PathUtils::Combine(il2cpp::os::Path::GetApplicationFolder(), symbolMapFileName));
+        void* result = LoadSymbolInfoFileFrom(il2cpp::utils::PathUtils::Combine(il2cpp::utils::PathUtils::DirectoryName(il2cpp::os::Path::GetExecutablePath()), symbolMapFileName));
         if (result != NULL)
             return result;
 

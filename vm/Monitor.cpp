@@ -49,8 +49,6 @@ struct MonitorData : public il2cpp::utils::ThreadSafeFreeListNode
     ///    acquired by any thread *but* only through the free list.
     baselib::atomic<il2cpp::os::Thread::ThreadId> owningThreadId;
 
-    baselib::atomic<bool> threadAborted;
-
     /// Number of times the object has been locked on the owning thread. Everything above 1 indicates
     /// a recursive lock.
     /// NOTE: This field is never reset to zero.
@@ -127,7 +125,6 @@ struct MonitorData : public il2cpp::utils::ThreadSafeFreeListNode
 
     MonitorData()
         : owningThreadId(kHasBeenReturnedToFreeList)
-        , threadAborted(false)
         , recursiveLockingCount(1)
         , numThreadsWaitingForSemaphore(0)
         , threadsWaitingForPulse(NULL)
@@ -138,11 +135,6 @@ struct MonitorData : public il2cpp::utils::ThreadSafeFreeListNode
     bool IsAcquired() const
     {
         return (owningThreadId != kCanBeAcquiredByOtherThread && owningThreadId != kHasBeenReturnedToFreeList);
-    }
-
-    bool IsOwnedByThread(il2cpp::os::Thread::ThreadId threadId) const
-    {
-        return owningThreadId == threadId;
     }
 
     bool TryAcquire(size_t threadId)
@@ -156,12 +148,7 @@ struct MonitorData : public il2cpp::utils::ThreadSafeFreeListNode
     void Unacquire()
     {
         IL2CPP_ASSERT(owningThreadId == il2cpp::os::Thread::CurrentThreadId());
-        // Use `exchange` rather than `store` to ensure this is a read-modify-write
-        // operation and all threads observe modifications in the same order,
-        // i.e. changes within the `lock` block occur before the acquisition
-        // of the monitor by another thread.
-        // See: https://en.cppreference.com/w/cpp/atomic/memory_order
-        owningThreadId.exchange(kCanBeAcquiredByOtherThread);
+        owningThreadId = kCanBeAcquiredByOtherThread;
     }
 
     /// Mark current thread as being blocked in Monitor.Enter(), i.e. as "ready to acquire monitor
@@ -288,7 +275,7 @@ static MonitorData* GetMonitorAndThrowIfNotLockedByCurrentThread(Il2CppObject* o
     // Throw SynchronizationLockException if we're not holding a lock.
     // NOTE: Unlike .NET, Mono simply ignores this and does not throw.
     uint64_t currentThreadId = il2cpp::os::Thread::CurrentThreadId();
-    if (monitor->owningThreadId != currentThreadId && !monitor->threadAborted)
+    if (monitor->owningThreadId != currentThreadId)
     {
         il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetSynchronizationLockException
                 ("Object has not been locked by this thread."));
@@ -426,19 +413,10 @@ namespace vm
                         waitStatus = installedMonitor->semaphore.Wait(true);
                     }
                 }
-                catch (Thread::NativeThreadAbortException&)
-                {
-                    // This signals that the monitor was not entered properly by this thread. Therefore
-                    // a later call to Exit on this monitor should not actually try to exit the monitor,
-                    // because it is not owned by this thread.
-                    installedMonitor->threadAborted = true;
-                    throw;
-                }
                 catch (...)
                 {
-                    // A user APC could throw an exception from within Wait(). This can commonly happen
-                    // during shutdown, when vm::Thread::AbortAllThreads() causes an APC that throws a
-                    // NativeThreadAbortException. Just make sure we clean up properly.
+                    // This is paranoid but in theory a user APC could throw an exception from within Wait().
+                    // Just make sure we clean up properly.
                     installedMonitor->RemoveCurrentThreadFromReadyList();
                     throw;
                 }
@@ -634,7 +612,7 @@ namespace vm
 
         // Wait for pulse (if we either have a timeout or are supposed to
         // wait infinitely).
-        il2cpp::os::WaitStatus pulseWaitStatus = kWaitStatusTimeout;
+        il2cpp::os::WaitStatus pulseWaitStatus = kWaitStatusSuccess;
         std::exception_ptr exceptionThrownDuringWait = NULL;
         if (timeoutMilliseconds != 0)
         {
@@ -653,6 +631,7 @@ namespace vm
             }
         }
 
+        ////TODO: deal with exception here
         // Reacquire the monitor.
         Enter(object);
 
@@ -696,15 +675,6 @@ namespace vm
             return false;
 
         return monitor->IsAcquired();
-    }
-
-    bool Monitor::IsOwnedByCurrentThread(Il2CppObject* object)
-    {
-        MonitorData* monitor = object->monitor;
-        if (!monitor)
-            return false;
-
-        return monitor->IsOwnedByThread(il2cpp::os::Thread::CurrentThreadId());
     }
 } /* namespace vm */
 } /* namespace il2cpp */
