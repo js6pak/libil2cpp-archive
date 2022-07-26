@@ -121,6 +121,8 @@ namespace os
         m_ThreadHandle = threadHandle;
         m_ThreadId = threadId;
 
+        SetPriority(m_Priority);
+
         return kErrorCodeSuccess;
     }
 
