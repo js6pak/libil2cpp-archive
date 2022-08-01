@@ -178,6 +178,12 @@ inline typename pick_bigger<T, U>::type il2cpp_codegen_subtract(T left, U right)
     return left - right;
 }
 
+template<typename T>
+inline bool il2cpp_codegen_enum_has_flag(T enumValue, T flag)
+{
+    return (enumValue & flag) == flag;
+}
+
 NORETURN void il2cpp_codegen_raise_exception(Exception_t* ex, RuntimeMethod* lastManagedFrame = NULL);
 
 // NativeArray macros
