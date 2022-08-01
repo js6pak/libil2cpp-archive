@@ -400,12 +400,6 @@ inline const RuntimeType* il2cpp_codegen_type_from_class(RuntimeClass *klass)
     return &klass->byval_arg;
 }
 
-template<typename T>
-inline bool il2cpp_codegen_enum_has_flag(T enumValue, T flag)
-{
-    return (enumValue & flag) == flag;
-}
-
 inline void* InterlockedExchangeImplRef(void** location, void* value)
 {
     return il2cpp::icalls::mscorlib::System::Threading::Interlocked::ExchangePointer(location, value);

@@ -50,15 +50,31 @@ namespace vm
 {
     const int Class::IgnoreNumberOfArguments = -1;
 
-    static il2cpp::utils::dynamic_array<Il2CppClass*> s_staticFieldData;
     static int32_t s_FinalizerSlot = -1;
     static int32_t s_GetHashCodeSlot = -1;
     static Il2CppClass* s_EmptyClassList[] = {NULL};
+
+    struct ClassContext
+    {
+        il2cpp::utils::dynamic_array<Il2CppClass*> m_staticFieldData;
+    };
+    static ClassContext* s_ClassContext = nullptr;
 
     static void SetupGCDescriptor(Il2CppClass* klass, const il2cpp::os::FastAutoLock& lock);
     static void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset, const il2cpp::os::FastAutoLock* lockPtr);
     static Il2CppClass* ResolveGenericInstanceType(Il2CppClass*, const il2cpp::vm::TypeNameParseInfo&, TypeSearchFlags searchFlags);
     static void SetupVTable(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock);
+
+    void Class::AllocateStaticData()
+    {
+        s_ClassContext = new ClassContext();
+    }
+
+    void Class::FreeStaticData()
+    {
+        delete s_ClassContext;
+        s_ClassContext = nullptr;
+    }
 
     Il2CppClass* Class::FromIl2CppType(const Il2CppType* type, bool throwOnError)
     {
@@ -829,23 +845,12 @@ namespace vm
         return false;
     }
 
-    bool Class::IsValuetype(const Il2CppClass *klass)
-    {
-        return klass->byval_arg.valuetype;
-    }
-
-    bool Class::IsBlittable(const Il2CppClass *klass)
-    {
-        return klass->is_blittable;
-    }
-
     enum FieldLayoutKind
     {
         FIELD_LAYOUT_INSTANCE,
         FIELD_LAYOUT_STATIC,
         FIELD_LAYOUT_THREADSTATIC,
     };
-
 
     static void SetupFieldOffsetsLocked(FieldLayoutKind fieldLayoutKind, Il2CppClass* klass, size_t size, const std::vector<size_t>& fieldOffsets, const il2cpp::os::FastAutoLock& lock)
     {
@@ -1045,7 +1050,7 @@ namespace vm
         if (klass->static_fields_size)
         {
             klass->static_fields = il2cpp::gc::GarbageCollector::AllocateFixed(klass->static_fields_size, NULL);
-            s_staticFieldData.push_back(klass);
+            s_ClassContext->m_staticFieldData.push_back(klass);
 
             il2cpp_runtime_stats.class_static_data_size += klass->static_fields_size;
         }
@@ -1100,7 +1105,7 @@ namespace vm
         if (klass->generic_class)
         {
             // for generic instance types, they just inflate the fields of their generic type definition
-            // initialize the generic type definition and delegate to the generic logic
+            // initialize the generic type's fields and delegate to the generic logic
             SetupFieldsLocked(GenericClass::GetTypeDefinition(klass->generic_class), lock);
             GenericClass::SetupFields(klass);
         }
@@ -1702,34 +1707,6 @@ namespace vm
         return false;
     }
 
-    int Class::GetFlags(const Il2CppClass *klass)
-    {
-        return klass->flags;
-    }
-
-    bool Class::IsAbstract(const Il2CppClass *klass)
-    {
-        return (klass->flags & TYPE_ATTRIBUTE_ABSTRACT) != 0;
-    }
-
-    bool Class::IsInterface(const Il2CppClass *klass)
-    {
-        return (klass->flags & TYPE_ATTRIBUTE_INTERFACE) || (klass->byval_arg.type == IL2CPP_TYPE_VAR) || (klass->byval_arg.type == IL2CPP_TYPE_MVAR);
-    }
-
-    bool Class::IsNullable(const Il2CppClass *klass)
-    {
-        // Based on benchmarking doing the check on `klass->generic_class != NULL` makes this check faster
-        // Likely since nullabletype is a bitfield and requires some manipulation to check
-        return klass->generic_class != NULL && klass->nullabletype;
-    }
-
-    Il2CppClass* Class::GetNullableArgument(const Il2CppClass* klass)
-    {
-        IL2CPP_ASSERT(Class::IsNullable(klass));
-        return klass->element_class;
-    }
-
     int Class::GetArrayElementSize(const Il2CppClass *klass)
     {
         const Il2CppType *type = &klass->byval_arg;
@@ -1793,16 +1770,6 @@ namespace vm
         return -1;
     }
 
-    const Il2CppType* Class::GetByrefType(Il2CppClass *klass)
-    {
-        return &klass->this_arg;
-    }
-
-    const Il2CppType* Class::GetType(Il2CppClass *klass)
-    {
-        return &klass->byval_arg;
-    }
-
     const Il2CppType* Class::GetType(Il2CppClass *klass, const TypeNameParseInfo &info)
     {
         // Attempt to resolve a generic type definition.
@@ -1851,11 +1818,6 @@ namespace vm
     bool Class::HasAttribute(Il2CppClass *klass, Il2CppClass *attr_class)
     {
         return Reflection::HasAttribute(klass, attr_class);
-    }
-
-    bool Class::IsEnum(const Il2CppClass *klass)
-    {
-        return klass->enumtype;
     }
 
     const Il2CppImage* Class::GetImage(Il2CppClass *klass)
@@ -1977,7 +1939,7 @@ namespace vm
 
     const il2cpp::utils::dynamic_array<Il2CppClass*>& Class::GetStaticFieldData()
     {
-        return s_staticFieldData;
+        return s_ClassContext->m_staticFieldData;
     }
 
     const size_t kWordSize = (8 * sizeof(size_t));

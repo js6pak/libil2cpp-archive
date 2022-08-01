@@ -11,7 +11,6 @@ namespace il2cpp
 {
 namespace os
 {
-    static Event s_ThreadSleepObject;
     struct ThreadImplStartData
     {
         Thread::StartFunc m_StartFunc;
@@ -26,6 +25,19 @@ namespace os
         *startData.m_ThreadId = GetCurrentThreadId();
         startData.m_StartFunc(startData.m_StartArg);
         return 0;
+    }
+
+    static Event* s_ThreadSleepObject = nullptr;
+
+    void ThreadImpl::AllocateStaticData()
+    {
+        s_ThreadSleepObject = new Event();
+    }
+
+    void ThreadImpl::FreeStaticData()
+    {
+        delete s_ThreadSleepObject;
+        s_ThreadSleepObject = nullptr;
     }
 
     ThreadImpl::ThreadImpl()
@@ -128,7 +140,11 @@ namespace os
 
     void ThreadImpl::Sleep(uint32_t ms, bool interruptible)
     {
-        s_ThreadSleepObject.Wait(ms, interruptible);
+        /// An Event that we never signal. This is used for sleeping threads in an alertable state. They
+        /// simply wait on this object with the sleep timer as the timeout. This way we don't need a separate
+        /// codepath for implementing sleep logic.
+
+        s_ThreadSleepObject->Wait(ms, interruptible);
     }
 
     void ThreadImpl::CheckForUserAPCAndHandle()
