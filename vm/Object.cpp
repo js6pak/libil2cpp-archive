@@ -417,16 +417,5 @@ namespace vm
         else
             memset(buf + klass->fields[1].offset - sizeof(Il2CppObject), 0, Class::GetValueSize(parameterClass, NULL));
     }
-
-    bool Object::NullableHasValue(Il2CppClass* klass, void* data)
-    {
-        IL2CPP_ASSERT(Class::IsNullable(klass));
-        IL2CPP_ASSERT(metadata::Il2CppTypeEqualityComparer::AreEqual(ClassInlines::InitFromCodegen(klass)->fields[0].type, &il2cpp_defaults.boolean_class->byval_arg));
-
-        // The hasValue field is the first field in the Nullable managed struct,
-        // so read the first byte to get its value;
-        uint8_t* hasValueByte = static_cast<uint8_t*>(data);
-        return *hasValueByte != 0;
-    }
 } /* namespace vm */
 } /* namespace il2cpp */

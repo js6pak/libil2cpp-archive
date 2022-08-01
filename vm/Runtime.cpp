@@ -56,7 +56,8 @@
 #include "utils/Environment.h"
 #include "mono/ThreadPool/threadpool-ms.h"
 #include "mono/ThreadPool/threadpool-ms-io.h"
-//#include "icalls/mscorlib/System.Reflection/Assembly.h"
+#include "icalls/mscorlib/System.Reflection/RuntimeAssembly.h"
+#include "icalls/mscorlib/System.IO/MonoIO.h"
 
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
@@ -147,6 +148,17 @@ namespace vm
             return true;
 
         SanityChecks();
+
+        il2cpp::os::MemoryMappedFile::AllocateStaticData();
+        il2cpp::icalls::mscorlib::System::IO::MonoIO::AllocateStaticData();
+        il2cpp::vm::Class::AllocateStaticData();
+
+#if IL2CPP_ENABLE_PROFILER
+        // Static data for profiler is initialised here and also when profiler is installed (Profiler::Install()) since il2cpp test setup differs from Unity
+        il2cpp::vm::Profiler::AllocateStaticData();
+#endif
+
+        il2cpp::icalls::mscorlib::System::Reflection::RuntimeAssembly::AllocateStaticData();
 
         os::Initialize();
         os::Locale::Initialize();
@@ -449,6 +461,8 @@ namespace vm
         il2cpp::utils::Debugger::RuntimeShutdownEnd();
 #endif
 
+        il2cpp::icalls::mscorlib::System::Reflection::RuntimeAssembly::FreeStaticData();
+
         threadpool_ms_cleanup();
 
         // Tries to abort all threads
@@ -484,6 +498,14 @@ namespace vm
         os::Uninitialize();
 
         Reflection::ClearStatics();
+
+#if IL2CPP_ENABLE_PROFILER
+        il2cpp::vm::Profiler::FreeStaticData();
+#endif
+
+        il2cpp::os::MemoryMappedFile::FreeStaticData();
+        il2cpp::icalls::mscorlib::System::IO::MonoIO::FreeStaticData();
+        il2cpp::vm::Class::FreeStaticData();
 
 #if IL2CPP_ENABLE_RELOAD
         if (g_ClearMethodMetadataInitializedFlags != NULL)
