@@ -41,6 +41,10 @@ namespace os
         ThreadImpl();
         ~ThreadImpl();
 
+        static void AllocateStaticData();
+        static void FreeStaticData();
+
+
         uint64_t Id();
         ErrorCode Run(Thread::StartFunc func, void* arg, int64_t affinityMask);
         void QueueUserAPC(Thread::APCFunc func, void* context);
