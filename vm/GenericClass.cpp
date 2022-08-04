@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "metadata/GenericMetadata.h"
+#include "os/Atomic.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
 #include "vm/Class.h"
@@ -152,9 +153,16 @@ namespace vm
         genericInstanceType->fields = fields;
     }
 
-    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass *gclass, bool throwOnError)
+    Il2CppClass* GenericClass::GetClass(Il2CppGenericClass* gclass, bool throwOnError)
     {
-        os::FastAutoLock lock(&g_MetadataLock);
+        Il2CppClass* cachedClass = os::Atomic::LoadPointerRelaxed(&gclass->cached_class);
+        if (cachedClass)
+            return cachedClass;
+        return CreateClass(gclass, throwOnError);
+    }
+
+    Il2CppClass* GenericClass::CreateClass(Il2CppGenericClass *gclass, bool throwOnError)
+    {
         Il2CppClass* definition = GetTypeDefinition(gclass);
         if (definition == NULL)
         {
@@ -162,6 +170,8 @@ namespace vm
                 vm::Exception::Raise(vm::Exception::GetMaxmimumNestedGenericsException());
             return NULL;
         }
+
+        os::FastAutoLock lock(&g_MetadataLock);
 
         if (!gclass->cached_class)
         {
@@ -209,7 +219,7 @@ namespace vm
                 klass->element_class = klass->castClass  = Class::GetNullableArgument(klass);
 
             if (klass->enumtype)
-                klass->element_class = klass->castClass =  definition->element_class;
+                klass->element_class = klass->castClass = definition->element_class;
 
             klass->is_import_or_windows_runtime = definition->is_import_or_windows_runtime;
         }
