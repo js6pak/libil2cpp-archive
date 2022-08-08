@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINRT
 #if WINDOWS_SDK_BUILD_VERSION < 16299
 
 #include "os/Win32/WindowsHeaders.h"
@@ -130,4 +130,4 @@ extern "C"
 
 #endif // IL2CPP_TARGET_WINRT
 
-#endif // IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+#endif // IL2CPP_TARGET_WINRT
