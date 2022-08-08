@@ -627,9 +627,19 @@ int il2cpp_field_get_flags(FieldInfo *field)
     return Field::GetFlags(field);
 }
 
+const FieldInfo* il2cpp_field_get_from_reflection(const Il2CppReflectionField * field)
+{
+    return Reflection::GetField(field);
+}
+
 Il2CppClass* il2cpp_field_get_parent(FieldInfo *field)
 {
     return Field::GetParent(field);
+}
+
+Il2CppReflectionField* il2cpp_field_get_object(FieldInfo *field, Il2CppClass *refclass)
+{
+    return Reflection::GetFieldObject(refclass, field);
 }
 
 size_t il2cpp_field_get_offset(FieldInfo *field)
