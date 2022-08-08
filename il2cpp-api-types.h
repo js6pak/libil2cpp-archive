@@ -22,6 +22,7 @@ typedef struct Il2CppImage Il2CppImage;
 typedef struct Il2CppException Il2CppException;
 typedef struct Il2CppProfiler Il2CppProfiler;
 typedef struct Il2CppObject Il2CppObject;
+typedef struct Il2CppReflectionField Il2CppReflectionField;
 typedef struct Il2CppReflectionMethod Il2CppReflectionMethod;
 typedef struct Il2CppReflectionType Il2CppReflectionType;
 typedef struct Il2CppString Il2CppString;
