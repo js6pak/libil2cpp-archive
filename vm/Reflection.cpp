@@ -161,6 +161,11 @@ namespace vm
         return s_FieldMap->GetOrAdd(key, res);
     }
 
+    const FieldInfo* Reflection::GetField(const Il2CppReflectionField* field)
+    {
+        return field->field;
+    }
+
     const MethodInfo* Reflection::GetMethod(const Il2CppReflectionMethod* method)
     {
         return method->method;
