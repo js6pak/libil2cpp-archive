@@ -1,6 +1,6 @@
 #pragma once
 
-#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINRT
 
 #include "os/Win32/WindowsHeaders.h"
 #include <wrl.h>

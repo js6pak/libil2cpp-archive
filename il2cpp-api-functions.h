@@ -105,8 +105,10 @@ DO_API(void, il2cpp_native_stack_trace, (const Il2CppException * ex, uintptr_t**
 
 // field
 DO_API(int, il2cpp_field_get_flags, (FieldInfo * field));
+DO_API(const FieldInfo*, il2cpp_field_get_from_reflection, (const Il2CppReflectionField * field));
 DO_API(const char*, il2cpp_field_get_name, (FieldInfo * field));
 DO_API(Il2CppClass*, il2cpp_field_get_parent, (FieldInfo * field));
+DO_API(Il2CppReflectionField*, il2cpp_field_get_object, (FieldInfo * field, Il2CppClass * refclass));
 DO_API(size_t, il2cpp_field_get_offset, (FieldInfo * field));
 DO_API(const Il2CppType*, il2cpp_field_get_type, (FieldInfo * field));
 DO_API(void, il2cpp_field_get_value, (Il2CppObject * obj, FieldInfo * field, void *value));
