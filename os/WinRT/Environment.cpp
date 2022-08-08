@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if IL2CPP_TARGET_WINRT || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINRT
 
 #include "os\Environment.h"
 #include "os\Win32\WindowsHelpers.h"
@@ -146,7 +146,6 @@ namespace os
         return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_LocalFolder(folder); });
     }
 
-#if !IL2CPP_TARGET_XBOXONE
     static inline utils::Expected<std::string> GetRoamingAppDataFolder()
     {
         return GetAppFolder([](IApplicationData* appData, IStorageFolder** folder) { return appData->get_RoamingFolder(folder); });
@@ -179,13 +178,10 @@ namespace os
         return utils::StringUtils::Utf16ToUtf8(resultHString.GetRawBuffer(&dummy));
     }
 
-#endif
-
     utils::Expected<std::string> Environment::GetWindowsFolderPath(int32_t folder)
     {
         switch (folder)
         {
-#if !IL2CPP_TARGET_XBOXONE
             case CSIDL_APPDATA:
                 return GetRoamingAppDataFolder();
 
@@ -224,7 +220,6 @@ namespace os
 
             case CSIDL_TEMPLATES:
                 return GetUserFolderPath([](winrt_interfaces::IUserDataPaths* userDataPaths, HSTRING* result) { return userDataPaths->get_Templates(result); });
-#endif
 
             case CSIDL_LOCAL_APPDATA:
                 return GetLocalAppDataFolder();
