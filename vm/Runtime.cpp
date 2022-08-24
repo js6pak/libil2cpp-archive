@@ -454,9 +454,6 @@ namespace vm
 
         shutting_down = true;
 
-#if IL2CPP_ENABLE_PROFILER
-        il2cpp::vm::Profiler::Shutdown();
-#endif
 #if IL2CPP_MONO_DEBUGGER
         il2cpp::utils::Debugger::RuntimeShutdownEnd();
 #endif
@@ -468,6 +465,10 @@ namespace vm
         // Tries to abort all threads
         // Threads at alertable waits may not have existing when this return
         Thread::AbortAllThreads();
+
+#if IL2CPP_ENABLE_PROFILER
+        il2cpp::vm::Profiler::Shutdown();
+#endif
 
         os::Socket::Cleanup();
         String::CleanupEmptyString();
