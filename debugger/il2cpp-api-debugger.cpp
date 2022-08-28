@@ -195,7 +195,7 @@ extern "C" {
             state->assemblies = il2cpp::vm::Assembly::GetAllAssemblies();
             state->assembly = state->assemblies->begin();
             state->image = il2cpp::vm::Assembly::GetImage(*state->assembly);
-            il2cpp::vm::Image::GetTypes(state->image, true, &state->types);
+            il2cpp::vm::Image::GetTypes(state->image, false, &state->types);
             state->type = state->types.begin();
             *iter = state;
             return (MonoClass*)*state->type;
@@ -215,7 +215,7 @@ extern "C" {
             }
 
             state->image = il2cpp::vm::Assembly::GetImage(*state->assembly);
-            il2cpp::vm::Image::GetTypes(state->image, true, &state->types);
+            il2cpp::vm::Image::GetTypes(state->image, false, &state->types);
             state->type = state->types.begin();
         }
 
