@@ -1560,14 +1560,18 @@ namespace vm
 #endif
         }
 
-        if (!Class::IsGeneric(klass))
+        bool canBeInstantiated = !Class::IsGeneric(klass) && !il2cpp::metadata::GenericMetadata::ContainsGenericParameters(klass);
+
+        if (canBeInstantiated)
+        {
             SetupGCDescriptor(klass, lock);
 
-        if (klass->generic_class)
-        {
-            // This should be kept last.  InflateRGCTXLocked may need intialized data from the class we are initializing
-            if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth() || il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled())
-                klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTXLocked(klass->image, klass->token, &klass->generic_class->context, lock);
+            if (klass->generic_class)
+            {
+                // This should be kept last.  InflateRGCTXLocked may need initialized data from the class we are initializing
+                if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth() || il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled())
+                    klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTXLocked(klass->image, klass->token, &klass->generic_class->context, lock);
+            }
         }
 
         klass->initialized = true;

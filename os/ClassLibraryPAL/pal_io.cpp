@@ -336,7 +336,6 @@ int32_t SystemNative_ReadDirR(struct DIRWrapper* dirWrapper, uint8_t* buffer, in
         {
             dirWrapper->result = malloc(numEntries * sizeof(struct dirent));
             dirWrapper->curIndex = 0;
-            dirWrapper->numEntries = numEntries;
 #if IL2CPP_HAVE_REWINDDIR
             rewinddir(dirWrapper->dir);
 #else
@@ -345,13 +344,14 @@ int32_t SystemNative_ReadDirR(struct DIRWrapper* dirWrapper, uint8_t* buffer, in
 #endif
 
             size_t index = 0;
-            while ((entry = readdir(dirWrapper->dir)))
+            while ((entry = readdir(dirWrapper->dir)) && index < numEntries)
             {
                 memcpy(&((struct dirent*)dirWrapper->result)[index], entry, sizeof(struct dirent));
                 index++;
             }
 
             qsort(dirWrapper->result, numEntries, sizeof(struct dirent), cmpstring);
+            dirWrapper->numEntries = index;
         }
     }
 
