@@ -260,7 +260,7 @@ namespace metadata
 
             newMethod->methodMetadataHandle = methodDefinition->methodMetadataHandle;
         }
-        else if (!il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled())
+        else if (!il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled() && !il2cpp::metadata::GenericMetadata::ContainsGenericParameters(newMethod))
         {
             // we only need RGCTX for generic instance methods
             newMethod->rgctx_data = InflateRGCTXLocked(gmethod, lock);
