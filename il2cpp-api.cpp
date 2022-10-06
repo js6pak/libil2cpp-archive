@@ -1302,6 +1302,15 @@ char* il2cpp_type_get_assembly_qualified_name(const Il2CppType * type)
     return buffer;
 }
 
+char* il2cpp_type_get_reflection_name(const Il2CppType *type)
+{
+    std::string name = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_REFLECTION);
+    char* buffer = static_cast<char*>(il2cpp_alloc(name.length() + 1));
+    memcpy(buffer, name.c_str(), name.length() + 1);
+
+    return buffer;
+}
+
 bool il2cpp_type_is_byref(const Il2CppType *type)
 {
     return type->byref;
