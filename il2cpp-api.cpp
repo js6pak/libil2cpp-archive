@@ -71,10 +71,8 @@ static void RegisterAPIFunction(const char* name, void* symbol)
 void il2cpp_api_register_symbols(void)
 {
     #define DO_API(r, n, p) RegisterAPIFunction(#n, (void*)n);
-    #define DO_API_NO_RETURN(r, n, p) DO_API(r, n, p)
     #include "il2cpp-api-functions.h"
     #undef DO_API
-    #undef DO_API_NO_RETURN
 }
 
 void* il2cpp_api_lookup_symbol(const char* name)
@@ -783,18 +781,18 @@ void il2cpp_gc_free_fixed(void* address)
 
 // gchandle
 
-uint32_t il2cpp_gchandle_new(Il2CppObject *obj, bool pinned)
+Il2CppGCHandle il2cpp_gchandle_new(Il2CppObject *obj, bool pinned)
 {
     return GCHandle::New(obj, pinned);
 }
 
-uint32_t il2cpp_gchandle_new_weakref(Il2CppObject *obj, bool track_resurrection)
+Il2CppGCHandle il2cpp_gchandle_new_weakref(Il2CppObject *obj, bool track_resurrection)
 {
     // Note that the call to Get will assert if an error occurred.
     return GCHandle::NewWeakref(obj, track_resurrection).Get();
 }
 
-Il2CppObject* il2cpp_gchandle_get_target(uint32_t gchandle)
+Il2CppObject* il2cpp_gchandle_get_target(Il2CppGCHandle gchandle)
 {
     return GCHandle::GetTarget(gchandle);
 }
@@ -835,7 +833,7 @@ void il2cpp_gc_set_external_wbarrier_tracker(void(*func)(void**))
 #endif
 }
 
-void il2cpp_gchandle_free(uint32_t gchandle)
+void il2cpp_gchandle_free(Il2CppGCHandle gchandle)
 {
     GCHandle::Free(gchandle);
 }
@@ -1306,6 +1304,15 @@ char* il2cpp_type_get_name(const Il2CppType *type)
 char* il2cpp_type_get_assembly_qualified_name(const Il2CppType * type)
 {
     std::string name = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED);
+    char* buffer = static_cast<char*>(il2cpp_alloc(name.length() + 1));
+    memcpy(buffer, name.c_str(), name.length() + 1);
+
+    return buffer;
+}
+
+char* il2cpp_type_get_reflection_name(const Il2CppType *type)
+{
+    std::string name = Type::GetName(type, IL2CPP_TYPE_NAME_FORMAT_REFLECTION);
     char* buffer = static_cast<char*>(il2cpp_alloc(name.length() + 1));
     memcpy(buffer, name.c_str(), name.length() + 1);
 
