@@ -21,6 +21,7 @@ namespace metadata
     public:
         //internal
 
+        static const MethodInfo* GetGenericVirtualMethod(const MethodInfo* vtableSlotMethod, const MethodInfo* genericVirtualMethod);
         static const MethodInfo* GetMethod(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
         static const MethodInfo* GetMethod(const Il2CppGenericMethod* gmethod);
         static MethodInfo* AllocateNewMethodInfo(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst, const Il2CppGenericInst* methodInst);
