@@ -587,20 +587,6 @@ namespace vm
         return Invoke(invoke, delegate, params, exc);
     }
 
-    const MethodInfo* Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
-    {
-        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
-
-        const Il2CppGenericInst* classInst = NULL;
-        if (methodDefinition->is_inflated)
-        {
-            classInst = methodDefinition->genericMethod->context.class_inst;
-            methodDefinition = methodDefinition->genericMethod->methodDefinition;
-        }
-
-        return metadata::GenericMethod::GetMethod(methodDefinition, classInst, inflatedMethod->genericMethod->context.method_inst);
-    }
-
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
     {
         if (exc)
@@ -950,7 +936,7 @@ namespace vm
                 return;
 
             // Wait for other thread to finish executing the constructor.
-            while (os::Atomic::CompareExchange(&klass->cctor_finished_or_no_cctor, 1, 1) != 1 && os::Atomic::CompareExchange(&klass->initializationExceptionGCHandle, 0, 0) == 0)
+            while (os::Atomic::CompareExchange(&klass->cctor_finished_or_no_cctor, 1, 1) != 1 && os::Atomic::CompareExchangePointer((void**)&klass->initializationExceptionGCHandle, (void*)0, (void*)0) == 0)
             {
                 os::Thread::Sleep(1);
             }

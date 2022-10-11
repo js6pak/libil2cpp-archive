@@ -192,3 +192,5 @@ struct Il2CppManagedMemorySnapshot;
 
 typedef uintptr_t il2cpp_array_size_t;
 #define ARRAY_LENGTH_AS_INT32(a) ((int32_t)a)
+
+typedef void* Il2CppGCHandle;
