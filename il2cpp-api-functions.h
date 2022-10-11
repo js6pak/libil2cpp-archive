@@ -142,10 +142,10 @@ DO_API(void, il2cpp_start_gc_world, ());
 DO_API(void*, il2cpp_gc_alloc_fixed, (size_t size));
 DO_API(void, il2cpp_gc_free_fixed, (void* address));
 // gchandle
-DO_API(uint32_t, il2cpp_gchandle_new, (Il2CppObject * obj, bool pinned));
-DO_API(uint32_t, il2cpp_gchandle_new_weakref, (Il2CppObject * obj, bool track_resurrection));
-DO_API(Il2CppObject*, il2cpp_gchandle_get_target , (uint32_t gchandle));
-DO_API(void, il2cpp_gchandle_free, (uint32_t gchandle));
+DO_API(Il2CppGCHandle, il2cpp_gchandle_new, (Il2CppObject * obj, bool pinned));
+DO_API(Il2CppGCHandle, il2cpp_gchandle_new_weakref, (Il2CppObject * obj, bool track_resurrection));
+DO_API(Il2CppObject*, il2cpp_gchandle_get_target , (Il2CppGCHandle gchandle));
+DO_API(void, il2cpp_gchandle_free, (Il2CppGCHandle gchandle));
 DO_API(void , il2cpp_gchandle_foreach_get_target, (void(*func)(void* data, void* userData), void* userData));
 
 // vm runtime info
@@ -265,6 +265,7 @@ DO_API(bool, il2cpp_type_is_byref, (const Il2CppType * type));
 DO_API(uint32_t, il2cpp_type_get_attrs, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_equals, (const Il2CppType * type, const Il2CppType * otherType));
 DO_API(char*, il2cpp_type_get_assembly_qualified_name, (const Il2CppType * type));
+DO_API(char*, il2cpp_type_get_reflection_name, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_is_static, (const Il2CppType * type));
 DO_API(bool, il2cpp_type_is_pointer_type, (const Il2CppType * type));
 
