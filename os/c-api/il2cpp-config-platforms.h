@@ -6,6 +6,10 @@
 #error We assume both __aarch64__ and __arm__ cannot be defined at tha same time.
 #endif
 
+#if IL2CPP_USE_PLATFORM_CONFIG
+#include "il2cpp-config-platform.h"
+#endif
+
 #if defined(__aarch64__) || defined(_M_ARM64)
 #define IL2CPP_TARGET_ARM64 1
 #define IL2CPP_TARGET_ARMV7 0
@@ -192,10 +196,7 @@
 #endif
 #elif defined(NN_PLATFORM_CTR)
 #define IL2CPP_TARGET_N3DS 1
-#elif defined(NN_BUILD_TARGET_PLATFORM_NX)
-#define IL2CPP_TARGET_SWITCH 1
-#include "il2cpp-config-switch.h"
-#elif IL2CPP_TARGET_CUSTOM
+#elif IL2CPP_USE_PLATFORM_CONFIG
 // defined handled externally
 #else
 #error please define your target platform
@@ -345,6 +346,12 @@
 #define IL2CPP_THREADS_PS4 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PS4)
 #define IL2CPP_THREADS_PSP2 (!IL2CPP_THREADS_STD && IL2CPP_TARGET_PSP2)
 #define IL2CPP_THREADS_SWITCH (!IL2CPP_THREADS_STD && IL2CPP_TARGET_SWITCH)
+
+// Set to 1 to use the baselib based version of the FastReaderReaderWriterLock
+// Use if the baselib::Lock implementation on the platform is faster than the il2cpp::os based version
+#ifndef IL2CPP_USE_BASELIB_FAST_READER_RWL
+#define IL2CPP_USE_BASELIB_FAST_READER_RWL 0
+#endif
 
 #define IL2CPP_THREAD_HAS_CPU_SET IL2CPP_TARGET_POSIX && !IL2CPP_THREADS_PS4
 

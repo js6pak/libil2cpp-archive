@@ -403,7 +403,7 @@ typedef struct Il2CppClass
 
     void *unity_user_data;
 
-    uint32_t initializationExceptionGCHandle;
+    Il2CppGCHandle initializationExceptionGCHandle;
 
     uint32_t cctor_started;
     uint32_t cctor_finished_or_no_cctor;

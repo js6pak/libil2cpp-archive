@@ -26,13 +26,12 @@ using il2cpp::vm::Profiler;
 static void on_heap_resize(GC_word newSize);
 #endif
 
-#if !RUNTIME_TINY
 static GC_push_other_roots_proc default_push_other_roots;
 typedef Il2CppHashMap<char*, char*, il2cpp::utils::PassThroughHash<char*> > RootMap;
 static RootMap s_Roots;
-
 static void push_other_roots(void);
 
+#if !RUNTIME_TINY
 typedef struct ephemeron_node ephemeron_node;
 static ephemeron_node* ephemeron_list;
 
@@ -119,9 +118,9 @@ il2cpp::gc::GarbageCollector::Initialize()
 #endif
 #endif
 
-#if !RUNTIME_TINY
     default_push_other_roots = GC_get_push_other_roots();
     GC_set_push_other_roots(push_other_roots);
+#if !RUNTIME_TINY
     GC_set_mark_stack_empty(push_ephemerons);
 #endif // !RUNTIME_TINY
 
@@ -524,7 +523,6 @@ typedef struct
     char *end;
 } RootData;
 
-#if !RUNTIME_TINY
 
 static void*
 register_root(void* arg)
@@ -560,10 +558,15 @@ push_other_roots(void)
 {
     for (RootMap::iterator iter = s_Roots.begin(); iter != s_Roots.end(); ++iter)
         GC_push_all(iter->first, iter->second);
+
+#if !RUNTIME_TINY
     GC_push_all(&ephemeron_list, &ephemeron_list + 1);
+#endif
     if (default_push_other_roots)
         default_push_other_roots();
 }
+
+#if !RUNTIME_TINY
 
 struct ephemeron_node
 {
