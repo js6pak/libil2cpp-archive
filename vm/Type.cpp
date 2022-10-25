@@ -601,7 +601,7 @@ namespace vm
                 Type::GetNameInternal(
                     str,
                     &elementClass->byval_arg,
-                    format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
+                    format >= IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
                     false);
 
                 str += '[';
@@ -619,9 +619,15 @@ namespace vm
 
                 if (format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED)
                 {
-                    const Il2CppAssembly *ta = elementClass->image->assembly;
+                    const Il2CppAssembly* ta = elementClass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
+                else if (format == IL2CPP_TYPE_NAME_FORMAT_REFLECTION_QUALIFIED)
+                {
+                    str += ", ";
+                    str.append(elementClass->image->nameNoExt);
+                }
+
 
                 break;
             }
@@ -632,7 +638,7 @@ namespace vm
                 Type::GetNameInternal(
                     str,
                     &elementClass->byval_arg,
-                    format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
+                    format >= IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
                     false);
 
                 str += "[]";
@@ -645,6 +651,11 @@ namespace vm
                     const Il2CppAssembly *ta = elementClass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
+                else if (format == IL2CPP_TYPE_NAME_FORMAT_REFLECTION_QUALIFIED)
+                {
+                    str += ", ";
+                    str.append(elementClass->image->nameNoExt);
+                }
                 break;
             }
 
@@ -653,7 +664,7 @@ namespace vm
                 Type::GetNameInternal(
                     str,
                     type->data.type,
-                    format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
+                    format >= IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED ? IL2CPP_TYPE_NAME_FORMAT_FULL_NAME : format,
                     false);
 
                 str += '*';
@@ -665,6 +676,11 @@ namespace vm
                 {
                     const Il2CppAssembly *ta = Class::FromIl2CppType(type->data.type)->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
+                }
+                else if (format == IL2CPP_TYPE_NAME_FORMAT_REFLECTION_QUALIFIED)
+                {
+                    str += ", ";
+                    str.append(Class::FromIl2CppType(type->data.type)->image->nameNoExt);
                 }
                 break;
             }
@@ -722,18 +738,18 @@ namespace vm
                         if (i)
                             str += ',';
 
-                        if ((nested_format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED) && (t->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
+                        if ((format >= IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (t->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
                             str += '[';
 
                         Type::GetNameInternal(str, inst->type_argv[i], nested_format, false);
 
-                        if ((nested_format == IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED) && (t->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
+                        if ((format >= IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (t->type != IL2CPP_TYPE_VAR) && (type->type != IL2CPP_TYPE_MVAR))
                             str += ']';
                     }
 
                     str += (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '>' : ']');
                 }
-                else if (Class::IsGeneric(klass) && (format != IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) && (format != IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED))
+                else if (Class::IsGeneric(klass) && format < IL2CPP_TYPE_NAME_FORMAT_FULL_NAME)
                 {
                     Il2CppMetadataGenericContainerHandle containerHandle = Class::GetGenericContainer(klass);
 
@@ -761,6 +777,12 @@ namespace vm
                     const Il2CppAssembly *ta = klass->image->assembly;
                     str += ", " + vm::AssemblyName::AssemblyNameToString(ta->aname);
                 }
+                else if (format == IL2CPP_TYPE_NAME_FORMAT_REFLECTION_QUALIFIED)
+                {
+                    str += ", ";
+                    str.append(klass->image->nameNoExt);
+                }
+
                 break;
             }
         }
@@ -1053,6 +1075,11 @@ namespace vm
         return type->type == IL2CPP_TYPE_GENERICINST;
     }
 
+    bool Type::IsGenericParameter(const Il2CppType* type)
+    {
+        return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR;
+    }
+
     Il2CppReflectionType* Type::GetDeclaringType(const Il2CppType* type)
     {
         Il2CppClass *typeInfo = NULL;
@@ -1174,7 +1201,7 @@ namespace vm
             return false;
 
         // Any generic parameter that is not constrained to be a reference type would be fully shared
-        if (type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR)
+        if (IsGenericParameter(type))
             return MetadataCache::IsReferenceTypeGenericParameter(MetadataCache::GetGenericParameterFromType(type)) != GenericParameterRestrictionReferenceType;
 
         // If we're not a generic instance then we'll be a concrete type
