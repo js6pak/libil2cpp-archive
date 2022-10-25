@@ -617,6 +617,7 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
                             type = &il2cpp_defaults.byte_shared_enum->byval_arg;
                             break;
                         case IL2CPP_TYPE_U2:
+                        case IL2CPP_TYPE_CHAR:
                             type = &il2cpp_defaults.uint16_shared_enum->byval_arg;
                             break;
                         case IL2CPP_TYPE_U4:
@@ -624,6 +625,9 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
                             break;
                         case IL2CPP_TYPE_U8:
                             type = &il2cpp_defaults.uint64_shared_enum->byval_arg;
+                            break;
+                        case IL2CPP_TYPE_I:
+                        case IL2CPP_TYPE_U:
                             break;
                         default:
                             IL2CPP_ASSERT(0 && "Invalid enum underlying type");
@@ -895,9 +899,18 @@ static const Il2CppType* GetReducedType(const Il2CppType* type)
             return &il2cpp_defaults.object_class->byval_arg;
         case IL2CPP_TYPE_GENERICINST:
             if (il2cpp::vm::Type::GenericInstIsValuetype(type))
-                return type;
-            else
-                return &il2cpp_defaults.object_class->byval_arg;
+            {
+                // We can't inflate a generic instance that contains generic arguments
+                if (il2cpp::metadata::GenericMetadata::ContainsGenericParameters(type))
+                    return type;
+
+                const Il2CppGenericInst* sharedInst = GetSharedInst(type->data.generic_class->context.class_inst);
+                Il2CppGenericClass* gklass = il2cpp::metadata::GenericMetadata::GetGenericClass(type->data.generic_class->type, sharedInst);
+                Il2CppClass* klass = il2cpp::vm::GenericClass::GetClass(gklass);
+                return &klass->byval_arg;
+            }
+
+            return &il2cpp_defaults.object_class->byval_arg;
         default:
             return type;
     }
