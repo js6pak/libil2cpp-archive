@@ -112,6 +112,18 @@ namespace metadata
         return false;
     }
 
+    static void AnUnresolvedCallStubWasNotFound()
+    {
+        vm::Exception::Raise(vm::Exception::GetExecutionEngineException("An unresolved indirect call lookup failed"));
+    }
+
+    // This method must have a different signature than AnUnresolvedCallStubWasNotFound to prevent identical COMDAT folding
+    // FullySharedGenericInvokeRedirectHasAdjustorThunk relies on this method having a different address
+    static void AnUnresolvedCallStubWasNotFoundValueType(void* obj)
+    {
+        vm::Exception::Raise(vm::Exception::GetExecutionEngineException("An unresolved indirect call to a value type failed"));
+    }
+
     static void AGenericMethodWhichIsTooDeeplyNestedWasInvoked()
     {
         vm::Exception::Raise(vm::Exception::GetMaximumNestedGenericsException());
@@ -310,16 +322,41 @@ namespace metadata
             sharedMethodInfo->rawDirectMethodPointer = newMethod->methodPointer;
             sharedMethodInfo->rawInvokerMethod = newMethod->invoker_method;
 
+            bool hasAdjustorThunk = newMethod->methodPointer != newMethod->virtualMethodPointer;
+            if (hasAdjustorThunk)
+                newMethod->invoker_method = FullySharedGenericInvokeRedirectHasAdjustorThunk;
+            else
+                newMethod->invoker_method = FullySharedGenericInvokeRedirectNoAdjustorThunk;
+
             il2cpp::vm::Il2CppUnresolvedCallStubs stubs = MetadataCache::GetUnresovledCallStubs(newMethod);
             if (stubs.stubsFound)
             {
-                if (newMethod->methodPointer == newMethod->virtualMethodPointer)
-                    newMethod->invoker_method = FullySharedGenericInvokeRedirectNoAdjustorThunk;
-                else
-                    newMethod->invoker_method = FullySharedGenericInvokeRedirectHasAdjustorThunk;
-
                 newMethod->methodPointer = stubs.methodPointer;
                 newMethod->virtualMethodPointer = stubs.virtualMethodPointer;
+            }
+            else
+            {
+                newMethod->methodPointer = AnUnresolvedCallStubWasNotFound;
+                newMethod->virtualMethodPointer = AnUnresolvedCallStubWasNotFound;
+
+                if (hasAdjustorThunk)
+                {
+                    // The FullySharedGenericInvokeRedirectHasAdjustorThunk requires that methodPointer and virtualMethodPointer be different
+                    // so it can tell which raw* method it should call even though it doesn't directly call them
+                    IL2CPP_ASSERT(reinterpret_cast<Il2CppMethodPointer>(AnUnresolvedCallStubWasNotFoundValueType) != AnUnresolvedCallStubWasNotFound);
+                    if (reinterpret_cast<Il2CppMethodPointer>(AnUnresolvedCallStubWasNotFoundValueType) != AnUnresolvedCallStubWasNotFound)
+                    {
+                        newMethod->methodPointer = reinterpret_cast<Il2CppMethodPointer>(AnUnresolvedCallStubWasNotFoundValueType);
+                    }
+                    else
+                    {
+                        // If we got hit by COMDAT folding (but in DEBUG, which is the most likely way it would happen)
+                        // Ensure that are methodPointers are definitely different
+                        // We'll get an less specific error message, but it's better than corruption
+                        // Make the change on methodPointer because we're most likely to be called
+                        newMethod->methodPointer = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
+                    }
+                }
             }
         }
 
