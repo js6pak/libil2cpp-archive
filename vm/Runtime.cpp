@@ -564,20 +564,6 @@ namespace vm
         return Invoke(invoke, delegate, params, exc);
     }
 
-    const MethodInfo* Runtime::GetGenericVirtualMethod(const MethodInfo* methodDefinition, const MethodInfo* inflatedMethod)
-    {
-        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(GetGenericVirtualMethod, "We should only do the following slow method lookup once and then cache on type itself.");
-
-        const Il2CppGenericInst* classInst = NULL;
-        if (methodDefinition->is_inflated)
-        {
-            classInst = methodDefinition->genericMethod->context.class_inst;
-            methodDefinition = methodDefinition->genericMethod->methodDefinition;
-        }
-
-        return metadata::GenericMethod::GetMethod(methodDefinition, classInst, inflatedMethod->genericMethod->context.method_inst);
-    }
-
     Il2CppObject* Runtime::Invoke(const MethodInfo *method, void *obj, void **params, Il2CppException **exc)
     {
         if (exc)
