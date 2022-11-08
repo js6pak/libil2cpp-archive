@@ -895,9 +895,18 @@ static const Il2CppType* GetReducedType(const Il2CppType* type)
             return &il2cpp_defaults.object_class->byval_arg;
         case IL2CPP_TYPE_GENERICINST:
             if (il2cpp::vm::Type::GenericInstIsValuetype(type))
-                return type;
-            else
-                return &il2cpp_defaults.object_class->byval_arg;
+            {
+                // We can't inflate a generic instance that contains generic arguments
+                if (il2cpp::metadata::GenericMetadata::ContainsGenericParameters(type))
+                    return type;
+
+                const Il2CppGenericInst* sharedInst = GetSharedInst(type->data.generic_class->context.class_inst);
+                Il2CppGenericClass* gklass = il2cpp::metadata::GenericMetadata::GetGenericClass(type->data.generic_class->type, sharedInst);
+                Il2CppClass* klass = il2cpp::vm::GenericClass::GetClass(gklass);
+                return &klass->byval_arg;
+            }
+
+            return &il2cpp_defaults.object_class->byval_arg;
         default:
             return type;
     }
