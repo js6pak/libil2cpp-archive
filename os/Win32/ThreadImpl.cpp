@@ -211,19 +211,13 @@ namespace os
 
 namespace
 {
-    // It would be nice to always use CoGetApartmentType but it's only available on Windows 7 and later.
-    // That's why we check for function at runtime and do a fallback on Windows XP.
-    // CoGetApartmentType is always available in Windows Store Apps.
-
-    typedef HRESULT (STDAPICALLTYPE * CoGetApartmentTypeFunc)(APTTYPE* type, APTTYPEQUALIFIER* qualifier);
-
-    ApartmentState GetApartmentWindows7(CoGetApartmentTypeFunc coGetApartmentType, bool* implicit)
+    ApartmentState GetApartmentImpl(bool* implicit)
     {
         *implicit = false;
 
         APTTYPE type;
         APTTYPEQUALIFIER qualifier;
-        const HRESULT hr = coGetApartmentType(&type, &qualifier);
+        const HRESULT hr = CoGetApartmentType(&type, &qualifier);
         if (FAILED(hr))
         {
             IL2CPP_ASSERT(CO_E_NOTINITIALIZED == hr);
@@ -260,82 +254,6 @@ namespace
         IL2CPP_ASSERT(0 && "CoGetApartmentType returned unexpected value.");
         return kApartmentStateUnknown;
     }
-
-#if IL2CPP_TARGET_WINDOWS_DESKTOP
-
-    ApartmentState GetApartmentWindowsXp(bool* implicit)
-    {
-        *implicit = false;
-
-        IUnknown* context = nullptr;
-        HRESULT hr = CoGetContextToken(reinterpret_cast<ULONG_PTR*>(&context));
-        if (SUCCEEDED(hr))
-        {
-            IComThreadingInfo* info;
-            hr = context->QueryInterface(&info);
-            if (SUCCEEDED(hr))
-            {
-                THDTYPE type;
-                hr = info->GetCurrentThreadType(&type);
-                if (SUCCEEDED(hr))
-                {
-                    // THDTYPE_PROCESSMESSAGES means that we are in STA thread.
-                    // Otherwise it's an MTA thread. We are not sure at this moment if CoInitializeEx has been called explicitly on this thread
-                    // or if it has been implicitly made MTA by a CoInitialize call on another thread.
-                    if (THDTYPE_PROCESSMESSAGES == type)
-                        return kApartmentStateInSTA;
-
-                    // Assume implicit. Even if it's explicit, we'll handle the case correctly by checking CoInitializeEx return value.
-                    *implicit = true;
-                    return kApartmentStateInMTA;
-                }
-
-                info->Release();
-            }
-
-            // No need to release context.
-        }
-
-        return kApartmentStateUnknown;
-    }
-
-    class CoGetApartmentTypeHelper
-    {
-    private:
-        HMODULE _library;
-        CoGetApartmentTypeFunc _func;
-
-    public:
-        inline CoGetApartmentTypeHelper()
-        {
-            _library = LoadLibraryW(L"ole32.dll");
-            Assert(_library);
-            _func = reinterpret_cast<CoGetApartmentTypeFunc>(GetProcAddress(_library, "CoGetApartmentType"));
-        }
-
-        inline ~CoGetApartmentTypeHelper()
-        {
-            FreeLibrary(_library);
-        }
-
-        inline CoGetApartmentTypeFunc GetFunc() const { return _func; }
-    };
-
-    inline ApartmentState GetApartmentImpl(bool* implicit)
-    {
-        static CoGetApartmentTypeHelper coGetApartmentTypeHelper;
-        const CoGetApartmentTypeFunc func = coGetApartmentTypeHelper.GetFunc();
-        return func ? GetApartmentWindows7(func, implicit) : GetApartmentWindowsXp(implicit);
-    }
-
-#else
-
-    inline ApartmentState GetApartmentImpl(bool* implicit)
-    {
-        return GetApartmentWindows7(CoGetApartmentType, implicit);
-    }
-
-#endif
 }
 
     ApartmentState ThreadImpl::GetApartment()
