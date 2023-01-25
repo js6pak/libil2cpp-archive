@@ -10,6 +10,7 @@
 #include "os/MemoryMappedFile.h"
 #include "os/Mutex.h"
 #include "os/Path.h"
+#include "os/SynchronizationContext.h"
 #include "os/Thread.h"
 #include "os/Socket.h"
 #include "os/c-api/Allocator.h"
@@ -160,6 +161,11 @@ namespace vm
 
         os::Image::Initialize();
         os::Thread::Init();
+
+#if IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT
+        // Has to happen after Thread::Init() due to it needing a COM apartment on Windows
+        il2cpp::os::SynchronizationContext::Initialize();
+#endif
 
         // This should be filled in by generated code.
         IL2CPP_ASSERT(g_CodegenRegistration != NULL);
@@ -462,6 +468,11 @@ namespace vm
 
         // after the gc cleanup so the finalizer thread can unregister itself
         Thread::Uninitialize();
+
+#if IL2CPP_HAS_OS_SYNCHRONIZATION_CONTEXT
+        // Has to happen before os::Thread::Shutdown() due to it needing a COM apartment on Windows
+        il2cpp::os::SynchronizationContext::Shutdown();
+#endif
 
         os::Thread::Shutdown();
 
