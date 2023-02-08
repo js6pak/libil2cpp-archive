@@ -587,3 +587,7 @@ char(*il2cpp_array_size_helper(Type(&array)[Size]))[Size];
 #endif
 extern void il2cpp_assert(const char* assertion, const char* file, unsigned int line);
 #endif
+
+#if !defined(IL2CPP_SUPPORTS_BROKERED_FILESYSTEM)
+#define IL2CPP_SUPPORTS_BROKERED_FILESYSTEM IL2CPP_TARGET_WINRT
+#endif
