@@ -35,8 +35,8 @@ NORETURN void il2cpp_codegen_raise_exception(il2cpp_hresult_t hresult, bool defa
 #define IL2CPP_PUSH_ACTIVE_EXCEPTION(Exception) \
     __active_exceptions.push(Exception)
 
-#define IL2CPP_POP_ACTIVE_EXCEPTION(ExcType) \
-    (ExcType)__active_exceptions.pop()
+#define IL2CPP_POP_ACTIVE_EXCEPTION() \
+    __active_exceptions.pop()
 
 #define IL2CPP_GET_ACTIVE_EXCEPTION(ExcType) \
     (ExcType)__active_exceptions.top()
@@ -936,7 +936,7 @@ void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field);
 void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, void* data, uint32_t size);
 
 template<typename T>
-void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, no_infer<T> data)
+void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, T data)
 {
     il2cpp_codegen_assert_field_size(field, sizeof(T));
 
@@ -946,19 +946,19 @@ void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* fiel
 }
 
 template<typename T>
-inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, no_infer<T> data)
+inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, T data)
 {
-    il2cpp_codegen_write_instance_field_data<T>((void*)instance, field, data);
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
 }
 
 template<typename T>
-inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, no_infer<T> data)
+inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, T data)
 {
-    il2cpp_codegen_write_instance_field_data<T>((void*)instance, field, data);
+    il2cpp_codegen_write_instance_field_data((void*)instance, field, data);
 }
 
 template<typename T>
-void il2cpp_codegen_write_static_field_data(RuntimeField* field, no_infer<T> data)
+void il2cpp_codegen_write_static_field_data(RuntimeField* field, T data)
 {
     il2cpp_codegen_assert_field_size(field, sizeof(T));
 
@@ -968,7 +968,7 @@ void il2cpp_codegen_write_static_field_data(RuntimeField* field, no_infer<T> dat
 }
 
 template<typename T>
-void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, no_infer<T> data)
+void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, T data)
 {
     il2cpp_codegen_assert_field_size(field, sizeof(T));
 
