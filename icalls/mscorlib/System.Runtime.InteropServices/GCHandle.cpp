@@ -69,10 +69,24 @@ namespace InteropServices
 
     static bool IsTypePinnable(Il2CppClass* klass)
     {
-        // IL2CPP is matching the .NET Core behavior now, not .NET Framework.
-        // Any type that does not have fields which are reference types can be
-        // pinned.
-        return !vm::Class::HasReferences(klass);
+        const Il2CppType* il2cppType = vm::Class::GetType(klass);
+        if (il2cppType->type == IL2CPP_TYPE_ARRAY || il2cppType->type == IL2CPP_TYPE_SZARRAY)
+        {
+            Il2CppClass* elementClass = klass->element_class;
+            if (elementClass->byval_arg.type == IL2CPP_TYPE_STRING ||
+                elementClass->byval_arg.type == IL2CPP_TYPE_ARRAY ||
+                elementClass->byval_arg.type == IL2CPP_TYPE_SZARRAY)
+            {
+                return false;
+            }
+
+            return IsTypePinnable(elementClass); // Note the recursive call here
+        }
+
+        if (il2cppType->type == IL2CPP_TYPE_CHAR  || il2cppType->type == IL2CPP_TYPE_BOOLEAN || il2cppType->type == IL2CPP_TYPE_STRING)
+            return true;
+
+        return klass->is_blittable;
     }
 
     static inline bool IsObjectPinnable(Il2CppObject* obj)
@@ -87,7 +101,7 @@ namespace InteropServices
     {
         if (type == gc::HANDLE_PINNED && !IsObjectPinnable(obj))
         {
-            Il2CppException* ex = vm::Exception::GetArgumentException(NULL, "Object contains references.");
+            Il2CppException* ex = vm::Exception::GetArgumentException(NULL, "Object contains non-primitive or non-blittable data.");
             vm::Exception::Raise(ex);
         }
 
