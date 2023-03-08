@@ -317,7 +317,7 @@ extern "C" {
 
     bool il2cpp_class_is_initialized(MonoClass* klass)
     {
-        return ((Il2CppClass*)klass)->initialized_and_no_error;
+        return ((Il2CppClass*)klass)->initialized;
     }
 
     int il2cpp_generic_inst_get_argc(MonoGenericInst* inst)
