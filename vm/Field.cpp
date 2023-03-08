@@ -61,6 +61,11 @@ namespace vm
 
     Il2CppObject* Field::GetValueObject(FieldInfo *field, Il2CppObject *obj)
     {
+        return GetValueObjectForThread(field, obj, il2cpp::vm::Thread::Current());
+    }
+
+    Il2CppObject* Field::GetValueObjectForThread(FieldInfo *field, Il2CppObject *obj, Il2CppThread *thread)
+    {
         Il2CppClass* fieldType = Class::FromIl2CppType(field->type);
 
         if (field->type->attrs & FIELD_ATTRIBUTE_LITERAL)
@@ -86,7 +91,7 @@ namespace vm
             {
                 Runtime::ClassInit(field->parent);
                 int threadStaticFieldOffset = MetadataCache::GetThreadLocalStaticOffsetForField(field);
-                void* threadStaticData = Thread::GetThreadStaticData(field->parent->thread_static_fields_offset);
+                void* threadStaticData = Thread::GetThreadStaticDataForThread(field->parent->thread_static_fields_offset, thread);
                 fieldAddress = static_cast<uint8_t*>(threadStaticData) + threadStaticFieldOffset;
             }
             else
@@ -140,15 +145,29 @@ namespace vm
 
     void Field::StaticGetValue(FieldInfo *field, void *value)
     {
-        StaticGetValueInternal(field, value, NULL);
+        // ensure parent is initialized so that static fields memory has been allocated
+        Class::SetupFields(field->parent);
+
+        void* threadStaticData = NULL;
+        if (field->offset == THREAD_STATIC_FIELD_OFFSET)
+            threadStaticData = Thread::GetThreadStaticDataForThread(field->parent->thread_static_fields_offset, il2cpp::vm::Thread::Current());
+
+        StaticGetValueInternal(field, value, threadStaticData);
     }
 
     void Field::StaticGetValueForThread(FieldInfo* field, void* value, Il2CppInternalThread* thread)
     {
-        StaticGetValueInternal(field, value, thread);
+        // ensure parent is initialized so that static fields memory has been allocated
+        Class::SetupFields(field->parent);
+
+        void* threadStaticData = NULL;
+        if (field->offset == THREAD_STATIC_FIELD_OFFSET)
+            threadStaticData = Thread::GetThreadStaticDataForThread(field->parent->thread_static_fields_offset, thread);
+
+        StaticGetValueInternal(field, value, threadStaticData);
     }
 
-    void Field::StaticGetValueInternal(FieldInfo* field, void* value, Il2CppInternalThread* thread)
+    void Field::StaticGetValueInternal(FieldInfo* field, void* value, void* threadStaticData)
     {
         void *src = NULL;
 
@@ -165,11 +184,8 @@ namespace vm
 
         if (field->offset == THREAD_STATIC_FIELD_OFFSET)
         {
-            int threadStaticFieldOffset = MetadataCache::GetThreadLocalStaticOffsetForField(field);
-
-            void* threadStaticData = thread == NULL ? Thread::GetThreadStaticData(field->parent->thread_static_fields_offset) : Thread::GetThreadStaticDataForThread(field->parent->thread_static_fields_offset, thread);
             IL2CPP_ASSERT(NULL != threadStaticData);
-
+            int threadStaticFieldOffset = MetadataCache::GetThreadLocalStaticOffsetForField(field);
             src = ((char*)threadStaticData) + threadStaticFieldOffset;
         }
         else
@@ -182,6 +198,11 @@ namespace vm
 
     void Field::StaticSetValue(FieldInfo *field, void *value)
     {
+        StaticSetValueForThread(field, value, il2cpp::vm::Thread::Current());
+    }
+
+    void Field::StaticSetValueForThread(FieldInfo* field, void* value, Il2CppThread* thread)
+    {
         void *dest = NULL;
 
         IL2CPP_ASSERT(field->type->attrs & FIELD_ATTRIBUTE_STATIC);
@@ -193,7 +214,7 @@ namespace vm
         if (field->offset == THREAD_STATIC_FIELD_OFFSET)
         {
             int threadStaticFieldOffset = MetadataCache::GetThreadLocalStaticOffsetForField(field);
-            void* threadStaticData = Thread::GetThreadStaticData(field->parent->thread_static_fields_offset);
+            void* threadStaticData = Thread::GetThreadStaticDataForThread(field->parent->thread_static_fields_offset, thread);
             dest = ((char*)threadStaticData) + threadStaticFieldOffset;
         }
         else
