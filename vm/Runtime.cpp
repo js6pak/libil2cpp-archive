@@ -59,6 +59,8 @@
 #include "mono/ThreadPool/threadpool-ms-io.h"
 #include "icalls/mscorlib/System.Reflection/RuntimeAssembly.h"
 #include "icalls/mscorlib/System.IO/MonoIO.h"
+#include "vm/Monitor.h"
+#include "vm-utils/Debugger.h"
 
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
@@ -150,6 +152,10 @@ namespace vm
 
         SanityChecks();
 
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::Debugger::AllocateStaticData();
+#endif
+        il2cpp::vm::Monitor::AllocateStaticData();
         il2cpp::os::MemoryMappedFile::AllocateStaticData();
         il2cpp::icalls::mscorlib::System::IO::MonoIO::AllocateStaticData();
         il2cpp::vm::Class::AllocateStaticData();
@@ -515,9 +521,13 @@ namespace vm
         il2cpp::vm::Profiler::FreeStaticData();
 #endif
 
+        il2cpp::vm::Monitor::FreeStaticData();
         il2cpp::os::MemoryMappedFile::FreeStaticData();
         il2cpp::icalls::mscorlib::System::IO::MonoIO::FreeStaticData();
         il2cpp::vm::Class::FreeStaticData();
+#if IL2CPP_MONO_DEBUGGER
+        il2cpp::utils::Debugger::FreeStaticData();
+#endif
 
 #if IL2CPP_ENABLE_RELOAD
         if (g_ClearMethodMetadataInitializedFlags != NULL)
