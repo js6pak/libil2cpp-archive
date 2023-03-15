@@ -735,11 +735,6 @@ void il2cpp_codegen_initialize_runtime_metadata(uintptr_t* metadataPointer);
 
 void* il2cpp_codegen_initialize_runtime_metadata_inline(uintptr_t* metadataPointer);
 
-inline bool il2cpp_codegen_runtime_metadata_is_initialized(uintptr_t* metadataPointer)
-{
-    return !((uintptr_t)metadataPointer & 1);
-}
-
 inline bool il2cpp_codegen_type_is_value_type(const RuntimeType* type)
 {
     return type->valuetype;
