@@ -7,7 +7,7 @@
 #include "../char-conversions.h"
 #include "utils/Functional.h"
 #include "utils/StringUtils.h"
-#include "utils/utf8-cpp/source/utf8/unchecked.h"
+#include "External/utfcpp/source/utf8.h"
 
 namespace il2cpp
 {
