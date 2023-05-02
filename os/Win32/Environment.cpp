@@ -2,7 +2,7 @@
 
 #if !IL2CPP_USE_GENERIC_ENVIRONMENT && IL2CPP_TARGET_WINDOWS
 #include "WindowsHelpers.h"
-#if !IL2CPP_TARGET_XBOXONE && !IL2CPP_TARGET_WINDOWS_GAMES
+#if !IL2CPP_TARGET_WINDOWS_GAMES
 #include <Shlobj.h>
 #endif
 // Windows.h defines GetEnvironmentVariable as GetEnvironmentVariableW for unicode and this will

@@ -93,15 +93,7 @@ namespace os
     typedef HRESULT (__stdcall *SETTHREADPROC) (HANDLE, PCWSTR);
     void ThreadImpl::SetName(const char* name)
     {
-#if !IL2CPP_TARGET_WINRT
-        SETTHREADPROC ProcSetThreadDescription;
-        ProcSetThreadDescription = (SETTHREADPROC)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "SetThreadDescription");
-        if (ProcSetThreadDescription != NULL)
-        {
-            const UTF16String varName = utils::StringUtils::Utf8ToUtf16(name);
-            (ProcSetThreadDescription)(m_ThreadHandle, varName.c_str());
-        }
-#endif
+        SetThreadDescription(m_ThreadHandle, utils::StringUtils::Utf8ToUtf16(name).c_str());
 
         if (Debug::IsDebuggerPresent())
             SetNameForDebugger(name);
@@ -144,7 +136,7 @@ namespace os
         if (!threadHandle)
             return kErrorCodeGenFailure;
 
-#if IL2CPP_TARGET_WINDOWS_GAMES || IL2CPP_TARGET_XBOXONE
+#if IL2CPP_TARGET_WINDOWS_GAMES
         if (affinityMask != Thread::kThreadAffinityAll)
             SetThreadAffinityMask(threadHandle, static_cast<DWORD_PTR>(affinityMask));
 #endif
@@ -324,15 +316,6 @@ namespace
             Assert(state == currentState);
             return currentState;
         }
-
-#if IL2CPP_TARGET_XBOXONE
-        if (state == kApartmentStateInSTA)
-        {
-            // Only assert in debug.. we wouldn't want to bring down the application in Release config
-            IL2CPP_ASSERT(false && "STA apartment state is not supported on Xbox One");
-            state = kApartmentStateInMTA;
-        }
-#endif
 
         HRESULT hr = CoInitializeEx(nullptr, (kApartmentStateInSTA == state) ? COINIT_APARTMENTTHREADED : COINIT_MULTITHREADED);
         if (SUCCEEDED(hr))
