@@ -60,13 +60,9 @@ namespace IO
         il2cpp::os::FileHandle** input = (il2cpp::os::FileHandle**)read_handle;
         il2cpp::os::FileHandle** output = (il2cpp::os::FileHandle**)write_handle;
 
-#if IL2CPP_TARGET_WINRT
-        vm::Exception::Raise(vm::Exception::GetNotSupportedException("Pipes are not supported on WinRT based platforms."));
-#else
         auto result = il2cpp::os::File::CreatePipe(input, output, error);
         vm::Exception::RaiseIfError(result.GetError());
         return result.Get();
-#endif
     }
 
     bool MonoIO::DeleteFile(Il2CppChar* path, int32_t* error)
