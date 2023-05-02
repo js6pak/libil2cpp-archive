@@ -28,7 +28,7 @@ void il2cpp::os::Initialize()
 #endif
 }
 
-#if !IL2CPP_TARGET_WINRT && !IL2CPP_TARGET_XBOXONE
+#if !IL2CPP_TARGET_WINRT
 void il2cpp::os::Uninitialize()
 {
 }
