@@ -35,7 +35,6 @@ typedef Il2CppHashMap<char*, char*, il2cpp::utils::PassThroughHash<char*> > Root
 static RootMap s_Roots;
 static void push_other_roots(void);
 
-#if !RUNTIME_TINY
 typedef struct ephemeron_node ephemeron_node;
 static ephemeron_node* ephemeron_list;
 
@@ -94,8 +93,6 @@ GC_ms_entry* GC_gcj_vector_proc(GC_word* addr, GC_ms_entry* mark_stack_ptr,
 
 #endif // !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
 
-#endif // !RUNTIME_TINY
-
 void
 il2cpp::gc::GarbageCollector::Initialize()
 {
@@ -124,9 +121,7 @@ il2cpp::gc::GarbageCollector::Initialize()
 
     default_push_other_roots = GC_get_push_other_roots();
     GC_set_push_other_roots(push_other_roots);
-#if !RUNTIME_TINY
     GC_set_mark_stack_empty(push_ephemerons);
-#endif // !RUNTIME_TINY
 
     GC_set_on_collection_event(&on_gc_event);
 #if IL2CPP_ENABLE_PROFILER
@@ -136,9 +131,7 @@ il2cpp::gc::GarbageCollector::Initialize()
     GC_INIT();
 #if defined(GC_THREADS)
     GC_set_finalize_on_demand(1);
-#if !RUNTIME_TINY
     GC_set_finalizer_notifier(&il2cpp::gc::GarbageCollector::NotifyFinalizers);
-#endif
     // We need to call this if we want to manually register threads, i.e. GC_register_my_thread
     #if !IL2CPP_TARGET_JAVASCRIPT
     GC_allow_register_threads();
@@ -148,7 +141,7 @@ il2cpp::gc::GarbageCollector::Initialize()
     GC_init_gcj_malloc(0, NULL);
 #endif
 
-#if !RUNTIME_TINY && !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
+#if !IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
     GC_init_gcj_vector(VECTOR_PROC_INDEX, (void*)GC_gcj_vector_proc);
 #endif
     s_GCInitialized = true;
@@ -283,8 +276,8 @@ il2cpp::gc::GarbageCollector::SetMode(Il2CppGCMode mode)
     s_CurrentGCMode = mode;
 }
 
-bool
-il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
+void
+il2cpp::gc::GarbageCollector::RegisterThread()
 {
 #if defined(GC_THREADS) && !IL2CPP_TARGET_JAVASCRIPT
     struct GC_stack_base sb;
@@ -293,20 +286,19 @@ il2cpp::gc::GarbageCollector::RegisterThread(void *baseptr)
     res = GC_get_stack_base(&sb);
     if (res != GC_SUCCESS)
     {
-        sb.mem_base = baseptr;
-#ifdef __ia64__
         /* Can't determine the register stack bounds */
-        IL2CPP_ASSERT(false && "mono_gc_register_thread failed ().");
-#endif
+        IL2CPP_ASSERT(false && "GC_get_stack_base () failed, aborting.");
+        /* Abort we can't scan the stack, so we can't use the GC */
+        abort();
     }
     res = GC_register_my_thread(&sb);
     if ((res != GC_SUCCESS) && (res != GC_DUPLICATE))
     {
         IL2CPP_ASSERT(false && "GC_register_my_thread () failed.");
-        return false;
+        /* Abort we can't use the GC on this thread, so we can't run managed code */
+        abort();
     }
 #endif
-    return true;
 }
 
 bool
@@ -411,25 +403,6 @@ void il2cpp::gc::GarbageCollector::StartWorld()
     GC_start_world_external();
 }
 
-#if RUNTIME_TINY
-void*
-il2cpp::gc::GarbageCollector::Allocate(size_t size)
-{
-    return GC_MALLOC(size);
-}
-
-void*
-il2cpp::gc::GarbageCollector::AllocateObject(size_t size, void* type)
-{
-#if IL2CPP_ENABLE_WRITE_BARRIER_VALIDATION
-    return GC_gcj_malloc(size, type);
-#else
-    return GC_MALLOC(size);
-#endif
-}
-
-#endif
-
 void*
 il2cpp::gc::GarbageCollector::AllocateFixed(size_t size, void *descr)
 {
@@ -453,15 +426,10 @@ il2cpp::gc::GarbageCollector::FreeFixed(void* addr)
     GC_FREE(addr);
 }
 
-#if !RUNTIME_TINY
 int32_t
 il2cpp::gc::GarbageCollector::InvokeFinalizers()
 {
-#if IL2CPP_TINY
-    return 0; // The Tiny profile does not have finalizers
-#else
     return (int32_t)GC_invoke_finalizers();
-#endif
 }
 
 bool
@@ -469,8 +437,6 @@ il2cpp::gc::GarbageCollector::HasPendingFinalizers()
 {
     return GC_should_invoke_finalizers() != 0;
 }
-
-#endif
 
 int64_t
 il2cpp::gc::GarbageCollector::GetMaxTimeSliceNs()
@@ -492,12 +458,10 @@ il2cpp::gc::GarbageCollector::IsIncremental()
 
 void on_gc_event(GC_EventType eventType)
 {
-#if !RUNTIME_TINY
     if (eventType == GC_EVENT_RECLAIM_START)
     {
         clear_ephemerons();
     }
-#endif
 #if IL2CPP_ENABLE_PROFILER
     Profiler::GCEvent((Il2CppGCEvent)eventType);
 #endif
@@ -569,14 +533,10 @@ push_other_roots(void)
     for (RootMap::iterator iter = s_Roots.begin(); iter != s_Roots.end(); ++iter)
         GC_push_all(iter->first, iter->second);
 
-#if !RUNTIME_TINY
     GC_push_all(&ephemeron_list, &ephemeron_list + 1);
-#endif
     if (default_push_other_roots)
         default_push_other_roots();
 }
-
-#if !RUNTIME_TINY
 
 struct ephemeron_node
 {
@@ -704,7 +664,5 @@ bool il2cpp::gc::GarbageCollector::EphemeronArrayAdd(Il2CppObject* obj)
     GC_call_with_alloc_lock(ephemeron_array_add, item);
     return true;
 }
-
-#endif // !RUNTIME_TINY
 
 #endif

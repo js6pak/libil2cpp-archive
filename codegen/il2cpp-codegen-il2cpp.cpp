@@ -6,8 +6,6 @@
 
 #include "utils/Exception.h"
 
-#if !RUNTIME_TINY
-
 #include "os/Atomic.h"
 #include "metadata/GenericMethod.h"
 #include "gc/WriteBarrier.h"
@@ -362,10 +360,8 @@ void il2cpp_codegen_profiler_method_exit(const RuntimeMethod* method)
 NORETURN void il2cpp_codegen_raise_exception(Exception_t *ex, MethodInfo* lastManagedFrame)
 {
     RuntimeException* exc = (RuntimeException*)ex;
-#if !IL2CPP_TINY
     IL2CPP_OBJECT_SETREF_NULL(exc, trace_ips);
     IL2CPP_OBJECT_SETREF_NULL(exc, stack_trace);
-#endif
     il2cpp::vm::Exception::Raise(exc, lastManagedFrame);
 }
 
@@ -1040,75 +1036,3 @@ bool il2cpp_codegen_is_unmanaged(const RuntimeMethod* method)
 {
     return !il2cpp_codegen_is_reference_or_contains_references(method);
 }
-
-#endif // !RUNTIME_TINY
-
-#if IL2CPP_TINY_DEBUGGER
-
-#include "vm/Image.h"
-#include "gc/WriteBarrier.h"
-
-MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount)
-{
-    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)type);
-    Il2CppMulticastDelegate* result = reinterpret_cast<Il2CppMulticastDelegate*>(il2cpp_codegen_object_new(klass));
-    il2cpp::gc::WriteBarrier::GenericStore(&result->delegates, delegates);
-    il2cpp::gc::WriteBarrier::GenericStore(&result->delegate.m_target, (Il2CppObject*)result);
-    result->delegateCount = delegateCount;
-    result->delegate.invoke_impl = il2cpp_array_get(delegates, Il2CppDelegate*, 0)->multicast_invoke_impl;
-    result->delegate.multicast_invoke_impl = result->delegate.invoke_impl;
-    return reinterpret_cast<MulticastDelegate_t*>(result);
-}
-
-Type_t* il2cpp_codegen_get_type(Il2CppObject* obj)
-{
-    return (Type_t*)il2cpp::vm::Reflection::GetTypeObject(&obj->klass->byval_arg);
-}
-
-Type_t* il2cpp_codegen_get_base_type(const Type_t* t)
-{
-    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
-    if (klass->parent == NULL)
-        return NULL;
-    return (Type_t*)il2cpp::vm::Reflection::GetTypeObject(&klass->parent->byval_arg);
-}
-
-bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right)
-{
-    return il2cpp::vm::Class::IsAssignableFrom((Il2CppReflectionType*)left, (Il2CppReflectionType*)right);
-}
-
-void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason)
-{
-    std::string message = "No reverse pinvoke wrapper exists for method: '";
-    message += methodName;
-    message += "' because ";
-    message += reason;
-    il2cpp_codegen_raise_exception(il2cpp_codegen_get_invalid_operation_exception(message.c_str()));
-}
-
-bool il2cpp_codegen_type_is_interface(Type_t* t)
-{
-    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
-    return il2cpp::vm::Class::IsInterface(klass);
-}
-
-bool il2cpp_codegen_type_is_abstract(Type_t* t)
-{
-    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
-    return il2cpp::vm::Class::IsAbstract(klass);
-}
-
-bool il2cpp_codegen_type_is_pointer(Type_t* t)
-{
-    Il2CppClass* klass = il2cpp::vm::Class::FromSystemType((Il2CppReflectionType*)t);
-    return il2cpp::vm::Class::GetType(klass)->type == IL2CPP_TYPE_PTR;
-}
-
-NORETURN void il2cpp_codegen_raise_exception(const char* message)
-{
-    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::FromNameMsg(il2cpp::vm::Image::GetCorlib(), "System", "Exception", message));
-    IL2CPP_UNREACHABLE;
-}
-
-#endif
