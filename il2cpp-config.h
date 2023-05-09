@@ -134,33 +134,7 @@ typedef void (STDCALL *CultureInfoChangedCallback)(const Il2CppChar* arg);
 #define IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE 1
 #endif
 
-#if IL2CPP_TINY
-    #if IL2CPP_TINY_DEBUG_METADATA || IL2CPP_TINY_DEBUGGER
-        #define IL2CPP_ENABLE_STACKTRACES 1
-    #else
-        #define IL2CPP_ENABLE_STACKTRACES 0
-    #endif // IL2CPP_TINY_DEBUG_METADATA
-#else
-    #define IL2CPP_ENABLE_STACKTRACES !IL2CPP_TARGET_QNX
-#endif // IL2CPP_TINY
-
-#ifndef IL2CPP_DISABLE_GC
-#if IL2CPP_TINY && IL2CPP_TARGET_JAVASCRIPT
-#define IL2CPP_DISABLE_GC 1
-#endif
-#endif
-
-#ifndef FORCE_PINVOKE_INTERNAL
-#if IL2CPP_TINY && IL2CPP_TARGET_IOS
-#define FORCE_PINVOKE_INTERNAL 1
-#endif
-#endif
-
-#ifndef HOST_WASM
-#if IL2CPP_TINY_DEBUGGER && IL2CPP_TARGET_JAVASCRIPT
-#define HOST_WASM 1
-#endif
-#endif
+#define IL2CPP_ENABLE_STACKTRACES !IL2CPP_TARGET_QNX
 
 /* Platforms which use OS specific implementation to extract stracktrace */
 #if !defined(IL2CPP_ENABLE_NATIVE_STACKTRACES)
@@ -297,8 +271,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 
 #endif
 
-#if !RUNTIME_TINY
-
 #define NOT_SUPPORTED_IL2CPP(func, reason) \
     il2cpp::vm::Exception::Raise (il2cpp::vm::Exception::GetNotSupportedException ( NOTSUPPORTEDICALLMESSAGE ("IL2CPP", #func, #reason) ))
 
@@ -314,13 +286,6 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 #else
 #define NOT_SUPPORTED_WEBGL(func, reason)
 #endif
-
-#else
-#define NOT_SUPPORTED_IL2CPP(func, reason)
-#define NOT_SUPPORTED_SRE(func)
-#define NOT_SUPPORTED_REMOTING(func)
-#define NOT_SUPPORTED_WEBGL(func, reason)
-#endif // #if !RUNTIME_TINY
 
 #if IL2CPP_COMPILER_MSVC
     #define IL2CPP_DIR_SEPARATOR '\\'   /* backslash */
@@ -353,7 +318,7 @@ static const uint16_t kInvalidIl2CppMethodSlot = 65535;
 
 #define IL2CPP_USE_GENERIC_COM  (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_WINDOWS_GAMES)
 #define IL2CPP_USE_GENERIC_COM_SAFEARRAYS   (!IL2CPP_TARGET_WINDOWS || IL2CPP_TARGET_WINDOWS_GAMES)
-#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_NONE || IL2CPP_TINY || IL2CPP_TARGET_WINDOWS_GAMES)
+#define IL2CPP_USE_GENERIC_WINDOWSRUNTIME (!IL2CPP_TARGET_WINDOWS || RUNTIME_NONE || IL2CPP_TARGET_WINDOWS_GAMES)
 
 #ifndef IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE
 #define IL2CPP_USE_GENERIC_MEMORY_MAPPED_FILE (IL2CPP_TARGET_WINDOWS_GAMES || IL2CPP_TARGET_JAVASCRIPT || (!IL2CPP_TARGET_WINDOWS && !IL2CPP_TARGET_POSIX))

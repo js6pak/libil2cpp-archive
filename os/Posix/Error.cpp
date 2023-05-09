@@ -135,7 +135,6 @@ namespace os
 
         switch (code)
         {
-#if !RUNTIME_TINY
             case EACCES: case EPERM: case EROFS:
                 ret = kErrorCodeAccessDenied;
                 break;
@@ -209,7 +208,6 @@ namespace os
             case EPIPE:
                 ret = kErrorCodeWriteFault;
                 break;
-#endif
 
             default:
                 ret = kErrorCodeGenFailure;

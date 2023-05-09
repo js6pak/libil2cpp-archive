@@ -151,17 +151,6 @@ namespace System
 
         return reinterpret_cast<Il2CppReflectionRuntimeType*>(il2cpp::vm::Reflection::GetTypeObject(etype));
     }
-
-#if IL2CPP_TINY
-    bool Enum::TinyEnumEquals(Il2CppObject* left, Il2CppObject* right)
-    {
-        if (left->klass != right->klass)
-            return false;
-
-        return InternalCompareTo(left, right) == 0;
-    }
-
-#endif
 } /* namespace System */
 } /* namespace mscorlib */
 } /* namespace icalls */
