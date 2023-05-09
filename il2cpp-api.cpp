@@ -586,7 +586,7 @@ void il2cpp_unhandled_exception(Il2CppException* exc)
 
 void il2cpp_native_stack_trace(const Il2CppException * ex, uintptr_t** addresses, int* numFrames, char** imageUUID, char** imageName)
 {
-#if IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION && !IL2CPP_TINY
+#if IL2CPP_ENABLE_NATIVE_INSTRUCTION_POINTER_EMISSION
     if (ex == NULL || ex->native_trace_ips == NULL)
     {
         *numFrames = 0;
