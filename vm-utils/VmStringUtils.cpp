@@ -1,7 +1,5 @@
 #include "il2cpp-config.h"
 
-#if !RUNTIME_TINY
-
 #include "VmStringUtils.h"
 #include "il2cpp-object-internals.h"
 #include "../char-conversions.h"
@@ -139,5 +137,3 @@ namespace utils
     }
 }
 }
-
-#endif

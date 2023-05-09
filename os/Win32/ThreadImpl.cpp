@@ -1,6 +1,6 @@
 #include "il2cpp-config.h"
 
-#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_WIN32 && !RUNTIME_TINY
+#if !IL2CPP_THREADS_STD && IL2CPP_THREADS_WIN32
 
 #include "ThreadImpl.h"
 #include "os/ThreadLocalValue.h"
