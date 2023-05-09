@@ -27,15 +27,11 @@ typedef struct Il2CppCodeGenModule Il2CppCodeGenModule;
 typedef struct Il2CppMetadataRegistration Il2CppMetadataRegistration;
 typedef struct Il2CppCodeRegistration Il2CppCodeRegistration;
 
-#if RUNTIME_TINY
-typedef Il2CppMethodPointer VirtualInvokeData;
-#else
 typedef struct VirtualInvokeData
 {
     Il2CppMethodPointer methodPtr;
     const MethodInfo* method;
 } VirtualInvokeData;
-#endif
 
 typedef enum Il2CppTypeNameFormat
 {

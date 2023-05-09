@@ -572,13 +572,10 @@ Il2CppDelegate* il2cpp_codegen_marshal_function_ptr_to_delegate_internal(void* f
 
 bool il2cpp_codegen_is_marshalled_delegate(MulticastDelegate_t* d);
 
-#if !IL2CPP_TINY
 inline void* il2cpp_codegen_get_reverse_pinvoke_function_ptr(const MulticastDelegate_t* d)
 {
     return ((Il2CppDelegate*)d)->delegate_trampoline;
 }
-
-#endif
 
 template<typename T>
 inline T* il2cpp_codegen_marshal_function_ptr_to_delegate(Il2CppMethodPointer functionPtr, RuntimeClass* delegateType)
@@ -709,10 +706,8 @@ inline uintptr_t il2cpp_array_calc_byte_offset(RuntimeArray* runtimeArray, il2cp
 
 inline void ArrayElementTypeCheck(RuntimeArray* array, void* value)
 {
-#if !IL2CPP_TINY
     if (value != NULL && IsInst((RuntimeObject*)value, array->klass->element_class) == NULL)
         il2cpp_codegen_raise_exception(il2cpp_codegen_get_array_type_mismatch_exception());
-#endif
 }
 
 inline const RuntimeMethod* GetVirtualMethodInfo(RuntimeObject* pThis, Il2CppMethodSlot slot)
@@ -1136,79 +1131,6 @@ inline intptr_t il2cpp_codegen_by_reference_get_value(Il2CppByReference* byRefer
 bool il2cpp_codegen_is_reference_or_contains_references(const RuntimeMethod* method);
 
 bool il2cpp_codegen_is_unmanaged(const RuntimeMethod* method);
-
-#if IL2CPP_TINY
-
-// Add intrinsics used by Tiny.
-
-#include "utils/MemoryUtils.h"
-
-Type_t* il2cpp_codegen_get_type(Il2CppObject* obj);
-
-inline int32_t il2cpp_codegen_get_array_length(Il2CppArray* genArray, int32_t dimension)
-{
-    if (genArray->bounds == NULL)
-        return il2cpp_codegen_get_array_length(genArray);
-
-    return static_cast<int32_t>(genArray->bounds[dimension].length);
-}
-
-MulticastDelegate_t* il2cpp_codegen_create_combined_delegate(Type_t* type, Il2CppArray* delegates, int delegateCount);
-
-inline String_t* il2cpp_codegen_marshal_ptr_to_string_ansi(intptr_t ptr)
-{
-    return il2cpp_codegen_marshal_string_result(reinterpret_cast<const char*>(ptr));
-}
-
-inline intptr_t il2cpp_codegen_marshal_string_to_co_task_mem_ansi(String_t* ptr)
-{
-    return reinterpret_cast<intptr_t>(il2cpp_codegen_marshal_string(ptr));
-}
-
-inline void il2cpp_codegen_marshal_string_free_co_task_mem(intptr_t ptr)
-{
-    il2cpp_codegen_marshal_free(reinterpret_cast<void*>(ptr));
-}
-
-struct Delegate_t;
-
-inline String_t* il2cpp_codegen_string_new_length(int length)
-{
-    return reinterpret_cast<String_t*>(il2cpp::vm::String::NewSize(length));
-}
-
-Type_t* il2cpp_codegen_get_base_type(const Type_t* t);
-
-bool il2cpp_codegen_is_assignable_from(Type_t* left, Type_t* right);
-
-template<typename T>
-struct Il2CppReversePInvokeMethodHolder
-{
-    Il2CppReversePInvokeMethodHolder(T** storageAddress) :
-        m_LastValue(*storageAddress),
-        m_StorageAddress(storageAddress)
-    {
-    }
-
-    ~Il2CppReversePInvokeMethodHolder()
-    {
-        *m_StorageAddress = m_LastValue;
-    }
-
-private:
-    T* const m_LastValue;
-    T** const m_StorageAddress;
-};
-
-void il2cpp_codegen_no_reverse_pinvoke_wrapper(const char* methodName, const char* reason);
-
-bool il2cpp_codegen_type_is_interface(Type_t* t);
-bool il2cpp_codegen_type_is_abstract(Type_t* t);
-bool il2cpp_codegen_type_is_pointer(Type_t* t);
-
-NORETURN void il2cpp_codegen_raise_exception(const char* message);
-
-#endif
 
 template<typename T>
 inline T* il2cpp_span_get_item(T* refPtrValue, int32_t index, int32_t length)

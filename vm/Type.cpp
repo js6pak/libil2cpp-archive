@@ -1308,25 +1308,17 @@ namespace vm
 */
     void Type::ConstructClosedDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method)
     {
-#if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "Type::ConstructClosedDelegate should not be called with the Tiny profile.");
-#else
         InvokeDelegateConstructor(delegate, target, method);
         SetClosedDelegateInvokeMethod(delegate, target, addr);
-#endif
     }
 
     void Type::SetClosedDelegateInvokeMethod(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr)
     {
-#if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "Type::SetClosedDelegateInvokeMethod should not be called with the Tiny profile.");
-#else
         // For a closed delegate we set our invoke_impl to the method we want to invoke and the "this" we'll pass to the invoke_impl to the target
         // This reduces the cost of a closed delegate call to normal virtual call
         delegate->method_ptr = addr;
         delegate->invoke_impl = addr;
         delegate->invoke_impl_this = target;
-#endif
     }
 
 /**
@@ -1339,9 +1331,6 @@ namespace vm
 */
     void Type::ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, const MethodInfo* method)
     {
-#if IL2CPP_TINY
-        IL2CPP_ASSERT(0 && "Type::ConstructDelegate should not be called with the Tiny profile.");
-#else
         IL2CPP_ASSERT(delegate);
 
         if (method)
@@ -1359,7 +1348,6 @@ namespace vm
         // that the ctor will choose, so override it with the direct method
         if (target == NULL && method != NULL && Class::IsValuetype(method->klass))
             delegate->method_ptr = method->methodPointer;
-#endif
     }
 
     Il2CppString* Type::AppendAssemblyNameIfNecessary(Il2CppString* typeName, const MethodInfo* callingMethod)
