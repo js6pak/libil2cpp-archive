@@ -23,7 +23,6 @@ namespace il2cpp
 {
 namespace utils
 {
-#if !IL2CPP_TINY
     struct usymliteHeader
     {
         uint32_t magic;
@@ -295,13 +294,9 @@ namespace utils
         return true;
     }
 
-#endif
-
     bool DebugSymbolReader::DebugSymbolsAvailable()
     {
-        #if IL2CPP_TINY
-        return false;
-        #elif IL2CPP_MONO_DEBUGGER
+        #if IL2CPP_MONO_DEBUGGER
         return true;
         #else
         return s_usym.debugSymbolData != NULL;
