@@ -243,7 +243,6 @@ DO_API(Il2CppThread*, il2cpp_thread_current, ());
 DO_API(Il2CppThread*, il2cpp_thread_attach, (Il2CppDomain * domain));
 DO_API(void, il2cpp_thread_detach, (Il2CppThread * thread));
 
-DO_API(Il2CppThread**, il2cpp_thread_get_all_attached_threads, (size_t * size));
 DO_API(bool, il2cpp_is_vm_thread, (Il2CppThread * thread));
 
 // stacktrace
