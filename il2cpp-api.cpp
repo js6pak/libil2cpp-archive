@@ -1215,11 +1215,6 @@ void il2cpp_thread_detach(Il2CppThread *thread)
     Thread::Detach(thread);
 }
 
-Il2CppThread **il2cpp_thread_get_all_attached_threads(size_t *size)
-{
-    return Thread::GetAllAttachedThreads(*size);
-}
-
 bool il2cpp_is_vm_thread(Il2CppThread *thread)
 {
     return Thread::IsVmThread(thread);
