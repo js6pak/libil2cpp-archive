@@ -458,8 +458,9 @@ namespace vm
 
         il2cpp::icalls::mscorlib::System::Reflection::RuntimeAssembly::FreeStaticData();
 
+#if IL2CPP_SUPPORT_THREADS
         threadpool_ms_cleanup();
-
+#endif
         // Tries to abort all threads
         // Threads at alertable waits may not have existing when this return
         Thread::AbortAllThreads();
