@@ -53,7 +53,7 @@ using namespace il2cpp::gc;
 #if IL2CPP_API_DYNAMIC_NO_DLSYM
 #include <map>
 
-struct SymbolCompare : public std::binary_function<char*, char*, bool>
+struct SymbolCompare
 {
     bool operator()(const char* lhs, const char* rhs) const
     {
