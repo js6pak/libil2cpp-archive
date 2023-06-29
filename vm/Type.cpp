@@ -1188,12 +1188,6 @@ namespace vm
         return false;
     }
 
-    bool Type::GenericInstIsValuetype(const Il2CppType* type)
-    {
-        IL2CPP_ASSERT(IsGenericInstance(type));
-        return GenericClass::IsValueType(type->data.generic_class);
-    }
-
     bool Type::HasVariableRuntimeSizeWhenFullyShared(const Il2CppType* type)
     {
         // Anything passed by ref is pointer sized
@@ -1209,7 +1203,7 @@ namespace vm
             return false;
 
         // If a reference type or pointer then we aren't variable sized
-        if (!GenericInstIsValuetype(type))
+        if (!IsValueType(type))
             return false;
 
         // Otherwise we're a generic value type - e.g. Struct<T> and we need to examine our generic parameters
