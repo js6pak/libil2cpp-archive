@@ -349,6 +349,7 @@ typedef struct MethodInfo
     uint8_t is_inflated : 1; /* true if declaring_type is a generic instance or if method is a generic instance*/
     uint8_t wrapper_type : 1; /* always zero (MONO_WRAPPER_NONE) needed for the debugger */
     uint8_t has_full_generic_sharing_signature : 1;
+    uint8_t is_unmanaged_callers_only : 1;
 } MethodInfo;
 
 typedef struct Il2CppRuntimeInterfaceOffsetPair

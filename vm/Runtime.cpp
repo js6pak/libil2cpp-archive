@@ -1096,6 +1096,13 @@ namespace vm
             // Default Interface Method support will throw EntryPointNotFoundExceptions if an abstract interface method is accessed
             Exception::Raise(Exception::GetEntryPointNotFoundException(utils::StringUtils::Printf("Attempting to call abstract method '%s'", methodFullName).c_str()));
         }
+        else if (method->methodPointer)
+        {
+            if (method->is_unmanaged_callers_only)
+                Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Cannot call a method marked with [UnmangedCallersOnly] from managed code: '%s'", methodFullName).c_str()));
+            else
+                Exception::Raise(Exception::GetExecutionEngineException(utils::StringUtils::Printf("Invalid call to method '%s'", methodFullName).c_str()));
+        }
         else
         {
             std::string help = "";
