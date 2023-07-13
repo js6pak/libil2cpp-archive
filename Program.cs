@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
 using Archiver;
 using AssetRipper.VersionUtilities;
 using LibGit2Sharp;
@@ -68,6 +69,17 @@ using (var repository = new Repository(repoPath))
             archive.ExtractToDirectory(repoPath);
         }
 
+        var message = context.Name;
+
+        if (context.Version.IsGreater(5, 2, 1))
+        {
+            var path = Path.Combine(repoPath, "vm", context.Version.IsGreaterEqual(2020, 2, 0) ? "GlobalMetadata.cpp" : "MetadataCache.cpp");
+            var match = MetadataVersionRegex().Match(await File.ReadAllTextAsync(path));
+            var metadataVersion = int.Parse(match.Groups["version"].Value);
+
+            message += $" (v{metadataVersion})";
+        }
+
         Commands.Stage(repository, "*");
 
         var signature = new Signature("github-actions[bot]", "github-actions[bot]@users.noreply.github.com", lastWriteTime);
@@ -76,7 +88,7 @@ using (var repository = new Repository(repoPath))
 
         if (repository.RetrieveStatus().IsDirty)
         {
-            commit = repository.Commit(context.Name, signature, signature);
+            commit = repository.Commit(message, signature, signature);
         }
         else
         {
@@ -85,4 +97,10 @@ using (var repository = new Repository(repoPath))
 
         repository.Tags.Add(context.Name, commit, signature, context.Name);
     }
+}
+
+internal partial class Program
+{
+    [GeneratedRegex("\\(s_GlobalMetadataHeader->version == (?<version>\\d+)\\);", RegexOptions.Compiled)]
+    private static partial Regex MetadataVersionRegex();
 }
