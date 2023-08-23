@@ -746,10 +746,11 @@ namespace System
         return 0;
     }
 
-    Il2CppReflectionMethod* RuntimeType::get_DeclaringMethod(Il2CppReflectionRuntimeType* thisPtr)
+    Il2CppObject* RuntimeType::get_DeclaringMethod(Il2CppReflectionRuntimeType* thisPtr)
     {
-        const MethodInfo* declaringMethod = vm::Type::GetDeclaringMethod(thisPtr->type.type);
-        return declaringMethod == NULL ? NULL : vm::Reflection::GetMethodObject(declaringMethod, NULL);
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeType::get_DeclaringMethod);
+        IL2CPP_UNREACHABLE;
+        return NULL;
     }
 
     Il2CppObject* RuntimeType::GetCorrespondingInflatedMethod(Il2CppReflectionRuntimeType* thisPtr, Il2CppObject* generic)
@@ -811,8 +812,7 @@ namespace System
 
     Il2CppReflectionType* RuntimeType::get_DeclaringType(Il2CppReflectionRuntimeType* _this)
     {
-        Il2CppClass* declaringClass = vm::Type::GetDeclaringType(_this->type.type);
-        return declaringClass == NULL ? NULL : il2cpp::vm::Reflection::GetTypeObject(vm::Class::GetType(declaringClass));
+        return vm::Type::GetDeclaringType(_this->type.type);
     }
 
     void validate_make_array_type_inputs(Il2CppReflectionType* type, int32_t rank)

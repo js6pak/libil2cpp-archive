@@ -36,7 +36,6 @@
 #include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
 #include "utils/Il2CppHashMap.h"
-#include "utils/InitOnce.h"
 #include "utils/StringUtils.h"
 #include "utils/HashUtils.h"
 #include <string>
@@ -236,6 +235,9 @@ namespace vm
 
         klass->image = GenericContainer::GetDeclaringType(paramInfo.containerHandle)->image;
 
+        klass->initialized = true;
+        UpdateInitializedAndNoError(klass);
+
         klass->parent = il2cpp_defaults.object_class;
         klass->castClass = klass->element_class = klass;
 
@@ -253,8 +255,6 @@ namespace vm
         klass->native_size = -1;
         klass->size_inited = true;
         klass->typeHierarchyDepth = 1;
-
-        PublishInitialized(klass);
 
         s_GenericParameterMap.insert(std::make_pair(param, klass));
 
@@ -1074,9 +1074,8 @@ namespace vm
         if (!Class::IsGeneric(klass))
             LayoutFieldsLocked(klass, lock);
 
-        // Set the init flags after a barrier so they are set after all data is written
-        il2cpp::os::Atomic::FullMemoryBarrier();
         klass->size_init_pending = false;
+
         klass->size_inited = true;
     }
 
@@ -1564,7 +1563,9 @@ namespace vm
             }
         }
 
-        Class::PublishInitialized(klass);
+        klass->initialized = true;
+        Class::UpdateInitializedAndNoError(klass);
+        klass->init_pending = false;
 
         ++il2cpp_runtime_stats.initialized_class_count;
 
@@ -1601,18 +1602,12 @@ namespace vm
     void Class::SetClassInitializationError(Il2CppClass *klass, Il2CppException* error)
     {
         klass->initializationExceptionGCHandle = gc::GCHandle::New(error, false);
-        PublishInitialized(klass);
+        UpdateInitializedAndNoError(klass);
     }
 
-    void Class::PublishInitialized(Il2CppClass *klass)
+    void Class::UpdateInitializedAndNoError(Il2CppClass *klass)
     {
-        // Update the initialized flags last, so that other threads can't see the class as initialized
-        // until after everything else is set up.
-        il2cpp::os::Atomic::FullMemoryBarrier();
-
-        klass->initialized = true;
-        klass->initialized_and_no_error = !klass->initializationExceptionGCHandle;
-        klass->init_pending = false;
+        klass->initialized_and_no_error = klass->initialized && !klass->initializationExceptionGCHandle;
     }
 
     Il2CppClass* Class::FromName(const Il2CppImage* image, const char* namespaze, const char *name)
@@ -1863,6 +1858,7 @@ namespace vm
         pointerClass->name = il2cpp::utils::StringUtils::StringDuplicate(il2cpp::utils::StringUtils::Printf("%s*", elementClass->name).c_str());
 
         pointerClass->image = elementClass->image;
+        pointerClass->initialized = true;
         pointerClass->flags = TYPE_ATTRIBUTE_CLASS | (elementClass->flags & TYPE_ATTRIBUTE_VISIBILITY_MASK);
         pointerClass->instance_size = sizeof(void*);
         pointerClass->stack_slot_size = sizeof(void*);
@@ -1875,8 +1871,6 @@ namespace vm
         pointerClass->parent = NULL;
         pointerClass->typeHierarchyDepth = 1;
         pointerClass->castClass = pointerClass->element_class = elementClass;
-
-        PublishInitialized(pointerClass);
 
         MetadataCache::AddPointerTypeLocked(elementClass, pointerClass, lock);
 
