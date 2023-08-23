@@ -4,7 +4,6 @@
 #include "metadata/GenericSharing.h"
 #include "metadata/Il2CppGenericMethodCompare.h"
 #include "metadata/Il2CppGenericMethodHash.h"
-#include "os/Atomic.h"
 #include "os/Mutex.h"
 #include "utils/Memory.h"
 #include "vm/Class.h"
@@ -17,7 +16,6 @@
 #include "vm/Runtime.h"
 #include "vm/Type.h"
 #include "utils/Il2CppHashMap.h"
-#include "utils/InitOnce.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-runtime-metadata.h"
 #include "il2cpp-runtime-stats.h"
@@ -385,9 +383,15 @@ namespace metadata
         IL2CPP_ASSERT(method->genericMethod);
         IL2CPP_ASSERT(method->genericMethod->context.method_inst);
 
-        return il2cpp::utils::InitOnce(const_cast<Il2CppRGCTXData**>(&method->rgctx_data), &il2cpp::vm::g_MetadataLock, [method](const il2cpp::os::FastAutoLock& lock) {
-            return const_cast<Il2CppRGCTXData*>(GenericMethod::InflateRGCTXLocked(method->genericMethod, lock));
-        });
+        FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+
+        if (method->rgctx_data != NULL)
+            return method->rgctx_data;
+
+        const Il2CppRGCTXData* rgctx = InflateRGCTXLocked(method->genericMethod, lock);
+        const_cast<MethodInfo*>(method)->rgctx_data = rgctx;
+
+        return rgctx;
     }
 
     const Il2CppRGCTXData* GenericMethod::InflateRGCTXLocked(const Il2CppGenericMethod* gmethod, const il2cpp::os::FastAutoLock &lock)
