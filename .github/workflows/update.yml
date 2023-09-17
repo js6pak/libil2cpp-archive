@@ -7,6 +7,8 @@ on:
   push:
     branches: [ "master" ]
   workflow_dispatch:
+  schedule:
+    - cron: '00 12 * * 6'
 
 jobs:
   update:
