@@ -46,6 +46,9 @@ namespace posix
         { pthread_mutex_unlock(mutex); }
     };
 
+#if PLATFORM_POLL_FLAGS_OVERRIDE
+    #include "PlatformPosixHelpers.h"
+#else
 
     inline short PollFlagsToPollEvents(PollFlags flags)
     {
@@ -56,6 +59,8 @@ namespace posix
     {
         return (PollFlags)events;
     }
+
+#endif // PLATFORM_POLL_FLAGS_OVERRIDE
 
     int Poll(pollfd* handles, int numHandles, int timeout);
 }
