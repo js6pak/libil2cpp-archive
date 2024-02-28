@@ -449,6 +449,9 @@ namespace vm
         MetadataCache::Clear();
 #endif
 
+        // We need to do this before UninitializeGC because it uses (fixed) GC memory
+        Reflection::ClearStatics();
+
         // We need to do this after thread shut down because it is freeing GC fixed memory
         il2cpp::gc::GarbageCollector::UninitializeGC();
 
@@ -463,7 +466,6 @@ namespace vm
         os::Locale::UnInitialize();
         os::Uninitialize();
 
-        Reflection::ClearStatics();
 
 #if IL2CPP_ENABLE_RELOAD
         if (g_ClearMethodMetadataInitializedFlags != NULL)
