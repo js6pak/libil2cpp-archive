@@ -459,10 +459,6 @@ namespace vm
         if (method->method->parameters == NULL)
             return NULL;
 
-        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributesCacheFor, "-1 represents the return value. Need to emit custom attribute information for that.")
-        if (parameter->PositionImpl == -1)
-            return NULL;
-
         const MethodInfo* methodWithParameterAttributeInformation = method->method;
         if (method->method->is_inflated)
             methodWithParameterAttributeInformation = method->method->genericMethod->methodDefinition;
@@ -500,10 +496,6 @@ namespace vm
         Il2CppReflectionMethod* method = (Il2CppReflectionMethod*)parameter->MemberImpl;
 
         if (method->method->parameters == NULL)
-            return std::make_tuple<void*, void*>(NULL, NULL);
-
-        IL2CPP_NOT_IMPLEMENTED_NO_ASSERT(Reflection::GetCustomAttributesDataRangeFor, "-1 represents the return value. Need to emit custom attribute information for that.")
-        if (parameter->PositionImpl == -1)
             return std::make_tuple<void*, void*>(NULL, NULL);
 
         const MethodInfo* methodWithParameterAttributeInformation = method->method;
