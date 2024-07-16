@@ -1,27 +1,31 @@
 name: update
 
-permissions: 
+permissions:
   contents: write
 
 on:
   push:
     branches: [ "master" ]
+
   workflow_dispatch:
   schedule:
     - cron: '00 12 * * 6'
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.0.x
+          global-json-file: global.json
+
       - name: Build archive
         run: dotnet run -c Release
+
       - name: Push
         run: |
           cd ./archive

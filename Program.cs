@@ -2,7 +2,7 @@ using System.IO.Compression;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using Archiver;
-using AssetRipper.VersionUtilities;
+using AssetRipper.Primitives;
 using LibGit2Sharp;
 
 const string baseUrl = "https://unity.bepinex.dev/libil2cpp-source";
@@ -71,9 +71,11 @@ using (var repository = new Repository(repoPath))
 
         var message = context.Name;
 
-        if (context.Version.IsGreater(5, 2, 1))
+        var firstVersionWithSourceFiles = new UnityVersion(5, 3, 0, UnityVersionType.Beta, 2);
+
+        if (context.Version >= firstVersionWithSourceFiles)
         {
-            var path = Path.Combine(repoPath, "vm", context.Version.IsGreaterEqual(2020, 2, 0) ? "GlobalMetadata.cpp" : "MetadataCache.cpp");
+            var path = Path.Combine(repoPath, "vm", context.Version.GreaterThanOrEquals(2020, 2, 0) ? "GlobalMetadata.cpp" : "MetadataCache.cpp");
             var match = MetadataVersionRegex().Match(await File.ReadAllTextAsync(path));
             var metadataVersion = int.Parse(match.Groups["version"].Value);
 
