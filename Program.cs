@@ -47,16 +47,31 @@ Directory.CreateDirectory(repoPath);
 Repository.Init(repoPath);
 using (var repository = new Repository(repoPath))
 {
+    const string GitName = "github-actions[bot]";
+    const string GitEMail = $"{GitName}@users.noreply.github.com";
+
     foreach (var tag in repository.Tags) repository.Tags.Remove(tag);
     repository.Branches.Remove("archive");
     repository.Refs.UpdateTarget("HEAD", "refs/heads/archive");
+
+    {
+        var originalPath = ".github/workflows/schedule.yml.template";
+        var destinationPath = Path.Combine(repoPath, ".github/workflows/schedule.yml");
+
+        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+        File.Copy(originalPath, destinationPath);
+
+        Commands.Stage(repository, destinationPath);
+        var signature = new Signature(GitName, GitEMail, File.GetLastWriteTimeUtc(destinationPath));
+        repository.Commit("Add schedule workflow", signature, signature);
+    }
 
     foreach (var context in contexts)
     {
         foreach (var file in Directory.GetFiles(repoPath)) File.Delete(file);
         foreach (var directory in Directory.GetDirectories(repoPath))
         {
-            if (Path.GetFileName(directory) == ".git") continue;
+            if (Path.GetFileName(directory) is ".git" or ".github") continue;
             Directory.Delete(directory, true);
         }
 
@@ -84,7 +99,7 @@ using (var repository = new Repository(repoPath))
 
         Commands.Stage(repository, "*");
 
-        var signature = new Signature("github-actions[bot]", "github-actions[bot]@users.noreply.github.com", lastWriteTime);
+        var signature = new Signature(GitName, GitEMail, lastWriteTime);
 
         Commit commit;
 

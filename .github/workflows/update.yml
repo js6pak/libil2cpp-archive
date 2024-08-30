@@ -6,10 +6,7 @@ permissions:
 on:
   push:
     branches: [ "master" ]
-
-  workflow_dispatch:
-  schedule:
-    - cron: '00 12 * * 6'
+  workflow_call:
 
 jobs:
   update:
@@ -17,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref == 'refs/heads/archive' && 'master' || '' }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -31,5 +30,6 @@ jobs:
           cd ./archive
           git config --global user.name github-actions[bot]
           git config --global user.email github-actions[bot]@users.noreply.github.com
-          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          # HACK: A special PUSH_TOKEN is needed here because we can't allow the workflows permission in normal GITHUB_TOKEN
+          git remote add origin https://x-access-token:${{ secrets.PUSH_TOKEN }}@github.com/${{ github.repository }}
           git push --tags --force -u origin archive
