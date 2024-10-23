@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 #include "il2cpp-config.h"
-#include "vm/Type.h"
-
 struct Il2CppClass;
 struct Il2CppGenericClass;
 struct Il2CppGenericContext;
@@ -23,11 +21,7 @@ namespace vm
         static Il2CppGenericContext* GetContext(Il2CppGenericClass *gclass);
         static Il2CppClass* GetTypeDefinition(Il2CppGenericClass *gclass);
         static bool IsEnum(Il2CppGenericClass *gclass);
-
-        inline static bool IsValueType(Il2CppGenericClass* gclass)
-        {
-            return Type::IsValueType(gclass->type);
-        }
+        static bool IsValueType(Il2CppGenericClass *gclass);
 
         static void SetupEvents(Il2CppClass* genericInstanceType);
         static void SetupFields(Il2CppClass* genericInstanceType);
