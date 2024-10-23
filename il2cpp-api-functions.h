@@ -14,8 +14,6 @@ DO_API(void, il2cpp_set_config_utf16, (const Il2CppChar * executablePath));
 DO_API(void, il2cpp_set_config, (const char* executablePath));
 
 DO_API(void, il2cpp_set_memory_callbacks, (Il2CppMemoryCallbacks * callbacks));
-DO_API(void, il2cpp_memory_pool_set_region_size, (size_t size));
-DO_API(size_t, il2cpp_memory_pool_get_region_size, ());
 DO_API(const Il2CppImage*, il2cpp_get_corlib, ());
 DO_API(void, il2cpp_add_internal_call, (const char* name, Il2CppMethodPointer method));
 DO_API(Il2CppMethodPointer, il2cpp_resolve_icall, (const char* name));
@@ -291,8 +289,7 @@ DO_API(bool, il2cpp_is_debugger_attached, ());
 DO_API(void, il2cpp_register_debugger_agent_transport, (Il2CppDebuggerTransport * debuggerTransport));
 
 // Debug metadata
-DO_API(void, il2cpp_debug_foreach_method, (void(*func)(const MethodInfo* method, Il2CppMethodDebugInfo * methodDebugInfo, void* userData), void* userData));
-DO_API(bool, il2cpp_debug_get_method_info, (const MethodInfo * method, Il2CppMethodDebugInfo * methodDebugInfo));
+DO_API(bool, il2cpp_debug_get_method_info, (const MethodInfo*, Il2CppMethodDebugInfo * methodDebugInfo));
 
 // TLS module
 DO_API(void, il2cpp_unity_install_unitytls_interface, (const void* unitytlsInterfaceStruct));
