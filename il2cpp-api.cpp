@@ -32,7 +32,6 @@
 #include "utils/Exception.h"
 #include "utils/Logging.h"
 #include "utils/Memory.h"
-#include "utils/MemoryPool.h"
 #include "utils/StringUtils.h"
 #include "utils/Runtime.h"
 #include "utils/Environment.h"
@@ -145,16 +144,6 @@ void il2cpp_set_config(const char* executablePath)
 void il2cpp_set_memory_callbacks(Il2CppMemoryCallbacks* callbacks)
 {
     Memory::SetMemoryCallbacks(callbacks);
-}
-
-void il2cpp_memory_pool_set_region_size(size_t size)
-{
-    il2cpp::utils::MemoryPool::SetRegionSize(size);
-}
-
-size_t il2cpp_memory_pool_get_region_size()
-{
-    return il2cpp::utils::MemoryPool::GetRegionSize();
 }
 
 const Il2CppImage* il2cpp_get_corlib()
@@ -1415,13 +1404,6 @@ void il2cpp_register_debugger_agent_transport(Il2CppDebuggerTransport * debugger
 {
 #if IL2CPP_MONO_DEBUGGER
     il2cpp::utils::Debugger::RegisterTransport(debuggerTransport);
-#endif
-}
-
-void il2cpp_debug_foreach_method(void(*func)(const MethodInfo* method, Il2CppMethodDebugInfo* methodDebugInfo, void* userData), void* userData)
-{
-#if IL2CPP_ENABLE_NATIVE_STACKTRACES
-    return il2cpp::utils::NativeSymbol::GetAllManagedMethodsWithDebugInfo(func, userData);
 #endif
 }
 

@@ -65,7 +65,6 @@ namespace vm
     static void GetBitmapNoInit(Il2CppClass* klass, size_t* bitmap, size_t& maxSetBit, size_t parentOffset, const il2cpp::os::FastAutoLock* lockPtr);
     static Il2CppClass* ResolveGenericInstanceType(Il2CppClass*, const il2cpp::vm::TypeNameParseInfo&, TypeSearchFlags searchFlags);
     static void SetupVTable(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock);
-    static void AddStaticFieldData(Il2CppClass* klass);
 
     void Class::AllocateStaticData()
     {
@@ -1008,7 +1007,9 @@ namespace vm
         if (klass->static_fields_size)
         {
             klass->static_fields = il2cpp::gc::GarbageCollector::AllocateFixed(klass->static_fields_size, NULL);
-            AddStaticFieldData(klass);
+            s_ClassContext->m_staticFieldData.push_back(klass);
+
+            il2cpp_runtime_stats.class_static_data_size += klass->static_fields_size;
         }
         if (klass->thread_static_fields_size)
             klass->thread_static_fields_offset = il2cpp::vm::Thread::AllocThreadStaticData(klass->thread_static_fields_size);
@@ -1247,7 +1248,7 @@ namespace vm
                     {
                         if (method && method->is_inflated)
                         {
-                            Il2CppGenericMethod genericMethod = il2cpp::metadata::GenericMetadata::Inflate(*method->genericMethod, context);
+                            const Il2CppGenericMethod* genericMethod = il2cpp::metadata::GenericMetadata::Inflate(method->genericMethod, context);
                             method = il2cpp::metadata::GenericMethod::GetMethod(genericMethod);
                         }
                         if (method && method->klass && Class::IsGeneric(method->klass))
@@ -1259,7 +1260,7 @@ namespace vm
                     klass->vtable[i].method = method;
                     if (method != NULL)
                     {
-                        // For default interface methods on generic interfaces we need to ensure that their rgctx's are initialized
+                        // For default interface methods on generic interfaces we need to ensure that their rgctx's are initalized
                         if (method->klass != NULL && method->klass != klass && Method::IsDefaultInterfaceMethodOnGenericInstance(method))
                             Class::InitLocked(method->klass, lock);
 
@@ -1899,22 +1900,8 @@ namespace vm
         return klass->has_references;
     }
 
-    static void AddStaticFieldData(Il2CppClass* klass)
-    {
-        // The m_staticFieldData collect is used by liveness checking with the GC lock held
-        // Use the GC lock to add to this array
-
-        gc::GarbageCollector::CallWithAllocLockHeld([](void* klass) {
-            s_ClassContext->m_staticFieldData.push_back((Il2CppClass*)klass);
-            return (void*)nullptr;
-        }, klass);
-
-        il2cpp_runtime_stats.class_static_data_size += klass->static_fields_size;
-    }
-
     const il2cpp::utils::dynamic_array<Il2CppClass*>& Class::GetStaticFieldData()
     {
-        // Must be called with the GC lock held!
         return s_ClassContext->m_staticFieldData;
     }
 
@@ -2243,7 +2230,7 @@ namespace vm
 
     static bool is_generic_argument(Il2CppType* type)
     {
-        return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR;
+        return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_VAR;
     }
 
     Il2CppClass* Class::GenericParamGetBaseType(Il2CppClass* klass)
