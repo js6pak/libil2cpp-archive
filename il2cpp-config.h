@@ -83,7 +83,7 @@ typedef void (STDCALL *CultureInfoChangedCallback)(const Il2CppChar* arg);
     #define ALIGN_TYPE(val) __attribute__((aligned(val)))
     #define ALIGN_FIELD(val) ALIGN_TYPE(val)
 // GCC earlier than 12.2 are unable to compile properly with the always_inline attribute. Does not work with recursive functions.
-    #if (defined(__GNUC__) && IL2CPP_GCC_VERSION < 120200)
+    #if (defined(__GNUC__) && IL2CPP_GCC_VERSION <= 120200)
         #define IL2CPP_FORCE_INLINE inline
     #else
         #define IL2CPP_FORCE_INLINE inline __attribute__ ((always_inline))
