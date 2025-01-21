@@ -14,7 +14,6 @@ namespace Image
 #endif
     bool IsInManagedSection(void*ip);
     bool ManagedSectionExists();
-    void GetManagedSectionStartAndEnd(void*& start, void*& end);
     void SetManagedSectionStartAndEnd(void* start, void* end);
 }
 }
