@@ -19,13 +19,5 @@ namespace metadata
 
         return Il2CppGenericContextCompare::Compare(&m1->context, &m2->context);
     }
-
-    bool Il2CppGenericMethodCompare::Equals(const Il2CppGenericMethodKey& m1, const Il2CppGenericMethodKey& m2)
-    {
-        if (m1.methodDefinitionHandle != m2.methodDefinitionHandle)
-            return false;
-
-        return Il2CppGenericContextCompare::Compare(&m1.context, &m2.context);
-    }
 } /* namespace vm */
 } /* namespace il2cpp */
