@@ -71,7 +71,6 @@ typedef struct Il2CppTypeDefinition
 
     TypeIndex declaringTypeIndex;
     TypeIndex parentIndex;
-    TypeIndex elementTypeIndex; // we can probably remove this one. Only used for enums
 
     GenericContainerIndex genericContainerIndex;
 
@@ -187,7 +186,6 @@ typedef struct Il2CppPropertyDefinition
 
 typedef struct Il2CppStringLiteral
 {
-    uint32_t length;
     StringLiteralIndex dataIndex;
 } Il2CppStringLiteral;
 

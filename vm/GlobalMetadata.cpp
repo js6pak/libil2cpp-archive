@@ -76,6 +76,7 @@ static Il2CppMetadataGenericParameterHandle GetGenericParameterFromIndexInternal
 
 static void* s_GlobalMetadata;
 static const Il2CppGlobalMetadataHeader* s_GlobalMetadataHeader;
+static const Il2CppGenericMethod** s_GenericMethodTable = NULL;
 
 static const MethodInfo** s_MethodInfoDefinitionTable = NULL;
 
@@ -161,40 +162,28 @@ static const Il2CppParameterDefinition* GetParameterDefinitionFromIndex(const Il
     return parameters + index;
 }
 
-static Il2CppGenericMethod BuildGenericMethodFromIndex(GenericMethodIndex index)
+static const Il2CppGenericMethod* GetGenericMethodFromIndex(GenericMethodIndex index)
 {
     IL2CPP_ASSERT(index < s_Il2CppMetadataRegistration->methodSpecsCount);
 
-    const Il2CppMethodSpec* methodSpec = s_Il2CppMetadataRegistration->methodSpecs + index;
-    Il2CppGenericMethodKey key = il2cpp::vm::GlobalMetadata::BuildGenericMethodFromMethodSpec(methodSpec);
-
-    Il2CppGenericMethod gmethod = { 0 };
-    gmethod.methodDefinition = il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodHandle(key.methodDefinitionHandle);
-    gmethod.context = key.context;
-    return gmethod;
-}
-
-Il2CppGenericMethodKey il2cpp::vm::GlobalMetadata::BuildGenericMethodFromMethodSpec(const Il2CppMethodSpec* methodSpec)
-{
-    const Il2CppMetadataMethodDefinitionHandle handle = (const Il2CppMetadataMethodDefinitionHandle)GetMethodDefinitionFromIndex(methodSpec->methodDefinitionIndex);
-    const Il2CppGenericInst* classInst = NULL;
-    const Il2CppGenericInst* methodInst = NULL;
-    if (methodSpec->classIndexIndex != -1)
+    return il2cpp::utils::InitOnce(&s_GenericMethodTable[index], &il2cpp::vm::g_MetadataLock, [index](il2cpp::os::FastAutoLock& _)
     {
-        IL2CPP_ASSERT(methodSpec->classIndexIndex < s_Il2CppMetadataRegistration->genericInstsCount);
-        classInst = s_Il2CppMetadataRegistration->genericInsts[methodSpec->classIndexIndex];
-    }
-    if (methodSpec->methodIndexIndex != -1)
-    {
-        IL2CPP_ASSERT(methodSpec->methodIndexIndex < s_Il2CppMetadataRegistration->genericInstsCount);
-        methodInst = s_Il2CppMetadataRegistration->genericInsts[methodSpec->methodIndexIndex];
-    }
-
-    Il2CppGenericMethodKey key = { 0 };
-    key.methodDefinitionHandle = handle;
-    key.context.class_inst = classInst;
-    key.context.method_inst = methodInst;
-    return key;
+        const Il2CppMethodSpec* methodSpec = s_Il2CppMetadataRegistration->methodSpecs + index;
+        const MethodInfo* methodDefinition = il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodDefinitionIndex(methodSpec->methodDefinitionIndex);
+        const Il2CppGenericInst* classInst = NULL;
+        const Il2CppGenericInst* methodInst = NULL;
+        if (methodSpec->classIndexIndex != -1)
+        {
+            IL2CPP_ASSERT(methodSpec->classIndexIndex < s_Il2CppMetadataRegistration->genericInstsCount);
+            classInst = s_Il2CppMetadataRegistration->genericInsts[methodSpec->classIndexIndex];
+        }
+        if (methodSpec->methodIndexIndex != -1)
+        {
+            IL2CPP_ASSERT(methodSpec->methodIndexIndex < s_Il2CppMetadataRegistration->genericInstsCount);
+            methodInst = s_Il2CppMetadataRegistration->genericInsts[methodSpec->methodIndexIndex];
+        }
+        return il2cpp::vm::MetadataCache::GetGenericMethod(methodDefinition, classInst, methodInst);
+    });
 }
 
 static const MethodInfo* GetMethodInfoFromEncodedIndex(EncodedMethodIndex methodIndex)
@@ -206,7 +195,7 @@ static const MethodInfo* GetMethodInfoFromEncodedIndex(EncodedMethodIndex method
     switch (GetEncodedIndexType(methodIndex))
     {
         case kIl2CppMetadataUsageMethodRef:
-            return il2cpp::metadata::GenericMethod::GetMethod(BuildGenericMethodFromIndex(index));
+            return il2cpp::metadata::GenericMethod::GetMethod(GetGenericMethodFromIndex(index));
         case kIl2CppMetadataUsageMethodDef:
             return il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodDefinitionIndex(index);
         case kIl2CppMetadataUsageInvalid:
@@ -235,13 +224,18 @@ static Il2CppString* GetStringLiteralFromIndex(StringLiteralIndex index)
     if (index == kStringLiteralIndexInvalid)
         return NULL;
 
-    IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) < s_GlobalMetadataHeader->stringLiteralSize / sizeof(Il2CppStringLiteral) && "Invalid string literal index ");
+    IL2CPP_ASSERT(index >= 0 && static_cast<uint32_t>(index) + 1 < s_GlobalMetadataHeader->stringLiteralSize / sizeof(Il2CppStringLiteral) && "Invalid string literal index ");
 
     if (s_StringLiteralTable[index])
         return s_StringLiteralTable[index];
 
     const Il2CppStringLiteral* stringLiteral = (const Il2CppStringLiteral*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->stringLiteralOffset) + index;
-    Il2CppString* newString = il2cpp::vm::String::NewLen((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->stringLiteralDataOffset + stringLiteral->dataIndex, stringLiteral->length);
+    const Il2CppStringLiteral* nextLiteral = stringLiteral + 1;
+    const auto* startOfDataTable = static_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->stringLiteralDataOffset;
+    const auto* startOfStringData = startOfDataTable + stringLiteral->dataIndex;
+    const auto* startOfNextString = startOfDataTable + nextLiteral->dataIndex;
+    const auto stringLength = static_cast<uint32_t>(startOfNextString - startOfStringData);
+    Il2CppString* newString = il2cpp::vm::String::NewLen(startOfStringData, stringLength);
     Il2CppString* prevString = il2cpp::os::Atomic::CompareExchangePointer<Il2CppString>(s_StringLiteralTable + index, newString, NULL);
     if (prevString == NULL)
     {
@@ -338,7 +332,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 31);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 35);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiteralOffset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->imagesSize / sizeof(Il2CppImageDefinition);
@@ -352,6 +346,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
     s_TypeInfoTable = (Il2CppClass**)IL2CPP_CALLOC(s_Il2CppMetadataRegistration->typesCount, sizeof(Il2CppClass*));
     s_TypeInfoDefinitionTable = (Il2CppClass**)IL2CPP_CALLOC(s_GlobalMetadataHeader->typeDefinitionsSize / sizeof(Il2CppTypeDefinition), sizeof(Il2CppClass*));
     s_MethodInfoDefinitionTable = (const MethodInfo**)IL2CPP_CALLOC(s_GlobalMetadataHeader->methodsSize / sizeof(Il2CppMethodDefinition), sizeof(MethodInfo*));
+    s_GenericMethodTable = (const Il2CppGenericMethod**)IL2CPP_CALLOC(s_Il2CppMetadataRegistration->methodSpecsCount, sizeof(Il2CppGenericMethod*));
 
     ProcessIl2CppTypeDefinitions(InitializeTypeHandle, InitializeGenericParameterHandle);
 
@@ -500,8 +495,8 @@ void il2cpp::vm::GlobalMetadata::InitializeGenericMethodTable(Il2CppMethodTableM
     for (int32_t i = 0; i < s_Il2CppMetadataRegistration->genericMethodTableCount; i++)
     {
         const Il2CppGenericMethodFunctionsDefinitions* genericMethodIndices = s_Il2CppMetadataRegistration->genericMethodTable + i;
-        const Il2CppMethodSpec* methodSpec = s_Il2CppMetadataRegistration->methodSpecs + (genericMethodIndices->genericMethodIndex);
-        methodTableMap.insert(std::make_pair(metadata::Il2CppMethodSpecOrGenericMethod(methodSpec), &genericMethodIndices->indices));
+        const Il2CppGenericMethod* genericMethod = GetGenericMethodFromIndex(genericMethodIndices->genericMethodIndex);
+        methodTableMap.insert(std::make_pair(genericMethod, &genericMethodIndices->indices));
     }
 }
 
@@ -522,6 +517,7 @@ void il2cpp::vm::GlobalMetadata::Clear()
     ClearStringLiteralTable();
 
     FreeAndNull((void**)&s_MethodInfoDefinitionTable);
+    FreeAndNull((void**)&s_GenericMethodTable);
     FreeAndNull((void**)&s_TypeInfoTable);
     FreeAndNull((void**)&s_TypeInfoDefinitionTable);
 
@@ -675,6 +671,13 @@ Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromHandle(Il2CppMetadataTyp
 {
     const Il2CppTypeDefinition* typeDefinition = reinterpret_cast<const Il2CppTypeDefinition*>(handle);
     return GetTypeInfoFromTypeDefinitionIndex(GetIndexForTypeDefinitionInternal(typeDefinition));
+}
+
+Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromHandle_OnlyCached(Il2CppMetadataTypeHandle handle)
+{
+    const Il2CppTypeDefinition* typeDefinition = reinterpret_cast<const Il2CppTypeDefinition*>(handle);
+    TypeDefinitionIndex index = GetIndexForTypeDefinitionInternal(typeDefinition);
+    return s_TypeInfoDefinitionTable[index];
 }
 
 Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromType(const Il2CppType* type)
@@ -1176,9 +1179,9 @@ Il2CppMetadataGenericContainerHandle il2cpp::vm::GlobalMetadata::GetGenericConta
     return GetGenericContainerFromIndex(methodDefinition->genericContainerIndex);
 }
 
-Il2CppGenericMethod il2cpp::vm::GlobalMetadata::BuildGenericMethodFromTokenMethodTuple(const Il2CppTokenIndexMethodTuple* tuple)
+const Il2CppGenericMethod* il2cpp::vm::GlobalMetadata::GetGenericMethodFromTokenMethodTuple(const Il2CppTokenIndexMethodTuple* tuple)
 {
-    return BuildGenericMethodFromIndex(tuple->__genericMethodIndex);
+    return GetGenericMethodFromIndex(tuple->__genericMethodIndex);
 }
 
 static Il2CppMetadataGenericParameterHandle GetGenericParameterFromIndexInternal(GenericParameterIndex index)
@@ -1287,10 +1290,10 @@ const Il2CppType* il2cpp::vm::GlobalMetadata::GetTypeFromRgctxDefinition(const I
     return GetIl2CppTypeFromIndex(((const Il2CppRGCTXDefinitionData*)rgctxDef->data)->__typeIndex);
 }
 
-Il2CppGenericMethod il2cpp::vm::GlobalMetadata::BuildGenericMethodFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)
+const Il2CppGenericMethod* il2cpp::vm::GlobalMetadata::GetGenericMethodFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)
 {
     IL2CPP_ASSERT(rgctxDef->type == IL2CPP_RGCTX_DATA_METHOD);
-    return BuildGenericMethodFromIndex(((const Il2CppRGCTXDefinitionData*)rgctxDef->data)->__methodIndex);
+    return GetGenericMethodFromIndex(((const Il2CppRGCTXDefinitionData*)rgctxDef->data)->__methodIndex);
 }
 
 std::pair<const Il2CppType*, const MethodInfo*> il2cpp::vm::GlobalMetadata::GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)
@@ -1416,7 +1419,10 @@ static Il2CppClass* FromTypeDefinition(TypeDefinitionIndex index)
 
     typeInfo->castClass = typeInfo->element_class = typeInfo;
     if (typeInfo->enumtype)
-        typeInfo->castClass = typeInfo->element_class = il2cpp::vm::Class::FromIl2CppType(il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(typeDefinition->elementTypeIndex));
+    {
+        typeInfo->castClass = typeInfo->element_class = il2cpp::vm::Class::FromIl2CppType(il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(typeDefinition->parentIndex));
+        typeInfo->parent = il2cpp_defaults.enum_class;
+    }
 
     return typeInfo;
 }
