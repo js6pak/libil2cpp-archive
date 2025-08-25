@@ -1210,6 +1210,11 @@ int32_t il2cpp_thread_get_stack_depth(Il2CppThread *thread)
     return StackTrace::GetThreadStackDepth(thread);
 }
 
+void il2cpp_set_default_thread_affinity(int64_t affinity_mask)
+{
+    Thread::SetDefaultAffinityMask(affinity_mask);
+}
+
 void il2cpp_override_stack_backtrace(Il2CppBacktraceFunc stackBacktraceFunc)
 {
     il2cpp::os::StackTrace::OverrideStackBacktrace(stackBacktraceFunc);
