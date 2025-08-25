@@ -46,7 +46,7 @@ namespace os
         pthread_mutex_destroy(&m_PendingAPCsMutex);
     }
 
-    ErrorCode ThreadImpl::Run(Thread::StartFunc func, void* arg)
+    ErrorCode ThreadImpl::Run(Thread::StartFunc func, void* arg, int64_t affinityMask)
     {
         // Store state for run wrapper.
         m_StartFunc = func;
@@ -59,9 +59,28 @@ namespace os
             return kErrorCodeGenFailure;
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
-        // set create default core affinity
+#if IL2CPP_THREAD_HAS_CPU_SET
+        if (affinityMask != Thread::kThreadAffinityAll)
+        {
+            cpu_set_t cpuset;
+            CPU_ZERO(&cpuset);
+            for (int i = 0; i < 64; ++i)
+            {
+                if (affinityMask & (1 << i))
+                    CPU_SET(i, &cpuset);
+            }
+
+            pthread_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+        }
+        else
+        {
+            // set create default core affinity
+            pthread_attr_setaffinity_np(&attr, 0, NULL);
+        }
+#else
         pthread_attr_setaffinity_np(&attr, 0, NULL);
-#endif
+#endif // IL2CPP_THREAD_HAS_CPU_SET
+#endif // defined(IL2CPP_ENABLE_PLATFORM_THREAD_AFFINTY)
 
 
 #if defined(IL2CPP_ENABLE_PLATFORM_THREAD_STACKSIZE)
