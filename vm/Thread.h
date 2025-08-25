@@ -121,6 +121,8 @@ namespace vm
 
         static bool YieldInternal();
 
+        static void SetDefaultAffinityMask(int64_t affinityMask);
+
     private:
         static Il2CppThread* s_MainThread;
     };
