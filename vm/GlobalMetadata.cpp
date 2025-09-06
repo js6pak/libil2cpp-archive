@@ -368,7 +368,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 38);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 39);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiterals.offset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->images.count;
@@ -378,6 +378,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
         GetIndexSize(s_Il2CppMetadataRegistration->typesCount),
         GetIndexSize(s_GlobalMetadataHeader->typeDefinitions.count),
         GetIndexSize(s_GlobalMetadataHeader->genericContainers.count),
+        GetIndexSize(s_GlobalMetadataHeader->parameters.count),
     };
 
     // Pre-allocate these arrays so we don't need to lock when reading later.
