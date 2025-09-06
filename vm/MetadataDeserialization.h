@@ -10,6 +10,7 @@ struct SerializedIndexSizes
     int typeIndex;
     int typeDefinitionIndex;
     int genericContainerIndex;
+    int parameterIndex;
 };
 
 int GetIndexSize(const int numberOfElements);
