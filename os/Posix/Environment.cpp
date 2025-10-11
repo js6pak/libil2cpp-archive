@@ -65,7 +65,7 @@ namespace os
             return buf;
         }
 
-        return {};
+        return NULL;
     }
 
     std::string Environment::GetOsVersionString()

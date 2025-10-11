@@ -221,65 +221,46 @@ namespace vm
             const Il2CppGenericInst* oGenericInst = oGenericClass->context.class_inst;
             Il2CppMetadataGenericContainerHandle genericContainer = Class::GetGenericContainer(klass);
 
-            Il2CppClass* genericTypeDefintion = GenericClass::GetTypeDefinition(genericClass);
-            Class::Init(genericTypeDefintion);
-            const uint16_t* genericContainerFlags = genericTypeDefintion->genericParameterFlags->flags;
-
             IL2CPP_ASSERT(oGenericInst->type_argc == genericInst->type_argc);
-            IL2CPP_ASSERT(genericTypeDefintion->genericParameterFlags->count == genericInst->type_argc);
 
-            const Il2CppType** genericArgs = genericInst->type_argv;
-            const Il2CppType** oGenericArgs = oGenericInst->type_argv;
-
-            uint32_t genericArgCount = genericInst->type_argc;
-            uint32_t i = 0;
-            do
+            for (uint32_t i = 0; i < genericInst->type_argc; ++i)
             {
-                uint16_t flags = genericContainerFlags[i];
-                int32_t parameterVariance = flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_VARIANCE_MASK;
-                Il2CppClass* genericParameterType = Class::FromIl2CppType(genericArgs[i]);
-                Il2CppClass* oGenericParameterType = Class::FromIl2CppType(oGenericArgs[i]);
+                uint16_t flags = MetadataCache::GetGenericParameterFlags(MetadataCache::GetGenericParameterFromIndex(genericContainer, i));
+                const int32_t parameterVariance = flags & IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_VARIANCE_MASK;
+                Il2CppClass* genericParameterType = Class::FromIl2CppType(genericInst->type_argv[i]);
+                Il2CppClass* oGenericParameterType = Class::FromIl2CppType(oGenericInst->type_argv[i]);
 
-                // This is intentionally a bitwise OR - these checks are cheap reads and are independent
-                if (Class::IsValuetype(genericParameterType) | Class::IsValuetype(oGenericParameterType))
-                    parameterVariance = IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT;
-
-                switch (parameterVariance)
+                if (parameterVariance == IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT || Class::IsValuetype(genericParameterType) || Class::IsValuetype(oGenericParameterType))
                 {
-                    case IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_NON_VARIANT:
-                        if (genericParameterType != oGenericParameterType)
+                    if (genericParameterType != oGenericParameterType)
+                    {
+                        if (implementingClass->rank || implementingClass->declaringType == il2cpp_defaults.array_class)
                         {
-                            if (implementingClass->rank || implementingClass->declaringType == il2cpp_defaults.array_class)
-                            {
-                                // For arrays or System.Array/InternalEnumerator<T> we need to follow the array variance rules when looking for an
-                                // generic interface i.e. Int32[] should be assignable to IEnumerable<UInt32>
-                                IL2CPP_ASSERT(implementingClass->rank || strcmp(implementingClass->name, "InternalEnumerator`1") == 0);
+                            // For arrays or System.Array/InternalEnumerator<T> we need to follow the array variance rules when looking for an
+                            // generic interface i.e. Int32[] should be assignable to IEnumerable<UInt32>
+                            IL2CPP_ASSERT(implementingClass->rank || strcmp(implementingClass->name, "InternalEnumerator`1") == 0);
 
-                                if (metadata::ArrayMetadata::GetArrayVarianceReducedType(genericParameterType) != metadata::ArrayMetadata::GetArrayVarianceReducedType(oGenericParameterType))
-                                    return false;
-                            }
-                            else
-                            {
+                            if (metadata::ArrayMetadata::GetArrayVarianceReducedType(genericParameterType) != metadata::ArrayMetadata::GetArrayVarianceReducedType(oGenericParameterType))
                                 return false;
-                            }
                         }
-                        break;
-                    case IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_COVARIANT:
-                        if (!Class::IsAssignableFrom(genericParameterType, oGenericParameterType))
+                        else
+                        {
                             return false;
-                        break;
-                    case IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_CONTRAVARIANT:
-                        if (!Class::IsAssignableFrom(oGenericParameterType, genericParameterType))
-                            return false;
-                        break;
-                    default:
-                        IL2CPP_ASSERT(false && "Invalid generic parameter variance");
+                        }
+                    }
+                }
+                else if (parameterVariance == IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_COVARIANT)
+                {
+                    if (!Class::IsAssignableFrom(genericParameterType, oGenericParameterType))
                         return false;
                 }
-
-                i++;
+                else
+                {
+                    IL2CPP_ASSERT(parameterVariance == IL2CPP_GENERIC_PARAMETER_ATTRIBUTE_CONTRAVARIANT);
+                    if (!Class::IsAssignableFrom(oGenericParameterType, genericParameterType))
+                        return false;
+                }
             }
-            while (i < genericArgCount);
 
             return true;
         }
