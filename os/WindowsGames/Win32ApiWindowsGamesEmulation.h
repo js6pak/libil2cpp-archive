@@ -51,6 +51,28 @@ extern "C"
     {
         return FALSE;
     }
+
+#if IL2CPP_TARGET_GAMECORE_XBOX
+    inline DWORD WINAPI GetTempPathW(DWORD nBufferLength, LPWSTR lpBuffer)
+    {
+        if (nBufferLength > 3)
+            wcscpy(lpBuffer, L"T:\\");
+        return 3;
+    }
+
+    inline DWORD WINAPI GetTempPath2W(DWORD nBufferLength, LPWSTR lpBuffer)
+    {
+        return GetTempPathW(nBufferLength, lpBuffer);
+    }
+
+    inline int LoadStringW(HINSTANCE hInstance, UINT UID, LPWSTR lpBuffer, int cchBufferMax)
+    {
+        if (cchBufferMax > 1)
+            lpBuffer[0] = L'\0';
+        return 0;
+    }
+
+#endif
 }
 
 
