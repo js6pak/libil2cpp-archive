@@ -122,12 +122,12 @@ Il2CppTypeDefinition DeserializeTypeDefinition(const Il2CppMetadataTypeHandle ha
 
             Read<FieldIndex>(ptr), // fieldStart
             Read<MethodIndex>(ptr), // methodStart
-            Read<EventIndex>(ptr), // eventStart
-            Read<PropertyIndex>(ptr), // propertyStart
-            Read<NestedTypeIndex>(ptr), // nestedTypesStart
-            Read<InterfacesIndex>(ptr), // interfacesStart
+            ReadIndex<EventIndex>(ptr, sizes.eventIndex), // eventStart
+            ReadIndex<PropertyIndex>(ptr, sizes.propertyIndex), // propertyStart
+            ReadIndex<NestedTypeIndex>(ptr, sizes.nestedTypeIndex), // nestedTypesStart
+            ReadIndex<InterfacesIndex>(ptr, sizes.interfacesIndex), // interfacesStart
             Read<VTableIndex>(ptr), // vtableStart
-            Read<InterfacesIndex>(ptr), // interfaceOffsetsStart
+            ReadIndex<InterfacesIndex>(ptr, sizes.interfacesIndex), // interfaceOffsetsStart
 
             Read<uint16_t>(ptr), // method_count
             Read<uint16_t>(ptr), // property_count
@@ -140,6 +140,14 @@ Il2CppTypeDefinition DeserializeTypeDefinition(const Il2CppMetadataTypeHandle ha
 
             Read<uint32_t>(ptr), // bitfield
             Read<uint32_t>(ptr), // token
+    };
+}
+
+Il2CppInlineArrayLength DeserializeInlineArrayLength(const char* ptr, const SerializedIndexSizes& sizes)
+{
+    return Il2CppInlineArrayLength {
+            ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
+            Read<int32_t>(ptr), // length
     };
 }
 

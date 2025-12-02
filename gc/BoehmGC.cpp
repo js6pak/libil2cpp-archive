@@ -167,6 +167,7 @@ void il2cpp::gc::GarbageCollector::UninitializeGC()
     s_GCInitialized = false;
     default_push_other_roots = NULL;
     s_Roots.clear();
+    ephemeron_list = NULL;
 #endif
 }
 
@@ -758,6 +759,11 @@ bool il2cpp::gc::GarbageCollector::EphemeronArrayAdd(Il2CppObject* obj)
 
     GC_call_with_alloc_lock(ephemeron_array_add, item);
     return true;
+}
+
+bool il2cpp::gc::GarbageCollector::IsHeapPtr(const void* address)
+{
+    return GC_is_heap_ptr(address);
 }
 
 #endif

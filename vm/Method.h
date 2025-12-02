@@ -25,7 +25,9 @@ namespace vm
         static std::string GetFullName(const MethodInfo* method);
         static bool IsGeneric(const MethodInfo *method);
         static bool IsInflated(const MethodInfo *method);
+        static bool IsStatic(const MethodInfo *method);
         static bool IsInstance(const MethodInfo *method);
+        static bool IsVirtual(const MethodInfo *method);
         static bool IsGenericInstance(const MethodInfo *method);
         static bool IsGenericInstanceMethod(const MethodInfo *method);
         static bool IsDefaultInterfaceMethodOnGenericInstance(const MethodInfo* method);
@@ -45,9 +47,14 @@ namespace vm
         static const char* GetParameterDefaultValue(const MethodInfo *method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
         static uint32_t GetParameterToken(const MethodInfo* method, int32_t parameterPosition);
         static const MethodInfo* GetAmbiguousMethodInfo();
+        static const MethodInfo* GetStaticAmbiguousMethodInfo();
         static const MethodInfo* GetEntryPointNotFoundMethodInfo();
+        static const MethodInfo* GetStaticEntryPointNotFoundMethodInfo();
         static bool IsAmbiguousMethodInfo(const MethodInfo* method);
+        static bool IsAmbiguousMethodClass(const Il2CppClass* klass);
         static bool IsEntryPointNotFoundMethodInfo(const MethodInfo* method);
+        static bool IsEntryPointNotFoundMethodClass(const Il2CppClass* klass);
+
         static bool HasFullGenericSharingSignature(const MethodInfo* method);
     };
 } /* namespace vm */
