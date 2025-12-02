@@ -12,6 +12,7 @@
 #if IL2CPP_TARGET_LINUX
 #include <sys/prctl.h>
 #include <sys/resource.h>
+#include <signal.h>
 #endif
 
 #include "ThreadImpl.h"
