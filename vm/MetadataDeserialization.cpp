@@ -25,9 +25,20 @@ Il2CppEventDefinition DeserializeEventDefinition(const char* ptr, const Serializ
     return Il2CppEventDefinition {
             Read<StringIndex>(ptr), // nameIndex
             ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
-            Read<MethodIndex>(ptr), // add
-            Read<MethodIndex>(ptr), // remove
-            Read<MethodIndex>(ptr), // raise
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // add
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // remove
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // raise
+            Read<uint32_t>(ptr), // token
+    };
+}
+
+Il2CppPropertyDefinition DeserializePropertyDefinition(const char* ptr, const SerializedIndexSizes& sizes)
+{
+    return Il2CppPropertyDefinition {
+            Read<StringIndex>(ptr), // nameIndex
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // get
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // set
+            Read<uint32_t>(ptr), // attrs
             Read<uint32_t>(ptr), // token
     };
 }
@@ -121,7 +132,7 @@ Il2CppTypeDefinition DeserializeTypeDefinition(const Il2CppMetadataTypeHandle ha
             Read<uint32_t>(ptr), // flags
 
             Read<FieldIndex>(ptr), // fieldStart
-            Read<MethodIndex>(ptr), // methodStart
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // methodStart
             ReadIndex<EventIndex>(ptr, sizes.eventIndex), // eventStart
             ReadIndex<PropertyIndex>(ptr, sizes.propertyIndex), // propertyStart
             ReadIndex<NestedTypeIndex>(ptr, sizes.nestedTypeIndex), // nestedTypesStart
@@ -171,7 +182,7 @@ Il2CppImageDefinition DeserializeImageDefinition(const char* ptr, const Serializ
             ReadIndex<TypeDefinitionIndex>(ptr, sizes.typeDefinitionIndex), // exportedTypeStart
             Read<uint32_t>(ptr), // exportedTypeCount
 
-            Read<MethodIndex>(ptr), // entryPointIndex
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // entryPointIndex
             Read<uint32_t>(ptr), // token
 
             Read<CustomAttributeIndex>(ptr), // customAttributeStart

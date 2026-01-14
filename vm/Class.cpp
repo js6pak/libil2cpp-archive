@@ -1626,6 +1626,21 @@ namespace vm
         klass->is_blittable = true;
     }
 
+    static void SetupGenericParameterFlags(Il2CppClass* klass)
+    {
+        IL2CPP_ASSERT(Class::IsGenericTypeDefinition(klass));
+
+        auto containerHandle = Class::GetGenericContainer(klass);
+        auto genericParameterCount = MetadataCache::GetGenericContainerCount(containerHandle);
+
+        GenericParameterFlags* flags = (GenericParameterFlags*)MetadataMalloc(sizeof(GenericParameterFlags) + genericParameterCount * sizeof(uint16_t));
+        flags->count = genericParameterCount;
+        for (uint32_t i = 0; i < flags->count; i++)
+            flags->flags[i] = MetadataCache::GetGenericParameterFlags(MetadataCache::GetGenericParameterFromIndex(containerHandle, i));
+
+        klass->genericParameterFlags = flags;
+    }
+
     bool Class::InitLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
         if (klass->initialized)
@@ -1720,6 +1735,10 @@ namespace vm
                         Class::SetClassInitializationError(klass, exc);
                 }
             }
+        }
+        else if (Class::IsGenericTypeDefinition(klass))
+        {
+            SetupGenericParameterFlags(klass);
         }
 
         Class::PublishInitialized(klass);
