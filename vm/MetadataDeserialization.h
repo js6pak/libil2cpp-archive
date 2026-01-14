@@ -15,6 +15,7 @@ struct SerializedIndexSizes
     int eventIndex;
     int propertyIndex;
     int nestedTypeIndex;
+    int methodIndex;
 };
 
 int GetIndexSize(const int numberOfElements);
@@ -64,3 +65,4 @@ Il2CppImageDefinition DeserializeImageDefinition(const char* ptr, const Serializ
 Il2CppWindowsRuntimeTypeNamePair DeserializeWindowsRuntimeTypeNamePair(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppInlineArrayLength DeserializeInlineArrayLength(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppFieldRef DeserializeFieldRef(const char* ptr, const SerializedIndexSizes& sizes);
+Il2CppPropertyDefinition DeserializePropertyDefinition(const char* ptr, const SerializedIndexSizes& sizes);

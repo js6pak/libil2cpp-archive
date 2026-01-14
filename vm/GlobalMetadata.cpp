@@ -161,14 +161,13 @@ static const Il2CppEventDefinition GetEventDefinitionFromIndex(const Il2CppImage
     return DeserializeEventDefinition(events + index * serializedSize, s_SerializedIndexSizes);
 }
 
-static const Il2CppPropertyDefinition* GetPropertyDefinitionFromIndex(const Il2CppImage* image, PropertyIndex index)
+static Il2CppPropertyDefinition GetPropertyDefinitionFromIndex(const Il2CppImage* image, const PropertyIndex index)
 {
-    IL2CPP_ASSERT(
-        index >= 0
-        && index <= s_GlobalMetadataHeader->properties.size / static_cast<int32_t>(sizeof(Il2CppPropertyDefinition))
-    );
-    const Il2CppPropertyDefinition* properties = (const Il2CppPropertyDefinition*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->properties.offset);
-    return properties + index;
+    const auto numProperties = s_GlobalMetadataHeader->properties.count;
+    const auto serializedSize = s_GlobalMetadataHeader->properties.size / numProperties;
+    IL2CPP_ASSERT(index >= 0 && index < numProperties);
+    const auto* properties = static_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->properties.offset;
+    return DeserializePropertyDefinition(properties + index * serializedSize, s_SerializedIndexSizes);
 }
 
 static const Il2CppParameterDefinition GetParameterDefinitionFromIndex(const Il2CppImage* image, const ParameterIndex index)
@@ -375,7 +374,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 104);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 105);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiterals.offset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->images.count;
@@ -390,6 +389,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
         GetIndexSize(s_GlobalMetadataHeader->events.count),
         GetIndexSize(s_GlobalMetadataHeader->properties.count),
         GetIndexSize(s_GlobalMetadataHeader->nestedTypes.count),
+        GetIndexSize(s_GlobalMetadataHeader->methods.count),
     };
 
     // Pre-allocate these arrays so we don't need to lock when reading later.
@@ -1361,14 +1361,14 @@ Il2CppMetadataPropertyInfo il2cpp::vm::GlobalMetadata::GetPropertyInfo(const Il2
     IL2CPP_ASSERT(index >= 0 && index < typeDefinition.property_count);
     IL2CPP_ASSERT(typeDefinition.propertyStart != kPropertyIndexInvalid);
 
-    const Il2CppPropertyDefinition* propertyDefinition = GetPropertyDefinitionFromIndex(klass->image, typeDefinition.propertyStart + index);
+    const Il2CppPropertyDefinition propertyDefinition = GetPropertyDefinitionFromIndex(klass->image, typeDefinition.propertyStart + index);
 
     return {
-            GetStringFromIndex(propertyDefinition->nameIndex),
-            propertyDefinition->get != kMethodIndexInvalid ? klass->methods[propertyDefinition->get] : NULL,
-            propertyDefinition->set != kMethodIndexInvalid ? klass->methods[propertyDefinition->set] : NULL,
-            propertyDefinition->attrs,
-            propertyDefinition->token,
+            GetStringFromIndex(propertyDefinition.nameIndex),
+            propertyDefinition.get != kMethodIndexInvalid ? klass->methods[propertyDefinition.get] : NULL,
+            propertyDefinition.set != kMethodIndexInvalid ? klass->methods[propertyDefinition.set] : NULL,
+            propertyDefinition.attrs,
+            propertyDefinition.token,
     };
 }
 
