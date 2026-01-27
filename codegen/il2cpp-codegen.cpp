@@ -895,7 +895,7 @@ RuntimeClass* il2cpp_codegen_inflate_generic_class(RuntimeClass* genericClassDef
 {
     IL2CPP_ASSERT(genericClassDefinition->is_generic);
 
-    const uint32_t genericParameterCount = il2cpp::vm::MetadataCache::GetGenericContainerCount(genericClassDefinition->genericContainerHandle);
+    const uint16_t genericParameterCount = il2cpp::vm::MetadataCache::GetGenericContainerCount(genericClassDefinition->genericContainerHandle);
 
     const RuntimeType** types = (const RuntimeType**)alloca(sizeof(RuntimeType*) * genericParameterCount);
     types[0] = p1;

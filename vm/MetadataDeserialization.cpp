@@ -66,23 +66,23 @@ Il2CppParameterDefaultValue DeserializeParameterDefaultValue(const char* ptr, co
     return Il2CppParameterDefaultValue {
             ReadIndex<ParameterIndex>(ptr, sizes.parameterIndex), // parameterIndex
             ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
-            Read<DefaultValueDataIndex>(ptr), // dataIndex
+            ReadIndex<DefaultValueDataIndex>(ptr, sizes.defaultValueDataIndex), // dataIndex
     };
 }
 
 Il2CppFieldDefaultValue DeserializeFieldDefaultValue(const char* ptr, const SerializedIndexSizes& sizes)
 {
     return Il2CppFieldDefaultValue {
-            Read<FieldIndex>(ptr), // fieldIndex
+            ReadIndex<FieldIndex>(ptr, sizes.fieldIndex), // fieldIndex
             ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
-            Read<DefaultValueDataIndex>(ptr), // dataIndex
+            ReadIndex<DefaultValueDataIndex>(ptr, sizes.defaultValueDataIndex), // dataIndex
     };
 }
 
 Il2CppFieldMarshaledSize DeserializeFieldMarshaledSize(const char* ptr, const SerializedIndexSizes& sizes)
 {
     return Il2CppFieldMarshaledSize {
-            Read<FieldIndex>(ptr), // fieldIndex
+            ReadIndex<FieldIndex>(ptr, sizes.fieldIndex), // fieldIndex
             ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
             Read<int32_t>(ptr), // size
     };
@@ -131,7 +131,7 @@ Il2CppTypeDefinition DeserializeTypeDefinition(const Il2CppMetadataTypeHandle ha
 
             Read<uint32_t>(ptr), // flags
 
-            Read<FieldIndex>(ptr), // fieldStart
+            ReadIndex<FieldIndex>(ptr, sizes.fieldIndex), // fieldStart
             ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // methodStart
             ReadIndex<EventIndex>(ptr, sizes.eventIndex), // eventStart
             ReadIndex<PropertyIndex>(ptr, sizes.propertyIndex), // propertyStart
@@ -166,7 +166,7 @@ Il2CppFieldRef DeserializeFieldRef(const char* ptr, const SerializedIndexSizes& 
 {
     return Il2CppFieldRef {
             ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
-            Read<FieldIndex>(ptr), // fieldIndex
+            ReadIndex<FieldIndex>(ptr, sizes.fieldIndex), // fieldIndex
     };
 }
 
@@ -201,6 +201,18 @@ Il2CppGenericParameter DeserializeGenericParameter(const Il2CppMetadataGenericPa
             Read<int16_t>(ptr), // constraintsCount
             Read<uint16_t>(ptr), // num
             Read<uint16_t>(ptr), // flags
+    };
+}
+
+Il2CppGenericContainer DeserializeGenericContainer(const Il2CppMetadataGenericContainerHandle handle, const SerializedIndexSizes& sizes)
+{
+    const auto* ptr = reinterpret_cast<const char*>(handle);
+
+    return Il2CppGenericContainer {
+            Read<int32_t>(ptr), // ownerIndex
+            Read<uint16_t>(ptr), // type_argc
+            Read<uint8_t>(ptr), // is_method
+            ReadIndex<GenericParameterIndex>(ptr, sizes.genericParameterIndex), // genericParameterStart
     };
 }
 

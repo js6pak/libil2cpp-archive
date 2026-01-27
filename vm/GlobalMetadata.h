@@ -103,7 +103,7 @@ namespace vm
         static Il2CppMetadataGenericParameterHandle GetGenericParameterFromIndex(Il2CppMetadataGenericContainerHandle handle, GenericContainerParameterIndex index);
         static const Il2CppType* GetGenericParameterConstraintFromIndex(Il2CppMetadataGenericParameterHandle handle, GenericParameterConstraintIndex index);
         static void MakeGenericArgType(Il2CppMetadataGenericContainerHandle containerHandle, Il2CppMetadataGenericParameterHandle paramHandle, Il2CppType* arg);
-        static uint32_t GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle);
+        static uint16_t GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle);
         static bool GetGenericContainerIsMethod(Il2CppMetadataGenericContainerHandle handle);
         static const char* GetGenericParameterName(Il2CppMetadataGenericParameterHandle handle);
         static Il2CppGenericParameterInfo GetGenericParameterInfo(Il2CppMetadataGenericParameterHandle handle);

@@ -267,9 +267,9 @@ typedef struct Il2CppGenericContainer
 {
     /* index of the generic type definition or the generic method definition corresponding to this container */
     int32_t ownerIndex; // either index into Il2CppClass metadata array or Il2CppMethodDefinition array
-    int32_t type_argc;
+    uint16_t type_argc;
     /* If true, we're a generic method, otherwise a generic type definition. */
-    int32_t is_method;
+    uint8_t is_method;
     /* Our type parameters. */
     GenericParameterIndex genericParameterStart;
 } Il2CppGenericContainer;

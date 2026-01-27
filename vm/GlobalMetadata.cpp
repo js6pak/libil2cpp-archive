@@ -374,7 +374,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 105);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 106);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiterals.offset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->images.count;
@@ -382,6 +382,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_SerializedIndexSizes = SerializedIndexSizes {
         GetIndexSize(s_Il2CppMetadataRegistration->typesCount),
+        GetIndexSize(s_GlobalMetadataHeader->genericParameters.count),
         GetIndexSize(s_GlobalMetadataHeader->genericContainers.count),
         GetIndexSize(s_GlobalMetadataHeader->typeDefinitions.count),
         GetIndexSize(s_GlobalMetadataHeader->parameters.count),
@@ -389,6 +390,8 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
         GetIndexSize(s_GlobalMetadataHeader->events.count),
         GetIndexSize(s_GlobalMetadataHeader->properties.count),
         GetIndexSize(s_GlobalMetadataHeader->nestedTypes.count),
+        GetIndexSize(s_GlobalMetadataHeader->fields.count),
+        GetIndexSize(s_GlobalMetadataHeader->fieldAndParameterDefaultValueData.count),
         GetIndexSize(s_GlobalMetadataHeader->methods.count),
     };
 
@@ -1399,23 +1402,18 @@ uint32_t il2cpp::vm::GlobalMetadata::GetReturnParameterToken(Il2CppMetadataMetho
     return methodDefinition.returnParameterToken;
 }
 
-static const Il2CppGenericContainer* GetGenericContainerFromIndexInternal(GenericContainerIndex index)
+static Il2CppMetadataGenericContainerHandle GetGenericContainerFromIndex(GenericContainerIndex index)
 {
     if (index == kGenericContainerIndexInvalid)
         return NULL;
 
-    IL2CPP_ASSERT(
-        index >= 0
-        && index <= s_GlobalMetadataHeader->genericContainers.size / static_cast<int32_t>(sizeof(Il2CppGenericContainer))
-    );
-    const Il2CppGenericContainer* genericContainers = (const Il2CppGenericContainer*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->genericContainers.offset);
-    return genericContainers + index;
-}
+    const auto genericContainersCount = s_GlobalMetadataHeader->genericContainers.count;
+    IL2CPP_ASSERT(index >= 0 && index < genericContainersCount);
 
-static Il2CppMetadataGenericContainerHandle GetGenericContainerFromIndex(GenericContainerIndex index)
-{
-    const Il2CppGenericContainer* container = GetGenericContainerFromIndexInternal(index);
-    return reinterpret_cast<Il2CppMetadataGenericContainerHandle>(container);
+    const auto serializedSize = s_GlobalMetadataHeader->genericContainers.size / genericContainersCount;
+    const auto* genericContainers = reinterpret_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->genericContainers.offset;
+
+    return reinterpret_cast<Il2CppMetadataGenericContainerHandle>(genericContainers + index * serializedSize);
 }
 
 Il2CppMetadataGenericContainerHandle il2cpp::vm::GlobalMetadata::GetGenericContainerFromGenericClass(const Il2CppGenericClass* genericClass)
@@ -1459,45 +1457,47 @@ Il2CppMetadataGenericParameterHandle il2cpp::vm::GlobalMetadata::GetGenericParam
 
 Il2CppClass* il2cpp::vm::GlobalMetadata::GetContainerDeclaringType(Il2CppMetadataGenericContainerHandle handle)
 {
-    const Il2CppGenericContainer* genericContainer = reinterpret_cast<const Il2CppGenericContainer*>(handle);
+    const Il2CppGenericContainer genericContainer = DeserializeGenericContainer(handle, s_SerializedIndexSizes);
 
-    if (genericContainer->is_method)
-        return GetMethodInfoFromMethodDefinitionIndex(genericContainer->ownerIndex)->klass;
+    if (genericContainer.is_method)
+        return GetMethodInfoFromMethodDefinitionIndex(genericContainer.ownerIndex)->klass;
 
-    return GetTypeInfoFromTypeDefinitionIndex(genericContainer->ownerIndex);
+    return GetTypeInfoFromTypeDefinitionIndex(genericContainer.ownerIndex);
 }
 
 Il2CppClass* il2cpp::vm::GlobalMetadata::GetParameterDeclaringType(Il2CppMetadataGenericParameterHandle handle)
 {
     const Il2CppGenericParameter genericParameter = DeserializeGenericParameter(handle, s_SerializedIndexSizes);
 
-    const Il2CppGenericContainer* genericContainer =  GetGenericContainerFromIndexInternal(genericParameter.ownerIndex);
+    const Il2CppMetadataGenericContainerHandle genericContainerHandle =  GetGenericContainerFromIndex(genericParameter.ownerIndex);
+    const Il2CppGenericContainer genericContainer = DeserializeGenericContainer(genericContainerHandle, s_SerializedIndexSizes);
 
-    if (genericContainer->is_method)
-        return GetMethodInfoFromMethodDefinitionIndex(genericContainer->ownerIndex)->klass;
+    if (genericContainer.is_method)
+        return GetMethodInfoFromMethodDefinitionIndex(genericContainer.ownerIndex)->klass;
 
-    return GetTypeInfoFromTypeDefinitionIndex(genericContainer->ownerIndex);
+    return GetTypeInfoFromTypeDefinitionIndex(genericContainer.ownerIndex);
 }
 
 const MethodInfo* il2cpp::vm::GlobalMetadata::GetParameterDeclaringMethod(Il2CppMetadataGenericParameterHandle handle)
 {
     const Il2CppGenericParameter genericParameter = DeserializeGenericParameter(handle, s_SerializedIndexSizes);
 
-    const Il2CppGenericContainer* genericContainer =  GetGenericContainerFromIndexInternal(genericParameter.ownerIndex);
+    const Il2CppMetadataGenericContainerHandle genericContainerHandle =  GetGenericContainerFromIndex(genericParameter.ownerIndex);
+    const Il2CppGenericContainer genericContainer = DeserializeGenericContainer(genericContainerHandle, s_SerializedIndexSizes);
 
-    if (genericContainer->is_method)
-        return GetMethodInfoFromMethodDefinitionIndex(genericContainer->ownerIndex);
+    if (genericContainer.is_method)
+        return GetMethodInfoFromMethodDefinitionIndex(genericContainer.ownerIndex);
 
     return NULL;
 }
 
 Il2CppMetadataGenericParameterHandle il2cpp::vm::GlobalMetadata::GetGenericParameterFromIndex(Il2CppMetadataGenericContainerHandle handle, GenericContainerParameterIndex index)
 {
-    const Il2CppGenericContainer* genericContainer = reinterpret_cast<const Il2CppGenericContainer*>(handle);
+    const auto genericContainer = DeserializeGenericContainer(handle, s_SerializedIndexSizes);
 
-    IL2CPP_ASSERT(index >= 0 && index < genericContainer->type_argc);
+    IL2CPP_ASSERT(index >= 0 && index < genericContainer.type_argc);
 
-    return GetGenericParameterFromIndexInternal(genericContainer->genericParameterStart + index);
+    return GetGenericParameterFromIndexInternal(genericContainer.genericParameterStart + index);
 }
 
 const Il2CppType* il2cpp::vm::GlobalMetadata::GetGenericParameterConstraintFromIndex(Il2CppMetadataGenericParameterHandle handle, const GenericParameterConstraintIndex index)
@@ -1718,25 +1718,30 @@ const Il2CppType* il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(TypeIndex i
     return s_Il2CppMetadataRegistration->types[index];
 }
 
-uint32_t il2cpp::vm::GlobalMetadata::GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle)
+uint16_t il2cpp::vm::GlobalMetadata::GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle)
 {
-    const Il2CppGenericContainer* container = reinterpret_cast<const Il2CppGenericContainer*>(handle);
-    return container != NULL ? container->type_argc : 0;
+    if (handle == NULL)
+        return 0;
+
+    const Il2CppGenericContainer container = DeserializeGenericContainer(handle, s_SerializedIndexSizes);
+    return container.type_argc;
 }
 
 void il2cpp::vm::GlobalMetadata::MakeGenericArgType(Il2CppMetadataGenericContainerHandle containerHandle, Il2CppMetadataGenericParameterHandle paramHandle, Il2CppType* arg)
 {
-    const Il2CppGenericContainer* container = reinterpret_cast<const Il2CppGenericContainer*>(containerHandle);
+    const Il2CppGenericContainer container = DeserializeGenericContainer(containerHandle, s_SerializedIndexSizes);
 
-    arg->type = container->is_method ? IL2CPP_TYPE_MVAR : IL2CPP_TYPE_VAR;
+    arg->type = container.is_method ? IL2CPP_TYPE_MVAR : IL2CPP_TYPE_VAR;
     arg->data.genericParameterHandle = paramHandle;
 }
 
 bool il2cpp::vm::GlobalMetadata::GetGenericContainerIsMethod(Il2CppMetadataGenericContainerHandle handle)
 {
-    const Il2CppGenericContainer* container = reinterpret_cast<const Il2CppGenericContainer*>(handle);
-    IL2CPP_ASSERT(container != NULL);
-    return container != NULL ? container->is_method : false;
+    if (handle == NULL)
+        return false;
+
+    const Il2CppGenericContainer container = DeserializeGenericContainer(handle, s_SerializedIndexSizes);
+    return container.is_method;
 }
 
 int16_t il2cpp::vm::GlobalMetadata::GetGenericConstraintCount(Il2CppMetadataGenericParameterHandle handle)
@@ -1756,7 +1761,7 @@ Il2CppGenericParameterInfo il2cpp::vm::GlobalMetadata::GetGenericParameterInfo(I
     const Il2CppGenericParameter genericParameter = DeserializeGenericParameter(handle, s_SerializedIndexSizes);
 
     return {
-            reinterpret_cast<Il2CppMetadataGenericContainerHandle>(GetGenericContainerFromIndexInternal(genericParameter.ownerIndex)),
+            GetGenericContainerFromIndex(genericParameter.ownerIndex),
             GetStringFromIndex(genericParameter.nameIndex),
             genericParameter.num,
             genericParameter.flags
