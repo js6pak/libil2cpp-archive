@@ -1328,7 +1328,7 @@ uint32_t il2cpp::vm::MetadataCache::GetReturnParameterToken(Il2CppMetadataMethod
     return il2cpp::vm::GlobalMetadata::GetReturnParameterToken(handle);
 }
 
-uint32_t il2cpp::vm::MetadataCache::GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle)
+uint16_t il2cpp::vm::MetadataCache::GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle)
 {
     return il2cpp::vm::GlobalMetadata::GetGenericContainerCount(handle);
 }

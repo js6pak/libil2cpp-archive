@@ -99,7 +99,7 @@ namespace vm
         return method->parameters_count;
     }
 
-    uint32_t Method::GetGenericParamCount(const MethodInfo *method)
+    uint16_t Method::GetGenericParamCount(const MethodInfo *method)
     {
         if (IsGeneric(method) && method->genericContainerHandle != NULL)
             return MetadataCache::GetGenericContainerCount(method->genericContainerHandle);

@@ -705,7 +705,7 @@ namespace vm
 
                     str += (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-                    uint32_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
+                    uint16_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
                     for (uint32_t i = 0; i < type_argc; i++)
                     {
                         if (i)
@@ -938,7 +938,7 @@ namespace vm
 
                     *bufferIter++ = (format == IL2CPP_TYPE_NAME_FORMAT_IL ? '<' : '[');
 
-                    uint32_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
+                    uint16_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
                     for (uint32_t i = 0; i < type_argc; ++i)
                     {
                         if (i)
@@ -1057,7 +1057,7 @@ namespace vm
 
         if (Class::IsGeneric(klass))
         {
-            uint32_t type_argc = MetadataCache::GetGenericContainerCount(klass->genericContainerHandle);
+            uint16_t type_argc = MetadataCache::GetGenericContainerCount(klass->genericContainerHandle);
             res = Array::New(arrType, type_argc);
             for (uint32_t i = 0; i < type_argc; ++i)
             {
