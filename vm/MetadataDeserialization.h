@@ -7,15 +7,18 @@
 
 struct SerializedIndexSizes
 {
-    int typeIndex;
-    int genericContainerIndex;
-    int typeDefinitionIndex;
-    int parameterIndex;
-    int interfacesIndex;
-    int eventIndex;
-    int propertyIndex;
-    int nestedTypeIndex;
-    int methodIndex;
+    int typeIndex = 0;
+    int genericParameterIndex = 0;
+    int genericContainerIndex = 0;
+    int typeDefinitionIndex = 0;
+    int parameterIndex = 0;
+    int interfacesIndex = 0;
+    int eventIndex = 0;
+    int propertyIndex = 0;
+    int nestedTypeIndex = 0;
+    int fieldIndex = 0;
+    int defaultValueDataIndex = 0;
+    int methodIndex = 0;
 };
 
 int GetIndexSize(const int numberOfElements);
@@ -61,6 +64,7 @@ Il2CppFieldDefinition DeserializeFieldDefinition(const char* ptr, const Serializ
 Il2CppInterfaceOffsetPair DeserializeInterfaceOffsetPair(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppTypeDefinition DeserializeTypeDefinition(const Il2CppMetadataTypeHandle handle, const SerializedIndexSizes& sizes);
 Il2CppGenericParameter DeserializeGenericParameter(const Il2CppMetadataGenericParameterHandle handle, const SerializedIndexSizes& sizes);
+Il2CppGenericContainer DeserializeGenericContainer(const Il2CppMetadataGenericContainerHandle ptr, const SerializedIndexSizes& sizes);
 Il2CppImageDefinition DeserializeImageDefinition(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppWindowsRuntimeTypeNamePair DeserializeWindowsRuntimeTypeNamePair(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppInlineArrayLength DeserializeInlineArrayLength(const char* ptr, const SerializedIndexSizes& sizes);

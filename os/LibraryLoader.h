@@ -32,6 +32,7 @@ namespace os
 
 #define HARDCODED_DEPENDENCY_LIBRARY(libraryName, libraryFunctions) { libraryName, sizeof(libraryFunctions) / sizeof(HardcodedPInvokeDependencyFunction), libraryFunctions }
 #define HARDCODED_DEPENDENCY_FUNCTION(function) { #function, reinterpret_cast<Il2CppMethodPointer>(function), IL2CPP_ARRAY_SIZE(#function)-1  }
+#define HARDCODED_DEPENDENCY_FUNCTION_BY_NAME(name, function) { name, reinterpret_cast<Il2CppMethodPointer>(function), IL2CPP_ARRAY_SIZE(name)-1  }
 
     class LibraryLoader
     {

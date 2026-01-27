@@ -412,7 +412,7 @@ namespace Reflection
 
     Il2CppArray* RuntimeMethodInfo::GetGenericArguments(Il2CppReflectionMethod* method)
     {
-        uint32_t count = 0;
+        uint16_t count = 0;
         Il2CppArray* res = NULL;
         const MethodInfo* methodInfo = method->method;
         if (methodInfo->is_inflated)

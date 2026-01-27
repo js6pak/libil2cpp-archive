@@ -2296,7 +2296,7 @@ namespace vm
         Il2CppClass *klass = NULL;
 
         Il2CppMetadataGenericContainerHandle containerHandle = Class::GetGenericContainer(generic_class);
-        uint32_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
+        uint16_t type_argc = MetadataCache::GetGenericContainerCount(containerHandle);
         if (type_argc != info.type_arguments().size())
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetArgumentException("name", "The number of generic arguments provided doesn't equal the arity of the generic type definition."));
 
