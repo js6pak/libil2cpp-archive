@@ -172,7 +172,7 @@ namespace vm
         static uint32_t GetReturnParameterToken(Il2CppMetadataMethodDefinitionHandle handle);
 
         static void MakeGenericArgType(Il2CppMetadataGenericContainerHandle containerHandle, Il2CppMetadataGenericParameterHandle paramHandle, Il2CppType* arg);
-        static uint32_t GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle);
+        static uint16_t GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle);
         static bool GetGenericContainerIsMethod(Il2CppMetadataGenericContainerHandle handle);
         static const char* GetGenericParameterName(Il2CppMetadataGenericParameterHandle handle);
         static Il2CppGenericParameterInfo GetGenericParameterInfo(Il2CppMetadataGenericParameterHandle handle);
