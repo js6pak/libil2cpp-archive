@@ -2232,10 +2232,12 @@ namespace vm
                     case IL2CPP_TYPE_VALUETYPE:
                     {
                         Il2CppClass* fieldClass = Class::FromIl2CppType(field->type);
+
                         if (lockPtr == NULL)
-                            Class::Init(fieldClass);
+                            Class::SetupFields(fieldClass);
                         else
-                            Class::InitLocked(fieldClass, *lockPtr);
+                            SetupFieldsLocked(fieldClass, *lockPtr);
+
                         if (fieldClass->has_references)
                             GetBitmapNoInit(fieldClass, bitmap, maxSetBit, offset - sizeof(Il2CppObject) /* nested field offset includes padding for boxed structure. Remove for struct fields */, lockPtr);
                         break;
