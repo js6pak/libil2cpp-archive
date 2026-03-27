@@ -123,7 +123,7 @@ namespace gc
         return s_GarbageCollectorContext->m_FinalizerThreadObject == thread;
     }
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     bool GarbageCollector::IsFinalizerInternalThread(Il2CppInternalThread *thread)
     {
         return s_GarbageCollectorContext->m_FinalizerThreadObject->GetInternalThread() == thread;
@@ -138,7 +138,7 @@ namespace gc
         return false;
     }
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     bool GarbageCollector::IsFinalizerInternalThread(Il2CppInternalThread *thread)
     {
         return false;

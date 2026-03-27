@@ -171,6 +171,13 @@ namespace System
         return retVal;
     }
 
+    intptr_t RuntimeTypeHandle::GetMonoClass(Il2CppQCallTypeHandle type)
+    {
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeTypeHandle::GetMonoClass);
+        IL2CPP_UNREACHABLE;
+        return 0;
+    }
+
     uint8_t RuntimeTypeHandle::GetCorElementType(Il2CppQCallTypeHandle type)
     {
         if (type->byref)
@@ -189,14 +196,6 @@ namespace System
     void RuntimeTypeHandle::GetAssembly(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res)
     {
         res = (Il2CppObject*)vm::Reflection::GetAssemblyObject(vm::Image::GetAssembly(vm::Class::GetImage(vm::Class::FromIl2CppType(type))));
-    }
-
-    void RuntimeTypeHandle::GetBaseType(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res)
-    {
-        Il2CppClass* klass = vm::Class::FromIl2CppType(type);
-
-        Il2CppReflectionType* retVal = klass->parent ? il2cpp::vm::Reflection::GetTypeObject(&klass->parent->byval_arg) : NULL;
-        res = reinterpret_cast<Il2CppObject*>(retVal);
     }
 
     void RuntimeTypeHandle::GetElementType(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res)

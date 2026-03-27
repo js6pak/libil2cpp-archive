@@ -1,4 +1,4 @@
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 #pragma once
 
 #include "il2cpp-config.h"
@@ -6,6 +6,10 @@
 #include "il2cpp-codegen-metadata.h"
 #include "il2cpp-object-internals.h"
 #include "vm-utils/VmThreadUtils.h"
+#include "gc/GarbageCollector.h"
+
+#include "Baselib.h"
+#include "Cpp/Atomic.h"
 
 #include <cmath>
 
@@ -226,6 +230,47 @@ inline void il2cpp_codegen_runtime_helpers_initialize_array(RuntimeArray* array,
     IL2CPP_ASSERT(array->klass->element_class->byval_arg.valuetype && !array->klass->element_class->has_references);
 
     memcpy(il2cpp_array_addr_with_size(array, 0, 0), rvaData.data, rvaData.size);
+}
+
+template<typename T, typename U>
+inline typename std::enable_if<!(std::is_pointer<T>::value && std::is_integral<U>::value), T>::type static_cast_with_type_check(U value)
+{
+    return static_cast<T>(value);
+}
+
+template<typename T, typename U>
+inline typename std::enable_if<std::is_pointer<T>::value && std::is_integral<U>::value, T>::type static_cast_with_type_check(U value)
+{
+    // When comparing/setting a pointer value to 0, the type of U will by int, but we need to cast it to uintptr_t first to avoid a compiler warning about casting an integer to a pointer type.
+    return reinterpret_cast<T>(static_cast<uintptr_t>(value));
+}
+
+template<typename T, typename U = T>
+inline T il2cpp_intrinsic_interlocked_exchange(T* location1, U value)
+{
+    T updated = baselib::atomic_exchange(*location1, static_cast_with_type_check<T>(value));
+#if IL2CPP_TARGET_ARM64
+    Baselib_atomic_thread_fence_seq_cst();
+#endif
+    if constexpr (std::is_base_of<RuntimeObject, typename std::remove_pointer<T>::type>::value)
+    il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)location1);
+
+    return updated;
+}
+
+template<typename T, typename U = T, typename V = T>
+inline T il2cpp_intrinsic_interlocked_compare_exchange(T* location1, U value, V comparand)
+{
+    T oldValue = static_cast_with_type_check<T>(comparand);
+
+    baselib::atomic_compare_exchange_strong(*location1, oldValue, static_cast_with_type_check<T>(value));
+#if IL2CPP_TARGET_ARM64
+    Baselib_atomic_thread_fence_seq_cst();
+#endif
+    if constexpr (std::is_base_of<RuntimeObject, typename std::remove_pointer<T>::type>::value)
+    il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)location1);
+
+    return oldValue;
 }
 
 #endif

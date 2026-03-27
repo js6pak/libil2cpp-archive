@@ -30,7 +30,7 @@ namespace InteropServices
         static void DestroyStructure(intptr_t ptr, Il2CppReflectionType* structureType);
         static void GetDelegateForFunctionPointerInternal(Il2CppQCallTypeHandle t, intptr_t ptr, Il2CppObjectHandleOnStack res);
         static void PrelinkInternal(Il2CppObject* m);
-        static void PtrToStructureInternal(intptr_t ptr, Il2CppObject* structure, bool allowValueClasses);
+        static void PtrToStructureHelper(intptr_t ptr, Il2CppObject* structure, bool allowValueClasses);
         static void SetLastPInvokeError(int32_t error);
         static void StructureToPtr(Il2CppObject* structure, intptr_t ptr, bool fDeleteOld);
     };

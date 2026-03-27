@@ -99,7 +99,7 @@ namespace vm
 
         static const Il2CppType* GetTypeFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
         static Il2CppGenericMethod GetGenericMethodFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
-        static std::pair<const Il2CppType*, const MethodInfo*> GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
+        static std::pair<const Il2CppType*, const MethodInfo*> GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxTypeDef, const Il2CppRGCTXDefinition* rgctxMethodDef);
 
         static void InitializeAllMethodMetadata();
         static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer);
@@ -133,7 +133,7 @@ namespace vm
         static Il2CppInterfaceOffsetInfo GetInterfaceOffsetInfo(const Il2CppClass* klass, TypeInterfaceOffsetIndex index);
         static RGCTXCollection GetRGCTXs(const Il2CppImage* image, uint32_t token);
         static const uint8_t* GetFieldDefaultValue(const FieldInfo* field, const Il2CppType** type);
-        static const uint8_t* GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitlySetNullDefaultValue);
+        static const uint8_t* GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
         static int GetFieldMarshaledSizeForField(const FieldInfo* field);
         static int32_t GetInlineArrayLengthForType(const Il2CppType* field);
         static const MethodInfo* GetMethodInfoFromMethodHandle(Il2CppMetadataMethodDefinitionHandle handle);

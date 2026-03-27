@@ -137,7 +137,7 @@ typedef struct Il2CppReflectionType
 // IMPORTANT: All managed types corresponding to the objects below must be blacklisted in mscorlib.xml
 
 // System.RuntimeType
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 typedef struct Il2CppReflectionRuntimeType
 {
     Il2CppReflectionType type;
@@ -297,7 +297,7 @@ typedef struct Il2CppReflectionAssemblyName
     uint32_t contentType;
 } Il2CppReflectionAssemblyName;
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 // System.RuntimeAssembly
 typedef struct Il2CppReflectionAssembly
 {
@@ -387,7 +387,7 @@ typedef struct
 #endif
 } Il2CppLongLivedThreadData;
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 // System.Threading.InternalThread
 typedef struct Il2CppInternalThread
 {
@@ -502,7 +502,7 @@ typedef struct Il2CppAppDomainSetup
 
 
 // System.Threading.Thread
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 typedef struct Il2CppThread
 {
     Il2CppObject  obj;
@@ -574,7 +574,7 @@ typedef struct Il2CppThread
 
 #endif //__cplusplus
 } Il2CppThread;
-#endif // MONO_NET8_BCL
+#endif // MONO_NET_BCL
 
 #ifdef __cplusplus
 // System.Exception
@@ -734,7 +734,7 @@ typedef struct Il2CppAppDomain
     Il2CppDomain *data;
 } Il2CppAppDomain;
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 // System.Diagnostics.MonoStackFrame
 typedef struct Il2CppMonoStackFrame
 {
@@ -1023,7 +1023,7 @@ typedef struct Il2CppErrorWrapper
     int32_t errorCode;
 } Il2CppErrorWrapper;
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 
 // System.Runtime.Remoting.Messaging.AsyncResult
 typedef struct Il2CppAsyncResult
@@ -1056,7 +1056,7 @@ typedef struct Il2CppAsyncCall
     Il2CppArray *out_args;
 } Il2CppAsyncCall;
 
-#endif // !MONO_NET8_BCL
+#endif // !MONO_NET_BCL
 
 #ifdef __cplusplus
 
@@ -1398,7 +1398,7 @@ struct Il2CppRuntimeCounters;
 struct Il2CppEventData;
 struct Il2CppContentionFlagsMap;
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 
 typedef struct Il2CppCustomAttributeTypedArgument
 {

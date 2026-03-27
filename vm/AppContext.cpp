@@ -11,7 +11,7 @@ namespace vm
 {
     void AppContext::SetupAppContextSwitches(const std::string& icuDataFilePath)
     {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
         if (!il2cpp_defaults.app_context_class)
             return; // Probably was stripped
 

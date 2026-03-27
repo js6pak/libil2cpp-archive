@@ -290,9 +290,9 @@ namespace vm
         return parameterCount1 < parameterCount2;
     }
 
-    const char* Method::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitlySetNullDefaultValue)
+    const char* Method::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue)
     {
-        return reinterpret_cast<const char*>(MetadataCache::GetParameterDefaultValue(method, parameterPosition, type, isExplicitlySetNullDefaultValue));
+        return reinterpret_cast<const char*>(MetadataCache::GetParameterDefaultValue(method, parameterPosition, type, isExplicitySetNullDefaultValue));
     }
 
     uint32_t Method::GetParameterToken(const MethodInfo* method, int32_t index)
@@ -475,14 +475,6 @@ namespace vm
         IL2CPP_ASSERT(staticEntryPointerNotFoundMethodInfo.flags == (METHOD_ATTRIBUTE_ABSTRACT | METHOD_ATTRIBUTE_STATIC));
 
         return &staticEntryPointerNotFoundMethodInfo;
-    }
-
-    const MethodInfo* Method::GetEntryPointNotFoundMethodInfoForMethod(const MethodInfo* method)
-    {
-        if (Method::IsStatic(method))
-            return Method::GetStaticEntryPointNotFoundMethodInfo();
-        else
-            return Method::GetEntryPointNotFoundMethodInfo();
     }
 
     bool Method::IsAmbiguousMethodInfo(const MethodInfo* method)

@@ -1229,7 +1229,7 @@ void mono_thread_detach(MonoThread* thread)
 
 MonoInternalThread* mono_thread_internal_current()
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     Il2CppThread* currentThread = (Il2CppThread*)mono_thread_current();
     return (MonoInternalThread*)currentThread;
 #else
@@ -1250,7 +1250,7 @@ int32_t mono_thread_internal_is_current(MonoInternalThread* thread)
 
 int32_t mono_thread_internal_abort(MonoInternalThread* thread, int32_t appdomain_unload)
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     return il2cpp::vm::Thread::RequestAbort((Il2CppThread*)thread);
 #else
     return il2cpp::vm::Thread::RequestAbort((Il2CppInternalThread*)thread);
@@ -1259,7 +1259,7 @@ int32_t mono_thread_internal_abort(MonoInternalThread* thread, int32_t appdomain
 
 void mono_thread_internal_reset_abort(MonoInternalThread* thread)
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     il2cpp::vm::Thread::ResetAbort((Il2CppThread*)thread);
 #else
     il2cpp::vm::Thread::ResetAbort((Il2CppInternalThread*)thread);
@@ -1268,7 +1268,7 @@ void mono_thread_internal_reset_abort(MonoInternalThread* thread)
 
 char* mono_thread_get_name_utf8(MonoThread* this_obj)
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     std::string name = il2cpp::vm::Thread::GetName(((Il2CppThread*)this_obj));
 #else
     std::string name = il2cpp::vm::Thread::GetName(((Il2CppThread*)this_obj)->GetInternalThread());
@@ -1281,7 +1281,7 @@ char* mono_thread_get_name_utf8(MonoThread* this_obj)
 
 void mono_thread_set_name_internal(MonoInternalThread* this_obj, MonoString* name, int32_t permanent, int32_t reset, MonoError* error)
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     il2cpp::vm::Thread::SetName((Il2CppThread*)this_obj, (Il2CppString*)name);
 #else
     il2cpp::vm::Thread::SetName((Il2CppInternalThread*)this_obj, (Il2CppString*)name);
@@ -1295,7 +1295,7 @@ void mono_thread_set_name(MonoInternalThread* this_obj, const char* name8, size_
 void mono_thread_set_name(MonoInternalThread* this_obj, const char* name8, size_t name8_length, const uint16_t* name16, MonoSetThreadNameFlags flags, MonoError *error)
 #endif
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     il2cpp::vm::Thread::SetName((Il2CppThread*)this_obj, il2cpp::vm::String::New(name8));
 #else
     il2cpp::vm::Thread::SetName((Il2CppInternalThread*)this_obj, il2cpp::vm::String::New(name8));
@@ -1679,7 +1679,7 @@ void mono_environment_exitcode_set(int32_t value)
 
 void mono_threadpool_suspend()
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     IL2CPP_NOT_IMPLEMENTED_ICALL(mono_threadpool_suspend);
 #else
     il2cpp::vm::ThreadPoolMs::Suspend();
@@ -1688,7 +1688,7 @@ void mono_threadpool_suspend()
 
 void mono_threadpool_resume()
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     IL2CPP_NOT_IMPLEMENTED_ICALL(mono_threadpool_resume);
 #else
     il2cpp::vm::ThreadPoolMs::Resume();
@@ -1818,7 +1818,7 @@ MonoArray* mono_array_new_full_checked(MonoDomain *domain, MonoClass *array_clas
 
 int32_t mono_gc_is_finalizer_internal_thread(MonoInternalThread *thread)
 {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     return il2cpp::gc::GarbageCollector::IsFinalizerThread((Il2CppThread*)thread);
 #else
     return il2cpp::gc::GarbageCollector::IsFinalizerInternalThread((Il2CppInternalThread*)thread);

@@ -1,6 +1,12 @@
 #include "Interlocked.h"
+#include "vm/Exception.h"
 #include "vm/Thread.h"
 #include "os/Atomic.h"
+
+NORETURN void RaiseInterlockedTypeNotSupportedException()
+{
+    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("The specified type must be a reference type, a primitive type, or an enum type."));
+}
 
 namespace il2cpp
 {

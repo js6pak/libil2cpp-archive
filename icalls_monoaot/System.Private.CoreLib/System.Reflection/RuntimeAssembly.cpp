@@ -181,6 +181,13 @@ namespace Reflection
         return false;
     }
 
+    bool RuntimeAssembly::InternalTryGetRawMetadata(Il2CppQCallAssembly assembly, uint8_t** blob, int32_t* length)
+    {
+        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeAssembly::InternalTryGetRawMetadata);
+        IL2CPP_UNREACHABLE;
+        return false;
+    }
+
     intptr_t RuntimeAssembly::GetManifestResourceInternal(Il2CppQCallAssembly assembly, Il2CppString* name, int32_t* size, Il2CppObjectHandleOnStack module)
     {
         std::vector<vm::EmbeddedResourceRecord> resourceRecords = GetResourceRecords(assembly);

@@ -21,7 +21,7 @@ namespace Reflection
     class LIBIL2CPP_CODEGEN_API Assembly
     {
     public:
-        static Il2CppReflectionAssembly* GetCallingAssembly();
+        static Il2CppReflectionAssembly* GetCallingAssembly(int32_t* stackMark);
         static Il2CppReflectionAssembly* GetEntryAssemblyNative();
         static Il2CppReflectionAssembly* InternalLoad(Il2CppString* assemblyName, int32_t* stackMark, intptr_t ptrLoadContextBinder);
         static Il2CppReflectionAssembly* GetExecutingAssembly(int32_t* stackMark);

@@ -8,7 +8,7 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-pinvoke-support.h"
 #include "il2cpp-tabledefs.h"
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 #include "icalls/mscorlib/System.Threading/Interlocked.h"
 #endif
 #include "vm-utils/VmThreadUtils.h"
@@ -150,7 +150,7 @@ inline void il2cpp_codegen_initobj(uintptr_t value, size_t size)
 }
 
 template<typename TOutput, typename TFloat>
-struct ConvFloatingPoint
+struct ConvFloatingPointDefault
 {
     inline static TOutput Conv(TFloat value)
     {
@@ -178,11 +178,16 @@ struct ConvFloatingPoint
     }
 };
 
+#if IL2CPP_ENABLE_SSE2_FP_CASTS
 
-#if IL2CPP_USE_SSE2_FP_CASTS
+template<typename TOutput, typename TFloat>
+struct ConvFloatingPointSse2
+{
+    static TOutput Conv(TFloat value);
+};
 
 template<typename TOutput>
-struct ConvFloatingPoint<TOutput, float>
+struct ConvFloatingPointSse2<TOutput, float>
 {
     inline static TOutput Conv(float value)
     {
@@ -191,16 +196,16 @@ struct ConvFloatingPoint<TOutput, float>
 };
 
 template<typename TOutput>
-struct ConvFloatingPoint<TOutput, double>
+struct ConvFloatingPointSse2<TOutput, double>
 {
     inline static int32_t Conv(double value)
     {
-        return (TOutput)_mm_cvttsd_si32(_mm_set_sd(value));
+        return _mm_cvttsd_si32(_mm_set_sd(value));
     }
 };
 
 template<>
-struct ConvFloatingPoint<int64_t, float>
+struct ConvFloatingPointSse2<int64_t, float>
 {
     inline static int64_t Conv(float value)
     {
@@ -209,7 +214,7 @@ struct ConvFloatingPoint<int64_t, float>
 };
 
 template<>
-struct ConvFloatingPoint<uint64_t, float>
+struct ConvFloatingPointSse2<uint64_t, float>
 {
     inline static uint64_t Conv(float value)
     {
@@ -218,7 +223,7 @@ struct ConvFloatingPoint<uint64_t, float>
 };
 
 template<>
-struct ConvFloatingPoint<uint32_t, float>
+struct ConvFloatingPointSse2<uint32_t, float>
 {
     inline static uint32_t Conv(float value)
     {
@@ -227,7 +232,7 @@ struct ConvFloatingPoint<uint32_t, float>
 };
 
 template<>
-struct ConvFloatingPoint<int64_t, double>
+struct ConvFloatingPointSse2<int64_t, double>
 {
     inline static int64_t Conv(double value)
     {
@@ -236,7 +241,7 @@ struct ConvFloatingPoint<int64_t, double>
 };
 
 template<>
-struct ConvFloatingPoint<uint64_t, double>
+struct ConvFloatingPointSse2<uint64_t, double>
 {
     inline static uint64_t Conv(double value)
     {
@@ -245,7 +250,7 @@ struct ConvFloatingPoint<uint64_t, double>
 };
 
 template<>
-struct ConvFloatingPoint<uint32_t, double>
+struct ConvFloatingPointSse2<uint32_t, double>
 {
     inline static uint32_t Conv(double value)
     {
@@ -253,12 +258,18 @@ struct ConvFloatingPoint<uint32_t, double>
     }
 };
 
-#endif // IL2CPP_USE_SSE2_FP_CASTS
+#endif // IL2CPP_ENABLE_SSE2_FP_CASTS
 
 #if IL2CPP_USE_SATURATING_FP_CAST_INTRINSICS
 
+template<typename TOutput, typename TFloat>
+struct ConvFloatingPointSat
+{
+    static TOutput Conv(TFloat value);
+};
+
 template<typename TOutput>
-struct ConvFloatingPoint<TOutput, float>
+struct ConvFloatingPointSat<TOutput, float>
 {
     inline static TOutput Conv(float value)
     {
@@ -267,7 +278,7 @@ struct ConvFloatingPoint<TOutput, float>
 };
 
 template<typename TOutput>
-struct ConvFloatingPoint<TOutput, double>
+struct ConvFloatingPointSat<TOutput, double>
 {
     inline static TOutput Conv(double value)
     {
@@ -276,7 +287,7 @@ struct ConvFloatingPoint<TOutput, double>
 };
 
 template<>
-struct ConvFloatingPoint<uint32_t, float>
+struct ConvFloatingPointSat<uint32_t, float>
 {
     inline static uint32_t Conv(float value)
     {
@@ -285,7 +296,7 @@ struct ConvFloatingPoint<uint32_t, float>
 };
 
 template<>
-struct ConvFloatingPoint<uint32_t, double>
+struct ConvFloatingPointSat<uint32_t, double>
 {
     inline static uint32_t Conv(double value)
     {
@@ -294,7 +305,7 @@ struct ConvFloatingPoint<uint32_t, double>
 };
 
 template<>
-struct ConvFloatingPoint<int64_t, float>
+struct ConvFloatingPointSat<int64_t, float>
 {
     inline static int64_t Conv(float value)
     {
@@ -303,7 +314,7 @@ struct ConvFloatingPoint<int64_t, float>
 };
 
 template<>
-struct ConvFloatingPoint<int64_t, double>
+struct ConvFloatingPointSat<int64_t, double>
 {
     inline static int64_t Conv(double value)
     {
@@ -312,7 +323,7 @@ struct ConvFloatingPoint<int64_t, double>
 };
 
 template<>
-struct ConvFloatingPoint<uint64_t, float>
+struct ConvFloatingPointSat<uint64_t, float>
 {
     inline static uint64_t Conv(float value)
     {
@@ -321,7 +332,7 @@ struct ConvFloatingPoint<uint64_t, float>
 };
 
 template<>
-struct ConvFloatingPoint<uint64_t, double>
+struct ConvFloatingPointSat<uint64_t, double>
 {
     inline static uint64_t Conv(double value)
     {
@@ -330,6 +341,68 @@ struct ConvFloatingPoint<uint64_t, double>
 };
 
 #endif // IL2CPP_USE_SATURATING_FP_CAST_INTRINSICS
+
+#if IL2CPP_USE_SSE2_FP_CASTS
+template<typename TOutput, typename TFloat>
+using ConvFloatingPoint = ConvFloatingPointSse2<TOutput, TFloat>;
+#elif IL2CPP_USE_SATURATING_FP_CAST_INTRINSICS
+template<typename TOutput, typename TFloat>
+using ConvFloatingPoint = ConvFloatingPointSat<TOutput, TFloat>;
+#else
+template<typename TOutput, typename TFloat>
+using ConvFloatingPoint = ConvFloatingPointDefault<TOutput, TFloat>;
+#endif
+
+template<typename TOutput, typename TFloat>
+struct ConvFloatingPointNative
+{
+    inline static TOutput Conv(TFloat value)
+    {
+#if IL2CPP_ENABLE_SSE2_FP_CASTS
+        return ConvFloatingPointSse2<TOutput, TFloat>::Conv(value);
+#else
+        return ConvFloatingPointDefault<TOutput, TFloat>::Conv(value);
+#endif
+    }
+};
+
+#if IL2CPP_TARGET_X86 || IL2CPP_TARGET_X64
+
+// On X86/X64 CoreCLR appears to produce saturating casts for the types below
+// So in those cases fallback to the runtime default floating point cast (which will be saturating on NET9+)
+
+template<typename TFloat>
+struct ConvFloatingPointNative<uint32_t, TFloat>
+{
+    inline static uint32_t Conv(TFloat value)
+    {
+        return (uint32_t)ConvFloatingPoint<uint32_t, TFloat>::Conv(value);
+    }
+};
+
+template<typename TFloat>
+struct ConvFloatingPointNative<uint64_t, TFloat>
+{
+    inline static uint64_t Conv(TFloat value)
+    {
+        return ConvFloatingPoint<uint64_t, TFloat>::Conv(value);
+    }
+};
+
+#if IL2CPP_TARGET_X86
+
+template<typename TFloat>
+struct ConvFloatingPointNative<int64_t, TFloat>
+{
+    inline static int64_t Conv(TFloat value)
+    {
+        return ConvFloatingPoint<int64_t, TFloat>::Conv(value);
+    }
+};
+
+#endif
+#endif
+
 
 template<bool, class T, class U>
 struct pick_first;
@@ -987,6 +1060,28 @@ inline RuntimeClass* InitializedTypeInfo(RuntimeClass* klass)
     return il2cpp::vm::ClassInlines::InitFromCodegen(klass);
 }
 
+inline const Il2CppRGCTXData* il2cpp_codegen_method_rgctx(const MethodInfo* method)
+{
+    IL2CPP_ASSERT(method->rgctx_data != NULL);
+    return method->rgctx_data;
+}
+
+inline const Il2CppRGCTXData* il2cpp_codegen_initialized_method_rgctx(const MethodInfo* method)
+{
+    return il2cpp::vm::ClassInlines::InitMethodRgctxFromCodegen(method);
+}
+
+inline const Il2CppRGCTXData* il2cpp_codegen_class_rgctx(const MethodInfo* method)
+{
+    IL2CPP_ASSERT(method->klass->rgctx_data != NULL);
+    return method->klass->rgctx_data;
+}
+
+inline const Il2CppRGCTXData* il2cpp_codegen_initialized_class_rgctx(const MethodInfo* method)
+{
+    return il2cpp::vm::ClassInlines::InitClassRgctxFromCodegen(method);
+}
+
 RuntimeClass* il2cpp_codegen_class_from_type_internal(const RuntimeType* type);
 
 inline RuntimeClass* il2cpp_codegen_class_from_type(const RuntimeType *type)
@@ -997,22 +1092,6 @@ inline RuntimeClass* il2cpp_codegen_class_from_type(const RuntimeType *type)
 inline const RuntimeType* il2cpp_codegen_type_from_class(RuntimeClass *klass)
 {
     return &klass->byval_arg;
-}
-
-void* InterlockedExchangeImplRef(void** location, void* value);
-
-void* InterlockedCompareExchangeImpl(void** location, void* value, void* comparand);
-
-template<typename T>
-inline T InterlockedCompareExchangeImpl(T* location, T value, T comparand)
-{
-    return (T)InterlockedCompareExchangeImpl((void**)location, value, comparand);
-}
-
-template<typename T>
-inline T InterlockedExchangeImpl(T* location, T value)
-{
-    return (T)InterlockedExchangeImplRef((void**)location, value);
 }
 
 void il2cpp_codegen_memory_barrier();
@@ -1251,7 +1330,7 @@ inline bool il2cpp_rgctx_is_initialized(const RuntimeMethod* method)
 
 inline void il2cpp_rgctx_method_init(const RuntimeMethod* method)
 {
-    il2cpp::vm::ClassInlines::InitRgcxFromCodegen(method);
+    il2cpp::vm::ClassInlines::InitMethodRgctxFromCodegen(method);
 }
 
 inline uintptr_t il2cpp_array_calc_byte_offset(RuntimeArray* runtimeArray, il2cpp_array_size_t index)
@@ -1439,6 +1518,8 @@ Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegat
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args);
 
 void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeObject* target, void* methodPtr);
+
+RuntimeObject* il2cpp_codegen_delegate_get_target(RuntimeObject* delegate);
 
 inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(RuntimeClass* genericClass)
 {
@@ -1690,7 +1771,7 @@ inline intptr_t il2cpp_codegen_by_reference_get_value(Il2CppByReference* byRefer
 bool il2cpp_codegen_is_reference_or_contains_references(const RuntimeMethod* method);
 
 // Can't move to il2cpp-codegen-intrinsics.h because it needs `IL2CPP_ARRAY_BOUNDS_CHECK`
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 template<typename T>
 inline T* il2cpp_span_get_item(T* refPtrValue, int32_t index, int32_t length)
 {

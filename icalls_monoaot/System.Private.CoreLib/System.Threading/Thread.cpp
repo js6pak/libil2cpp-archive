@@ -172,13 +172,17 @@ namespace Threading
     {
         il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
 
-        // Throw if already set.
-        if (thread->name.length != 0)
-            il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Thread name can only be set once."));
+        // The BCL may (and as of NET10 does on OSX) try to set the thread name before and after thread startup
+        // to ensure that the native threadname is set.  There's no need to error or update the name if it's not changing
+        if (thread->name.length != nameLength || (thread->name.chars && memcmp(thread->name.chars, name, nameLength * sizeof(Il2CppChar)) != 0))
+        {
+            if (thread->name.length != 0)
+                il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetInvalidOperationException("Thread name can only be set once."));
 
-        // Store name.
-        thread->name.length = nameLength;
-        thread->name.chars = il2cpp::utils::StringUtils::StringDuplicate(name, thread->name.length);
+            // Store name.
+            thread->name.length = nameLength;
+            thread->name.chars = il2cpp::utils::StringUtils::StringDuplicate(name, thread->name.length);
+        }
 
         // Hand over to OS layer, if thread has been started already.
         if (thread->handle)
