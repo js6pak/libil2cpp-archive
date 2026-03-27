@@ -22,7 +22,7 @@ namespace Threading
     {
     public:
         static bool Monitor_wait(Il2CppObject* obj, int32_t ms, bool allowInterruption);
-        static int64_t get_LockContentionCount();
+        static int64_t Monitor_get_lock_contention_count();
         static void Enter(Il2CppObject* obj);
         static void InternalExit(Il2CppObject* obj);
         static void Monitor_pulse(Il2CppObject* obj);

@@ -70,7 +70,7 @@ static const Il2CppNativeChar* AndroidLoadLibrary(const Il2CppNativeChar* libNam
     return libName;
 }
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 extern "C" JNIEXPORT jint JNICALL
 pal_JNI_OnLoad(JavaVM *vm, void *reserved);
 #endif
@@ -81,7 +81,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *jvm, void *reserved)
     __android_log_print(ANDROID_LOG_INFO, "IL2CPP", "JNI_OnLoad");
     sJavaVM = jvm;
     il2cpp::os::LibraryLoader::SetFindPluginCallback(AndroidLoadLibrary);
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     jint version = pal_JNI_OnLoad(jvm, reserved);
     if (version != JNI_VERSION_1_6)
     {

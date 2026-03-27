@@ -100,6 +100,18 @@ namespace Tracing
         IL2CPP_NOT_IMPLEMENTED_ICALL(NativeRuntimeEventSource::LogThreadPoolWorkingThreadCount);
         IL2CPP_UNREACHABLE;
     }
+
+    void NativeRuntimeEventSource::LogWaitHandleWaitStart(uint8_t WaitSource, intptr_t AssociatedObjectID, uint16_t ClrInstanceID)
+    {
+        IL2CPP_NOT_IMPLEMENTED_ICALL(NativeRuntimeEventSource::LogWaitHandleWaitStart);
+        IL2CPP_UNREACHABLE;
+    }
+
+    void NativeRuntimeEventSource::LogWaitHandleWaitStop(uint16_t ClrInstanceID)
+    {
+        IL2CPP_NOT_IMPLEMENTED_ICALL(NativeRuntimeEventSource::LogWaitHandleWaitStop);
+        IL2CPP_UNREACHABLE;
+    }
 } // namespace Tracing
 } // namespace Diagnostics
 } // namespace System

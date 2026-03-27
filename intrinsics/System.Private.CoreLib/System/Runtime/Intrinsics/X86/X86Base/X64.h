@@ -87,8 +87,26 @@ namespace X86Base
     template<typename TRet, typename TArg1, typename TArg2, typename TArg3>
     inline TRet il2cpp_intrinsic__x64_div_rem(TArg1 lower, TArg2 upper, TArg3 divisor)
     {
-        il2cpp_codegen_raise_not_supported_exception();
+#if IL2CPP_X86BASE_X64_IS_SUPPORTED
+#if defined(_MSC_VER)
+        uintptr_t remainder;
+        uintptr_t quotient = _udiv128(upper, lower, divisor, &remainder);
+#else
+        intptr_t quotient, remainder;
+        __asm__ (
+            "divq %[divisor]"
+            : "=a"(quotient), "=d"(remainder)
+            : "a"(lower), "d"(upper), [divisor]"rm"(divisor)
+            : "cc"
+        );
+#endif
+        auto ret = Il2CppRuntimeValueTuple<uintptr_t, uintptr_t>(quotient, remainder);
+        return INTRINSIC_CAST(decltype(ret), TRet, ret);
+#endif
+#else
+        il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
+#endif
     }
 
     /* METHOD MAPPING
@@ -99,8 +117,26 @@ namespace X86Base
     template<typename TRet, typename TArg1, typename TArg2, typename TArg3>
     inline TRet il2cpp_intrinsic__x64_div_rem_signed(TArg1 lower, TArg2 upper, TArg3 divisor)
     {
-        il2cpp_codegen_raise_not_supported_exception();
+#if IL2CPP_X86BASE_X64_IS_SUPPORTED
+#if defined(_MSC_VER)
+        intptr_t remainder;
+        intptr_t quotient = _div128(upper, lower, divisor, &remainder);
+#else
+        intptr_t quotient, remainder;
+        __asm__ (
+            "idivq %[divisor]"
+            : "=a"(quotient), "=d"(remainder)
+            : "a"(lower), "d"(upper), [divisor]"rm"(divisor)
+            : "cc"
+        );
+#endif
+        auto ret = Il2CppRuntimeValueTuple<intptr_t, intptr_t>(quotient, remainder);
+        return INTRINSIC_CAST(decltype(ret), TRet, ret);
+#endif
+#else
+        il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
+#endif
     }
 } // namespace X86Base
 } // namespace X86

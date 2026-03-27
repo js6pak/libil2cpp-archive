@@ -705,28 +705,6 @@ namespace System
         return 0;
     }
 
-    void RuntimeType::AllocateValueType(Il2CppQCallTypeHandle type, Il2CppObject* value, Il2CppObjectHandleOnStack res)
-    {
-        // If the source value null allocate a new empty object
-        // Otherwise we make a copy of the source value - this is basically a boxing operation
-        IL2CPP_ASSERT(il2cpp::vm::Type::IsValueType(type));
-
-        Il2CppClass* klass = il2cpp::vm::Class::FromIl2CppType(type);
-        if (il2cpp::vm::Class::IsNullable(klass))
-        {
-            res = vm::Object::NewBoxedNullable(klass);
-            if (value != NULL)
-                vm::Object::NullableInit(reinterpret_cast<uint8_t*>(vm::Object::GetRawData(res)), value, klass);
-        }
-        else
-        {
-            if (value == nullptr)
-                res = vm::Object::New(klass);
-            else
-                res = vm::Object::Box(klass, il2cpp::vm::Object::GetRawData(value));
-        }
-    }
-
     void RuntimeType::GetDeclaringMethod(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res)
     {
         const MethodInfo* declaringMethod = vm::Type::GetDeclaringMethod(type);
@@ -906,6 +884,17 @@ namespace System
             *size = 0;
         else
             *size = vm::Class::FromIl2CppType(runtimeType)->native_size;
+    }
+
+    void RuntimeType::GetParentType(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res)
+    {
+        const Il2CppType* il2CppType = type;
+        Il2CppClass* klass = vm::Class::FromIl2CppType(il2CppType);
+        Il2CppClass* parent = vm::Class::GetParent(klass);
+        if (parent)
+            res = (Il2CppObject*)vm::Reflection::GetTypeObject(vm::Class::GetType(parent));
+        else
+            res = (Il2CppObject*)NULL;
     }
 
     void RuntimeType::MakeGenericType(Il2CppReflectionType* gt, Il2CppArray* genericArgumentTypes, Il2CppObjectHandleOnStack res)

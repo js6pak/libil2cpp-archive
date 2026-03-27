@@ -374,7 +374,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 107);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 106);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiterals.offset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->images.count;
@@ -1110,23 +1110,21 @@ static const uint8_t* GetFieldDefaultValueEntry(const FieldInfo* field)
 
     const auto *start = static_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->fieldDefaultValues.offset;
     const auto numFieldDefaultValues = s_GlobalMetadataHeader->fieldDefaultValues.count;
-    if (numFieldDefaultValues <= 0)
-        return NULL;
-
     const auto serializedObjectSize = s_GlobalMetadataHeader->fieldDefaultValues.size / numFieldDefaultValues;
-    const auto* res = static_cast<const uint8_t*>(bsearch(&key, start, numFieldDefaultValues, serializedObjectSize, CompareFieldDefaultValues));
+    const auto* res = static_cast<const uint8_t*>(
+        bsearch(&key, start, numFieldDefaultValues, serializedObjectSize, CompareFieldDefaultValues)
+    );
     return res;
 }
 
-static const uint8_t* GetFieldOrParameterDefaultValue(DefaultValueDataIndex index)
+static const uint8_t* GetFieldOrParameterDefalutValue(uint32_t index)
 {
     if (index == kDefaultValueIndexNull)
         return NULL;
 
-    IL2CPP_ASSERT(index >= 0 && index <= (DefaultValueDataIndex)(s_GlobalMetadataHeader->fieldAndParameterDefaultValueData.size / sizeof(uint8_t)));
-
+    IL2CPP_ASSERT(index >= 0 && index <= s_GlobalMetadataHeader->fieldAndParameterDefaultValueData.size / sizeof(uint8_t));
     const uint8_t* defaultValuesData =  (const uint8_t*)((const char*)s_GlobalMetadata + s_GlobalMetadataHeader->fieldAndParameterDefaultValueData.offset);
-    return defaultValuesData + static_cast<uint32_t>(index);
+    return defaultValuesData + index;
 }
 
 const uint8_t* il2cpp::vm::GlobalMetadata::GetFieldDefaultValue(const FieldInfo* field, const Il2CppType** type)
@@ -1137,7 +1135,7 @@ const uint8_t* il2cpp::vm::GlobalMetadata::GetFieldDefaultValue(const FieldInfo*
     {
         const Il2CppFieldDefaultValue entry = DeserializeFieldDefaultValue(reinterpret_cast<const char*>(ptr), s_SerializedIndexSizes);
         *type = GetIl2CppTypeFromIndex(entry.typeIndex);
-        return GetFieldOrParameterDefaultValue(entry.dataIndex);
+        return GetFieldOrParameterDefalutValue(entry.dataIndex);
     }
 
     return NULL;
@@ -1167,21 +1165,23 @@ static const uint8_t* GetParameterDefaultValueEntry(const MethodInfo* method, co
     const auto *start = static_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->parameterDefaultValues.offset;
     const auto numParamDefaultValues = s_GlobalMetadataHeader->parameterDefaultValues.count;
     const auto serializedObjectSize = s_GlobalMetadataHeader->parameterDefaultValues.size / numParamDefaultValues;
-    const auto* res = static_cast<const uint8_t*>(bsearch(&key, start, numParamDefaultValues, serializedObjectSize, CompareParameterDefaultValues));
+    const auto* res = static_cast<const uint8_t*>(
+        bsearch(&key, start, numParamDefaultValues, serializedObjectSize, CompareParameterDefaultValues)
+    );
     return res;
 }
 
-const uint8_t* il2cpp::vm::GlobalMetadata::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitlySetNullDefaultValue)
+const uint8_t* il2cpp::vm::GlobalMetadata::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue)
 {
-    *isExplicitlySetNullDefaultValue = false;
+    *isExplicitySetNullDefaultValue = false;
     const auto* ptr = GetParameterDefaultValueEntry(method, parameterPosition);
 
     if (ptr != NULL)
     {
         const Il2CppParameterDefaultValue entry = DeserializeParameterDefaultValue(reinterpret_cast<const char*>(ptr), s_SerializedIndexSizes);
         *type = GetIl2CppTypeFromIndex(entry.typeIndex);
-        *isExplicitlySetNullDefaultValue = entry.dataIndex == kDefaultValueIndexNull;
-        return GetFieldOrParameterDefaultValue(entry.dataIndex);
+        *isExplicitySetNullDefaultValue = entry.dataIndex == kDefaultValueIndexNull;
+        return GetFieldOrParameterDefalutValue(entry.dataIndex);
     }
 
     return NULL;
@@ -1553,23 +1553,22 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetGenericInstanceMethod(const Met
 const Il2CppType* il2cpp::vm::GlobalMetadata::GetTypeFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)
 {
     IL2CPP_ASSERT(rgctxDef->type == IL2CPP_RGCTX_DATA_TYPE || rgctxDef->type == IL2CPP_RGCTX_DATA_CLASS);
-    return GetIl2CppTypeFromIndex(((const Il2CppRGCTXDefinitionData*)rgctxDef->data)->__typeIndex);
+    return GetIl2CppTypeFromIndex(rgctxDef->data.__typeIndex);
 }
 
 Il2CppGenericMethod il2cpp::vm::GlobalMetadata::BuildGenericMethodFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)
 {
     IL2CPP_ASSERT(rgctxDef->type == IL2CPP_RGCTX_DATA_METHOD);
-    return BuildGenericMethodFromIndex(((const Il2CppRGCTXDefinitionData*)rgctxDef->data)->__methodIndex);
+    return BuildGenericMethodFromIndex(rgctxDef->data.__methodIndex);
 }
 
-std::pair<const Il2CppType*, const MethodInfo*> il2cpp::vm::GlobalMetadata::GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)
+std::pair<const Il2CppType*, const MethodInfo*> il2cpp::vm::GlobalMetadata::GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxTypeDef, const Il2CppRGCTXDefinition* rgctxMethodDef)
 {
-    IL2CPP_ASSERT(rgctxDef->type == IL2CPP_RGCTX_DATA_CONSTRAINED);
+    IL2CPP_ASSERT(rgctxTypeDef->type == IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_TYPE);
+    IL2CPP_ASSERT(rgctxMethodDef->type == IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD);
 
-    const Il2CppRGCTXConstrainedData* constrainedData = (const Il2CppRGCTXConstrainedData*)rgctxDef->data;
-
-    const Il2CppType* type = GetIl2CppTypeFromIndex(constrainedData->__typeIndex);
-    const MethodInfo* method = GetMethodInfoFromEncodedIndex(constrainedData->__encodedMethodIndex);
+    const Il2CppType* type = GetIl2CppTypeFromIndex(rgctxTypeDef->data.__typeIndex);
+    const MethodInfo* method = GetMethodInfoFromEncodedIndex(rgctxMethodDef->data.__encodedMethodIndex);
     return std::make_pair(type, method);
 }
 

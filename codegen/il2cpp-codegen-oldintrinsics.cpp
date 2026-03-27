@@ -1,4 +1,4 @@
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 #include "il2cpp-codegen.h"
 #include "il2cpp-codegen-oldintrinsics.h"
 #include "vm/Class.h"

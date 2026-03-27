@@ -120,7 +120,7 @@ void il2cpp_codegen_marshal_store_last_error()
     il2cpp::vm::LastError::StoreLastError();
 }
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegate, void** params, RuntimeDelegate* asyncCallback, RuntimeObject* state)
 {
     return il2cpp::vm::ThreadPoolMs::DelegateBeginInvoke(delegate, params, asyncCallback, state);
@@ -137,6 +137,12 @@ void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeO
 {
     IL2CPP_ASSERT(delegate->klass->parent == il2cpp_defaults.multicastdelegate_class);
     il2cpp::vm::Type::SetClosedDelegateInvokeMethod((RuntimeDelegate*)delegate, target, (Il2CppMethodPointer)methodPtr);
+}
+
+RuntimeObject* il2cpp_codegen_delegate_get_target(RuntimeObject* delegate)
+{
+    IL2CPP_ASSERT(delegate->klass->parent == il2cpp_defaults.multicastdelegate_class);
+    return il2cpp::vm::Type::GetDelegateTarget((Il2CppDelegate*)delegate);
 }
 
 Il2CppMethodPointer il2cpp_codegen_resolve_icall(const char* name)
@@ -1227,18 +1233,4 @@ bool il2cpp_codegen_is_reference_or_contains_references(const RuntimeMethod* met
     Il2CppClass* klass = il2cpp::vm::Class::FromIl2CppType(type);
     il2cpp::vm::ClassInlines::InitFromCodegen(klass);
     return klass->has_references;
-}
-
-void* InterlockedExchangeImplRef(void** location, void* value)
-{
-    void* retval = il2cpp::os::Atomic::ExchangePointer(location, value);
-    il2cpp::gc::GarbageCollector::SetWriteBarrier(location);
-    return retval;
-}
-
-void* InterlockedCompareExchangeImpl(void** location, void* value, void* comparand)
-{
-    void* retval = il2cpp::os::Atomic::CompareExchangePointer(location, value, comparand);
-    il2cpp::gc::GarbageCollector::SetWriteBarrier(location);
-    return retval;
 }

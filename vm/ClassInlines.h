@@ -24,15 +24,25 @@ namespace vm
             return InitFromCodegenSlow(klass);
         }
 
-        static IL2CPP_FORCE_INLINE const MethodInfo* InitRgcxFromCodegen(const MethodInfo *method)
+        static IL2CPP_FORCE_INLINE const Il2CppRGCTXData* InitMethodRgctxFromCodegen(const MethodInfo *method)
         {
-            if (method->rgctx_data)
-                return method;
-            return InitRgctxFromCodegenSlow(method);
+            const Il2CppRGCTXData* rgctx_data = method->rgctx_data;
+            if (rgctx_data)
+                return rgctx_data;
+            return InitMethodRgctxFromCodegenSlow(method);
+        }
+
+        static IL2CPP_FORCE_INLINE const Il2CppRGCTXData* InitClassRgctxFromCodegen(const MethodInfo* method)
+        {
+            const Il2CppRGCTXData* rgctx_data = method->klass->rgctx_data;
+            if (rgctx_data)
+                return rgctx_data;
+            return InitClassRgctxFromCodegenSlow(method);
         }
 
         static IL2CPP_NO_INLINE Il2CppClass* InitFromCodegenSlow(Il2CppClass *klass);
-        static IL2CPP_NO_INLINE const MethodInfo* InitRgctxFromCodegenSlow(const MethodInfo* method);
+        static IL2CPP_NO_INLINE const Il2CppRGCTXData* InitMethodRgctxFromCodegenSlow(const MethodInfo* method);
+        static IL2CPP_NO_INLINE const Il2CppRGCTXData* InitClassRgctxFromCodegenSlow(const MethodInfo* method);
 
         //internal
         static IL2CPP_FORCE_INLINE const VirtualInvokeData& GetInterfaceInvokeDataFromVTable(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)

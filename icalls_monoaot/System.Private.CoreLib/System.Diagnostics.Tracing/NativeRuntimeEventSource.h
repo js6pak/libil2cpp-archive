@@ -37,6 +37,8 @@ namespace Tracing
         static void LogThreadPoolWorkerThreadStop(uint32_t ActiveWorkerThreadCount, uint32_t RetiredWorkerThreadCount, uint16_t ClrInstanceID);
         static void LogThreadPoolWorkerThreadWait(uint32_t ActiveWorkerThreadCount, uint32_t RetiredWorkerThreadCount, uint16_t ClrInstanceID);
         static void LogThreadPoolWorkingThreadCount(uint32_t Count, uint16_t ClrInstanceID);
+        static void LogWaitHandleWaitStart(uint8_t WaitSource, intptr_t AssociatedObjectID, uint16_t ClrInstanceID);
+        static void LogWaitHandleWaitStop(uint16_t ClrInstanceID);
     };
 } // namespace Tracing
 } // namespace Diagnostics

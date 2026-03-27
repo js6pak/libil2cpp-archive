@@ -230,6 +230,11 @@ const Il2CppImage* il2cpp_assembly_get_image(const Il2CppAssembly *assembly)
     return Assembly::GetImage(assembly);
 }
 
+Il2CppObject* il2cpp_assembly_get_object(const Il2CppAssembly* assembly)
+{
+    return (Il2CppObject*)Reflection::GetAssemblyObject(assembly);
+}
+
 // class
 
 const Il2CppType* il2cpp_class_enum_basetype(Il2CppClass *klass)

@@ -41,16 +41,6 @@ namespace System
         return vm::Runtime::GetExitCode();
     }
 
-    int32_t Environment::get_TickCount()
-    {
-        return (int32_t)il2cpp::os::Time::GetTicksMillisecondsMonotonic();
-    }
-
-    int64_t Environment::get_TickCount64()
-    {
-        return il2cpp::os::Time::GetTicksMillisecondsMonotonic();
-    }
-
     Il2CppArray* Environment::GetCommandLineArgs()
     {
         Il2CppArray *res;

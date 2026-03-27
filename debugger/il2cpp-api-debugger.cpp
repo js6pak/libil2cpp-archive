@@ -109,12 +109,25 @@ extern "C" {
         MethodInfo* leftMethod = (MethodInfo*)left;
         MethodInfo* rightMethod = (MethodInfo*)right;
 
+        // Same method or both NULL
         if (rightMethod == leftMethod)
             return 1;
+
+        // One was null and the other not
         if (rightMethod == NULL || leftMethod == NULL)
             return 0;
-        if (leftMethod->methodMetadataHandle == rightMethod->methodMetadataHandle)
-            return 1;
+
+        // An inflated method matches its generic method definition
+        if (leftMethod->is_inflated && rightMethod->is_generic)
+        {
+            if (leftMethod->genericMethod->methodDefinition == rightMethod)
+                return 1;
+        }
+        else if (rightMethod->is_inflated && leftMethod->is_generic)
+        {
+            if (rightMethod->genericMethod->methodDefinition == leftMethod)
+                return 1;
+        }
 
         return 0;
     }
@@ -330,7 +343,7 @@ extern "C" {
         return (MonoType*)((Il2CppGenericInst*)inst)->type_argv[index];
     }
 
-    MonoObject* il2cpp_assembly_get_object(MonoDomain* domain, MonoAssembly* assembly, MonoError* error)
+    MonoObject* il2cpp_debugger_assembly_get_object(MonoDomain* domain, MonoAssembly* assembly, MonoError* error)
     {
         return (MonoObject*)il2cpp::vm::Reflection::GetAssemblyObject((const Il2CppAssembly *)assembly);
     }
@@ -359,7 +372,7 @@ extern "C" {
     void il2cpp_field_static_get_value_for_thread(MonoInternalThread* thread, MonoVTable* vt, MonoClassField* field, void* value, MonoError* error)
     {
         error_init(error);
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
         il2cpp::vm::Field::StaticGetValueForThread((FieldInfo*)field, value, (Il2CppThread*)thread);
 #else
         il2cpp::vm::Field::StaticGetValueForThread((FieldInfo*)field, value, (Il2CppInternalThread*)thread);

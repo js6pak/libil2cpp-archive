@@ -61,9 +61,9 @@ namespace System
         static Il2CppObject* CreateInstanceInternal(Il2CppQCallTypeHandle type);
         static Il2CppObject* GetCorrespondingInflatedMethod(Il2CppQCallTypeHandle type, Il2CppObject* generic);
         static Il2CppArray* GetFunctionPointerTypeModifiers(Il2CppQCallTypeHandle type, int32_t position, bool optional);
-        static void AllocateValueType(Il2CppQCallTypeHandle type, Il2CppObject* value, Il2CppObjectHandleOnStack res);
         static void GetDeclaringMethod(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);
         static void GetDeclaringType(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);
+        static void GetParentType(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);
         static void GetGenericArgumentsInternal(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res, bool runtimeArray);
         static void GetInterfaceMapData(Il2CppQCallTypeHandle t, Il2CppQCallTypeHandle iface, Il2CppArray** targets, Il2CppArray** methods);
         static void GetInterfaces(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);

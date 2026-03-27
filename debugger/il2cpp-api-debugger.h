@@ -38,7 +38,7 @@
 #define MonoObject Il2CppObject
 #define MonoType Il2CppType
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 #define MonoInternalThread Il2CppThread
 #define MonoThread Il2CppThread
 #else
@@ -126,7 +126,7 @@ void il2cpp_domain_set_agent_info(MonoAppDomain* domain, void* agentInfo);
 const char* il2cpp_domain_get_friendly_name(MonoAppDomain* domain);
 int il2cpp_generic_inst_get_argc(MonoGenericInst * inst);
 MonoType* il2cpp_generic_inst_get_argv(MonoGenericInst * inst, int index);
-MonoObject* il2cpp_assembly_get_object(MonoDomain * domain, MonoAssembly * assembly, MonoError * error);
+MonoObject* il2cpp_debugger_assembly_get_object(MonoDomain * domain, MonoAssembly * assembly, MonoError * error);
 const MonoType* il2cpp_get_type_from_index(int index);
 void il2cpp_thread_info_safe_suspend_and_run(size_t id, int32_t interrupt_kernel, MonoSuspendThreadCallback callback, void* user_data);
 MonoGenericParam* il2cpp_generic_container_get_param(MonoGenericContainer * gc, int i);

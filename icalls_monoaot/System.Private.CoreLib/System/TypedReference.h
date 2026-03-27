@@ -20,7 +20,6 @@ namespace System
     {
     public:
         static Il2CppObject* InternalToObject(Il2CppTypedRef* value);
-        static void InternalMakeTypedReference(Il2CppTypedRef* result, Il2CppObject* target, Il2CppArray* flds, Il2CppObject* lastFieldType);
     };
 } // namespace System
 } // namespace CoreLib
