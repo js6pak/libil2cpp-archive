@@ -143,7 +143,7 @@ namespace vm
         StaticGetValueInternal(field, value, NULL);
     }
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     void Field::StaticGetValueForThread(FieldInfo* field, void* value, Il2CppThread* thread)
 #else
     void Field::StaticGetValueForThread(FieldInfo* field, void* value, Il2CppInternalThread* thread)
@@ -152,7 +152,7 @@ namespace vm
         StaticGetValueInternal(field, value, thread);
     }
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     void Field::StaticGetValueInternal(FieldInfo* field, void* value, Il2CppThread* thread)
 #else
     void Field::StaticGetValueInternal(FieldInfo* field, void* value, Il2CppInternalThread* thread)

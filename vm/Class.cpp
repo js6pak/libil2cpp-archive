@@ -1129,20 +1129,29 @@ namespace vm
                 Il2CppMetadataMethodInfo methodInfo = MetadataCache::GetMethodInfo(klass, index);
 
                 newMethod->name = methodInfo.name;
+                newMethod->klass = klass;
+                newMethod->flags = methodInfo.flags;
+                newMethod->iflags = methodInfo.iflags;
+                newMethod->slot = methodInfo.slot;
+                newMethod->is_inflated = false;
+                newMethod->token = methodInfo.token;
+                newMethod->methodMetadataHandle = methodInfo.handle;
 
                 newMethod->methodPointer = MetadataCache::GetMethodPointer(klass->image, methodInfo.token);
 
-                if (klass->byval_arg.valuetype)
+                if (Method::RequiresAdjustorThunk(newMethod))
                 {
                     Il2CppMethodPointer adjustorThunk = MetadataCache::GetAdjustorThunk(klass->image, methodInfo.token);
                     if (adjustorThunk != NULL)
                         newMethod->virtualMethodPointer = adjustorThunk;
+                    else
+                        newMethod->virtualMethodPointer = Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
                 }
-                // We did not find an adjustor thunk, or maybe did not need to look for one. Let's get the real method pointer.
-                if (newMethod->virtualMethodPointer == NULL)
+                else
+                {
                     newMethod->virtualMethodPointer = newMethod->methodPointer;
+                }
 
-                newMethod->klass = klass;
                 newMethod->return_type = methodInfo.return_type;
 
                 newMethod->parameters_count = (uint8_t)methodInfo.parameterCount;
@@ -1155,12 +1164,6 @@ namespace vm
                 }
                 newMethod->parameters = parameters;
 
-                newMethod->flags = methodInfo.flags;
-                newMethod->iflags = methodInfo.iflags;
-                newMethod->slot = methodInfo.slot;
-                newMethod->is_inflated = false;
-                newMethod->token = methodInfo.token;
-                newMethod->methodMetadataHandle = methodInfo.handle;
                 newMethod->genericContainerHandle = MetadataCache::GetGenericContainerFromMethod(methodInfo.handle);
                 if (newMethod->genericContainerHandle)
                     newMethod->is_generic = true;
@@ -1398,7 +1401,8 @@ namespace vm
                         if (method && method->is_inflated)
                         {
                             Il2CppGenericMethod genericMethod = il2cpp::metadata::GenericMetadata::Inflate(*method->genericMethod, context);
-                            method = il2cpp::metadata::GenericMethod::GetMethod(genericMethod);
+                            // Do not inflate the RGCTX here, code at the end of InitLocked will ensure that method RGCTX's are inflated
+                            method = il2cpp::metadata::GenericMethod::GetMethod(genericMethod, IL2CPP_RGCTX_INIT_MODE_DISABLE);
                         }
                         if (method && method->klass && Class::IsGeneric(method->klass))
                         {
@@ -1409,10 +1413,6 @@ namespace vm
                     klass->vtable[i].method = method;
                     if (method != NULL)
                     {
-                        // For default interface methods on generic interfaces we need to ensure that their rgctx's are initialized
-                        if (method->klass != NULL && method->klass != klass && Method::IsDefaultInterfaceMethodOnGenericInstance(method))
-                            Class::InitLocked(method->klass, lock);
-
                         if (method->virtualMethodPointer)
                             klass->vtable[i].methodPtr = method->virtualMethodPointer;
                         else if (method->is_inflated && !method->is_generic && !method->genericMethod->context.method_inst)
@@ -1472,14 +1472,6 @@ namespace vm
         OverrideBaseClassVtableGenericVariants(klass, lock);
 
         klass->is_vtable_initialized = 1;
-
-        // loop over vtable and init rgctx for each method if needed
-        for (uint16_t i = 0; i < klass->vtable_count; i++)
-        {
-            const MethodInfo* method = klass->vtable[i].method;
-            if (method && Method::IsDefaultInterfaceMethodOnGenericInstance(method))
-                vm::Class::InitLocked(method->klass, lock);
-        }
     }
 
     static const EventInfo* SetupEventsLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
@@ -1734,6 +1726,23 @@ namespace vm
                     if (exc != NULL)
                         Class::SetClassInitializationError(klass, exc);
                 }
+
+                MethodInfo** methods = const_cast<MethodInfo**>(klass->methods);
+                for (int i = 0; i < klass->method_count; i++)
+                {
+                    // All non-generic methods on a generic class should share the same rgctx as the class
+                    if (!Method::IsGeneric(methods[i]))
+                        methods[i]->rgctx_data = klass->rgctx_data;
+                }
+            }
+
+            // loop over vtable and init rgctx for each method if needed
+            // This must be done after the vtable is initialized.  RGCTX inflation for constrained calls does a vtable lookup
+            for (uint16_t i = 0; i < klass->vtable_count; i++)
+            {
+                const MethodInfo* method = klass->vtable[i].method;
+                if (method && Method::IsDefaultInterfaceMethodOnGenericInstance(method))
+                    vm::Class::InitLocked(method->klass, lock);
             }
         }
         else if (Class::IsGenericTypeDefinition(klass))
@@ -2456,7 +2465,7 @@ namespace vm
 
     static bool is_generic_argument(Il2CppType* type)
     {
-        return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_MVAR;
+        return type->type == IL2CPP_TYPE_VAR || type->type == IL2CPP_TYPE_VAR;
     }
 
     Il2CppClass* Class::GenericParamGetBaseType(Il2CppClass* klass)

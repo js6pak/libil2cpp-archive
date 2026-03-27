@@ -739,9 +739,9 @@ Il2CppGenericMethod il2cpp::vm::MetadataCache::GetGenericMethodFromRgctxDefiniti
     return il2cpp::vm::GlobalMetadata::BuildGenericMethodFromRgctxDefinition(rgctxDef);
 }
 
-std::pair<const Il2CppType*, const MethodInfo*> il2cpp::vm::MetadataCache::GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef)
+std::pair<const Il2CppType*, const MethodInfo*> il2cpp::vm::MetadataCache::GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxTypeDef, const Il2CppRGCTXDefinition* rgctxMethodDef)
 {
-    return il2cpp::vm::GlobalMetadata::GetConstrainedCallFromRgctxDefinition(rgctxDef);
+    return il2cpp::vm::GlobalMetadata::GetConstrainedCallFromRgctxDefinition(rgctxTypeDef, rgctxMethodDef);
 }
 
 const MethodInfo* il2cpp::vm::MetadataCache::GetMethodInfoFromVTableSlot(const Il2CppClass* klass, int32_t vTableSlot)
@@ -949,7 +949,7 @@ const Il2CppType* il2cpp::vm::MetadataCache::GetReducedType(const Il2CppType* ty
 
 il2cpp::vm::Il2CppUnresolvedCallStubs il2cpp::vm::MetadataCache::GetUnresovledCallStubs(const MethodInfo* method)
 {
-    il2cpp::vm::Il2CppUnresolvedCallStubs stubs = {};
+    il2cpp::vm::Il2CppUnresolvedCallStubs stubs;
     stubs.stubsFound = false;
 
     il2cpp::metadata::Il2CppSignature signature;
@@ -976,23 +976,21 @@ il2cpp::vm::Il2CppUnresolvedCallStubs il2cpp::vm::MetadataCache::GetUnresovledCa
             stubs.stubsFound = true;
         }
     }
-
-    // Ensure that we never return a NULL method pointer in stubs
-    if (stubs.methodPointer == NULL)
+    else
     {
-        if (Method::RequiresAdjustorThunk(method) || stubs.virtualMethodPointer == NULL)
-            stubs.methodPointer = Method::GetEntryPointNotFoundMethodInfoForMethod(method)->methodPointer;
+        if (il2cpp::vm::Method::IsInstance(method))
+        {
+            const MethodInfo* entryPointNotFoundMethod = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo();
+            stubs.methodPointer = entryPointNotFoundMethod->methodPointer;
+            stubs.virtualMethodPointer = entryPointNotFoundMethod->methodPointer;
+        }
         else
-            stubs.methodPointer = stubs.virtualMethodPointer;
+        {
+            const MethodInfo* entryPointNotFoundMethod = il2cpp::vm::Method::GetStaticEntryPointNotFoundMethodInfo();
+            stubs.methodPointer = entryPointNotFoundMethod->methodPointer;
+            stubs.virtualMethodPointer = entryPointNotFoundMethod->methodPointer;
+        }
     }
-    if (stubs.virtualMethodPointer == NULL)
-    {
-        if (Method::RequiresAdjustorThunk(method) || stubs.methodPointer == NULL)
-            stubs.virtualMethodPointer = Method::GetEntryPointNotFoundMethodInfoForMethod(method)->methodPointer;
-        else
-            stubs.virtualMethodPointer = stubs.methodPointer;
-    }
-
 
     return stubs;
 }
@@ -1142,9 +1140,9 @@ const uint8_t* il2cpp::vm::MetadataCache::GetFieldDefaultValue(const FieldInfo* 
     return il2cpp::vm::GlobalMetadata::GetFieldDefaultValue(field, type);
 }
 
-const uint8_t* il2cpp::vm::MetadataCache::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitlySetNullDefaultValue)
+const uint8_t* il2cpp::vm::MetadataCache::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue)
 {
-    return il2cpp::vm::GlobalMetadata::GetParameterDefaultValue(method, parameterPosition, type, isExplicitlySetNullDefaultValue);
+    return il2cpp::vm::GlobalMetadata::GetParameterDefaultValue(method, parameterPosition, type, isExplicitySetNullDefaultValue);
 }
 
 int il2cpp::vm::MetadataCache::GetFieldMarshaledSizeForField(const FieldInfo* field)

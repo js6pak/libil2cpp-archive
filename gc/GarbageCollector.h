@@ -4,7 +4,7 @@ struct Il2CppGuid;
 struct Il2CppIUnknown;
 struct Il2CppObject;
 struct Il2CppThread;
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 struct Il2CppInternalThread;
 #endif
 
@@ -38,7 +38,7 @@ namespace gc
         static int32_t GetGeneration(void* addr);
         static void InitializeFinalizer();
         static bool IsFinalizerThread(Il2CppThread* thread);
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
         static bool IsFinalizerInternalThread(Il2CppInternalThread* thread);
 #endif
         static void UninitializeFinalizers();

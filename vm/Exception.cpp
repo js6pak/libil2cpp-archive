@@ -25,7 +25,7 @@
 #include "vm-utils/VmStringUtils.h"
 #include "vm-utils/DebugSymbolReader.h"
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 typedef Il2CppStackFrame Il2CppMonoStackFrame;
 #endif
 
@@ -39,7 +39,7 @@ namespace vm
         il2cpp::utils::Debugger::HandleException(ex);
 #endif
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
         Il2CppClass* stackFrameClass = il2cpp_defaults.mono_stack_frame_class;
 #else
         Il2CppClass* stackFrameClass = il2cpp_defaults.stack_frame_class;

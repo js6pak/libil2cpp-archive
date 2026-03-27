@@ -35,7 +35,7 @@ typedef struct _MonoObject MonoObject;
 typedef struct _MonoProperty MonoProperty;
 typedef struct _MonoReflectionType MonoReflectionType;
 typedef struct _MonoString MonoString;
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 typedef struct _MonoInternalThread MonoThread;
 typedef struct _MonoInternalThread MonoInternalThread;
 #else

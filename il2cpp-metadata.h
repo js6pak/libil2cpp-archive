@@ -69,6 +69,7 @@ typedef struct Il2CppMethodSpec
     GenericInstIndex methodIndexIndex;
 } Il2CppMethodSpec;
 
+// Must match Unity.IL2CPP.Metadata.RGCTXType
 typedef enum Il2CppRGCTXDataType
 {
     IL2CPP_RGCTX_DATA_INVALID,
@@ -76,26 +77,22 @@ typedef enum Il2CppRGCTXDataType
     IL2CPP_RGCTX_DATA_CLASS,
     IL2CPP_RGCTX_DATA_METHOD,
     IL2CPP_RGCTX_DATA_ARRAY,
-    IL2CPP_RGCTX_DATA_CONSTRAINED,
+    IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_TYPE,
+    IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD,
 } Il2CppRGCTXDataType;
 
 typedef union Il2CppRGCTXDefinitionData
 {
-    int32_t rgctxDataDummy;
+    uint32_t rgctxDataDummy;
     MethodIndex __methodIndex;
     TypeIndex __typeIndex;
+    uint32_t  __encodedMethodIndex;
 } Il2CppRGCTXDefinitionData;
-
-typedef struct Il2CppRGCTXConstrainedData
-{
-    TypeIndex __typeIndex;
-    uint32_t __encodedMethodIndex;
-} Il2CppRGCTXConstrainedData;
 
 typedef struct Il2CppRGCTXDefinition
 {
     Il2CppRGCTXDataType type;
-    const void* data;
+    Il2CppRGCTXDefinitionData data;
 } Il2CppRGCTXDefinition;
 
 typedef struct

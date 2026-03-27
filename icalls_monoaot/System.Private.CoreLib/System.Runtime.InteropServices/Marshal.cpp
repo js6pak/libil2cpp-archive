@@ -225,7 +225,7 @@ namespace InteropServices
         IL2CPP_UNREACHABLE;
     }
 
-    void Marshal::PtrToStructureInternal(intptr_t ptr, Il2CppObject* structure, bool allowValueClasses)
+    void Marshal::PtrToStructureHelper(intptr_t ptr, Il2CppObject* structure, bool allowValueClasses)
     {
         Il2CppClass* type = vm::Object::GetClass(structure);
 

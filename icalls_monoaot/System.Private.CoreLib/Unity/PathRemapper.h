@@ -14,14 +14,14 @@ namespace Private
 {
 namespace CoreLib
 {
-namespace System
+namespace Unity
 {
-    class LIBIL2CPP_CODEGEN_API TypedReference
+    class LIBIL2CPP_CODEGEN_API PathRemapper
     {
     public:
-        static Il2CppObject* InternalToObject(Il2CppTypedRef* value);
+        static int32_t InvokeNativeRemapper(uint8_t* pathUtf8, uint8_t* buffer, int32_t bufferLen);
     };
-} // namespace System
+} // namespace Unity
 } // namespace CoreLib
 } // namespace Private
 } // namespace System

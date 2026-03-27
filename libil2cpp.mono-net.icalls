@@ -58,12 +58,10 @@ System.Diagnostics.Tracing.EventPipeInternal::GetNextEvent(System.UInt64,System.
 System.Diagnostics.Tracing.EventPipeInternal::GetSessionInfo(System.UInt64,System.Diagnostics.Tracing.EventPipeSessionInfo*)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::GetSessionInfo|bool (*)(uint64_t, Il2CppEventPipeSessionInfo*)
 System.Diagnostics.Tracing.EventPipeInternal::SignalSession(System.UInt64)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::SignalSession|bool (*)(uint64_t)
 System.Diagnostics.Tracing.EventPipeInternal::WaitForSessionSignal(System.UInt64,System.Int32)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::WaitForSessionSignal|bool (*)(uint64_t, int32_t)
-System.Diagnostics.Tracing.EventPipeInternal::EventActivityIdControl(System.UInt32,System.Guid&)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::EventActivityIdControl|int32_t (*)(uint32_t, Il2CppGuid*)
 System.Diagnostics.Tracing.EventPipeInternal::CreateProvider(System.String,System.IntPtr,System.IntPtr)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::CreateProvider|intptr_t (*)(Il2CppString*, intptr_t, intptr_t)
 System.Diagnostics.Tracing.EventPipeInternal::DefineEvent(System.IntPtr,System.UInt32,System.Int64,System.UInt32,System.UInt32,System.Byte*,System.UInt32)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::DefineEvent|intptr_t (*)(intptr_t, uint32_t, int64_t, uint32_t, uint32_t, uint8_t*, uint32_t)
 System.Diagnostics.Tracing.EventPipeInternal::GetProvider(System.Char*)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::GetProvider|intptr_t (*)(Il2CppChar*)
 System.Diagnostics.Tracing.EventPipeInternal::Enable(System.Char*,System.Diagnostics.Tracing.EventPipeSerializationFormat,System.UInt32,System.Diagnostics.Tracing.EventPipeInternal/EventPipeProviderConfigurationNative*,System.UInt32)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::Enable|uint64_t (*)(Il2CppChar*, int32_t, uint32_t, Il2CppEventPipeProviderConfigurationNative*, uint32_t)
-System.Diagnostics.Tracing.EventPipeInternal::GetRuntimeCounterValue(System.Diagnostics.Tracing.EventPipeInternal/RuntimeCounters)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::GetRuntimeCounterValue|uint64_t (*)(int32_t)
 System.Diagnostics.Tracing.EventPipeInternal::DeleteProvider(System.IntPtr)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::DeleteProvider|void (*)(intptr_t)
 System.Diagnostics.Tracing.EventPipeInternal::Disable(System.UInt64)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::Disable|void (*)(uint64_t)
 System.Diagnostics.Tracing.EventPipeInternal::WriteEventData(System.IntPtr,System.Diagnostics.Tracing.EventProvider/EventData*,System.UInt32,System.Guid*,System.Guid*)|System::Private::CoreLib::System::Diagnostics::Tracing::EventPipeInternal::WriteEventData|void (*)(intptr_t, Il2CppEventData*, uint32_t, Il2CppGuid*, Il2CppGuid*)
@@ -80,6 +78,7 @@ System.Reflection.LoaderAllocatorScout::Destroy(System.IntPtr)|System::Private::
 // System.Reflection.RuntimeAssembly
 >icalls_monoaot/System.Private.CoreLib/System.Reflection/RuntimeAssembly.h
 System.Reflection.RuntimeAssembly::GetManifestResourceInfoInternal(System.Runtime.CompilerServices.QCallAssembly,System.String,System.Reflection.ManifestResourceInfo)|System::Private::CoreLib::System::Reflection::RuntimeAssembly::GetManifestResourceInfoInternal|bool (*)(Il2CppQCallAssembly, Il2CppString*, Il2CppManifestResourceInfo*)
+System.Reflection.RuntimeAssembly::InternalTryGetRawMetadata(System.Runtime.CompilerServices.QCallAssembly,System.Byte*&,System.Int32&)|System::Private::CoreLib::System::Reflection::RuntimeAssembly::InternalTryGetRawMetadata|bool (*)(Il2CppQCallAssembly, uint8_t**, int32_t*)
 System.Reflection.RuntimeAssembly::GetManifestResourceInternal(System.Runtime.CompilerServices.QCallAssembly,System.String,System.Int32&,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::Reflection::RuntimeAssembly::GetManifestResourceInternal|intptr_t (*)(Il2CppQCallAssembly, Il2CppString*, int32_t*, Il2CppObjectHandleOnStack)
 System.Reflection.RuntimeAssembly::InternalGetReferencedAssemblies(System.Reflection.Assembly)|System::Private::CoreLib::System::Reflection::RuntimeAssembly::InternalGetReferencedAssemblies|intptr_t (*)(Il2CppReflectionAssembly*)
 System.Reflection.RuntimeAssembly::GetEntryPoint(System.Runtime.CompilerServices.QCallAssembly,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::Reflection::RuntimeAssembly::GetEntryPoint|void (*)(Il2CppQCallAssembly, Il2CppObjectHandleOnStack)
@@ -108,11 +107,12 @@ System.Reflection.RuntimeMethodInfo::GetPInvoke(System.Reflection.PInvokeAttribu
 // System.Runtime.CompilerServices.RuntimeHelpers
 >icalls_monoaot/System.Private.CoreLib/System.Runtime.CompilerServices/RuntimeHelpers.h
 System.Runtime.CompilerServices.RuntimeHelpers::SufficientExecutionStack()|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::SufficientExecutionStack|bool (*)()
+System.Runtime.CompilerServices.RuntimeHelpers::GetSpanDataFrom(FieldInfo*,Il2CppType*,int32_t*)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::GetSpanDataFrom|void* (*)(FieldInfo*, Il2CppType*, int32_t*)
 System.Runtime.CompilerServices.RuntimeHelpers::InternalGetHashCode(System.Object)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::InternalGetHashCode|int32_t (*)(Il2CppObject*)
-System.Runtime.CompilerServices.RuntimeHelpers::InternalTryGetHashCode(System.Object)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::InternalTryGetHashCode|int32_t (*)(Il2CppObject*)
-System.Runtime.CompilerServices.RuntimeHelpers::GetSpanDataFrom(System.IntPtr,System.IntPtr,System.IntPtr)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::GetSpanDataFrom|void* (*)(FieldInfo*, Il2CppType*, int32_t*)
+System.Runtime.CompilerServices.RuntimeHelpers::SizeOf(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::SizeOf|int32_t (*)(Il2CppQCallTypeHandle)
 System.Runtime.CompilerServices.RuntimeHelpers::GetObjectValue(System.Object)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::GetObjectValue|Il2CppObject* (*)(Il2CppObject*)
 System.Runtime.CompilerServices.RuntimeHelpers::GetUninitializedObjectInternal(System.IntPtr)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::GetUninitializedObjectInternal|Il2CppObject* (*)(intptr_t)
+System.Runtime.CompilerServices.RuntimeHelpers::InternalBox(System.Runtime.CompilerServices.QCallTypeHandle,System.Byte&)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::InternalBox|Il2CppObject* (*)(Il2CppQCallTypeHandle, uint8_t*)
 System.Runtime.CompilerServices.RuntimeHelpers::InitializeArray(System.Array,System.IntPtr)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::InitializeArray|void (*)(Il2CppArray*, intptr_t)
 System.Runtime.CompilerServices.RuntimeHelpers::PrepareMethod(System.IntPtr,System.IntPtr*,System.Int32)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::PrepareMethod|void (*)(intptr_t, intptr_t*, int32_t)
 System.Runtime.CompilerServices.RuntimeHelpers::RunClassConstructor(System.IntPtr)|System::Private::CoreLib::System::Runtime::CompilerServices::RuntimeHelpers::RunClassConstructor|void (*)(intptr_t)
@@ -133,7 +133,6 @@ System.RuntimeType::GetPropertiesByName_native(System.Runtime.CompilerServices.Q
 System.RuntimeType::CreateInstanceInternal(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::RuntimeType::CreateInstanceInternal|Il2CppObject* (*)(Il2CppQCallTypeHandle)
 System.RuntimeType::GetCorrespondingInflatedMethod(System.Runtime.CompilerServices.QCallTypeHandle,System.Reflection.MemberInfo)|System::Private::CoreLib::System::RuntimeType::GetCorrespondingInflatedMethod|Il2CppObject* (*)(Il2CppQCallTypeHandle, Il2CppObject*)
 System.RuntimeType::GetFunctionPointerTypeModifiers(System.Runtime.CompilerServices.QCallTypeHandle,System.Int32,System.Boolean)|System::Private::CoreLib::System::RuntimeType::GetFunctionPointerTypeModifiers|Il2CppArray* (*)(Il2CppQCallTypeHandle, int32_t, bool)
-System.RuntimeType::AllocateValueType(System.Runtime.CompilerServices.QCallTypeHandle,System.Object,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::AllocateValueType|void (*)(Il2CppQCallTypeHandle, Il2CppObject*, Il2CppObjectHandleOnStack)
 System.RuntimeType::GetDeclaringMethod(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::GetDeclaringMethod|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeType::GetDeclaringType(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::GetDeclaringType|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeType::GetGenericArgumentsInternal(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack,System.Boolean)|System::Private::CoreLib::System::RuntimeType::GetGenericArgumentsInternal|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack, bool)
@@ -142,6 +141,7 @@ System.RuntimeType::GetInterfaces(System.Runtime.CompilerServices.QCallTypeHandl
 System.RuntimeType::GetName(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::GetName|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeType::GetNamespace(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::GetNamespace|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeType::GetPacking(System.Runtime.CompilerServices.QCallTypeHandle,System.Int32&,System.Int32&)|System::Private::CoreLib::System::RuntimeType::GetPacking|void (*)(Il2CppQCallTypeHandle, int32_t*, int32_t*)
+System.RuntimeType::GetParentType(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::GetParentType|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeType::MakeGenericType(System.Type,System.Type[],System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::MakeGenericType|void (*)(Il2CppReflectionType*, Il2CppArray*, Il2CppObjectHandleOnStack)
 System.RuntimeType::getFullName(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack,System.Boolean,System.Boolean)|System::Private::CoreLib::System::RuntimeType::getFullName|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack, bool, bool)
 System.RuntimeType::make_array_type(System.Runtime.CompilerServices.QCallTypeHandle,System.Int32,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeType::make_array_type|void (*)(Il2CppQCallTypeHandle, int32_t, Il2CppObjectHandleOnStack)
@@ -161,10 +161,10 @@ System.RuntimeTypeHandle::type_is_assignable_from(System.Runtime.CompilerService
 System.RuntimeTypeHandle::GetArrayRank(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::RuntimeTypeHandle::GetArrayRank|int32_t (*)(Il2CppQCallTypeHandle)
 System.RuntimeTypeHandle::GetMetadataToken(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::RuntimeTypeHandle::GetMetadataToken|int32_t (*)(Il2CppQCallTypeHandle)
 System.RuntimeTypeHandle::GetGenericParameterInfo(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::RuntimeTypeHandle::GetGenericParameterInfo|intptr_t (*)(Il2CppQCallTypeHandle)
+System.RuntimeTypeHandle::GetMonoClass(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::RuntimeTypeHandle::GetMonoClass|intptr_t (*)(Il2CppQCallTypeHandle)
 System.RuntimeTypeHandle::GetCorElementType(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::RuntimeTypeHandle::GetCorElementType|uint8_t (*)(Il2CppQCallTypeHandle)
 System.RuntimeTypeHandle::GetAttributes(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::RuntimeTypeHandle::GetAttributes|int32_t (*)(Il2CppQCallTypeHandle)
 System.RuntimeTypeHandle::GetAssembly(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeTypeHandle::GetAssembly|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
-System.RuntimeTypeHandle::GetBaseType(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeTypeHandle::GetBaseType|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeTypeHandle::GetElementType(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeTypeHandle::GetElementType|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeTypeHandle::GetGenericTypeDefinition_impl(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeTypeHandle::GetGenericTypeDefinition_impl|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 System.RuntimeTypeHandle::GetModule(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::RuntimeTypeHandle::GetModule|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
@@ -173,7 +173,7 @@ System.RuntimeTypeHandle::internal_from_name(System.IntPtr,System.Threading.Stac
 // System.Threading.Monitor
 >icalls_monoaot/System.Private.CoreLib/System.Threading/Monitor.h
 System.Threading.Monitor::Monitor_wait(System.Object,System.Int32,System.Boolean)|System::Private::CoreLib::System::Threading::Monitor::Monitor_wait|bool (*)(Il2CppObject*, int32_t, bool)
-System.Threading.Monitor::get_LockContentionCount()|System::Private::CoreLib::System::Threading::Monitor::get_LockContentionCount|int64_t (*)()
+System.Threading.Monitor::Monitor_get_lock_contention_count()|System::Private::CoreLib::System::Threading::Monitor::Monitor_get_lock_contention_count|int64_t (*)()
 System.Threading.Monitor::Enter(System.Object)|System::Private::CoreLib::System::Threading::Monitor::Enter|void (*)(Il2CppObject*)
 System.Threading.Monitor::InternalExit(System.Object)|System::Private::CoreLib::System::Threading::Monitor::InternalExit|void (*)(Il2CppObject*)
 System.Threading.Monitor::Monitor_pulse(System.Object)|System::Private::CoreLib::System::Threading::Monitor::Monitor_pulse|void (*)(Il2CppObject*)
@@ -200,6 +200,12 @@ System.Threading.Thread::StartInternal(System.Threading.Thread,System.Int32)|Sys
 >icalls_monoaot/System.Private.CoreLib/System/ValueType.h
 System.ValueType::InternalEquals(System.Object,System.Object,System.Object[]&)|System::Private::CoreLib::System::ValueType::InternalEquals|bool (*)(Il2CppObject*, Il2CppObject*, Il2CppArray**)
 System.ValueType::InternalGetHashCode(System.Object,System.Object[]&)|System::Private::CoreLib::System::ValueType::InternalGetHashCode|int32_t (*)(Il2CppObject*, Il2CppArray**)
+
+// System.RuntimeFieldHandle
+>icalls_monoaot/System.Private.CoreLib/System/RuntimeFieldHandle.h
+System.RuntimeFieldHandle::GetFieldDataReferenceInternal(System.Object,System.IntPtr)|System::Private::CoreLib::System::RuntimeFieldHandle::GetFieldDataReferenceInternal|uint8_t* (*)(Il2CppObject*, intptr_t)
+System.RuntimeFieldHandle::GetValueDirect(System.Reflection.RuntimeFieldInfo,System.RuntimeType,System.Void*,System.RuntimeType)|System::Private::CoreLib::System::RuntimeFieldHandle::GetValueDirect|Il2CppObject* (*)(Il2CppReflectionField*, Il2CppObject*, Il2CppTypedRef*, Il2CppObject*)
+System.RuntimeFieldHandle::SetValueDirect(System.Reflection.RuntimeFieldInfo,System.RuntimeType,System.Void*,System.Object,System.RuntimeType)|System::Private::CoreLib::System::RuntimeFieldHandle::SetValueDirect|void (*)(Il2CppReflectionField*, Il2CppObject*, Il2CppTypedRef*, Il2CppObject*, Il2CppObject*)
 
 // System.Reflection.Emit.CustomAttributeBuilder
 >icalls_monoaot/System.Private.CoreLib/System.Reflection.Emit/CustomAttributeBuilder.h
@@ -262,8 +268,6 @@ System.Math::Tanh(System.Double)|System::Private::CoreLib::System::Math::Tanh|do
 >icalls_monoaot/System.Private.CoreLib/System/Environment.h
 System.Environment::GetProcessorCount()|System::Private::CoreLib::System::Environment::GetProcessorCount|int32_t (*)()
 System.Environment::get_ExitCode()|System::Private::CoreLib::System::Environment::get_ExitCode|int32_t (*)()
-System.Environment::get_TickCount()|System::Private::CoreLib::System::Environment::get_TickCount|int32_t (*)()
-System.Environment::get_TickCount64()|System::Private::CoreLib::System::Environment::get_TickCount64|int64_t (*)()
 System.Environment::GetCommandLineArgs()|System::Private::CoreLib::System::Environment::GetCommandLineArgs|Il2CppArray* (*)()
 System.Environment::Exit(System.Int32)|System::Private::CoreLib::System::Environment::Exit|void (*)(int32_t)
 System.Environment::FailFast(System.String,System.Exception,System.String)|System::Private::CoreLib::System::Environment::FailFast|void (*)(Il2CppString*, Il2CppException*, Il2CppString*)
@@ -301,7 +305,8 @@ System.Reflection.RuntimeConstructorInfo::InvokeClassConstructor(System.Runtime.
 >icalls_monoaot/System.Private.CoreLib/System.Reflection/RuntimeEventInfo.h
 System.Reflection.RuntimeEventInfo::get_metadata_token(System.Reflection.RuntimeEventInfo)|System::Private::CoreLib::System::Reflection::RuntimeEventInfo::get_metadata_token|int32_t (*)(Il2CppObject*)
 System.Reflection.RuntimeEventInfo::internal_from_handle_type(System.IntPtr,System.IntPtr)|System::Private::CoreLib::System::Reflection::RuntimeEventInfo::internal_from_handle_type|Il2CppReflectionEvent* (*)(const EventInfo*, const Il2CppType*)
-System.Reflection.RuntimeEventInfo::get_event_info(System.Reflection.RuntimeEventInfo,System.Reflection.MonoEventInfo&)|System::Private::CoreLib::System::Reflection::RuntimeEventInfo::get_event_info|void (*)(Il2CppReflectionMonoEvent*, Il2CppReflectionMonoEventInfo*) 
+System.Reflection.RuntimeEventInfo::get_event_info(System.Reflection.RuntimeEventInfo,System.Reflection.MonoEventInfo&)|System::Private::CoreLib::System::Reflection::RuntimeEventInfo::get_event_info|void (*)(Il2CppReflectionMonoEvent*, Il2CppReflectionMonoEventInfo*)
+
 // System.Reflection.RuntimeFieldInfo
 >icalls_monoaot/System.Private.CoreLib/System.Reflection/RuntimeFieldInfo.h
 System.Reflection.RuntimeFieldInfo::GetFieldOffset()|System::Private::CoreLib::System::Reflection::RuntimeFieldInfo::GetFieldOffset|int32_t (*)(Il2CppReflectionField* thisPtr)
@@ -335,7 +340,7 @@ System.Runtime.InteropServices.Marshal::OffsetOf(System.Type,System.String)|Syst
 System.Runtime.InteropServices.Marshal::DestroyStructure(System.IntPtr,System.Type)|System::Private::CoreLib::System::Runtime::InteropServices::Marshal::DestroyStructure|void (*)(intptr_t, Il2CppReflectionType*)
 System.Runtime.InteropServices.Marshal::GetDelegateForFunctionPointerInternal(System.Runtime.CompilerServices.QCallTypeHandle,System.IntPtr,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::Runtime::InteropServices::Marshal::GetDelegateForFunctionPointerInternal|void (*)(Il2CppQCallTypeHandle, intptr_t, Il2CppObjectHandleOnStack)
 System.Runtime.InteropServices.Marshal::PrelinkInternal(System.Reflection.MethodInfo)|System::Private::CoreLib::System::Runtime::InteropServices::Marshal::PrelinkInternal|void (*)(Il2CppObject*)
-System.Runtime.InteropServices.Marshal::PtrToStructureInternal(System.IntPtr,System.Object,System.Boolean)|System::Private::CoreLib::System::Runtime::InteropServices::Marshal::PtrToStructureInternal|void (*)(intptr_t, Il2CppObject*, bool)
+System.Runtime.InteropServices.Marshal::PtrToStructureHelper(System.IntPtr,System.Object,System.Boolean)|System::Private::CoreLib::System::Runtime::InteropServices::Marshal::PtrToStructureHelper|void (*)(intptr_t, Il2CppObject*, bool)
 System.Runtime.InteropServices.Marshal::SetLastPInvokeError(System.Int32)|System::Private::CoreLib::System::Runtime::InteropServices::Marshal::SetLastPInvokeError|void (*)(int32_t)
 System.Runtime.InteropServices.Marshal::StructureToPtr(System.Object,System.IntPtr,System.Boolean)|System::Private::CoreLib::System::Runtime::InteropServices::Marshal::StructureToPtr|void (*)(Il2CppObject*, intptr_t, bool)
 
@@ -412,21 +417,15 @@ System.RuntimeMethodHandle::ReboxToNullable(System.Object,System.Runtime.Compile
 >icalls_monoaot/System.Private.CoreLib/System/Object.h
 System.Object::MemberwiseClone()|System::Private::CoreLib::System::Object::MemberwiseClone|Il2CppObject* (*)(Il2CppObject* thisPtr)
 
-// System.RuntimeFieldHandle
->icalls_monoaot/System.Private.CoreLib/System/RuntimeFieldHandle.h
-System.RuntimeFieldHandle::GetValueDirect(System.Reflection.RuntimeFieldInfo,System.RuntimeType,System.Void*,System.RuntimeType)|System::Private::CoreLib::System::RuntimeFieldHandle::GetValueDirect|Il2CppObject* (*)(Il2CppReflectionField*, Il2CppObject*, Il2CppTypedRef*, Il2CppObject*)
-System.RuntimeFieldHandle::SetValueDirect(System.Reflection.RuntimeFieldInfo,System.RuntimeType,System.Void*,System.Object,System.RuntimeType)|System::Private::CoreLib::System::RuntimeFieldHandle::SetValueDirect|void (*)(Il2CppReflectionField*, Il2CppObject*, Il2CppTypedRef*, Il2CppObject*, Il2CppObject*)
-
 // System.TypedReference
 >icalls_monoaot/System.Private.CoreLib/System/TypedReference.h
 System.TypedReference::InternalToObject(System.Void*)|System::Private::CoreLib::System::TypedReference::InternalToObject|Il2CppObject* (*)(Il2CppTypedRef*)
-System.TypedReference::InternalMakeTypedReference(System.Void*,System.Object,System.IntPtr[],System.RuntimeType)|System::Private::CoreLib::System::TypedReference::InternalMakeTypedReference|void (*)(Il2CppTypedRef*, Il2CppObject*, Il2CppArray*, Il2CppObject*)
 
 // System.Reflection.Assembly
 >icalls_monoaot/System.Private.CoreLib/System.Reflection/Assembly.h
-System.Reflection.Assembly::GetCallingAssembly()|System::Private::CoreLib::System::Reflection::Assembly::GetCallingAssembly|Il2CppReflectionAssembly* (*)()
 System.Reflection.Assembly::GetEntryAssemblyNative()|System::Private::CoreLib::System::Reflection::Assembly::GetEntryAssemblyNative|Il2CppReflectionAssembly* (*)()
 System.Reflection.Assembly::InternalLoad(System.String,System.Threading.StackCrawlMark&,System.IntPtr)|System::Private::CoreLib::System::Reflection::Assembly::InternalLoad|Il2CppReflectionAssembly* (*)(Il2CppString*, int32_t*, intptr_t)
+System.Reflection.Assembly::GetCallingAssembly(System.Threading.StackCrawlMark&)|System::Private::CoreLib::System::Reflection::Assembly::GetCallingAssembly|Il2CppReflectionAssembly* (*)(int32_t*)
 System.Reflection.Assembly::GetExecutingAssembly(System.Threading.StackCrawlMark&)|System::Private::CoreLib::System::Reflection::Assembly::GetExecutingAssembly|Il2CppReflectionAssembly* (*)(int32_t*)
 System.Reflection.Assembly::InternalGetType(System.Reflection.Module,System.String,System.Boolean,System.Boolean)|System::Private::CoreLib::System::Reflection::Assembly::InternalGetType|Il2CppReflectionType* (*)(Il2CppReflectionAssembly* thisPtr, Il2CppObject*, Il2CppString*, bool, bool)
 
@@ -434,7 +433,6 @@ System.Reflection.Assembly::InternalGetType(System.Reflection.Module,System.Stri
 >icalls_monoaot/System.Private.CoreLib/System/Enum.h
 System.Enum::InternalGetCorElementType(System.Runtime.CompilerServices.QCallTypeHandle)|System::Private::CoreLib::System::Enum::InternalGetCorElementType|uint8_t (*)(Il2CppQCallTypeHandle)
 System.Enum::GetEnumValuesAndNames(System.Runtime.CompilerServices.QCallTypeHandle,System.UInt64[]&,System.String[]&)|System::Private::CoreLib::System::Enum::GetEnumValuesAndNames|void (*)(Il2CppQCallTypeHandle, Il2CppArray**, Il2CppArray**)
-System.Enum::InternalBoxEnum(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack,System.Int64)|System::Private::CoreLib::System::Enum::InternalBoxEnum|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack, int64_t)
 System.Enum::InternalGetUnderlyingType(System.Runtime.CompilerServices.QCallTypeHandle,System.Runtime.CompilerServices.ObjectHandleOnStack)|System::Private::CoreLib::System::Enum::InternalGetUnderlyingType|void (*)(Il2CppQCallTypeHandle, Il2CppObjectHandleOnStack)
 
 // System.Reflection.FieldInfo
@@ -503,8 +501,8 @@ Mono.RuntimeGPtrArrayHandle::GPtrArrayFree(Mono.RuntimeStructs/GPtrArray*)|Syste
 // System.Buffer
 >icalls_monoaot/System.Private.CoreLib/System/Buffer.h
 System.Buffer::BulkMoveWithWriteBarrier(System.Byte&,System.Byte&,System.UIntPtr,System.IntPtr)|System::Private::CoreLib::System::Buffer::BulkMoveWithWriteBarrier|void (*)(uint8_t*, uint8_t*, intptr_t, Il2CppType*)
-System.Buffer::__Memmove(System.Byte*,System.Byte*,System.UIntPtr)|System::Private::CoreLib::System::Buffer::__Memmove|void (*)(uint8_t*, uint8_t*, intptr_t)
-System.Buffer::__ZeroMemory(System.Void*,System.UIntPtr)|System::Private::CoreLib::System::Buffer::__ZeroMemory|void (*)(void*, intptr_t)
+System.Buffer::MemmoveInternal(System.Byte*,System.Byte*,System.UIntPtr)|System::Private::CoreLib::System::Buffer::MemmoveInternal|void (*)(uint8_t*, uint8_t*, uintptr_t)
+System.Buffer::ZeroMemoryInternal(System.Void*,System.UIntPtr)|System::Private::CoreLib::System::Buffer::ZeroMemoryInternal|void (*)(void*, uintptr_t)
 
 // System.Diagnostics.StackTrace
 >icalls_monoaot/System.Private.CoreLib/System.Diagnostics/StackTrace.h
@@ -526,6 +524,8 @@ System.Diagnostics.Tracing.NativeRuntimeEventSource::LogThreadPoolWorkerThreadSt
 System.Diagnostics.Tracing.NativeRuntimeEventSource::LogThreadPoolWorkerThreadStop(System.UInt32,System.UInt32,System.UInt16)|System::Private::CoreLib::System::Diagnostics::Tracing::NativeRuntimeEventSource::LogThreadPoolWorkerThreadStop|void (*)(uint32_t, uint32_t, uint16_t)
 System.Diagnostics.Tracing.NativeRuntimeEventSource::LogThreadPoolWorkerThreadWait(System.UInt32,System.UInt32,System.UInt16)|System::Private::CoreLib::System::Diagnostics::Tracing::NativeRuntimeEventSource::LogThreadPoolWorkerThreadWait|void (*)(uint32_t, uint32_t, uint16_t)
 System.Diagnostics.Tracing.NativeRuntimeEventSource::LogThreadPoolWorkingThreadCount(System.UInt32,System.UInt16)|System::Private::CoreLib::System::Diagnostics::Tracing::NativeRuntimeEventSource::LogThreadPoolWorkingThreadCount|void (*)(uint32_t, uint16_t)
+System.Diagnostics.Tracing.NativeRuntimeEventSource::LogWaitHandleWaitStart(System.Diagnostics.Tracing.NativeRuntimeEventSource/WaitHandleWaitSourceMap,System.IntPtr,System.UInt16)|System::Private::CoreLib::System::Diagnostics::Tracing::NativeRuntimeEventSource::LogWaitHandleWaitStart|void (*)(uint8_t, intptr_t, uint16_t)
+System.Diagnostics.Tracing.NativeRuntimeEventSource::LogWaitHandleWaitStop(System.UInt16)|System::Private::CoreLib::System::Diagnostics::Tracing::NativeRuntimeEventSource::LogWaitHandleWaitStop|void (*)(uint16_t)
 
 // System.Reflection.Emit.DynamicMethod
 >icalls_monoaot/System.Private.CoreLib/System.Reflection.Emit/DynamicMethod.h
@@ -548,3 +548,6 @@ System.Reflection.RuntimeCustomAttributeData::ResolveArgumentsInternal(System.Re
 >icalls_monoaot/System.Private.CoreLib/System.Runtime.Intrinsics.X86/X86Base.h
 System.Runtime.Intrinsics.X86.X86Base::__cpuidex(System.Int32*,System.Int32,System.Int32)|System::Private::CoreLib::System::Runtime::Intrinsics::X86::X86Base::__cpuidex|void (*)(int32_t*, int32_t, int32_t)
 
+// Unity.PathRemapper
+>icalls_monoaot/System.Private.CoreLib/Unity/PathRemapper.h
+Unity.PathRemapper::InvokeNativeRemapper(System.Byte*,System.Byte*,System.Int32)|il2cpp::icalls::System::Private::CoreLib::Unity::PathRemapper::InvokeNativeRemapper|int32_t(*)(uint8_t*, uint8_t*, int32_t)

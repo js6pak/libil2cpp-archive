@@ -25,10 +25,11 @@ namespace CompilerServices
     public:
         static bool SufficientExecutionStack();
         static int32_t InternalGetHashCode(Il2CppObject* o);
-        static int32_t InternalTryGetHashCode(Il2CppObject* o);
+        static int32_t SizeOf(Il2CppQCallTypeHandle handle);
         static void* GetSpanDataFrom(FieldInfo* fldHandle, Il2CppType* targetTypeHandle, int32_t* count);
         static Il2CppObject* GetObjectValue(Il2CppObject* obj);
         static Il2CppObject* GetUninitializedObjectInternal(intptr_t type);
+        static Il2CppObject* InternalBox(Il2CppQCallTypeHandle type, uint8_t* target);
         static void InitializeArray(Il2CppArray* array, intptr_t fldHandle);
         static void PrepareMethod(intptr_t method, intptr_t* instantiations, int32_t ninst);
         static void RunClassConstructor(intptr_t type);

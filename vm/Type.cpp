@@ -1278,6 +1278,11 @@ namespace vm
         delegate->invoke_impl_this = target;
     }
 
+    Il2CppObject* Type::GetDelegateTarget(Il2CppDelegate* delegate)
+    {
+        return delegate->target;
+    }
+
 /**
 * Type::ConstructDelegate:
 * @delegate: pointer to an uninitialized delegate object
