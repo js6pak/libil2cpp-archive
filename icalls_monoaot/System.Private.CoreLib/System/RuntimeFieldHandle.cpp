@@ -18,6 +18,12 @@ namespace CoreLib
 {
 namespace System
 {
+    uint8_t* RuntimeFieldHandle::GetFieldDataReferenceInternal(Il2CppObject* target, intptr_t fieldHandle)
+    {
+        FieldInfo* field = reinterpret_cast<FieldInfo*>(fieldHandle);
+        return static_cast<uint8_t*>(vm::Field::GetInstanceFieldDataPointer(target, field));
+    }
+
     Il2CppObject* RuntimeFieldHandle::GetValueDirect(Il2CppReflectionField* field, Il2CppObject* fieldType, Il2CppTypedRef* pTypedRef, Il2CppObject* contextType)
     {
         NOT_SUPPORTED_IL2CPP(RuntimeFieldHandle::GetValueDirect, "This icall is not supported by il2cpp.");

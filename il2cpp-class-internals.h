@@ -69,7 +69,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *array_class;
     Il2CppClass *delegate_class;
     Il2CppClass *multicastdelegate_class;
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     Il2CppClass *asyncresult_class;
 #endif
     Il2CppClass *manualresetevent_class;
@@ -81,12 +81,12 @@ typedef struct Il2CppDefaults
     Il2CppClass *exception_class;
     Il2CppClass *threadabortexception_class;
     Il2CppClass *thread_class;
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     Il2CppClass *internal_thread_class;
 #endif
     Il2CppClass *appdomain_class;
     Il2CppClass *appdomain_setup_class;
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     Il2CppClass* app_context_class;
     Il2CppClass* assembly_load_context_class;
 #endif
@@ -96,7 +96,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *property_info_class;
     Il2CppClass *event_info_class;
     Il2CppClass *stringbuilder_class;
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     Il2CppClass* mono_stack_frame_class;
     Il2CppClass *stack_trace_class;
 #endif
@@ -113,7 +113,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *generic_nullable_class;
     Il2CppClass *il2cpp_com_object_class;
     Il2CppClass *attribute_class;
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     Il2CppClass *runtime_customattribute_data_class;
 #else
     Il2CppClass *customattribute_data_class;
@@ -122,7 +122,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *customattribute_named_argument_class;
     Il2CppClass *version;
     Il2CppClass *culture_info;
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     Il2CppClass *async_call_class;
 #endif
     Il2CppClass *assembly_class;
@@ -136,7 +136,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *value_type_class;
     Il2CppClass *stream_class;
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     // Stuff used by the mono code
     Il2CppClass *threadpool_wait_callback_class;
     MethodInfo *threadpool_perform_wait_callback_method;
@@ -329,7 +329,7 @@ typedef struct MethodInfo
 
     union
     {
-        const Il2CppRGCTXData* rgctx_data; /* is_inflated is true and is_generic is false, i.e. a generic instance method */
+        const Il2CppRGCTXData* rgctx_data; /* is_inflated is true - an inflated generic method or a non-generic method on generic class. (rgctx_data == klass->rgctx_data in that case) */
         Il2CppMetadataMethodDefinitionHandle methodMetadataHandle;
     };
 

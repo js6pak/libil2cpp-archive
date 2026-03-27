@@ -25,7 +25,7 @@ namespace Threading
         return il2cpp::vm::Monitor::TryWait(obj, ms);
     }
 
-    int64_t Monitor::get_LockContentionCount()
+    int64_t Monitor::Monitor_get_lock_contention_count()
     {
         IL2CPP_NOT_IMPLEMENTED_ICALL(Monitor::get_LockContentionCount);
         IL2CPP_UNREACHABLE;

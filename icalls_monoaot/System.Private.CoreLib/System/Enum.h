@@ -21,7 +21,6 @@ namespace System
     public:
         static uint8_t InternalGetCorElementType(Il2CppQCallTypeHandle enumType);
         static void GetEnumValuesAndNames(Il2CppQCallTypeHandle enumType, Il2CppArray** values, Il2CppArray** names);
-        static void InternalBoxEnum(Il2CppQCallTypeHandle enumType, Il2CppObjectHandleOnStack res, int64_t value);
         static void InternalGetUnderlyingType(Il2CppQCallTypeHandle enumType, Il2CppObjectHandleOnStack res);
     };
 } // namespace System

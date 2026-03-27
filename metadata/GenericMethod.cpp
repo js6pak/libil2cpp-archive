@@ -297,19 +297,13 @@ namespace metadata
 
         if (!gmethod.context.method_inst)
         {
-            if (methodDefinition->is_generic)
-                newMethod->is_generic = true;
-
-            if (!declaringClass->generic_class)
-            {
-                newMethod->genericContainerHandle = methodDefinition->genericContainerHandle;
-            }
-
-            newMethod->methodMetadataHandle = methodDefinition->methodMetadataHandle;
+            // The class may be inflated, but if the method was a generic method definition than we still
+            // consider the method on the inflated type to be a generic method definition
+            newMethod->is_generic = methodDefinition->is_generic;
         }
         else if (!il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled() && !il2cpp::metadata::GenericMetadata::ContainsGenericParameters(newMethod))
         {
-            // we only need RGCTX for generic instance methods
+            // Generic methods store their own rgctx
             Il2CppException* exc;
             newMethod->rgctx_data = InflateRGCTXLocked(gmethod, lock, &exc);
         }
@@ -319,6 +313,8 @@ namespace metadata
         if (methodPointers.methodPointer)
         {
             newMethod->invoker_method = methodPointers.invoker_method;
+            if (Method::RequiresAdjustorThunk(newMethod) && newMethod->methodPointer == newMethod->virtualMethodPointer)
+                newMethod->virtualMethodPointer = Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
         }
         else
         {

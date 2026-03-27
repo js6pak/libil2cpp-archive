@@ -40,9 +40,12 @@ namespace CompilerServices
         return (int32_t)utils::HashUtils::AlignedPointerHash(o);
     }
 
-    int32_t RuntimeHelpers::InternalTryGetHashCode(Il2CppObject* o)
+    int32_t RuntimeHelpers::SizeOf(Il2CppQCallTypeHandle handle)
     {
-        return (int32_t)utils::HashUtils::AlignedPointerHash(o);
+        const Il2CppType* type = static_cast<const Il2CppType*>(handle);
+        if (vm::Type::IsValueType(type))
+            return il2cpp::vm::Class::GetValueSize(il2cpp::vm::Class::FromIl2CppType(type), NULL);
+        return sizeof(void*);
     }
 
     void* RuntimeHelpers::GetSpanDataFrom(FieldInfo* fldHandle, Il2CppType* targetTypeHandle, int32_t* count)
@@ -73,6 +76,13 @@ namespace CompilerServices
     {
         Il2CppClass* klass = vm::Class::FromIl2CppType(reinterpret_cast<const Il2CppType*>(type));
         return vm::Object::New(klass);
+    }
+
+    Il2CppObject* RuntimeHelpers::InternalBox(Il2CppQCallTypeHandle type, uint8_t* target)
+    {
+        Il2CppClass* klass = vm::Class::FromIl2CppType(type);
+        IL2CPP_ASSERT(vm::Class::IsValuetype(klass));
+        return il2cpp::vm::Object::Box(klass, target);
     }
 
     void RuntimeHelpers::InitializeArray(Il2CppArray* array, intptr_t fldHandle)

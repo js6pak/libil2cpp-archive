@@ -1,4 +1,4 @@
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
 
 #include "il2cpp-config.h"
 #include "os/Mutex.h"

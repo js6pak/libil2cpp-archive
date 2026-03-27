@@ -19,7 +19,7 @@ struct FileStatus
     int64_t BirthTime; // time the file was created
     int64_t BirthTimeNsec; // nanosecond part
     int64_t Dev;       // ID of the device containing the file
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     int64_t RDev;      //
 #endif
     int64_t Ino;       // inode number of the file

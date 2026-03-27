@@ -36,12 +36,12 @@ namespace System
         gc::GarbageCollector::SetWriteBarrier((void**)dmem, byteLength);
     }
 
-    void Buffer::__Memmove(uint8_t* dest, uint8_t* src, intptr_t len)
+    void Buffer::MemmoveInternal(uint8_t* dest, uint8_t* src, uintptr_t len)
     {
         memmove(dest, src, len);
     }
 
-    void Buffer::__ZeroMemory(void* b, intptr_t byteLength)
+    void Buffer::ZeroMemoryInternal(void* b, uintptr_t byteLength)
     {
         memset(b, 0, byteLength);
     }

@@ -61,7 +61,7 @@ struct  PublicKeyTokenFixedBuffer
     };
 };
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
 
 struct  Il2CppMonoAssemblyName
 {

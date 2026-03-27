@@ -33,11 +33,6 @@ namespace System
         vm::Enum::GetEnumValuesAndNames(vm::Class::FromIl2CppType(enumType), values, names);
     }
 
-    void Enum::InternalBoxEnum(Il2CppQCallTypeHandle enumType, Il2CppObjectHandleOnStack res, int64_t value)
-    {
-        res = vm::Object::Box(vm::Class::FromIl2CppType(enumType), &value);
-    }
-
     void Enum::InternalGetUnderlyingType(Il2CppQCallTypeHandle enumType, Il2CppObjectHandleOnStack res)
     {
         const Il2CppType* etype;

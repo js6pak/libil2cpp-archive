@@ -21,14 +21,29 @@ namespace vm
         return klass;
     }
 
-    const MethodInfo* ClassInlines::InitRgctxFromCodegenSlow(const MethodInfo* method)
+    const Il2CppRGCTXData* ClassInlines::InitMethodRgctxFromCodegenSlow(const MethodInfo* method)
     {
         Il2CppException* exc = NULL;
-        il2cpp::metadata::GenericMethod::InflateRGCTX(method, &exc);
+        if (method->genericMethod->context.method_inst)
+        {
+            il2cpp::metadata::GenericMethod::InflateRGCTX(method, &exc);
+        }
+        else
+        {
+            IL2CPP_ASSERT(method->klass->generic_class);
+            Class::Init(method->klass);
+        }
+
         if (exc)
             il2cpp::vm::Exception::Raise(exc);
 
-        return method;
+        return method->rgctx_data;
+    }
+
+    const Il2CppRGCTXData* ClassInlines::InitClassRgctxFromCodegenSlow(const MethodInfo* method)
+    {
+        ClassInlines::InitFromCodegenSlow(method->klass);
+        return method->klass->rgctx_data;
     }
 
     NORETURN static void RaiseExceptionForNotFoundInterface(const Il2CppClass* klass, const Il2CppClass* itf, Il2CppMethodSlot slot)

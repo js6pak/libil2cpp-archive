@@ -52,8 +52,9 @@ namespace System
 {
 namespace Reflection
 {
-    Il2CppReflectionAssembly* Assembly::GetCallingAssembly()
+    Il2CppReflectionAssembly* Assembly::GetCallingAssembly(int32_t* stackMark)
     {
+        NO_UNUSED_WARNING(stackMark);
         return vm::Reflection::GetAssemblyObject(vm::Image::GetCallingImage()->assembly);
     }
 

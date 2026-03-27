@@ -263,14 +263,33 @@ namespace metadata
         if (collection.count == 0)
             return NULL;
 
-        Il2CppRGCTXData* dataValues = (Il2CppRGCTXData*)MetadataCalloc(collection.count, sizeof(Il2CppRGCTXData));
+        RGCTXIndex dataSize = 0;
         for (RGCTXIndex rgctxIndex = 0; rgctxIndex < collection.count; rgctxIndex++)
         {
             const Il2CppRGCTXDefinition* definitionData = collection.items + rgctxIndex;
             switch (definitionData->type)
             {
+                case IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD:
+                    // Constrained call data takes two slots, to store both the type and method tokens.
+                    // But we only need one slot in the final data for the method, so skip the next entry in the collection.
+                    break;
+                default:
+                    dataSize++;
+                    break;
+            }
+        }
+
+        Il2CppRGCTXData* dataValues = (Il2CppRGCTXData*)MetadataCalloc(dataSize, sizeof(Il2CppRGCTXData));
+        for (RGCTXIndex rgctxIndex = 0, dataValuesIndex = 0; rgctxIndex < collection.count; rgctxIndex++, dataValuesIndex++)
+        {
+            IL2CPP_ASSERT(dataValuesIndex < dataSize);
+
+            const Il2CppRGCTXDefinition* definitionData = collection.items + rgctxIndex;
+
+            switch (definitionData->type)
+            {
                 case IL2CPP_RGCTX_DATA_TYPE:
-                    dataValues[rgctxIndex].type = GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(definitionData), context, true);
+                    dataValues[dataValuesIndex].type = GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(definitionData), context, true);
                     break;
                 case IL2CPP_RGCTX_DATA_CLASS:
                 {
@@ -280,17 +299,21 @@ namespace metadata
                     if (klass->initializationExceptionGCHandle)
                         *exc = (Il2CppException*)gc::GCHandle::GetTarget(klass->initializationExceptionGCHandle);
 
-                    dataValues[rgctxIndex].klass = klass;
+                    dataValues[dataValuesIndex].klass = klass;
                     break;
                 }
                 case IL2CPP_RGCTX_DATA_METHOD:
-                    dataValues[rgctxIndex].method = GenericMethod::GetMethod(Inflate(MetadataCache::GetGenericMethodFromRgctxDefinition(definitionData), context));
+                    dataValues[dataValuesIndex].method = GenericMethod::GetMethod(Inflate(MetadataCache::GetGenericMethodFromRgctxDefinition(definitionData), context));
                     break;
-                case IL2CPP_RGCTX_DATA_CONSTRAINED:
+                case IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_TYPE:
                 {
+                    IL2CPP_ASSERT(rgctxIndex + 1 < collection.count);
+                    const Il2CppRGCTXDefinition* methodData = collection.items + rgctxIndex + 1;
+                    IL2CPP_ASSERT(methodData->type == IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD);
+
                     const Il2CppType* type;
                     const MethodInfo* method;
-                    std::tie(type, method) = MetadataCache::GetConstrainedCallFromRgctxDefinition(definitionData);
+                    std::tie(type, method) = MetadataCache::GetConstrainedCallFromRgctxDefinition(definitionData, methodData);
 
                     const Il2CppType* inflatedType = GenericMetadata::InflateIfNeeded(type, context, true);
                     if (method->is_inflated)
@@ -304,7 +327,9 @@ namespace metadata
                         method = Class::GetVirtualMethod(inflatedClass, method);
                     }
 
-                    dataValues[rgctxIndex].method = method;
+                    dataValues[dataValuesIndex].method = method;
+
+                    rgctxIndex++; // Constrained call data takes two slots
                 }
                 break;
                 default:

@@ -30,10 +30,10 @@ namespace System
         static int32_t GetArrayRank(Il2CppQCallTypeHandle type);
         static int32_t GetMetadataToken(Il2CppQCallTypeHandle type);
         static intptr_t GetGenericParameterInfo(Il2CppQCallTypeHandle type);
+        static intptr_t GetMonoClass(Il2CppQCallTypeHandle type);
         static uint8_t GetCorElementType(Il2CppQCallTypeHandle type);
         static int32_t GetAttributes(Il2CppQCallTypeHandle type);
         static void GetAssembly(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);
-        static void GetBaseType(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);
         static void GetElementType(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);
         static void GetGenericTypeDefinition_impl(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);
         static void GetModule(Il2CppQCallTypeHandle type, Il2CppObjectHandleOnStack res);

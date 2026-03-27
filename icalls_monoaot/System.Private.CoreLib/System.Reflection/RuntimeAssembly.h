@@ -24,6 +24,7 @@ namespace Reflection
         static void AllocateStaticData();
         static void FreeStaticData();
         static bool GetManifestResourceInfoInternal(Il2CppQCallAssembly assembly, Il2CppString* name, Il2CppManifestResourceInfo* info);
+        static bool InternalTryGetRawMetadata(Il2CppQCallAssembly assembly, uint8_t** blob, int32_t* length);
         static intptr_t GetManifestResourceInternal(Il2CppQCallAssembly assembly, Il2CppString* name, int32_t* size, Il2CppObjectHandleOnStack module);
         static intptr_t InternalGetReferencedAssemblies(Il2CppReflectionAssembly* assembly);
         static void GetEntryPoint(Il2CppQCallAssembly assembly, Il2CppObjectHandleOnStack res);

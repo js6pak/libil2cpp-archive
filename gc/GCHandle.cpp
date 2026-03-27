@@ -157,7 +157,7 @@ namespace gc
         return slot;
     }
 
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
     static Il2CppGCHandle
     handle_tag_pinned(Il2CppGCHandle handle)
     {
@@ -241,7 +241,7 @@ namespace gc
         unlock_handles(handles);
 
         res = (Il2CppGCHandle) & handles->entries[slot];
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
         if (HandleTypeIsPinned((GCHandleType)handles->type))
         {
             /*
@@ -275,7 +275,7 @@ namespace gc
 #ifndef HAVE_SGEN_GC
         if (track_resurrection)
         {
-#if MONO_NET8_BCL
+#if MONO_NET_BCL
             if (vm::Object::IsInst(obj, il2cpp_defaults.assembly_load_context_class))
             {
                 // The classlibs will attempt to create an ALC with resurrection tracking
@@ -291,7 +291,7 @@ namespace gc
         return (Il2CppGCHandle)handle;
     }
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     GCHandleType GCHandle::GetHandleType(Il2CppGCHandle gchandle)
     {
         HandleData* handles = handle_lookup(gchandle, NULL);
@@ -399,7 +399,7 @@ namespace gc
         il2cpp_gchandle_set_target(gchandle, value);
     }
 
-#if !MONO_NET8_BCL
+#if !MONO_NET_BCL
     utils::Expected<Il2CppGCHandle> GCHandle::GetTargetHandle(Il2CppObject * obj, Il2CppGCHandle handle, int32_t type)
     {
         if (type == -1)

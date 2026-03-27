@@ -252,6 +252,7 @@ namespace vm
         static void ConstructDelegate(Il2CppDelegate* delegate, Il2CppObject* target, const MethodInfo* method);
         static void ConstructClosedDelegate(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr, const MethodInfo* method);
         static void SetClosedDelegateInvokeMethod(Il2CppDelegate* delegate, Il2CppObject* target, Il2CppMethodPointer addr);
+        static Il2CppObject* GetDelegateTarget(Il2CppDelegate* delegate);
     };
 } /* namespace vm */
 } /* namespace il2cpp */
