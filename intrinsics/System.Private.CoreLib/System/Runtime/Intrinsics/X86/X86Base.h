@@ -1,7 +1,7 @@
 #pragma once
 #include "il2cpp-config.h"
 #include "il2cpp-intrinsics-config.h"
-#include "x86base/X64.h"
+#include "intrinsics/System.Private.CoreLib/System/Runtime/Intrinsics/X86/X86Base/X64.h"
 
 #include "codegen/il2cpp-codegen-metadata.h"
 
@@ -11,14 +11,6 @@
 #include <cpuid.h>
 #endif
 #endif // IL2CPP_X86BASE_IS_SUPPORTED
-
-template<typename T1, typename T2>
-struct Il2CppRuntimeValueTuple
-{
-    Il2CppRuntimeValueTuple(T1 item1, T2 item2) : item1(item1), item2(item2) {}
-    T1 item1;
-    T2 item2;
-};
 
 namespace il2cpp
 {
@@ -169,7 +161,7 @@ namespace X86
 #if IL2CPP_SIZEOF_VOID_P == 4
         return il2cpp_intrinsic__x86_base_div_rem_signed<TRet, TArg1, TArg2, TArg3>(static_cast<uint32_t>(lower), static_cast<int32_t>(upper), static_cast<int32_t>(divisor));
 #else
-        return il2cpp_intrinsic__x64_div_rem_signed<TRet, TArg1, TArg2, TArg3>(static_cast<uint64_t>(lower), static_cast<int64_t>(upper), static_cast<int64_t>(divisor));
+        return X86Base::il2cpp_intrinsic__x64_div_rem_signed<TRet, TArg1, TArg2, TArg3>(lower, upper, divisor);
 #endif
     }
 
@@ -184,7 +176,7 @@ namespace X86
 #if IL2CPP_SIZEOF_VOID_P == 4
         return il2cpp_intrinsic__x86_base_div_rem<TRet, TArg1, TArg2, TArg3>(static_cast<uint32_t>(lower), static_cast<uint32_t>(upper), static_cast<uint32_t>(divisor));
 #else
-        return il2cpp_intrinsic__x64_div_rem<TRet, TArg1, TArg2, TArg3>(static_cast<uint64_t>(lower), static_cast<uint64_t>(upper), static_cast<uint64_t>(divisor));
+        return X86Base::il2cpp_intrinsic__x64_div_rem<TRet, TArg1, TArg2, TArg3>(lower, upper, divisor);
 #endif
     }
 

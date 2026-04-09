@@ -313,8 +313,13 @@ namespace metadata
         if (methodPointers.methodPointer)
         {
             newMethod->invoker_method = methodPointers.invoker_method;
-            if (Method::RequiresAdjustorThunk(newMethod) && newMethod->methodPointer == newMethod->virtualMethodPointer)
-                newMethod->virtualMethodPointer = Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
+            if (newMethod->virtualMethodPointer == NULL)
+            {
+                if (Method::RequiresAdjustorThunk(newMethod))
+                    newMethod->virtualMethodPointer = Method::GetEntryPointNotFoundMethodInfo()->methodPointer;
+                else
+                    newMethod->virtualMethodPointer = methodPointers.methodPointer;
+            }
         }
         else
         {

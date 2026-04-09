@@ -375,6 +375,248 @@ namespace System
     {
         return abs(static_cast<int32_t>(value));
     }
+
+/* METHOD MAPPING
+    Method: System.Byte System.Math::Max(System.Byte,System.Byte)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint8_t il2cpp_intrinsic_math_max(uint8_t val1, uint8_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Byte System.Math::Min(System.Byte,System.Byte)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint8_t il2cpp_intrinsic_math_min(uint8_t val1, uint8_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Double System.Math::ReciprocalEstimate(System.Double)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline double il2cpp_intrinsic_math_reciprocal_estimate(double d)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_reciprocal_estimate);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Double System.Math::ReciprocalSqrtEstimate(System.Double)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline double il2cpp_intrinsic_math_reciprocal_sqrt_estimate(double d)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_reciprocal_sqrt_estimate);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Int16 System.Math::Max(System.Int16,System.Int16)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int16_t il2cpp_intrinsic_math_max(int16_t val1, int16_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Int16 System.Math::Min(System.Int16,System.Int16)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int16_t il2cpp_intrinsic_math_min(int16_t val1, int16_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Int32 System.Math::Max(System.Int32,System.Int32)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int32_t il2cpp_intrinsic_math_max(int32_t val1, int32_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Int32 System.Math::Min(System.Int32,System.Int32)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int32_t il2cpp_intrinsic_math_min(int32_t val1, int32_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Int64 System.Math::Max(System.Int64,System.Int64)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int64_t il2cpp_intrinsic_math_max(int64_t val1, int64_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Int64 System.Math::Min(System.Int64,System.Int64)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int64_t il2cpp_intrinsic_math_min(int64_t val1, int64_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.IntPtr System.Math::Max(System.IntPtr,System.IntPtr)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline intptr_t il2cpp_intrinsic_math_max(intptr_t val1, intptr_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.IntPtr System.Math::Min(System.IntPtr,System.IntPtr)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline intptr_t il2cpp_intrinsic_math_min(intptr_t val1, intptr_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.SByte System.Math::Max(System.SByte,System.SByte)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int8_t il2cpp_intrinsic_math_max(int8_t val1, int8_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.SByte System.Math::Min(System.SByte,System.SByte)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline int8_t il2cpp_intrinsic_math_min(int8_t val1, int8_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UInt16 System.Math::Max(System.UInt16,System.UInt16)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint16_t il2cpp_intrinsic_math_max(uint16_t val1, uint16_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UInt16 System.Math::Min(System.UInt16,System.UInt16)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint16_t il2cpp_intrinsic_math_min(uint16_t val1, uint16_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UInt32 System.Math::Max(System.UInt32,System.UInt32)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint32_t il2cpp_intrinsic_math_max(uint32_t val1, uint32_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UInt32 System.Math::Min(System.UInt32,System.UInt32)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint32_t il2cpp_intrinsic_math_min(uint32_t val1, uint32_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UInt64 System.Math::Max(System.UInt64,System.UInt64)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint64_t il2cpp_intrinsic_math_max(uint64_t val1, uint64_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UInt64 System.Math::Min(System.UInt64,System.UInt64)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uint64_t il2cpp_intrinsic_math_min(uint64_t val1, uint64_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UIntPtr System.Math::Max(System.UIntPtr,System.UIntPtr)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uintptr_t il2cpp_intrinsic_math_max(uintptr_t val1, uintptr_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_max);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.UIntPtr System.Math::Min(System.UIntPtr,System.UIntPtr)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline uintptr_t il2cpp_intrinsic_math_min(uintptr_t val1, uintptr_t val2)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_math_min);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
 } // namespace System
 } // namespace System_Private_CoreLib
 } // namespace intrinsics
