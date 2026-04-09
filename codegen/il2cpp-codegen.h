@@ -31,7 +31,7 @@
 #include <limits>
 #include <type_traits>
 
-#if IL2CPP_USE_SSE2_FP_CASTS
+#if IL2CPP_ENABLE_SSE2_FP_CASTS
 #include "xmmintrin.h"
 #endif
 
@@ -198,9 +198,9 @@ struct ConvFloatingPointSse2<TOutput, float>
 template<typename TOutput>
 struct ConvFloatingPointSse2<TOutput, double>
 {
-    inline static int32_t Conv(double value)
+    inline static TOutput Conv(double value)
     {
-        return _mm_cvttsd_si32(_mm_set_sd(value));
+        return (TOutput)_mm_cvttsd_si32(_mm_set_sd(value));
     }
 };
 
@@ -365,43 +365,6 @@ struct ConvFloatingPointNative
 #endif
     }
 };
-
-#if IL2CPP_TARGET_X86 || IL2CPP_TARGET_X64
-
-// On X86/X64 CoreCLR appears to produce saturating casts for the types below
-// So in those cases fallback to the runtime default floating point cast (which will be saturating on NET9+)
-
-template<typename TFloat>
-struct ConvFloatingPointNative<uint32_t, TFloat>
-{
-    inline static uint32_t Conv(TFloat value)
-    {
-        return (uint32_t)ConvFloatingPoint<uint32_t, TFloat>::Conv(value);
-    }
-};
-
-template<typename TFloat>
-struct ConvFloatingPointNative<uint64_t, TFloat>
-{
-    inline static uint64_t Conv(TFloat value)
-    {
-        return ConvFloatingPoint<uint64_t, TFloat>::Conv(value);
-    }
-};
-
-#if IL2CPP_TARGET_X86
-
-template<typename TFloat>
-struct ConvFloatingPointNative<int64_t, TFloat>
-{
-    inline static int64_t Conv(TFloat value)
-    {
-        return ConvFloatingPoint<int64_t, TFloat>::Conv(value);
-    }
-};
-
-#endif
-#endif
 
 
 template<bool, class T, class U>

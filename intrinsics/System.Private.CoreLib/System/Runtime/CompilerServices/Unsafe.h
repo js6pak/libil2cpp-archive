@@ -3,6 +3,38 @@
 
 #include "codegen/il2cpp-codegen-metadata.h"
 #include "codegen/il2cpp-codegen.h"
+
+#ifdef _MSC_VER
+#define IL2CPP_DISABLE_WRITE_OVERFLOW_WARNING 1
+#else
+#define IL2CPP_DISABLE_WRITE_OVERFLOW_WARNING 0
+#endif
+
+#if IL2CPP_DISABLE_WRITE_OVERFLOW_WARNING
+
+// Some BCL Vector code supports copying between different sized vectors, it has a size check
+// This size check calls Vector128/256::get_Count which may not be inlined
+// When it's not the C++ compiler can't see that the unsafe write will never happen warns about a possible write overflow
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning(disable : 4789)
+#endif
+template<typename T>
+inline void il2cpp_intrinsic_unsafe_write_unaligned_NOWARN(void* destination, T value)
+{
+#if IL2CPP_TARGET_ARMV7 || IL2CPP_TARGET_JAVASCRIPT
+    memcpy(destination, &value, sizeof(T));
+#else
+    *((T*)destination) = value;
+#endif
+}
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif
+#endif // IL2CPP_DISABLE_WRITE_OVERFLOW_WARNING
+
 namespace il2cpp
 {
 namespace intrinsics
@@ -150,11 +182,15 @@ namespace CompilerServices
     template<typename T>
     inline void il2cpp_intrinsic_unsafe_write_unaligned(void* destination, T value)
     {
+#if IL2CPP_DISABLE_WRITE_OVERFLOW_WARNING
+        il2cpp_intrinsic_unsafe_write_unaligned_NOWARN(destination, value);
+#else
 #if IL2CPP_TARGET_ARMV7 || IL2CPP_TARGET_JAVASCRIPT
         memcpy(destination, &value, sizeof(T));
 #else
         *((T*)destination) = value;
 #endif
+#endif // IL2CPP_DISABLE_WRITE_OVERFLOW_WARNING
     }
 
     /* METHOD MAPPING

@@ -102,7 +102,6 @@ namespace X86Base
 #endif
         auto ret = Il2CppRuntimeValueTuple<uintptr_t, uintptr_t>(quotient, remainder);
         return INTRINSIC_CAST(decltype(ret), TRet, ret);
-#endif
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -132,7 +131,6 @@ namespace X86Base
 #endif
         auto ret = Il2CppRuntimeValueTuple<intptr_t, intptr_t>(quotient, remainder);
         return INTRINSIC_CAST(decltype(ret), TRet, ret);
-#endif
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
