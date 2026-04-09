@@ -27,7 +27,7 @@ namespace vm
     {
         std::string icuDataFileName;
 
-#if IL2CPP_STATIC_ICU && !IL2CPP_SYSTEM_GLOBALIZATION_INVARIANT
+#if IL2CPP_STATIC_ICU && !IL2CPP_SYSTEM_GLOBALIZATION_INVARIANT && !IL2CPP_HYBRID_GLOBALIZATION
         int error;
         auto appDir = os::Path::GetApplicationFolder();
         auto files = os::Directory::GetFileSystemEntries(appDir, utils::PathUtils::Combine(appDir, utils::StringView<char>("icudt*.dat")), 0, 0, &error);

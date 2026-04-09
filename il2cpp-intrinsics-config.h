@@ -3,6 +3,14 @@
 #include "intrinsics/IntrinsicsUtility.h"
 #include "string.h"
 
+template<typename T1, typename T2>
+struct Il2CppRuntimeValueTuple
+{
+    Il2CppRuntimeValueTuple(T1 item1, T2 item2) : item1(item1), item2(item2) {}
+    T1 item1;
+    T2 item2;
+};
+
 template<typename FromT, typename ToT>
 inline ToT il2cpp_intrinsic_cast(FromT fromVar)
 {

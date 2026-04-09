@@ -8,6 +8,7 @@
 #include "vm/Class.h"
 #include "vm/CCW.h"
 #include "vm/Exception.h"
+#include "vm/Field.h"
 #include "vm/Object.h"
 #include "vm/Reflection.h"
 #include "vm/Runtime.h"
@@ -521,7 +522,11 @@ namespace vm
 
     Il2CppException* Exception::GetTypeLoadException(const utils::StringView<char>& namespaze, const utils::StringView<char>& typeName, const utils::StringView<char>& assemblyName)
     {
+#if MONO_NET_BCL
+        std::string exceptionMessage = "Could not resolve type '";
+#else
         std::string exceptionMessage = "Could not load type '";
+#endif
 
         if (!namespaze.IsEmpty())
         {
@@ -530,7 +535,12 @@ namespace vm
         }
 
         exceptionMessage.append(typeName.Str(), typeName.Length());
+
+#if MONO_NET_BCL
+        exceptionMessage += "' in assembly '";
+#else
         exceptionMessage += "' from assembly '";
+#endif
 
         if (assemblyName.IsEmpty())
         {
@@ -542,7 +552,7 @@ namespace vm
         }
 
         exceptionMessage += "'.";
-        return Exception::GetTypeLoadException(exceptionMessage.c_str());
+        return Exception::GetTypeLoadException(exceptionMessage.c_str(), typeName.Str());
     }
 
     Il2CppException* Exception::GetTypeLoadExceptionForWindowsRuntimeType(const utils::StringView<char>& namespaze, const utils::StringView<char>& typeName)
@@ -558,7 +568,7 @@ namespace vm
         typeLoadExceptionMessage.append(typeName.Str(), typeName.Length());
         typeLoadExceptionMessage += "'.";
 
-        Il2CppException* typeLoadException = Exception::GetTypeLoadException(typeLoadExceptionMessage.c_str());
+        Il2CppException* typeLoadException = Exception::GetTypeLoadException(typeLoadExceptionMessage.c_str(), typeName.Str());
 
         // If there's no '.' in neither typeName and namespace specified, it means there is no namespace specified
         // Therefore exception information should contain inner exception saying format is not recognized
@@ -576,7 +586,7 @@ namespace vm
     Il2CppException* Exception::GetTypeLoadExceptionForInvalidOffset(const utils::StringView<char>& typeName, size_t firstInvalidOffset)
     {
         std::string message = utils::StringUtils::Printf("Could not load type '%s'.  Invalid field offset at offset %d.", typeName.Str(), firstInvalidOffset);
-        return GetTypeLoadException(message.c_str());
+        return GetTypeLoadException(message.c_str(), typeName.Str());
     }
 
     Il2CppException* Exception::GetOutOfMemoryException(const utils::StringView<Il2CppChar>& msg)
@@ -614,9 +624,20 @@ namespace vm
         return FromNameMsg(vm::Image::GetCorlib(), "System", "ArrayTypeMismatchException", NULL);
     }
 
-    Il2CppException* Exception::GetTypeLoadException(const char* msg)
+    Il2CppException* Exception::GetTypeLoadException(const char* msg, const char* typeName)
     {
-        return FromNameMsg(vm::Image::GetCorlib(), "System", "TypeLoadException", msg);
+        Il2CppException* ex = FromNameMsg(vm::Image::GetCorlib(), "System", "TypeLoadException", msg);
+
+#if MONO_NET_BCL
+        if (ex != NULL && typeName != NULL)
+        {
+            FieldInfo* classNameField = vm::Class::GetFieldFromName(Object::GetClass(ex), "_className");
+            if (classNameField != NULL)
+                vm::Field::SetValue(ex, classNameField, vm::String::New(typeName));
+        }
+#endif
+
+        return ex;
     }
 
     Il2CppException* Exception::GetEntryPointNotFoundException(const char* msg)

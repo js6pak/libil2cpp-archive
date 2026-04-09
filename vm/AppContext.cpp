@@ -15,14 +15,16 @@ namespace vm
         if (!il2cpp_defaults.app_context_class)
             return; // Probably was stripped
 
-        const MethodInfo* setupMethod = Class::GetMethodFromName(il2cpp_defaults.app_context_class, "Setup", 3);
+        const MethodInfo* setupMethod = Class::GetMethodFromName(il2cpp_defaults.app_context_class, "Setup", 5);
 
         IL2CPP_ASSERT(setupMethod);
         IL2CPP_ASSERT(!Method::IsInstance(setupMethod));
         IL2CPP_ASSERT(Type::GetType(Method::GetReturnType(setupMethod)) == IL2CPP_TYPE_VOID);
         IL2CPP_ASSERT(Type::GetType(Method::GetParam(setupMethod, 0)) == IL2CPP_TYPE_PTR);
         IL2CPP_ASSERT(Type::GetType(Method::GetParam(setupMethod, 1)) == IL2CPP_TYPE_PTR);
-        IL2CPP_ASSERT(Type::GetType(Method::GetParam(setupMethod, 2)) == IL2CPP_TYPE_I4);
+        IL2CPP_ASSERT(Type::GetType(Method::GetParam(setupMethod, 2)) == IL2CPP_TYPE_PTR);
+        IL2CPP_ASSERT(Type::GetType(Method::GetParam(setupMethod, 3)) == IL2CPP_TYPE_PTR);
+        IL2CPP_ASSERT(Type::GetType(Method::GetParam(setupMethod, 4)) == IL2CPP_TYPE_I4);
 
         std::vector<UTF16String> nativeStrings;
 
@@ -41,16 +43,22 @@ namespace vm
         int32_t argCount = (int32_t)(nativeStrings.size() / 2);
 
         std::vector<const Il2CppChar*> names(argCount);
+        std::vector<int32_t> namesLengths(argCount);
         std::vector<const Il2CppChar*> values(argCount);
+        std::vector<int32_t> valuesLengths(argCount);
         for (int i = 0; i < argCount; ++i)
         {
             names[i] = nativeStrings[i * 2].c_str();
+            namesLengths[i] = (int32_t)nativeStrings[i * 2].length();
             values[i] = nativeStrings[i * 2 + 1].c_str();
+            valuesLengths[i] = (int32_t)nativeStrings[i * 2 + 1].length();
         }
 
-        void* args[3] = {
+        void* args[5] = {
             names.data(),
+            namesLengths.data(),
             values.data(),
+            valuesLengths.data(),
             &argCount
         };
 

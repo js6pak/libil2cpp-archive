@@ -822,14 +822,14 @@ namespace System
         {
             std::string message;
             message = vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) + " with rank " + utils::StringUtils::Printf("%d", rank) + " has too many dimensions.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str(), NULL));
         }
 
         if (type->type->byref)
         {
             std::string message;
             message = "Could not create array type '" + vm::Type::GetName(type->type, IL2CPP_TYPE_NAME_FORMAT_FULL_NAME) + "'.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str(), NULL));
         }
 
         const Il2CppClass* klass = vm::Class::FromIl2CppType(type->type);
@@ -837,8 +837,8 @@ namespace System
         if ((strcmp(klass->namespaze, "System") == 0 && strcmp(klass->name, "TypedReference") == 0))
         {
             std::string message;
-            message + "Could not create array type '" + klass->namespaze + "." + klass->name + "[]'.";
-            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str()));
+            message = std::string("Could not create array type '") + klass->namespaze + "." + klass->name + "[]'.";
+            il2cpp_raise_exception(vm::Exception::GetTypeLoadException(message.c_str(), NULL));
         }
     }
 
