@@ -618,7 +618,7 @@ namespace vm
             }
             message += klass->name;
             message += "'";
-            Class::SetClassInitializationError(klass, il2cpp::vm::Exception::GetTypeLoadException(message.c_str()));
+            Class::SetClassInitializationError(klass, il2cpp::vm::Exception::GetTypeLoadException(message.c_str(), klass->name));
 
             size = 1;
         }
@@ -1650,7 +1650,7 @@ namespace vm
             message += ":";
             message += klass->name;
             message += "' because generic types cannot have explicit layout.";
-            Class::SetClassInitializationError(klass, il2cpp::vm::Exception::GetTypeLoadException(message.c_str()));
+            Class::SetClassInitializationError(klass, il2cpp::vm::Exception::GetTypeLoadException(message.c_str(), klass->name));
             return false;
         }
 

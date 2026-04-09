@@ -678,7 +678,7 @@ static il2cpp::vm::Il2CppGenericMethodPointers MakeGenericMethodPointers(const I
         }
         else
         {
-            virtualMethod = method;
+            virtualMethod = NULL;
         }
 
         InvokerMethod invokerMethod;

@@ -266,6 +266,26 @@ namespace Threading
     {
         return VolatileRead(location);
     }
+
+    /* METHOD MAPPING
+        Method: System.Void System.Threading.Volatile::ReadBarrier()
+        AssemblyName: System.Private.CoreLib
+    */
+    inline void il2cpp_intrinsic_volatile_read_barrier()
+    {
+        IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_volatile_read_barrier);
+        IL2CPP_UNREACHABLE;
+    }
+
+    /* METHOD MAPPING
+        Method: System.Void System.Threading.Volatile::WriteBarrier()
+        AssemblyName: System.Private.CoreLib
+    */
+    inline void il2cpp_intrinsic_volatile_write_barrier()
+    {
+        IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_volatile_write_barrier);
+        IL2CPP_UNREACHABLE;
+    }
 } // namespace Threading
 } // namespace System
 } // namespace System_Private_CoreLib

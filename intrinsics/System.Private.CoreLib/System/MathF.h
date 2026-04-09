@@ -321,6 +321,28 @@ namespace System
     {
         return modff(x, intptr);
     }
+
+/* METHOD MAPPING
+    Method: System.Single System.MathF::ReciprocalEstimate(System.Single)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline float il2cpp_intrinsic_mathf_reciprocal_estimate(float x)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_mathf_reciprocal_estimate);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
+
+/* METHOD MAPPING
+    Method: System.Single System.MathF::ReciprocalSqrtEstimate(System.Single)
+    AssemblyName: System.Private.CoreLib
+*/
+//  inline float il2cpp_intrinsic_mathf_reciprocal_sqrt_estimate(float x)
+//  {
+//      IL2CPP_NOT_IMPLEMENTED_INTRINSIC(il2cpp_intrinsic_mathf_reciprocal_sqrt_estimate);
+//      IL2CPP_UNREACHABLE;
+//      return {};
+//  }
 } // namespace System
 } // namespace System_Private_CoreLib
 } // namespace intrinsics
