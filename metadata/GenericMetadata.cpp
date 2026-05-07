@@ -295,6 +295,7 @@ namespace metadata
                 {
                     Il2CppClass* klass = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(definitionData), context, true));
                     Class::InitSizeAndFieldLayoutLocked(klass, lock);
+                    Class::SetupTypeHierarchyLocked(klass, lock);
 
                     if (klass->initializationExceptionGCHandle)
                         *exc = (Il2CppException*)gc::GCHandle::GetTarget(klass->initializationExceptionGCHandle);

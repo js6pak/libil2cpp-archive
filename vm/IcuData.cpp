@@ -29,15 +29,8 @@ namespace vm
 
 #if IL2CPP_STATIC_ICU && !IL2CPP_SYSTEM_GLOBALIZATION_INVARIANT && !IL2CPP_HYBRID_GLOBALIZATION
         int error;
-        auto appDir = os::Path::GetApplicationFolder();
-        auto files = os::Directory::GetFileSystemEntries(appDir, utils::PathUtils::Combine(appDir, utils::StringView<char>("icudt*.dat")), 0, 0, &error);
-
-        if (files.size() == 0 || error != 0)
-        {
-            auto dataDirectory = utils::Runtime::GetDataDir();
-            files = os::Directory::GetFileSystemEntries(dataDirectory, utils::PathUtils::Combine(dataDirectory, utils::StringView<char>("icudt*.dat")), 0, 0, &error);
-        }
-
+        auto dataDir = utils::PathUtils::Combine(utils::Runtime::GetDataDir(), utils::StringView<char>("Icu"));
+        auto files = os::Directory::GetFileSystemEntries(dataDir, utils::PathUtils::Combine(dataDir, utils::StringView<char>("icudt*.dat")), 0, 0, &error);
         if (files.size() > 0)
         {
             icuDataFileName = *files.begin();
