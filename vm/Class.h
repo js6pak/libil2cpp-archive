@@ -194,6 +194,7 @@ namespace vm
         static Il2CppClass** GetNestedTypes(Il2CppClass *klass);
         static const PropertyInfo* GetProperties(Il2CppClass *klass);
         static void SetupTypeHierarchy(Il2CppClass *klass);
+        static void SetupTypeHierarchyLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock);
         static Il2CppClass** GetInterfaces(Il2CppClass *klass);
 
         // Must be called with the GC lock held!
