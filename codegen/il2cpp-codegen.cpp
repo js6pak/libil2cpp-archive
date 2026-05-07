@@ -133,10 +133,10 @@ RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult
 
 #endif
 
-void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeObject* target, void* methodPtr)
+void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeObject* target, void* methodPtr, InvokerMethod invoker)
 {
     IL2CPP_ASSERT(delegate->klass->parent == il2cpp_defaults.multicastdelegate_class);
-    il2cpp::vm::Type::SetClosedDelegateInvokeMethod((RuntimeDelegate*)delegate, target, (Il2CppMethodPointer)methodPtr);
+    il2cpp::vm::Type::SetClosedDelegateInvokeMethod((RuntimeDelegate*)delegate, target, (Il2CppMethodPointer)methodPtr, invoker);
 }
 
 RuntimeObject* il2cpp_codegen_delegate_get_target(RuntimeObject* delegate)
@@ -1233,4 +1233,62 @@ bool il2cpp_codegen_is_reference_or_contains_references(const RuntimeMethod* met
     Il2CppClass* klass = il2cpp::vm::Class::FromIl2CppType(type);
     il2cpp::vm::ClassInlines::InitFromCodegen(klass);
     return klass->has_references;
+}
+
+void il2cpp_codegen_delegate_invoke_open_inst(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result)
+{
+    RuntimeObject* obj = (RuntimeObject*)args[0];
+    NullCheck(obj);
+    method->invoker_method(methodPtr, method, obj, args + 1, result);
+}
+
+void il2cpp_codegen_delegate_invoke_closed_static(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeObject* thisPtr, void** args, void* result)
+{
+    // This relies on the generated Invoke method over-allocating the arguments by one, so we can move the arguments up and insert the "this" pointer for the static call
+    args = args - 1;
+    args[0] = thisPtr;
+    // Passing thisPtr here assumes that the thisPtr will be ignored on statics - this is a micro-optimization to remove a load null instruction
+    method->invoker_method(methodPtr, method, thisPtr, args, result);
+}
+
+void il2cpp_codegen_delegate_invoke_open_virtual(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result)
+{
+    RuntimeObject* obj = (RuntimeObject*)args[0];
+    NullCheck(obj);
+    const VirtualInvokeData& invokeData = il2cpp_codegen_get_virtual_invoke_data(method->slot, obj);
+    invokeData.method->invoker_method(invokeData.method->methodPointer, invokeData.method, obj, args + 1, result);
+}
+
+void il2cpp_codegen_delegate_invoke_open_interface(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result)
+{
+    RuntimeObject* obj = (RuntimeObject*)args[0];
+    NullCheck(obj);
+    const VirtualInvokeData& invokeData = il2cpp_codegen_get_interface_invoke_data(method->slot, obj, method->klass);
+    invokeData.method->invoker_method(invokeData.method->methodPointer, invokeData.method, obj, args + 1, result);
+}
+
+void il2cpp_codegen_delegate_invoke_open_generic_virtual(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result)
+{
+    RuntimeObject* obj = (RuntimeObject*)args[0];
+    NullCheck(obj);
+    const MethodInfo* genericMethod = il2cpp_codegen_get_generic_virtual_method(method, obj);
+    genericMethod->invoker_method(genericMethod->methodPointer, genericMethod, obj, args + 1, result);
+}
+
+void il2cpp_codegen_delegate_invoke_open_generic_interface(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result)
+{
+    RuntimeObject* obj = (RuntimeObject*)args[0];
+    NullCheck(obj);
+    const MethodInfo* genericMethod = il2cpp_codegen_get_generic_interface_method(method, obj);
+    genericMethod->invoker_method(genericMethod->methodPointer, genericMethod, obj, args + 1, result);
+}
+
+void il2cpp_codegen_delegate_invoke_multicast(Il2CppMethodPointer methodPtr, const MethodInfo* method, Il2CppMulticastDelegate* thisPtr, void** args, void* result)
+{
+    uint32_t delegateCount = il2cpp::vm::Array::GetLength(thisPtr->delegates);
+    for (uint32_t i = 0; i < delegateCount; i++)
+    {
+        RuntimeDelegate* currentDelegate = il2cpp_array_get(thisPtr->delegates, RuntimeDelegate*, i);
+        ((InvokerMethod)(currentDelegate->invoke_impl))(currentDelegate->method_ptr, currentDelegate->method, currentDelegate->invoke_impl_this, args, result);
+    }
 }

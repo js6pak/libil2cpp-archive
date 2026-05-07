@@ -1568,7 +1568,7 @@ namespace vm
         });
     }
 
-    static void SetupTypeHierarchyLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
+    void Class::SetupTypeHierarchyLocked(Il2CppClass *klass, const il2cpp::os::FastAutoLock& lock)
     {
         if (klass->typeHierarchy != NULL)
             return;
