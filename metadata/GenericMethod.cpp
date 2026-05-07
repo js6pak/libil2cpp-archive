@@ -65,10 +65,10 @@ static void FullySharedGenericInvokeRedirectHasAdjustorThunk(Il2CppMethodPointer
 {
     IL2CPP_ASSERT(Method::IsGenericInstance(method));
     IL2CPP_ASSERT(il2cpp::vm::Runtime::IsFullGenericSharingEnabled());
-    IL2CPP_ASSERT(methodPointer == method->virtualMethodPointer || methodPointer == method->methodPointer);
+    IL2CPP_ASSERT(methodPointer == method->virtualMethodPointer || methodPointer == method->methodPointer || Class::IsAssignableFrom(il2cpp_defaults.delegate_class, Method::GetClass(method)));
 
     const FullySharedGenericMethodInfo* sharedMethodInfo = reinterpret_cast<const FullySharedGenericMethodInfo*>(method);
-    IL2CPP_ASSERT(sharedMethodInfo->rawDirectMethodPointer != sharedMethodInfo->rawVirtualMethodPointer);
+    IL2CPP_ASSERT(sharedMethodInfo->rawDirectMethodPointer != sharedMethodInfo->rawVirtualMethodPointer || Class::IsAssignableFrom(il2cpp_defaults.delegate_class, Method::GetClass(method)));
 
     if (methodPointer == sharedMethodInfo->virtualMethodPointer)
         sharedMethodInfo->rawInvokerMethod(sharedMethodInfo->rawVirtualMethodPointer, method, obj, args, retVal);
@@ -80,10 +80,10 @@ static void FullySharedGenericInvokeRedirectNoAdjustorThunk(Il2CppMethodPointer 
 {
     IL2CPP_ASSERT(Method::IsGenericInstance(method));
     IL2CPP_ASSERT(il2cpp::vm::Runtime::IsFullGenericSharingEnabled());
-    IL2CPP_ASSERT(methodPointer == method->methodPointer || methodPointer == method->virtualMethodPointer);
+    IL2CPP_ASSERT(methodPointer == method->methodPointer || methodPointer == method->virtualMethodPointer || Class::IsAssignableFrom(il2cpp_defaults.delegate_class, Method::GetClass(method)));
 
     const FullySharedGenericMethodInfo* sharedMethodInfo = reinterpret_cast<const FullySharedGenericMethodInfo*>(method);
-    IL2CPP_ASSERT(sharedMethodInfo->rawDirectMethodPointer == sharedMethodInfo->rawVirtualMethodPointer);
+    IL2CPP_ASSERT(sharedMethodInfo->rawDirectMethodPointer == sharedMethodInfo->rawVirtualMethodPointer || Class::IsAssignableFrom(il2cpp_defaults.delegate_class, Method::GetClass(method)));
 
     sharedMethodInfo->rawInvokerMethod(sharedMethodInfo->rawDirectMethodPointer, method, obj, args, retVal);
 }

@@ -1260,12 +1260,12 @@ inline void il2cpp_codegen_runtime_class_init_inline(RuntimeClass* klass)
 }
 
 // generic sharing
-inline RuntimeClass* il2cpp_rgctx_data(const Il2CppRGCTXData* rgctxVar, int32_t index)
+inline RuntimeClass* il2cpp_rgctx_data_init(const Il2CppRGCTXData* rgctxVar, int32_t index)
 {
     return InitializedTypeInfo(rgctxVar[index].klass);
 }
 
-inline RuntimeClass* il2cpp_rgctx_data_no_init(const Il2CppRGCTXData* rgctxVar, int32_t index)
+inline RuntimeClass* il2cpp_rgctx_data(const Il2CppRGCTXData* rgctxVar, int32_t index)
 {
     return rgctxVar[index].klass;
 }
@@ -1480,7 +1480,7 @@ Il2CppAsyncResult* il2cpp_codegen_delegate_begin_invoke(RuntimeDelegate* delegat
 
 RuntimeObject* il2cpp_codegen_delegate_end_invoke(Il2CppAsyncResult* asyncResult, void **out_args);
 
-void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeObject* target, void* methodPtr);
+void il2cpp_codegen_set_closed_delegate_invoke(RuntimeObject* delegate, RuntimeObject* target, void* methodPtr, InvokerMethod invoker);
 
 RuntimeObject* il2cpp_codegen_delegate_get_target(RuntimeObject* delegate);
 
@@ -2052,3 +2052,11 @@ inline TStorage il2cpp_codegen_ldind(const TSource* source)
     memcpy(&dest, source, sizeof(TSource));
     return (TStorage)dest;
 }
+
+void il2cpp_codegen_delegate_invoke_open_inst(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
+void il2cpp_codegen_delegate_invoke_closed_static(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeObject* thisPtr, void** args, void* result);
+void il2cpp_codegen_delegate_invoke_open_virtual(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
+void il2cpp_codegen_delegate_invoke_open_interface(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
+void il2cpp_codegen_delegate_invoke_open_generic_virtual(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
+void il2cpp_codegen_delegate_invoke_open_generic_interface(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
+void il2cpp_codegen_delegate_invoke_multicast(Il2CppMethodPointer methodPtr, const MethodInfo* method, Il2CppMulticastDelegate* thisPtr, void** args, void* result);
