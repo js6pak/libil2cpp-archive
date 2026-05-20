@@ -261,6 +261,16 @@ void il2cpp::vm::MetadataCache::ExecuteModuleInitializers()
     }
 }
 
+void il2cpp::vm::MetadataCache::InitAlwaysInitMetadataUsages()
+{
+    for (size_t i = 0; i < s_MetadataCache_Il2CppMetadataRegistration->alwaysInitMetadataUsagesCount; i++)
+    {
+        Il2CppClass** metadataPointer = s_MetadataCache_Il2CppMetadataRegistration->alwaysInitMetadataUsages[i];
+        GlobalMetadata::InitializeRuntimeMetadata((uintptr_t*)metadataPointer, false);
+        Class::Init(*metadataPointer);
+    }
+}
+
 void ClearGenericMethodTable()
 {
     s_MethodTableMap.clear();
@@ -650,7 +660,7 @@ static const Il2CppGenericInst* GetSharedInst(const Il2CppGenericInst* inst)
 
             if (il2cpp::vm::Type::IsGenericInstance(type))
             {
-                const Il2CppGenericInst* sharedInst = GetSharedInst(type->data.generic_class->context.class_inst);
+                const Il2CppGenericInst* sharedInst = GetSharedInst(il2cpp::vm::GenericClass::GetInstance(type->data.generic_class));
                 Il2CppGenericClass* gklass = il2cpp::metadata::GenericMetadata::GetGenericClass(type->data.generic_class->type, sharedInst);
                 Il2CppClass* klass = il2cpp::vm::GenericClass::GetClass(gklass);
                 type = &klass->byval_arg;
@@ -932,9 +942,9 @@ const Il2CppType* il2cpp::vm::MetadataCache::GetReducedType(const Il2CppType* ty
             const Il2CppGenericInst* sharedInst;
             Il2CppClass* genericTypeDefinition = il2cpp::vm::GenericClass::GetTypeDefinition(type->data.generic_class);
             if (il2cpp::vm::Type::HasVariableRuntimeSizeWhenFullyShared(il2cpp::vm::Class::GetType(genericTypeDefinition)))
-                sharedInst = GetSharedInst(type->data.generic_class->context.class_inst);
+                sharedInst = GetSharedInst(il2cpp::vm::GenericClass::GetInstance(type->data.generic_class));
             else
-                sharedInst = GetFullySharedInst(genericTypeDefinition->genericContainerHandle, type->data.generic_class->context.class_inst);
+                sharedInst = GetFullySharedInst(genericTypeDefinition->genericContainerHandle, il2cpp::vm::GenericClass::GetInstance(type->data.generic_class));
 
             Il2CppGenericClass* gklass = il2cpp::metadata::GenericMetadata::GetGenericClass(type->data.generic_class->type, sharedInst);
             Il2CppClass* klass = il2cpp::vm::GenericClass::GetClass(gklass);

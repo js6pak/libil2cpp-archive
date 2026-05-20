@@ -190,14 +190,14 @@ namespace vm
         if (klass->generic_class)
         {
             Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition(klass->generic_class);
-            Il2CppGenericContext* context = &klass->generic_class->context;
+            const Il2CppGenericInst* classInst = GenericClass::GetInstance(klass->generic_class);
 
             if (genericTypeDefinition->interfaces_count > 0)
             {
                 IL2CPP_ASSERT(genericTypeDefinition->interfaces_count == klass->interfaces_count);
                 implementedInterfaces = (Il2CppClass**)MetadataCalloc(genericTypeDefinition->interfaces_count, sizeof(Il2CppClass*));
                 for (uint16_t i = 0; i < genericTypeDefinition->interfaces_count; i++)
-                    implementedInterfaces[i] = Class::FromIl2CppType(il2cpp::metadata::GenericMetadata::InflateIfNeeded(MetadataCache::GetInterfaceFromOffset(genericTypeDefinition, i), context, false));
+                    implementedInterfaces[i] = Class::FromIl2CppType(il2cpp::metadata::GenericMetadata::InflateIfNeeded(MetadataCache::GetInterfaceFromOffset(genericTypeDefinition, i), classInst, false));
             }
         }
         else if (klass->rank > 0)
@@ -1376,7 +1376,7 @@ namespace vm
         if (klass->generic_class)
         {
             Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition(klass->generic_class);
-            Il2CppGenericContext* context = &klass->generic_class->context;
+            const Il2CppGenericInst* classInst = GenericClass::GetInstance(klass->generic_class);
             if (genericTypeDefinition->interface_offsets_count > 0 && klass->interfaceOffsets == NULL)
             {
                 klass->interface_offsets_count = genericTypeDefinition->interface_offsets_count;
@@ -1385,7 +1385,7 @@ namespace vm
                 {
                     Il2CppInterfaceOffsetInfo interfaceOffset = MetadataCache::GetInterfaceOffsetInfo(genericTypeDefinition, i);
                     klass->interfaceOffsets[i].offset = interfaceOffset.offset;
-                    klass->interfaceOffsets[i].interfaceType = Class::FromIl2CppType(il2cpp::metadata::GenericMetadata::InflateIfNeeded(interfaceOffset.interfaceType, context, false));
+                    klass->interfaceOffsets[i].interfaceType = Class::FromIl2CppType(il2cpp::metadata::GenericMetadata::InflateIfNeeded(interfaceOffset.interfaceType, classInst, false));
                 }
             }
 
@@ -1400,13 +1400,13 @@ namespace vm
                     {
                         if (method && method->is_inflated)
                         {
-                            Il2CppGenericMethod genericMethod = il2cpp::metadata::GenericMetadata::Inflate(*method->genericMethod, context);
+                            Il2CppGenericMethod genericMethod = il2cpp::metadata::GenericMetadata::Inflate(*method->genericMethod, classInst);
                             // Do not inflate the RGCTX here, code at the end of InitLocked will ensure that method RGCTX's are inflated
                             method = il2cpp::metadata::GenericMethod::GetMethod(genericMethod, IL2CPP_RGCTX_INIT_MODE_DISABLE);
                         }
                         if (method && method->klass && Class::IsGeneric(method->klass))
                         {
-                            method = il2cpp::metadata::GenericMethod::GetMethod(method, context->class_inst, NULL);
+                            method = il2cpp::metadata::GenericMethod::GetMethod(method, classInst, NULL);
                         }
                     }
 
@@ -1722,7 +1722,7 @@ namespace vm
                 if (klass->genericRecursionDepth < il2cpp::metadata::GenericMetadata::GetMaximumRuntimeGenericDepth() || il2cpp::vm::Runtime::IsLazyRGCTXInflationEnabled())
                 {
                     Il2CppException* exc = NULL;
-                    klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTXLocked(klass->image, klass->token, &klass->generic_class->context, lock, &exc);
+                    klass->rgctx_data = il2cpp::metadata::GenericMetadata::InflateRGCTXLocked(klass->image, klass->token, GenericClass::GetInstance(klass->generic_class), lock, &exc);
                     if (exc != NULL)
                         Class::SetClassInitializationError(klass, exc);
                 }

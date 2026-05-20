@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-class-internals.h"
 #include "Il2CppTypeCompare.h"
+#include "vm/GenericClass.h"
 
 namespace il2cpp
 {
@@ -48,8 +49,8 @@ namespace metadata
             }
             case IL2CPP_TYPE_GENERICINST:
             {
-                const Il2CppGenericInst *i1 = t1->data.generic_class->context.class_inst;
-                const Il2CppGenericInst *i2 = t2->data.generic_class->context.class_inst;
+                const Il2CppGenericInst *i1 = il2cpp::vm::GenericClass::GetInstance(t1->data.generic_class);
+                const Il2CppGenericInst *i2 = il2cpp::vm::GenericClass::GetInstance(t2->data.generic_class);
 
                 // this happens when maximum generic recursion is hit
                 if (i1 == NULL || i2 == NULL)

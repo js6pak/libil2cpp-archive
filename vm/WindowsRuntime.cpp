@@ -173,7 +173,7 @@ namespace vm
                 if (genericClass == NULL)
                     return kTypeKindMetadata;
 
-                const Il2CppGenericInst* classInst = genericClass->context.class_inst;
+                const Il2CppGenericInst* classInst = GenericClass::GetInstance(genericClass);
                 IL2CPP_ASSERT(classInst != NULL);
 
                 uint32_t genericArgumentCount = classInst->type_argc;
@@ -355,7 +355,7 @@ namespace vm
         if (genericClass == NULL)
             return typeName;
 
-        const Il2CppGenericInst* classInst = genericClass->context.class_inst;
+        const Il2CppGenericInst* classInst = GenericClass::GetInstance(genericClass);
         IL2CPP_ASSERT(classInst != NULL);
 
         typeName += '<';
