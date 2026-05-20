@@ -17,6 +17,7 @@
 
 #include "vm/Array.h"
 #include "vm/ClassInlines.h"
+#include "vm/GenericClass.h"
 #include "vm/ObjectInlines.h"
 #include "vm/ScopedThreadAttacher.h"
 #include "vm/Il2CppHStringReference.h"
@@ -1487,7 +1488,7 @@ RuntimeObject* il2cpp_codegen_delegate_get_target(RuntimeObject* delegate);
 inline const Il2CppGenericInst* il2cpp_codegen_get_generic_class_inst(RuntimeClass* genericClass)
 {
     IL2CPP_ASSERT(genericClass->generic_class);
-    return genericClass->generic_class->context.class_inst;
+    return il2cpp::vm::GenericClass::GetInstance(genericClass->generic_class);
 }
 
 RuntimeClass* il2cpp_codegen_get_generic_argument(RuntimeClass* klass, uint32_t argNum);
@@ -2060,3 +2061,51 @@ void il2cpp_codegen_delegate_invoke_open_interface(Il2CppMethodPointer methodPtr
 void il2cpp_codegen_delegate_invoke_open_generic_virtual(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
 void il2cpp_codegen_delegate_invoke_open_generic_interface(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
 void il2cpp_codegen_delegate_invoke_multicast(Il2CppMethodPointer methodPtr, const MethodInfo* method, Il2CppMulticastDelegate* thisPtr, void** args, void* result);
+
+// This class relies on the behavior on the C++ compiler in release
+// to inline and optimize out these the redundant _init checks so that we end
+// up with only one call to init() initialization per function
+// This is defined out for debug build because it greater bloats the build size
+struct CheckedLocalInit
+{
+    bool _init;
+    CheckedLocalInit() : _init(false) {}
+
+    template<typename T>
+    IL2CPP_FORCE_INLINE T* Init(T* expr, T* (*init)(T*))
+    {
+        if (_init)
+            return expr;
+        _init = true;
+        return init(expr);
+    }
+
+    template<typename T, typename TInit>
+    IL2CPP_FORCE_INLINE T* Init(T* expr, T* (*init)(TInit), TInit initParam)
+    {
+        if (_init)
+            return expr;
+        _init = true;
+        return init(initParam);
+    }
+
+    template<typename T>
+    IL2CPP_FORCE_INLINE void Init(T* expr, void (*init)(T*))
+    {
+        if (!_init)
+        {
+            init(expr);
+            _init = true;
+        }
+    }
+};
+
+#if IL2CPP_DEBUG
+#define CHECKED_LOCAL(name)
+#define CHECKED_LOCAL_INIT(name, expr, init) init(expr)
+#define CHECKED_LOCAL_INIT_PARAM(name, expr, init, initParam) init(initParam)
+#else
+#define CHECKED_LOCAL(name)    CheckedLocalInit name
+#define CHECKED_LOCAL_INIT(name, expr, init)  name.Init(expr, init)
+#define CHECKED_LOCAL_INIT_PARAM(name, expr, init, initParam)  name.Init(expr, init, initParam)
+#endif

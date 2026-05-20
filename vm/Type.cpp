@@ -674,7 +674,7 @@ namespace vm
                 if (IsGenericInstance(type))
                 {
                     Il2CppGenericClass *gclass = type->data.generic_class;
-                    const Il2CppGenericInst *inst = gclass->context.class_inst;
+                    const Il2CppGenericInst *inst = GenericClass::GetInstance(gclass);
                     Il2CppTypeNameFormat nested_format;
 
                     nested_format = format == IL2CPP_TYPE_NAME_FORMAT_FULL_NAME ? IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED : format;
@@ -907,7 +907,7 @@ namespace vm
                 if (klass->generic_class)
                 {
                     Il2CppGenericClass *gclass = klass->generic_class;
-                    const Il2CppGenericInst *inst = gclass->context.class_inst;
+                    const Il2CppGenericInst *inst = GenericClass::GetInstance(gclass);
                     Il2CppTypeNameFormat nested_format;
 
                     nested_format = format == IL2CPP_TYPE_NAME_FORMAT_FULL_NAME ? IL2CPP_TYPE_NAME_FORMAT_ASSEMBLY_QUALIFIED : format;
@@ -1067,7 +1067,7 @@ namespace vm
         }
         else if (klass->generic_class)
         {
-            const Il2CppGenericInst *inst = klass->generic_class->context.class_inst;
+            const Il2CppGenericInst* inst = il2cpp::vm::GenericClass::GetInstance(klass->generic_class);
             res = Array::New(arrType, inst->type_argc);
             for (uint32_t i = 0; i < inst->type_argc; ++i)
                 il2cpp_array_setref(res, i, Reflection::GetTypeObject(inst->type_argv[i]));

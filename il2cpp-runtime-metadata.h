@@ -35,7 +35,7 @@ typedef struct Il2CppGenericContext
 typedef struct Il2CppGenericClass
 {
     const Il2CppType* type;        /* the generic type definition */
-    Il2CppGenericContext context;  /* a context that contains the type instantiation doesn't contain any method instantiation */
+    const Il2CppGenericInst *class_inst;
     Il2CppClass *cached_class;     /* if present, the Il2CppClass corresponding to the instantiation.  */
 } Il2CppGenericClass;
 

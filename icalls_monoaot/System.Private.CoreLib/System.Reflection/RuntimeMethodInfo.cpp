@@ -7,6 +7,7 @@
 #include "il2cpp-tabledefs.h"
 #include "metadata/GenericMetadata.h"
 #include "vm/Array.h"
+#include "vm/GenericClass.h"
 #include "vm/GenericContainer.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
@@ -59,7 +60,7 @@ namespace Reflection
                 newCtx.class_inst = context->class_inst;
                 if (klass->generic_class)
                 {
-                    newCtx.class_inst = klass->generic_class->context.class_inst;
+                    newCtx.class_inst = il2cpp::vm::GenericClass::GetInstance(klass->generic_class);
                 }
                 else if (il2cpp::vm::Class::IsGenericTypeDefinition(klass))
                 {

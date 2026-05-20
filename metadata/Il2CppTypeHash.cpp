@@ -1,6 +1,7 @@
 #include "il2cpp-config.h"
 #include "il2cpp-class-internals.h"
 #include "Il2CppTypeHash.h"
+#include "vm/GenericClass.h"
 #include "utils/StringUtils.h"
 #include "utils/HashUtils.h"
 
@@ -42,7 +43,7 @@ namespace metadata
             }
             case IL2CPP_TYPE_GENERICINST:
             {
-                const Il2CppGenericInst *inst = t1->data.generic_class->context.class_inst;
+                const Il2CppGenericInst *inst = il2cpp::vm::GenericClass::GetInstance(t1->data.generic_class);
                 hash = HashUtils::Combine(hash, Hash(t1->data.generic_class->type));
                 for (uint32_t i = 0; i < inst->type_argc; ++i)
                 {
