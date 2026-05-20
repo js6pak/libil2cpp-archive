@@ -1,5 +1,6 @@
 #include "il2cpp-config.h"
 #include "metadata/GenericSharing.h"
+#include "vm/GenericClass.h"
 #include "vm/Type.h"
 #include "il2cpp-runtime-metadata.h"
 
@@ -11,7 +12,7 @@ namespace metadata
 {
     bool GenericSharing::IsShareable(Il2CppGenericClass* gclass)
     {
-        const Il2CppGenericInst* classInst = gclass->context.class_inst;
+        const Il2CppGenericInst* classInst = il2cpp::vm::GenericClass::GetInstance(gclass);
         if (classInst)
         {
             for (uint32_t i = 0; i < classInst->type_argc; ++i)

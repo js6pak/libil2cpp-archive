@@ -77,6 +77,7 @@ namespace vm
 
         static void ExecuteEagerStaticClassConstructors();
         static void ExecuteModuleInitializers();
+        static void InitAlwaysInitMetadataUsages();
 
         static Il2CppClass* GetGenericInstanceType(Il2CppClass* genericTypeDefinition, const Il2CppType** genericArgumentTypes, uint32_t genericArgumentCount);
         static const MethodInfo* GetGenericInstanceMethod(const MethodInfo* genericMethodDefinition, const Il2CppType** genericArgumentTypes, uint32_t genericArgumentCount);

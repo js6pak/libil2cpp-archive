@@ -228,8 +228,8 @@ namespace vm
             if (oGenericClass == NULL || !GenericClass::HasSameGenericTypeDefinition(oGenericClass, genericClass))
                 return false;
 
-            const Il2CppGenericInst* genericInst = genericClass->context.class_inst;
-            const Il2CppGenericInst* oGenericInst = oGenericClass->context.class_inst;
+            const Il2CppGenericInst* genericInst = GenericClass::GetInstance(genericClass);
+            const Il2CppGenericInst* oGenericInst = GenericClass::GetInstance(oGenericClass);
             Il2CppMetadataGenericContainerHandle genericContainer = Class::GetGenericContainer(klass);
 
             Il2CppClass* genericTypeDefintion = GenericClass::GetTypeDefinition(genericClass);

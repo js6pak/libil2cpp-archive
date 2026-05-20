@@ -48,6 +48,7 @@
 #include <map>
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
+#include "Il2CppDefaultsAsserts.h"
 #include "il2cpp-tabledefs.h"
 #include "gc/GarbageCollector.h"
 #include "gc/WriteBarrier.h"
@@ -76,6 +77,8 @@
 #include "Baselib.h"
 #include "Cpp/ReentrantLock.h"
 
+void InitIl2CppDefaults();
+
 Il2CppDefaults il2cpp_defaults;
 bool g_il2cpp_is_fully_initialized = false;
 static bool shutting_down = false;
@@ -100,26 +103,6 @@ namespace vm
     static const char *s_BundledMachineConfig = 0;
     static Il2CppRuntimeUnhandledExceptionPolicy s_UnhandledExceptionPolicy = IL2CPP_UNHANDLED_POLICY_CURRENT;
     static const void* s_UnitytlsInterface = NULL;
-
-#define DEFAULTS_INIT(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n);\
-    IL2CPP_ASSERT(il2cpp_defaults.field); } while (0)
-
-#define DEFAULTS_INIT_TYPE(field, ns, n, nativetype) do { DEFAULTS_INIT(field, ns, n); \
-    IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->byval_arg.valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
-
-#define DEFAULTS_INIT_OPTIONAL(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib, ns, n); } while (0)
-
-#define DEFAULTS_INIT_TYPE_OPTIONAL(field, ns, n, nativetype) do { DEFAULTS_INIT_OPTIONAL(field, ns, n); \
-    if (il2cpp_defaults.field != NULL) \
-        IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->byval_arg.valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
-
-#define DEFAULTS_GEN_INIT(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib_gen, ns, n);\
-    IL2CPP_ASSERT(il2cpp_defaults.field); } while (0)
-
-#define DEFAULTS_GEN_INIT_TYPE(field, ns, n, nativetype) do { DEFAULTS_GEN_INIT(field, ns, n); \
-    IL2CPP_ASSERT(il2cpp_defaults.field->instance_size == sizeof(nativetype) + (il2cpp_defaults.field->byval_arg.valuetype ? sizeof(Il2CppObject) : 0)); } while (0)
-
-#define DEFAULTS_GEN_INIT_OPTIONAL(field, ns, n) do { il2cpp_defaults.field = Class::FromName (il2cpp_defaults.corlib_gen, ns, n); } while (0)
 
     char* basepath(const char* path)
     {
@@ -219,8 +202,6 @@ namespace vm
 
         register_allocator(il2cpp::utils::Memory::Malloc, il2cpp::utils::Memory::Free);
 
-        memset(&il2cpp_defaults, 0, sizeof(Il2CppDefaults));
-
 #if MONO_NET_BCL
         const Il2CppAssembly* assembly = Assembly::Load("System.Private.CoreLib.dll");
 #else
@@ -234,128 +215,12 @@ namespace vm
         // Which is the case for: Il2CppThread, Il2CppAppDomain, Il2CppCultureInfo, Il2CppReflectionProperty,
         // Il2CppDateTimeFormatInfo, Il2CppNumberFormatInfo
 
+        memset(&il2cpp_defaults, 0, sizeof(Il2CppDefaults));
+        InitIl2CppDefaults();
+        AssertRequiredIl2CppDefaultsAreNotNull();
+
         il2cpp_defaults.corlib = Assembly::GetImage(assembly);
         il2cpp_defaults.corlib_gen = Assembly::GetImage(assembly2);
-        DEFAULTS_INIT(object_class, "System", "Object");
-        DEFAULTS_INIT(void_class, "System", "Void");
-        DEFAULTS_INIT_TYPE(boolean_class, "System", "Boolean", bool);
-        DEFAULTS_INIT_TYPE(byte_class, "System", "Byte", uint8_t);
-        DEFAULTS_INIT_TYPE(sbyte_class, "System", "SByte", int8_t);
-        DEFAULTS_INIT_TYPE(int16_class, "System", "Int16", int16_t);
-        DEFAULTS_INIT_TYPE(uint16_class, "System", "UInt16", uint16_t);
-        DEFAULTS_INIT_TYPE(int32_class, "System", "Int32", int32_t);
-        DEFAULTS_INIT_TYPE(uint32_class, "System", "UInt32", uint32_t);
-        DEFAULTS_INIT(uint_class, "System", "UIntPtr");
-        DEFAULTS_INIT_TYPE(int_class, "System", "IntPtr", intptr_t);
-        DEFAULTS_INIT_TYPE(int64_class, "System", "Int64", int64_t);
-        DEFAULTS_INIT_TYPE(uint64_class, "System", "UInt64", uint64_t);
-        DEFAULTS_INIT_TYPE(single_class, "System", "Single", float);
-        DEFAULTS_INIT_TYPE(double_class, "System", "Double", double);
-        DEFAULTS_INIT_TYPE(char_class, "System", "Char", Il2CppChar);
-        DEFAULTS_INIT(string_class, "System", "String");
-        DEFAULTS_INIT(enum_class, "System", "Enum");
-        DEFAULTS_INIT(array_class, "System", "Array");
-        DEFAULTS_INIT(value_type_class, "System", "ValueType");
-        DEFAULTS_INIT_TYPE(delegate_class, "System", "Delegate", Il2CppDelegate);
-        DEFAULTS_INIT_TYPE(multicastdelegate_class, "System", "MulticastDelegate", Il2CppMulticastDelegate);
-#if !MONO_NET_BCL
-        DEFAULTS_INIT(asyncresult_class, "System.Runtime.Remoting.Messaging", "AsyncResult");
-        DEFAULTS_INIT_TYPE(async_call_class, "System", "MonoAsyncCall", Il2CppAsyncCall);
-#endif
-        DEFAULTS_INIT(manualresetevent_class, "System.Threading", "ManualResetEvent");
-        DEFAULTS_INIT(systemtype_class, "System", "Type");
-        DEFAULTS_INIT_TYPE(thread_class, "System.Threading", "Thread", Il2CppThread);
-#if !MONO_NET_BCL
-        DEFAULTS_INIT_TYPE(monotype_class, "System", "MonoType", Il2CppReflectionMonoType);
-        DEFAULTS_INIT_TYPE(internal_thread_class, "System.Threading", "InternalThread", Il2CppInternalThread);
-#endif
-        DEFAULTS_INIT_TYPE(runtimetype_class, "System", "RuntimeType", Il2CppReflectionRuntimeType);
-        DEFAULTS_INIT(appdomain_class, "System", "AppDomain");
-#if !MONO_NET_BCL
-        DEFAULTS_INIT(appdomain_setup_class, "System", "AppDomainSetup");
-#else
-        DEFAULTS_INIT(app_context_class, "System", "AppContext");
-        DEFAULTS_INIT(assembly_load_context_class, "System.Runtime.Loader", "AssemblyLoadContext");
-#endif
-        DEFAULTS_INIT(member_info_class, "System.Reflection", "MemberInfo");
-        DEFAULTS_INIT(field_info_class, "System.Reflection", "FieldInfo");
-        DEFAULTS_INIT(method_info_class, "System.Reflection", "MethodInfo");
-        DEFAULTS_INIT(property_info_class, "System.Reflection", "PropertyInfo");
-#if !MONO_NET_BCL
-        DEFAULTS_INIT_TYPE(event_info_class, "System.Reflection", "EventInfo", Il2CppReflectionEvent);
-        DEFAULTS_INIT_TYPE(stringbuilder_class, "System.Text", "StringBuilder", Il2CppStringBuilder);
-        DEFAULTS_INIT_TYPE(stack_frame_class, "System.Diagnostics", "StackFrame", Il2CppStackFrame);
-#else
-        DEFAULTS_INIT_TYPE_OPTIONAL(mono_stack_frame_class, "System.Diagnostics", "MonoStackFrame", Il2CppMonoStackFrame);
-        DEFAULTS_INIT_OPTIONAL(stack_frame_class, "System.Diagnostics", "StackFrame");
-        DEFAULTS_INIT_OPTIONAL(stack_trace_class, "System.Diagnostics", "StackTrace");
-#endif
-
-        DEFAULTS_INIT_TYPE_OPTIONAL(typed_reference_class, "System", "TypedReference", Il2CppTypedRef);
-        DEFAULTS_INIT_OPTIONAL(generic_ilist_class, "System.Collections.Generic", "IList`1");
-        DEFAULTS_INIT_OPTIONAL(generic_icollection_class, "System.Collections.Generic", "ICollection`1");
-        DEFAULTS_INIT_OPTIONAL(generic_ienumerable_class, "System.Collections.Generic", "IEnumerable`1");
-        DEFAULTS_INIT_OPTIONAL(generic_ireadonlylist_class, "System.Collections.Generic", "IReadOnlyList`1");
-        DEFAULTS_INIT_OPTIONAL(generic_ireadonlycollection_class, "System.Collections.Generic", "IReadOnlyCollection`1");
-        DEFAULTS_INIT_OPTIONAL(generic_readonlycollection_class, "System.Collections.ObjectModel", "ReadOnlyCollection`1");
-        DEFAULTS_INIT(generic_nullable_class, "System", "Nullable`1");
-        DEFAULTS_INIT(version, "System", "Version");
-        DEFAULTS_INIT(culture_info, "System.Globalization", "CultureInfo");
-        DEFAULTS_INIT_TYPE_OPTIONAL(parameter_info_class, "System.Reflection", "RuntimeParameterInfo", Il2CppReflectionParameter);
-        DEFAULTS_INIT_TYPE(assembly_class, "System.Reflection", "RuntimeAssembly", Il2CppReflectionAssembly);
-#if !MONO_NET_BCL
-        DEFAULTS_INIT_TYPE_OPTIONAL(assembly_name_class, "System.Reflection", "AssemblyName", Il2CppReflectionAssemblyName);
-        DEFAULTS_INIT_TYPE(module_class, "System.Reflection", "RuntimeModule", Il2CppReflectionModule);
-#else
-        DEFAULTS_INIT_TYPE_OPTIONAL(mono_assembly_name_class, "Mono", "MonoAssemblyName", Il2CppMonoAssemblyName);
-        DEFAULTS_INIT_OPTIONAL(module_class, "System.Reflection", "Module");
-#endif
-        DEFAULTS_INIT_TYPE(exception_class, "System", "Exception", Il2CppException);
-        DEFAULTS_INIT_OPTIONAL(threadabortexception_class, "System", "ThreadAbortException");
-        DEFAULTS_GEN_INIT_TYPE(il2cpp_com_object_class, "System", "__Il2CppComObject", Il2CppComObject);
-        DEFAULTS_INIT(dbnull_class, "System", "DBNull");
-        DEFAULTS_INIT_TYPE_OPTIONAL(error_wrapper_class, "System.Runtime.InteropServices", "ErrorWrapper", Il2CppErrorWrapper);
-        DEFAULTS_INIT(missing_class, "System.Reflection", "Missing");
-        DEFAULTS_INIT(attribute_class, "System", "Attribute");
-#if MONO_NET_BCL
-        DEFAULTS_INIT_OPTIONAL(runtime_customattribute_data_class, "System.Reflection", "RuntimeCustomAttributeData");
-        DEFAULTS_INIT_TYPE_OPTIONAL(customattribute_typed_argument_class, "System.Reflection", "CustomAttributeTypedArgument", Il2CppCustomAttributeTypedArgument);
-        DEFAULTS_INIT_TYPE_OPTIONAL(customattribute_named_argument_class, "System.Reflection", "CustomAttributeNamedArgument", Il2CppCustomAttributeNamedArgument);
-#else
-        DEFAULTS_INIT_OPTIONAL(customattribute_data_class, "System.Reflection", "CustomAttributeData");
-        DEFAULTS_INIT_OPTIONAL(customattribute_typed_argument_class, "System.Reflection", "CustomAttributeTypedArgument");
-        DEFAULTS_INIT_OPTIONAL(customattribute_named_argument_class, "System.Reflection", "CustomAttributeNamedArgument");
-#endif
-        DEFAULTS_INIT(key_value_pair_class, "System.Collections.Generic", "KeyValuePair`2");
-        DEFAULTS_INIT(system_guid_class, "System", "Guid");
-
-#if !MONO_NET_BCL
-        DEFAULTS_INIT(threadpool_wait_callback_class, "System.Threading", "_ThreadPoolWaitCallback");
-        DEFAULTS_INIT(mono_method_message_class, "System.Runtime.Remoting.Messaging", "MonoMethodMessage");
-
-        il2cpp_defaults.threadpool_perform_wait_callback_method = (MethodInfo*)vm::Class::GetMethodFromName(
-            il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
-#endif
-
-        DEFAULTS_INIT_OPTIONAL(stream_class, "System.IO", "Stream");
-
-        DEFAULTS_GEN_INIT_OPTIONAL(sbyte_shared_enum, "Unity.IL2CPP.Metadata", "__Il2CppSByteEnum");
-        DEFAULTS_GEN_INIT_OPTIONAL(int16_shared_enum, "Unity.IL2CPP.Metadata", "__Il2CppInt16Enum");
-        DEFAULTS_GEN_INIT_OPTIONAL(int32_shared_enum, "Unity.IL2CPP.Metadata", "__Il2CppInt32Enum");
-        DEFAULTS_GEN_INIT_OPTIONAL(int64_shared_enum, "Unity.IL2CPP.Metadata", "__Il2CppInt64Enum");
-
-        DEFAULTS_GEN_INIT_OPTIONAL(byte_shared_enum,   "Unity.IL2CPP.Metadata", "__Il2CppByteEnum");
-        DEFAULTS_GEN_INIT_OPTIONAL(uint16_shared_enum, "Unity.IL2CPP.Metadata", "__Il2CppUInt16Enum");
-        DEFAULTS_GEN_INIT_OPTIONAL(uint32_shared_enum, "Unity.IL2CPP.Metadata", "__Il2CppUInt32Enum");
-        DEFAULTS_GEN_INIT_OPTIONAL(uint64_shared_enum, "Unity.IL2CPP.Metadata", "__Il2CppUInt64Enum");
-
-        DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_shared_object_type, "System", "__Canon");
-        DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericType");
-        DEFAULTS_GEN_INIT_OPTIONAL(il2cpp_fully_shared_struct_type, "Unity.IL2CPP.Metadata", "__Il2CppFullySharedGenericStructType");
-
-        if (il2cpp_defaults.void_class)
-            il2cpp_defaults.void_ptr_class = vm::Class::GetPtrClass(il2cpp_defaults.void_class);
-
 
 #if MONO_NET_BCL
         if (il2cpp_defaults.runtimetype_class)
@@ -365,6 +230,9 @@ namespace vm
 #else
         if (il2cpp_defaults.runtimetype_class)
             il2cpp_defaults.runtime_type_get_type_method = vm::Class::GetMethodFromName(il2cpp_defaults.runtimetype_class, "GetType", 5);
+
+        if (il2cpp_defaults.threadpool_wait_callback_class)
+            il2cpp_defaults.threadpool_perform_wait_callback_method = (MethodInfo*)vm::Class::GetMethodFromName(il2cpp_defaults.threadpool_wait_callback_class, "PerformWaitCallback", 0);
 #endif
 
         ClassLibraryPAL::Initialize();
@@ -391,9 +259,10 @@ namespace vm
             il2cpp_defaults.windows_foundation_iuri_runtime_class_class = Class::FromName(windowsRuntimeMetadataImage, "Windows.Foundation", "IUriRuntimeClass");
         }
 
-        Class::Init(il2cpp_defaults.string_class);
 
         MetadataCache::InitializeGCSafe();
+
+        MetadataCache::InitAlwaysInitMetadataUsages();
 
         String::InitializeEmptyString(il2cpp_defaults.string_class);
         InitializeStringEmpty();
@@ -408,6 +277,7 @@ namespace vm
 
         Il2CppThread* mainThread = Thread::Attach(domain);
         Thread::SetMain(mainThread);
+
 
 #if !MONO_NET_BCL
         // TODO: AppDomainSetup

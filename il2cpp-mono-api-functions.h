@@ -78,7 +78,7 @@ DO_MONO_API_NOT_EXPORTED(GPtrArray*, il2cpp_g_ptr_array_free, (GPtrArray * array
 DO_MONO_API_NOT_EXPORTED(MonoMethod*, mono_class_get_method_from_name_checked, (MonoClass * klass, const char* name, int argsCount, int flags, MonoError * error))
 DO_MONO_API_NOT_EXPORTED(int32_t, mono_class_is_abstract, (MonoClass * klass));
 DO_MONO_API_NOT_EXPORTED(int32_t, mono_class_field_is_special_static, (MonoClassField * field))
-DO_MONO_API(MonoGenericContext*, mono_class_get_context, (MonoClass * klass))
+DO_MONO_API(MonoGenericContext*, mono_class_get_context, (MonoClass * klass, MonoGenericContext * storage))
 DO_MONO_API_NOT_EXPORTED(MonoMethod*, mono_class_inflate_generic_method_full_checked, (MonoMethod * method, MonoClass * klass_hint, MonoGenericContext * context, MonoError * error))
 DO_MONO_API_NOT_EXPORTED(MonoMethod*, mono_class_inflate_generic_method_checked, (MonoMethod * method, MonoGenericContext * context, MonoError * error))
 DO_MONO_API_NOT_EXPORTED(int32_t, mono_class_is_nullable, (MonoClass * klass))
@@ -221,7 +221,7 @@ DO_MONO_API_NOT_EXPORTED(MonoImage*, mono_assembly_get_image_internal, (MonoAsse
 DO_MONO_API_NOT_EXPORTED(int32_t, mono_verifier_is_method_valid_generic_instantiation, (MonoMethod * method))
 DO_MONO_API_NOT_EXPORTED(void, mono_network_init, ())
 DO_MONO_API(MonoMethod*, jinfo_get_method, (MonoJitInfo * ji))
-DO_MONO_API_NOT_EXPORTED(MonoGenericContext*, mono_generic_class_get_context, (MonoGenericClass * gclass))
+DO_MONO_API_NOT_EXPORTED(MonoGenericContext*, mono_generic_class_get_context, (MonoGenericClass * gclass, MonoGenericContext * storage))
 DO_MONO_API(MonoClass*, mono_get_string_class, ())
 DO_MONO_API(int32_t, mono_type_is_generic_parameter, (MonoType * type))
 DO_MONO_API(int, mono_type_size, (MonoType * t, int* align))

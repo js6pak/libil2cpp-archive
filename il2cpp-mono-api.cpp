@@ -746,9 +746,11 @@ int32_t mono_class_field_is_special_static(MonoClassField* field)
     return il2cpp::vm::Field::IsNormalStatic((FieldInfo*)field) ? 0 : 1;
 }
 
-MonoGenericContext* mono_class_get_context(MonoClass* klass)
+MonoGenericContext* mono_class_get_context(MonoClass* klass, MonoGenericContext* storage)
 {
-    return (MonoGenericContext*)&((Il2CppClass*)klass)->generic_class->context;
+    ((Il2CppGenericContext*)storage)->class_inst = il2cpp::vm::GenericClass::GetInstance(((Il2CppClass*)klass)->generic_class);
+    ((Il2CppGenericContext*)storage)->method_inst = NULL;
+    return (MonoGenericContext*)storage;
 }
 
 MonoMethod* mono_class_inflate_generic_method_full_checked(MonoMethod* method, MonoClass* klass_hint, MonoGenericContext* context, MonoError* error)
@@ -1724,9 +1726,11 @@ void mono_error_cleanup(MonoError *oerror)
 {
 }
 
-MonoGenericContext* mono_generic_class_get_context(MonoGenericClass *gclass)
+MonoGenericContext* mono_generic_class_get_context(MonoGenericClass *gclass, MonoGenericContext* storage)
 {
-    return (MonoGenericContext*)il2cpp::vm::GenericClass::GetContext((Il2CppGenericClass*)gclass);
+    ((Il2CppGenericContext*)storage)->class_inst = il2cpp::vm::GenericClass::GetInstance((Il2CppGenericClass*)gclass);
+    ((Il2CppGenericContext*)storage)->method_inst = NULL;
+    return (MonoGenericContext*)storage;
 }
 
 MonoClass* mono_get_string_class()

@@ -26,10 +26,14 @@ namespace metadata
         static Il2CppGenericClass* GetGenericClass(const Il2CppClass* genericTypeDefinition, const Il2CppGenericInst* inst);
         static Il2CppGenericClass* GetGenericClass(const Il2CppType* genericTypeDefinition, const Il2CppGenericInst* inst);
 
+        static const MethodInfo* Inflate(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst);
         static const MethodInfo* Inflate(const MethodInfo* methodDefinition, const Il2CppGenericContext* context);
+        static const Il2CppGenericMethod Inflate(const Il2CppGenericMethod& genericMethod, const Il2CppGenericInst* classInst);
         static const Il2CppGenericMethod Inflate(const Il2CppGenericMethod& genericMethod, const Il2CppGenericContext* context);
         static const Il2CppGenericInst* GetInflatedGenericIntance(const Il2CppGenericInst* inst, const Il2CppGenericContext* context, bool inflatMethodVars);
 
+
+        static Il2CppRGCTXData* InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericInst* classInst, const il2cpp::os::FastAutoLock& lock, Il2CppException** exc);
         static Il2CppRGCTXData* InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context, const il2cpp::os::FastAutoLock& lock, Il2CppException** exc);
         static void RegisterGenericClasses(Il2CppGenericClass* const* genericClasses, int32_t genericClassesCount);
         static bool ContainsGenericParameters(const Il2CppClass* klass);
@@ -37,6 +41,7 @@ namespace metadata
         static bool ContainsGenericParameters(const Il2CppGenericInst* inst);
         static bool ContainsGenericParameters(const Il2CppType* type);
 
+        static const Il2CppType* InflateIfNeeded(const Il2CppType* type, const Il2CppGenericInst* classInst, bool inflateMethodVars);
         static const Il2CppType* InflateIfNeeded(const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars);
 
         typedef void(*GenericClassWalkCallback)(Il2CppClass* type, void* context);

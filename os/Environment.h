@@ -31,6 +31,11 @@ namespace os
         static utils::Expected<std::string> GetWindowsFolderPath(int32_t folder);
 
         static utils::Expected<bool> Is64BitOs();
+
+        static bool IsBuildMachine()
+        {
+            return !il2cpp::os::Environment::GetEnvironmentVariable("UNITY_THISISABUILDMACHINE").empty();
+        }
     };
 }
 }
