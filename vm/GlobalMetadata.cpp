@@ -431,7 +431,7 @@ void il2cpp::vm::GlobalMetadata::InitializeAllMethodMetadata()
 // This method can be called from multiple threads, so it does have a data race. However, each
 // thread is reading from the same read-only metadata, so each thread will set the same values.
 // Therefore, we can safely ignore thread sanitizer issues in this method.
-void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataPointer, bool throwOnError) IL2CPP_DISABLE_TSAN
+void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataPointer, bool throwOnError, bool allowSharedGeneric) IL2CPP_DISABLE_TSAN
 {
     // This must be the only read of *metadataPointer
     // This code has no locks and we need to ensure that we only read metadataPointer once
@@ -451,12 +451,8 @@ void* il2cpp::vm::GlobalMetadata::InitializeRuntimeMetadata(uintptr_t* metadataP
     {
         case kIl2CppMetadataUsageTypeInfo:
             initialized = (void*)il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeIndex(decodedIndex, throwOnError);
-            if (initialized)
+            if (initialized && !allowSharedGeneric)
                 IL2CPP_ASSERT(!Type::IsSharedGenericMetaType(Class::GetType((Il2CppClass*)initialized)));
-            break;
-        case kIl2CppMetadataUsageIl2CppType:
-            initialized = (void*)il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(decodedIndex);
-            IL2CPP_ASSERT(!Type::IsSharedGenericMetaType((const Il2CppType*)initialized));
             break;
         case kIl2CppMetadataUsageMethodDef:
         case kIl2CppMetadataUsageMethodRef:
@@ -810,7 +806,7 @@ Il2CppTypeNameInfo il2cpp::vm::GlobalMetadata::GetTypeNameInfoFromType(const Il2
                 const Il2CppType* gtd = Type::GetGenericTypeDefinition(type);
                 nameInfo = GetTypeNameInfoFromType(gtd);
                 if (nameInfo.declaringType)
-                    nameInfo.declaringType = metadata::GenericMetadata::InflateIfNeeded(nameInfo.declaringType, GenericClass::GetContext(type->data.generic_class), false);
+                    nameInfo.declaringType = metadata::GenericMetadata::InflateIfNeeded(nameInfo.declaringType, GenericClass::GetInstance(type->data.generic_class), false);
             }
             break;
         default:
@@ -1543,7 +1539,7 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetGenericInstanceMethod(const Met
     if (genericMethodDefinition->is_inflated)
     {
         IL2CPP_ASSERT(genericMethodDefinition->klass->generic_class);
-        classInst = genericMethodDefinition->klass->generic_class->context.class_inst;
+        classInst = GenericClass::GetInstance(genericMethodDefinition->klass->generic_class);
         method = genericMethodDefinition->genericMethod->methodDefinition;
     }
 

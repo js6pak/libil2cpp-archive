@@ -74,6 +74,13 @@ namespace metadata
         return inflatedType;
     }
 
+    const Il2CppType* GenericMetadata::InflateIfNeeded(const Il2CppType* type, const Il2CppGenericInst* classInst, bool inflateMethodVars)
+    {
+        Il2CppGenericContext context = {};
+        context.class_inst = classInst;
+        return InflateIfNeeded(type, &context, inflateMethodVars);
+    }
+
     const Il2CppType* GenericMetadata::InflateIfNeeded(const Il2CppType* type, const Il2CppGenericContext* context, bool inflateMethodVars)
     {
         switch (type->type)
@@ -123,7 +130,7 @@ namespace metadata
             }
             case IL2CPP_TYPE_GENERICINST:
             {
-                const Il2CppGenericInst* inst = type->data.generic_class->context.class_inst;
+                const Il2CppGenericInst* inst = GenericClass::GetInstance(type->data.generic_class);
                 if (inst == NULL)
                     return NULL; // This is a generic type that was too deeply nested to generate
 
@@ -165,7 +172,7 @@ namespace metadata
         // temporary inst to lookup a permanent one that may already exist
         Il2CppGenericClass genericClass = { 0 };
         genericClass.type = genericTypeDefinition;
-        genericClass.context.class_inst = inst;
+        genericClass.class_inst = inst;
 
         FastAutoLock lock(&s_GenericClassMutex);
         Il2CppGenericClassSet::const_iterator iter = s_GenericClassSet.find(&genericClass);
@@ -174,13 +181,18 @@ namespace metadata
 
         Il2CppGenericClass* newClass = MetadataAllocGenericClass();
         newClass->type = genericTypeDefinition;
-        newClass->context.class_inst = inst;
+        newClass->class_inst = inst;
 
         s_GenericClassSet.insert(newClass);
 
         ++il2cpp_runtime_stats.generic_class_count;
 
         return newClass;
+    }
+
+    const MethodInfo* GenericMetadata::Inflate(const MethodInfo* methodDefinition, const Il2CppGenericInst* classInst)
+    {
+        return GenericMethod::GetMethod(methodDefinition, classInst, NULL);
     }
 
     const MethodInfo* GenericMetadata::Inflate(const MethodInfo* methodDefinition, const Il2CppGenericContext* context)
@@ -192,9 +204,7 @@ namespace metadata
 
     static int RecursiveGenericDepthFor(Il2CppGenericClass* genericClass)
     {
-        int classInstDepth = RecursiveGenericDepthFor(genericClass->context.class_inst);
-        int methodInstDepth = RecursiveGenericDepthFor(genericClass->context.method_inst);
-        return std::max(classInstDepth, methodInstDepth);
+        return RecursiveGenericDepthFor(GenericClass::GetInstance(genericClass));
     }
 
     static int RecursiveGenericDepthFor(const Il2CppGenericInst* inst)
@@ -212,6 +222,13 @@ namespace metadata
         }
 
         return maximumDepth + 1;
+    }
+
+    const Il2CppGenericMethod GenericMetadata::Inflate(const Il2CppGenericMethod& genericMethod, const Il2CppGenericInst* classInst)
+    {
+        Il2CppGenericContext context = {};
+        context.class_inst = classInst;
+        return Inflate(genericMethod, &context);
     }
 
     const Il2CppGenericMethod GenericMetadata::Inflate(const Il2CppGenericMethod& genericMethod, const Il2CppGenericContext* context)
@@ -252,6 +269,13 @@ namespace metadata
     static void ConstrainedCallsToGenericInterfaceMethodsOnStructsAreNotSupportedInvoker(Il2CppMethodPointer ptr, const MethodInfo* method, void* obj, void** args, void* ret)
     {
         ConstrainedCallsToGenericInterfaceMethodsOnStructsAreNotSupported();
+    }
+
+    Il2CppRGCTXData* GenericMetadata::InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericInst* classInst, const FastAutoLock& lock, Il2CppException** exc)
+    {
+        Il2CppGenericContext context = {};
+        context.class_inst = classInst;
+        return InflateRGCTXLocked(image, token, &context, lock, exc);
     }
 
     Il2CppRGCTXData* GenericMetadata::InflateRGCTXLocked(const Il2CppImage* image, uint32_t token, const Il2CppGenericContext* context, const FastAutoLock& lock, Il2CppException** exc)
@@ -359,7 +383,7 @@ namespace metadata
         if (!klass->generic_class)
             return false;
 
-        return ContainsGenericParameters(klass->generic_class->context.class_inst);
+        return ContainsGenericParameters(GenericClass::GetInstance(klass->generic_class));
     }
 
     bool GenericMetadata::ContainsGenericParameters(const MethodInfo* method)
@@ -393,7 +417,7 @@ namespace metadata
             case IL2CPP_TYPE_MVAR:
                 return true;
             case IL2CPP_TYPE_GENERICINST:
-                return ContainsGenericParameters(type->data.generic_class->context.class_inst);
+                return ContainsGenericParameters(GenericClass::GetInstance(type->data.generic_class));
             case IL2CPP_TYPE_ARRAY:
                 return ContainsGenericParameters(type->data.array->etype);
             case IL2CPP_TYPE_SZARRAY:

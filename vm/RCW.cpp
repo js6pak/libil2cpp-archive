@@ -160,7 +160,7 @@ namespace vm
         IL2CPP_ASSERT(il2cpp_defaults.ikey_value_pair_class != NULL);
 
         // Retrieve Windows.Foundation.Collections.IKeyValuePair`1<K, V> generic instance
-        Il2CppGenericClass* iKeyValuePairGenericClass = metadata::GenericMetadata::GetGenericClass(il2cpp_defaults.ikey_value_pair_class, keyValuePairGenericInstance->generic_class->context.class_inst);
+        Il2CppGenericClass* iKeyValuePairGenericClass = metadata::GenericMetadata::GetGenericClass(il2cpp_defaults.ikey_value_pair_class, il2cpp::vm::GenericClass::GetInstance(keyValuePairGenericInstance->generic_class));
         Il2CppClass* iKeyValuePairGenericInstance = GenericClass::GetClass(iKeyValuePairGenericClass);
         Class::Init(iKeyValuePairGenericInstance);
 

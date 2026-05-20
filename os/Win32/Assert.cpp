@@ -1,4 +1,6 @@
 #include "os/Assert.h"
+#include "os/Environment.h"
+#include <string>
 
 #if IL2CPP_DEBUG
 
@@ -7,9 +9,15 @@
 
 void il2cpp_assert(const char* assertion, const char* file, unsigned int line)
 {
-    if (_CrtDbgReport(_CRT_ASSERT, file, line, "", "%s", assertion) == 1)
+    if (il2cpp::os::Environment::IsBuildMachine())
     {
-        _CrtDbgBreak();
+        il2cpp_assert_generic(assertion, file, line);
+        _exit(-1);
+    }
+    else
+    {
+        if (_CrtDbgReport(_CRT_ASSERT, file, line, "", "%s", assertion) == 1)
+            _CrtDbgBreak();
     }
 }
 

@@ -30,7 +30,7 @@ namespace vm
         static bool Initialize(int32_t* imagesCount, int32_t* assembliesCount);
 
         static void InitializeAllMethodMetadata();
-        static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer, bool throwOnError);
+        static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer, bool throwOnError, bool allowSharedGeneric = false);
         static void InitializeStringLiteralTable();
         static void InitializeWindowsRuntimeTypeNamesTables(WindowsRuntimeTypeNameToClassMap& windowsRuntimeTypeNameToClassMap, ClassToWindowsRuntimeTypeNameMap& classToWindowsRuntimeTypeNameMap);
         static void InitializeUnresolvedSignatureTable(Il2CppUnresolvedSignatureMap& unresolvedSignatureMap);

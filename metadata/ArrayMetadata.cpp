@@ -322,7 +322,7 @@ namespace metadata
             Il2CppClass* interfaceDefinition = GenericClass::GetTypeDefinition(interfaceType->generic_class);
 
             Il2CppGenericContext context = { 0 };
-            context.method_inst = MetadataCache::GetGenericInst(&interfaceType->generic_class->context.class_inst->type_argv[0], 1);
+            context.method_inst = MetadataCache::GetGenericInst(&GenericClass::GetInstance(interfaceType->generic_class)->type_argv[0], 1);
 
             for (GenericArrayMethods::const_iterator iter = s_GenericArrayMethods.begin(); iter != s_GenericArrayMethods.end(); ++iter)
             {

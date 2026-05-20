@@ -10,16 +10,8 @@
 
 void il2cpp::os::Initialize()
 {
-#ifdef _DEBUG
-    std::string buildMachine = il2cpp::os::Environment::GetEnvironmentVariable("UNITY_THISISABUILDMACHINE");
-    if (!buildMachine.empty())
-    {
-        _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
-        _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
-        _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
-        _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
-    }
-#endif
+    if (il2cpp::os::Environment::IsBuildMachine())
+        _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
 
     // This is needed so we could extract exception text from bad hresults
     os::WindowsRuntime::EnableErrorReporting();
