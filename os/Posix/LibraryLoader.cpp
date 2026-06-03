@@ -166,6 +166,15 @@ namespace os
 
     Baselib_DynamicLibrary_Handle LibraryLoader::OpenProgramHandle(Baselib_ErrorState& errorState, bool& /*needsClosing*/)
     {
+#if IL2CPP_TARGET_ANDROID && MONO_NET_BCL
+        Dl_info info;
+        if (dladdr(reinterpret_cast<void*>(&LibraryLoader::OpenProgramHandle), &info) && info.dli_fname)
+        {
+            void* handle = dlopen(info.dli_fname, RTLD_NOLOAD | RTLD_NOW);
+            if (handle)
+                return Baselib_DynamicLibrary_FromNativeHandle(reinterpret_cast<uint64_t>(handle), Baselib_DynamicLibrary_PosixDlopen, &errorState);
+        }
+#endif
         return Baselib_DynamicLibrary_OpenProgramHandle(&errorState);
     }
 }

@@ -290,9 +290,9 @@ namespace vm
         return parameterCount1 < parameterCount2;
     }
 
-    const char* Method::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue)
+    const char* Method::GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitlySetNullDefaultValue)
     {
-        return reinterpret_cast<const char*>(MetadataCache::GetParameterDefaultValue(method, parameterPosition, type, isExplicitySetNullDefaultValue));
+        return reinterpret_cast<const char*>(MetadataCache::GetParameterDefaultValue(method, parameterPosition, type, isExplicitlySetNullDefaultValue));
     }
 
     uint32_t Method::GetParameterToken(const MethodInfo* method, int32_t index)
