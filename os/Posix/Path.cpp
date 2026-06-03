@@ -1,5 +1,9 @@
 #include "il2cpp-config.h"
 
+#if IL2CPP_TARGET_ANDROID && MONO_NET_BCL
+#include <dlfcn.h>
+#endif
+
 #if IL2CPP_TARGET_POSIX && !IL2CPP_USE_PLATFORM_SPECIFIC_PATH
 #include "os/Environment.h"
 #include "os/Path.h"
@@ -68,6 +72,11 @@ namespace os
 
     std::string Path::GetApplicationFolder()
     {
+#if IL2CPP_TARGET_ANDROID && MONO_NET_BCL
+        Dl_info info;
+        if (dladdr(reinterpret_cast<void*>(&Path::GetApplicationFolder), &info) && info.dli_fname)
+            return utils::PathUtils::DirectoryName(std::string(info.dli_fname));
+#endif
         return utils::PathUtils::DirectoryName(GetExecutablePath());
     }
 
