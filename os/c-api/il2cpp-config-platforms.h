@@ -337,7 +337,7 @@
 #define ASSERT_ALIGNMENT(ptr, alignment) \
     IL2CPP_ASSERT((((ptrdiff_t) ptr) & (alignment - 1)) == 0 && "Unaligned pointer!")
 
-    #if defined(_MSC_VER)
+#if defined(_MSC_VER)
     #if defined(_M_X64) || defined(_M_ARM64)
         #define IL2CPP_SIZEOF_VOID_P 8
     #elif defined(_M_IX86) || defined(_M_ARM)
@@ -350,6 +350,8 @@
         #define IL2CPP_SIZEOF_VOID_P 8
     #elif defined(__i386__)
         #define IL2CPP_SIZEOF_VOID_P 4
+    #elif defined(__wasm64__)
+        #define IL2CPP_SIZEOF_VOID_P 8
     #elif defined(__EMSCRIPTEN__)
         #define IL2CPP_SIZEOF_VOID_P 4
     #elif defined(__arm__)
