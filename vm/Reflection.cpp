@@ -385,9 +385,9 @@ namespace vm
             Il2CppObject* defaultValue = NULL;
             if (param->AttrsImpl & PARAM_ATTRIBUTE_HAS_DEFAULT)
             {
-                bool isExplicitySetNullDefaultValue = false;
-                defaultValue = Parameter::GetDefaultParameterValueObject(method, i, &isExplicitySetNullDefaultValue);
-                if (defaultValue == NULL && !isExplicitySetNullDefaultValue)
+                bool isExplicitlySetNullDefaultValue = false;
+                defaultValue = Parameter::GetDefaultParameterValueObject(method, i, &isExplicitlySetNullDefaultValue);
+                if (defaultValue == NULL && !isExplicitlySetNullDefaultValue)
                     defaultValue = GetObjectForMissingDefaultValue(param->AttrsImpl);
             }
             else
