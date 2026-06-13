@@ -75,7 +75,7 @@ namespace vm
         static const MethodInfo* GetMethodInfoFromEncodedIndex(EncodedMethodIndex methodIndex, Il2CppRGCTXInitMode rgctxInitMode = IL2CPP_RGCTX_INIT_MODE_DEFAULT);
         static Il2CppGenericMethodKey BuildGenericMethodFromMethodSpec(const Il2CppMethodSpec* methodSpec);
 
-        static const uint8_t* GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitySetNullDefaultValue);
+        static const uint8_t* GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitlySetNullDefaultValue);
         static const uint8_t* GetFieldDefaultValue(const FieldInfo* field, const Il2CppType** type);
         static uint32_t GetFieldOffset(const Il2CppClass* klass, int32_t fieldIndexInType, FieldInfo* field);
         static int GetFieldMarshaledSizeForField(const FieldInfo* field);
