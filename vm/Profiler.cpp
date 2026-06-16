@@ -1,7 +1,6 @@
 #include "il2cpp-config.h"
 #include "utils/dynamic_array.h"
 #include "vm/Profiler.h"
-#include "vm/GlobalMetadata.h"
 
 #if IL2CPP_ENABLE_PROFILER
 
@@ -109,10 +108,6 @@ namespace vm
 
     void Profiler::Allocation(Il2CppObject *obj, Il2CppClass *klass)
     {
-        IL2CPP_ASSERT(obj);
-        IL2CPP_ASSERT(klass);
-        IL2CPP_ASSERT(GlobalMetadata::IsRuntimeMetadataInitialized(klass));
-
         for (ProfilersVec::const_iterator iter = s_ProfilerContext->m_profilers.begin(); iter != s_ProfilerContext->m_profilers.end(); iter++)
         {
             if (((*iter)->events & IL2CPP_PROFILE_ALLOCATIONS) && (*iter)->allocationCallback)
@@ -122,9 +117,6 @@ namespace vm
 
     void Profiler::MethodEnter(const MethodInfo *method)
     {
-        IL2CPP_ASSERT(method);
-        IL2CPP_ASSERT(GlobalMetadata::IsRuntimeMetadataInitialized(method));
-
         for (ProfilersVec::const_iterator iter = s_ProfilerContext->m_profilers.begin(); iter != s_ProfilerContext->m_profilers.end(); iter++)
         {
             if (((*iter)->events & IL2CPP_PROFILE_ENTER_LEAVE) && (*iter)->methodEnterCallback)
@@ -134,9 +126,6 @@ namespace vm
 
     void Profiler::MethodExit(const MethodInfo *method)
     {
-        IL2CPP_ASSERT(method);
-        IL2CPP_ASSERT(GlobalMetadata::IsRuntimeMetadataInitialized(method));
-
         for (ProfilersVec::const_iterator iter = s_ProfilerContext->m_profilers.begin(); iter != s_ProfilerContext->m_profilers.end(); iter++)
         {
             if (((*iter)->events & IL2CPP_PROFILE_ENTER_LEAVE) && (*iter)->methodLeaveCallback)
