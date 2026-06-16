@@ -368,6 +368,10 @@ System.Threading.LowLevelLifoSemaphore::InitInternal()|System::Private::CoreLib:
 System.Threading.LowLevelLifoSemaphore::DeleteInternal(System.IntPtr)|System::Private::CoreLib::System::Threading::LowLevelLifoSemaphore::DeleteInternal|void (*)(intptr_t)
 System.Threading.LowLevelLifoSemaphore::ReleaseInternal(System.IntPtr,System.Int32)|System::Private::CoreLib::System::Threading::LowLevelLifoSemaphore::ReleaseInternal|void (*)(intptr_t, int32_t)
 
+// Interop/JsGlobalization
+>icalls_monoaot/System.Private.CoreLib/JsGlobalization.h
+Interop/JsGlobalization::GetLocaleInfo(System.Char*,System.Int32,System.Char*,System.Int32,System.Char*,System.Int32,System.Int32&)|System::Private::CoreLib::JsGlobalization::GetLocaleInfo|intptr_t (*)(Il2CppChar*, int32_t, Il2CppChar*, int32_t, Il2CppChar*, int32_t, int32_t*)
+
 // Mono.RuntimeClassHandle
 >icalls_monoaot/System.Private.CoreLib/Mono/RuntimeClassHandle.h
 Mono.RuntimeClassHandle::GetTypeFromClass(Mono.RuntimeStructs/MonoClass*)|System::Private::CoreLib::Mono::RuntimeClassHandle::GetTypeFromClass|intptr_t (*)(Il2CppClass*)

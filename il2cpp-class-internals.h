@@ -181,6 +181,7 @@ typedef union Il2CppRGCTXData
     const MethodInfo* method;
     const Il2CppType* type;
     Il2CppClass* klass;
+    size_t offset;
 } Il2CppRGCTXData;
 
 typedef struct MethodInfo
@@ -218,11 +219,25 @@ typedef struct MethodInfo
     uint8_t is_unmanaged_callers_only : 1;
 } MethodInfo;
 
-typedef struct Il2CppRuntimeInterfaceOffsetPair
+// One entry per interface that an Il2CppClass implements, holding everything needed for
+// both interface dispatch and reflection/assignability. Array layout invariants:
+//   - Entries [0, interface_offsets_count) are dispatchable: offset is a valid vtable slot
+//     (>= 0), used by the hot dispatch path in ClassInlines.h.
+//   - Entries [interface_offsets_count, interfaces_count) are reflection-only: offset is
+//     kInvalidInterfaceOffset and dispatch ignores them.
+//   - depth >= 0: hops from the owning class (0 = directly declared, 1 = one base-class
+//     or interface-to-interface hop, ...).
+//   - depth < 0: grafted onto an array by CLR array assignability rules (covariance,
+//     primitive-size equivalence, interface flattening). Reflection (Class::GetInterfaces)
+//     skips these; Class::IsAssignableFrom treats them as full interfaces.
+typedef struct Il2CppRuntimeInterfaceData
 {
     Il2CppClass* interfaceType;
     int32_t offset;
-} Il2CppRuntimeInterfaceOffsetPair;
+    int32_t depth;
+} Il2CppRuntimeInterfaceData;
+
+static const int32_t kInvalidInterfaceOffset = -1;
 
 #if IL2CPP_COMPILER_MSVC
 #pragma warning( push )
@@ -270,8 +285,7 @@ typedef struct Il2CppClass
     // The following fields need initialized before access. This can be done per field or as an aggregate via a call to Class::Init
     FieldInfo* fields; // Initialized in SetupFields
     const MethodInfo** methods; // Initialized in SetupMethods
-    Il2CppClass** implementedInterfaces; // Initialized in SetupInterfaces
-    Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets; // Initialized in Init
+    Il2CppRuntimeInterfaceData* interfaces; // Initialized in SetupInterfaces. See Il2CppRuntimeInterfaceData above.
     void* static_fields; // Initialized in Init
 
     union
@@ -472,16 +486,10 @@ typedef struct Il2CppCodeGenModule
     const Il2CppMethodPointer* methodPointers;
     const uint32_t adjustorThunkCount;
     const Il2CppTokenAdjustorThunkPair* adjustorThunks;
-    const int32_t* invokerIndices;
     const uint32_t reversePInvokeWrapperCount;
     const Il2CppTokenIndexMethodTuple* reversePInvokeWrapperIndices;
-    const uint32_t rgctxRangesCount;
-    const Il2CppTokenRangePair* rgctxRanges;
-    const uint32_t rgctxsCount;
-    const Il2CppRGCTXDefinition* rgctxs;
     const Il2CppDebuggerMetadataRegistration *debuggerMetadata;
     const Il2CppMethodPointer moduleInitializer;
-    TypeDefinitionIndex* staticConstructorTypeIndices;
     const Il2CppMetadataRegistration* metadataRegistration; // Per-assembly mode only
     const Il2CppCodeRegistration* codeRegistaration; // Per-assembly mode only
 } Il2CppCodeGenModule;
@@ -513,12 +521,8 @@ typedef struct Il2CppMetadataRegistration
     Il2CppGenericClass* const * genericClasses;
     int32_t genericInstsCount;
     const Il2CppGenericInst* const * genericInsts;
-    int32_t genericMethodTableCount;
-    const Il2CppGenericMethodFunctionsDefinitions* genericMethodTable;
     int32_t typesCount;
     const Il2CppType* const * types;
-    int32_t methodSpecsCount;
-    const Il2CppMethodSpec* methodSpecs;
 
     FieldIndex fieldOffsetsCount;
     const int32_t** fieldOffsets;

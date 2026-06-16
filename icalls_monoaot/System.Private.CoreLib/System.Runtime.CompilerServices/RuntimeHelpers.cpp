@@ -125,8 +125,7 @@ namespace CompilerServices
 
     void RuntimeHelpers::PrepareMethod(intptr_t method, intptr_t* instantiations, int32_t ninst)
     {
-        IL2CPP_NOT_IMPLEMENTED_ICALL(RuntimeHelpers::PrepareMethod);
-        IL2CPP_UNREACHABLE;
+        // no-op, this method does JITing, nothing to do in AOT
     }
 
     void RuntimeHelpers::RunClassConstructor(intptr_t typeIntPtr)
