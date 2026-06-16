@@ -477,6 +477,14 @@ namespace vm
         return &staticEntryPointerNotFoundMethodInfo;
     }
 
+    const MethodInfo* Method::GetEntryPointNotFoundMethodInfoForMethod(const MethodInfo* method)
+    {
+        if (Method::IsStatic(method))
+            return Method::GetStaticEntryPointNotFoundMethodInfo();
+        else
+            return Method::GetEntryPointNotFoundMethodInfo();
+    }
+
     bool Method::IsAmbiguousMethodInfo(const MethodInfo* method)
     {
         return IsAmbiguousMethodClass(method->klass);

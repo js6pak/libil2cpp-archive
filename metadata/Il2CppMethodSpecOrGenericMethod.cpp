@@ -8,10 +8,9 @@ il2cpp::metadata::Il2CppMethodSpecOrGenericMethod::Il2CppMethodSpecOrGenericMeth
     storage = reinterpret_cast<uintptr_t>(gmethod) | 1;
 }
 
-il2cpp::metadata::Il2CppMethodSpecOrGenericMethod::Il2CppMethodSpecOrGenericMethod(const Il2CppMethodSpec* methodSpec)
+il2cpp::metadata::Il2CppMethodSpecOrGenericMethod::Il2CppMethodSpecOrGenericMethod(GenericMethodIndex genericMethodIndex)
 {
-    IL2CPP_ASSERT((reinterpret_cast<uintptr_t>(methodSpec) & 1) == 0);
-    storage = reinterpret_cast<uintptr_t>(methodSpec);
+    storage = static_cast<uintptr_t>(genericMethodIndex) << 1;
 }
 
 Il2CppGenericMethodKey il2cpp::metadata::Il2CppMethodSpecOrGenericMethod::BuildGenericMethodKey() const
@@ -22,5 +21,5 @@ Il2CppGenericMethodKey il2cpp::metadata::Il2CppMethodSpecOrGenericMethod::BuildG
         return { gmethod->methodDefinition->methodMetadataHandle, gmethod->context };
     }
 
-    return il2cpp::vm::GlobalMetadata::BuildGenericMethodFromMethodSpec(reinterpret_cast<const Il2CppMethodSpec*>(storage));
+    return il2cpp::vm::GlobalMetadata::BuildGenericMethodFromMethodSpec(static_cast<GenericMethodIndex>(storage >> 1));
 }
