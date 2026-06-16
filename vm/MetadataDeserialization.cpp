@@ -187,6 +187,12 @@ Il2CppImageDefinition DeserializeImageDefinition(const char* ptr, const Serializ
 
             Read<CustomAttributeIndex>(ptr), // customAttributeStart
             Read<uint32_t>(ptr), // customAttributeCount
+
+            Read<uint32_t>(ptr), // invokerIndicesStart
+            Read<uint32_t>(ptr), // rgctxRangesStart
+            Read<uint32_t>(ptr), // rgctxRangesCount
+            ReadIndex<uint32_t>(ptr, sizes.typeDefinitionIndex), // staticConstructorStart
+            Read<uint32_t>(ptr), // staticConstructorCount
     };
 }
 
@@ -221,5 +227,49 @@ Il2CppWindowsRuntimeTypeNamePair DeserializeWindowsRuntimeTypeNamePair(const cha
     return Il2CppWindowsRuntimeTypeNamePair {
             Read<StringIndex>(ptr), // nameIndex
             ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
+    };
+}
+
+Il2CppMethodSpecOnGenericType DeserializeMethodSpecOnGenericType(const char* ptr, const SerializedIndexSizes& sizes)
+{
+    return Il2CppMethodSpecOnGenericType {
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // methodDefinitionIndex
+            ReadIndex<GenericInstIndex>(ptr, sizes.genericInstIndex), // classIndexIndex
+    };
+}
+
+Il2CppGenericMethodSpecOnType DeserializeGenericMethodSpecOnType(const char* ptr, const SerializedIndexSizes& sizes)
+{
+    return Il2CppGenericMethodSpecOnType {
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // methodDefinitionIndex
+            ReadIndex<GenericInstIndex>(ptr, sizes.genericInstIndex), // methodIndexIndex
+    };
+}
+
+Il2CppMethodSpec DeserializeMethodSpec(const char* ptr, const SerializedIndexSizes& sizes)
+{
+    return Il2CppMethodSpec {
+            ReadIndex<MethodIndex>(ptr, sizes.methodIndex), // methodDefinitionIndex
+            ReadIndex<GenericInstIndex>(ptr, sizes.genericInstIndex), // classIndexIndex
+            ReadIndex<GenericInstIndex>(ptr, sizes.genericInstIndex), // methodIndexIndex
+    };
+}
+
+Il2CppGenericMethodFunctionsDefinitions DeserializeGenericMethodFunctionsDefinitions(const char* ptr, const SerializedIndexSizes& sizes)
+{
+    return Il2CppGenericMethodFunctionsDefinitions {
+            ReadIndex<GenericMethodIndex>(ptr, sizes.genericMethodIndex), // genericMethodIndex
+            ReadIndex<MethodIndex>(ptr, sizes.methodPointerTableIndex), // methodIndex
+            ReadIndex<MethodIndex>(ptr, sizes.invokerTableIndex), // invokerIndex
+    };
+}
+
+Il2CppGenericMethodFunctionsDefinitionsWithAdjustor DeserializeGenericMethodFunctionsDefinitionsWithAdjustor(const char* ptr, const SerializedIndexSizes& sizes)
+{
+    return Il2CppGenericMethodFunctionsDefinitionsWithAdjustor {
+            ReadIndex<GenericMethodIndex>(ptr, sizes.genericMethodIndex), // genericMethodIndex
+            ReadIndex<MethodIndex>(ptr, sizes.methodPointerTableIndex), // methodIndex
+            ReadIndex<MethodIndex>(ptr, sizes.invokerTableIndex), // invokerIndex
+            ReadIndex<MethodIndex>(ptr, sizes.adjustorThunkIndex), // adjustorThunkIndex
     };
 }

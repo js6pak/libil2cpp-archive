@@ -107,6 +107,15 @@ void Il2CppCodeGenWriteBarrierForClass(Il2CppClass* klass, void** targetAddress,
 #endif
 }
 
+void Il2CppCodeGenWriteBarrierForField(FieldInfo* field, void** targetAddress, void* object)
+{
+#if IL2CPP_ENABLE_STRICT_WRITE_BARRIERS
+    Il2CppCodeGenWriteBarrierForType(field->type, targetAddress, object);
+#else
+    il2cpp::gc::GarbageCollector::SetWriteBarrier(targetAddress);
+#endif
+}
+
 #endif // IL2CPP_ENABLE_WRITE_BARRIERS
 
 
@@ -232,61 +241,21 @@ void* il2cpp_codegen_get_thread_static_data(RuntimeClass* klass)
     return il2cpp::vm::Thread::GetThreadStaticData(klass->thread_static_fields_offset);
 }
 
+#if IL2CPP_DEBUG
+
 void il2cpp_codegen_assert_field_size(RuntimeField* field, size_t size)
 {
-    IL2CPP_ASSERT(size == il2cpp_codegen_sizeof(InitializedTypeInfo(il2cpp::vm::Class::FromIl2CppType(field->type))));
+    IL2CPP_ASSERT(!field || size == il2cpp_codegen_sizeof(InitializedTypeInfo(il2cpp::vm::Class::FromIl2CppType(field->type))));
 }
 
-void* il2cpp_codegen_get_instance_field_data_pointer(void* instance, RuntimeField* field)
+void il2cpp_codegen_assert_field_offset(RuntimeField* field, size_t offset)
 {
-    return il2cpp::vm::Field::GetInstanceFieldDataPointer(instance, field);
+    IL2CPP_ASSERT(!il2cpp::vm::Field::IsInstance(field) || offset == il2cpp::vm::Field::GetOffset(field) - (il2cpp::vm::Class::IsValuetype(il2cpp::vm::Field::GetParent(field)) ? sizeof(RuntimeObject) : 0));
+    IL2CPP_ASSERT(!il2cpp::vm::Field::IsNormalStatic(field) || offset == il2cpp::vm::Field::GetOffset(field));
+    IL2CPP_ASSERT(!il2cpp::vm::Field::IsThreadStatic(field) || offset == il2cpp::vm::MetadataCache::GetThreadLocalStaticOffsetForField(field));
 }
 
-void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, void* data, uint32_t size)
-{
-    il2cpp_codegen_assert_field_size(field, size);
-    IL2CPP_ASSERT(il2cpp::vm::Field::IsInstance(field));
-
-    void* fieldPointer = il2cpp_codegen_get_instance_field_data_pointer(instance, field);
-    il2cpp_codegen_memcpy(fieldPointer, data, size);
-    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
-}
-
-void* il2cpp_codegen_get_static_field_data_pointer(RuntimeField* field)
-{
-    IL2CPP_ASSERT(il2cpp::vm::Field::IsNormalStatic(field));
-
-    return ((uint8_t*)field->parent->static_fields) + field->offset;
-}
-
-void il2cpp_codegen_write_static_field_data(RuntimeField* field, void* data, uint32_t size)
-{
-    il2cpp_codegen_assert_field_size(field, size);
-    IL2CPP_ASSERT(il2cpp::vm::Field::IsNormalStatic(field));
-
-    void* fieldPointer = il2cpp_codegen_get_static_field_data_pointer(field);
-    il2cpp_codegen_memcpy(fieldPointer, data, size);
-    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
-}
-
-void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field)
-{
-    IL2CPP_ASSERT(il2cpp::vm::Field::IsThreadStatic(field));
-
-    int threadStaticFieldOffset = il2cpp::vm::MetadataCache::GetThreadLocalStaticOffsetForField(field);
-    void* threadStaticData = il2cpp::vm::Thread::GetThreadStaticData(field->parent->thread_static_fields_offset);
-    return static_cast<uint8_t*>(threadStaticData) + threadStaticFieldOffset;
-}
-
-void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, void* data, uint32_t size)
-{
-    il2cpp_codegen_assert_field_size(field, size);
-    IL2CPP_ASSERT(il2cpp::vm::Field::IsThreadStatic(field));
-
-    void* fieldPointer = il2cpp_codegen_get_thread_static_field_data_pointer(field);
-    il2cpp_codegen_memcpy(fieldPointer, data, size);
-    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
-}
+#endif
 
 void il2cpp_codegen_memory_barrier()
 {

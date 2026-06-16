@@ -29,10 +29,29 @@ namespace il2cpp
 {
 namespace vm
 {
-    struct RGCTXCollection
+    class RGCTXCollection
     {
+    public:
+        RGCTXCollection() : items(nullptr), count(0) {}
+
+        int32_t Count() const { return count; }
+
+        Il2CppRGCTXDefinition Get(int32_t index) const
+        {
+            const char* ptr = items + index * kStride;
+            Il2CppRGCTXDefinition def;
+            def.type = static_cast<Il2CppRGCTXDataType>(*reinterpret_cast<const uint8_t*>(ptr));
+            memcpy(&def.data, ptr + 1, sizeof(def.data));
+            return def;
+        }
+
+    private:
+        static const int32_t kStride = 5; // 1 byte type + 4 bytes data
+        const char* items;
         int32_t count;
-        const Il2CppRGCTXDefinition* items;
+
+        RGCTXCollection(const char* items, int32_t count) : items(items), count(count) {}
+        friend class GlobalMetadata;
     };
 
     typedef struct Il2CppGenericMethodPointers
@@ -60,7 +79,7 @@ namespace vm
     typedef Il2CppHashMap<const char*, Il2CppClass*, il2cpp::utils::StringUtils::StringHasher<const char*>, il2cpp::utils::VmStringUtils::CaseSensitiveComparer> WindowsRuntimeTypeNameToClassMap;
     typedef Il2CppHashMap<const Il2CppClass*, const char*, il2cpp::utils::PointerHash<Il2CppClass> > ClassToWindowsRuntimeTypeNameMap;
     typedef Il2CppHashMap<il2cpp::metadata::Il2CppSignature, int32_t, il2cpp::metadata::Il2CppSignatureHash, il2cpp::metadata::Il2CppSignatureCompare> Il2CppUnresolvedSignatureMap;
-    typedef Il2CppHashMap<il2cpp::metadata::Il2CppMethodSpecOrGenericMethod, const Il2CppGenericMethodIndices*, il2cpp::metadata::Il2CppMethodSpecOrGenericMethodHash, il2cpp::metadata::Il2CppMethodSpecOrGenericMethodCompare> Il2CppMethodTableMap;
+    typedef Il2CppHashMap<il2cpp::metadata::Il2CppMethodSpecOrGenericMethod, Il2CppGenericMethodIndices, il2cpp::metadata::Il2CppMethodSpecOrGenericMethodHash, il2cpp::metadata::Il2CppMethodSpecOrGenericMethodCompare> Il2CppMethodTableMap;
 
     class LIBIL2CPP_CODEGEN_API MetadataCache
     {
@@ -101,6 +120,7 @@ namespace vm
         static const Il2CppType* GetTypeFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
         static Il2CppGenericMethod GetGenericMethodFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
         static std::pair<const Il2CppType*, const MethodInfo*> GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxTypeDef, const Il2CppRGCTXDefinition* rgctxMethodDef);
+        static std::pair<const Il2CppType*, FieldIndex> GetFieldInfoFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxTypeDef, const Il2CppRGCTXDefinition* rgctxFieldDef);
 
         static void InitializeAllMethodMetadata();
         static void* InitializeRuntimeMetadata(uintptr_t* metadataPointer);

@@ -62,6 +62,29 @@ static const InteropDataIndex kInteropDataIndexInvalid = -1;
 #define PUBLIC_KEY_BYTE_LENGTH 8
 static const int kPublicKeyByteLength = PUBLIC_KEY_BYTE_LENGTH;
 
+// Generic methods fall into three categories, each emitted to its own table so that an entry only
+// stores the generic instance indices it actually needs. Generic method indices are
+// laid out in three contiguous, category-ordered ranges in global-metadata.dat:
+//   methodSpecsOnGenericType section  -> Il2CppMethodSpecOnGenericType
+//   genericMethodSpecsOnType section  -> Il2CppGenericMethodSpecOnType
+//   methodSpecs section               -> Il2CppMethodSpec
+// Keep this layout in sync with the il2cpp generator (GenericMethodCollectorComponent).
+
+// Category 1: a non-generic method on a generic type (e.g. List<int>.get_Count)
+typedef struct Il2CppMethodSpecOnGenericType
+{
+    MethodIndex methodDefinitionIndex;
+    GenericInstIndex classIndexIndex;
+} Il2CppMethodSpecOnGenericType;
+
+// Category 2: a generic method on a non-generic type (e.g. Enumerable.Range<int>)
+typedef struct Il2CppGenericMethodSpecOnType
+{
+    MethodIndex methodDefinitionIndex;
+    GenericInstIndex methodIndexIndex;
+} Il2CppGenericMethodSpecOnType;
+
+// Category 3: a generic method on a generic type - needs both generic instances.
 typedef struct Il2CppMethodSpec
 {
     MethodIndex methodDefinitionIndex;
@@ -79,6 +102,8 @@ typedef enum Il2CppRGCTXDataType
     IL2CPP_RGCTX_DATA_ARRAY,
     IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_TYPE,
     IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD,
+    IL2CPP_RGCTX_DATA_FIELD_OFFSET_TYPE,
+    IL2CPP_RGCTX_DATA_FIELD_OFFSET_FIELD,
 } Il2CppRGCTXDataType;
 
 typedef union Il2CppRGCTXDefinitionData
@@ -86,6 +111,7 @@ typedef union Il2CppRGCTXDefinitionData
     uint32_t rgctxDataDummy;
     MethodIndex __methodIndex;
     TypeIndex __typeIndex;
+    FieldIndex __fieldIndex;
     uint32_t  __encodedMethodIndex;
 } Il2CppRGCTXDefinitionData;
 
@@ -95,6 +121,10 @@ typedef struct Il2CppRGCTXDefinition
     Il2CppRGCTXDefinitionData data;
 } Il2CppRGCTXDefinition;
 
+// Runtime-only in-memory representation of the per-generic-method indices.
+// Generated source code emits one of the two table-entry structs below
+// (Il2CppGenericMethodFunctionsDefinitions or
+// Il2CppGenericMethodFunctionsDefinitionsWithAdjustor) instead.
 typedef struct
 {
     MethodIndex methodIndex;
@@ -102,11 +132,24 @@ typedef struct
     MethodIndex adjustorThunkIndex;
 } Il2CppGenericMethodIndices;
 
+// Entry layout used for static methods and instance methods on reference types.
+// adjustorThunkIndex is always -1 for these, so the field is omitted.
 typedef struct Il2CppGenericMethodFunctionsDefinitions
 {
     GenericMethodIndex genericMethodIndex;
-    Il2CppGenericMethodIndices indices;
+    MethodIndex methodIndex;
+    MethodIndex invokerIndex;
 } Il2CppGenericMethodFunctionsDefinitions;
+
+// Entry layout used for instance methods on value types, which may need an
+// adjustor thunk when invoked virtually.
+typedef struct Il2CppGenericMethodFunctionsDefinitionsWithAdjustor
+{
+    GenericMethodIndex genericMethodIndex;
+    MethodIndex methodIndex;
+    MethodIndex invokerIndex;
+    MethodIndex adjustorThunkIndex;
+} Il2CppGenericMethodFunctionsDefinitionsWithAdjustor;
 
 static inline uint32_t GetTokenType(uint32_t token)
 {

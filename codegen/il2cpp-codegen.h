@@ -61,10 +61,12 @@ using no_infer = typename std::common_type<T>::type;
 void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object);
 void Il2CppCodeGenWriteBarrierForType(const Il2CppType* type, void** targetAddress, void* object);
 void Il2CppCodeGenWriteBarrierForClass(Il2CppClass* klass, void** targetAddress, void* object);
+void Il2CppCodeGenWriteBarrierForField(FieldInfo* field, void** targetAddress, void* object);
 #else
 inline void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object) {}
 inline void Il2CppCodeGenWriteBarrierForType(const Il2CppType* type, void** targetAddress, void* object) {}
 inline void Il2CppCodeGenWriteBarrierForClass(Il2CppClass* klass, void** targetAddress, void* object) {}
+inline void Il2CppCodeGenWriteBarrierForField(FieldInfo* field, void** targetAddress, void* object) {}
 #endif
 
 template<typename TD, typename TS>
@@ -1286,6 +1288,11 @@ inline FieldInfo* il2cpp_rgctx_field(RuntimeClass* klass, int32_t index)
     return klass->fields + index;
 }
 
+inline size_t il2cpp_rgctx_offset(const Il2CppRGCTXData* rgctxVar, int32_t index)
+{
+    return rgctxVar[index].offset;
+}
+
 inline bool il2cpp_rgctx_is_initialized(const RuntimeMethod* method)
 {
     IL2CPP_ASSERT(method->is_inflated);
@@ -1504,75 +1511,75 @@ inline void* il2cpp_codegen_static_fields_for(RuntimeClass* klass)
     return klass->static_fields;
 }
 
+#if IL2CPP_DEBUG
 void il2cpp_codegen_assert_field_size(RuntimeField* field, size_t size);
+void il2cpp_codegen_assert_field_offset(RuntimeField* field, size_t fieldOffset);
+#else
+inline void il2cpp_codegen_assert_field_size(RuntimeField* field, size_t size) {}
+inline void il2cpp_codegen_assert_field_offset(RuntimeField* field, size_t fieldOffset) {}
+#endif
 
-void* il2cpp_codegen_get_instance_field_data_pointer(void* instance, RuntimeField* field);
-inline void* il2cpp_codegen_get_instance_field_data_pointer(intptr_t instance, RuntimeField* field)
+inline void* il2cpp_codegen_get_field_data_pointer(void* instance, size_t fieldOffset)
 {
-    return il2cpp_codegen_get_instance_field_data_pointer((void*)instance, field);
+    return (void*)((uint8_t*)instance + fieldOffset);
 }
 
-inline void* il2cpp_codegen_get_instance_field_data_pointer(uintptr_t instance, RuntimeField* field)
+inline void* il2cpp_codegen_get_field_data_pointer(intptr_t instance, size_t fieldOffset)
 {
-    return il2cpp_codegen_get_instance_field_data_pointer((void*)instance, field);
+    return il2cpp_codegen_get_field_data_pointer((void*)instance, fieldOffset);
 }
 
-void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, void* data, uint32_t size);
-inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, void* data, uint32_t size)
+inline void* il2cpp_codegen_get_field_data_pointer(uintptr_t instance, size_t fieldOffset)
 {
-    il2cpp_codegen_write_instance_field_data((void*)instance, field, data, size);
+    return il2cpp_codegen_get_field_data_pointer((void*)instance, fieldOffset);
 }
 
-inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, void* data, uint32_t size)
+template<bool EmitWriteBarrier>
+inline void il2cpp_codegen_write_field_data(void* instance, RuntimeField* field, size_t fieldOffset, void* data, uint32_t size)
 {
-    il2cpp_codegen_write_instance_field_data((void*)instance, field, data, size);
+    il2cpp_codegen_assert_field_size(field, size);
+    il2cpp_codegen_assert_field_offset(field, fieldOffset);
+
+    void* fieldPointer = il2cpp_codegen_get_field_data_pointer(instance, fieldOffset);
+    il2cpp_codegen_memcpy(fieldPointer, data, size);
+    if (EmitWriteBarrier)
+        Il2CppCodeGenWriteBarrierForField(field, (void**)fieldPointer, NULL);
 }
 
-void* il2cpp_codegen_get_static_field_data_pointer(RuntimeField* field);
-void il2cpp_codegen_write_static_field_data(RuntimeField* field, void* data, uint32_t size);
-void* il2cpp_codegen_get_thread_static_field_data_pointer(RuntimeField* field);
-void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, void* data, uint32_t size);
+template<bool EmitWriteBarrier>
+inline void il2cpp_codegen_write_field_data(intptr_t instance, RuntimeField* field, size_t fieldOffset, void* data, uint32_t size)
+{
+    il2cpp_codegen_write_field_data<EmitWriteBarrier>((void*)instance, field, fieldOffset, data, size);
+}
 
-template<typename T>
-void il2cpp_codegen_write_instance_field_data(void* instance, RuntimeField* field, no_infer<T> data)
+template<bool EmitWriteBarrier>
+inline void il2cpp_codegen_write_field_data(uintptr_t instance, RuntimeField* field, size_t fieldOffset, void* data, uint32_t size)
+{
+    il2cpp_codegen_write_field_data<EmitWriteBarrier>((void*)instance, field, fieldOffset, data, size);
+}
+
+template<typename T, bool EmitWriteBarrier>
+inline void il2cpp_codegen_write_field_data(void* instance, RuntimeField* field, size_t fieldOffset, no_infer<T> data)
 {
     il2cpp_codegen_assert_field_size(field, sizeof(T));
+    il2cpp_codegen_assert_field_offset(field, fieldOffset);
 
-    void* fieldPointer = il2cpp_codegen_get_instance_field_data_pointer(instance, field);
+    void* fieldPointer = il2cpp_codegen_get_field_data_pointer(instance, fieldOffset);
     *(T*)fieldPointer = data;
-    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
+    if (EmitWriteBarrier)
+        Il2CppCodeGenWriteBarrierForField(field, (void**)fieldPointer, NULL);
 }
 
-template<typename T>
-inline void il2cpp_codegen_write_instance_field_data(intptr_t instance, RuntimeField* field, no_infer<T> data)
+template<typename T, bool EmitWriteBarrier>
+inline void il2cpp_codegen_write_field_data(intptr_t instance, RuntimeField* field, size_t fieldOffset, no_infer<T> data)
 {
-    il2cpp_codegen_write_instance_field_data<T>((void*)instance, field, data);
+    il2cpp_codegen_write_field_data<T, EmitWriteBarrier>((void*)instance, field, fieldOffset, data);
 }
 
-template<typename T>
-inline void il2cpp_codegen_write_instance_field_data(uintptr_t instance, RuntimeField* field, no_infer<T> data)
+template<typename T, bool EmitWriteBarrier>
+inline void il2cpp_codegen_write_field_data(uintptr_t instance, RuntimeField* field, size_t fieldOffset, no_infer<T> data)
 {
-    il2cpp_codegen_write_instance_field_data<T>((void*)instance, field, data);
-}
-
-template<typename T>
-void il2cpp_codegen_write_static_field_data(RuntimeField* field, no_infer<T> data)
-{
-    il2cpp_codegen_assert_field_size(field, sizeof(T));
-
-    void* fieldPointer = il2cpp_codegen_get_static_field_data_pointer(field);
-    *(T*)fieldPointer = data;
-    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
-}
-
-template<typename T>
-void il2cpp_codegen_write_thread_static_field_data(RuntimeField* field, no_infer<T> data)
-{
-    il2cpp_codegen_assert_field_size(field, sizeof(T));
-
-    void* fieldPointer = il2cpp_codegen_get_thread_static_field_data_pointer(field);
-    *(T*)fieldPointer = data;
-    Il2CppCodeGenWriteBarrierForType(field->type, (void**)fieldPointer, NULL);
+    il2cpp_codegen_write_field_data<T, EmitWriteBarrier>((void*)instance, field, fieldOffset, data);
 }
 
 inline Il2CppMethodPointer il2cpp_codegen_get_method_pointer(const RuntimeMethod* method)

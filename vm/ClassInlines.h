@@ -53,9 +53,9 @@ namespace vm
 
             for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
             {
-                if (klass->interfaceOffsets[i].interfaceType == itf)
+                if (klass->interfaces[i].interfaceType == itf)
                 {
-                    int32_t offset = klass->interfaceOffsets[i].offset;
+                    int32_t offset = klass->interfaces[i].offset;
                     IL2CPP_ASSERT(offset != -1);
                     IL2CPP_ASSERT(offset + slot < klass->vtable_count);
                     return klass->vtable[offset + slot];
@@ -72,9 +72,9 @@ namespace vm
 
             for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
             {
-                if (klass->interfaceOffsets[i].interfaceType == itf)
+                if (klass->interfaces[i].interfaceType == itf)
                 {
-                    int32_t offset = klass->interfaceOffsets[i].offset;
+                    int32_t offset = klass->interfaces[i].offset;
                     IL2CPP_ASSERT(offset != -1);
                     IL2CPP_ASSERT(offset + slot < klass->vtable_count);
                     return klass->vtable[offset + slot];
@@ -91,9 +91,9 @@ namespace vm
 
             for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
             {
-                if (klass->interfaceOffsets[i].interfaceType == itf)
+                if (klass->interfaces[i].interfaceType == itf)
                 {
-                    int32_t offset = klass->interfaceOffsets[i].offset;
+                    int32_t offset = klass->interfaces[i].offset;
                     IL2CPP_ASSERT(offset != -1);
                     IL2CPP_ASSERT(offset + slot < klass->vtable_count);
                     return &klass->vtable[offset + slot];
