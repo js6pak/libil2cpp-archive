@@ -54,6 +54,7 @@ namespace vm
     static int32_t s_FinalizerSlot = -1;
     static int32_t s_GetHashCodeSlot = -1;
     static Il2CppClass* s_EmptyClassList[] = {NULL};
+    static Il2CppRuntimeInterfaceData s_EmptyInterfaceList[1] = {{NULL, kInvalidInterfaceOffset, 0}};
     static MethodInfo* s_EmptyMethodList[] = {NULL};
     static EventInfo* s_EmptyEventList = NULL;
     static PropertyInfo* s_EmptyPropertyList = NULL;
@@ -180,47 +181,149 @@ namespace vm
         return klass;
     }
 
-    static Il2CppClass** SetupInterfacesLocked(Il2CppClass* klass, const il2cpp::os::FastAutoLock& lock)
+    // Append (itf, depth) to buffer, deduplicating on interfaceType and keeping the
+    // smallest depth seen. New entries get kInvalidInterfaceOffset; the dispatchable
+    // prefix's real offsets are seeded separately.
+    static int32_t AppendInterface(Il2CppRuntimeInterfaceData* buffer, int32_t currentInterfaceIndex, Il2CppClass* itf, int32_t depth)
     {
-        if (klass->implementedInterfaces != NULL)
-            return klass->implementedInterfaces;
+        IL2CPP_ASSERT(depth >= 0);
+        for (int32_t i = 0; i < currentInterfaceIndex; ++i)
+        {
+            if (buffer[i].interfaceType == itf)
+            {
+                if (depth < buffer[i].depth)
+                    buffer[i].depth = depth;
+                return currentInterfaceIndex;
+            }
+        }
+        buffer[currentInterfaceIndex].interfaceType = itf;
+        buffer[currentInterfaceIndex].offset = kInvalidInterfaceOffset;
+        buffer[currentInterfaceIndex].depth = depth;
+        return currentInterfaceIndex + 1;
+    }
 
-        Il2CppClass** implementedInterfaces = NULL;
+    static Il2CppRuntimeInterfaceData* SetupInterfacesLocked(Il2CppClass* klass, const il2cpp::os::FastAutoLock& lock)
+    {
+        if (klass->interfaces != NULL)
+            return klass->interfaces;
+
+        Il2CppRuntimeInterfaceData* interfaces = NULL;
 
         if (klass->generic_class)
         {
+            // Inflate each entry from the generic type definition, preserving offset and depth.
             Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition(klass->generic_class);
             const Il2CppGenericInst* classInst = GenericClass::GetInstance(klass->generic_class);
 
-            if (genericTypeDefinition->interfaces_count > 0)
+            SetupInterfacesLocked(genericTypeDefinition, lock);
+
+            klass->interface_offsets_count = genericTypeDefinition->interface_offsets_count;
+            klass->interfaces_count = genericTypeDefinition->interfaces_count;
+            if (klass->interfaces_count > 0)
             {
-                IL2CPP_ASSERT(genericTypeDefinition->interfaces_count == klass->interfaces_count);
-                implementedInterfaces = (Il2CppClass**)MetadataCalloc(genericTypeDefinition->interfaces_count, sizeof(Il2CppClass*));
-                for (uint16_t i = 0; i < genericTypeDefinition->interfaces_count; i++)
-                    implementedInterfaces[i] = Class::FromIl2CppType(il2cpp::metadata::GenericMetadata::InflateIfNeeded(MetadataCache::GetInterfaceFromOffset(genericTypeDefinition, i), classInst, false));
+                interfaces = (Il2CppRuntimeInterfaceData*)MetadataCalloc(klass->interfaces_count, sizeof(Il2CppRuntimeInterfaceData));
+                for (uint16_t i = 0; i < klass->interfaces_count; i++)
+                {
+                    const Il2CppRuntimeInterfaceData& src = genericTypeDefinition->interfaces[i];
+                    IL2CPP_ASSERT(src.depth >= 0);
+                    interfaces[i].interfaceType = Class::FromIl2CppType(il2cpp::metadata::GenericMetadata::InflateIfNeeded(&src.interfaceType->byval_arg, classInst, false));
+                    interfaces[i].offset = src.offset;
+                    interfaces[i].depth = src.depth;
+                }
             }
         }
         else if (klass->rank > 0)
         {
-            implementedInterfaces = il2cpp::metadata::ArrayMetadata::CreateArrayInterfacesLocked(klass, lock);
+            interfaces = il2cpp::metadata::ArrayMetadata::CreateArrayInterfacesLocked(klass, lock);
         }
         else
         {
-            if (klass->interfaces_count > 0)
+            // klass->interfaces_count starts as the directly-declared count from metadata
+            // and is overwritten with the closure size at the end. The recursive setups
+            // below only mutate the recursed types' counts, not klass's.
+            uint16_t directCount = klass->interfaces_count;
+            uint16_t offsetCount = klass->interface_offsets_count;
+
+            for (uint16_t i = 0; i < directCount; ++i)
+                SetupInterfacesLocked(Class::FromIl2CppType(MetadataCache::GetInterfaceFromOffset(klass, i)), lock);
+            if (klass->parent != NULL)
+                SetupInterfacesLocked(klass->parent, lock);
+
+            // Upper-bound the closure: each direct interface contributes itself + its closure;
+            // parent contributes its full closure. Overestimates when interfaces are reachable
+            // via multiple paths; tail slack is harmless (MetadataMalloc is a bump allocator).
+            size_t upperBound = 0;
+            for (uint16_t i = 0; i < directCount; ++i)
+                upperBound += 1 + Class::FromIl2CppType(MetadataCache::GetInterfaceFromOffset(klass, i))->interfaces_count;
+            if (klass->parent != NULL)
+                upperBound += klass->parent->interfaces_count;
+
+            klass->interfaces_count = 0;
+            if (upperBound > 0)
             {
-                implementedInterfaces = (Il2CppClass**)MetadataCalloc(klass->interfaces_count, sizeof(Il2CppClass*));
-                for (uint16_t i = 0; i < klass->interfaces_count; i++)
-                    implementedInterfaces[i] = Class::FromIl2CppType(MetadataCache::GetInterfaceFromOffset(klass, i));
+                IL2CPP_ASSERT(upperBound <= std::numeric_limits<uint16_t>::max());
+                interfaces = (Il2CppRuntimeInterfaceData*)MetadataCalloc(upperBound, sizeof(Il2CppRuntimeInterfaceData));
+                int32_t index = 0;
+
+                // Seed dispatchable prefix in metadata order (load-bearing for
+                // OverrideBaseClassVtableGenericVariants's variant-match tie-breaking).
+                // Depth starts at INT32_MAX so the closure walk below lowers it via
+                // AppendInterface's min-depth dedup.
+                for (int32_t i = 0; i < offsetCount; ++i)
+                {
+                    Il2CppInterfaceOffsetInfo info = MetadataCache::GetInterfaceOffsetInfo(klass, i);
+                    interfaces[index].interfaceType = Class::FromIl2CppType(info.interfaceType);
+                    interfaces[index].offset = info.offset;
+                    interfaces[index].depth = std::numeric_limits<int32_t>::max();
+                    ++index;
+                }
+
+                // Direct interfaces at depth 0 + their closures at depth+1, then parent's closure.
+                for (uint16_t i = 0; i < directCount; ++i)
+                {
+                    Il2CppClass* itf = Class::FromIl2CppType(MetadataCache::GetInterfaceFromOffset(klass, i));
+                    index = AppendInterface(interfaces, index, itf, 0);
+                    for (uint16_t j = 0; j < itf->interfaces_count; ++j)
+                    {
+                        const Il2CppRuntimeInterfaceData& src = itf->interfaces[j];
+                        IL2CPP_ASSERT(src.depth >= 0);
+                        index = AppendInterface(interfaces, index, src.interfaceType, 1 + src.depth);
+                    }
+                }
+                if (klass->parent != NULL)
+                {
+                    for (uint16_t i = 0; i < klass->parent->interfaces_count; ++i)
+                    {
+                        const Il2CppRuntimeInterfaceData& src = klass->parent->interfaces[i];
+                        IL2CPP_ASSERT(src.depth >= 0);
+                        index = AppendInterface(interfaces, index, src.interfaceType, 1 + src.depth);
+                    }
+                }
+
+                IL2CPP_ASSERT(index <= std::numeric_limits<uint16_t>::max());
+                klass->interfaces_count = (uint16_t)index;
             }
         }
 
-        if (implementedInterfaces == NULL)
+        if (interfaces == NULL)
         {
             IL2CPP_ASSERT(klass->interfaces_count == 0);
-            implementedInterfaces = s_EmptyClassList;
+            IL2CPP_ASSERT(klass->interface_offsets_count == 0);
+            interfaces = s_EmptyInterfaceList;
         }
 
-        return implementedInterfaces;
+#if IL2CPP_DEBUG
+        // Enforce klass->interfaces layout invariants documented on Il2CppRuntimeInterfaceData.
+        IL2CPP_ASSERT(klass->interface_offsets_count <= klass->interfaces_count);
+        for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
+            IL2CPP_ASSERT(interfaces[i].offset >= 0);
+        for (uint16_t i = klass->interface_offsets_count; i < klass->interfaces_count; ++i)
+            IL2CPP_ASSERT(interfaces[i].offset == kInvalidInterfaceOffset);
+#endif
+
+        // Publish before returning so recursive callers can read klass->interfaces directly.
+        il2cpp::os::Atomic::PublishPointer(&klass->interfaces, interfaces);
+        return interfaces;
     }
 
     typedef Il2CppHashMap<Il2CppMetadataGenericParameterHandle, Il2CppClass*, utils::PassThroughHash<Il2CppMetadataGenericParameterHandle> > GenericParameterMap;
@@ -384,22 +487,20 @@ namespace vm
         if (!iter)
             return NULL;
 
-        if (!*iter)
-        {
-            Il2CppClass** interfaces =  Class::GetInterfaces(klass);
-            *iter = &interfaces[0];
-            return interfaces[0];
-        }
+        // Return only directly-declared interfaces (depth == 0). depth > 0 are inherited
+        // or transitively reachable; depth < 0 are array-assignability grafts.
+        Il2CppRuntimeInterfaceData* interfaces = Class::GetInterfaces(klass);
+        Il2CppRuntimeInterfaceData* end = &interfaces[klass->interfaces_count];
+        Il2CppRuntimeInterfaceData* cursor = *iter ? ((Il2CppRuntimeInterfaceData*)*iter) + 1 : interfaces;
 
-        Il2CppClass** interfaceAddress = (Il2CppClass**)*iter;
-        interfaceAddress++;
-        if (interfaceAddress < &klass->implementedInterfaces[klass->interfaces_count])
-        {
-            *iter = interfaceAddress;
-            return *interfaceAddress;
-        }
+        while (cursor < end && cursor->depth != 0)
+            cursor++;
 
-        return NULL;
+        if (cursor >= end)
+            return NULL;
+
+        *iter = cursor;
+        return cursor->interfaceType;
     }
 
     const MethodInfo* Class::GetMethods(Il2CppClass *klass, void* *iter)
@@ -689,44 +790,27 @@ namespace vm
             return ClassInlines::HasParentUnsafe(oklass, klass);
         }
 
+        // oklass->interfaces is the complete transitive closure (base class hops, interface-
+        // to-interface hops, and for arrays the CLR's grafted assignability interfaces). A
+        // single flat scan covers all the cases that used to need a parent-chain walk.
         if (klass->generic_class != NULL)
         {
             // checking for simple reference equality is not enough in this case because generic interface might have covariant and/or contravariant parameters
-            for (Il2CppClass* iter = oklass; iter != NULL; iter = iter->parent)
+            if (IsGenericClassAssignableFrom(klass, oklass, oklass))
+                return true;
+
+            for (uint16_t i = 0; i < oklass->interfaces_count; ++i)
             {
-                if (IsGenericClassAssignableFrom(klass, iter, oklass))
+                if (IsGenericClassAssignableFrom(klass, oklass->interfaces[i].interfaceType, oklass))
                     return true;
-
-                for (uint16_t i = 0; i < iter->interfaces_count; ++i)
-                {
-                    if (IsGenericClassAssignableFrom(klass, iter->implementedInterfaces[i], oklass))
-                        return true;
-                }
-
-                for (uint16_t i = 0; i < iter->interface_offsets_count; ++i)
-                {
-                    if (IsGenericClassAssignableFrom(klass, iter->interfaceOffsets[i].interfaceType, oklass))
-                        return true;
-                }
             }
         }
         else
         {
-            for (Il2CppClass* iter = oklass; iter != NULL; iter = iter->parent)
+            for (uint16_t i = 0; i < oklass->interfaces_count; ++i)
             {
-                for (uint16_t i = 0; i < iter->interfaces_count; ++i)
-                {
-                    if (iter->implementedInterfaces[i] == klass)
-                        return true;
-                }
-
-                // Check the interfaces we may have grafted on to the type (e.g IList,
-                // ICollection, IEnumerable for array types).
-                for (uint16_t i = 0; i < iter->interface_offsets_count; ++i)
-                {
-                    if (iter->interfaceOffsets[i].interfaceType == klass)
-                        return true;
-                }
+                if (oklass->interfaces[i].interfaceType == klass)
+                    return true;
             }
         }
 
@@ -1228,47 +1312,16 @@ namespace vm
         });
     }
 
-    static bool GetInterfaceImplementationDepthLocked(const Il2CppClass* klass, const Il2CppClass* itf, const il2cpp::os::FastAutoLock& lock, int* depth)
-    {
-        const int GET_IMPLEMENTATION_DEPTH_MAX = 100;
-
-        // Prevent infinite recursion, depth is arbitrary
-        if (*depth > GET_IMPLEMENTATION_DEPTH_MAX)
-            return true;
-
-        for (uint16_t i = 0; i < klass->interfaces_count; i++)
-        {
-            if (klass->implementedInterfaces[i] == itf)
-            {
-                (*depth)++;
-                return true;
-            }
-        }
-
-        for (uint16_t i = 0; i < klass->interfaces_count; i++)
-        {
-            Class::InitLocked(klass->implementedInterfaces[i], lock);
-            if (GetInterfaceImplementationDepthLocked(klass->implementedInterfaces[i], itf, lock, depth))
-            {
-                (*depth)++;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     static int GetInterfaceImplementationDepthLocked(const Il2CppClass* klass, const Il2CppClass* itf, const il2cpp::os::FastAutoLock& lock)
     {
-        int depth = 0;
-        while (klass != NULL)
+        // The depth baked into each entry already accounts for both parent-chain and
+        // interface-to-interface hops.
+        for (uint16_t i = 0; i < klass->interfaces_count; i++)
         {
-            if (GetInterfaceImplementationDepthLocked(klass, itf, lock, &depth))
-                break;
-            klass = klass->parent;
-            depth++;
+            if (klass->interfaces[i].interfaceType == itf)
+                return klass->interfaces[i].depth;
         }
-        return depth;
+        return 0;
     }
 
     static void OverrideBaseClassVtableGenericVariants(Il2CppClass* klass, const il2cpp::os::FastAutoLock& lock)
@@ -1290,7 +1343,7 @@ namespace vm
 
         for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
         {
-            Il2CppClass* interfaceType = klass->interfaceOffsets[i].interfaceType;
+            Il2CppClass* interfaceType = klass->interfaces[i].interfaceType;
 
             // Skip non-generic interfaces, no variance here
             if (!Class::IsInflated(interfaceType))
@@ -1303,7 +1356,7 @@ namespace vm
                 if (i == j)
                     continue;
 
-                const Il2CppClass* checkInterfaceType = klass->interfaceOffsets[j].interfaceType;
+                const Il2CppClass* checkInterfaceType = klass->interfaces[j].interfaceType;
 
                 // Skip any non-generic interfaces
                 if (!Class::IsInflated(checkInterfaceType))
@@ -1316,8 +1369,8 @@ namespace vm
                 // Check if the interface we found is a wider variant of the interface we are currently looking at
                 if (Class::IsGenericClassAssignableFromVariance(interfaceType, checkInterfaceType))
                 {
-                    int32_t fromSlot = klass->interfaceOffsets[i].offset;
-                    int32_t toSlot = klass->interfaceOffsets[j].offset;
+                    int32_t fromSlot = klass->interfaces[i].offset;
+                    int32_t toSlot = klass->interfaces[j].offset;
                     int virtualMethodCount = MetadataCache::GetVirtualMethodCount(interfaceType);
 
                     // Go through each vtable entry, overriding the entry if the new implementation is implemented on a more derived class
@@ -1377,17 +1430,6 @@ namespace vm
         {
             Il2CppClass* genericTypeDefinition = GenericClass::GetTypeDefinition(klass->generic_class);
             const Il2CppGenericInst* classInst = GenericClass::GetInstance(klass->generic_class);
-            if (genericTypeDefinition->interface_offsets_count > 0 && klass->interfaceOffsets == NULL)
-            {
-                klass->interface_offsets_count = genericTypeDefinition->interface_offsets_count;
-                klass->interfaceOffsets = (Il2CppRuntimeInterfaceOffsetPair*)MetadataCalloc(genericTypeDefinition->interface_offsets_count, sizeof(Il2CppRuntimeInterfaceOffsetPair));
-                for (uint16_t i = 0; i < genericTypeDefinition->interface_offsets_count; i++)
-                {
-                    Il2CppInterfaceOffsetInfo interfaceOffset = MetadataCache::GetInterfaceOffsetInfo(genericTypeDefinition, i);
-                    klass->interfaceOffsets[i].offset = interfaceOffset.offset;
-                    klass->interfaceOffsets[i].interfaceType = Class::FromIl2CppType(il2cpp::metadata::GenericMetadata::InflateIfNeeded(interfaceOffset.interfaceType, classInst, false));
-                }
-            }
 
             if (genericTypeDefinition->vtable_count > 0)
             {
@@ -1435,17 +1477,6 @@ namespace vm
         }
         else
         {
-            if (klass->interface_offsets_count > 0 && klass->interfaceOffsets == NULL)
-            {
-                klass->interfaceOffsets = (Il2CppRuntimeInterfaceOffsetPair*)MetadataCalloc(klass->interface_offsets_count, sizeof(Il2CppRuntimeInterfaceOffsetPair));
-                for (uint16_t i = 0; i < klass->interface_offsets_count; i++)
-                {
-                    Il2CppInterfaceOffsetInfo interfaceOffset = MetadataCache::GetInterfaceOffsetInfo(klass, i);
-                    klass->interfaceOffsets[i].offset = interfaceOffset.offset;
-                    klass->interfaceOffsets[i].interfaceType = Class::FromIl2CppType(interfaceOffset.interfaceType);
-                }
-            }
-
             if (klass->vtable_count > 0)
             {
                 for (uint16_t i = 0; i < klass->vtable_count; i++)
@@ -1602,9 +1633,9 @@ namespace vm
         }
     }
 
-    Il2CppClass** Class::GetInterfaces(Il2CppClass *klass)
+    Il2CppRuntimeInterfaceData* Class::GetInterfaces(Il2CppClass *klass)
     {
-        return il2cpp::utils::InitOnce(&klass->implementedInterfaces, &g_MetadataLock, [klass](const il2cpp::os::FastAutoLock& lock) {
+        return il2cpp::utils::InitOnce(&klass->interfaces, &g_MetadataLock, [klass](const il2cpp::os::FastAutoLock& lock) {
             return SetupInterfacesLocked(klass, lock);
         });
     }
@@ -1674,7 +1705,7 @@ namespace vm
                 InitLocked(element_class, lock);
         }
 
-        klass->implementedInterfaces = SetupInterfacesLocked(klass, lock);
+        klass->interfaces = SetupInterfacesLocked(klass, lock);
 
         if (klass->parent && !klass->parent->initialized)
             InitLocked(klass->parent, lock);

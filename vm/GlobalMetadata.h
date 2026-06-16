@@ -73,7 +73,7 @@ namespace vm
         static const MethodInfo* GetMethodInfoFromMethodHandle(Il2CppMetadataMethodDefinitionHandle handle);
         static const MethodInfo* GetMethodInfoFromVTableSlot(const Il2CppClass* klass, int32_t vTableSlot);
         static const MethodInfo* GetMethodInfoFromEncodedIndex(EncodedMethodIndex methodIndex, Il2CppRGCTXInitMode rgctxInitMode = IL2CPP_RGCTX_INIT_MODE_DEFAULT);
-        static Il2CppGenericMethodKey BuildGenericMethodFromMethodSpec(const Il2CppMethodSpec* methodSpec);
+        static Il2CppGenericMethodKey BuildGenericMethodFromMethodSpec(GenericMethodIndex index);
 
         static const uint8_t* GetParameterDefaultValue(const MethodInfo* method, int32_t parameterPosition, const Il2CppType** type, bool* isExplicitlySetNullDefaultValue);
         static const uint8_t* GetFieldDefaultValue(const FieldInfo* field, const Il2CppType** type);
@@ -97,6 +97,7 @@ namespace vm
         static const Il2CppType* GetTypeFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
         static Il2CppGenericMethod BuildGenericMethodFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxDef);
         static std::pair<const Il2CppType*, const MethodInfo*> GetConstrainedCallFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxTypeDef, const Il2CppRGCTXDefinition* rgctxMethodDef);
+        static std::pair<const Il2CppType*, FieldIndex> GetFieldInfoFromRgctxDefinition(const Il2CppRGCTXDefinition* rgctxTypeDef, const Il2CppRGCTXDefinition* rgctxFieldDef);
         static Il2CppClass* GetContainerDeclaringType(Il2CppMetadataGenericContainerHandle handle);
         static Il2CppClass* GetParameterDeclaringType(Il2CppMetadataGenericParameterHandle handle);
         static const MethodInfo* GetParameterDeclaringMethod(Il2CppMetadataGenericParameterHandle handle);
@@ -131,6 +132,11 @@ namespace vm
 #if IL2CPP_ENABLE_NATIVE_STACKTRACES
         static void GetAllManagedMethods(std::vector<MethodDefinitionKey>& managedMethods);
 #endif
+
+        static int32_t GetInvokerTableIndexForMethod(const Il2CppImage* image, uint32_t rid);
+        static RGCTXCollection GetRGCTXItems(const Il2CppImage* image, uint32_t token);
+        static uint32_t GetImageStaticConstructorCount(const Il2CppImage* image);
+        static TypeDefinitionIndex GetStaticConstructorTypeIndex(const Il2CppImage* image, uint32_t index);
     };
 }
 }

@@ -3,6 +3,7 @@
 #include "gc/GCHandle.h"
 #include "os/Mutex.h"
 #include "vm/Class.h"
+#include "vm/Field.h"
 #include "vm/GenericClass.h"
 #include "vm/Image.h"
 #include "vm/Method.h"
@@ -284,18 +285,19 @@ namespace metadata
         *exc = NULL;
 
         RGCTXCollection collection = MetadataCache::GetRGCTXs(image, token);
-        if (collection.count == 0)
+        if (collection.Count() == 0)
             return NULL;
 
         RGCTXIndex dataSize = 0;
-        for (RGCTXIndex rgctxIndex = 0; rgctxIndex < collection.count; rgctxIndex++)
+        for (RGCTXIndex rgctxIndex = 0; rgctxIndex < collection.Count(); rgctxIndex++)
         {
-            const Il2CppRGCTXDefinition* definitionData = collection.items + rgctxIndex;
-            switch (definitionData->type)
+            Il2CppRGCTXDefinition definitionData = collection.Get(rgctxIndex);
+            switch (definitionData.type)
             {
                 case IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD:
-                    // Constrained call data takes two slots, to store both the type and method tokens.
-                    // But we only need one slot in the final data for the method, so skip the next entry in the collection.
+                case IL2CPP_RGCTX_DATA_FIELD_OFFSET_FIELD:
+                    // Constrained calls and field offsets each take two slots in the source,
+                    // but produce only one entry in the final data, so skip the secondary slot.
                     break;
                 default:
                     dataSize++;
@@ -304,20 +306,20 @@ namespace metadata
         }
 
         Il2CppRGCTXData* dataValues = (Il2CppRGCTXData*)MetadataCalloc(dataSize, sizeof(Il2CppRGCTXData));
-        for (RGCTXIndex rgctxIndex = 0, dataValuesIndex = 0; rgctxIndex < collection.count; rgctxIndex++, dataValuesIndex++)
+        for (RGCTXIndex rgctxIndex = 0, dataValuesIndex = 0; rgctxIndex < collection.Count(); rgctxIndex++, dataValuesIndex++)
         {
             IL2CPP_ASSERT(dataValuesIndex < dataSize);
 
-            const Il2CppRGCTXDefinition* definitionData = collection.items + rgctxIndex;
+            Il2CppRGCTXDefinition definitionData = collection.Get(rgctxIndex);
 
-            switch (definitionData->type)
+            switch (definitionData.type)
             {
                 case IL2CPP_RGCTX_DATA_TYPE:
-                    dataValues[dataValuesIndex].type = GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(definitionData), context, true);
+                    dataValues[dataValuesIndex].type = GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(&definitionData), context, true);
                     break;
                 case IL2CPP_RGCTX_DATA_CLASS:
                 {
-                    Il2CppClass* klass = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(definitionData), context, true));
+                    Il2CppClass* klass = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(MetadataCache::GetTypeFromRgctxDefinition(&definitionData), context, true));
                     Class::InitSizeAndFieldLayoutLocked(klass, lock);
                     Class::SetupTypeHierarchyLocked(klass, lock);
 
@@ -328,17 +330,17 @@ namespace metadata
                     break;
                 }
                 case IL2CPP_RGCTX_DATA_METHOD:
-                    dataValues[dataValuesIndex].method = GenericMethod::GetMethod(Inflate(MetadataCache::GetGenericMethodFromRgctxDefinition(definitionData), context));
+                    dataValues[dataValuesIndex].method = GenericMethod::GetMethod(Inflate(MetadataCache::GetGenericMethodFromRgctxDefinition(&definitionData), context));
                     break;
                 case IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_TYPE:
                 {
-                    IL2CPP_ASSERT(rgctxIndex + 1 < collection.count);
-                    const Il2CppRGCTXDefinition* methodData = collection.items + rgctxIndex + 1;
-                    IL2CPP_ASSERT(methodData->type == IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD);
+                    IL2CPP_ASSERT(rgctxIndex + 1 < collection.Count());
+                    Il2CppRGCTXDefinition methodData = collection.Get(rgctxIndex + 1);
+                    IL2CPP_ASSERT(methodData.type == IL2CPP_RGCTX_DATA_CONSTRAINED_CALL_METHOD);
 
                     const Il2CppType* type;
                     const MethodInfo* method;
-                    std::tie(type, method) = MetadataCache::GetConstrainedCallFromRgctxDefinition(definitionData, methodData);
+                    std::tie(type, method) = MetadataCache::GetConstrainedCallFromRgctxDefinition(&definitionData, &methodData);
 
                     const Il2CppType* inflatedType = GenericMetadata::InflateIfNeeded(type, context, true);
                     if (method->is_inflated)
@@ -355,6 +357,32 @@ namespace metadata
                     dataValues[dataValuesIndex].method = method;
 
                     rgctxIndex++; // Constrained call data takes two slots
+                }
+                break;
+                case IL2CPP_RGCTX_DATA_FIELD_OFFSET_TYPE:
+                {
+                    IL2CPP_ASSERT(rgctxIndex + 1 < collection.Count());
+                    Il2CppRGCTXDefinition fieldData = collection.Get(rgctxIndex + 1);
+                    IL2CPP_ASSERT(fieldData.type == IL2CPP_RGCTX_DATA_FIELD_OFFSET_FIELD);
+
+                    const Il2CppType* declaringType;
+                    FieldIndex fieldIndex;
+                    std::tie(declaringType, fieldIndex) = MetadataCache::GetFieldInfoFromRgctxDefinition(&definitionData, &fieldData);
+
+                    Il2CppClass* declaringClass = Class::FromIl2CppType(GenericMetadata::InflateIfNeeded(declaringType, context, true));
+                    Class::InitSizeAndFieldLayoutLocked(declaringClass, lock);
+                    IL2CPP_ASSERT(fieldIndex < (FieldIndex)Class::GetNumFields(declaringClass));
+                    FieldInfo* field = declaringClass->fields + fieldIndex;
+                    size_t offset = Field::GetOffset(field);
+
+                    if (Field::IsInstance(field) && Class::IsValuetype(declaringClass))
+                        offset -= sizeof(Il2CppObject);
+                    else if (Field::IsThreadStatic(field))
+                        offset = MetadataCache::GetThreadLocalStaticOffsetForField(field);
+
+                    dataValues[dataValuesIndex].offset = offset;
+
+                    rgctxIndex++; // Field offset data takes two slots
                 }
                 break;
                 default:

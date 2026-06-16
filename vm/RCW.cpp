@@ -482,18 +482,19 @@ namespace vm
         Class::Init(queriedInterface);
         uint16_t vtableCount = queriedInterface->vtable_count;
 
+        const Il2CppRuntimeInterfaceData* interfaces = queriedInterface->interfaces;
+        uint16_t interfaceOffsetsCount = queriedInterface->interface_offsets_count;
+
         if (targetInterface->generic_class != NULL)
         {
             if (Class::IsGenericClassAssignableFrom(targetInterface, queriedInterface))
                 return NULL;
 
-            const Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets = queriedInterface->interfaceOffsets;
-            uint16_t interfaceOffsetsCount = queriedInterface->interface_offsets_count;
             for (uint16_t i = 0; i < interfaceOffsetsCount; i++)
             {
-                if (Class::IsGenericClassAssignableFrom(targetInterface, interfaceOffsets[i].interfaceType))
+                if (Class::IsGenericClassAssignableFrom(targetInterface, interfaces[i].interfaceType))
                 {
-                    Il2CppMethodSlot slotWithOffset = interfaceOffsets[i].offset + slot;
+                    Il2CppMethodSlot slotWithOffset = interfaces[i].offset + slot;
                     if (slotWithOffset < vtableCount)
                         return &queriedInterface->vtable[slotWithOffset];
                 }
@@ -501,26 +502,32 @@ namespace vm
         }
         else
         {
-            const Il2CppRuntimeInterfaceOffsetPair* interfaceOffsets = queriedInterface->interfaceOffsets;
-            uint16_t interfaceOffsetsCount = queriedInterface->interface_offsets_count;
             for (uint16_t i = 0; i < interfaceOffsetsCount; ++i)
             {
-                if (interfaceOffsets[i].interfaceType == targetInterface)
+                if (interfaces[i].interfaceType == targetInterface)
                 {
-                    Il2CppMethodSlot slotWithOffset = interfaceOffsets[i].offset + slot;
+                    Il2CppMethodSlot slotWithOffset = interfaces[i].offset + slot;
                     if (slotWithOffset < vtableCount)
                         return &queriedInterface->vtable[slotWithOffset];
                 }
             }
         }
 
-        Il2CppClass* const* implementedInterfaces = queriedInterface->implementedInterfaces;
-        uint16_t implementedInterfacesCount = queriedInterface->interfaces_count;
-
-        for (uint16_t i = 0; i < implementedInterfacesCount; i++)
+        // Recurse through each directly-declared interface (depth == 0 entries in
+        // queriedInterface->interfaces, per the Il2CppRuntimeInterfaceData comment in
+        // il2cpp-class-internals.h) to chase targetInterface across the CLR-side
+        // hierarchy when it isn't directly dispatchable on queriedInterface's own
+        // vtable. Required for projected collection types where the WinRT and CLR
+        // hierarchies diverge - e.g. IIterable<T> doesn't implement IBindableIterable
+        // on the WinRT side, but IEnumerable<T> implements IEnumerable on the CLR
+        // side, so the bridge to IBindableIterable is only reachable by walking
+        // IIterable<T>'s directly-declared interfaces.
+        uint16_t totalInterfaces = queriedInterface->interfaces_count;
+        for (uint16_t i = 0; i < totalInterfaces; i++)
         {
-            Il2CppClass* implementedInterface = implementedInterfaces[i];
-            const VirtualInvokeData* invokeData = GetComInterfaceInvokeData(implementedInterface, targetInterface, slot);
+            if (interfaces[i].depth != 0)
+                continue;
+            const VirtualInvokeData* invokeData = GetComInterfaceInvokeData(interfaces[i].interfaceType, targetInterface, slot);
             if (invokeData != NULL)
                 return invokeData;
         }

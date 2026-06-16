@@ -238,6 +238,12 @@ typedef struct Il2CppImageDefinition
 
     CustomAttributeIndex customAttributeStart;
     uint32_t customAttributeCount;
+
+    uint32_t invokerIndicesStart;
+    uint32_t rgctxRangesStart;
+    uint32_t rgctxRangesCount;
+    uint32_t staticConstructorStart;
+    uint32_t staticConstructorCount;
 } Il2CppImageDefinition;
 
 typedef struct Il2CppAssemblyDefinition
@@ -335,5 +341,14 @@ typedef struct Il2CppGlobalMetadataHeader
     Il2CppSectionMetadata windowsRuntimeTypeNames; // Il2CppWindowsRuntimeTypeNamePair
     Il2CppSectionMetadata windowsRuntimeStrings; // const char*
     Il2CppSectionMetadata exportedTypeDefinitions; // TypeDefinitionIndex
+    Il2CppSectionMetadata methodSpecsOnGenericType; // Il2CppMethodSpecOnGenericType
+    Il2CppSectionMetadata genericMethodSpecsOnType; // Il2CppGenericMethodSpecOnType
+    Il2CppSectionMetadata methodSpecs; // Il2CppMethodSpec
+    Il2CppSectionMetadata genericMethodFunctionsDefinitions; // Il2CppGenericMethodFunctionsDefinitions
+    Il2CppSectionMetadata genericMethodFunctionsDefinitionsWithAdjustor; // Il2CppGenericMethodFunctionsDefinitionsWithAdjustor
+    Il2CppSectionMetadata invokerIndices; // InvokerTableIndex per method, per image, in image order
+    Il2CppSectionMetadata rgctxRanges; // Il2CppTokenRangePair (token + global start + length), per image in image order
+    Il2CppSectionMetadata rgctxValues; // Il2CppRGCTXDefinition (int32 type + int32 data)
+    Il2CppSectionMetadata staticConstructorTypeIndices; // TypeDefinitionIndex per eager-init type, per image in image order
 } Il2CppGlobalMetadataHeader;
 #pragma pack(pop, p1)

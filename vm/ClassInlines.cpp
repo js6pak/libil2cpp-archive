@@ -71,7 +71,7 @@ namespace vm
         {
             for (uint16_t i = 0; i < klass->interface_offsets_count; ++i)
             {
-                const Il2CppRuntimeInterfaceOffsetPair* pair = klass->interfaceOffsets + i;
+                const Il2CppRuntimeInterfaceData* pair = klass->interfaces + i;
                 if (Class::IsGenericClassAssignableFromVariance(itf, pair->interfaceType, klass))
                 {
                     IL2CPP_ASSERT(pair->offset + slot < klass->vtable_count);

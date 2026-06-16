@@ -19,6 +19,11 @@ struct SerializedIndexSizes
     int fieldIndex = 0;
     int defaultValueDataIndex = 0;
     int methodIndex = 0;
+    int genericInstIndex = 0;
+    int genericMethodIndex = 0;
+    int methodPointerTableIndex = 0;
+    int invokerTableIndex = 0;
+    int adjustorThunkIndex = 0;
 };
 
 int GetIndexSize(const int numberOfElements);
@@ -70,3 +75,8 @@ Il2CppWindowsRuntimeTypeNamePair DeserializeWindowsRuntimeTypeNamePair(const cha
 Il2CppInlineArrayLength DeserializeInlineArrayLength(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppFieldRef DeserializeFieldRef(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppPropertyDefinition DeserializePropertyDefinition(const char* ptr, const SerializedIndexSizes& sizes);
+Il2CppMethodSpecOnGenericType DeserializeMethodSpecOnGenericType(const char* ptr, const SerializedIndexSizes& sizes);
+Il2CppGenericMethodSpecOnType DeserializeGenericMethodSpecOnType(const char* ptr, const SerializedIndexSizes& sizes);
+Il2CppMethodSpec DeserializeMethodSpec(const char* ptr, const SerializedIndexSizes& sizes);
+Il2CppGenericMethodFunctionsDefinitions DeserializeGenericMethodFunctionsDefinitions(const char* ptr, const SerializedIndexSizes& sizes);
+Il2CppGenericMethodFunctionsDefinitionsWithAdjustor DeserializeGenericMethodFunctionsDefinitionsWithAdjustor(const char* ptr, const SerializedIndexSizes& sizes);
