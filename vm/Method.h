@@ -50,12 +50,14 @@ namespace vm
         static const MethodInfo* GetStaticAmbiguousMethodInfo();
         static const MethodInfo* GetEntryPointNotFoundMethodInfo();
         static const MethodInfo* GetStaticEntryPointNotFoundMethodInfo();
+        static const MethodInfo* GetEntryPointNotFoundMethodInfoForMethod(const MethodInfo* method);
         static bool IsAmbiguousMethodInfo(const MethodInfo* method);
         static bool IsAmbiguousMethodClass(const Il2CppClass* klass);
         static bool IsEntryPointNotFoundMethodInfo(const MethodInfo* method);
         static bool IsEntryPointNotFoundMethodClass(const Il2CppClass* klass);
 
         static bool HasFullGenericSharingSignature(const MethodInfo* method);
+        static bool RequiresAdjustorThunk(const MethodInfo* method);
     };
 } /* namespace vm */
 } /* namespace il2cpp */

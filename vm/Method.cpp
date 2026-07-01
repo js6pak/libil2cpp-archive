@@ -477,6 +477,14 @@ namespace vm
         return &staticEntryPointerNotFoundMethodInfo;
     }
 
+    const MethodInfo* Method::GetEntryPointNotFoundMethodInfoForMethod(const MethodInfo* method)
+    {
+        if (Method::IsStatic(method))
+            return Method::GetStaticEntryPointNotFoundMethodInfo();
+        else
+            return Method::GetEntryPointNotFoundMethodInfo();
+    }
+
     bool Method::IsAmbiguousMethodInfo(const MethodInfo* method)
     {
         return IsAmbiguousMethodClass(method->klass);
@@ -500,6 +508,11 @@ namespace vm
     bool Method::HasFullGenericSharingSignature(const MethodInfo* method)
     {
         return method->has_full_generic_sharing_signature;
+    }
+
+    bool Method::RequiresAdjustorThunk(const MethodInfo* method)
+    {
+        return Method::IsInstance(method) && Class::IsValuetype(method->klass);
     }
 } /* namespace vm */
 } /* namespace il2cpp */
