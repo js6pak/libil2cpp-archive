@@ -11,6 +11,9 @@
 #if !MONO_NET_BCL
 #include "icalls/mscorlib/System.Threading/Interlocked.h"
 #endif
+#if IL2CPP_CODE_COVERAGE
+#include "os/Atomic.h"
+#endif
 #include "vm-utils/VmThreadUtils.h"
 #include "vm-utils/Debugger.h"
 #include "vm-utils/Finally.h"
@@ -1937,6 +1940,18 @@ inline void il2cpp_codegen_check_sequence_point_exit(Il2CppSequencePointExecutio
     il2cpp::utils::Debugger::CheckSequencePointExit(executionContext, seqPoint);
 #endif
 }
+
+#if IL2CPP_CODE_COVERAGE
+void il2cpp_codegen_code_coverage_ensure_sequence_point_hits_allocated(const MethodInfo* method, int32_t count);
+
+inline void il2cpp_codegen_code_coverage_sequence_point_hit(const MethodInfo* method, int32_t localIndex)
+{
+    IL2CPP_ASSERT(method != nullptr);
+    IL2CPP_ASSERT(method->sequencePointHits != nullptr);
+    il2cpp::os::Atomic::Increment64Relaxed(&method->sequencePointHits[localIndex]);
+}
+
+#endif
 
 inline void il2cpp_codegen_check_pause_point()
 {

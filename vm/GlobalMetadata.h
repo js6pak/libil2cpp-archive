@@ -114,6 +114,14 @@ namespace vm
 
         static const MethodInfo* GetMethodInfoFromCatchPoint(const Il2CppCatchPoint* cp);
         static const MethodInfo* GetMethodInfoFromSequencePoint(const Il2CppSequencePoint* cp);
+#if IL2CPP_CODE_COVERAGE
+        static MethodIndex GetMethodDefinitionIndex(const MethodInfo* method);
+        static bool IsValidCodeCoverageSequencePoint(const Il2CppSequencePoint* sp);
+        static const Il2CppSequencePoint* FindFirstSequencePoint(const MethodInfo* method);
+        static int32_t GetSequencePointCount(const MethodInfo* method);
+#endif
+        // Generic table-walk: invokes callback for each initialized method definition (holds g_MetadataLock).
+        static void WalkInitializedMethods(MethodWalkCallback callback, void* context);
         static Il2CppClass* GetTypeInfoFromTypeSourcePair(const Il2CppTypeSourceFilePair* pair);
 
         static Il2CppClass* GetTypeInfoFromTypeIndex(TypeIndex index, bool throwOnError = true);

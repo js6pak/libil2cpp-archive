@@ -40,6 +40,13 @@
 #include "vm-utils/VmThreadUtils.h"
 #include "utils/Runtime.h"
 
+#if IL2CPP_CODE_COVERAGE
+#include "os/Mutex.h"
+#include "vm/GlobalMetadata.h"
+#include "vm/MetadataAlloc.h"
+#include "vm/MetadataLock.h"
+#endif
+
 #if IL2CPP_ENABLE_WRITE_BARRIERS
 void Il2CppCodeGenWriteBarrier(void** targetAddress, void* object)
 {
@@ -1261,3 +1268,24 @@ void il2cpp_codegen_delegate_invoke_multicast(Il2CppMethodPointer methodPtr, con
         ((InvokerMethod)(currentDelegate->invoke_impl))(currentDelegate->method_ptr, currentDelegate->method, currentDelegate->invoke_impl_this, args, result);
     }
 }
+
+#if IL2CPP_CODE_COVERAGE
+void il2cpp_codegen_code_coverage_ensure_sequence_point_hits_allocated(const MethodInfo* method, int32_t count)
+{
+    // Lazily, on first entry: allocate the per-method hit-tally array and cache a pointer to the
+    // method's first sequence point (located by binary search over its module's debugger metadata,
+    // which is ordered by method definition index — see GlobalMetadata::FindFirstSequencePoint). Only
+    // the start pointer is stored; the sequence points themselves are not copied per method.
+    if (method == NULL || count <= 0 || method->sequencePointHits != NULL)
+        return;
+
+    il2cpp::os::FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+    if (method->sequencePointHits != NULL)
+        return;
+
+    const_cast<MethodInfo*>(method)->sequencePointCount = count;
+    const_cast<MethodInfo*>(method)->sequencePoints = il2cpp::vm::GlobalMetadata::FindFirstSequencePoint(method);
+    const_cast<MethodInfo*>(method)->sequencePointHits = (decltype(method->sequencePointHits)) il2cpp::vm::MetadataCalloc(count, sizeof(*method->sequencePointHits));
+}
+
+#endif

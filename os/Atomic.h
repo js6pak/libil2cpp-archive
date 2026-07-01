@@ -140,9 +140,21 @@ namespace os
             return result;
         }
 
+        static inline int64_t Increment64Relaxed(int64_t* value)
+        {
+            int64_t result = Baselib_atomic_fetch_add_64_relaxed(value, 1) + 1;
+
+            return result;
+        }
+
         static inline uint64_t Increment64(uint64_t* value)
         {
             return (uint64_t)Increment64((int64_t*)value);
+        }
+
+        static inline uint64_t Increment64Relaxed(uint64_t* value)
+        {
+            return (uint64_t)Increment64Relaxed((int64_t*)value);
         }
 
         static inline int32_t Decrement(int32_t* value)
