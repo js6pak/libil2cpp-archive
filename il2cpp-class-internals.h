@@ -217,7 +217,17 @@ typedef struct MethodInfo
     uint8_t wrapper_type : 1; /* always zero (MONO_WRAPPER_NONE) needed for the debugger */
     uint8_t has_full_generic_sharing_signature : 1;
     uint8_t is_unmanaged_callers_only : 1;
+#if IL2CPP_CODE_COVERAGE
+    uint64_t* sequencePointHits;
+    const Il2CppSequencePoint* sequencePoints; // points at the method's first sequence point in its module's debugger metadata; the rest follow sequentially
+    int32_t sequencePointCount;
+#endif
 } MethodInfo;
+
+// Callback for the metadata method walkers (GlobalMetadata::WalkInitializedMethods,
+// GenericMethod::WalkAllGenericMethods, MetadataCache::WalkAllMethods). Defined here, beside
+// MethodInfo, so all three can share one type without their headers having to include one another.
+typedef void (*MethodWalkCallback)(const MethodInfo* method, void* context);
 
 // One entry per interface that an Il2CppClass implements, holding everything needed for
 // both interface dispatch and reflection/assignability. Array layout invariants:

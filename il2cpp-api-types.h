@@ -197,3 +197,16 @@ typedef uintptr_t il2cpp_array_size_t;
 typedef void* Il2CppGCHandle;
 
 typedef uint8_t (*Il2CppAndroidUpStateFunc)(const char* ifName, uint8_t* is_up);
+
+typedef struct Il2CppSequencePoint Il2CppSequencePoint;
+
+typedef struct Il2CppCodeCoverageSequencePointInfo
+{
+    const char* sourceFile;
+    int32_t lineStart, lineEnd;
+    int32_t columnStart, columnEnd;
+    int32_t ilOffset;
+    int32_t isActive;
+    int32_t id;
+    uint64_t hitCount;
+} Il2CppCodeCoverageSequencePointInfo;
