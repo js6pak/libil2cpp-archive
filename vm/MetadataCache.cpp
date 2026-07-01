@@ -949,7 +949,7 @@ const Il2CppType* il2cpp::vm::MetadataCache::GetReducedType(const Il2CppType* ty
 
 il2cpp::vm::Il2CppUnresolvedCallStubs il2cpp::vm::MetadataCache::GetUnresovledCallStubs(const MethodInfo* method)
 {
-    il2cpp::vm::Il2CppUnresolvedCallStubs stubs;
+    il2cpp::vm::Il2CppUnresolvedCallStubs stubs = {};
     stubs.stubsFound = false;
 
     il2cpp::metadata::Il2CppSignature signature;
@@ -976,21 +976,23 @@ il2cpp::vm::Il2CppUnresolvedCallStubs il2cpp::vm::MetadataCache::GetUnresovledCa
             stubs.stubsFound = true;
         }
     }
-    else
+
+    // Ensure that we never return a NULL method pointer in stubs
+    if (stubs.methodPointer == NULL)
     {
-        if (il2cpp::vm::Method::IsInstance(method))
-        {
-            const MethodInfo* entryPointNotFoundMethod = il2cpp::vm::Method::GetEntryPointNotFoundMethodInfo();
-            stubs.methodPointer = entryPointNotFoundMethod->methodPointer;
-            stubs.virtualMethodPointer = entryPointNotFoundMethod->methodPointer;
-        }
+        if (Method::RequiresAdjustorThunk(method) || stubs.virtualMethodPointer == NULL)
+            stubs.methodPointer = Method::GetEntryPointNotFoundMethodInfoForMethod(method)->methodPointer;
         else
-        {
-            const MethodInfo* entryPointNotFoundMethod = il2cpp::vm::Method::GetStaticEntryPointNotFoundMethodInfo();
-            stubs.methodPointer = entryPointNotFoundMethod->methodPointer;
-            stubs.virtualMethodPointer = entryPointNotFoundMethod->methodPointer;
-        }
+            stubs.methodPointer = stubs.virtualMethodPointer;
     }
+    if (stubs.virtualMethodPointer == NULL)
+    {
+        if (Method::RequiresAdjustorThunk(method) || stubs.methodPointer == NULL)
+            stubs.virtualMethodPointer = Method::GetEntryPointNotFoundMethodInfoForMethod(method)->methodPointer;
+        else
+            stubs.virtualMethodPointer = stubs.methodPointer;
+    }
+
 
     return stubs;
 }
