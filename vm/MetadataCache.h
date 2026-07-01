@@ -94,6 +94,10 @@ namespace vm
         static void ReleaseMetadataLocks();
         static void Clear();
 
+        // Walks every method that currently has a MethodInfo — definitions then generic
+        // instantiations — invoking callback for each (e.g. code-coverage reset).
+        static void WalkAllMethods(MethodWalkCallback callback, void* context);
+
         static void ExecuteEagerStaticClassConstructors();
         static void ExecuteModuleInitializers();
         static void InitAlwaysInitMetadataUsages();

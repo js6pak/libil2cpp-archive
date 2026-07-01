@@ -342,6 +342,15 @@ void il2cpp::vm::MetadataCache::ReleaseMetadataLocks()
     g_MetadataLock.Release();
 }
 
+void il2cpp::vm::MetadataCache::WalkAllMethods(MethodWalkCallback callback, void* context)
+{
+    // Definition methods are walked under g_MetadataLock; generic instantiations under the generic
+    // method map's own lock. Each walker acquires and releases its own lock, so the two metadata
+    // locks are never held at the same time (no lock-order inversion).
+    GlobalMetadata::WalkInitializedMethods(callback, context);
+    metadata::GenericMethod::WalkAllGenericMethods(callback, context);
+}
+
 void il2cpp::vm::MetadataCache::Clear()
 {
     ClearGenericMethodTable();
