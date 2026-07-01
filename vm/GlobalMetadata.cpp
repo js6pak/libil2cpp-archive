@@ -1859,6 +1859,170 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromSequencePoint(con
     return GetMethodInfoFromMethodDefinitionIndex(seqPoint->__methodDefinitionIndex);
 }
 
+// Returns the global method definition index for a non-inflated MethodInfo*, or -1 on failure.
+// This is the same value the IL2CPP codegen writes into Il2CppSequencePoint::__methodDefinitionIndex.
+#if IL2CPP_CODE_COVERAGE
+MethodIndex il2cpp::vm::GlobalMetadata::GetMethodDefinitionIndex(const MethodInfo* method)
+{
+    if (method->is_inflated)
+        return -1;
+
+    const Il2CppClass* klass = method->klass;
+    if (klass == NULL || klass->typeMetadataHandle == NULL || klass->methods == NULL)
+        return -1;
+
+    MethodIndex localIndex = -1;
+    for (int32_t i = 0; i < klass->method_count; i++)
+    {
+        if (klass->methods[i] == method)
+        {
+            localIndex = i;
+            break;
+        }
+    }
+    if (localIndex < 0)
+        return -1;
+
+    const Il2CppTypeDefinition typeDefinition = DeserializeTypeDefinition(klass->typeMetadataHandle, s_SerializedIndexSizes);
+    return typeDefinition.methodStart + localIndex;
+}
+
+bool il2cpp::vm::GlobalMetadata::IsValidCodeCoverageSequencePoint(const Il2CppSequencePoint* sp)
+{
+    // A sequence point counts toward coverage only if it's a normal point (not a step-out marker)
+    // with a real IL offset (entry/exit markers use out-of-range sentinel offsets).
+    return sp->kind == kSequencePointKind_Normal && sp->ilOffset >= 0 && sp->ilOffset < 0xFFFFFF;
+}
+
+const Il2CppSequencePoint* il2cpp::vm::GlobalMetadata::FindFirstSequencePoint(const MethodInfo* method)
+{
+    if (method == nullptr)
+        return nullptr;
+
+    // Sequence points live with the method's *definition* (a generic instantiation shares them).
+    const MethodInfo* defMethod = (method->is_inflated && method->genericMethod != nullptr && method->genericMethod->methodDefinition != nullptr)
+        ? method->genericMethod->methodDefinition
+        : method;
+
+    const MethodIndex defIndex = GetMethodDefinitionIndex(defMethod);
+    if (defIndex < 0)
+        return nullptr;
+
+    const Il2CppClass* klass = defMethod->klass;
+    if (klass == nullptr || klass->image == nullptr || klass->image->codeGenModule == nullptr)
+        return nullptr;
+
+    const Il2CppDebuggerMetadataRegistration* dm = klass->image->codeGenModule->debuggerMetadata;
+    if (dm == nullptr || dm->numSequencePoints <= 0)
+        return nullptr;
+
+    // A method's sequence points are contiguous within its module, and the blocks are ordered by
+    // __methodDefinitionIndex (collection walks types/methods in definition order with no later sort),
+    // so a lower_bound binary search locates the start of this method's block.
+    int32_t lo = 0;
+    int32_t hi = dm->numSequencePoints;
+    while (lo < hi)
+    {
+        int32_t mid = lo + (hi - lo) / 2;
+        if (dm->sequencePoints[mid].__methodDefinitionIndex < defIndex)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+
+    if (lo >= dm->numSequencePoints || dm->sequencePoints[lo].__methodDefinitionIndex != defIndex)
+        return nullptr;
+
+    // Guard the (emergent, unenforced) "sorted by method definition index" invariant the binary search
+    // relies on: in a sorted array the SP before this block must belong to an earlier method.
+    IL2CPP_ASSERT(lo == 0 || dm->sequencePoints[lo - 1].__methodDefinitionIndex < defIndex);
+
+    return &dm->sequencePoints[lo];
+}
+
+// Locates the method's contiguous sequence-point block: returns its first SP (the pointer cached on
+// the MethodInfo at entry, or located by binary search for a method whose coverage hasn't been
+// allocated yet) and, via dmOut, the owning module's debugger metadata (needed for the block's end
+// bound and the source-file table).
+static const Il2CppSequencePoint* GetMethodSequencePointBlock(const MethodInfo* method, const Il2CppDebuggerMetadataRegistration** dmOut)
+{
+    *dmOut = nullptr;
+    if (method == nullptr)
+        return nullptr;
+
+    // Sequence points live with the method's *definition* and are contiguous within that module.
+    const MethodInfo* defMethod = (method->is_inflated && method->genericMethod != nullptr && method->genericMethod->methodDefinition != nullptr)
+        ? method->genericMethod->methodDefinition
+        : method;
+
+    const Il2CppClass* klass = defMethod->klass;
+    if (klass == nullptr || klass->image == nullptr || klass->image->codeGenModule == nullptr)
+        return nullptr;
+
+    const Il2CppDebuggerMetadataRegistration* dm = klass->image->codeGenModule->debuggerMetadata;
+    if (dm == nullptr || dm->numSequencePoints <= 0)
+        return nullptr;
+
+    const Il2CppSequencePoint* first = method->sequencePoints;
+    if (first == nullptr)
+    {
+        // The method hasn't run, so method entry never cached anything. Locate its block and cache the
+        // first-SP pointer together with the normal-SP count, so this and later reads are plain field
+        // accesses. (sequencePointHits stays null, so reported hit counts are correctly 0.)
+        first = il2cpp::vm::GlobalMetadata::FindFirstSequencePoint(method);
+        if (first == nullptr)
+            return nullptr;
+
+        const MethodIndex defIndex = first->__methodDefinitionIndex;
+        const Il2CppSequencePoint* blockEnd = dm->sequencePoints + dm->numSequencePoints;
+        int32_t count = 0;
+        for (const Il2CppSequencePoint* sp = first; sp < blockEnd && sp->__methodDefinitionIndex == defIndex; ++sp)
+        {
+            if (il2cpp::vm::GlobalMetadata::IsValidCodeCoverageSequencePoint(sp))
+                count++;
+        }
+
+        il2cpp::os::FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+        if (method->sequencePoints == nullptr)
+        {
+            const_cast<MethodInfo*>(method)->sequencePointCount = count;
+            const_cast<MethodInfo*>(method)->sequencePoints = first; // published last
+        }
+    }
+
+    *dmOut = dm;
+    return first;
+}
+
+int32_t il2cpp::vm::GlobalMetadata::GetSequencePointCount(const MethodInfo* method)
+{
+    if (method->sequencePointCount > 0)
+        return method->sequencePointCount;
+
+    // Locating the block caches sequencePointCount on the MethodInfo (for a method that hasn't run),
+    // so the count is a plain field read here and on subsequent calls.
+    const Il2CppDebuggerMetadataRegistration* dm = nullptr;
+    GetMethodSequencePointBlock(method, &dm);
+    return method->sequencePointCount;
+}
+
+#endif // IL2CPP_CODE_COVERAGE
+
+void il2cpp::vm::GlobalMetadata::WalkInitializedMethods(MethodWalkCallback callback, void* context)
+{
+    // s_MethodInfoDefinitionTable entries are populated lazily under g_MetadataLock
+    // (GetMethodInfoFromMethodDefinitionIndex). Hold that lock while iterating so we never observe a
+    // half-published entry. s_GlobalMetadataHeader itself is immutable after Initialize.
+    il2cpp::os::FastAutoLock lock(&il2cpp::vm::g_MetadataLock);
+    int32_t methodCount = s_GlobalMetadataHeader->methods.count;
+    for (int32_t i = 0; i < methodCount; i++)
+    {
+        const MethodInfo* method = s_MethodInfoDefinitionTable[i];
+        if (method != nullptr)
+            callback(method, context);
+    }
+}
+
 Il2CppClass* il2cpp::vm::GlobalMetadata::GetTypeInfoFromTypeSourcePair(const Il2CppTypeSourceFilePair* pair)
 {
     return GetTypeInfoFromTypeDefinitionIndex(pair->__klassIndex);

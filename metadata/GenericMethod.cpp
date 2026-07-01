@@ -458,6 +458,18 @@ namespace metadata
         s_GenericMethodMap.Clear();
     }
 
+    void GenericMethod::WalkAllGenericMethods(MethodWalkCallback callback, void* context)
+    {
+        s_GenericMethodMap.LockShared();
+        for (auto it = s_GenericMethodMap.UnlockedBegin(); it != s_GenericMethodMap.UnlockedEnd(); ++it)
+        {
+            const MethodInfo* method = it->second;
+            if (method != nullptr)
+                callback(method, context);
+        }
+        s_GenericMethodMap.ReleaseShared();
+    }
+
     void GenericMethod::AcquireMetadataLocks()
     {
         s_GenericMethodMap.LockExclusive();

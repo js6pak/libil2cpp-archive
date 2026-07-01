@@ -318,3 +318,12 @@ DO_API(void, il2cpp_set_default_thread_affinity, (int64_t affinity_mask));
 
 // Android
 DO_API(void, il2cpp_unity_set_android_network_up_state_func, (Il2CppAndroidUpStateFunc func));
+
+// Code coverage
+DO_API(const MethodInfo*, il2cpp_code_coverage_get_method_from_sequence_point, (const Il2CppSequencePoint * seqPoint));
+DO_API(bool, il2cpp_code_coverage_is_built_in, ());
+DO_API(int32_t, il2cpp_code_coverage_get_sequence_point_count, (const MethodInfo * method));
+DO_API(uint64_t, il2cpp_code_coverage_get_sequence_point_hit_count, (const MethodInfo * method, int32_t localIndex));
+DO_API(void, il2cpp_code_coverage_get_sequence_points, (const MethodInfo * method, Il2CppCodeCoverageSequencePointInfo * buffer, int32_t bufferSize));
+DO_API(void, il2cpp_code_coverage_reset_all, ());
+DO_API(void, il2cpp_code_coverage_reset_method, (const MethodInfo * method));

@@ -32,6 +32,8 @@ namespace metadata
         static std::string GetFullName(const Il2CppGenericMethod* gmethod);
 
         static void ClearStatics();
+        // Generic map-walk: invokes callback for each generic method instantiation (holds the map's shared lock).
+        static void WalkAllGenericMethods(MethodWalkCallback callback, void* context);
         static const Il2CppRGCTXData* InflateRGCTX(const MethodInfo* method, Il2CppException** exc);
 
         static void AcquireMetadataLocks();

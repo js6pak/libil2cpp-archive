@@ -2,6 +2,8 @@
 #include "il2cpp-object-internals.h"
 #include "il2cpp-runtime-stats.h"
 
+#include <string.h>
+
 #include "gc/WriteBarrier.h"
 #include "os/StackTrace.h"
 #include "os/Image.h"
@@ -15,6 +17,8 @@
 #include "vm/Image.h"
 #include "vm/InternalCalls.h"
 #include "vm/Liveness.h"
+#include "vm/GlobalMetadata.h"
+#include "vm/MetadataCache.h"
 #include "vm/MemoryInformation.h"
 #include "vm/Method.h"
 #include "vm/Monitor.h"
@@ -1522,4 +1526,113 @@ void il2cpp_class_for_each(void(*klassReportFunc)(Il2CppClass* klass, void* user
 void il2cpp_unity_set_android_network_up_state_func(Il2CppAndroidUpStateFunc func)
 {
     AndroidRuntime::SetNetworkUpStateFunc(func);
+}
+
+// Code coverage
+const MethodInfo* il2cpp_code_coverage_get_method_from_sequence_point(const Il2CppSequencePoint* seqPoint)
+{
+    return il2cpp::vm::GlobalMetadata::GetMethodInfoFromSequencePoint(seqPoint);
+}
+
+bool il2cpp_code_coverage_is_built_in()
+{
+#if IL2CPP_CODE_COVERAGE
+    return true;
+#else
+    return false;
+#endif
+}
+
+int32_t il2cpp_code_coverage_get_sequence_point_count(const MethodInfo* method)
+{
+#if IL2CPP_CODE_COVERAGE
+    return il2cpp::vm::GlobalMetadata::GetSequencePointCount(method);
+#else
+    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("Code coverage is not enabled in this build."));
+    return 0;
+#endif
+}
+
+uint64_t il2cpp_code_coverage_get_sequence_point_hit_count(const MethodInfo* method, int32_t localIndex)
+{
+#if IL2CPP_CODE_COVERAGE
+    if (method->sequencePointHits == NULL)
+        return 0;
+    IL2CPP_ASSERT(localIndex >= 0 && localIndex < method->sequencePointCount);
+    return method->sequencePointHits[localIndex];
+#else
+    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("Code coverage is not enabled in this build."));
+    return 0;
+#endif
+}
+
+void il2cpp_code_coverage_get_sequence_points(const MethodInfo* method, Il2CppCodeCoverageSequencePointInfo* buffer, int32_t bufferSize)
+{
+#if IL2CPP_CODE_COVERAGE
+    // method->sequencePoints is the cached pointer to the method's first sequence point (set at method
+    // entry, or by il2cpp_code_coverage_get_sequence_point_count for a method that never ran).
+    if (buffer == NULL || bufferSize <= 0 || method->sequencePoints == NULL)
+        return;
+
+    // The sequence points and their source-file table live in the method's (definition's) module.
+    const MethodInfo* defMethod = il2cpp::vm::Method::IsGenericInstance(method)
+        ? method->genericMethod->methodDefinition
+        : method;
+
+    const Il2CppDebuggerMetadataRegistration* dm = defMethod->klass->image->codeGenModule->debuggerMetadata;
+    if (dm == NULL)
+        return;
+
+    // Walk the method's contiguous block from its first SP, stopping at the block boundary (method
+    // index changes) and bounded by the module's array and the caller's buffer.
+    const auto defIndex = method->sequencePoints->__methodDefinitionIndex;
+    const Il2CppSequencePoint* end = dm->sequencePoints + dm->numSequencePoints;
+    int32_t fillIndex = 0;
+    for (const Il2CppSequencePoint* sp = method->sequencePoints; sp < end && sp->__methodDefinitionIndex == defIndex && fillIndex < bufferSize; ++sp)
+    {
+        if (!il2cpp::vm::GlobalMetadata::IsValidCodeCoverageSequencePoint(sp))
+            continue;
+
+        Il2CppCodeCoverageSequencePointInfo& info = buffer[fillIndex];
+        info.sourceFile = (dm->sequencePointSourceFiles != NULL) ? dm->sequencePointSourceFiles[sp->sourceFileIndex].file : NULL;
+        info.lineStart = sp->lineStart;
+        info.lineEnd = sp->lineEnd;
+        info.columnStart = sp->columnStart;
+        info.columnEnd = sp->columnEnd;
+        info.ilOffset = sp->ilOffset;
+        info.isActive = sp->isActive;
+        info.id = sp->id;
+        info.hitCount = (method->sequencePointHits != NULL && fillIndex < method->sequencePointCount) ? method->sequencePointHits[fillIndex] : 0;
+        fillIndex++;
+    }
+#else
+    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("Code coverage is not enabled in this build."));
+#endif
+}
+
+#if IL2CPP_CODE_COVERAGE
+static void ResetMethodCodeCoverageHits(const MethodInfo* method, void* /*context*/)
+{
+    if (method->sequencePointHits != NULL && method->sequencePointCount > 0)
+        memset(method->sequencePointHits, 0, method->sequencePointCount * sizeof(*method->sequencePointHits));
+}
+
+#endif
+
+void il2cpp_code_coverage_reset_all()
+{
+#if IL2CPP_CODE_COVERAGE
+    il2cpp::vm::MetadataCache::WalkAllMethods(ResetMethodCodeCoverageHits, NULL);
+#else
+    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("Code coverage is not enabled in this build."));
+#endif
+}
+
+void il2cpp_code_coverage_reset_method(const MethodInfo* method)
+{
+#if IL2CPP_CODE_COVERAGE
+    ResetMethodCodeCoverageHits(method, NULL);
+#else
+    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("Code coverage is not enabled in this build."));
+#endif
 }
