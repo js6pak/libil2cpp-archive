@@ -340,6 +340,11 @@ RuntimeObject* IsInst(RuntimeObject *obj, RuntimeClass* targetType)
     return il2cpp::vm::Object::IsInst(obj, targetType);
 }
 
+RuntimeObject* CastClassIsInst(RuntimeObject *obj, RuntimeClass* targetType)
+{
+    return il2cpp::vm::Object::IsInst(obj, targetType, true);
+}
+
 RuntimeObject* Box(RuntimeClass* type, void* data)
 {
     return il2cpp::vm::Object::Box(type, data);

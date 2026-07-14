@@ -80,3 +80,4 @@ Il2CppGenericMethodSpecOnType DeserializeGenericMethodSpecOnType(const char* ptr
 Il2CppMethodSpec DeserializeMethodSpec(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppGenericMethodFunctionsDefinitions DeserializeGenericMethodFunctionsDefinitions(const char* ptr, const SerializedIndexSizes& sizes);
 Il2CppGenericMethodFunctionsDefinitionsWithAdjustor DeserializeGenericMethodFunctionsDefinitionsWithAdjustor(const char* ptr, const SerializedIndexSizes& sizes);
+Il2CppGeneratedMethodTypeInfo DeserializeGeneratedMethodTypeInfo(const char* ptr, const SerializedIndexSizes& sizes);

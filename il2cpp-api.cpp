@@ -1171,6 +1171,15 @@ void il2cpp_runtime_unhandled_exception_policy_set(Il2CppRuntimeUnhandledExcepti
     Runtime::SetUnhandledExceptionPolicy(value);
 }
 
+bool il2cpp_runtime_is_net_bcl()
+{
+#if MONO_NET_BCL
+    return true;
+#else
+    return false;
+#endif
+}
+
 // string
 
 int32_t il2cpp_string_length(Il2CppString* str)
