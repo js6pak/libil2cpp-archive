@@ -16,6 +16,7 @@
 #include "vm/ClassInlines.h"
 #include "vm/Exception.h"
 #include "vm/Field.h"
+#include "vm/IDynamicInterfaceCastable.h"
 #include "vm/MetadataCache.h"
 #include "vm/Method.h"
 #include "vm/Object.h"
@@ -229,7 +230,7 @@ namespace vm
         return vtableSlotMethod;
     }
 
-    Il2CppObject* Object::IsInst(Il2CppObject *obj, Il2CppClass *klass)
+    Il2CppObject* Object::IsInst(Il2CppObject *obj, Il2CppClass *klass, bool throwIfNotImplemented)
     {
         if (!obj)
             return NULL;
@@ -238,22 +239,31 @@ namespace vm
         if (Class::IsAssignableFrom(klass, objClass))
             return obj;
 
-        if (!objClass->is_import_or_windows_runtime)
-            return NULL;
-
-        // check if klass has an interface id
-        if (Class::IsInterface(klass) && klass->interopData != NULL)
+#if IL2CPP_SUPPORTS_COM_INTEROP
+        if (objClass->is_import_or_windows_runtime)
         {
-            const Il2CppGuid* iid = klass->interopData->guid;
-            if (iid != NULL)
+            // check if klass has an interface id
+            if (Class::IsInterface(klass) && klass->interopData != NULL)
             {
-                Il2CppIUnknown* unknown = RCW::QueryInterfaceNoAddRef<false>(static_cast<Il2CppComObject*>(obj), *iid);
-                if (unknown)
-                    return static_cast<Il2CppComObject*>(obj);
+                const Il2CppGuid* iid = klass->interopData->guid;
+                if (iid != NULL)
+                {
+                    Il2CppIUnknown* unknown = RCW::QueryInterfaceNoAddRef<false>(static_cast<Il2CppComObject*>(obj), *iid);
+                    if (unknown)
+                        return static_cast<Il2CppComObject*>(obj);
+                }
             }
-        }
 
-        return (klass == il2cpp_defaults.object_class) ? obj : NULL;
+            return (klass == il2cpp_defaults.object_class) ? obj : NULL;
+        }
+#endif // IL2CPP_SUPPORTS_COM_INTEROP
+
+#if MONO_NET_BCL
+        if (vm::IDynamicInterfaceCastable::IsDynamicallyCastable(objClass))
+            return vm::IDynamicInterfaceCastable::IsInst(obj, klass, throwIfNotImplemented);
+#endif
+
+        return NULL;
     }
 
     Il2CppObject* Object::New(Il2CppClass *klass)

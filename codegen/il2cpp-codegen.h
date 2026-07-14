@@ -759,6 +759,7 @@ inline RuntimeClass* il2cpp_codegen_object_class(RuntimeObject* obj)
 // OpCode.IsInst
 
 RuntimeObject* IsInst(RuntimeObject *obj, RuntimeClass* targetType);
+RuntimeObject* CastClassIsInst(RuntimeObject *obj, RuntimeClass* targetType);
 
 inline RuntimeObject* IsInstSealed(RuntimeObject *obj, RuntimeClass* targetType)
 {
@@ -795,7 +796,7 @@ inline RuntimeObject* Castclass(RuntimeObject *obj, RuntimeClass* targetType)
     if (!obj)
         return NULL;
 
-    RuntimeObject* result = IsInst(obj, targetType);
+    RuntimeObject* result = CastClassIsInst(obj, targetType);
     if (result)
         return result;
 

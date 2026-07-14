@@ -117,8 +117,9 @@ typedef struct Il2CppTypeDefinition
     // 13-16 - One of nine possible PackingSize values (0, 1, 2, 4, 8, 16, 32, 64, or 128) - the specified packing size (even for explicit layouts)
     // 17 - IsByRefLike (e.g. reg struct)
     // 18 - HasInlineArray
+    // 19 - HasIDynamicInterfaceCastable
+    // 20 - HasGeneratedMethods (type has IL2CPP-injected methods)
     uint32_t bitfield;
-    uint32_t token;
 } Il2CppTypeDefinition;
 
 typedef struct Il2CppInlineArrayLength
@@ -131,7 +132,6 @@ typedef struct Il2CppFieldDefinition
 {
     StringIndex nameIndex;
     TypeIndex typeIndex;
-    uint32_t token;
 } Il2CppFieldDefinition;
 
 typedef struct Il2CppFieldDefaultValue
@@ -176,12 +176,26 @@ typedef struct Il2CppMethodDefinition
     uint32_t returnParameterToken;
     ParameterIndex parameterStart;
     GenericContainerIndex genericContainerIndex;
-    uint32_t token;
     uint16_t flags;
     uint16_t iflags;
     uint16_t slot;
     uint16_t parameterCount;
 } Il2CppMethodDefinition;
+
+// One entry per IL2CPP-generated method, in global method-table order.
+// Indexed via: generatedMethodTokens[imageMetadata.generatedMethodFlatIndexBase + globalMethodIndex]
+typedef struct Il2CppGeneratedMethodToken
+{
+    uint32_t token; // actual metadata token for this generated method
+} Il2CppGeneratedMethodToken;
+
+// One entry per type that has IL2CPP-generated methods, sorted by typeIndex for binary search.
+typedef struct Il2CppGeneratedMethodTypeInfo
+{
+    TypeDefinitionIndex typeIndex;     // which type has generated methods
+    MethodIndex generatedMethodStart;  // global index of first generated method for this type
+    uint32_t generatedMethodCount;     // number of generated methods for this type
+} Il2CppGeneratedMethodTypeInfo;
 
 typedef struct Il2CppEventDefinition
 {
@@ -190,7 +204,6 @@ typedef struct Il2CppEventDefinition
     MethodIndex add;
     MethodIndex remove;
     MethodIndex raise;
-    uint32_t token;
 } Il2CppEventDefinition;
 
 typedef struct Il2CppPropertyDefinition
@@ -199,7 +212,6 @@ typedef struct Il2CppPropertyDefinition
     MethodIndex get;
     MethodIndex set;
     uint32_t attrs;
-    uint32_t token;
 } Il2CppPropertyDefinition;
 
 typedef struct Il2CppStringLiteral
@@ -244,6 +256,13 @@ typedef struct Il2CppImageDefinition
     uint32_t rgctxRangesCount;
     uint32_t staticConstructorStart;
     uint32_t staticConstructorCount;
+
+    // Global index of this image's first field/property/event/method. Used to reconstruct the
+    // corresponding metadata tokens, which are not stored per-member.
+    FieldIndex fieldStart;
+    PropertyIndex propertyStart;
+    EventIndex eventStart;
+    MethodIndex methodStart;
 } Il2CppImageDefinition;
 
 typedef struct Il2CppAssemblyDefinition
@@ -350,5 +369,7 @@ typedef struct Il2CppGlobalMetadataHeader
     Il2CppSectionMetadata rgctxRanges; // Il2CppTokenRangePair (token + global start + length), per image in image order
     Il2CppSectionMetadata rgctxValues; // Il2CppRGCTXDefinition (int32 type + int32 data)
     Il2CppSectionMetadata staticConstructorTypeIndices; // TypeDefinitionIndex per eager-init type, per image in image order
+    Il2CppSectionMetadata generatedMethodTypeInfos; // Il2CppGeneratedMethodTypeInfo, one per type with generated methods, sorted by typeIndex
+    Il2CppSectionMetadata generatedMethodTokens;   // Il2CppGeneratedMethodToken, one per generated method in global method-table order
 } Il2CppGlobalMetadataHeader;
 #pragma pack(pop, p1)
