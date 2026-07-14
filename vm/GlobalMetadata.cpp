@@ -61,6 +61,12 @@
 typedef struct Il2CppImageGlobalMetadata
 {
     TypeDefinitionIndex typeStart;
+    // Global index of this image's first field/property/event/method. Used to reconstruct the
+    // corresponding metadata tokens, which are no longer stored per-member.
+    FieldIndex fieldStart;
+    PropertyIndex propertyStart;
+    EventIndex eventStart;
+    MethodIndex methodStart;
     TypeDefinitionIndex exportedTypeStart;
     CustomAttributeIndex customAttributeStart;
     MethodIndex entryPointIndex;
@@ -75,6 +81,7 @@ typedef struct Il2CppImageGlobalMetadata
 static int32_t s_MetadataImagesCount = 0;
 static Il2CppImageGlobalMetadata* s_MetadataImagesTable = NULL;
 static SerializedIndexSizes s_SerializedIndexSizes;
+static int32_t s_GeneratedMethodsStart = 0;
 
 static TypeDefinitionIndex GetIndexForTypeDefinitionInternal(const Il2CppMetadataTypeHandle typeHandle);
 static Il2CppClass* GetTypeInfoFromTypeDefinitionIndex(TypeDefinitionIndex index);
@@ -83,6 +90,7 @@ static GenericParameterIndex GetIndexForGenericParameter(Il2CppMetadataGenericPa
 static Il2CppMetadataGenericParameterHandle GetGenericParameterFromIndexInternal(GenericParameterIndex index);
 static Il2CppMetadataGenericContainerHandle GetGenericContainerFromIndex(GenericContainerIndex index);
 static Il2CppMetadataTypeHandle GetTypeHandle(TypeDefinitionIndex index);
+static const Il2CppImageGlobalMetadata* GetImageMetadataForTypeDefinitionIndex(TypeDefinitionIndex index);
 static const Il2CppImage* GetImageForTypeDefinitionIndex(TypeDefinitionIndex index);
 
 static void* s_GlobalMetadata;
@@ -113,6 +121,8 @@ static const int kClassSizeIsDefault = 12;
 static const int kSpecifiedPackingSize = 13; // This uses 4 bits from bit 13 to bit 16
 static const int kBitIsByRefLike = 17;
 static const int kBitHasInlineArray = 18;
+static const int kBitHasIDynamicInterfaceCastable = 19;
+static const int kBitHasGeneratedMethods = 20;
 
 template<typename T>
 static T MetadataOffset(const void* metadata, size_t sectionOffset, size_t itemIndex)
@@ -130,6 +140,72 @@ static const char* GetWindowsRuntimeStringFromIndex(StringIndex index)
 {
     IL2CPP_ASSERT(index <= s_GlobalMetadataHeader->windowsRuntimeStrings.size);
     return MetadataOffset<const char*>(s_GlobalMetadata, s_GlobalMetadataHeader->windowsRuntimeStrings.offset, index);
+}
+
+// Returns the side-table entry for a type with generated methods, or nullptr if not found.
+static int CompareGeneratedMethodTypeInfoByTypeIndex(const void* pkey, const void* pelem)
+{
+    const TypeDefinitionIndex key = *static_cast<const TypeDefinitionIndex*>(pkey);
+    const TypeDefinitionIndex elem = static_cast<const Il2CppGeneratedMethodTypeInfo*>(pelem)->typeIndex;
+    return key<elem ? -1 : key> elem ? 1 : 0;
+}
+
+static const Il2CppGeneratedMethodTypeInfo* FindGeneratedMethodTypeInfo(TypeDefinitionIndex typeIndex)
+{
+    const int32_t count = s_GlobalMetadataHeader->generatedMethodTypeInfos.count;
+    if (count == 0)
+        return nullptr;
+    const auto* infos = MetadataOffset<const Il2CppGeneratedMethodTypeInfo*>(s_GlobalMetadata, s_GlobalMetadataHeader->generatedMethodTypeInfos.offset, 0);
+    return static_cast<const Il2CppGeneratedMethodTypeInfo*>(bsearch(&typeIndex, infos, count, sizeof(Il2CppGeneratedMethodTypeInfo), CompareGeneratedMethodTypeInfoByTypeIndex));
+}
+
+// Maps a type-local method index (0..method_count-1) to a global metadata index.
+// Types with generated methods have two disjoint ranges: originals at methodStart and generateds at generatedMethodStart.
+static MethodIndex MethodMetadataIndexFromTypeDefinitionIndex(const Il2CppTypeDefinition& typeDefinition, TypeDefinitionIndex typeIndex, int32_t typeDefIndex)
+{
+    if (!((typeDefinition.bitfield >> (kBitHasGeneratedMethods - 1)) & 1))
+        return typeDefinition.methodStart + typeDefIndex;
+
+    const Il2CppGeneratedMethodTypeInfo* info = FindGeneratedMethodTypeInfo(typeIndex);
+    IL2CPP_ASSERT(info != nullptr);
+
+    const int32_t generatedMethodCount = static_cast<int32_t>(info->generatedMethodCount);
+    const int32_t nonGeneratedMethodCount = typeDefinition.method_count - generatedMethodCount;
+
+    if (typeDefIndex < nonGeneratedMethodCount)
+        return typeDefinition.methodStart + typeDefIndex;
+
+    const int32_t generatedOffset = typeDefIndex - nonGeneratedMethodCount;
+    IL2CPP_ASSERT(generatedOffset < generatedMethodCount);
+    return info->generatedMethodStart + generatedOffset;
+}
+
+// Maps a global metadata method index to a type-local method index (0..method_count-1).
+static int32_t MethodTypeDefinitionIndexFromMetadataIndex(const Il2CppTypeDefinition& typeDefinition, TypeDefinitionIndex typeIndex, MethodIndex methodIndex)
+{
+    if (!((typeDefinition.bitfield >> (kBitHasGeneratedMethods - 1)) & 1))
+        return methodIndex - typeDefinition.methodStart;
+
+    const Il2CppGeneratedMethodTypeInfo* info = FindGeneratedMethodTypeInfo(typeIndex);
+    IL2CPP_ASSERT(info != nullptr);
+    const int32_t generatedMethodCount = static_cast<int32_t>(info->generatedMethodCount);
+    const int32_t nonGeneratedMethodCount = typeDefinition.method_count - generatedMethodCount;
+
+    if (methodIndex < typeDefinition.methodStart + nonGeneratedMethodCount)
+        return methodIndex - typeDefinition.methodStart;
+
+    return nonGeneratedMethodCount + static_cast<int32_t>(methodIndex - info->generatedMethodStart);
+}
+
+static uint32_t GetMethodToken(const Il2CppImageGlobalMetadata* imageMetadata, const Il2CppTypeDefinition& typeDefinition, TypeDefinitionIndex typeIndex, MethodIndex methodIndex)
+{
+    const Il2CppGeneratedMethodTypeInfo* genInfo = ((typeDefinition.bitfield >> (kBitHasGeneratedMethods - 1)) & 1) ? FindGeneratedMethodTypeInfo(typeIndex) : nullptr;
+    if (genInfo != nullptr && methodIndex >= genInfo->generatedMethodStart)
+    {
+        const auto* tokens = MetadataOffset<const uint32_t*>(s_GlobalMetadata, s_GlobalMetadataHeader->generatedMethodTokens.offset, 0);
+        return tokens[methodIndex - s_GeneratedMethodsStart];
+    }
+    return IL2CPP_TOKEN_METHOD_DEF | (methodIndex - imageMetadata->methodStart + 1);
 }
 
 static const Il2CppMetadataMethodDefinitionHandle GetMethodDefinitionFromIndex(MethodIndex index)
@@ -153,7 +229,8 @@ const MethodInfo* il2cpp::vm::GlobalMetadata::GetMethodInfoFromMethodDefinitionI
         Il2CppClass* typeInfo = GetTypeInfoFromTypeDefinitionIndex(methodDefinition.declaringType);
         const MethodInfo** methods = il2cpp::vm::Class::GetMethods(typeInfo);
         const Il2CppTypeDefinition typeDefinition = DeserializeTypeDefinition(typeInfo->typeMetadataHandle, s_SerializedIndexSizes);
-        return methods[index - typeDefinition.methodStart];
+        const int32_t methodIndex = MethodTypeDefinitionIndexFromMetadataIndex(typeDefinition, methodDefinition.declaringType, index);
+        return methods[methodIndex];
     });
 }
 
@@ -416,7 +493,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 108);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 110);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiterals.offset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->images.count;
@@ -450,6 +527,11 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
     s_TypeInfoTable = (Il2CppClass**)IL2CPP_CALLOC(s_Il2CppMetadataRegistration->typesCount, sizeof(Il2CppClass*));
     s_TypeInfoDefinitionTable = (Il2CppClass**)IL2CPP_CALLOC(s_GlobalMetadataHeader->typeDefinitions.count, sizeof(Il2CppClass*));
     s_MethodInfoDefinitionTable = (const MethodInfo**)IL2CPP_CALLOC(s_GlobalMetadataHeader->methods.count, sizeof(MethodInfo*));
+
+    // All generated methods are appended after all original methods in the global table.
+    // s_GeneratedMethodsStart is the index of the first generated method; tokens are indexed
+    // as generatedMethodTokens[methodIndex - s_GeneratedMethodsStart].
+    s_GeneratedMethodsStart = s_GlobalMetadataHeader->methods.count - s_GlobalMetadataHeader->generatedMethodTokens.count;
 
     ProcessIl2CppTypeDefinitions(InitializeTypeHandle, InitializeGenericParameterHandle);
 
@@ -681,6 +763,15 @@ void il2cpp::vm::GlobalMetadata::BuildIl2CppImage(Il2CppImage* image, ImageIndex
 
     Il2CppImageGlobalMetadata* metadataImage = s_MetadataImagesTable + imageIndex;
     metadataImage->typeStart = imageDefinition.typeStart;
+
+    // Field/property/event tokens are not stored per-member; they are reconstructed from a member's
+    // position relative to its image's first field/property/event. Those per-image start indices are
+    // precalculated and stored in the image definition (see AssemblyAndAttributeDataWriter).
+    metadataImage->fieldStart = imageDefinition.fieldStart;
+    metadataImage->propertyStart = imageDefinition.propertyStart;
+    metadataImage->eventStart = imageDefinition.eventStart;
+    metadataImage->methodStart = imageDefinition.methodStart;
+
     metadataImage->customAttributeStart = imageDefinition.customAttributeStart;
     metadataImage->entryPointIndex = imageDefinition.entryPointIndex;
     metadataImage->exportedTypeStart = imageDefinition.exportedTypeStart;
@@ -981,6 +1072,12 @@ bool il2cpp::vm::GlobalMetadata::StructLayoutSizeIsDefault(Il2CppMetadataTypeHan
 {
     const auto typeDefinition = DeserializeTypeDefinition(handle, s_SerializedIndexSizes);
     return (typeDefinition.bitfield >> (kClassSizeIsDefault - 1)) & 0x1;
+}
+
+bool il2cpp::vm::GlobalMetadata::HasCctor(Il2CppMetadataTypeHandle handle)
+{
+    const auto typeDefinition = DeserializeTypeDefinition(handle, s_SerializedIndexSizes);
+    return (typeDefinition.bitfield >> (kBitHasStaticConstructor - 1)) & 0x1;
 }
 
 std::pair<const char*, const char*> il2cpp::vm::GlobalMetadata::GetTypeNamespaceAndName(Il2CppMetadataTypeHandle handle)
@@ -1349,12 +1446,18 @@ Il2CppMetadataFieldInfo il2cpp::vm::GlobalMetadata::GetFieldInfo(const Il2CppCla
     IL2CPP_ASSERT(fieldIndex >= 0 && fieldIndex < typeDefinition.field_count);
     IL2CPP_ASSERT(typeDefinition.fieldStart != kFieldIndexInvalid);
 
-    const Il2CppFieldDefinition fieldDefinition = GetFieldDefinitionFromIndex(klass->image, typeDefinition.fieldStart + fieldIndex);
+    const FieldIndex globalFieldIndex = typeDefinition.fieldStart + fieldIndex;
+    const Il2CppFieldDefinition fieldDefinition = GetFieldDefinitionFromIndex(klass->image, globalFieldIndex);
+
+    // The field's metadata token is not stored per-field. It is reconstructed from the field's position
+    // within its image's block of fields. RID is 1-based, hence the + 1.
+    const auto* imageMetadata = reinterpret_cast<const Il2CppImageGlobalMetadata*>(klass->image->metadataHandle);
+    const uint32_t token = IL2CPP_TOKEN_FIELD_DEF | (globalFieldIndex - imageMetadata->fieldStart + 1);
 
     return {
             GetIl2CppTypeFromIndex(fieldDefinition.typeIndex),
             GetStringFromIndex(fieldDefinition.nameIndex),
-            fieldDefinition.token
+            token
     };
 }
 
@@ -1366,16 +1469,19 @@ Il2CppMetadataMethodInfo il2cpp::vm::GlobalMetadata::GetMethodInfo(const Il2CppC
     const Il2CppTypeDefinition typeDefinition = DeserializeTypeDefinition(klass->typeMetadataHandle, s_SerializedIndexSizes);
 
     IL2CPP_ASSERT(index >= 0 && index < typeDefinition.method_count);
-    IL2CPP_ASSERT(typeDefinition.methodStart != kMethodIndexInvalid);
 
-    const Il2CppMetadataMethodDefinitionHandle handle = GetMethodDefinitionFromIndex(typeDefinition.methodStart + index);
+    const auto* imageMetadata = reinterpret_cast<const Il2CppImageGlobalMetadata*>(klass->image->metadataHandle);
+    const TypeDefinitionIndex typeIndex = GetIndexForTypeDefinitionInternal(klass->typeMetadataHandle);
+    const MethodIndex methodIndex = MethodMetadataIndexFromTypeDefinitionIndex(typeDefinition, typeIndex, index);
+    const Il2CppMetadataMethodDefinitionHandle handle = GetMethodDefinitionFromIndex(methodIndex);
     const Il2CppMethodDefinition methodDefinition = DeserializeMethodDefinition(handle, s_SerializedIndexSizes);
+    const uint32_t token = GetMethodToken(imageMetadata, typeDefinition, typeIndex, methodIndex);
 
     return {
             handle,
             GetStringFromIndex(methodDefinition.nameIndex),
             GetIl2CppTypeFromIndex(methodDefinition.returnType),
-            methodDefinition.token,
+            token,
             methodDefinition.flags,
             (uint16_t)(methodDefinition.iflags & ~kFlagIsUnmanagedCallersOnly),
             methodDefinition.slot,
@@ -1388,15 +1494,15 @@ int il2cpp::vm::GlobalMetadata::GetVirtualMethodCount(const Il2CppClass* klass)
 {
     IL2CPP_ASSERT(klass->typeMetadataHandle != NULL);
     const Il2CppTypeDefinition typeDefinition = DeserializeTypeDefinition(klass->typeMetadataHandle, s_SerializedIndexSizes);
-
-    IL2CPP_ASSERT(typeDefinition.methodStart != kMethodIndexInvalid);
+    const TypeDefinitionIndex typeIndex = GetIndexForTypeDefinitionInternal(klass->typeMetadataHandle);
 
     int virtualMethodCount = 0;
 
-    for (int i = typeDefinition.methodStart; i < typeDefinition.methodStart + typeDefinition.method_count; i++)
+    for (uint16_t u = 0; u < typeDefinition.method_count; u++)
     {
+        const MethodIndex globalIndex = MethodMetadataIndexFromTypeDefinitionIndex(typeDefinition, typeIndex, u);
         const Il2CppMethodDefinition methodDefinition = DeserializeMethodDefinition(
-            GetMethodDefinitionFromIndex(i),
+            GetMethodDefinitionFromIndex(globalIndex),
             s_SerializedIndexSizes
         );
         if (methodDefinition.flags & METHOD_ATTRIBUTE_VIRTUAL)
@@ -1431,14 +1537,20 @@ Il2CppMetadataPropertyInfo il2cpp::vm::GlobalMetadata::GetPropertyInfo(const Il2
     IL2CPP_ASSERT(index >= 0 && index < typeDefinition.property_count);
     IL2CPP_ASSERT(typeDefinition.propertyStart != kPropertyIndexInvalid);
 
-    const Il2CppPropertyDefinition propertyDefinition = GetPropertyDefinitionFromIndex(klass->image, typeDefinition.propertyStart + index);
+    const PropertyIndex globalPropertyIndex = typeDefinition.propertyStart + index;
+    const Il2CppPropertyDefinition propertyDefinition = GetPropertyDefinitionFromIndex(klass->image, globalPropertyIndex);
+
+    // The property's metadata token is not stored per-property. It is reconstructed from the property's
+    // position within its image's block of properties. RID is 1-based, hence the + 1.
+    const auto* imageMetadata = reinterpret_cast<const Il2CppImageGlobalMetadata*>(klass->image->metadataHandle);
+    const uint32_t token = IL2CPP_TOKEN_PROPERTY | (globalPropertyIndex - imageMetadata->propertyStart + 1);
 
     return {
             GetStringFromIndex(propertyDefinition.nameIndex),
             propertyDefinition.get != kMethodIndexInvalid ? klass->methods[propertyDefinition.get] : NULL,
             propertyDefinition.set != kMethodIndexInvalid ? klass->methods[propertyDefinition.set] : NULL,
             propertyDefinition.attrs,
-            propertyDefinition.token,
+            token,
     };
 }
 
@@ -1449,7 +1561,13 @@ Il2CppMetadataEventInfo il2cpp::vm::GlobalMetadata::GetEventInfo(const Il2CppCla
 
     IL2CPP_ASSERT(index >= 0 && index < typeDefinition.event_count);
 
-    const Il2CppEventDefinition eventDefinition = GetEventDefinitionFromIndex(klass->image, typeDefinition.eventStart + index);
+    const EventIndex globalEventIndex = typeDefinition.eventStart + index;
+    const Il2CppEventDefinition eventDefinition = GetEventDefinitionFromIndex(klass->image, globalEventIndex);
+
+    // The event's metadata token is not stored per-event. It is reconstructed from the event's position
+    // within its image's block of events. RID is 1-based, hence the + 1.
+    const auto* imageMetadata = reinterpret_cast<const Il2CppImageGlobalMetadata*>(klass->image->metadataHandle);
+    const uint32_t token = IL2CPP_TOKEN_EVENT | (globalEventIndex - imageMetadata->eventStart + 1);
 
     return {
             GetStringFromIndex(eventDefinition.nameIndex),
@@ -1457,7 +1575,7 @@ Il2CppMetadataEventInfo il2cpp::vm::GlobalMetadata::GetEventInfo(const Il2CppCla
             eventDefinition.add != kMethodIndexInvalid ? klass->methods[eventDefinition.add] : NULL,
             eventDefinition.remove != kMethodIndexInvalid ? klass->methods[eventDefinition.remove] : NULL,
             eventDefinition.raise != kMethodIndexInvalid ? klass->methods[eventDefinition.raise] : NULL,
-            eventDefinition.token,
+            token,
     };
 }
 
@@ -1695,7 +1813,7 @@ int32_t il2cpp::vm::GlobalMetadata::StructLayoutPack(Il2CppMetadataTypeHandle ha
     return ConvertPackingSizeEnumToValue(static_cast<PackingSize>((typeDefinition.bitfield >> (kSpecifiedPackingSize - 1)) & 0xF));
 }
 
-static const Il2CppImage* GetImageForTypeDefinitionIndex(TypeDefinitionIndex index)
+static const Il2CppImageGlobalMetadata* GetImageMetadataForTypeDefinitionIndex(TypeDefinitionIndex index)
 {
     for (int32_t imageIndex = 0; imageIndex < s_MetadataImagesCount; imageIndex++)
     {
@@ -1705,11 +1823,17 @@ static const Il2CppImage* GetImageForTypeDefinitionIndex(TypeDefinitionIndex ind
             index >= imageMetadata->typeStart
             && index < (imageMetadata->typeStart + static_cast<TypeDefinitionIndex>(imageMetadata->image->typeCount))
         )
-            return imageMetadata->image;
+            return imageMetadata;
     }
 
     IL2CPP_ASSERT(0 && "Failed to find owning image for type definition index");
     return NULL;
+}
+
+static const Il2CppImage* GetImageForTypeDefinitionIndex(TypeDefinitionIndex index)
+{
+    const Il2CppImageGlobalMetadata* imageMetadata = GetImageMetadataForTypeDefinitionIndex(index);
+    return imageMetadata != NULL ? imageMetadata->image : NULL;
 }
 
 Il2CppMetadataTypeHandle GetTypeHandle(TypeDefinitionIndex index)
@@ -1726,9 +1850,10 @@ static Il2CppClass* FromTypeDefinition(TypeDefinitionIndex index)
     const auto typeHandle = GetTypeHandle(index);
     const auto typeDefinition = DeserializeTypeDefinition(typeHandle, s_SerializedIndexSizes);
     const Il2CppTypeDefinitionSizes* typeDefinitionSizes = s_Il2CppMetadataRegistration->typeDefinitionsSizes[index];
+    const Il2CppImageGlobalMetadata* imageMetadata = GetImageMetadataForTypeDefinitionIndex(index);
     Il2CppClass* typeInfo = (Il2CppClass*)IL2CPP_CALLOC(1, sizeof(Il2CppClass) + (sizeof(VirtualInvokeData) * typeDefinition.vtable_count));
     typeInfo->klass = typeInfo;
-    typeInfo->image = GetImageForTypeDefinitionIndex(index);
+    typeInfo->image = imageMetadata->image;
     typeInfo->name = GetStringFromIndex(typeDefinition.nameIndex);
     typeInfo->namespaze = GetStringFromIndex(typeDefinition.namespaceIndex);
     typeInfo->byval_arg = *il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(typeDefinition.byvalTypeIndex);
@@ -1747,8 +1872,8 @@ static Il2CppClass* FromTypeDefinition(TypeDefinitionIndex index)
     typeInfo->enumtype = (typeDefinition.bitfield >> (kBitIsEnum - 1)) & 0x1;
     typeInfo->is_generic = typeDefinition.genericContainerIndex != kGenericContainerIndexInvalid;     // generic if we have a generic container
     typeInfo->has_finalize = (typeDefinition.bitfield >> (kBitHasFinalizer - 1)) & 0x1;
-    typeInfo->has_cctor = (typeDefinition.bitfield >> (kBitHasStaticConstructor - 1)) & 0x1;
-    typeInfo->cctor_finished_or_no_cctor = !typeInfo->has_cctor;
+    typeInfo->has_idynamic_interface_castable = (typeDefinition.bitfield >> (kBitHasIDynamicInterfaceCastable - 1)) & 0x1;
+    typeInfo->cctor_finished_or_no_cctor = ((typeDefinition.bitfield >> (kBitHasStaticConstructor - 1)) & 0x1) == 0;
     typeInfo->is_blittable = (typeDefinition.bitfield >> (kBitIsBlittable - 1)) & 0x1;
     typeInfo->is_import_or_windows_runtime = (typeDefinition.bitfield >> (kBitIsImportOrWindowsRuntime - 1)) & 0x1;
     typeInfo->packingSize = ConvertPackingSizeEnumToValue(static_cast<PackingSize>((typeDefinition.bitfield >> (kPackingSize - 1)) & 0xF));
@@ -1762,7 +1887,10 @@ static Il2CppClass* FromTypeDefinition(TypeDefinitionIndex index)
     typeInfo->vtable_count = typeDefinition.vtable_count;
     typeInfo->interfaces_count = typeDefinition.interfaces_count;
     typeInfo->interface_offsets_count = typeDefinition.interface_offsets_count;
-    typeInfo->token = typeDefinition.token;
+    // The type's metadata token is not stored per-type. It is reconstructed from the type's position
+    // within its image's contiguous, RID-ordered block of type definitions (see TypeDefinitionsWriter /
+    // MetadataCollector.AddTypeInfos). RID is 1-based, hence the + 1.
+    typeInfo->token = IL2CPP_TOKEN_TYPE_DEF | (index - imageMetadata->typeStart + 1);
     typeInfo->interopData = il2cpp::vm::MetadataCache::GetInteropDataForType(&typeInfo->byval_arg);
 
     if (typeDefinition.parentIndex != kTypeIndexInvalid)
@@ -1884,7 +2012,8 @@ MethodIndex il2cpp::vm::GlobalMetadata::GetMethodDefinitionIndex(const MethodInf
         return -1;
 
     const Il2CppTypeDefinition typeDefinition = DeserializeTypeDefinition(klass->typeMetadataHandle, s_SerializedIndexSizes);
-    return typeDefinition.methodStart + localIndex;
+    const TypeDefinitionIndex typeIndex = GetIndexForTypeDefinitionInternal(klass->typeMetadataHandle);
+    return MethodMetadataIndexFromTypeDefinitionIndex(typeDefinition, typeIndex, localIndex);
 }
 
 bool il2cpp::vm::GlobalMetadata::IsValidCodeCoverageSequencePoint(const Il2CppSequencePoint* sp)
@@ -2112,15 +2241,17 @@ void il2cpp::vm::GlobalMetadata::GetAllManagedMethods(std::vector<MethodDefiniti
 
         for (size_t j = 0; j < image->image->typeCount; j++)
         {
-            const Il2CppTypeDefinition type = DeserializeTypeDefinition(GetTypeHandle(image->typeStart + static_cast<int32_t>(j)), s_SerializedIndexSizes);
+            const TypeDefinitionIndex typeIndex = image->typeStart + static_cast<int32_t>(j);
+            const Il2CppTypeDefinition type = DeserializeTypeDefinition(GetTypeHandle(typeIndex), s_SerializedIndexSizes);
 
             for (uint16_t u = 0; u < type.method_count; u++)
             {
-                const Il2CppMetadataMethodDefinitionHandle handle = GetMethodDefinitionFromIndex(type.methodStart + u);
-                const Il2CppMethodDefinition methodDefinition = DeserializeMethodDefinition(handle, s_SerializedIndexSizes);
+                const MethodIndex globalIndex = MethodMetadataIndexFromTypeDefinitionIndex(type, typeIndex, u);
+                const Il2CppMetadataMethodDefinitionHandle handle = GetMethodDefinitionFromIndex(globalIndex);
+                const uint32_t token = GetMethodToken(image, type, typeIndex, globalIndex);
                 MethodDefinitionKey methodKey;
                 methodKey.methodHandle = handle;
-                methodKey.method = il2cpp::vm::MetadataCache::GetMethodPointer(image->image, methodDefinition.token);
+                methodKey.method = il2cpp::vm::MetadataCache::GetMethodPointer(image->image, token);
                 if (methodKey.method)
                     managedMethods.push_back(methodKey);
             }

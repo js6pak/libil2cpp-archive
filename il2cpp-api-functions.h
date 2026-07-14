@@ -228,6 +228,8 @@ DO_API(void, il2cpp_runtime_object_init_exception, (Il2CppObject * obj, Il2CppEx
 
 DO_API(void, il2cpp_runtime_unhandled_exception_policy_set, (Il2CppRuntimeUnhandledExceptionPolicy value));
 
+DO_API(bool, il2cpp_runtime_is_net_bcl, ());
+
 // string
 DO_API(int32_t, il2cpp_string_length, (Il2CppString * str));
 DO_API(Il2CppChar*, il2cpp_string_chars, (Il2CppString * str));

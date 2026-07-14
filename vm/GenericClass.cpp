@@ -5,6 +5,7 @@
 #include "utils/Memory.h"
 #include "vm/Class.h"
 #include "vm/GenericClass.h"
+#include "vm/GlobalMetadata.h"
 #include "vm/Exception.h"
 #include "vm/MetadataAlloc.h"
 #include "vm/MetadataCache.h"
@@ -216,8 +217,9 @@ namespace vm
             klass->enumtype = definition->enumtype;
             klass->element_class = klass->castClass = klass;
 
-            klass->has_cctor = definition->has_cctor;
-            klass->cctor_finished_or_no_cctor = !definition->has_cctor;
+            klass->has_idynamic_interface_castable = definition->has_idynamic_interface_castable;
+
+            klass->cctor_finished_or_no_cctor = !vm::GlobalMetadata::HasCctor(definition->typeMetadataHandle);
 
             klass->has_finalize = definition->has_finalize;
             klass->native_size = klass->thread_static_fields_offset = -1;
