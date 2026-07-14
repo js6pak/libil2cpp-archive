@@ -61,6 +61,7 @@ namespace vm
         static bool StructLayoutPackIsDefault(Il2CppMetadataTypeHandle handle);
         static int32_t StructLayoutPack(Il2CppMetadataTypeHandle handle);
         static bool StructLayoutSizeIsDefault(Il2CppMetadataTypeHandle handle);
+        static bool HasCctor(Il2CppMetadataTypeHandle handle);
         static std::pair<const char*, const char*> GetTypeNamespaceAndName(Il2CppMetadataTypeHandle handle);
 
         static Il2CppClass* GetNestedTypeFromOffset(const Il2CppClass* klass, TypeNestedTypeIndex offset);

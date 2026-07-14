@@ -1,6 +1,7 @@
 #include "ClassInlines.h"
 #include "vm/Class.h"
 #include "vm/Exception.h"
+#include "vm/IDynamicInterfaceCastable.h"
 #include "vm/Method.h"
 #include "vm/RCW.h"
 #include "vm/Runtime.h"
@@ -95,13 +96,14 @@ namespace vm
 
     const VirtualInvokeData& ClassInlines::GetInterfaceInvokeDataFromVTableSlowPath(Il2CppObject* obj, const Il2CppClass* itf, Il2CppMethodSlot slot)
     {
-        const Il2CppClass* klass = obj->klass;
+        Il2CppClass* klass = obj->klass;
         const VirtualInvokeData* data;
 
         data = GetInterfaceInvokeDataFromVTableSlowPathMaybeNull(klass, itf, slot);
         if (data)
             return *data;
 
+#if IL2CPP_SUPPORTS_COM_INTEROP
         if (klass->is_import_or_windows_runtime)
         {
             Il2CppComObject* rcw = static_cast<Il2CppComObject*>(obj);
@@ -118,6 +120,12 @@ namespace vm
                 }
             }
         }
+#endif
+
+#if MONO_NET_BCL
+        if (IDynamicInterfaceCastable::IsDynamicallyCastable(klass))
+            return IDynamicInterfaceCastable::GetInvokeData(obj, itf, slot);
+#endif
 
         RaiseExceptionForNotFoundInterface(klass, itf, slot);
         IL2CPP_UNREACHABLE;

@@ -360,7 +360,7 @@ typedef struct Il2CppClass
     uint8_t size_init_pending : 1;
     uint8_t size_inited : 1;
     uint8_t has_finalize : 1;
-    uint8_t has_cctor : 1;
+    uint8_t has_idynamic_interface_castable : 1;
     uint8_t is_blittable : 1;
     uint8_t is_import_or_windows_runtime : 1;
     uint8_t is_vtable_initialized : 1;

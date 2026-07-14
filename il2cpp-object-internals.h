@@ -1398,6 +1398,11 @@ struct Il2CppRuntimeCounters;
 struct Il2CppEventData;
 struct Il2CppContentionFlagsMap;
 
+typedef struct RuntimeTypeHandle_t
+{
+    const Il2CppType* value;
+} RuntimeTypeHandle_t;
+
 #if MONO_NET_BCL
 
 typedef struct Il2CppCustomAttributeTypedArgument

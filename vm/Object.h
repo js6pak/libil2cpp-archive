@@ -28,7 +28,7 @@ namespace vm
         static int32_t GetHash(Il2CppObject* obj);
         static uint32_t GetSize(Il2CppObject* obj);
         static const MethodInfo* GetVirtualMethod(Il2CppObject *obj, const MethodInfo *virtualMethod);
-        static Il2CppObject * IsInst(Il2CppObject *obj, Il2CppClass *klass);
+        static Il2CppObject * IsInst(Il2CppObject *obj, Il2CppClass *klass, bool throwIfNotImplemented = NULL);
         static Il2CppObject* New(Il2CppClass *klass);
         static Il2CppObject* NewBoxedNullable(Il2CppClass *klass);
 

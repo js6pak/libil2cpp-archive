@@ -27,6 +27,7 @@
 #include "vm/Field.h"
 #include "gc/GCHandle.h"
 #include "vm/IcuData.h"
+#include "vm/IDynamicInterfaceCastable.h"
 #include "vm/Image.h"
 #include "vm/LastError.h"
 #include "vm/MetadataAlloc.h"
@@ -227,6 +228,8 @@ namespace vm
             il2cpp_defaults.runtime_type_get_type_method = vm::Class::GetMethodFromName(il2cpp_defaults.runtimetype_class, "GetType", 4);
         if (il2cpp_defaults.thread_class)
             il2cpp_defaults.thread_sleep_internal_method = il2cpp::vm::Class::GetMethodFromName(il2cpp_defaults.thread_class, "SleepInternal", 1);
+
+        IDynamicInterfaceCastable::Initialize();
 #else
         if (il2cpp_defaults.runtimetype_class)
             il2cpp_defaults.runtime_type_get_type_method = vm::Class::GetMethodFromName(il2cpp_defaults.runtimetype_class, "GetType", 5);

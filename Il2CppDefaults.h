@@ -126,4 +126,7 @@ typedef struct Il2CppDefaults
     Il2CppClass *il2cpp_fully_shared_struct_type;
     const MethodInfo *thread_sleep_internal_method;
     const MethodInfo *runtime_type_get_type_method;
+#if MONO_NET_BCL
+    Il2CppClass *idynamic_interface_castable;
+#endif
 } Il2CppDefaults;
