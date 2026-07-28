@@ -30,8 +30,8 @@ static inline void AssertRequiredIl2CppDefaultsAreNotNull()
     IL2CPP_ASSERT(il2cpp_defaults.multicastdelegate_class);
 #if !MONO_NET_BCL
     IL2CPP_ASSERT(il2cpp_defaults.asyncresult_class);
-#endif
     IL2CPP_ASSERT(il2cpp_defaults.manualresetevent_class);
+#endif
     IL2CPP_ASSERT(il2cpp_defaults.systemtype_class);
     IL2CPP_ASSERT(il2cpp_defaults.exception_class);
     IL2CPP_ASSERT(il2cpp_defaults.thread_class);
