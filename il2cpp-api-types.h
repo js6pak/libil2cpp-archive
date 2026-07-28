@@ -210,3 +210,5 @@ typedef struct Il2CppCodeCoverageSequencePointInfo
     int32_t id;
     uint64_t hitCount;
 } Il2CppCodeCoverageSequencePointInfo;
+
+typedef void (*Il2CppCodeCoverageMethodWalkCallback)(const MethodInfo* method, void* context);

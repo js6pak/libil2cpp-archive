@@ -35,8 +35,8 @@ typedef struct Il2CppDefaults
     Il2CppClass *multicastdelegate_class;
 #if !MONO_NET_BCL
     Il2CppClass *asyncresult_class;
-#endif
     Il2CppClass *manualresetevent_class;
+#endif
     Il2CppClass *typehandle_class;
     Il2CppClass *fieldhandle_class;
     Il2CppClass *methodhandle_class;

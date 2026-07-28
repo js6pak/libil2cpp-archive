@@ -1,3 +1,4 @@
+#if !MONO_NET_BCL
 #pragma once
 
 struct Il2CppWaitHandle;
@@ -15,3 +16,4 @@ namespace vm
     };
 } /* namespace vm */
 } /* namespace il2cpp */
+#endif
