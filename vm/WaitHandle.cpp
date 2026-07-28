@@ -1,3 +1,5 @@
+#if !MONO_NET_BCL
+
 #include "il2cpp-config.h"
 #include "il2cpp-class-internals.h"
 #include "il2cpp-object-internals.h"
@@ -55,3 +57,5 @@ namespace vm
     }
 } /* namespace vm */
 } /* namespace il2cpp */
+
+#endif
