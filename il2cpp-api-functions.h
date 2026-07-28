@@ -329,3 +329,5 @@ DO_API(uint64_t, il2cpp_code_coverage_get_sequence_point_hit_count, (const Metho
 DO_API(void, il2cpp_code_coverage_get_sequence_points, (const MethodInfo * method, Il2CppCodeCoverageSequencePointInfo * buffer, int32_t bufferSize));
 DO_API(void, il2cpp_code_coverage_reset_all, ());
 DO_API(void, il2cpp_code_coverage_reset_method, (const MethodInfo * method));
+// Visits initialized methods (definitions + generic instantiations), which covers every method that recorded a hit.
+DO_API(void, il2cpp_code_coverage_walk_all_methods, (Il2CppCodeCoverageMethodWalkCallback callback, void* context));

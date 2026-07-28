@@ -3,6 +3,7 @@
 #include "il2cpp-runtime-stats.h"
 
 #include <string.h>
+#include <vector>
 
 #include "gc/WriteBarrier.h"
 #include "os/StackTrace.h"
@@ -1626,6 +1627,11 @@ static void ResetMethodCodeCoverageHits(const MethodInfo* method, void* /*contex
         memset(method->sequencePointHits, 0, method->sequencePointCount * sizeof(*method->sequencePointHits));
 }
 
+static void CollectMethodForCoverageWalk(const MethodInfo* method, void* context)
+{
+    static_cast<std::vector<const MethodInfo*>*>(context)->push_back(method);
+}
+
 #endif
 
 void il2cpp_code_coverage_reset_all()
@@ -1641,6 +1647,22 @@ void il2cpp_code_coverage_reset_method(const MethodInfo* method)
 {
 #if IL2CPP_CODE_COVERAGE
     ResetMethodCodeCoverageHits(method, NULL);
+#else
+    il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("Code coverage is not enabled in this build."));
+#endif
+}
+
+void il2cpp_code_coverage_walk_all_methods(Il2CppCodeCoverageMethodWalkCallback callback, void* context)
+{
+#if IL2CPP_CODE_COVERAGE
+    if (callback == NULL)
+        return;
+
+    // Collect under the metadata locks, then invoke the callback outside them to avoid deadlock if it re-enters the VM.
+    std::vector<const MethodInfo*> methods;
+    il2cpp::vm::MetadataCache::WalkAllMethods(CollectMethodForCoverageWalk, &methods);
+    for (size_t i = 0; i < methods.size(); ++i)
+        callback(methods[i], context);
 #else
     il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetNotSupportedException("Code coverage is not enabled in this build."));
 #endif
