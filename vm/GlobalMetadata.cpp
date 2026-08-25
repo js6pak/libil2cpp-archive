@@ -493,7 +493,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
 
     s_GlobalMetadataHeader = (const Il2CppGlobalMetadataHeader*)s_GlobalMetadata;
     IL2CPP_ASSERT(s_GlobalMetadataHeader->sanity == 0xFAB11BAF);
-    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 110);
+    IL2CPP_ASSERT(s_GlobalMetadataHeader->version == 111);
     IL2CPP_ASSERT(s_GlobalMetadataHeader->stringLiterals.offset == sizeof(Il2CppGlobalMetadataHeader));
 
     s_MetadataImagesCount = *imagesCount = s_GlobalMetadataHeader->images.count;
@@ -527,6 +527,7 @@ bool il2cpp::vm::GlobalMetadata::Initialize(int32_t* imagesCount, int32_t* assem
     s_TypeInfoTable = (Il2CppClass**)IL2CPP_CALLOC(s_Il2CppMetadataRegistration->typesCount, sizeof(Il2CppClass*));
     s_TypeInfoDefinitionTable = (Il2CppClass**)IL2CPP_CALLOC(s_GlobalMetadataHeader->typeDefinitions.count, sizeof(Il2CppClass*));
     s_MethodInfoDefinitionTable = (const MethodInfo**)IL2CPP_CALLOC(s_GlobalMetadataHeader->methods.count, sizeof(MethodInfo*));
+
 
     // All generated methods are appended after all original methods in the global table.
     // s_GeneratedMethodsStart is the index of the first generated method; tokens are indexed
@@ -1461,9 +1462,39 @@ Il2CppMetadataFieldInfo il2cpp::vm::GlobalMetadata::GetFieldInfo(const Il2CppCla
     };
 }
 
+static uint16_t GetParameterCount(Il2CppMethodDefinition methodDefinition)
+{
+    const char* methodSigBlob = static_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->methodSigs.offset;
+    const char* ptr = methodSigBlob + methodDefinition.methodSigOffset;
+    ReadIndex<TypeIndex>(ptr, s_SerializedIndexSizes.typeIndex); // skip return type
+    return (uint16_t)il2cpp::utils::ReadCompressedUInt32(&ptr);
+}
+
+static const Il2CppType* GetReturnType(Il2CppMethodDefinition methodDefinition)
+{
+    const char* methodSigBlob = static_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->methodSigs.offset;
+    const char* ptr = methodSigBlob + methodDefinition.methodSigOffset;
+    TypeIndex returnTypeIndex = ReadIndex<TypeIndex>(ptr, s_SerializedIndexSizes.typeIndex); // First index is the return type
+    return il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(returnTypeIndex);
+}
+
+static const Il2CppType* GetParameterType(Il2CppMethodDefinition methodDefinition, int paramIndex)
+{
+    const char* methodSigBlob = static_cast<const char*>(s_GlobalMetadata) + s_GlobalMetadataHeader->methodSigs.offset;
+    const char* ptr = methodSigBlob + methodDefinition.methodSigOffset;
+    ReadIndex<TypeIndex>(ptr, s_SerializedIndexSizes.typeIndex); // skip return type
+    uint32_t paramCount = il2cpp::utils::ReadCompressedUInt32(&ptr);
+    IL2CPP_ASSERT(paramIndex >= 0 && paramIndex < (int)paramCount);
+    for (int i = 0; i < paramIndex; i++)
+        ReadIndex<TypeIndex>(ptr, s_SerializedIndexSizes.typeIndex);
+    TypeIndex typeIdx = ReadIndex<TypeIndex>(ptr, s_SerializedIndexSizes.typeIndex);
+    return il2cpp::vm::GlobalMetadata::GetIl2CppTypeFromIndex(typeIdx);
+}
+
 Il2CppMetadataMethodInfo il2cpp::vm::GlobalMetadata::GetMethodInfo(const Il2CppClass* klass, TypeMethodIndex index)
 {
     const uint16_t kFlagIsUnmanagedCallersOnly = 0x8000;
+    const uint16_t kFlagHasReturnParameterDef = 0x4000;
 
     IL2CPP_ASSERT(klass->typeMetadataHandle != NULL);
     const Il2CppTypeDefinition typeDefinition = DeserializeTypeDefinition(klass->typeMetadataHandle, s_SerializedIndexSizes);
@@ -1480,12 +1511,12 @@ Il2CppMetadataMethodInfo il2cpp::vm::GlobalMetadata::GetMethodInfo(const Il2CppC
     return {
             handle,
             GetStringFromIndex(methodDefinition.nameIndex),
-            GetIl2CppTypeFromIndex(methodDefinition.returnType),
+            GetReturnType(methodDefinition),
             token,
             methodDefinition.flags,
-            (uint16_t)(methodDefinition.iflags & ~kFlagIsUnmanagedCallersOnly),
+            (uint16_t)(methodDefinition.iflags & ~(kFlagIsUnmanagedCallersOnly | kFlagHasReturnParameterDef)),
             methodDefinition.slot,
-            methodDefinition.parameterCount,
+            GetParameterCount(methodDefinition),
             (bool)(methodDefinition.iflags & kFlagIsUnmanagedCallersOnly),
     };
 }
@@ -1518,14 +1549,21 @@ Il2CppMetadataParameterInfo il2cpp::vm::GlobalMetadata::GetParameterInfo(const I
 
     const Il2CppMethodDefinition methodDefinition = DeserializeMethodDefinition(handle, s_SerializedIndexSizes);
 
-    IL2CPP_ASSERT(paramIndex >= 0 && paramIndex < methodDefinition.parameterCount);
+    IL2CPP_ASSERT(paramIndex >= 0 && paramIndex < GetParameterCount(methodDefinition));
 
-    const Il2CppParameterDefinition parameterDefinition = GetParameterDefinitionFromIndex(klass->image, methodDefinition.parameterStart + paramIndex);
+    const char* paramName = "";
+    if (methodDefinition.parameterStart != -1)
+    {
+        const Il2CppParameterDefinition parameterDefinition = GetParameterDefinitionFromIndex(klass->image, methodDefinition.parameterStart + paramIndex);
+        paramName = parameterDefinition.nameIndex == -1 ? "" : GetStringFromIndex(parameterDefinition.nameIndex);
+    }
+
+    const uint32_t token = IL2CPP_TOKEN_PARAM_DEF | (methodDefinition.parameterStart + paramIndex + 1);
 
     return {
-            GetStringFromIndex(parameterDefinition.nameIndex),
-            parameterDefinition.token,
-            GetIl2CppTypeFromIndex(parameterDefinition.typeIndex),
+            paramName,
+            token,
+            GetParameterType(methodDefinition, paramIndex),
     };
 }
 
@@ -1581,10 +1619,24 @@ Il2CppMetadataEventInfo il2cpp::vm::GlobalMetadata::GetEventInfo(const Il2CppCla
 
 uint32_t il2cpp::vm::GlobalMetadata::GetReturnParameterToken(Il2CppMetadataMethodDefinitionHandle handle)
 {
+    const uint16_t kFlagHasReturnParameterDef = 0x4000;
+
     IL2CPP_ASSERT(handle != NULL);
 
     const Il2CppMethodDefinition methodDefinition = DeserializeMethodDefinition(handle, s_SerializedIndexSizes);
-    return methodDefinition.returnParameterToken;
+
+    if (!(methodDefinition.iflags & kFlagHasReturnParameterDef))
+        return IL2CPP_TOKEN_PARAM_DEF; // nil param token (RID 0)
+
+    // Return param is at parameterStart - 1; its token is parameterStart (1-based RID).
+    return IL2CPP_TOKEN_PARAM_DEF | methodDefinition.parameterStart;
+}
+
+uint32_t il2cpp::vm::GlobalMetadata::GetParameterToken(const Il2CppClass* klass, Il2CppMetadataMethodDefinitionHandle handle, MethodParameterIndex paramIndex)
+{
+    IL2CPP_ASSERT(handle != NULL);
+    const Il2CppMethodDefinition methodDefinition = DeserializeMethodDefinition(handle, s_SerializedIndexSizes);
+    return IL2CPP_TOKEN_PARAM_DEF | (methodDefinition.parameterStart + paramIndex + 1);
 }
 
 static Il2CppMetadataGenericContainerHandle GetGenericContainerFromIndex(GenericContainerIndex index)

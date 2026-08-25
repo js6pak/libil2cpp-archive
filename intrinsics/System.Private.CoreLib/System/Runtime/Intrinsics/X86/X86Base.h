@@ -239,8 +239,9 @@ namespace X86
         _mm_pause();
     #elif defined(__GNUC__) || defined(__clang__)
         __builtin_ia32_pause();
-    #endif
+    #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
+    #endif
     #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
     #endif

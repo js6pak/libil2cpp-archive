@@ -47,14 +47,12 @@ Il2CppMethodDefinition DeserializeMethodDefinition(const Il2CppMetadataMethodDef
     return Il2CppMethodDefinition {
             Read<StringIndex>(ptr), // nameIndex
             ReadIndex<TypeDefinitionIndex>(ptr, sizes.typeDefinitionIndex), // declaringType
-            ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // returnType
-            Read<uint32_t>(ptr), // returnParameterToken
             ReadIndex<ParameterIndex>(ptr, sizes.parameterIndex), // parameterStart
             ReadIndex<GenericContainerIndex>(ptr, sizes.genericContainerIndex), // genericContainerIndex
             Read<uint16_t>(ptr), // flags
             Read<uint16_t>(ptr), // iflags
             Read<uint16_t>(ptr), // slot
-            Read<uint16_t>(ptr), // parameterCount
+            Read<int32_t>(ptr), // methodSigOffset
     };
 }
 
@@ -89,8 +87,6 @@ Il2CppParameterDefinition DeserializeParameterDefinition(const char* ptr, const 
 {
     return Il2CppParameterDefinition {
             Read<StringIndex>(ptr), // nameIndex
-            Read<uint32_t>(ptr), // token
-            ReadIndex<TypeIndex>(ptr, sizes.typeIndex), // typeIndex
     };
 }
 
