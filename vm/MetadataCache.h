@@ -195,6 +195,7 @@ namespace vm
         static Il2CppMetadataPropertyInfo GetPropertyInfo(const Il2CppClass* klass, TypePropertyIndex index);
         static Il2CppMetadataEventInfo GetEventInfo(const Il2CppClass* klass, TypeEventIndex index);
         static uint32_t GetReturnParameterToken(Il2CppMetadataMethodDefinitionHandle handle);
+        static uint32_t GetParameterToken(const Il2CppClass* klass, Il2CppMetadataMethodDefinitionHandle handle, MethodParameterIndex paramIndex);
 
         static void MakeGenericArgType(Il2CppMetadataGenericContainerHandle containerHandle, Il2CppMetadataGenericParameterHandle paramHandle, Il2CppType* arg);
         static uint16_t GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle);

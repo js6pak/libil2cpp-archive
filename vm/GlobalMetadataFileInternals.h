@@ -157,8 +157,6 @@ typedef struct Il2CppFieldRef
 typedef struct Il2CppParameterDefinition
 {
     StringIndex nameIndex;
-    uint32_t token;
-    TypeIndex typeIndex;
 } Il2CppParameterDefinition;
 
 typedef struct Il2CppParameterDefaultValue
@@ -172,14 +170,12 @@ typedef struct Il2CppMethodDefinition
 {
     StringIndex nameIndex;
     TypeDefinitionIndex declaringType;
-    TypeIndex returnType;
-    uint32_t returnParameterToken;
     ParameterIndex parameterStart;
     GenericContainerIndex genericContainerIndex;
     uint16_t flags;
     uint16_t iflags;
     uint16_t slot;
-    uint16_t parameterCount;
+    int32_t methodSigOffset;
 } Il2CppMethodDefinition;
 
 // One entry per IL2CPP-generated method, in global method-table order.
@@ -333,6 +329,7 @@ typedef struct Il2CppGlobalMetadataHeader
     Il2CppSectionMetadata strings; // string data for metadata
     Il2CppSectionMetadata events; // Il2CppEventDefinition
     Il2CppSectionMetadata properties; // Il2CppPropertyDefinition
+    Il2CppSectionMetadata methodSigs; // method type signatures blob (returnTypeIndex + compressedParamCount + paramTypeIndex[])
     Il2CppSectionMetadata methods; // Il2CppMethodDefinition
     Il2CppSectionMetadata parameterDefaultValues; // Il2CppParameterDefaultValue
     Il2CppSectionMetadata fieldDefaultValues; // Il2CppFieldDefaultValue

@@ -212,12 +212,12 @@ struct WorkerThreadJobStateHolder
 
         IL2CPP_ASSERT(tpdomain->domain);
         IL2CPP_ASSERT(tpdomain->domain->threadpool_jobs >= 0);
-        tpdomain->domain->threadpool_jobs++;
+        il2cpp::os::Atomic::Increment((int*)&tpdomain->domain->threadpool_jobs);
     }
 
     ~WorkerThreadJobStateHolder()
     {
-        tpdomain->domain->threadpool_jobs--;
+        il2cpp::os::Atomic::Decrement((int*)&tpdomain->domain->threadpool_jobs);
         IL2CPP_ASSERT(tpdomain->domain->threadpool_jobs >= 0);
     }
 };
