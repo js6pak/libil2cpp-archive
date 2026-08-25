@@ -1328,6 +1328,11 @@ uint32_t il2cpp::vm::MetadataCache::GetReturnParameterToken(Il2CppMetadataMethod
     return il2cpp::vm::GlobalMetadata::GetReturnParameterToken(handle);
 }
 
+uint32_t il2cpp::vm::MetadataCache::GetParameterToken(const Il2CppClass* klass, Il2CppMetadataMethodDefinitionHandle handle, MethodParameterIndex paramIndex)
+{
+    return il2cpp::vm::GlobalMetadata::GetParameterToken(klass, handle, paramIndex);
+}
+
 uint16_t il2cpp::vm::MetadataCache::GetGenericContainerCount(Il2CppMetadataGenericContainerHandle handle)
 {
     return il2cpp::vm::GlobalMetadata::GetGenericContainerCount(handle);

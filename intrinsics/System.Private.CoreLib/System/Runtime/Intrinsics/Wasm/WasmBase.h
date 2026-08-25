@@ -23,7 +23,7 @@ namespace Wasm
     */
     inline bool il2cpp_intrinsic_wasm_base_get_is_supported()
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
+#if IL2CPP_TARGET_JAVASCRIPT
         return true;
 #else
         return false;
@@ -36,8 +36,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_leading_zero_count(int32_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_clz(static_cast<uint32_t>(value));
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 32 : __builtin_clz(static_cast<uint32_t>(value));
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -50,8 +50,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_leading_zero_count(uint32_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_clz(value);
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 32 : __builtin_clz(value);
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -64,8 +64,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_leading_zero_count(int64_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_clzll(static_cast<uint64_t>(value));
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 64 : __builtin_clzll(static_cast<uint64_t>(value));
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -78,8 +78,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_leading_zero_count(uint64_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_clzll(value);
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 64 : __builtin_clzll(value);
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -92,8 +92,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_trailing_zero_count(int32_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_ctz(static_cast<uint32_t>(value));
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 32 : __builtin_ctz(static_cast<uint32_t>(value));
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -106,8 +106,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_trailing_zero_count(uint32_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_ctz(value);
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 32 : __builtin_ctz(value);
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -120,8 +120,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_trailing_zero_count(int64_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_ctzll(static_cast<uint64_t>(value));
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 64 : __builtin_ctzll(static_cast<uint64_t>(value));
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};
@@ -134,8 +134,8 @@ namespace Wasm
     */
     inline int32_t il2cpp_intrinsic_wasm_base_trailing_zero_count(uint64_t value)
     {
-#if IL2CPP_PLATFORM_JAVASCRIPT
-        return __built_ctzll(value);
+#if IL2CPP_TARGET_JAVASCRIPT
+        return value == 0 ? 64 : __builtin_ctzll(value);
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
         return {};

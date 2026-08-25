@@ -41,7 +41,7 @@ namespace Arm
 #  if defined(_MSC_VER)
         return _CountLeadingZeros(value);
 #  else
-        return __builtin_clz(value);
+        return value == 0 ? 32 : __builtin_clz(value);
 #  endif
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
@@ -59,7 +59,7 @@ namespace Arm
 #  if defined(_MSC_VER)
         return _CountLeadingZeros(value);
 #  else
-        return __builtin_clz(value);
+        return value == 0 ? 32 : __builtin_clz(value);
 #  endif
 #else
         il2cpp_codegen_raise_platform_not_supported_exception(NULL);
