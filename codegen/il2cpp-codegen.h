@@ -2047,20 +2047,6 @@ void il2cpp_codegen_set_generic_value_icall(THandleOnStack handle, int index, vo
     il2cpp::gc::GarbageCollector::SetWriteBarrier((void**)dest, elementSize);
 }
 
-template<typename T>
-inline void il2cpp_codegen_stind(T* dest, T source)
-{
-    memcpy(dest, &source, sizeof(T));
-}
-
-template<typename TStorage, typename TSource>
-inline TStorage il2cpp_codegen_ldind(const TSource* source)
-{
-    TSource dest;
-    memcpy(&dest, source, sizeof(TSource));
-    return (TStorage)dest;
-}
-
 void il2cpp_codegen_delegate_invoke_open_inst(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
 void il2cpp_codegen_delegate_invoke_closed_static(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeObject* thisPtr, void** args, void* result);
 void il2cpp_codegen_delegate_invoke_open_virtual(Il2CppMethodPointer methodPtr, const MethodInfo* method, RuntimeDelegate* thisPtr, void** args, void* result);
