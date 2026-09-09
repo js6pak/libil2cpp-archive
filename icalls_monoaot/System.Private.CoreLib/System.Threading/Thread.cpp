@@ -232,6 +232,11 @@ namespace Threading
         il2cpp::os::ErrorCode status = thread->Run(&ThreadStart, startData);
         if (status != il2cpp::os::kErrorCodeSuccess)
         {
+            // ThreadStart releases startData, but it never ran. Do this before raising, since
+            // Exception::Raise throws.
+            delete startData->m_Semaphore;
+            gc::GarbageCollector::FreeFixed(startData);
+
             il2cpp::vm::Exception::Raise(il2cpp::vm::Exception::GetThreadStateException(utils::StringUtils::Printf("Failed to start thread. Error code: %d", status).c_str()));
             return;
         }

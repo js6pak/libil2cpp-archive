@@ -237,7 +237,11 @@ namespace os
         startData->startFunctionArgument = arg;
         startData->thread = this;
 
-        return m_Thread->Run(RunWrapper, startData, s_DefaultAffinityMask);
+        ErrorCode status = m_Thread->Run(RunWrapper, startData, s_DefaultAffinityMask);
+        if (status != kErrorCodeSuccess)
+            delete startData;
+
+        return status;
     }
 
     WaitStatus Thread::Join()

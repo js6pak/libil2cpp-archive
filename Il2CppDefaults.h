@@ -128,5 +128,6 @@ typedef struct Il2CppDefaults
     const MethodInfo *runtime_type_get_type_method;
 #if MONO_NET_BCL
     Il2CppClass *idynamic_interface_castable;
+    Il2CppClass *thread_wait_info_class;
 #endif
 } Il2CppDefaults;

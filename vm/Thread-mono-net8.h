@@ -75,6 +75,7 @@ namespace vm
 
         static void RequestInterrupt(Il2CppThread* thread);
         static void CheckCurrentThreadForInterruptAndThrowIfNecessary();
+        static void InitializeInterruptSupport();
 
         static void CheckCurrentThreadForAbortAndThrowIfNecessary();
         static bool RequestAbort(Il2CppThread* thread);

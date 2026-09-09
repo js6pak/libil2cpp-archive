@@ -133,6 +133,9 @@ namespace Threading
         il2cpp::os::ErrorCode status = thread->Run(&ThreadStart, startData);
         if (status != il2cpp::os::kErrorCodeSuccess)
         {
+            // ThreadStart releases startData, but it never ran.
+            delete startData->m_Semaphore;
+            GarbageCollector::FreeFixed(startData);
             return false;
         }
 

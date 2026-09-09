@@ -24,12 +24,22 @@
 #  define IL2CPP_NEON_IS_SUPPORTED 1
 #  define IL2CPP_ARMBASE_IS_SUPPORTED 1
 #  define IL2CPP_ADVSIMD_IS_SUPPORTED 1
+
+# if defined(__ARM_FEATURE_SHA1) || defined(__ARM_FEATURE_CRYPTO)
 #  define IL2CPP_ARM_SHA1_IS_SUPPORTED 1
+# else
+#  define IL2CPP_ARM_SHA1_IS_SUPPORTED 0
+# endif
+
+# ifdef __ARM_FEATURE_CRYPTO
 #  define IL2CPP_ARM_SHA256_IS_SUPPORTED 1
+# else
+#  define IL2CPP_ARM_SHA256_IS_SUPPORTED 0
+# endif
 
 # ifdef __ARM_FEATURE_AES
 #    define IL2CPP_ARM_AES_IS_SUPPORTED 1
-#else
+# else
 #    define IL2CPP_ARM_AES_IS_SUPPORTED 0
 # endif
 
@@ -55,6 +65,105 @@
 #  endif
 #endif //__ARM_NEON__
 
+/// For now, to reduce complexity SSE Intrinsic includes and AVX includes will catch all with immintrin.h, which is part of GCC library
+#if defined(__SSE__) || defined(__SSE2__) || defined(__SSE3__) || defined(__SSE4_1__) || defined(__SSE4_2__) || defined(__AVX__) || defined(__AVX2__)
+#  include <immintrin.h>
+#  ifndef IL2CPP_X86BASE_IS_SUPPORTED
+#    define IL2CPP_X86BASE_IS_SUPPORTED 1 //base instructions
+#  endif
+#  ifndef IL2CPP_X86BASE_X64_IS_SUPPORTED
+#    define IL2CPP_X86BASE_X64_IS_SUPPORTED 1 //base 64-bit instructions
+#  endif
+#endif // __AVX__ || __AVX2__
+
+/// SSE Intrisic support
+#ifdef __SSE__
+#  ifndef IL2CPP_SSE_IS_SUPPORTED
+#    define IL2CPP_SSE_IS_SUPPORTED 1
+#  endif
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_SSE_X64_IS_SUPPORTED 1
+#  endif
+#endif //__SSE__
+
+/// SSE2 Intrisic support
+#ifdef __SSE2__
+#  ifndef IL2CPP_SSE2_IS_SUPPORTED
+#    define IL2CPP_SSE2_IS_SUPPORTED 1
+#  endif
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_SSE2_X64_IS_SUPPORTED 1
+#  endif
+#endif //__SSE2__
+
+/// SSE3 Intrisic support
+#ifdef __SSE3__
+#  ifndef IL2CPP_SSE3_IS_SUPPORTED
+#    define IL2CPP_SSE3_IS_SUPPORTED 1
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_SSE3_X64_IS_SUPPORTED 1
+#  endif
+#  endif
+#endif //__SSE3__
+
+/// SSSE3 Intrisic support
+#ifdef __SSSE3__
+#  ifndef IL2CPP_SSSE3_IS_SUPPORTED
+#    define IL2CPP_SSSE3_IS_SUPPORTED 1
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_SSSE3_X64_IS_SUPPORTED 1
+#  endif
+#  endif
+#endif //__SSSE3__
+
+#ifdef __SSE4_1__
+#  ifndef IL2CPP_SSE41_IS_SUPPORTED
+#    define IL2CPP_SSE41_IS_SUPPORTED 1
+#  endif
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_SSE41_X64_IS_SUPPORTED 1
+#  endif
+#endif //__SSE4_1__
+
+#ifdef __SSE4_2__
+#  ifndef IL2CPP_SSE42_IS_SUPPORTED
+#    define IL2CPP_SSE42_IS_SUPPORTED 1
+#  endif
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_SSE42_X64_IS_SUPPORTED 1
+#  endif
+#endif //__SSE4_2__
+
+/// AVX Intrisic support
+#ifdef __AVX__
+#  ifndef IL2CPP_AVX_IS_SUPPORTED
+#    define IL2CPP_AVX_IS_SUPPORTED 1
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_AVX_X64_IS_SUPPORTED 1
+#  endif
+#  endif
+/// FMA intrinsic support
+#  ifdef __FMA__
+#    ifndef IL2CPP_FMA_IS_SUPPORTED
+#     define IL2CPP_FMA_IS_SUPPORTED 1
+#    endif
+#  endif
+#endif //__AVX__
+
+/// AVX2 Intrisic support
+#ifdef __AVX2__
+#  ifndef IL2CPP_AVX2_IS_SUPPORTED
+#    define IL2CPP_AVX2_IS_SUPPORTED 1
+#    define IL2CPP_BMI1_IS_SUPPORTED 1
+#    define IL2CPP_BMI2_IS_SUPPORTED 1
+#  endif
+#  if defined(__x86_64__) || defined(_M_X64)
+#    define IL2CPP_AVX2_X64_IS_SUPPORTED 1
+#    define IL2CPP_BMI1_X64_IS_SUPPORTED 1
+#    define IL2CPP_BMI2_X64_IS_SUPPORTED 1
+#  endif
+#endif //__AVX2__
+
 // MSVC specific macro check
 #if defined(_MSC_VER)
 /// ARM64 Intrisic support MSVC Specific
@@ -63,8 +172,14 @@
 #    define IL2CPP_NEON_IS_SUPPORTED 1
 #    define IL2CPP_ADVSIMD_IS_SUPPORTED 1
 #    define IL2CPP_ARM_RDM_IS_SUPPORTED 1
+
+#  if defined(__ARM_FEATURE_SHA1) || defined(__ARM_FEATURE_CRYPTO)
 #    define IL2CPP_ARM_SHA1_IS_SUPPORTED 1
+#  endif
+
+#  ifdef __ARM_FEATURE_CRYPTO
 #    define IL2CPP_ARM_SHA256_IS_SUPPORTED 1
+#  endif
 
 #    include <arm64_neon.h>
 #    define IL2CPP_NEON64_IS_SUPPORTED 1
@@ -81,7 +196,7 @@
 #    endif
 
 
-#  endif
+#  endif // _M_ARM64
 
 // To reduce complexity for now, immitrin.h will be used for all MSVC stuff that's not NEON based
 // SSE2 and SSE are set if _M_IX86_FP is 2. SSE 1 and 2 are automatically set if M_AMD64 or M_X64 is defined
@@ -138,13 +253,6 @@
 #        define IL2CPP_POPCNT_X64_IS_SUPPORTED 1
 #      endif
 #    endif
-#    ifdef _X86INTRIN_H
-#      ifdef __AVX__
-#         ifndef IL2CPP_FMA_IS_SUPPORTED
-#           define IL2CPP_FMA_IS_SUPPORTED 1
-#         endif
-#      endif
-#    endif
 #  elif _M_IX86_FP == 2
 #    include <intrin.h>
 #    include <immintrin.h>
@@ -173,108 +281,8 @@
 #    ifndef IL2CPP_SSE_IS_SUPPORTED
 #      define IL2CPP_SSE_IS_SUPPORTED 1
 #    endif
-#  endif
+#  endif // (defined(_M_AMD64) || defined(_M_X64))
 #endif  // _MSC_VER
-
-/// For now, to reduce complexity SSE Intrinsic includes and AVX includes will catch all with immintrin.h, which is part of GCC library
-#if defined(__SSE__) || defined(__SSE2__) || defined(__SSE3__) || defined(__SSE4_1__) || defined(__SSE4_2__) || defined(__AVX__) || defined(__AVX2__)
-#  include <immintrin.h>
-#  ifndef IL2CPP_X86BASE_IS_SUPPORTED
-#    define IL2CPP_X86BASE_IS_SUPPORTED 1 //base instructions
-#  endif
-#  ifndef IL2CPP_X86BASE_X64_IS_SUPPORTED
-#    define IL2CPP_X86BASE_X64_IS_SUPPORTED 1 //base 64-bit instructions
-#  endif
-#endif // __AVX__ || __AVX2__
-
-/// SSE Intrisic support
-#ifdef __SSE__
-#  ifndef IL2CPP_SSE_IS_SUPPORTED
-#    define IL2CPP_SSE_IS_SUPPORTED 1
-#  endif
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_SSE_X64_IS_SUPPORTED 1
-#  endif
-#endif //__SSE__
-
-/// SSE2 Intrisic support
-#ifdef __SSE2__
-#  ifndef IL2CPP_SSE2_IS_SUPPORTED
-#    define IL2CPP_SSE2_IS_SUPPORTED 1
-#  endif
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_SSE2_X64_IS_SUPPORTED 1
-#  endif
-#endif //__SSE2__
-
-/// SSE3 Intrisic support
-#ifdef __SSE3__
-#  ifndef IL2CPP_SSE3_IS_SUPPORTED
-#    define IL2CPP_SSE3_IS_SUPPORTED 1
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_SSE3_X64_IS_SUPPORTED 1
-#  endif
-#  endif
-#endif //__SSE3__
-
-/// SSSE3 Intrisic support
-#ifdef __SSSE3__
-#  ifndef IL2CPP_SSSE3_IS_SUPPORTED
-#    define IL2CPP_SSSE3_IS_SUPPORTED 1
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_SSSE3_X64_IS_SUPPORTED 1
-#  endif
-#  endif
-#endif //__SSSE3__
-
-#ifdef __SSE4_1__
-#  ifndef IL2CPP_SSE41_IS_SUPPORTED
-#    define IL2CPP_SSE41_IS_SUPPORTED 1
-#  endif
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_SSE41_X64_IS_SUPPORTED 1
-#  endif
-#endif //__SSE4_1__
-
-#ifdef __SSE4_2__
-#  ifndef IL2CPP_SSE42_IS_SUPPORTED
-#    define IL2CPP_SSE42_IS_SUPPORTED 1
-#  endif
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_SSE42_X64_IS_SUPPORTED 1
-#  endif
-#endif //__SSE4_2__
-
-/// AVX Intrisic support
-#ifdef __AVX__
-#  ifndef IL2CPP_AVX_IS_SUPPORTED
-#    define IL2CPP_AVX_IS_SUPPORTED 1
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_AVX_X64_IS_SUPPORTED 1
-#  endif
-#  endif
-/// FMA intrinsic support
-#  ifdef __FMA__
-#    ifndef IL2CPP_FMA_IS_SUPPORTED
-#     define IL2CPP_FMA_IS_SUPPORTED 1
-#    endif
-#  endif
-#endif //__AVX__
-
-/// AVX2 Intrisic support
-#ifdef __AVX2__
-#  ifndef IL2CPP_AVX2_IS_SUPPORTED
-#    define IL2CPP_AVX2_IS_SUPPORTED 1
-#    define IL2CPP_BMI1_IS_SUPPORTED 1
-#    define IL2CPP_BMI2_IS_SUPPORTED 1
-#  endif
-#  if defined(__x86_64__) || defined(__aarch64__) || defined(_M_X64)
-#    define IL2CPP_AVX2_X64_IS_SUPPORTED 1
-#    define IL2CPP_BMI1_X64_IS_SUPPORTED 1
-#    define IL2CPP_BMI2_X64_IS_SUPPORTED 1
-#  endif
-#endif //__AVX2__
-
 
 #ifndef IL2CPP_X86BASE_IS_SUPPORTED
     #define IL2CPP_X86BASE_IS_SUPPORTED 0

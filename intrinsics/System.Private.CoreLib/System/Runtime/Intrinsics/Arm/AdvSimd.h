@@ -1,6 +1,7 @@
 #pragma once
 #include "il2cpp-config.h"
 #include "il2cpp-intrinsics-config.h"
+#include <cmath>
 
 #include "codegen/il2cpp-codegen-metadata.h"
 namespace il2cpp
@@ -96551,7 +96552,7 @@ namespace Arm
 #if IL2CPP_ADVSIMD_IS_SUPPORTED
         // HAND EDITED: Using scalar calls and setting the second lane to zero
         float32x2_t ret = {};
-        ret = vset_lane_f32(abs(
+        ret = vset_lane_f32(fabsf(
             vget_lane_f32(INTRINSIC_CAST(TArg1, float32x2_t, arg1), 0)
             ), ret, 0);
         return INTRINSIC_CAST(
