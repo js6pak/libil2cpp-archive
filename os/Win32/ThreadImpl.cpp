@@ -134,7 +134,10 @@ namespace os
         HANDLE threadHandle = ::CreateThread(NULL, m_StackSize, &ThreadStartWrapper, startData, STACK_SIZE_PARAM_IS_A_RESERVATION, &threadId);
 
         if (!threadHandle)
+        {
+            free(startData);
             return kErrorCodeGenFailure;
+        }
 
 #if IL2CPP_TARGET_WINDOWS_GAMES
         if (affinityMask != Thread::kThreadAffinityAll)
