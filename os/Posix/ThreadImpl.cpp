@@ -97,11 +97,11 @@ namespace os
         // Create thread.
         pthread_t threadId;
         s = pthread_create(&threadId, &attr, &ThreadStartWrapper, this);
-        if (s)
-            return kErrorCodeGenFailure;
 
-        // Destroy thread attributes.
-        s = pthread_attr_destroy(&attr);
+        int destroyResult = pthread_attr_destroy(&attr);
+        IL2CPP_ASSERT(destroyResult == 0);
+        NO_UNUSED_WARNING(destroyResult);
+
         if (s)
             return kErrorCodeGenFailure;
 

@@ -7,6 +7,7 @@
 #include "os/ThreadLocalValue.h"
 #include "os/Time.h"
 #include "os/Semaphore.h"
+#include "vm/Class.h"
 #include "vm/Domain.h"
 #include "vm/Exception.h"
 #include "vm/Object.h"
@@ -250,9 +251,14 @@ namespace vm
 #endif
 
         // If an interrupt has been requested before the thread was started, re-request
-        // the interrupt now.
+        // the interrupt now so the APC is queued against the now-running OS thread.
+#if IL2CPP_TARGET_WINDOWS
         if (thread->interruption_requested)
             RequestInterrupt(thread);
+#else
+        if (thread->waitInfo != NULL)
+            RequestInterrupt(thread);
+#endif
     }
 
     void Thread::UninitializeManagedThread(Il2CppThread* thread)
@@ -654,13 +660,55 @@ namespace vm
         Thread::CheckCurrentThreadForInterruptAndThrowIfNecessary();
     }
 
+#if !IL2CPP_TARGET_WINDOWS
+    // On non-Windows targets the BCL's managed WaitSubsystem owns pending-interrupt state:
+    // pending interrupts are recorded in WaitSubsystem.ThreadWaitInfo._isPendingInterrupt
+    // before calling into us. Recording a second copy of that state in interruption_requested
+    // can cause issues if the interrupt is consumed entirely by the managed WaitSubsystem.
+    // Instead we reach into the managed record directly to check for pending interrupts.
+
+    static int32_t s_IsPendingInterruptFieldOffset = -1;
+
+    static bool CheckAndResetManagedPendingInterrupt(Il2CppThread* thread)
+    {
+        if (s_IsPendingInterruptFieldOffset < 0)
+            return false;
+
+        Il2CppObject* waitInfo = thread->waitInfo;
+        if (waitInfo == NULL)
+            return false; // Thread.WaitInfo allocates lazily; nothing can be pending yet.
+
+        uint8_t& pendingInterrupt = *(reinterpret_cast<uint8_t*>(waitInfo) + s_IsPendingInterruptFieldOffset);
+        uint8_t expected = 1;
+        return baselib::atomic_compare_exchange_strong(pendingInterrupt, expected, (uint8_t)0);
+    }
+
+#endif
+
+    void Thread::InitializeInterruptSupport()
+    {
+#if !IL2CPP_TARGET_WINDOWS
+        if (il2cpp_defaults.thread_wait_info_class)
+        {
+            FieldInfo* pendingInterruptField = vm::Class::GetFieldFromName(il2cpp_defaults.thread_wait_info_class, "_isPendingInterrupt");
+            if (pendingInterruptField != NULL)
+                s_IsPendingInterruptFieldOffset = pendingInterruptField->offset;
+        }
+#endif
+    }
+
     void Thread::RequestInterrupt(Il2CppThread* thread)
     {
         il2cpp::os::FastAutoLock lock(thread->longlived->synch_cs);
 
+#if IL2CPP_TARGET_WINDOWS
         thread->interruption_requested = true;
+#endif
 
-        // If thread has already been started, queue an interrupt now.
+        // Gating the APC queuing on kThreadStateWaitSleepJoin looks tempting, but it's a mistake.
+        // On non-Windows, that bit is set only inside Thread.Join and Monitor.Wait. Thread.Sleep
+        // and WaitHandle leave it clear, so gating would suppress the APC for every interrupt of
+        // a running thread and lose the interrupt entirely.
         il2cpp::os::Thread* osThread = thread->handle;
         if (osThread)
             osThread->QueueUserAPC(CheckCurrentThreadForInterruptCallback, NULL);
@@ -674,14 +722,21 @@ namespace vm
 
         il2cpp::os::FastAutoLock lock(currentThread->longlived->synch_cs);
 
-        // Don't throw if thread is not currently in waiting state or if there's
-        // no pending interrupt.
-        if (!currentThread->interruption_requested
-            || !(il2cpp::vm::Thread::GetState(currentThread) & il2cpp::vm::kThreadStateWaitSleepJoin))
+        // Don't throw if thread is not currently in waiting state. Only the internal-call waits
+        // set this bit; managed WaitSubsystem waits handle their own interruption.
+        if (!(il2cpp::vm::Thread::GetState(currentThread) & il2cpp::vm::kThreadStateWaitSleepJoin))
             return;
 
-        // Mark the current thread as being unblocked.
+#if IL2CPP_TARGET_WINDOWS
+        if (!currentThread->interruption_requested)
+            return;
         currentThread->interruption_requested = false;
+#else
+        if (!CheckAndResetManagedPendingInterrupt(currentThread))
+            return;
+#endif
+
+        // Mark the current thread as being unblocked.
         il2cpp::vm::Thread::ClrState(currentThread, il2cpp::vm::kThreadStateWaitSleepJoin);
 
         // Throw interrupt exception.

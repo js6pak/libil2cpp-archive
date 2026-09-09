@@ -867,6 +867,9 @@ namespace vm
         il2cpp::os::ErrorCode status = osThread->Run(&ThreadStart, startData);
         if (status != il2cpp::os::kErrorCodeSuccess)
         {
+            // ThreadStart releases startData, but it never ran.
+            delete startData->m_Semaphore;
+            gc::GarbageCollector::FreeFixed(startData);
             delete osThread;
             return NULL;
         }

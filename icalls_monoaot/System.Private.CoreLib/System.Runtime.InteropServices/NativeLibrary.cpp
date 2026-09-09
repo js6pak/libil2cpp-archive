@@ -25,7 +25,7 @@ namespace InteropServices
     {
         Baselib_ErrorState errorState = Baselib_ErrorState_Create();
         // the handle type below is a hack and needs to be handled in platform specific code.
-        Baselib_DynamicLibrary_Handle baselibHandle = Baselib_DynamicLibrary_FromNativeHandle(handle, (Baselib_DynamicLibrary_NativeHandleType)1, &errorState);
+        Baselib_DynamicLibrary_Handle baselibHandle = Baselib_DynamicLibrary_FromNativeHandle(handle, 1, &errorState);
 
         DECLARE_IL2CPP_STRING_AS_STRING_VIEW_OF_NATIVE_CHARS(symbolNameNative, symbolName);
         auto symbolNameUtf8 = il2cpp::utils::StringUtils::NativeStringToUtf8(symbolNameNative.Str());
@@ -87,7 +87,7 @@ namespace InteropServices
     {
         Baselib_ErrorState errorState = Baselib_ErrorState_Create();
         // the handle type below is a hack and needs to be handled in platform specific code.
-        Baselib_DynamicLibrary_Handle baselibHandle = Baselib_DynamicLibrary_FromNativeHandle(handle, (Baselib_DynamicLibrary_NativeHandleType)1, &errorState);
+        Baselib_DynamicLibrary_Handle baselibHandle = Baselib_DynamicLibrary_FromNativeHandle(handle, 1, &errorState);
 
         Baselib_DynamicLibrary_Close(baselibHandle);
     }
