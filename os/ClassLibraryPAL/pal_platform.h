@@ -49,6 +49,21 @@
 #ifndef readlink_
 #define readlink_ readlink
 #endif
+#ifndef rename_
+#define rename_ rename
+#endif
+#ifndef unlink_
+#define unlink_ unlink
+#endif
+#ifndef mkdir_
+#define mkdir_ mkdir
+#endif
+#ifndef rmdir_
+#define rmdir_ rmdir
+#endif
+#ifndef opendir_
+#define opendir_ opendir
+#endif
 #ifndef geteuid_
 #define geteuid_ geteuid
 #endif
